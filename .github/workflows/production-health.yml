@@ -1,0 +1,190 @@
+name: Production health
+
+# Read-only check of the live site. It never deploys, never writes, and never touches configuration:
+# one GET request to the public health endpoint. Requires HTTP 200, "ok": true and checks.database == "ok".
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 * * * *" # hourly
+
+permissions:
+  contents: read
+
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      HEALTH_URL: https://www.regaplatform.com/api/v1/health
+    steps:
+      - name: Diagnostics (read-only, never fails the job)
+        shell: bash
+        run: |
+          # Compare what the runner sees for a few public URLs and two user agents, to tell apart
+          # "site down" from "response depends on the request" (UA / Accept / cache / path).
+          UA_CI="rega-ci-health-check/1.0 (+github-actions)"
+          UA_BROWSER="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0 Safari/537.36"
+          for url in https://www.regaplatform.com/ https://www.regaplatform.com/robots.txt https://www.regaplatform.com/ckb https://www.regaplatform.com/ckb/ https://www.regaplatform.com/api/v1/health https://regaplatform.com/ckb; do
+            for ua in "$UA_CI" "$UA_BROWSER"; do
+              code=$(curl -sS -m 20 -A "$ua" -H 'Accept: application/json, text/html;q=0.8' -D /tmp/h.txt -o /tmp/b.txt -w '%{http_code}' "$url" || echo 000)
+              printf 'location=%s  ' "$(grep -i '^location:' /tmp/h.txt | tr -d '\r' | cut -d' ' -f2)"
+              printf '%s  UA=%.12s  -> HTTP %s  server=%s  cf-cache=%s  ctype=%s  bytes=%s\n' "$url" "$ua" "$code" \
+                "$(grep -i '^server:' /tmp/h.txt | tr -d '\r' | cut -d' ' -f2)" "$(grep -i '^cf-cache-status:' /tmp/h.txt | tr -d '\r' | cut -d' ' -f2)" \
+                "$(grep -i '^content-type:' /tmp/h.txt | tr -d '\r' | cut -d' ' -f2-)" "$(wc -c < /tmp/b.txt)"
+            done
+          done
+          echo "--- body of /api/v1/health (browser UA, first 300 bytes)"
+          curl -sS -m 20 -A "$UA_BROWSER" "https://www.regaplatform.com/api/v1/health" | head -c 300; echo
+        continue-on-error: true
+
+      - name: GET /api/v1/health (up to 5 attempts)
+        shell: bash
+        run: |
+          set -u
+          for attempt in 1 2 3 4 5; do
+            code=$(curl -sS -m 20 -A "rega-ci-health-check/1.0 (+github-actions)" \
+              -D headers.txt -o body.json -w '%{http_code}' "$HEALTH_URL" || echo "000")
+            echo "attempt $attempt: HTTP $code"
+            if [ "$code" = "200" ]; then break; fi
+            sleep 15
+          done
+
+          if [ "$code" != "200" ]; then
+            echo "::error::Health check returned HTTP $code (not 200)."
+            echo "--- response headers (identifies which layer answered) ---"
+            grep -iE '^(HTTP|server|cf-ray|cf-mitigated|content-type|location|www-authenticate)' headers.txt || true
+            if grep -qi '^cf-mitigated' headers.txt; then
+              echo "Cloudflare blocked or challenged this request (WAF / bot protection); the application was not reached."
+            elif grep -qi '^server: cloudflare' headers.txt && [ "$code" = "403" ]; then
+              echo "403 from Cloudflare's edge (likely a WAF / security rule for GitHub runner IPs); the Worker did not answer."
+            fi
+            echo "--- body (first 300 bytes) ---"; head -c 300 body.json || true; echo
+            exit 1
+          fi
+
+          echo "--- health response ---"; cat body.json; echo
+          ok=$(jq -r '.ok' body.json)
+          db=$(jq -r '.checks.database' body.json)
+          if [ "$ok" != "true" ] || [ "$db" != "ok" ]; then
+            echo "::error::Unhealthy: ok=$ok database=$db"
+            exit 1
+          fi
+          echo "Production health: HTTP 200, ok=true, database=ok"
+
+      - name: Smoke test (key routes, read-only)
+        if: always() # a failing health gate must not hide route/SEO results
+        shell: bash
+        run: |
+          set -u
+          base=https://www.regaplatform.com
+          UA="rega-ci-smoke-test/1.0 (+github-actions)"
+          fail=0
+          check() { # path, expected status, optional grep pattern for the body
+            code=$(curl -sS -m 25 -A "$UA" -o /tmp/body.txt -w '%{http_code}' "$base$1" || echo 000)
+            if [ "$code" != "$2" ]; then echo "FAIL $1 -> HTTP $code (expected $2)"; fail=1; return; fi
+            if [ -n "${3:-}" ] && ! grep -qiE "$3" /tmp/body.txt; then echo "FAIL $1 -> body does not match /$3/"; fail=1; return; fi
+            echo "ok   $1 -> $code"
+          }
+          check /ckb 200 'dir="rtl"'
+          check /de 200 'lang="de'
+          check /de/businesses 200 '<h1'
+          check /de/services 200 '<h1'
+          check /de/locations 200 '<h1'
+          check /de/search 200 '<form'
+          check /de/login 200 'type="password"'
+          check /de/ai 200 '<h1'
+          check /robots.txt 200 'Sitemap'
+          check /sitemap.xml 200 '<urlset'
+          check /de/does-not-exist 404
+          check /api/v1/search 200 '"ok":true'
+          check /de/nearby 200 'In der N'
+          check /ckb/nearby 200 'dir="rtl"'
+          check '/api/v1/nearby?lat=52.52&lng=13.405&radius=10' 200 '"ok":true'
+          check '/api/v1/nearby?lat=999&lng=0' 422
+          # protected endpoints must reject anonymous callers
+          code=$(curl -sS -m 25 -A "$UA" -X POST -H 'content-type: application/json' -d '{}' -o /dev/null -w '%{http_code}' "$base/api/v1/businesses" || echo 000)
+          if [ "$code" = "401" ]; then echo "ok   POST /api/v1/businesses (anonymous) -> 401"; else echo "FAIL anonymous POST /api/v1/businesses -> $code (expected 401)"; fail=1; fi
+          code=$(curl -sS -m 25 -A "$UA" -o /dev/null -w '%{http_code}' "$base/dr" || echo 000)
+          echo "info /dr (anonymous) -> $code (expected a redirect to login)"
+          exit $fail
+
+      - name: Canonical host redirects and SEO (read-only)
+        if: always()
+        shell: bash
+        run: |
+          set -u
+          UA="rega-ci-smoke-test/1.0 (+github-actions)"
+          fail=0
+          hop() { # url -> prints "status location"
+            curl -sS -m 25 -A "$UA" -o /dev/null -D /tmp/h.txt -w '%{http_code}' "$1" | tr -d '\n'
+            printf ' %s' "$(grep -i '^location:' /tmp/h.txt | tr -d '\r' | cut -d' ' -f2)"
+          }
+          expect() { # label, actual, expected
+            if [ "$2" = "$3" ]; then echo "ok   $1 -> $2"; else echo "FAIL $1 -> '$2' (expected '$3')"; fail=1; fi
+          }
+          # apex -> www: exactly one 301 hop that keeps the path
+          for p in / /de /ckb /en "/de/businesses?q=x"; do
+            expect "apex $p" "$(hop "https://regaplatform.com$p")" "301 https://www.regaplatform.com$p"
+          done
+          # www is served directly (no redirect to itself or to the apex); "/" only does the locale redirect to /ckb
+          for p in /de /ckb /en /de/businesses /robots.txt /sitemap.xml; do
+            expect "www $p" "$(hop "https://www.regaplatform.com$p" | sed 's/ $//')" "200"
+          done
+          expect "www /" "$(hop https://www.regaplatform.com/)" "307 /ckb"
+          # full chain from the apex, following redirects: must end on www with 200 in at most 3 hops
+          curl -sS -m 30 -A "$UA" -L --max-redirs 5 -o /dev/null -w 'chain: %{num_redirects} redirect(s), final %{url_effective} -> HTTP %{http_code}\n' https://regaplatform.com/ | tee /tmp/chain.txt
+          grep -q 'final https://www.regaplatform.com/ckb -> HTTP 200' /tmp/chain.txt || { echo "FAIL apex chain"; fail=1; }
+          # HTTP -> HTTPS
+          code=$(curl -sS -m 25 -A "$UA" -o /dev/null -w '%{http_code}' http://www.regaplatform.com/de || echo 000)
+          echo "info http://www /de -> $code (expected 301/308 to https, or 200 when Always-HTTPS is off)"
+          # SEO head, sitemap, robots
+          for l in ckb de en; do
+            html=$(curl -sS -m 25 -A "$UA" "https://www.regaplatform.com/$l/businesses")
+            for needle in "rel=\"canonical\" href=\"https://www.regaplatform.com/$l/businesses\"" 'property="og:image"' 'name="twitter:card"' 'hrefLang="x-default"'; do
+              if grep -qF -- "$needle" <<<"$html"; then echo "ok   /$l/businesses has $needle"; else echo "FAIL /$l/businesses missing $needle"; fail=1; fi
+            done
+          done
+          home=$(curl -sS -m 25 -A "$UA" https://www.regaplatform.com/en)
+          grep -qF '"@type":"Organization"' <<<"$home" && echo "ok   /en Organization JSON-LD" || { echo "FAIL /en Organization JSON-LD"; fail=1; }
+          grep -q '<html lang="en"' <<<"$home" && echo "ok   /en lang=en" || { echo "FAIL /en lang"; fail=1; }
+          curl -sS -m 25 -A "$UA" https://www.regaplatform.com/sitemap.xml -o /tmp/sm.xml
+          grep -c '<loc>' /tmp/sm.xml | xargs echo "sitemap <loc> count:"
+          grep -q '<loc>https://www.regaplatform.com/en</loc>' /tmp/sm.xml && echo "ok   sitemap lists /en" || { echo "FAIL sitemap lacks /en"; fail=1; }
+          grep -qE 'https?://(localhost|regaplatform\.com/)' /tmp/sm.xml && { echo "FAIL sitemap has a non-canonical host"; fail=1; } || echo "ok   sitemap uses only the canonical host"
+          curl -sS -m 25 -A "$UA" https://www.regaplatform.com/robots.txt | grep -q 'Sitemap: https://www.regaplatform.com/sitemap.xml' && echo "ok   robots sitemap line" || { echo "FAIL robots"; fail=1; }
+          exit $fail
+
+      - name: Official brand assets and About page (read-only)
+        if: always()
+        shell: bash
+        run: |
+          set -u
+          fail=0
+          for p in /brand/rega-logo.webp /brand/rega-mark-256.webp /brand/rega-wordmark.webp /icon.png /apple-icon.png /opengraph-image.png /manifest.webmanifest; do
+            code=$(curl -sS -m 25 -o /dev/null -w '%{http_code}' "https://www.regaplatform.com$p" || echo 000)
+            [ "$code" = "200" ] && echo "ok   $p -> 200" || { echo "FAIL $p -> $code"; fail=1; }
+          done
+          home=$(curl -sS -m 25 https://www.regaplatform.com/ckb)
+          grep -qF '/brand/rega-mark-256.webp' <<<"$home" && echo "ok   header uses the official logo" || { echo "FAIL header logo"; fail=1; }
+          about=$(curl -sS -m 25 -o /tmp/about.html -w '%{http_code}' https://www.regaplatform.com/ckb/about)
+          [ "$about" = "200" ] && grep -qF 'دەربارەی ڕێگا (REGA)' /tmp/about.html && echo "ok   /ckb/about approved text" || { echo "FAIL /ckb/about ($about)"; fail=1; }
+          exit $fail
+
+      - name: Security headers and access control (read-only)
+        if: always()
+        shell: bash
+        run: |
+          set -u
+          fail=0
+          curl -sS -m 25 -D /tmp/sh.txt -o /dev/null https://www.regaplatform.com/de
+          for h in 'content-security-policy:' 'strict-transport-security:' 'x-content-type-options: nosniff' 'x-frame-options: DENY' 'referrer-policy:' 'permissions-policy:'; do
+            grep -qi "^$h" /tmp/sh.txt && echo "ok   header $h" || { echo "FAIL missing header $h"; fail=1; }
+          done
+          grep -qi '^x-powered-by:' /tmp/sh.txt && { echo "FAIL x-powered-by exposed"; fail=1; } || echo "ok   no x-powered-by"
+          for p in /api/v1/businesses /api/v1/categories /api/v1/locations /api/v1/businesses/bulk /api/v1/media/upload-url; do
+            code=$(curl -sS -m 25 -X POST -H 'content-type: application/json' -d '{}' -o /dev/null -w '%{http_code}' "https://www.regaplatform.com$p" || echo 000)
+            [ "$code" = "401" ] && echo "ok   anonymous POST $p -> 401" || { echo "FAIL anonymous POST $p -> $code"; fail=1; }
+          done
+          code=$(curl -sS -m 25 -o /dev/null -w '%{http_code}' https://www.regaplatform.com/dr/ai || echo 000)
+          [ "$code" = "307" ] && echo "ok   /dr/ai (anonymous) -> 307 login" || { echo "FAIL /dr/ai -> $code"; fail=1; }
+          exit $fail
