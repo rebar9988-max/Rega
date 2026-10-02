@@ -21,7 +21,7 @@ export async function GET() {
     const rows = await prisma.$queryRaw<{ count: bigint }[]>`SELECT count(*) FROM "_prisma_migrations"`;
     migrations = Number(rows[0]?.count ?? 0) > 0;
     const columns = await prisma.$queryRaw<{ table_name: string; column_name: string }[]>`
-      SELECT table_name, column_name FROM information_schema.columns
+      SELECT table_name::text AS table_name, column_name::text AS column_name FROM information_schema.columns
       WHERE table_schema = 'public' AND table_name IN ('City', 'Page', 'PageTranslation', 'Listing', 'ListingTranslation')`;
     contentColumns = contentColumnsReady(columns);
   } catch {

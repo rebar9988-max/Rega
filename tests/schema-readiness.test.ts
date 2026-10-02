@@ -1,6 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { Prisma } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { assertSafeDatabase } from "./e2e/global-setup";
 import { readFileSync } from "node:fs";
 import { runInNewContext } from "node:vm";
 import ts from "typescript";
@@ -17,15 +19,13 @@ test("content readiness detects the observed missing tables and City column", ()
   assert.equal(contentColumnsReady([]), false);
 });
 
-test("health returns 503 for schema drift despite a working connection and migration history", async () => {
+function loadHealth(prisma: unknown) {
   const compiled = ts.transpileModule(readFileSync(new URL("../src/app/api/v1/health/route.ts", import.meta.url), "utf8"), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
   }).outputText;
-  for (const schema of [columns, columns.filter((r) => r.table_name !== "Listing"), []]) {
-    let queries = 0;
     const modules: Record<string, unknown> = {
       "next/server": { NextResponse: { json: (body: unknown, options: unknown) => ({ body, options }) } },
-      "@/lib/db": { prisma: { $queryRaw: async () => (++queries === 1 ? [{ value: 1 }] : queries === 2 ? [{ count: 1n }] : schema) } },
+      "@/lib/db": { prisma },
       "@/lib/env": { isStorageConfigured: () => false },
       "@/lib/ai": { isAiConfigured: () => false, providerCatalog: () => [] },
       "@/lib/email": { emailEnabled: () => false },
@@ -36,13 +36,32 @@ test("health returns 503 for schema drift despite a working connection and migra
       if (!(name in modules)) throw new Error(`Unexpected import ${name}`);
       return modules[name];
     } });
-    const result = await exports.GET!();
+    return exports.GET!;
+}
+
+test("health returns 503 for schema drift despite a working connection and migration history", async () => {
+  for (const schema of [columns, columns.filter((r) => r.table_name !== "Listing"), []]) {
+    let queries = 0;
+    const result = await loadHealth({ $queryRaw: async () => (++queries === 1 ? [{ value: 1 }] : queries === 2 ? [{ count: 1n }] : schema) })();
     const ready = schema === columns;
     assert.equal(result.body.checks.database, "ok");
     assert.equal(result.body.ok, ready);
     assert.equal(result.body.checks.contentColumns, ready);
     assert.equal(result.options.status, ready ? 200 : 503);
     assert.equal(result.options.headers["cache-control"], "no-store");
+  }
+});
+
+test("health is ready on real migrated test PostgreSQL through the Prisma adapter", { skip: !process.env.DATABASE_URL }, async () => {
+  await assertSafeDatabase(process.env.DATABASE_URL!);
+  const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }) });
+  try {
+    const result = await loadHealth(prisma)();
+    assert.equal(result.body.checks.database, "ok");
+    assert.equal(result.body.checks.contentColumns, true);
+    assert.equal(result.options.status, 200);
+  } finally {
+    await prisma.$disconnect();
   }
 });
 
