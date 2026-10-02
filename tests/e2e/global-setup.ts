@@ -7,6 +7,7 @@ import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import bcrypt from "bcryptjs";
 import { startFakeAi } from "./fake-ai";
+import { isMissingBusinessTable } from "./database-safety";
 
 export const ADMIN = { email: "admin@example.org", password: "correct-horse-battery" };
 export const EMPLOYEE = { email: "employee@example.org", password: "employee-pass-123" };
@@ -34,7 +35,7 @@ async function assertSafeDatabase(url: string) {
     if (real > 0) throw new Error(`E2E refused: the database contains ${real} published non-test businesses (looks like real data).`);
   } catch (error) {
     // A fresh database without tables is fine (migrations create them); anything else stops the run.
-    if (error instanceof Error && error.message.startsWith("E2E refused")) throw error;
+    if (!isMissingBusinessTable(error)) throw error;
   } finally {
     await probe.$disconnect();
   }
