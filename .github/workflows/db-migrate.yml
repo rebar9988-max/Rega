@@ -1,0 +1,93 @@
+name: Database migrate (production)
+
+# Manual, production-safe migration: `prisma migrate deploy` only applies committed, reviewed migrations
+# (additive: it never resets, drops or seeds). Needs the repository secret DIRECT_DATABASE_URL (or DATABASE_URL).
+# Secret values are masked by GitHub and never echoed by this workflow.
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "migrate" to apply pending migrations to the production database'
+        required: true
+      reset_admin_password:
+        description: 'Set the password of the existing SEED_ADMIN_EMAIL account from SEED_ADMIN_PASSWORD (nothing else changes)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+# Never run two migrations against production at once (they would fight over Prisma's advisory lock).
+concurrency:
+  group: db-migrate-production
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    # Production secrets are only used from the reviewed main branch, never from a feature branch.
+    if: inputs.confirm == 'migrate' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      # Migrations go through the direct (unpooled) URL; schema.prisma and the seed also need DATABASE_URL,
+      # so each falls back to the other when only one secret is configured.
+      DIRECT_DATABASE_URL: ${{ secrets.DIRECT_DATABASE_URL || secrets.DATABASE_URL }}
+      DATABASE_URL: ${{ secrets.DIRECT_DATABASE_URL || secrets.DATABASE_URL }}
+    steps:
+      - name: Database secret present?
+        run: |
+          if [ -z "$DIRECT_DATABASE_URL" ]; then
+            echo "::error::Repository secret DIRECT_DATABASE_URL (or DATABASE_URL) is not set; nothing was changed."
+            exit 1
+          fi
+      - name: Use the direct (unpooled) endpoint for migrations
+        # Prisma migrate takes a session-level advisory lock, which a transaction pooler (Neon "-pooler" host)
+        # cannot hold reliably. Neon's direct host is the pooled host without "-pooler". Values stay masked.
+        run: |
+          direct="${DIRECT_DATABASE_URL/-pooler./.}"
+          echo "::add-mask::$direct"
+          echo "DIRECT_DATABASE_URL=$direct" >> "$GITHUB_ENV"
+          if [ "$direct" != "$DIRECT_DATABASE_URL" ]; then echo "pooled host detected -> using the direct host for migrations"; else echo "direct host already configured"; fi
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - name: Pending migrations
+        run: npx prisma migrate status || true
+      - name: Apply (migrate deploy)
+        run: npx prisma migrate deploy || { echo "retrying once in 20s (advisory lock / cold start)"; sleep 20; npx prisma migrate deploy; }
+      - name: Status after
+        run: npx prisma migrate status
+      # Idempotent (upserts only): base categories + the first SUPER_ADMIN when SEED_ADMIN_EMAIL /
+      # SEED_ADMIN_PASSWORD repository secrets exist. An existing admin is only changed (password hash only) when
+      # reset_admin_password is ticked. Demo data is never created (NODE_ENV=production).
+      - name: Seed base data and first admin
+        env:
+          NODE_ENV: production
+          SEED_ADMIN_EMAIL: ${{ secrets.SEED_ADMIN_EMAIL }}
+          SEED_ADMIN_PASSWORD: ${{ secrets.SEED_ADMIN_PASSWORD }}
+          SEED_ADMIN_RESET_PASSWORD: ${{ inputs.reset_admin_password && '1' || '0' }}
+        run: npm run db:seed
+      - name: Connectivity check (Prisma)
+        run: |
+          cat > /tmp/ping.ts <<'TS'
+          import { PrismaClient } from "@prisma/client";
+          import { PrismaPg } from "@prisma/adapter-pg";
+          const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DIRECT_DATABASE_URL }) });
+          const [tables] = await Promise.all([prisma.$queryRaw<{ n: bigint }[]>`SELECT count(*)::bigint AS n FROM information_schema.tables WHERE table_schema = 'public'`]);
+          const trgm = await prisma.$queryRaw<{ n: bigint }[]>`SELECT count(*)::bigint AS n FROM pg_extension WHERE extname = 'pg_trgm'`;
+          console.log(`public tables: ${tables[0].n}, pg_trgm installed: ${trgm[0].n > 0n}`);
+          // Read-only location audit (counts only, no names or addresses).
+          const [a] = await prisma.$queryRaw<{ published: bigint; unpublished: bigint; missing: bigint; invalid: bigint; unverified: bigint }[]>`
+            SELECT count(*) FILTER (WHERE b.status = 'published') AS published,
+                   count(*) FILTER (WHERE b.status <> 'published') AS unpublished,
+                   count(*) FILTER (WHERE l.id IS NULL OR l.latitude IS NULL OR l.longitude IS NULL) AS missing,
+                   count(*) FILTER (WHERE l.latitude IS NOT NULL AND l.longitude IS NOT NULL AND (l.latitude NOT BETWEEN -90 AND 90 OR l.longitude NOT BETWEEN -180 AND 180 OR (l.latitude = 0 AND l.longitude = 0))) AS invalid,
+                   count(*) FILTER (WHERE l.latitude IS NOT NULL AND l."coordsVerifiedAt" IS NULL) AS unverified
+            FROM "Business" b LEFT JOIN "Location" l ON l."businessId" = b.id AND l."isPrimary" AND l."deletedAt" IS NULL
+            WHERE b."deletedAt" IS NULL`;
+          console.log(`businesses: published ${a.published}, not published ${a.unpublished}; locations: missing ${a.missing}, invalid ${a.invalid}, not confirmed ${a.unverified}`);
+          await prisma.$disconnect();
+          TS
+          cp /tmp/ping.ts ./ping.mts && npx tsx ./ping.mts
