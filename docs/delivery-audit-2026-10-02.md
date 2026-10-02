@@ -59,3 +59,16 @@ Recovery: هەر گۆڕانکارییەک لە branch ـی تایبەت review �
 - Windows sandbox subprocess بە EPERM و Google Fonts fetch بە ECONNREFUSED ڕاگیران؛ rerun ـی ڕێگەپێدراو سەرکەوتوو بوو. هیچ test یان CI gate لاواز نەکراوە.
 
 کارەکە تەواو نییە: Phase 2 runtime diagnosis و Phase 3–10 acceptance هێشتا ماون. merge/deploy ڕاگیراوە تا checks و پێوەرەکان پشتڕاست بکرێنەوە. recovery ـی ئەم patch ـە code-only revert ـە؛ database rollback پێویست نییە.
+
+## نوێکردنەوەی پشتڕاستکراو — 2026-10-02
+
+- Cloudflare login پشتڕاست کرا؛ Worker `rega-platform` runtime logs چالاکن. Deployment ـی 100% لە dashboard version `0e26514c`، main، Merge PR #38 پیشان دەدات؛ full commit SHA هێشتا نەخوێندراوەتەوە.
+- Runtime logs: `prisma.city.findMany()` بە missing column شکست دەهێنێت؛ `public.Page` و `public.Listing` table نیین. ئەمە schema mismatch ـی production پشتڕاست دەکاتەوە؛ missing migration یان wrong database هێشتا بە migration status جیا نەکراونەتەوە. هۆکاری CPU/1102 پشتڕاست نەکراوە.
+- هیچ runtime setting، credential، deployment یان production record نەگۆڕدراوە. دوو provider key لە dashboard وەک plaintext Variable دەرکەوتن؛ بەهاکان لێرە تۆمار ناکرێن. Credential rotation بە خاوەن ئەنجام بدرێت.
+- CI بۆ commit `6ae1d6238fd4527568f8fda528ecef847ff73274`: PostgreSQL migrations، lint، typecheck، unit، Node build، E2E و Cloudflare build/dry-run هەموو سەرکەوتوو بوون (run `37066754363`).
+- AI shared budget read ئەگەر شکست بهێنێت provider بانگ ناکرێت؛ empty retrieval وەڵامی بێ provider هەر هەیە. Concurrent budget reservations هێشتا atomic نین و لە scope ـی ئەم fix ـەدا چارەسەر نەکراون.
+- Database-dependent seed test هەمان production/remote guard ـی E2E بەکار دەهێنێت پێش نووسین؛ بە مۆڵەتی explicit remote test تەنها ژینگەی تاقیکردنەوە بەکاربهێنرێت.
+- Edge cache regression test بە clock و render gates جێگیر کرا؛ assertion ـی newer flight/COALESCED پارێزراوە، runtime implementation نەگۆڕدراوە.
+- Latest local unit: 177 passed، 0 failed، 1 database-dependent skip؛ total 178. Final CI بۆ ئەم additions ـانە پێویستە.
+- Production workflow `db-migrate.yml` هەروەها seed دەکات؛ بۆ migration-only نابێت بەبێ review بەکاربهێنرێت. Backup، read-only migration status، direct protected database access و explicit production approval پێویستن؛ هیچ backup availability فرض نەکراوە.
+- Cloudflare build detail `a82aed17-2dbd-40a8-b5d0-4251d7accccd` سەرچاوەی production ـی پشتڕاست کرد: **`rebar9988-max/rega-platform`**، commit `1d3d99c18f40518f8fc66ca3d72ec8e9ac5d640a`، build `npm run build`، deploy `npx wrangler deploy`. ئەمە بە repo ـی بەکارهێنەر `rebar9988-max/Rega` جیاوازە. PR #1 لە Rega production deployment ـی ئەم Worker ـە ناگۆڕێت. Target repository پێویستی بە ڕوونکردنەوە هەیە پێش merge/migration؛ integration نەگۆڕدراوە.

@@ -5,6 +5,7 @@ import pg from "pg";
 import { LOCALES } from "../src/config/locales";
 import { CATEGORIES } from "../prisma/seed-data/categories";
 import { CITIES, COUNTRIES, REGIONS } from "../prisma/seed-data/geography";
+import { assertSafeDatabase } from "./e2e/global-setup";
 
 test("seed data: 20 top-level categories with unique keys, an icon and a name in every locale", () => {
   assert.equal(CATEGORIES.length, 20);
@@ -37,6 +38,8 @@ test("seed data: required cities exist with slugs, valid coordinates, a known co
 
 // Needs the migrated database of CI / local development; skipped when none is configured.
 test("seeds are idempotent: running them twice changes nothing", { skip: !process.env.DATABASE_URL }, async () => {
+  // This test writes too: apply the same fail-closed production/content guard as E2E before running any seed.
+  await assertSafeDatabase(process.env.DATABASE_URL!);
   const counts = async () => {
     const client = new pg.Client({ connectionString: process.env.DATABASE_URL });
     await client.connect();

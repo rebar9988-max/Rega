@@ -20,7 +20,7 @@ const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1", "::1", "[::1]", "postgres
  * Refuses to touch anything that could be production. E2E seeds demo businesses and accounts with known passwords,
  * so it only runs against a local/throw-away database. Fails before any write; never cleans anything up.
  */
-async function assertSafeDatabase(url: string) {
+export async function assertSafeDatabase(url: string) {
   const envs = [process.env.APP_ENV, process.env.VERCEL_ENV];
   if (envs.some((e) => e === "production")) throw new Error("E2E refused: the environment is marked as production.");
   let host = "";

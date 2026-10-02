@@ -63,7 +63,9 @@ async function budgetAllows(): Promise<boolean> {
     const used = await prisma.aiUsageDaily.aggregate({ where: { day }, _sum: { requests: true } });
     return (used._sum.requests ?? 0) < serverEnv().AI_DAILY_LIMIT;
   } catch {
-    return true; // counting unavailable: the per-instance guard above still applies
+    // An isolate-local limit cannot enforce the shared budget when accounting is unavailable.
+    log.warn("ai.budget.unavailable");
+    return false;
   }
 }
 
