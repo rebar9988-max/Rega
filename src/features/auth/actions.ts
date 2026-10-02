@@ -27,7 +27,7 @@ async function sendVerification(user: { email: string; name: string | null }, lo
   const raw = await issueToken("verify", user.email, VERIFY_TOKEN_TTL_HOURS * 3_600_000);
   const t = await getTranslations({ locale, namespace: "emails" });
   const link = `${origin()}/${locale}/verify-email?${new URLSearchParams({ email: user.email, token: raw })}`;
-  await sendEmail({ to: user.email, subject: t("verifySubject"), text: t("verifyBody", { name: user.name ?? "", link, hours: VERIFY_TOKEN_TTL_HOURS }) });
+  return sendEmail({ to: user.email, subject: t("verifySubject"), text: t("verifyBody", { name: user.name ?? "", link, hours: VERIFY_TOKEN_TTL_HOURS }) });
 }
 
 const registerSchema = z.object({
@@ -64,7 +64,7 @@ export async function register(_prev: AuthFormState, formData: FormData): Promis
   const existing = await prisma.user.findFirst({ where: { email: address, deletedAt: null }, select: { id: true, name: true, email: true, emailVerified: true } });
   if (existing) {
     if (!mailing) return { status: "error", error: "failed", fields: ["email"] }; // shown as "already exists" (no mail channel to hide it in)
-    if (!existing.emailVerified) await sendVerification(existing, locale).catch((e) => log.error("auth.verify_mail_failed", { error: String(e) }));
+    if (!existing.emailVerified && !(await sendVerification(existing, locale))) return { status: "ok", detail: "unavailable" };
     return { status: "ok", detail: "verify" };
   }
 
@@ -87,8 +87,8 @@ export async function register(_prev: AuthFormState, formData: FormData): Promis
   }
   log.info("auth.registered", { userId: user.id, type: accountType, email: maskEmail(address) });
   if (mailing) {
-    await sendVerification(user, locale).catch((e) => log.error("auth.verify_mail_failed", { error: String(e) }));
-    return { status: "ok", detail: "verify" };
+    const delivered = await sendVerification(user, locale);
+    return { status: "ok", detail: delivered ? "verify" : "unavailable" };
   }
   return { status: "ok", detail: "unavailable" };
 }
@@ -114,8 +114,8 @@ export async function resendVerification(_prev: AuthFormState, formData: FormDat
   if (!(await allowShared("FORM_LIMITER", `resend:${user.id}`, 3, 3_600_000))) return { status: "error", error: "rate" };
   const row = await prisma.user.findFirst({ where: { id: user.id, deletedAt: null }, select: { email: true, name: true, emailVerified: true } });
   if (!row || row.emailVerified) return { status: "ok", detail: "done" };
-  await sendVerification(row, locale);
-  return { status: "ok", detail: "sent" };
+  const delivered = await sendVerification(row, locale);
+  return delivered ? { status: "ok", detail: "sent" } : { status: "error", error: "failed" };
 }
 
 const forgotSchema = z.object({ email, locale: localeField });
@@ -136,6 +136,7 @@ export async function forgotPassword(_prev: AuthFormState, formData: FormData): 
     const raw = await issueToken("reset", user.email, RESET_TOKEN_TTL_MINUTES * 60_000);
     const t = await getTranslations({ locale, namespace: "emails" });
     const link = `${origin()}/${locale}/reset-password?${new URLSearchParams({ email: user.email, token: raw })}`;
+    // Keep the same response for existing and unknown addresses: a provider outage must not expose account existence.
     await sendEmail({ to: user.email, subject: t("resetSubject"), text: t("resetBody", { name: user.name ?? "", link, minutes: RESET_TOKEN_TTL_MINUTES }) });
   }
   return { status: "ok", detail: "sent" };

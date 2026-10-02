@@ -3,6 +3,8 @@
 import openNext from "./.open-next/worker.js";
 import { withEdgeCache } from "./src/lib/edge-cache";
 
-export default {
+const worker = {
   fetch: withEdgeCache((request, env, ctx) => openNext.fetch(request, env, ctx)),
 };
+
+export default worker;

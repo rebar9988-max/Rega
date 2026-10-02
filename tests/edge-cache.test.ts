@@ -322,26 +322,49 @@ test("entries are removed after normal completion, a non-cacheable response and 
   delete (globalThis as unknown as { caches?: unknown }).caches;
 });
 
-test("an older render finishing after expiry never removes the newer entry for the same key", async () => {
+test("an older render finishing after expiry never removes the newer entry for the same key", async (t) => {
   const { pending, ctx } = memoryCache();
+  let now = 0;
+  t.mock.method(Date, "now", () => now);
+  const gate = () => {
+    let resolve!: () => void;
+    const promise = new Promise<void>((done) => { resolve = done; });
+    return { promise, resolve };
+  };
+  const oldStarted = gate(), newerStarted = gate();
+  const finishOld = gate(), finishNewer = gate();
   let renders = 0;
   const h = withEdgeCache(async () => {
     renders++;
-    if (renders === 1) { await sleep(650); return html({}, 500); } // old leader: outlives its entry, not cacheable
-    await sleep(200);
+    if (renders === 1) {
+      oldStarted.resolve();
+      await finishOld.promise;
+      return html({}, 500);
+    }
+    newerStarted.resolve();
+    await finishNewer.promise;
     return html();
-  }, { coalesceWaitMs: 500 });
-
-  const old = h(req("/ckb/race"), {}, ctx); // t=0, entry expires at 500
-  await sleep(520);
-  const newer = h(req("/ckb/race"), {}, ctx); // t≈520: leads with a new entry (expires ≈1020), done ≈720
-  await old; // t≈650: the old render ends; it must not remove the newer entry
-  await sleep(50);
-  const late = await h(req("/ckb/race"), {}, ctx); // t≈700: waits for the newer render
-  assert.equal((await newer).headers.get(CACHE_HEADER), "MISS");
-  assert.equal(late.headers.get(CACHE_HEADER), "COALESCED");
-  assert.equal(renders, 2);
-  await Promise.all(pending);
-  assert.equal(inFlightCount(), 0);
-  delete (globalThis as unknown as { caches?: unknown }).caches;
+  }, { coalesceWaitMs: 10_000 });
+  try {
+    const old = h(req("/ckb/race"), {}, ctx);
+    await oldStarted.promise;
+    now = 10_001;
+    const newer = h(req("/ckb/race"), {}, ctx);
+    await newerStarted.promise;
+    finishOld.resolve();
+    assert.equal((await old).headers.get(CACHE_HEADER), "BYPASS");
+    assert.equal(inFlightCount(), 1);
+    const late = h(req("/ckb/race"), {}, ctx);
+    await new Promise<void>((resolve) => setImmediate(resolve));
+    finishNewer.resolve();
+    assert.equal((await newer).headers.get(CACHE_HEADER), "MISS");
+    assert.equal((await late).headers.get(CACHE_HEADER), "COALESCED");
+    assert.equal(renders, 2);
+    await Promise.all(pending);
+    assert.equal(inFlightCount(), 0);
+  } finally {
+    finishOld.resolve();
+    finishNewer.resolve();
+    delete (globalThis as unknown as { caches?: unknown }).caches;
+  }
 });

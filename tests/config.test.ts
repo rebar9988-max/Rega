@@ -59,7 +59,7 @@ test("no source file outside config/ and messages/ hard-codes the locale list", 
   const walk = (dir: string) => {
     for (const f of readdirSync(dir)) {
       const p = join(dir, f);
-      if (statSync(p).isDirectory()) { if (!/(^|\/)(messages|config)$/.test(p)) walk(p); continue; }
+      if (statSync(p).isDirectory()) { if (f !== "messages" && f !== "config") walk(p); continue; }
       if (!/\.(ts|tsx)$/.test(f)) continue;
       const text = readFileSync(p, "utf8");
       if (/["']ckb["']\s*,\s*["']kmr["']\s*,\s*["']de["']/.test(text)) offenders.push(p);
