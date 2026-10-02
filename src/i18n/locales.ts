@@ -1,0 +1,169 @@
+/**
+ * Localization — seven locales, RTL-aware.
+ * Kurdish Sorani (ckb) is a first-class default locale, not a translation layer.
+ */
+export const LOCALES = ["ckb", "kmr", "de", "en", "ar", "fa", "tr"] as const;
+export type Locale = (typeof LOCALES)[number];
+
+export const DEFAULT_LOCALE: Locale = "ckb";
+
+
+/**
+ * Writing system of a locale's UI text. Direction is DERIVED from it (Arabic script => RTL),
+ * so direction can never drift from the actual content of a message catalogue.
+ * To add Arabic-script Badini later: add a locale with `script: "arab"`; nothing else changes.
+ */
+export type Script = "arab" | "latn";
+
+export type LocaleMeta = {
+  code: Locale;
+  script: Script;
+  /** Name in its own script */
+  nativeName: string;
+  /** Short code shown on the language switcher trigger */
+  short: string;
+  englishName: string;
+  dir: "rtl" | "ltr";
+  /** BCP-47 tag used for <html lang>, Intl.DateTimeFormat and Intl.NumberFormat */
+  htmlLang: string;
+  /** Digits rendering: Arabic-Indic for ar, extended Arabic-Indic for ckb/kmr */
+  numberingSystem: "latn" | "arab" | "arabext";
+  fontStack: string;
+  dateFormat: string;
+  currency: string;
+};
+
+type RawLocaleMeta = Omit<LocaleMeta, "dir">;
+
+const RAW_LOCALE_META: Record<Locale, RawLocaleMeta> = {
+  ckb: {
+    code: "ckb",
+    short: "CKB",
+    script: "arab",
+    nativeName: "کوردیی ناوەندی",
+    englishName: "Kurdish (Sorani)",
+    htmlLang: "ckb-IQ",
+    numberingSystem: "arabext",
+    fontStack: "'Vazirmatn Variable', 'Segoe UI', Tahoma, sans-serif",
+    dateFormat: "DD/MM/YYYY",
+    currency: "IQD",
+  },
+  kmr: {
+    code: "kmr",
+    short: "KU",
+    script: "latn",
+    nativeName: "Kurmancî",
+    englishName: "Kurdish (Badini/Kurmanji)",
+    // The kmr catalogue is Latin (Hawar) script, therefore LTR.
+    htmlLang: "kmr-TR",
+    numberingSystem: "latn",
+    fontStack: "'Inter', 'Segoe UI', system-ui, sans-serif",
+    dateFormat: "DD.MM.YYYY",
+    currency: "EUR",
+  },
+  de: {
+    code: "de",
+    short: "DE",
+    script: "latn",
+    nativeName: "Deutsch",
+    englishName: "German",
+    htmlLang: "de-DE",
+    numberingSystem: "latn",
+    fontStack: "'Inter', 'Segoe UI', system-ui, sans-serif",
+    dateFormat: "DD.MM.YYYY",
+    currency: "EUR",
+  },
+  en: {
+    code: "en",
+    short: "EN",
+    script: "latn",
+    nativeName: "English",
+    englishName: "English",
+    htmlLang: "en",
+    numberingSystem: "latn",
+    fontStack: "'Inter', 'Segoe UI', system-ui, sans-serif",
+    dateFormat: "DD/MM/YYYY",
+    currency: "EUR",
+  },
+  ar: {
+    code: "ar",
+    short: "AR",
+    script: "arab",
+    nativeName: "العربية",
+    englishName: "Arabic",
+    htmlLang: "ar",
+    numberingSystem: "arab",
+    fontStack: "'Vazirmatn Variable', 'Segoe UI', Tahoma, sans-serif",
+    dateFormat: "DD/MM/YYYY",
+    currency: "EUR",
+  },
+  fa: {
+    code: "fa",
+    short: "FA",
+    script: "arab",
+    nativeName: "فارسی",
+    englishName: "Persian (Farsi)",
+    htmlLang: "fa-IR",
+    numberingSystem: "arabext",
+    fontStack: "'Vazirmatn Variable', 'Segoe UI', Tahoma, sans-serif",
+    dateFormat: "YYYY/MM/DD",
+    currency: "EUR",
+  },
+  tr: {
+    code: "tr",
+    short: "TR",
+    script: "latn",
+    nativeName: "Türkçe",
+    englishName: "Turkish",
+    htmlLang: "tr-TR",
+    numberingSystem: "latn",
+    fontStack: "'Inter', 'Segoe UI', system-ui, sans-serif",
+    dateFormat: "DD.MM.YYYY",
+    currency: "EUR",
+  },
+};
+
+export const LOCALE_META: Record<Locale, LocaleMeta> = Object.fromEntries(
+  Object.entries(RAW_LOCALE_META).map(([code, meta]) => [code, { ...meta, dir: meta.script === "arab" ? "rtl" : "ltr" }]),
+) as Record<Locale, LocaleMeta>;
+
+export const RTL_LOCALES: Locale[] = LOCALES.filter((l) => LOCALE_META[l].dir === "rtl");
+
+export function dirOf(locale: string): "rtl" | "ltr" {
+  return (LOCALE_META as Record<string, LocaleMeta>)[locale]?.dir ?? "ltr";
+}
+
+export function isLocale(value: string): value is Locale {
+  return (LOCALES as readonly string[]).includes(value);
+}
+
+export function safeLocale(value: string | undefined | null): Locale {
+  return value && isLocale(value) ? value : DEFAULT_LOCALE;
+}
+
+/**
+ * Locale-aware date / number / currency formatting.
+ * Formatting happens on the server; the client receives already-localized strings
+ * so a missing font or ICU build on the device cannot break Kurdish output.
+ */
+export function formatDate(value: Date | string, locale: Locale, opts?: Intl.DateTimeFormatOptions) {
+  const meta = LOCALE_META[locale];
+  return new Intl.DateTimeFormat(`${meta.htmlLang}-u-nu-${meta.numberingSystem}`, {
+    dateStyle: "medium",
+    ...opts,
+  }).format(typeof value === "string" ? new Date(value) : value);
+}
+
+export function formatNumber(value: number, locale: Locale, opts?: Intl.NumberFormatOptions) {
+  const meta = LOCALE_META[locale];
+  return new Intl.NumberFormat(`${meta.htmlLang}-u-nu-${meta.numberingSystem}`, opts).format(value);
+}
+
+export function formatCurrency(value: number, locale: Locale, currency?: string) {
+  const meta = LOCALE_META[locale];
+  return new Intl.NumberFormat(`${meta.htmlLang}-u-nu-${meta.numberingSystem}`, {
+    style: "currency",
+    currency: currency ?? meta.currency,
+    maximumFractionDigits: 2,
+  }).format(value);
+}
