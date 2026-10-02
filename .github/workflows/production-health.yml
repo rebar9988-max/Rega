@@ -1,0 +1,40 @@
+name: Production health
+
+# TEMPORARY DIAGNOSTIC BRANCH (diag/ai-production-probe) — never merged, deleted after use.
+# Read-only: GET requests, plus one POST with a deliberately malformed body to /api/v1/ai/chat that is rejected
+# (feature flag 503 or JSON 400) before any AI provider is called. No secrets are used or printed.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: AI assistant probe (read-only, results as annotations)
+        shell: bash
+        run: |
+          set -u
+          base=https://www.regaplatform.com
+          UA="rega-ci-health-check/1.0 (+github-actions)"
+          note() { echo "::notice title=$1::$2"; }
+          # 1. Who serves the site (DNS + response headers; header names/values are public)
+          note "dns www" "$(dig +short www.regaplatform.com A | tr '\n' ' ') | CNAME: $(dig +short www.regaplatform.com CNAME | tr '\n' ' ')"
+          note "dns apex" "$(dig +short regaplatform.com A | tr '\n' ' ') | NS: $(dig +short regaplatform.com NS | tr '\n' ' ')"
+          for p in /de/ai /api/v1/health; do
+            code=$(curl -sS -m 25 -A "$UA" -D h.txt -o b.txt -w '%{http_code}' "$base$p" || echo 000)
+            hdr=$(grep -iE '^(server|cf-ray|cf-cache-status|x-vercel-id|x-vercel-cache|x-rega-cache|x-powered-by|x-opennext|x-nextjs-cache|via):' h.txt | tr -d '\r' | tr '\n' ' ')
+            note "headers $p" "HTTP $code | $hdr"
+          done
+          # 2. Health report (booleans and counts only, never names or values)
+          note "health body" "$(head -c 900 b.txt)"
+          # 3. Feature flag state, without calling any provider: an invalid JSON body is rejected either by the flag
+          #    check (503 feature_disabled) or by the JSON parser (400 invalid_json) before the gateway runs.
+          code=$(curl -sS -m 25 -A "$UA" -X POST -H 'content-type: application/json' --data '{' -o p.txt -w '%{http_code}' "$base/api/v1/ai/chat" || echo 000)
+          note "ai chat flag probe" "HTTP $code | $(head -c 300 p.txt)"
+          # 4. History endpoint (no provider call): confirms the route is reachable
+          code=$(curl -sS -m 25 -A "$UA" -o g.txt -w '%{http_code}' "$base/api/v1/ai/chat?sessionId=diagprobe0001" || echo 000)
+          note "ai history probe" "HTTP $code | $(head -c 200 g.txt)"
