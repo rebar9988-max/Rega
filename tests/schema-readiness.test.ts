@@ -7,6 +7,7 @@ import { readFileSync } from "node:fs";
 import { runInNewContext } from "node:vm";
 import ts from "typescript";
 import { contentColumnsReady, REQUIRED_CONTENT_COLUMNS } from "../src/lib/schema-readiness";
+import { schemaRecoveryReport } from "../src/lib/schema-recovery-report";
 
 const columns = Object.entries(REQUIRED_CONTENT_COLUMNS).flatMap(([table_name, names]) => names.map((column_name) => ({ table_name, column_name })));
 
@@ -30,9 +31,10 @@ function loadHealth(prisma: unknown) {
       "@/lib/ai": { isAiConfigured: () => false, providerCatalog: () => [] },
       "@/lib/email": { emailEnabled: () => false },
       "@/lib/schema-readiness": { contentColumnsReady },
+      "@/lib/schema-recovery-report": { schemaRecoveryReport },
     };
     const exports: { GET?: () => Promise<{ body: { ok: boolean; checks: { database: string; contentColumns: boolean } }; options: { status: number; headers: Record<string, string> } }> } = {};
-    runInNewContext(compiled, { exports, Date, process: { env: { DATABASE_URL: "configured", AUTH_SECRET: "configured" } }, require: (name: string) => {
+    runInNewContext(compiled, { exports, Date, console: { info: () => undefined, warn: () => undefined }, process: { env: { DATABASE_URL: "configured", AUTH_SECRET: "configured" } }, require: (name: string) => {
       if (!(name in modules)) throw new Error(`Unexpected import ${name}`);
       return modules[name];
     } });
@@ -71,5 +73,30 @@ test("content readiness column requirements match generated Prisma scalar fields
     assert.ok(model, table);
     const expected = model.fields.filter((f) => f.kind !== "object").map((f) => f.dbName ?? f.name);
     assert.deepEqual([...names].sort(), expected.sort(), table);
+  }
+});
+
+test("real Prisma migration metadata can diagnose drift without changing health semantics", { skip: !process.env.DATABASE_URL }, async () => {
+  await assertSafeDatabase(process.env.DATABASE_URL!);
+  const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }) });
+  let historyRead = false;
+  try {
+    const result = await loadHealth({ $queryRaw: async (query: TemplateStringsArray) => {
+      const rows = await prisma.$queryRaw<Record<string, unknown>[]>(query);
+      if (query.join("").includes("information_schema.columns")) return rows.filter((r) => r.table_name !== "Page");
+      if (query.join("").includes("SELECT migration_name")) {
+        historyRead = true;
+        assert.ok(rows.length > 0);
+        assert.equal(typeof rows[0].finished, "boolean");
+        assert.equal(typeof rows[0].rolled_back, "boolean");
+      }
+      return rows;
+    } })();
+    assert.equal(historyRead, true);
+    assert.equal(result.options.status, 503);
+    assert.equal(result.body.checks.database, "ok");
+    assert.ok(!JSON.stringify(result.body).includes("migration_name"));
+  } finally {
+    await prisma.$disconnect();
   }
 });

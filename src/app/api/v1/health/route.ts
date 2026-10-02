@@ -5,9 +5,11 @@ import { isStorageConfigured } from "@/lib/env";
 import { isAiConfigured, providerCatalog } from "@/lib/ai";
 import { emailEnabled } from "@/lib/email";
 import { contentColumnsReady } from "@/lib/schema-readiness";
+import { schemaRecoveryReport } from "@/lib/schema-recovery-report";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+let nextRecoveryReportAt = 0;
 
 export async function GET() {
   const started = Date.now();
@@ -24,6 +26,18 @@ export async function GET() {
       SELECT table_name::text AS table_name, column_name::text AS column_name FROM information_schema.columns
       WHERE table_schema = 'public' AND table_name IN ('City', 'Page', 'PageTranslation', 'Listing', 'ListingTranslation')`;
     contentColumns = contentColumnsReady(columns);
+    // Private logs diagnose the configured database without retrieving its secret. Public output stays boolean.
+    if (!contentColumns && Date.now() >= nextRecoveryReportAt) {
+      nextRecoveryReportAt = Date.now() + 300_000;
+      try {
+        const history = await prisma.$queryRaw<{ migration_name: string; finished: boolean; rolled_back: boolean }[]>`
+          SELECT migration_name, finished_at IS NOT NULL AS finished, rolled_back_at IS NOT NULL AS rolled_back
+          FROM "_prisma_migrations"`;
+        console.info("REGA_DATABASE_PREFLIGHT", JSON.stringify(schemaRecoveryReport(columns, history, process.env.DATABASE_URL)));
+      } catch {
+        console.warn("REGA_DATABASE_PREFLIGHT unavailable");
+      }
+    }
   } catch {
     database = "error";
   }
