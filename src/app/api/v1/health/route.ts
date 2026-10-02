@@ -30,8 +30,8 @@ export async function GET() {
     if (!contentColumns && Date.now() >= nextRecoveryReportAt) {
       nextRecoveryReportAt = Date.now() + 300_000;
       try {
-        const history = await prisma.$queryRaw<{ migration_name: string; finished: boolean; rolled_back: boolean }[]>`
-          SELECT migration_name, finished_at IS NOT NULL AS finished, rolled_back_at IS NOT NULL AS rolled_back
+        const history = await prisma.$queryRaw<{ migration_name: string; checksum: string; finished: boolean; rolled_back: boolean }[]>`
+          SELECT migration_name, checksum, finished_at IS NOT NULL AS finished, rolled_back_at IS NOT NULL AS rolled_back
           FROM "_prisma_migrations"`;
         console.info("REGA_DATABASE_PREFLIGHT", JSON.stringify(schemaRecoveryReport(columns, history, process.env.DATABASE_URL)));
       } catch {

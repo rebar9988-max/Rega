@@ -89,6 +89,7 @@ test("real Prisma migration metadata can diagnose drift without changing health 
         assert.ok(rows.length > 0);
         assert.equal(typeof rows[0].finished, "boolean");
         assert.equal(typeof rows[0].rolled_back, "boolean");
+        assert.match(String(rows[0].checksum), /^[a-f0-9]{64}$/);
       }
       return rows;
     } })();
