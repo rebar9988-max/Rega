@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>REGA Platform</title>
+<style>
+  :root { --bg: oklch(0.985 0.002 250); --surface: oklch(1 0 0); --ink: oklch(0.2 0.02 265); --muted: oklch(0.48 0.02 265); --line: oklch(0.925 0.004 250); --brand: oklch(0.54 0.23 29); --brand-hover: oklch(0.47 0.21 29); color-scheme: light; }
+  :root[data-theme="dark"] { --bg: oklch(0.16 0.012 265); --surface: oklch(0.2 0.014 265); --ink: oklch(0.96 0.005 265); --muted: oklch(0.74 0.015 265); --line: oklch(0.31 0.015 265); --brand: oklch(0.6 0.22 27); --brand-hover: oklch(0.66 0.21 27); color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100dvh; display: grid; place-items: center; padding: 16px; background: var(--bg); color: var(--ink); font-family: "Inter Variable", "Vazirmatn Variable", system-ui, "Segoe UI", Tahoma, sans-serif; }
+  main { width: 100%; max-width: 28rem; text-align: center; padding: 40px 24px; background: var(--surface); border: 1px solid var(--line); border-radius: 1.125rem; }
+  img { width: 64px; height: 64px; }
+  h1 { margin: 16px 0 8px; font-size: 1.5rem; font-weight: 800; }
+  p { margin: 0 0 24px; color: var(--muted); line-height: 1.6; }
+  button { min-height: 44px; padding: 0 24px; border: 0; border-radius: 0.75rem; background: var(--brand); color: oklch(1 0 0); font: inherit; font-weight: 600; cursor: pointer; }
+  button:hover { background: var(--brand-hover); }
+  button:focus-visible { outline: 3px solid var(--brand); outline-offset: 3px; }
+</style>
+</head>
+<body>
+<main>
+  <img src="/brand/rega-mark-256.webp" alt="" width="64" height="64">
+  <h1 id="t">You are offline</h1>
+  <p id="b">REGA Platform needs an internet connection to load this page. Check your connection and try again.</p>
+  <button type="button" id="r">Try again</button>
+</main>
+<script>
+(function () {
+  var T = {
+    en: ["You are offline", "REGA Platform needs an internet connection to load this page. Check your connection and try again.", "Try again", "ltr", "en"],
+    de: ["Sie sind offline", "REGA Platform braucht eine Internetverbindung, um diese Seite zu laden. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.", "Erneut versuchen", "ltr", "de"],
+    ckb: ["تۆ ئۆفلاینیت", "REGA Platform پێویستی بە ئینتەرنێت هەیە بۆ بارکردنی ئەم لاپەڕەیە. پەیوەندییەکەت بپشکنە و دووبارە هەوڵبدەرەوە.", "دووبارە هەوڵبدەرەوە", "rtl", "ckb"],
+    kmr: ["Tu ne girêdayî yî", "REGA Platform ji bo barkirina vê rûpelê girêdana înternetê dixwaze. Girêdana xwe kontrol bike û dîsa biceribîne.", "Dîsa biceribîne", "ltr", "ku"],
+    ar: ["أنت غير متصل بالإنترنت", "تحتاج REGA Platform إلى اتصال بالإنترنت لتحميل هذه الصفحة. تحقق من اتصالك وحاول مرة أخرى.", "أعد المحاولة", "rtl", "ar"],
+    fa: ["شما آفلاین هستید", "REGA Platform برای بارگذاری این صفحه به اینترنت نیاز دارد. اتصال خود را بررسی کنید و دوباره تلاش کنید.", "تلاش دوباره", "rtl", "fa"],
+    tr: ["Çevrimdışısınız", "REGA Platform bu sayfayı yüklemek için internet bağlantısına ihtiyaç duyar. Bağlantınızı kontrol edip yeniden deneyin.", "Yeniden dene", "ltr", "tr"]
+  };
+  // The service worker answers with this page at the address that failed, so its first path segment is the language.
+  var l = location.pathname.split("/")[1];
+  var x = T[l] || T.en;
+  var d = document.documentElement;
+  d.lang = x[4]; d.dir = x[3];
+  document.getElementById("t").textContent = x[0];
+  document.getElementById("b").textContent = x[1];
+  document.getElementById("r").textContent = x[2];
+  document.getElementById("r").addEventListener("click", function () { location.reload(); });
+  try { if (localStorage.getItem("rega-theme") === "dark") d.setAttribute("data-theme", "dark"); } catch (e) {}
+})();
+</script>
+</body>
+</html>
