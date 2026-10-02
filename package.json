@@ -1,0 +1,69 @@
+{
+  "name": "rega-platform",
+  "version": "0.1.0",
+  "private": true,
+  "description": "REGA Platform - production web application (www.regaplatform.com)",
+  "scripts": {
+    "dev": "node scripts/vendor-maplibre.mjs && next dev",
+    "build": "node scripts/vendor-maplibre.mjs && prisma generate && REGA_TARGET=workers opennextjs-cloudflare build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate deploy",
+    "db:migrate:dev": "prisma migrate dev",
+    "db:seed": "tsx prisma/seed.ts",
+    "db:studio": "prisma studio",
+    "backup": "bash scripts/backup.sh",
+    "test": "tsx --test tests/*.test.ts",
+    "e2e": "playwright test",
+    "build:node": "node scripts/vendor-maplibre.mjs && prisma generate && next build",
+    "cf:preview": "npm run build && opennextjs-cloudflare preview",
+    "cf:dry-run": "wrangler deploy --dry-run"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.800.0",
+    "@aws-sdk/s3-request-presigner": "^3.800.0",
+    "@fontsource-variable/inter": "^5.3.0",
+    "@fontsource-variable/vazirmatn": "^5.3.0",
+    "@opennextjs/cloudflare": "^1.20.7",
+    "@prisma/adapter-pg": "~6.19.3",
+    "@prisma/client": "~6.19.3",
+    "bcryptjs": "^3.0.2",
+    "maplibre-gl": "^6.11.2",
+    "next": "^15.3.0",
+    "next-auth": "^5.0.0-beta.28",
+    "next-intl": "^4.1.0",
+    "pg": "^8.23.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "server-only": "^0.0.1",
+    "simple-icons": "^16.33.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.1",
+    "@tailwindcss/postcss": "^4.1.0",
+    "@types/node": "^22.0.0",
+    "@types/pg": "^8.23.1",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "eslint": "^9.0.0",
+    "eslint-config-next": "^15.3.0",
+    "prisma": "~6.19.3",
+    "tailwindcss": "^4.1.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.8.0",
+    "wrangler": "^4.144.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "overrides": {
+    "postcss": "^8.5.28",
+    "deepmerge-ts": "^8.0.2"
+  }
+}
