@@ -1,0 +1,29 @@
+{
+  // Cloudflare Worker for REGA (Next.js via OpenNext). `npm run build` produces .open-next/.
+  // Production: `npx wrangler deploy` (main). Branch previews: `wrangler versions upload`.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "rega-platform",
+  // worker.mjs wraps the OpenNext output (.open-next/worker.js) with the edge cache for anonymous pages.
+  "main": "worker.mjs",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
+  "observability": { "enabled": true },
+
+  // Variables and Secrets (DATABASE_URL, AUTH_SECRET, AI keys, ...) stay managed in the Cloudflare dashboard.
+  // `keep_vars` stops a deploy from wiping dashboard-defined variables.
+  "keep_vars": true,
+
+  // Workers Rate Limiting: counters shared across isolates (the in-memory limiter alone is per isolate).
+  // Used by src/lib/rate-limit.ts#allowShared; keys are per account (login) and per client IP (login, AI).
+  "ratelimits": [
+    { "name": "LOGIN_LIMITER", "namespace_id": "1001", "simple": { "limit": 10, "period": 60 } },
+    { "name": "AI_LIMITER", "namespace_id": "1002", "simple": { "limit": 20, "period": 60 } },
+    { "name": "SEARCH_LIMITER", "namespace_id": "1003", "simple": { "limit": 120, "period": 60 } }
+  ]
+
+  // Optional, recommended once created (dashboard -> Storage & Databases -> Hyperdrive): pooled, low-latency
+  // Postgres. The app uses the binding automatically when present and falls back to the DATABASE_URL secret.
+  // Do not add a placeholder id: a deploy would fail.
+  // "hyperdrive": [{ "binding": "HYPERDRIVE", "id": "<hyperdrive-config-id>", "localConnectionString": "postgresql://user:pass@localhost:5432/rega" }]
+}

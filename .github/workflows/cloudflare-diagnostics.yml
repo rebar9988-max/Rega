@@ -1,0 +1,102 @@
+name: Cloudflare diagnostics
+
+# Read-only. Prints the NAMES of the Worker's secrets/variables and its deployment history, never secret values.
+# Uses the CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID repository secrets.
+# AI section: results are also emitted as annotations (names, counts and non-secret AI settings only).
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      SITE: https://www.regaplatform.com
+      UA: "rega-ci-diagnostics/1.0 (+github-actions)"
+    steps:
+      - name: Live AI probes (read-only, no provider call)
+        shell: bash
+        run: |
+          set -u
+          h=$(curl -sS -m 20 -A "$UA" "$SITE/api/v1/health" || echo '{}')
+          echo "$h" | jq -r '"::notice title=health::ok=\(.ok) database=\(.checks.database) migrations=\(.checks.migrations) ai_configured=\(.checks.ai) providers_with_key=\(.checks.aiProviders) missingEnv=\(.checks.missingEnv|tostring) env=\(.env)"' || echo "::warning title=health::unparseable"
+          # Invalid request on purpose (empty messages): the route answers 503 feature_disabled when the assistant flag is off,
+          # otherwise 422 validation_error. Validation happens before any provider is called, so this costs nothing.
+          code=$(curl -sS -m 20 -A "$UA" -o /tmp/ai.json -w '%{http_code}' -X POST -H 'content-type: application/json' \
+            -d '{"messages":[],"locale":"de","sessionId":"diag-ci-probe-0001"}' "$SITE/api/v1/ai/chat" || echo 000)
+          echo "::notice title=ai-endpoint::POST /api/v1/ai/chat (invalid body) -> HTTP $code error=$(jq -r '.error.code // .code // "?"' /tmp/ai.json 2>/dev/null)"
+          for p in /de/ai /ckb/ai; do
+            c=$(curl -sS -m 20 -A "$UA" -o /tmp/page.html -w '%{http_code}' "$SITE$p" || echo 000)
+            echo "::notice title=page::GET $p -> HTTP $c bytes=$(wc -c < /tmp/page.html)"
+          done
+      - name: Credentials present?
+        id: creds
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID are not available to this workflow (missing or not exposed as repository secrets). Skipping."
+          else
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.creds.outputs.present == 'true'
+        name: Worker secrets and variables (names; values only for non-secret AI settings)
+        shell: bash
+        run: |
+          set -u
+          api="https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/scripts/rega-platform"
+          curl -sS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "$api/secrets" -o secrets.json -w '%{http_code}\n' > secrets.code
+          echo "::notice title=worker-secrets::HTTP $(cat secrets.code) names=$(jq -c '[.result[]?.name] | sort' secrets.json)"
+          curl -sS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "$api/settings" -o settings.json -w '%{http_code}\n' > settings.code
+          echo "::notice title=worker-bindings::HTTP $(cat settings.code) $(jq -c '[.result.bindings[]? | "\(.name):\(.type)"] | sort' settings.json)"
+          # Values only for an allow-list of non-secret AI settings.
+          echo "::notice title=ai-settings::$(jq -c '[.result.bindings[]? | select(.type=="plain_text" and (.name|test("^(AI_PROVIDER|AI_PROVIDER_ORDER|AI_ROUTING|AI_TIMEOUT_MS|AI_DAILY_LIMIT|[A-Z]+_MODEL|[A-Z]+_BASE_URL)$"))) | {(.name): .text}] | add // {}' settings.json)"
+          bad=$(jq -r '[.result.bindings[]? | select(.type=="plain_text" and (.name|test("(KEY|SECRET|TOKEN|PASSWORD|DATABASE_URL)$"))) | .name] | join(",")' settings.json)
+          if [ -n "$bad" ]; then echo "::warning title=security::Credentials stored as PLAIN TEXT variables (should be secrets): $bad"; fi
+          echo "::notice title=worker-compat::$(jq -c '{compatibility_date: .result.compatibility_date, flags: .result.compatibility_flags}' settings.json)"
+      - if: steps.creds.outputs.present == 'true'
+        name: AI log events, last 24 h (counts only)
+        shell: bash
+        run: |
+          set -u
+          to=$(($(date +%s)*1000)); from=$((to - 24*3600*1000))
+          body=$(jq -nc --argjson f "$from" --argjson t "$to" '{queryId:"rega-ai-diag", timeframe:{from:$f,to:$t}, view:"events", limit:2000,
+            parameters:{filters:[{key:"$metadata.service",operation:"eq",type:"string",value:"rega-platform"}], needle:{value:"\"message\":\"ai."}}}')
+          code=$(curl -sS -X POST -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H 'content-type: application/json' \
+            "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/observability/telemetry/query" -d "$body" -o logs.json -w '%{http_code}')
+          python3 - "$code" <<'PY'
+          import json, sys, collections
+          code = sys.argv[1]
+          try: data = json.load(open("logs.json"))
+          except Exception: data = {}
+          found = collections.Counter()
+          def visit(v):
+              if isinstance(v, str):
+                  s = v.strip()
+                  if s.startswith("{") and '"message":"ai.' in s:
+                      try: visit(json.loads(s))
+                      except Exception: pass
+              elif isinstance(v, dict):
+                  m = v.get("message")
+                  if isinstance(m, str) and m.startswith("ai."):
+                      meta = v.get("meta") or {}
+                      key = " ".join(str(x) for x in [m, meta.get("provider", meta.get("served_by", "")), meta.get("kind", meta.get("code", "")), meta.get("status", "")] if x not in ("", None))
+                      found[key] += 1
+                  for x in v.values(): visit(x)
+              elif isinstance(v, list):
+                  for x in v: visit(x)
+          visit(data)
+          errs = data.get("errors") if isinstance(data, dict) else None
+          top = "; ".join(f"{k} x{n}" for k, n in found.most_common(25)) or "none"
+          print(f"::notice title=ai-logs-24h::HTTP {code} events={sum(found.values())} :: {top}" + (f" :: api_errors={json.dumps(errs)[:300]}" if errs else ""))
+          PY
+      - if: steps.creds.outputs.present == 'true'
+        name: Deployments (names/ids only)
+        shell: bash
+        run: |
+          curl -sS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/scripts/rega-platform/deployments" -o dep.json -w 'HTTP %{http_code}\n'
+          echo "::notice title=deployments::$(jq -c '[.result.deployments[:3][]? | {created_on, source, msg: .annotations["workers/message"], tag: .annotations["workers/tag"], versions: [.versions[]?.version_id[:8]]}]' dep.json)"
