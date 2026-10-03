@@ -1,7 +1,8 @@
 name: Production health
 
 # Read-only check of the live site. It never deploys, never writes, and never touches configuration:
-# one GET request to the public health endpoint. Requires HTTP 200, "ok": true and checks.database == "ok".
+# verify the Cloudflare Access gate in private mode; otherwise require HTTP 200,
+# "ok": true and checks.database == "ok", plus the public production checks below.
 on:
   workflow_dispatch:
   schedule:
@@ -17,7 +18,66 @@ jobs:
     env:
       HEALTH_URL: https://www.regaplatform.com/api/v1/health
     steps:
+      - name: Detect Cloudflare Access protection
+        id: access_probe
+        shell: bash
+        run: |
+          set -u
+          headers=$(mktemp)
+          trap 'rm -f "$headers"' EXIT
+          # Inspect the first response only; never follow the Access login redirect.
+          code=$(curl -sS -m 20 -A "rega-ci-health-check/1.0 (+github-actions)" \
+            -D "$headers" -o /dev/null -w '%{http_code}' "$HEALTH_URL") || code=000
+          if [ "$code" = "302" ] && tr -d '\r' < "$headers" | grep -qiE '^www-authenticate:[[:space:]]*Cloudflare-Access([[:space:]]|$)'; then
+            echo "access_protected=true" >> "$GITHUB_OUTPUT"
+            echo "Cloudflare Access detected; verifying the private production gate."
+          else
+            echo "access_protected=false" >> "$GITHUB_OUTPUT"
+            echo "No Cloudflare Access gate detected (HTTP $code); running public production checks."
+          fi
+
+      - name: Verify Cloudflare Access owner-only gate
+        if: steps.access_probe.outputs.access_protected == 'true'
+        shell: bash
+        run: |
+          set -u
+          headers=$(mktemp)
+          trap 'rm -f "$headers"' EXIT
+          UA="rega-ci-health-check/1.0 (+github-actions)"
+          fail=0
+          for path in / /ckb /de /api/v1/health /robots.txt /sitemap.xml; do
+            url="https://www.regaplatform.com$path"
+            if ! code=$(curl -sS -m 20 -A "$UA" -D "$headers" -o /dev/null -w '%{http_code}' "$url"); then
+              echo "::error::FAIL $path -> request failed"
+              fail=1
+              continue
+            fi
+            if [ "$code" != "302" ]; then
+              echo "::error::FAIL $path -> HTTP $code (expected 302)"
+              fail=1
+            elif ! tr -d '\r' < "$headers" | grep -qiE '^www-authenticate:[[:space:]]*Cloudflare-Access([[:space:]]|$)'; then
+              echo "::error::FAIL $path -> missing Cloudflare-Access authentication header"
+              fail=1
+            elif ! tr -d '\r' < "$headers" | grep -qiE '^location:[[:space:]]*https://([a-z0-9-]+\.)*cloudflareaccess\.com/cdn-cgi/access/login/[^[:space:]]+[[:space:]]*$'; then
+              echo "::error::FAIL $path -> Location must be a cloudflareaccess.com login URL"
+              fail=1
+            else
+              echo "ok   $path -> 302 Cloudflare Access login"
+            fi
+          done
+
+          code=$(curl -sS -m 20 -A "$UA" -D "$headers" -o /dev/null -w '%{http_code}' https://regaplatform.com/ckb) || code=000
+          if [ "$code" = "301" ] && tr -d '\r' < "$headers" | grep -qiE '^location:[[:space:]]*https://www\.regaplatform\.com/ckb[[:space:]]*$'; then
+            echo "ok   apex /ckb -> 301 https://www.regaplatform.com/ckb"
+          else
+            echo "::error::FAIL apex /ckb -> expected canonical 301 to https://www.regaplatform.com/ckb (HTTP $code)"
+            fail=1
+          fi
+          [ "$fail" = "0" ] || exit "$fail"
+          echo "Production access gate: healthy and private."
+
       - name: Diagnostics (read-only, never fails the job)
+        if: steps.access_probe.outputs.access_protected != 'true'
         shell: bash
         run: |
           # Compare what the runner sees for a few public URLs and two user agents, to tell apart
@@ -38,6 +98,7 @@ jobs:
         continue-on-error: true
 
       - name: GET /api/v1/health (up to 5 attempts)
+        if: steps.access_probe.outputs.access_protected != 'true'
         shell: bash
         run: |
           set -u
@@ -72,7 +133,7 @@ jobs:
           echo "Production health: HTTP 200, ok=true, database=ok"
 
       - name: Smoke test (key routes, read-only)
-        if: always() # a failing health gate must not hide route/SEO results
+        if: always() && steps.access_probe.outputs.access_protected != 'true' # a failing health gate must not hide route/SEO results
         shell: bash
         run: |
           set -u
@@ -109,7 +170,7 @@ jobs:
           exit $fail
 
       - name: Canonical host redirects and SEO (read-only)
-        if: always()
+        if: always() && steps.access_probe.outputs.access_protected != 'true'
         shell: bash
         run: |
           set -u
@@ -155,7 +216,7 @@ jobs:
           exit $fail
 
       - name: Official brand assets and About page (read-only)
-        if: always()
+        if: always() && steps.access_probe.outputs.access_protected != 'true'
         shell: bash
         run: |
           set -u
@@ -171,7 +232,7 @@ jobs:
           exit $fail
 
       - name: Security headers and access control (read-only)
-        if: always()
+        if: always() && steps.access_probe.outputs.access_protected != 'true'
         shell: bash
         run: |
           set -u
