@@ -29,14 +29,15 @@ function ErrorLine({ state, map }: { state: AuthFormState; map: Partial<Record<"
   return <p role="alert" className="rounded-xl bg-brand-soft px-4 py-3 text-sm font-semibold">{text}</p>;
 }
 
-export function RegisterForm() {
+export function RegisterForm({ next }: { next?: string }) {
   const t = useTranslations("auth");
   const tf = useTranslations("forms");
   const locale = useLocale();
   const [state, action, pending] = useActionState<AuthFormState, FormData>(register, IDLE);
+  const loginHref = next ? `/login?next=${encodeURIComponent(next)}` : "/login";
   if (state.status === "ok") {
     return <Notice title={t("registerDoneTitle")} body={state.detail === "unavailable" ? t("registerDoneUnavailable") : t("registerDoneBody")}>
-      {state.detail === "unavailable" && <Link href="/login" className={link}>{t("signIn")}</Link>}
+      {state.detail === "unavailable" && <Link href={loginHref} className={link}>{t("signIn")}</Link>}
     </Notice>;
   }
   const bad = (n: string) => state.fields?.includes(n) || undefined;
@@ -44,6 +45,7 @@ export function RegisterForm() {
   return (
     <form action={action} data-testid="register-form" className={`${card} relative`}>
       <input type="hidden" name="locale" value={locale} />
+      {next && <input type="hidden" name="next" value={next} />}
       <Honeypot label={tf("leaveEmpty")} />
       <ErrorLine state={state} map={{ invalid: state.fields?.includes("password") ? t("weakPassword") : state.fields?.includes("password2") ? t("passwordMismatch") : tf("invalid"), failed: taken ? t("emailTaken") : undefined }} />
       <fieldset className="space-y-2">
@@ -77,16 +79,17 @@ export function RegisterForm() {
         <span>{t.rich("accept", { terms: (c) => <Link href="/terms" target="_blank" className={link}>{c}</Link>, privacy: (c) => <Link href="/privacy" target="_blank" className={link}>{c}</Link> })}</span>
       </label>
       <button type="submit" disabled={pending} className={primary}>{t("createAccount")}</button>
-      <p className="text-center text-sm text-muted">{t("haveAccount")} <Link href="/login" className={link}>{t("signIn")}</Link></p>
+      <p className="text-center text-sm text-muted">{t("haveAccount")} <Link href={loginHref} className={link}>{t("signIn")}</Link></p>
     </form>
   );
 }
 
-export function ConfirmEmailForm({ email, token }: { email: string; token: string }) {
+export function ConfirmEmailForm({ email, token, next }: { email: string; token: string; next?: string }) {
   const t = useTranslations("auth");
   const locale = useLocale();
   const [state, action, pending] = useActionState<AuthFormState, FormData>(confirmEmail, IDLE);
-  if (state.status === "ok") return <Notice body={t("verifyOk")}><Link href="/login?verified=1" className={link}>{t("signIn")}</Link></Notice>;
+  const loginHref = next ? `/login?verified=1&next=${encodeURIComponent(next)}` : "/login?verified=1";
+  if (state.status === "ok") return <Notice body={t("verifyOk")}><Link href={loginHref} className={link}>{t("signIn")}</Link></Notice>;
   return (
     <form action={action} className={card}>
       <input type="hidden" name="email" value={email} /><input type="hidden" name="token" value={token} /><input type="hidden" name="locale" value={locale} />
