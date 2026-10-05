@@ -11,7 +11,7 @@ const compiled = ts.transpileModule(readFileSync(new URL("../src/features/auth/a
   compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, esModuleInterop: true },
 }).outputText;
 
-function actions({ delivered, existing = false, mailing = true }: { delivered: boolean; existing?: boolean; mailing?: boolean }) {
+function actions({ delivered, existing = false, mailing = true, dbFails = false }: { delivered: boolean; existing?: boolean; mailing?: boolean; dbFails?: boolean }) {
   const user = { id: "owner", name: "Owner", email: "owner@example.org", emailVerified: null };
   let sent = 0;
   let created = 0;
@@ -19,7 +19,10 @@ function actions({ delivered, existing = false, mailing = true }: { delivered: b
     bcryptjs: { hash: async () => "test-hash" },
     "next-intl/server": { getTranslations: async () => (key: string) => key },
     "@/lib/db": { prisma: { user: {
-      findFirst: async () => existing ? user : null,
+      findFirst: async () => {
+        if (dbFails) throw Object.assign(new Error("database unavailable"), { code: "P2022" });
+        return existing ? user : null;
+      },
       create: async () => { created++; return user; },
     } } },
     "@/lib/logger": { log: { info() {}, error() {} } },
@@ -79,4 +82,13 @@ test("verification resend exposes delivery failure and permits a later retry", a
   assert.equal(failure.error, "failed");
   const success = await actions({ delivered: true, existing: true }).api.resendVerification(undefined, form);
   assert.equal(success.detail, "sent");
+});
+
+
+test("registration returns an inline form error instead of a Server Error page when the production schema is unavailable", async () => {
+  const { api, counts } = actions({ delivered: true, dbFails: true });
+  const result = await api.register(undefined, registration());
+  assert.equal(result.status, "error");
+  assert.equal(result.error, "failed");
+  assert.deepEqual(counts(), { sent: 0, created: 0 });
 });

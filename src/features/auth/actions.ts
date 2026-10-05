@@ -23,11 +23,29 @@ const password = z.string().min(10).max(200);
 const localeField = z.string().refine(isLocale);
 const origin = () => (process.env.AUTH_URL ? new URL(process.env.AUTH_URL).origin : `https://${process.env.CANONICAL_HOST || "www.regaplatform.com"}`);
 
-async function sendVerification(user: { email: string; name: string | null }, locale: string) {
-  const raw = await issueToken("verify", user.email, VERIFY_TOKEN_TTL_HOURS * 3_600_000);
-  const t = await getTranslations({ locale, namespace: "emails" });
-  const link = `${origin()}/${locale}/verify-email?${new URLSearchParams({ email: user.email, token: raw })}`;
-  return sendEmail({ to: user.email, subject: t("verifySubject"), text: t("verifyBody", { name: user.name ?? "", link, hours: VERIFY_TOKEN_TTL_HOURS }) });
+const safeNext = (value: unknown): string | undefined => {
+  const path = typeof value === "string" ? value : "";
+  return path.startsWith("/") && !path.startsWith("//") && !path.includes("\\") && path.length <= 300 ? path : undefined;
+};
+
+const errorCode = (error: unknown): string => {
+  if (typeof error !== "object" || !error || !("code" in error)) return "UNKNOWN";
+  const code = (error as { code?: unknown }).code;
+  return typeof code === "string" && /^[A-Z0-9_]+$/.test(code) ? code : "UNKNOWN";
+};
+
+async function sendVerification(user: { email: string; name: string | null }, locale: string, next?: string) {
+  try {
+    const raw = await issueToken("verify", user.email, VERIFY_TOKEN_TTL_HOURS * 3_600_000);
+    const t = await getTranslations({ locale, namespace: "emails" });
+    const params = new URLSearchParams({ email: user.email, token: raw });
+    if (next) params.set("next", next);
+    const link = `${origin()}/${locale}/verify-email?${params}`;
+    return sendEmail({ to: user.email, subject: t("verifySubject"), text: t("verifyBody", { name: user.name ?? "", link, hours: VERIFY_TOKEN_TTL_HOURS }) });
+  } catch (error) {
+    log.error("auth.verify.issue_failed", { email: maskEmail(user.email), code: errorCode(error) });
+    return false;
+  }
 }
 
 const registerSchema = z.object({
@@ -60,11 +78,18 @@ export async function register(_prev: AuthFormState, formData: FormData): Promis
   if (raw.password !== raw.password2) return { status: "error", error: "invalid", fields: ["password2"] };
   const { name, email: address, password: plain, accountType, locale } = parsed.data;
   const mailing = emailEnabled();
+  const next = safeNext(raw.next);
 
-  const existing = await prisma.user.findFirst({ where: { email: address, deletedAt: null }, select: { id: true, name: true, email: true, emailVerified: true } });
+  let existing: { id: string; name: string | null; email: string; emailVerified: Date | null } | null;
+  try {
+    existing = await prisma.user.findFirst({ where: { email: address, deletedAt: null }, select: { id: true, name: true, email: true, emailVerified: true } });
+  } catch (error) {
+    log.error("auth.register.lookup_failed", { email: maskEmail(address), code: errorCode(error) });
+    return { status: "error", error: "failed" };
+  }
   if (existing) {
     if (!mailing) return { status: "error", error: "failed", fields: ["email"] }; // shown as "already exists" (no mail channel to hide it in)
-    if (!existing.emailVerified && !(await sendVerification(existing, locale))) return { status: "ok", detail: "unavailable" };
+    if (!existing.emailVerified && !(await sendVerification(existing, locale, next))) return { status: "ok", detail: "unavailable" };
     return { status: "ok", detail: "verify" };
   }
 
@@ -82,12 +107,14 @@ export async function register(_prev: AuthFormState, formData: FormData): Promis
     });
   } catch (error) {
     // Two registrations of the same address at the same moment: the unique index decided; answer like "already registered".
-    if (typeof error === "object" && error && "code" in error && (error as { code?: string }).code === "P2002") return mailing ? { status: "ok", detail: "verify" } : { status: "error", error: "failed", fields: ["email"] };
-    throw error;
+    if (errorCode(error) === "P2002") return mailing ? { status: "ok", detail: "verify" } : { status: "error", error: "failed", fields: ["email"] };
+    // A schema/configuration outage must never turn a public form into a generic Server Error page.
+    log.error("auth.register.create_failed", { email: maskEmail(address), code: errorCode(error) });
+    return { status: "error", error: "failed" };
   }
   log.info("auth.registered", { userId: user.id, type: accountType, email: maskEmail(address) });
   if (mailing) {
-    const delivered = await sendVerification(user, locale);
+    const delivered = await sendVerification(user, locale, next);
     return { status: "ok", detail: delivered ? "verify" : "unavailable" };
   }
   return { status: "ok", detail: "unavailable" };

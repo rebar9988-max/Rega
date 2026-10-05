@@ -29,7 +29,7 @@ test("for-business page: free statement, steps, verified explanation, register C
   await expect(page.getByRole("main")).toContainText("Rega Verified");
   await expect(page.getByRole("main")).not.toContainText(/€|\bEUR\b|Preis|Premium/);
   await page.getByTestId("cta-register").click();
-  await expect(page).toHaveURL(/\/de\/register$/);
+  await expect(page).toHaveURL(/\/de\/register\?next=%2Fdr%2Fbusinesses%2Fnew$/);
 });
 
 test("header 'add listing' goes to /for-business when logged out", async ({ page }) => {
