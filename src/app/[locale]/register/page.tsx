@@ -14,15 +14,20 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   return pageMetadata({ locale, path: "/register", title: t("registerTitle"), description: await pageDescription(locale, "register") });
 }
 
-export default async function RegisterPage({ params }: { params: Promise<{ locale: string }> }) {
+function safeNext(value?: string): string | undefined {
+  return value?.startsWith("/") && !value.startsWith("//") && !value.includes("\\") && value.length <= 300 ? value : undefined;
+}
+
+export default async function RegisterPage({ params, searchParams }: { params: Promise<{ locale: string }>; searchParams: Promise<{ next?: string }> }) {
   const { locale } = await params;
+  const { next } = await searchParams;
   setRequestLocale(locale);
   if ((await auth().catch(() => null))?.user) redirect(`/${locale}/account`);
   const t = await getTranslations("auth");
   return (
     <>
       <PageHeader title={t("registerTitle")} subtitle={t("registerLead")} />
-      <div className="container-page"><RegisterForm /></div>
+      <div className="container-page"><RegisterForm next={safeNext(next)} /></div>
     </>
   );
 }
