@@ -11,6 +11,13 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 let nextRecoveryReportAt = 0;
 
+const REQUIRED_SCHEMA_MIGRATIONS = [
+  "20261002090000_growth_foundation",
+  "20261002100000_business_languages",
+  "20261002110000_reviews_one_per_user",
+  "20261002120000_content_sections_core",
+] as const;
+
 export async function GET() {
   const started = Date.now();
   let database: "ok" | "error" = "error";
@@ -20,8 +27,12 @@ export async function GET() {
   try {
     await prisma.$queryRaw`SELECT 1`;
     database = "ok";
-    const rows = await prisma.$queryRaw<{ count: bigint }[]>`SELECT count(*) FROM "_prisma_migrations"`;
-    migrations = Number(rows[0]?.count ?? 0) > 0;
+    const rows = await prisma.$queryRaw<{ migration_name: string; finished: boolean; rolled_back: boolean }[]>`
+      SELECT migration_name, finished_at IS NOT NULL AS finished, rolled_back_at IS NOT NULL AS rolled_back
+      FROM "_prisma_migrations"`;
+    const applied = new Set(rows.filter((row) => row.finished && !row.rolled_back).map((row) => row.migration_name));
+    migrations = REQUIRED_SCHEMA_MIGRATIONS.every((name) => applied.has(name))
+      && rows.every((row) => row.finished || row.rolled_back);
     const columns = await prisma.$queryRaw<{ table_name: string; column_name: string }[]>`
       SELECT table_name::text AS table_name, column_name::text AS column_name FROM information_schema.columns
       WHERE table_schema = 'public' AND table_name IN ('City', 'Page', 'PageTranslation', 'Listing', 'ListingTranslation')`;
