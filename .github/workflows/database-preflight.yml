@@ -1,11 +1,13 @@
 name: Database preflight (read-only)
 on:
   workflow_dispatch:
+  push:
+    branches: [fix/business-owner-onboarding-2026-10-06]
 permissions:
   contents: read
 jobs:
   inspect:
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/fix/business-owner-onboarding-2026-10-06'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     env:
