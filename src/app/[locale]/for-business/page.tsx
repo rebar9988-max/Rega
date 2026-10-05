@@ -38,7 +38,7 @@ export default async function ForBusinessPage({ params }: { params: Promise<{ lo
           {signedIn
             ? <NextLink href="/dr/businesses/new" className={buttonClass("primary")}>{t("ctaAdd")}</NextLink>
             : <>
-                <Link href="/register" className={buttonClass("primary")} data-testid="cta-register">{t("ctaRegister")}</Link>
+                <Link href="/register?next=%2Fdr%2Fbusinesses%2Fnew" className={buttonClass("primary")} data-testid="cta-register">{t("ctaRegister")}</Link>
                 <Link href="/login?next=%2Fdr%2Fbusinesses%2Fnew" className="text-sm font-semibold text-brand underline">{t("ctaLogin")}</Link>
               </>}
         </div>
@@ -80,7 +80,7 @@ export default async function ForBusinessPage({ params }: { params: Promise<{ lo
         <div>
           {signedIn
             ? <NextLink href="/dr/businesses/new" className={buttonClass("primary")}>{t("ctaAdd")}</NextLink>
-            : <Link href="/register" className={buttonClass("primary")}>{t("ctaRegister")}</Link>}
+            : <Link href="/register?next=%2Fdr%2Fbusinesses%2Fnew" className={buttonClass("primary")}>{t("ctaRegister")}</Link>}
         </div>
       </div>
     </>
