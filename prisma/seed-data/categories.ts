@@ -22,7 +22,6 @@ export const CATEGORIES: SeedCategory[] = [
   { key: "real-estate", icon: "store", names: { ckb: "خانووبەرە", kmr: "Xanî û mal", de: "Immobilien", en: "Real Estate", ar: "عقارات", fa: "املاک", tr: "Emlak" } },
   { key: "travel-tickets", icon: "near", names: { ckb: "گەشت و بلیت", kmr: "Rêwîtî û bilêt", de: "Reisen & Tickets", en: "Travel & Tickets", ar: "سفر وتذاكر", fa: "سفر و بلیت", tr: "Seyahat ve Bilet" } },
   { key: "groceries-markets", icon: "store", names: { ckb: "بازاڕ و کەلوپەل", kmr: "Bazar û xwarinên malê", de: "Lebensmittel & Märkte", en: "Groceries & Markets", ar: "بقالة وأسواق", fa: "خواربار و بازار", tr: "Market ve Bakkal" } },
-  { key: "events-weddings", icon: "flame", names: { ckb: "بۆنە و زەماوەند", kmr: "Çalakî û dawet", de: "Events & Hochzeiten", en: "Events & Weddings", ar: "مناسبات وأعراس", fa: "مراسم و عروسی", tr: "Etkinlik ve Düğün" } },
   { key: "it-phones", icon: "grid", names: { ckb: "تەکنەلۆژیا و مۆبایل", kmr: "IT û telefon", de: "IT & Handy", en: "IT & Phones", ar: "تقنية وهواتف", fa: "فناوری و موبایل", tr: "Bilişim ve Telefon" } },
   { key: "tax-accounting", icon: "admin", names: { ckb: "باج و ژمێریاری", kmr: "Bac û hesabdarî", de: "Steuer & Buchhaltung", en: "Tax & Accounting", ar: "ضرائب ومحاسبة", fa: "مالیات و حسابداری", tr: "Vergi ve Muhasebe" } },
   { key: "driving-schools", icon: "near", names: { ckb: "قوتابخانەی شوفێری", kmr: "Dibistana şofêriyê", de: "Fahrschulen", en: "Driving Schools", ar: "مدارس تعليم القيادة", fa: "آموزشگاه رانندگی", tr: "Sürücü Kursları" } },
