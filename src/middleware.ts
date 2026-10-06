@@ -52,6 +52,7 @@ export default async function middleware(request: NextRequest) {
   if (
     pathname.startsWith("/api/") ||
     pathname.startsWith("/dr") ||
+    pathname.startsWith("/owner-login") ||
     pathname.startsWith("/_next") ||
     pathname.startsWith("/fonts") ||
     pathname === "/favicon.ico" ||
