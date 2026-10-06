@@ -7,7 +7,7 @@ import { Grid, GridSkeleton, NoResults } from "@/components/ui/Grid";
 import { PageHeader, type Crumb } from "@/components/ui/PageHeader";
 import { Pagination } from "@/components/ui/Pagination";
 import { ResultsMeta } from "@/components/ui/ResultsMeta";
-import { getCategories, getCities, listBusinesses, type BusinessQuery } from "@/lib/data";
+import { DEFAULT_PUBLIC_COUNTRY_CODE, getCategories, getCities, listBusinesses, type BusinessQuery } from "@/lib/data";
 import { businessShape, parseParams } from "@/lib/data/params";
 
 export type BusinessIndexProps = {
@@ -29,7 +29,17 @@ export async function BusinessIndex({ pathname, searchParams, title, crumbs, fix
   const parsed = parseParams(businessShape, searchParams);
   const query: BusinessQuery = { ...parsed, ...(fixed?.category ? { category: fixed.category } : {}), ...(fixed?.city ? { city: fixed.city } : {}) };
   const t = await getTranslations();
-  const [categories, cities] = await Promise.all([getCategories(), getCities()]);
+  const [categories, cities] = await Promise.all([
+    getCategories(),
+    fixed?.city
+      ? Promise.resolve([])
+      : getCities({
+          countryCode: DEFAULT_PUBLIC_COUNTRY_CODE,
+          categoryId: fixed?.category ?? query.category,
+          q: query.q,
+          verified: query.verified,
+        }),
+  ]);
 
   return (
     <>
