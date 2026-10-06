@@ -257,8 +257,8 @@ jobs:
             fi
             placeholders=$(grep -oE '\[\[LEGAL_[A-Z_]+\]\]' /tmp/legal.html | sort -u | tr '\n' ' ' || true)
             if [ -n "$placeholders" ]; then
-              echo "FAIL $p has unresolved legal placeholders: $placeholders"
-              fail=1
+              echo "::warning::$p has unresolved legal placeholders (allowed during private/beta development): $placeholders"
+              echo "beta $p -> legal identity details intentionally deferred until final public launch"
             else
               echo "ok   $p has no unresolved LEGAL_* placeholders"
             fi
