@@ -43,12 +43,57 @@ export const getCategories = cache(async () => {
   return rows.map((c) => ({ ...c, count: descendantIds(rows, c.id).reduce((n, id) => n + (own.get(id) ?? 0), 0) }));
 });
 
-/** Active cities with `count` = published businesses located there (0 stays selectable). */
-export const getCities = cache(async () => {
+/** Germany is the current public market. Locale/language is intentionally independent from country. */
+export const DEFAULT_PUBLIC_COUNTRY_CODE = "DE";
+
+/**
+ * Active cities for one country. `count` follows the currently relevant public-business filters so category pages
+ * show useful per-city totals without leaking cities from other countries into the selector.
+ *
+ * Future country pages can pass another ISO code; callers that do not select a market explicitly stay Germany-first.
+ */
+export type CityScope = {
+  countryCode?: string;
+  categoryId?: string;
+  q?: string;
+  verified?: "1";
+};
+
+export const getCities = cache(async (scope: CityScope = {}) => {
+  const countryCode = (scope.countryCode ?? DEFAULT_PUBLIC_COUNTRY_CODE).toUpperCase();
+  const cats = scope.categoryId ? await categoryIds(scope.categoryId) : undefined;
+  const businessWhere: Prisma.BusinessWhereInput = {
+    ...PUBLIC_BUSINESS,
+    ...textWhere(scope.q),
+    ...(scope.verified ? { verified: true } : {}),
+    ...(cats ? businessInCategories(cats) : {}),
+  };
+
   const rows = await prisma.city.findMany({
-    where: { isActive: true },
+    where: { isActive: true, country: { code: countryCode, isActive: true } },
     orderBy: [{ sortOrder: "asc" }, { nameEn: "asc" }],
-    select: { id: true, slug: true, nameEn: true, nameCkb: true, nameKmr: true, nameDe: true, nameAr: true, nameTr: true, _count: { select: { locations: { where: { status: "active", deletedAt: null, business: PUBLIC_BUSINESS } } } } },
+    select: {
+      id: true,
+      slug: true,
+      nameEn: true,
+      nameCkb: true,
+      nameKmr: true,
+      nameDe: true,
+      nameAr: true,
+      nameTr: true,
+      _count: {
+        select: {
+          locations: {
+            where: {
+              status: "active",
+              deletedAt: null,
+              countryCode,
+              business: businessWhere,
+            },
+          },
+        },
+      },
+    },
   });
   return rows.map(({ _count, ...c }) => ({ ...c, count: _count.locations }));
 });
