@@ -5,6 +5,8 @@ name: Production health
 # "ok": true and checks.database == "ok", plus the public production checks below.
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
   schedule:
     - cron: "17 * * * *" # hourly
 
@@ -234,6 +236,29 @@ jobs:
           grep -qF '/brand/rega-mark-256.webp' <<<"$home" && echo "ok   header uses the official logo" || { echo "FAIL header logo"; fail=1; }
           about=$(curl -sS -m 25 -o /tmp/about.html -w '%{http_code}' https://www.regaplatform.com/ckb/about)
           [ "$about" = "200" ] && grep -qF 'دەربارەی ڕێگا (REGA)' /tmp/about.html && echo "ok   /ckb/about approved text" || { echo "FAIL /ckb/about ($about)"; fail=1; }
+          exit $fail
+
+      - name: Legal go-live placeholders (read-only)
+        if: always() && steps.access_probe.outputs.access_protected != 'true'
+        shell: bash
+        run: |
+          set -u
+          fail=0
+          for p in /de/impressum /de/privacy; do
+            code=$(curl -sS -m 25 -o /tmp/legal.html -w '%{http_code}' "https://www.regaplatform.com$p" || echo 000)
+            if [ "$code" != "200" ]; then
+              echo "FAIL $p -> HTTP $code"
+              fail=1
+              continue
+            fi
+            placeholders=$(grep -oE '\[\[LEGAL_[A-Z_]+\]\]' /tmp/legal.html | sort -u | tr '\n' ' ' || true)
+            if [ -n "$placeholders" ]; then
+              echo "FAIL $p has unresolved legal placeholders: $placeholders"
+              fail=1
+            else
+              echo "ok   $p has no unresolved LEGAL_* placeholders"
+            fi
+          done
           exit $fail
 
       - name: Security headers and access control (read-only)
