@@ -29,7 +29,16 @@ export async function BusinessIndex({ pathname, searchParams, title, crumbs, fix
   const parsed = parseParams(businessShape, searchParams);
   const query: BusinessQuery = { ...parsed, ...(fixed?.category ? { category: fixed.category } : {}), ...(fixed?.city ? { city: fixed.city } : {}) };
   const t = await getTranslations();
-  const [categories, cities] = await Promise.all([getCategories(), getCities()]);
+  const [categories, cities] = await Promise.all([
+    getCategories(),
+    fixed?.city
+      ? Promise.resolve([])
+      : getCities({
+          categoryId: fixed?.category ?? query.category,
+          q: query.q,
+          verified: query.verified,
+        }),
+  ]);
 
   return (
     <>
