@@ -155,7 +155,8 @@ jobs:
           check /de/login 200 'type="password"'
           check /de/ai 200 '<h1'
           check /robots.txt 200 'Sitemap'
-          check /sitemap.xml 200 '<urlset'
+          check /sitemap.xml 200 '<sitemapindex'
+          check /sitemaps/pages.xml 200 '<urlset'
           check /de/does-not-exist 404
           check /api/v1/search 200 '"ok":true'
           check /de/nearby 200 'In der N'
@@ -208,10 +209,14 @@ jobs:
           home=$(curl -sS -m 25 -A "$UA" https://www.regaplatform.com/en)
           grep -qF '"@type":"Organization"' <<<"$home" && echo "ok   /en Organization JSON-LD" || { echo "FAIL /en Organization JSON-LD"; fail=1; }
           grep -q '<html lang="en"' <<<"$home" && echo "ok   /en lang=en" || { echo "FAIL /en lang"; fail=1; }
-          curl -sS -m 25 -A "$UA" https://www.regaplatform.com/sitemap.xml -o /tmp/sm.xml
-          grep -c '<loc>' /tmp/sm.xml | xargs echo "sitemap <loc> count:"
-          grep -q '<loc>https://www.regaplatform.com/en</loc>' /tmp/sm.xml && echo "ok   sitemap lists /en" || { echo "FAIL sitemap lacks /en"; fail=1; }
-          grep -qE 'https?://(localhost|regaplatform\.com/)' /tmp/sm.xml && { echo "FAIL sitemap has a non-canonical host"; fail=1; } || echo "ok   sitemap uses only the canonical host"
+          curl -sS -m 25 -A "$UA" https://www.regaplatform.com/sitemap.xml -o /tmp/sm-index.xml
+          grep -q '<sitemapindex' /tmp/sm-index.xml && echo "ok   sitemap index format" || { echo "FAIL sitemap index format"; fail=1; }
+          grep -q '<loc>https://www.regaplatform.com/sitemaps/pages.xml</loc>' /tmp/sm-index.xml && echo "ok   sitemap index lists pages.xml" || { echo "FAIL sitemap index lacks pages.xml"; fail=1; }
+
+          curl -sS -m 25 -A "$UA" https://www.regaplatform.com/sitemaps/pages.xml -o /tmp/sm-pages.xml
+          grep -c '<loc>' /tmp/sm-pages.xml | xargs echo "pages sitemap <loc> count:"
+          grep -q '<loc>https://www.regaplatform.com/en</loc>' /tmp/sm-pages.xml && echo "ok   pages sitemap lists /en" || { echo "FAIL pages sitemap lacks /en"; fail=1; }
+          grep -qE 'https?://(localhost|regaplatform\.com/)' /tmp/sm-pages.xml && { echo "FAIL pages sitemap has a non-canonical host"; fail=1; } || echo "ok   pages sitemap uses only the canonical host"
           curl -sS -m 25 -A "$UA" https://www.regaplatform.com/robots.txt | grep -q 'Sitemap: https://www.regaplatform.com/sitemap.xml' && echo "ok   robots sitemap line" || { echo "FAIL robots"; fail=1; }
           exit $fail
 
