@@ -2,6 +2,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { formatNumber, type Locale } from "@/i18n/locales";
 import { localizeText } from "@/lib/content";
+import { CityFilter } from "@/components/ui/CityFilter";
 
 type Option = { id: string; label: string };
 type Props = {
@@ -37,13 +38,7 @@ export async function FilterBar({ action, values, categories, cities, sorts, ver
           </div>
         )}
         {cities && (
-          <div>
-            <label htmlFor="f-city" className="sr-only">{t("locations.city")}</label>
-            <select id="f-city" name="city" defaultValue={values.city ?? ""} className={`${field} w-full`}>
-              <option value="">{t("list.allCities")}</option>
-              {cities.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
-            </select>
-          </div>
+          <CityFilter cities={cities} value={values.city} allLabel={t("list.allCities")} cityLabel={t("locations.city")} fieldClass={`${field} w-full`} />
         )}
         {sorts && (
           <div>
