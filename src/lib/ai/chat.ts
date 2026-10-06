@@ -14,6 +14,7 @@ import type { SearchHit } from "@/lib/search/types";
 import { categorySuggestions, type Suggestion } from "./suggestions";
 import type { Locale } from "@/i18n/locales";
 import { purgeOldConversations } from "./retention";
+import { rerankWithPython } from "./python-runtime";
 
 export type ChatMessage = { role: "user" | "assistant" | "system"; content: string };
 
@@ -77,7 +78,10 @@ export async function chat(params: {
 }): Promise<AiResult> {
   const conversation = params.messages.filter((m): m is ChatMessage & { role: "user" | "assistant" } => m.role !== "system").slice(-12);
   const lastUser = [...conversation].reverse().find((m) => m.role === "user")?.content ?? "";
-  const hits = await searchService.search({ text: lastUser, locale: params.locale, limit: 12 });
+  let hits = await searchService.search({ text: lastUser, locale: params.locale, limit: 12 });
+  // Advanced semantic reranking is optional. Python never performs the primary retrieval and any service failure
+  // returns these exact Postgres candidates in their original order.
+  hits = await rerankWithPython(lastUser, hits);
 
   // Nothing in the directory matches: say so, with related categories. No model is called, so nothing can be invented
   // (this is also what an empty database always answers).

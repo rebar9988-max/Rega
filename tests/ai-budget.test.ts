@@ -27,6 +27,7 @@ function pipeline({ outage = false, used = 0, matches = true, localAllowed = tru
     "next-intl/server": { getTranslations: async () => () => "No match" },
     "./suggestions": { categorySuggestions: async () => [] },
     "./retention": { purgeOldConversations: async () => {} },
+    "./python-runtime": { rerankWithPython: async (_query: string, hits: unknown[]) => hits },
   };
   const exports: { chat?: (input: unknown) => Promise<{ provider: string }> } = {};
   runInNewContext(compiled, { exports, Date, process: { env: {} }, require: (name: string) => {

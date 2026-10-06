@@ -1,0 +1,112 @@
+name: Deploy Python AI engine
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "services/ai-python/**"
+      - "src/lib/ai/python-*.ts"
+      - "src/lib/ai/chat.ts"
+      - "src/lib/env.ts"
+      - ".github/workflows/ai-python-deploy.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-rega-ai-python
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - name: Cloudflare credentials present?
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "::error::CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID are required; nothing was deployed."
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - uses: astral-sh/setup-uv@v6
+
+      - name: Python AI engine tests
+        working-directory: services/ai-python
+        run: uv run pytest
+
+      - name: Deploy isolated Python Worker
+        working-directory: services/ai-python
+        run: uv run pywrangler deploy
+
+      - name: Create server-to-server token
+        run: |
+          token="$(openssl rand -hex 32)"
+          echo "::add-mask::$token"
+          echo "AI_SERVICE_TOKEN=$token" >> "$GITHUB_ENV"
+
+      - name: Protect Python Worker
+        working-directory: services/ai-python
+        run: printf '%s' "$AI_SERVICE_TOKEN" | uv run pywrangler secret put AI_SERVICE_TOKEN
+
+      - name: Resolve deployed service URL
+        id: endpoint
+        run: |
+          json="$(curl -fsS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN"             "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/subdomain")"
+          subdomain="$(jq -r '.result.subdomain // empty' <<<"$json")"
+          if [ -z "$subdomain" ]; then
+            echo "::error::Could not resolve the account workers.dev subdomain."
+            exit 1
+          fi
+          url="https://rega-ai-python.$subdomain.workers.dev"
+          echo "AI_SERVICE_URL=$url" >> "$GITHUB_ENV"
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+
+      - name: Smoke test Python service before enabling REGA integration
+        shell: bash
+        run: |
+          set -euo pipefail
+          ok=0
+          for attempt in 1 2 3 4 5 6; do
+            if curl -fsS --max-time 10 "$AI_SERVICE_URL/health" | jq -e '.ok == true and .service == "rega-ai-python"' >/dev/null; then
+              ok=1
+              break
+            fi
+            sleep 5
+          done
+          [ "$ok" = 1 ] || { echo "::error::Python AI health check failed."; exit 1; }
+
+          code="$(curl -sS --max-time 10 -o /tmp/unauth.json -w '%{http_code}'             -H 'content-type: application/json'             --data '{"text":"health"}' "$AI_SERVICE_URL/v1/process")"
+          [ "$code" = "401" ] || { echo "::error::Protected endpoint accepted an unauthenticated call (HTTP $code)."; exit 1; }
+
+          curl -fsS --max-time 15             -H "authorization: Bearer $AI_SERVICE_TOKEN" -H 'content-type: application/json'             --data '{"text":"ڕێگا REGA Berlin","chunk_size":256,"overlap":32}'             "$AI_SERVICE_URL/v1/process" | jq -e '.ok == true and (.chunks | length) > 0' >/dev/null
+
+          curl -fsS --max-time 30             -H "authorization: Bearer $AI_SERVICE_TOKEN" -H 'content-type: application/json'             --data '{"texts":["ڕێگا","Restaurant"]}'             "$AI_SERVICE_URL/v1/embed" | jq -e '.ok == true and (.vectors | length) == 2' >/dev/null
+
+          curl -fsS --max-time 30             -H "authorization: Bearer $AI_SERVICE_TOKEN" -H 'content-type: application/json'             --data '{"query":"restaurant","items":[{"id":"a","text":"restaurant"},{"id":"b","text":"lawyer"}],"top_k":2}'             "$AI_SERVICE_URL/v1/rerank" | jq -e '.ok == true and (.items | length) > 0' >/dev/null
+
+      - name: Install main Worker tooling
+        run: npm ci --ignore-scripts
+
+      - name: Enable Python AI engine for REGA only after smoke tests pass
+        run: |
+          printf '%s' "$AI_SERVICE_URL" | npx wrangler secret put AI_SERVICE_URL --name rega-platform --config wrangler.jsonc
+          printf '%s' "$AI_SERVICE_TOKEN" | npx wrangler secret put AI_SERVICE_TOKEN --name rega-platform --config wrangler.jsonc
+
+      - name: Deployment summary
+        run: |
+          echo "Python AI engine deployed and smoke-tested."
+          echo "Service: $AI_SERVICE_URL"
+          echo "Main REGA Worker now has AI_SERVICE_URL and AI_SERVICE_TOKEN (values not printed for the token)."

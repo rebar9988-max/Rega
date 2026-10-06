@@ -1,0 +1,21 @@
+[project]
+name = "rega-ai-python"
+version = "0.1.0"
+description = "Isolated advanced AI engine for REGA Platform"
+requires-python = ">=3.13"
+dependencies = [
+  "fastapi>=0.118,<1",
+]
+
+[dependency-groups]
+dev = [
+  "httpx>=0.28,<1",
+  "pytest>=8.4,<9",
+  "workers-py",
+  "workers-runtime-sdk",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+pythonpath = ["src"]
