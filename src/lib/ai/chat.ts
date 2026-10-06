@@ -13,7 +13,8 @@ import { getTranslations } from "next-intl/server";
 import type { SearchHit } from "@/lib/search/types";
 import { categorySuggestions, type Suggestion } from "./suggestions";
 import type { Locale } from "@/i18n/locales";
-import { purgeOldConversations } from "./retention";\nimport { rerankWithPython } from "./python-runtime";
+import { purgeOldConversations } from "./retention";
+import { rerankWithPython } from "./python-runtime";
 
 export type ChatMessage = { role: "user" | "assistant" | "system"; content: string };
 
