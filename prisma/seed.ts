@@ -40,11 +40,23 @@ async function seedGeography() {
     }
   }
   const cities: Record<string, string> = {};
-  const existingGermanNames = new Set(CITIES.filter((c) => c.country === "DE").map((c) => c.names.de));
-  const germanCities = GERMAN_CITIES.filter((c) => !existingGermanNames.has(c.name)).map((c) => ({
-    country: "DE", region: c.region, slug: c.slug, lat: c.lat, lng: c.lng,
-    names: { ckb: c.name, kmr: c.name, de: c.name, en: c.name, ar: c.name, fa: c.name, tr: c.name },
-  }));
+  // The imported Germany catalogue contains legitimate same-named municipalities and a few
+  // transliteration collisions (for example Munster / Münster -> "munster"). The current
+  // City schema intentionally requires a globally unique slug and a unique country + nameEn,
+  // so seed only one deterministic representative for each name/slug. Existing curated CITIES
+  // always win; imported rows never overwrite or delete anything already present.
+  const curatedGermanCities = CITIES.filter((c) => c.country === "DE");
+  const seenGermanNames = new Set(curatedGermanCities.map((c) => c.names.de));
+  const seenGermanSlugs = new Set(curatedGermanCities.map((c) => c.slug));
+  const germanCities = GERMAN_CITIES.flatMap((c) => {
+    if (seenGermanNames.has(c.name) || seenGermanSlugs.has(c.slug)) return [];
+    seenGermanNames.add(c.name);
+    seenGermanSlugs.add(c.slug);
+    return [{
+      country: "DE", region: c.region, slug: c.slug, lat: c.lat, lng: c.lng,
+      names: { ckb: c.name, kmr: c.name, de: c.name, en: c.name, ar: c.name, fa: c.name, tr: c.name },
+    }];
+  });
   const allCities = [...CITIES, ...germanCities];
   for (const [i, c] of allCities.entries()) {
     const countryId = countries[c.country];
