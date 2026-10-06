@@ -230,14 +230,15 @@ jobs:
         shell: bash
         run: |
           set -u
+          UA="rega-ci-smoke-test/1.0 (+github-actions)"
           fail=0
           for p in /brand/rega-logo.webp /brand/rega-mark-256.webp /brand/rega-wordmark.webp /icon.png /apple-icon.png /opengraph-image.png /manifest.webmanifest; do
-            code=$(curl -sS -m 25 -o /dev/null -w '%{http_code}' "https://www.regaplatform.com$p" || echo 000)
+            code=$(curl -sS -m 25 -A "$UA" -o /dev/null -w '%{http_code}' "https://www.regaplatform.com$p" || echo 000)
             [ "$code" = "200" ] && echo "ok   $p -> 200" || { echo "FAIL $p -> $code"; fail=1; }
           done
-          home=$(curl -sS -m 25 https://www.regaplatform.com/ckb)
+          home=$(curl -sS -m 25 -A "$UA" https://www.regaplatform.com/ckb)
           grep -qF '/brand/rega-mark-256.webp' <<<"$home" && echo "ok   header uses the official logo" || { echo "FAIL header logo"; fail=1; }
-          about=$(curl -sS -m 25 -o /tmp/about.html -w '%{http_code}' https://www.regaplatform.com/ckb/about)
+          about=$(curl -sS -m 25 -A "$UA" -o /tmp/about.html -w '%{http_code}' https://www.regaplatform.com/ckb/about)
           [ "$about" = "200" ] && grep -qF 'دەربارەی ڕێگا (REGA)' /tmp/about.html && echo "ok   /ckb/about approved text" || { echo "FAIL /ckb/about ($about)"; fail=1; }
           exit $fail
 
@@ -269,16 +270,17 @@ jobs:
         shell: bash
         run: |
           set -u
+          UA="rega-ci-smoke-test/1.0 (+github-actions)"
           fail=0
-          curl -sS -m 25 -D /tmp/sh.txt -o /dev/null https://www.regaplatform.com/de
+          curl -sS -m 25 -A "$UA" -D /tmp/sh.txt -o /dev/null https://www.regaplatform.com/de
           for h in 'content-security-policy:' 'strict-transport-security:' 'x-content-type-options: nosniff' 'x-frame-options: DENY' 'referrer-policy:' 'permissions-policy:'; do
             grep -qi "^$h" /tmp/sh.txt && echo "ok   header $h" || { echo "FAIL missing header $h"; fail=1; }
           done
           grep -qi '^x-powered-by:' /tmp/sh.txt && { echo "FAIL x-powered-by exposed"; fail=1; } || echo "ok   no x-powered-by"
           for p in /api/v1/businesses /api/v1/categories /api/v1/locations /api/v1/businesses/bulk /api/v1/media/upload-url; do
-            code=$(curl -sS -m 25 -X POST -H 'content-type: application/json' -d '{}' -o /dev/null -w '%{http_code}' "https://www.regaplatform.com$p" || echo 000)
+            code=$(curl -sS -m 25 -A "$UA" -X POST -H 'content-type: application/json' -d '{}' -o /dev/null -w '%{http_code}' "https://www.regaplatform.com$p" || echo 000)
             [ "$code" = "401" ] && echo "ok   anonymous POST $p -> 401" || { echo "FAIL anonymous POST $p -> $code"; fail=1; }
           done
-          code=$(curl -sS -m 25 -o /dev/null -w '%{http_code}' https://www.regaplatform.com/dr/ai || echo 000)
+          code=$(curl -sS -m 25 -A "$UA" -o /dev/null -w '%{http_code}' https://www.regaplatform.com/dr/ai || echo 000)
           [ "$code" = "307" ] && echo "ok   /dr/ai (anonymous) -> 307 login" || { echo "FAIL /dr/ai -> $code"; fail=1; }
           exit $fail
