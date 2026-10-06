@@ -11,6 +11,7 @@ import { normalizeSearch } from "../src/lib/text";
 import { reindexAll } from "../src/lib/search-index";
 import { CATEGORIES } from "./seed-data/categories";
 import { CITIES, COUNTRIES, REGIONS } from "./seed-data/geography";
+import { GERMAN_CITIES } from "./seed-data/german-cities";
 
 const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }) });
 const search = (...parts: (string | null | undefined)[]) => normalizeSearch(parts.filter(Boolean).join(" "));
@@ -39,7 +40,13 @@ async function seedGeography() {
     }
   }
   const cities: Record<string, string> = {};
-  for (const [i, c] of CITIES.entries()) {
+  const existingGermanNames = new Set(CITIES.filter((c) => c.country === "DE").map((c) => c.names.de));
+  const germanCities = GERMAN_CITIES.filter((c) => !existingGermanNames.has(c.name)).map((c) => ({
+    country: "DE", region: c.region, slug: c.slug, lat: c.lat, lng: c.lng,
+    names: { ckb: c.name, kmr: c.name, de: c.name, en: c.name, ar: c.name, fa: c.name, tr: c.name },
+  }));
+  const allCities = [...CITIES, ...germanCities];
+  for (const [i, c] of allCities.entries()) {
     const countryId = countries[c.country];
     const data = { nameCkb: c.names.ckb, nameKmr: c.names.kmr, nameDe: c.names.de, nameAr: c.names.ar, nameFa: c.names.fa, nameTr: c.names.tr, slug: c.slug, regionId: c.region ? regions[`${c.country}/${c.region}`] : undefined, latitude: c.lat, longitude: c.lng };
     const row = await prisma.city.upsert({ where: { countryId_nameEn: { countryId, nameEn: c.names.en } }, update: {}, create: { countryId, nameEn: c.names.en, sortOrder: i, ...data } });
@@ -47,7 +54,7 @@ async function seedGeography() {
     if (Object.keys(fill).length) await prisma.city.update({ where: { id: row.id }, data: fill });
     cities[c.names.en] = row.id;
   }
-  console.log(`geography: ${COUNTRIES.length} countries, ${REGIONS.length} regions, ${CITIES.length} cities (idempotent).`);
+  console.log(`geography: ${COUNTRIES.length} countries, ${REGIONS.length} regions, ${allCities.length} cities (idempotent).`);
   return cities;
 }
 
