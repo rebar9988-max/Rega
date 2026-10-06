@@ -44,6 +44,10 @@ const serverSchema = z.object({
   AI_ROUTING: z.string().max(1000).optional(),
   AI_TIMEOUT_MS: z.coerce.number().int().min(2_000).max(60_000).default(20_000),
   AI_DAILY_LIMIT: z.coerce.number().int().min(1).default(5_000),
+  // Optional internal Python AI engine. It is server-to-server only and failure-isolated from the normal AI gateway.
+  AI_SERVICE_URL: z.string().url().optional(),
+  AI_SERVICE_TOKEN: z.string().min(24).optional(),
+  AI_SERVICE_TIMEOUT_MS: z.coerce.number().int().min(250).max(5_000).default(1_500),
   STORAGE_ENDPOINT: z.string().optional(),
   STORAGE_REGION: z.string().default("auto"),
   STORAGE_BUCKET: z.string().optional(),
