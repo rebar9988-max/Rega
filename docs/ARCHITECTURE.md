@@ -24,7 +24,9 @@ flowchart LR
   APP --> PG[(PostgreSQL via Prisma<br/>driver adapter, Hyperdrive optional)]
   APP --> S3[(S3-compatible media bucket)]
   APP --> EM[Email provider<br/>Resend or none]
-  APP --> AI[AI providers<br/>server side only]
+  APP --> AI[REGA AI Gateway<br/>providers + fallback]
+  APP -. advanced AI only .-> PY[Python AI Engine<br/>rerank / embeddings / processing]
+  PY --> WAI[Workers AI<br/>multilingual embedding / reranking]
   APP --> RL[Rate limiter binding<br/>FORM_LIMITER etc.]
 ```
 
@@ -119,7 +121,11 @@ purpose), `Media`, `Setting`, `FeatureFlag`, `Report` (content reports, Digital 
 `src/lib/search` exposes `SearchService` (Postgres today: substring search over denormalised, letter-folded `searchText`
 columns with trigram indexes). Each section contributes a `SectionRetriever`; REGA Assistant is *grounded*: the retrieved
 rows are the only facts the model may use, and with no match the answer is deterministic ("nothing found") without a model
-call. Conversations are deleted after 30 days (`AI_RETENTION_DAYS`).
+call. When `AI_SERVICE_URL` and `AI_SERVICE_TOKEN` are configured, those already-trusted candidates may be semantically
+reranked by the isolated Python AI engine before prompt assembly. Python never performs primary database retrieval and
+cannot introduce a record that REGA did not retrieve. Any Python timeout, outage or malformed response preserves the
+original Postgres order and the existing AI Gateway continues normally. Simple provider calls do not use Python.
+Conversations are deleted after 30 days (`AI_RETENTION_DAYS`). See `docs/PYTHON-AI-ENGINE.md`.
 
 ## URLs
 
