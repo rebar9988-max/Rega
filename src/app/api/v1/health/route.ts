@@ -20,8 +20,11 @@ export async function GET() {
   try {
     await prisma.$queryRaw`SELECT 1`;
     database = "ok";
-    const rows = await prisma.$queryRaw<{ count: bigint }[]>`SELECT count(*) FROM "_prisma_migrations"`;
-    migrations = Number(rows[0]?.count ?? 0) > 0;
+    const rows = await prisma.$queryRaw<{ count: bigint; failed_count: bigint }[]>`
+      SELECT count(*) FILTER (WHERE finished_at IS NOT NULL AND rolled_back_at IS NULL) AS count,
+             count(*) FILTER (WHERE finished_at IS NULL AND rolled_back_at IS NULL) AS failed_count
+      FROM "_prisma_migrations"`;
+    migrations = Number(rows[0]?.count ?? 0) > 0 && Number(rows[0]?.failed_count ?? 0) === 0;
     const columns = await prisma.$queryRaw<{ table_name: string; column_name: string }[]>`
       SELECT table_name::text AS table_name, column_name::text AS column_name FROM information_schema.columns
       WHERE table_schema = 'public' AND table_name IN ('City', 'Page', 'PageTranslation', 'Listing', 'ListingTranslation')`;
