@@ -24,7 +24,8 @@ jobs:
     timeout-minutes: 15
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      # Cloudflare account IDs are public identifiers, not credentials; repository variable/secret may override this known production account.
+      CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID || secrets.CLOUDFLARE_ACCOUNT_ID || 'ee07860dbb8e61ff6915758785baf89a' }}
     steps:
       - name: Cloudflare credentials present?
         id: creds
