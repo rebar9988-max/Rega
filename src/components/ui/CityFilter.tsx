@@ -16,7 +16,7 @@ export function CityFilter({ cities, value, allLabel, cityLabel, fieldClass }: {
       <input id="f-city-search" type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder={allLabel} autoComplete="off" className={fieldClass} list="f-city-options" />
       <input type="hidden" name="city" value={exact?.id ?? (selected && query === selected.label ? selected.id : "")} />
       <datalist id="f-city-options">{matches.map((c) => <option key={c.id} value={c.label} />)}</datalist>
-      <select id="f-city" value={exact?.id ?? (selected && query === selected.label ? selected.id : "")} onChange={(e) => { const c = cities.find((x) => x.id === e.target.value); setQuery(c?.label ?? ""); }} className="sr-only" tabIndex={-1} aria-hidden="true">
+      <select id="f-city" aria-label={cityLabel} value={exact?.id ?? (selected && query === selected.label ? selected.id : "")} onChange={(e) => { const c = cities.find((x) => x.id === e.target.value); setQuery(c?.label ?? ""); }} className="sr-only" tabIndex={-1}>
         <option value="">{allLabel}</option>{cities.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
       </select>
     </div>
