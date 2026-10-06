@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import { ThemeScript } from "@/components/shell/ThemeScript";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(`https://${process.env.CANONICAL_HOST || "www.regaplatform.com"}`),
   title: "REGA Owner Login",
   robots: { index: false, follow: false },
 };
