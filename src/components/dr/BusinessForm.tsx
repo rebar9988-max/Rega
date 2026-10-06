@@ -43,6 +43,8 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
   const locale = useLocale() as Locale;
   const dir = LOCALE_META[locale].dir;
   const [state, formAction, saving] = useActionState<BusinessFormState, FormData>(saveBusinessAction, undefined);
+  const [categoryId, setCategoryId] = useState(initial.categoryId ?? "");
+  const [categoryOpen, setCategoryOpen] = useState(false);
   const [country, setCountry] = useState(initial.countryCode ?? "DE");
   const [city, setCity] = useState(initial.city ?? "");
   const [address, setAddress] = useState(initial.addressLine1 ?? "");
@@ -103,12 +105,43 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
         <label className="flex flex-col gap-1 text-sm font-semibold">{t("nameCkb")}
           <input name="nameCkb" maxLength={200} defaultValue={initial.nameCkb} dir="rtl" className={input} />
         </label>
-        <label className="flex flex-col gap-1 text-sm font-semibold">{t("category")}
-          <select name="categoryId" required defaultValue={initial.categoryId ?? ""} className={input} aria-invalid={bad("categoryId")}>
-            <option value="" disabled>{t("chooseCategory")}</option>
-            {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-          </select>
-        </label>
+        <div className="relative flex flex-col gap-1 text-sm font-semibold">
+          <span>{t("category")}</span>
+          <input type="hidden" name="categoryId" value={categoryId} />
+          <button
+            type="button"
+            aria-haspopup="listbox"
+            aria-expanded={categoryOpen}
+            aria-invalid={bad("categoryId")}
+            onClick={() => setCategoryOpen((v) => !v)}
+            className={`${input} flex items-center justify-between text-start`}
+          >
+            <span className={categoryId ? "" : "text-muted"}>
+              {categories.find((c) => c.id === categoryId)?.name ?? t("chooseCategory")}
+            </span>
+            <span aria-hidden="true" className="ms-2 shrink-0 text-muted">⌄</span>
+          </button>
+          {categoryOpen && (
+            <div
+              role="listbox"
+              aria-label={t("category")}
+              className="absolute inset-x-0 top-full z-50 mt-1 max-h-64 overflow-y-auto overscroll-contain rounded-xl border border-line bg-surface p-1 shadow-xl"
+            >
+              {categories.map((c) => (
+                <button
+                  key={c.id}
+                  type="button"
+                  role="option"
+                  aria-selected={c.id === categoryId}
+                  onClick={() => { setCategoryId(c.id); setCategoryOpen(false); }}
+                  className="flex min-h-11 w-full items-center rounded-lg px-3 py-2 text-start text-sm font-medium hover:bg-surface-2 focus:bg-surface-2 focus:outline-none aria-selected:bg-brand-soft aria-selected:text-brand"
+                >
+                  {c.name}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
         <label className="flex flex-col gap-1 text-sm font-semibold sm:col-span-2">{t("description")}
           <textarea name="description" rows={3} maxLength={8000} defaultValue={initial.description} className={`${input} py-2`} />
         </label>
