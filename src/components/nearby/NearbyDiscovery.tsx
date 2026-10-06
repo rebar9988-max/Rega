@@ -199,30 +199,51 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
     ? `< ${t("km", { km: formatNumber(0.1, locale) })}`
     : t("km", { km: formatNumber(it.distanceKm, locale, { maximumFractionDigits: it.distanceKm < 10 ? 1 : 0 }) });
 
-  // ---------- before a location is known
+  // ---------- before a location is known: map-first discovery, without assuming the visitor's city
   if (!center) {
     const notice = { denied: t("permissionDenied"), unavailable: t("unavailable"), unsupported: t("unsupported") }[status as "denied" | "unavailable" | "unsupported"];
+    const germany = { lat: 51.1657, lng: 10.4515 };
     return (
       <section className="container-page pb-10" aria-live="polite">
-        <div className="rounded-[var(--radius-card)] border border-line bg-surface p-6 shadow-card sm:p-8">
-          <p className="max-w-xl text-muted">{t("start")}</p>
-          {notice && <p role="alert" data-testid="nearby-notice" className="mt-4 rounded-xl bg-brand-soft px-4 py-3 text-sm text-ink">{notice}</p>}
-          <div className="mt-6 grid gap-4 sm:grid-cols-[auto_1fr] sm:items-end">
-            {status !== "unsupported" && (
-              <button type="button" onClick={locate} disabled={status === "locating"} data-testid="nearby-locate"
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-brand px-5 text-sm font-bold text-brand-ink hover:bg-brand-hover disabled:opacity-60">
-                <LocateIcon />
-                {status === "locating" ? t("locating") : t("useLocation")}
-              </button>
-            )}
-            {cities.length > 0 && (
-              <label className="flex flex-col gap-1 text-sm">
-                <span className="font-semibold">{t("chooseCity")}</span>
-                {citySelect("nearby-city")}
-              </label>
-            )}
+        <div className="overflow-hidden rounded-[var(--radius-card)] border border-line bg-surface shadow-card">
+          <div className="grid lg:grid-cols-[minmax(19rem,0.9fr)_minmax(0,1.6fr)]">
+            <div className="order-2 p-5 sm:p-7 lg:order-1 lg:p-8">
+              <div className="mb-5 inline-flex size-11 items-center justify-center rounded-2xl bg-brand-soft text-brand"><LocateIcon /></div>
+              <h2 className="text-xl font-bold tracking-tight">{t("title")}</h2>
+              <p className="mt-2 max-w-xl text-sm leading-7 text-muted">{t("start")}</p>
+              {notice && <p role="alert" data-testid="nearby-notice" className="mt-4 rounded-xl bg-brand-soft px-4 py-3 text-sm text-ink">{notice}</p>}
+              <div className="mt-6 grid gap-3">
+                {status !== "unsupported" && (
+                  <button type="button" onClick={locate} disabled={status === "locating"} data-testid="nearby-locate"
+                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-brand px-5 text-sm font-bold text-brand-ink shadow-sm transition hover:bg-brand-hover disabled:opacity-60">
+                    <LocateIcon />
+                    {status === "locating" ? t("locating") : t("useLocation")}
+                  </button>
+                )}
+                {cities.length > 0 && (
+                  <label className="flex flex-col gap-1.5 text-sm">
+                    <span className="font-semibold">{t("chooseCity")}</span>
+                    {citySelect("nearby-city")}
+                  </label>
+                )}
+              </div>
+              <p className="mt-5 text-xs leading-5 text-muted">{t("privacy")}</p>
+            </div>
+            <div className="order-1 h-[42dvh] min-h-[20rem] border-b border-line lg:order-2 lg:h-[34rem] lg:border-b-0 lg:border-s">
+              <DiscoveryMap
+                className="size-full"
+                center={germany}
+                radiusKm={250}
+                points={[]}
+                selectedId={null}
+                onSelect={() => undefined}
+                onSearchArea={(c) => setCenter({ ...c, label: { kind: "area" } })}
+                user={null}
+                labels={labels}
+                dir={dir}
+              />
+            </div>
           </div>
-          <p className="mt-5 text-xs text-muted">{t("privacy")}</p>
         </div>
       </section>
     );
