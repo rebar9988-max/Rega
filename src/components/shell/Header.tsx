@@ -38,7 +38,12 @@ export async function Header() {
   return (
     <header className="figma sticky top-0 z-40 border-b border-line bg-surface text-ink">
       <div dir="ltr" className="flex h-[4.5rem] w-full items-center justify-between gap-2 px-4 sm:px-6 xl:h-[94px] xl:px-[34px]">
-        <Link href="/" aria-label="REGA Platform" className="shrink-0 rounded-lg"><Wordmark /></Link>
+        <Link href="/" aria-label="REGA Platform" className="shrink-0 rounded-lg">
+          <span className="inline-flex items-center gap-2">
+            <Wordmark />
+            <span className="rounded-full border border-brand/30 bg-brand-soft px-2 py-0.5 text-[9px] font-extrabold tracking-[0.12em] text-brand" aria-label="Beta">BETA</span>
+          </span>
+        </Link>
         <nav aria-label={t("primary")} className="hidden h-full xl:block">
           <NavLinks dir={contentDir} items={headerNav()} />
         </nav>
