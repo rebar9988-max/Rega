@@ -5,7 +5,9 @@ name: Production health
 # "ok": true and checks.database == "ok", plus the public production checks below.
 on:
   workflow_dispatch:
-  push:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
     branches: [main]
   schedule:
     - cron: "17 * * * *" # hourly
@@ -15,6 +17,7 @@ permissions:
 
 jobs:
   health:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     env:
