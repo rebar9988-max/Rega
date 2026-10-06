@@ -47,7 +47,7 @@ test("registration validates: terms are required, passwords must match and be lo
   await form.getByLabel("Passwort wiederholen").fill("kurz");
   await form.getByRole("button", { name: "Konto erstellen" }).click();
   // Native validation stops a too-short password before the server is called.
-  await expect(page).toHaveURL(/\/de\/register$/);
+  await expect(page).toHaveURL(/\/de\/register\?next=%2Fdr%2Fbusinesses%2Fnew$/);
   expect(await form.getByLabel("Passwort", { exact: true }).evaluate((el: HTMLInputElement) => el.validity.tooShort)).toBe(true);
   await form.getByLabel("Passwort", { exact: true }).fill(OWNER.password);
   await form.getByLabel("Passwort wiederholen").fill(OWNER.password + "x");
