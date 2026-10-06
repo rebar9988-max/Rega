@@ -7,17 +7,18 @@ import { CATEGORIES } from "../prisma/seed-data/categories";
 import { CITIES, COUNTRIES, REGIONS } from "../prisma/seed-data/geography";
 import { assertSafeDatabase } from "./e2e/global-setup";
 
-test("seed data: 20 top-level categories with unique keys, an icon and a name in every locale", () => {
-  assert.equal(CATEGORIES.length, 20);
-  assert.equal(new Set(CATEGORIES.map((c) => c.key)).size, 20);
+test("seed data: approved top-level categories have unique keys, an icon and a name in every locale", () => {
+  assert.equal(CATEGORIES.length, 19);
+  assert.equal(new Set(CATEGORIES.map((c) => c.key)).size, 19);
   for (const c of CATEGORIES) {
     assert.match(c.key, /^[a-z0-9-]+$/);
     for (const l of LOCALES) assert.ok(c.names[l]?.trim(), `${c.key}.${l}`);
   }
   // The suggested categories of the brief are all present.
-  for (const key of ["legal", "food", "health", "admin", "translation", "beauty-barber", "auto-garage", "construction-crafts", "education", "real-estate", "travel-tickets", "groceries-markets", "events-weddings", "it-phones", "tax-accounting", "driving-schools", "cleaning", "transport-moving", "insurance", "community-associations"]) {
+  for (const key of ["legal", "food", "health", "admin", "translation", "beauty-barber", "auto-garage", "construction-crafts", "education", "real-estate", "travel-tickets", "groceries-markets", "it-phones", "tax-accounting", "driving-schools", "cleaning", "transport-moving", "insurance", "community-associations"]) {
     assert.ok(CATEGORIES.some((c) => c.key === key), key);
   }
+  assert.ok(!CATEGORIES.some((c) => c.key === "events-weddings"), "events-weddings must stay excluded");
 });
 
 test("seed data: required cities exist with slugs, valid coordinates, a known country/region and all locale names", () => {
