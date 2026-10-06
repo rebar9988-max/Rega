@@ -60,7 +60,7 @@ export type CityScope = {
 };
 
 export const getCities = cache(async (scope: CityScope = {}) => {
-  const countryCode = (scope.countryCode ?? DEFAULT_PUBLIC_COUNTRY_CODE).toUpperCase();
+  const countryCode = scope.countryCode?.toUpperCase();
   const cats = scope.categoryId ? await categoryIds(scope.categoryId) : undefined;
   const businessWhere: Prisma.BusinessWhereInput = {
     ...PUBLIC_BUSINESS,
@@ -70,7 +70,10 @@ export const getCities = cache(async (scope: CityScope = {}) => {
   };
 
   const rows = await prisma.city.findMany({
-    where: { isActive: true, country: { code: countryCode, isActive: true } },
+    where: {
+      isActive: true,
+      ...(countryCode ? { country: { code: countryCode, isActive: true } } : {}),
+    },
     orderBy: [{ sortOrder: "asc" }, { nameEn: "asc" }],
     select: {
       id: true,
@@ -87,7 +90,7 @@ export const getCities = cache(async (scope: CityScope = {}) => {
             where: {
               status: "active",
               deletedAt: null,
-              countryCode,
+              ...(countryCode ? { countryCode } : {}),
               business: businessWhere,
             },
           },
