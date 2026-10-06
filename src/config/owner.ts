@@ -44,11 +44,39 @@ export const placeholderOf = (field: OwnerField): string => `[[${FIELDS.find((f)
 
 export type Owner = Record<OwnerField, string> & { missing: OwnerField[] };
 
+
+/**
+ * Public legal disclosure of the AI vendors REGA can actually route to.
+ * Derived from configuration names only; API keys are never returned or logged.
+ * LEGAL_AI_PROVIDER still wins when an operator wants reviewed custom wording.
+ */
+function configuredAiProviders(env: Env): string {
+  const providers = [
+    ["gemini", "GEMINI_API_KEY", "Google Gemini"],
+    ["grok", "XAI_API_KEY", "xAI Grok"],
+    ["openai", "OPENAI_API_KEY", "OpenAI"],
+    ["groq", "GROQ_API_KEY", "Groq"],
+    ["deepseek", "DEEPSEEK_API_KEY", "DeepSeek"],
+    ["openrouter", "OPENROUTER_API_KEY", "OpenRouter"],
+    ["anthropic", "ANTHROPIC_API_KEY", "Anthropic Claude"],
+  ] as const;
+  const mode = (env.AI_PROVIDER?.trim().toLowerCase() || "auto");
+  if (mode === "disabled") return "";
+  if (mode === "auto") return providers.filter(([, key]) => Boolean(env[key]?.trim())).map(([, , label]) => label).join(", ");
+  const selected = providers.find(([id, key]) => id === mode && Boolean(env[key]?.trim()));
+  return selected?.[2] ?? "";
+}
+
 export function ownerDetails(env: Env = process.env): Owner {
   const out = {} as Record<OwnerField, string>;
   const missing: OwnerField[] = [];
   for (const [field, name] of FIELDS) {
-    const derived = field === "emailProvider" && env.EMAIL_PROVIDER === "resend" ? "Resend (Resend, Inc.)" : "";
+    const derived =
+      field === "emailProvider" && env.EMAIL_PROVIDER === "resend"
+        ? "Resend (Resend, Inc.)"
+        : field === "aiProvider"
+          ? configuredAiProviders(env)
+          : "";
     const raw = env[name]?.trim() || DEFAULTS[field] || derived;
     if (raw) out[field] = raw;
     else if (OPTIONAL.has(field)) out[field] = "";
