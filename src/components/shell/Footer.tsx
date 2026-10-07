@@ -24,9 +24,9 @@ export async function Footer() {
   ].filter((g) => g.items.length > 0).map((g) => ({ title: g.title, items: g.items.map((i) => ({ href: i.href, label: t(i.key) })) }));
 
   return (
-    <footer className="mt-16 border-t border-line bg-surface">
-      <div className="container-page flex flex-col gap-5 py-6 md:flex-row md:items-start md:justify-between md:gap-10 md:py-8">
-        <div className="max-w-xs space-y-2">
+    <footer className="mt-12 border-t border-line bg-surface">
+      <div className="container-page flex flex-col gap-5 py-5 md:flex-row md:items-center md:justify-between md:gap-8">
+        <div className="max-w-sm space-y-1.5">
           <Link href="/" className="inline-flex items-center gap-2 font-bold" aria-label="REGA Platform">
             <LogoMark className="size-8" />
             <span dir="ltr">REGA Platform</span>
@@ -44,7 +44,7 @@ export async function Footer() {
             </nav>
           )}
         </div>
-        <nav aria-label={tf("explore")} className="grid grid-cols-3 gap-x-4 gap-y-4 text-sm sm:gap-x-8 md:gap-x-12">
+        <nav aria-label={tf("explore")} className="grid grid-cols-3 gap-x-5 gap-y-3 text-xs sm:gap-x-8">
           {groups.map((g) => (
             <div key={g.title}>
               <h2 className="mb-1 text-xs font-bold text-ink">{g.title}</h2>
@@ -55,7 +55,7 @@ export async function Footer() {
           ))}
         </nav>
       </div>
-      <div className="border-t border-line py-4 text-center text-xs text-muted">
+      <div className="border-t border-line py-3 text-center text-[11px] text-muted">
         {tf("rights", { year: new Date().getFullYear() })}
       </div>
     </footer>
