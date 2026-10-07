@@ -123,10 +123,9 @@ test("map mode API: every match in range in one response, with category, no inte
   expect((await request.get("/api/v1/nearby?lat=52.52&lng=13.405&mode=all")).status()).toBe(422);
 });
 
-test("place search: typing a city name offers to search there (RTL)", async ({ page }) => {
+test("place search: typing a German city name offers to search there (RTL)", async ({ page }) => {
   await page.goto("/ckb/nearby");
-  await page.getByTestId("nearby-city").selectOption({ label: "هەولێر" });
-  await expect(page.getByTestId("nearby-results")).toContainText("چێشتخانەی زاگرۆس");
+  await expect(page.getByTestId("nearby-city")).toHaveValue("");
   await page.getByTestId("nearby-q").fill("بەرل");
   await page.getByTestId("nearby-place-matches").getByRole("button", { name: /بەرلین/ }).click();
   await expect(page.getByTestId("nearby-place")).toContainText("بەرلین");
@@ -157,8 +156,8 @@ test.describe("without location permission", () => {
     await expect(page.getByTestId("nearby-city")).toHaveValue(""); // no default city
     await page.getByTestId("nearby-locate").click();
     await expect(page.getByTestId("nearby-notice")).toBeVisible();
-    await page.getByTestId("nearby-city").selectOption({ label: "هەولێر" });
-    await expect(page.getByTestId("nearby-results")).toContainText("چێشتخانەی زاگرۆس");
+    await page.getByTestId("nearby-city").selectOption({ label: "بەرلین" });
+    await expect(page.getByTestId("nearby-results")).toContainText("ڕاوێژکاری یاسایی کوردستان");
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   });
 });
@@ -188,13 +187,16 @@ test("only published providers appear; draft and deleted ones never do", async (
   }
 });
 
-test("city picker lists database cities Germany-first, with none preselected", async ({ page }) => {
+test("city picker lists only German public-market cities, with none preselected", async ({ page }) => {
   await page.goto("/de/nearby");
   const select = page.getByTestId("nearby-city");
   await expect(select).toHaveValue("");
   const labels = (await select.locator("option").allTextContents()).slice(1); // skip placeholder
   expect(labels.length).toBeGreaterThan(0);
-  expect(labels[0]).toBe("Berlin"); // German cities first (by country, not a hard-coded city)
+  expect(labels).toContain("Berlin");
+  for (const foreign of ["Erbil", "Sulaimaniyya", "London", "Paris", "Amsterdam", "Stockholm", "Wien"]) {
+    expect(labels).not.toContain(foreign);
+  }
 });
 
 test.describe("location unavailable", () => {
