@@ -136,8 +136,9 @@ test("place search: typing a city name offers to search there (RTL)", async ({ p
 test("business detail shows its locations on an interactive map", async ({ page }) => {
   await stubBasemap(page);
   await page.goto("/de/businesses/kurdistan-rechtsberatung");
+  const shell = page.getByTestId("places-map-shell");
+  await shell.scrollIntoViewIfNeeded();
   const map = page.getByTestId("discovery-map");
-  await map.scrollIntoViewIfNeeded();
   await expect(map).toHaveAttribute("data-status", "ready", { timeout: 20_000 });
   await map.getByRole("button", { name: /Kurdistan Rechtsberatung|Hauptsitz|Standort/ }).first().click();
   await expect(page.getByTestId("map-preview").getByRole("link", { name: "Route" })).toHaveAttribute("href", /google\.com\/maps\/dir\/\?api=1&destination=52\.52,13\.405/);
