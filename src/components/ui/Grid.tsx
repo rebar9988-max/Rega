@@ -5,7 +5,7 @@ import { EmptyState } from "./EmptyState";
 import { buttonClass } from "./Button";
 
 export function Grid({ children }: { children: ReactNode }) {
-  return <div className="container-page grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">{children}</div>;
+  return <div className="container-page grid grid-cols-1 gap-3">{children}</div>;
 }
 
 /**
@@ -28,7 +28,7 @@ export async function NoResults({ filtered = false }: { filtered?: boolean }) {
 /** Route-level skeleton: same grid as the real page, so nothing jumps when data arrives. */
 export function GridSkeleton({ count = 6 }: { count?: number }) {
   return (
-    <div className="container-page grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-hidden="true">
+    <div className="container-page grid grid-cols-1 gap-3" aria-hidden="true">
       {Array.from({ length: count }, (_, i) => <div key={i} className="h-36 animate-pulse rounded-[var(--radius-card)] border border-line bg-surface-2" />)}
     </div>
   );
