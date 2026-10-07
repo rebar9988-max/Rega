@@ -22,11 +22,11 @@ export async function Breadcrumbs({ items }: { items: Crumb[] }) {
 
 export async function PageHeader({ title, subtitle, crumbs }: { title: ReactNode; subtitle?: ReactNode; crumbs?: Crumb[] }) {
   return (
-    <header className="container-page pt-10 pb-6">
+    <header className="container-page pb-6 pt-9 sm:pt-12">
       {crumbs && <Breadcrumbs items={crumbs} />}
-      <h1 className="text-3xl font-extrabold sm:text-4xl">{title}</h1>
-      <span aria-hidden="true" className="mt-3 block h-1 w-12 rounded-full bg-brand" />
-      {subtitle && <p className="mt-2 max-w-2xl text-muted">{subtitle}</p>}
+      <h1 className="rega-display text-3xl sm:text-4xl">{title}</h1>
+      <span aria-hidden="true" className="mt-4 block h-1 w-10 rounded-full bg-brand" />
+      {subtitle && <p className="mt-3 max-w-2xl text-sm leading-7 text-muted sm:text-base">{subtitle}</p>}
     </header>
   );
 }
