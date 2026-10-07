@@ -14,6 +14,7 @@ import type { Locale } from "@/i18n/locales";
 import { localizeText } from "@/lib/content";
 import { getCities, listLocations, type LocationQuery } from "@/lib/data";
 import { listShape, parseParams } from "@/lib/data/params";
+import { log } from "@/lib/logger";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -26,7 +27,14 @@ export default async function LocationsPage({ params, searchParams }: { params: 
   setRequestLocale(locale);
   const query = parseParams(listShape, await searchParams);
   const t = await getTranslations();
-  const cities = await getCities();
+  // City chips are helpful, but a transient database read must not take the whole public
+  // locations page down. The result list below still retries its independent read.
+  let cities: Awaited<ReturnType<typeof getCities>> = [];
+  try {
+    cities = await getCities();
+  } catch (error) {
+    log.error("locations.cities_unavailable", { error: error instanceof Error ? error.message : String(error) });
+  }
   const active = (await getLocale()) as Locale;
 
   return (
@@ -55,7 +63,23 @@ export default async function LocationsPage({ params, searchParams }: { params: 
 }
 
 async function Results({ query }: { query: LocationQuery }) {
-  const result = await listLocations(query);
+  let result: Awaited<ReturnType<typeof listLocations>>;
+  try {
+    result = await listLocations(query);
+  } catch (firstError) {
+    // listLocations is not React-cached, so one bounded retry can recover from a short-lived
+    // database/edge connection reset without hiding a persistent outage.
+    await new Promise((resolve) => setTimeout(resolve, 150));
+    try {
+      result = await listLocations(query);
+    } catch (error) {
+      log.error("locations.results_unavailable", {
+        firstError: firstError instanceof Error ? firstError.message : String(firstError),
+        error: error instanceof Error ? error.message : String(error),
+      });
+      throw error;
+    }
+  }
   return (
     <>
       <ResultsMeta total={result.total} />

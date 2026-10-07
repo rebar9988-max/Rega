@@ -29,11 +29,13 @@ const querySchema = z.object({
 
 export async function GET(request: NextRequest) {
   try {
+    // Validate before touching rate-limit storage or the database. Invalid coordinates must
+    // deterministically return 422 even when an optional runtime dependency is temporarily unavailable.
+    const params = Object.fromEntries(new URL(request.url).searchParams);
+    const query = querySchema.parse(params);
     if (!(await allowShared("SEARCH_LIMITER", `nearby:${clientIp(request.headers)}`, 120, 60_000))) {
       return fail(429, "rate_limited", "Too many requests. Please wait a moment.");
     }
-    const params = Object.fromEntries(new URL(request.url).searchParams);
-    const query = querySchema.parse(params);
     const result = await nearbyBusinesses({
       lat: coarsen(query.lat),
       lng: coarsen(query.lng),
