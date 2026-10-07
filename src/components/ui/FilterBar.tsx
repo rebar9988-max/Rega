@@ -15,15 +15,15 @@ type Props = {
   searchLabel: string;
 };
 
-const field = "min-h-11 rounded-xl border border-line bg-surface px-3 text-sm outline-none focus:border-brand";
+const field = "min-h-11 rounded-lg border border-line bg-surface px-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/10";
 
 /** Server-rendered GET form: filters live in the URL (shareable, crawlable, back-button friendly). */
 export async function FilterBar({ action, values, categories, cities, sorts, verified, searchLabel }: Props) {
   const t = await getTranslations();
   const active = Boolean(values.q || values.category || values.city || values.verified);
   return (
-    <form action={action} role="search" className="container-page mb-8">
-      <div className="grid gap-3 rounded-[var(--radius-card)] border border-line bg-surface p-3 shadow-card sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr_auto]">
+    <form action={action} role="search" className="container-page mb-6">
+      <div className="rega-search-shell grid gap-2 p-2 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr_auto]">
         <div className="sm:col-span-2 lg:col-span-1">
           <label htmlFor="f-q" className="sr-only">{searchLabel}</label>
           <input id="f-q" name="q" type="search" defaultValue={values.q} placeholder={searchLabel} autoComplete="off" className={`${field} w-full`} />
@@ -48,9 +48,9 @@ export async function FilterBar({ action, values, categories, cities, sorts, ver
             </select>
           </div>
         )}
-        <button type="submit" className="min-h-11 rounded-xl bg-brand px-5 text-sm font-semibold text-brand-ink hover:bg-brand-hover">{t("list.apply")}</button>
+        <button type="submit" className="min-h-11 rounded-lg bg-brand px-6 text-sm font-bold text-brand-ink transition hover:bg-brand-hover">{t("list.apply")}</button>
       </div>
-      <div className="mt-3 flex flex-wrap items-center gap-4 text-sm">
+      <div className="mt-3 flex flex-wrap items-center gap-4 rounded-lg border border-line bg-surface px-3 py-2 text-sm">
         {verified && (
           <label className="inline-flex min-h-9 cursor-pointer items-center gap-2">
             <input type="checkbox" name="verified" value="1" defaultChecked={values.verified === "1"} className="size-4 accent-[var(--brand)]" />
