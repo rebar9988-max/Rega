@@ -26,19 +26,19 @@ export default async function Overview() {
 
   return (
     <>
-      <h1 className="mb-6 text-2xl font-extrabold">{t("overview")}</h1>
-      <dl className="grid grid-cols-2 gap-3 lg:grid-cols-3">
+      <h1 className="rega-display mb-6 text-2xl sm:text-3xl">{t("overview")}</h1>
+      <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {stats.map(([k, n]) => (
-          <div key={k} className="rounded-[var(--radius-card)] border border-line bg-surface p-5">
-            <dd className="text-3xl font-extrabold text-brand">{formatNumber(n, locale)}</dd>
+          <div key={k} className="rega-card p-5">
+            <dd className="text-3xl font-extrabold text-ink">{formatNumber(n, locale)}</dd>
             <dt className="text-sm text-muted">{t(k)}</dt>
           </div>
         ))}
       </dl>
       {recent.length > 0 && (
-        <section className="mt-10" aria-labelledby="recent">
+        <section className="mt-8" aria-labelledby="recent">
           <h2 id="recent" className="mb-3 text-lg font-bold">{t("recentActivity")}</h2>
-          <ul className="divide-y divide-line rounded-[var(--radius-card)] border border-line bg-surface">
+          <ul className="divide-y divide-line overflow-hidden rounded-[var(--radius-card)] border border-line bg-surface shadow-card">
             {recent.map((r) => (
               <li key={r.id} className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 text-sm">
                 <span><Ltr className="font-semibold">{r.action}</Ltr> <span className="text-muted">· {r.actorEmail ?? "—"}</span></span>
