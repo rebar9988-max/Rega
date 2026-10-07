@@ -74,25 +74,40 @@ export default async function BusinessPage({ params }: Props) {
       <JsonLd data={jsonLd} />
       <PageSchema name={name.text} path={`/business/${slug}`} crumbs={[{ name: t("businesses.title"), path: "/businesses" }, { name: name.text, path: `/business/${slug}` }]} />
       <ViewPing slug={b.slug} />
-      {b.coverUrl && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={b.coverUrl} alt="" width={1200} height={320} decoding="async" fetchPriority="high" className="h-40 w-full object-cover sm:h-64" />
-      )}
       <div className="container-page pt-8">
         <Breadcrumbs items={[{ label: t("nav.home"), href: "/" }, { label: t("businesses.title"), href: "/businesses" }, { label: <Text value={name} pageLang={pageLang} /> }]} />
-        <header className="flex flex-wrap items-start gap-4">
-          <Avatar name={name.text} src={b.logoUrl} size="size-20" />
-          <div className="min-w-0 flex-1">
-            <h1 className="text-3xl font-extrabold sm:text-4xl"><Text value={name} pageLang={pageLang} /></h1>
-            <div className="mt-2 flex flex-wrap items-center gap-3">
-              <Rating value={b.ratingAvg} count={b.ratingCount} />
-              {b.verified && <VerifiedBadge />}
-              {b.featured && <Chip>{t("businesses.featured")}</Chip>}
+
+        <header className="rega-shell overflow-hidden">
+          <div className="grid lg:grid-cols-[minmax(18rem,.95fr)_minmax(0,1.3fr)]">
+            <div className="relative min-h-[17rem] bg-brand-soft">
+              {b.coverUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={b.coverUrl} alt="" width={900} height={650} decoding="async" fetchPriority="high" className="absolute inset-0 size-full object-cover" />
+              ) : (
+                <div className="grid size-full min-h-[17rem] place-items-center">
+                  <Avatar name={name.text} src={b.logoUrl} size="size-24" />
+                </div>
+              )}
+            </div>
+            <div className="flex min-w-0 flex-col justify-center p-5 sm:p-7 lg:p-8">
+              <div className="flex flex-wrap items-center gap-2">
+                <h1 className="rega-display min-w-0 text-3xl sm:text-4xl"><Text value={name} pageLang={pageLang} /></h1>
+                {b.verified && <VerifiedBadge />}
+              </div>
+              <div className="mt-3 flex flex-wrap items-center gap-3">
+                <Rating value={b.ratingAvg} count={b.ratingCount} />
+                {b.featured && <Chip>{t("businesses.featured")}</Chip>}
+              </div>
+              {about.text && <p className="mt-4 line-clamp-3 max-w-2xl text-sm leading-7 text-muted"><Text value={about} pageLang={pageLang} /></p>}
+              <div className="mt-5 flex flex-wrap gap-2">
+                {tel && <a href={`tel:${tel}`} className={buttonClass("primary")}>{t("businesses.call")}</a>}
+                {website && <a href={website} target="_blank" rel="noopener noreferrer nofollow" className={buttonClass("secondary")}>{t("businesses.visitWebsite")}</a>}
+              </div>
             </div>
           </div>
         </header>
 
-        <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_20rem]">
+        <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_20rem]">
           <div className="space-y-10">
             {about.text && (
               <section aria-labelledby="about">
@@ -104,7 +119,7 @@ export default async function BusinessPage({ params }: Props) {
             <section aria-labelledby="services">
               <h2 id="services" className="mb-3 text-xl font-bold">{t("businesses.servicesCount")}</h2>
               {b.services.length === 0 ? <p className="text-muted">{t("businesses.noServices")}</p> : (
-                <ul className="divide-y divide-line overflow-hidden rounded-[var(--radius-card)] border border-line bg-surface">
+                <ul className="divide-y divide-line overflow-hidden rounded-[var(--radius-card)] border border-line bg-surface shadow-card">
                   {await Promise.all(b.services.map(async (s) => (
                     <li key={s.id}>
                       <Link href={`/services/${b.slug}/${s.slug}`} className="flex min-h-14 items-center justify-between gap-4 px-4 py-3 hover:bg-surface-2">
@@ -159,7 +174,7 @@ export default async function BusinessPage({ params }: Props) {
             <ReviewSection businessId={b.id} businessSlug={b.slug} />
           </div>
 
-          <aside aria-label={t("businesses.contact")} className="h-fit space-y-3 rounded-[var(--radius-card)] border border-line bg-surface p-5 shadow-card lg:sticky lg:top-24">
+          <aside aria-label={t("businesses.contact")} className="rega-shell h-fit space-y-3 p-5 lg:sticky lg:top-24">
             <h2 className="text-lg font-bold">{t("businesses.contact")}</h2>
             {tel && <a href={`tel:${tel}`} className={buttonClass("primary", "w-full")}>{t("businesses.call")}</a>}
             {b.email && <a href={`mailto:${b.email}`} className={buttonClass("secondary", "w-full")}>{t("businesses.sendEmail")}</a>}
