@@ -53,7 +53,7 @@ export async function BusinessCard({ b }: { b: BusinessCardData }) {
 
       <div className="hidden items-center p-5 sm:flex">
         <span className="inline-flex min-h-10 items-center rounded-lg border border-brand px-4 text-xs font-bold text-brand transition group-hover:bg-brand group-hover:text-white">
-          {t("viewProfile")}
+          {t("contact")}
         </span>
       </div>
     </article>
