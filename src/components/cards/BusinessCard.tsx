@@ -14,6 +14,7 @@ const PIN = "M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z";
 export async function BusinessCard({ b }: { b: BusinessCardData }) {
   const locale = (await getLocale()) as Locale;
   const t = await getTranslations("businesses");
+  const tc = await getTranslations("common");
   const pageLang = LOCALE_META[locale].htmlLang;
   const name = localize(b, "name", locale);
   const city = b.locations[0]?.city;
@@ -53,7 +54,7 @@ export async function BusinessCard({ b }: { b: BusinessCardData }) {
 
       <div className="hidden items-center p-5 sm:flex">
         <span className="inline-flex min-h-10 items-center rounded-lg border border-brand px-4 text-xs font-bold text-brand transition group-hover:bg-brand group-hover:text-white">
-          {t("contact")}
+          {tc("viewDetails")}
         </span>
       </div>
     </article>
