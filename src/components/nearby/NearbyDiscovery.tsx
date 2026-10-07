@@ -205,7 +205,7 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
     const germany = { lat: 51.1657, lng: 10.4515 };
     return (
       <section className="container-page pb-10" aria-live="polite">
-        <div className="overflow-hidden rounded-[var(--radius-card)] border border-line bg-surface shadow-card">
+        <div className="rega-shell overflow-hidden">
           <div className="grid lg:grid-cols-[minmax(19rem,0.9fr)_minmax(0,1.6fr)]">
             <div className="order-2 p-5 sm:p-7 lg:order-1 lg:p-8">
               <div className="mb-5 inline-flex size-11 items-center justify-center rounded-2xl bg-brand-soft text-brand"><LocateIcon /></div>
@@ -268,7 +268,7 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
         </div>
       </div>
 
-      <form className="grid grid-cols-2 gap-3 rounded-[var(--radius-card)] border border-line bg-surface p-4 shadow-card md:grid-cols-3 lg:grid-cols-[2fr_1fr_1fr_1fr_1fr_auto]" onSubmit={(e) => e.preventDefault()} role="search">
+      <form className="rega-search-shell grid grid-cols-2 gap-2 p-3 md:grid-cols-3 lg:grid-cols-[2fr_1fr_1fr_1fr_1fr_auto]" onSubmit={(e) => e.preventDefault()} role="search">
         <div className="col-span-2 md:col-span-3 lg:col-span-1">
           <label className="sr-only" htmlFor="nearby-q">{t("searchPlaceholder")}</label>
           <div className="relative">
@@ -341,7 +341,7 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
             {mapList.slice(0, mapShown).map((it) => (
               <li key={it.id}>
                 <button type="button" onClick={() => setSelected(it.id)} aria-pressed={selected === it.id}
-                  className={`flex w-full items-center gap-3 rounded-[var(--radius-card)] border bg-surface p-3 text-start transition-colors ${selected === it.id ? "border-brand bg-brand-soft/40" : "border-line hover:border-brand/40"}`}>
+                  className={`flex w-full items-center gap-3 rounded-xl border bg-surface p-3 text-start transition-colors ${selected === it.id ? "border-brand bg-brand-soft/40" : "border-line hover:border-brand/40"}`}>
                   <Avatar name={localize(it.business, "name", locale).text} src={it.business.logoUrl} size="size-12" />
                   <span className="min-w-0 flex-1">
                     <span className="block truncate font-bold"><Text value={localize(it.business, "name", locale)} pageLang={pageLang} /></span>
@@ -390,7 +390,7 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
             const name = localize(it.business, "name", locale);
             const city = it.city ? localize({ ...it.city, name: it.city.nameEn }, "name", locale) : null;
             return (
-              <li key={it.id} className="relative flex flex-col gap-3 rounded-[var(--radius-card)] border border-line bg-surface p-5 shadow-card card-lift">
+              <li key={it.id} className="rega-card relative flex flex-col gap-3 p-5">
                 <div className="flex items-start justify-between gap-3">
                   <h3 className="min-w-0 text-base font-bold">
                     <Link href={`/business/${it.business.slug}`} className="hover:underline"><Text value={name} pageLang={pageLang} /></Link>
@@ -438,7 +438,7 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
   function stackList(ids: string[]) {
     const rows = mapList.filter((it) => ids.includes(it.id));
     return (
-      <article className="max-h-72 overflow-y-auto rounded-[var(--radius-card)] border border-line bg-surface p-3 shadow-lift" data-testid="map-stack">
+      <article className="rega-shell max-h-72 overflow-y-auto p-3" data-testid="map-stack">
         <div className="mb-2 flex items-center justify-between gap-2 px-1">
           <p className="text-sm font-bold">{t("results", { count: formatNumber(rows.length, locale) })}</p>
           <button type="button" onClick={() => setStack(null)} aria-label={tm("close")} className="grid size-8 place-items-center rounded-full text-muted hover:bg-surface-2 hover:text-ink">
@@ -466,7 +466,7 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
     const city = it.city ? localize({ ...it.city, name: it.city.nameEn }, "name", locale) : null;
     const image = it.business.coverUrl ?? it.business.logoUrl;
     return (
-      <article className="rounded-[var(--radius-card)] border border-line bg-surface p-4 shadow-lift" data-testid="map-preview" aria-label={name.text}>
+      <article className="rega-shell p-4" data-testid="map-preview" aria-label={name.text}>
         <div className="flex gap-3">
           {image
             // eslint-disable-next-line @next/next/no-img-element
