@@ -115,7 +115,7 @@
    therefore carry an explicit leading utility, otherwise the base layer's heading line height would come back). */
 .figma { font-family: "Inter Variable", var(--font-noto-arabic), system-ui, sans-serif; line-height: normal; --placeholder: #a7abb1; --map: #e9edf0; }
 :root:not([data-theme="dark"]) .figma {
-  --brand: #ed1836; --brand-hover: #d3122e; --brand-soft: #fff2f4; --ring: #ed1836;
+  --brand: #e30613; --brand-hover: #c9000c; --brand-soft: #fff1f2; --ring: #e30613;
   --ink: #202124; --muted: #777b82; --line: #e7e8eb; --surface: #ffffff; --surface-2: #f7f7f8;
 }
 :root[data-theme="dark"] .figma { --placeholder: var(--muted); --map: var(--surface-2); }
