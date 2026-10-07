@@ -41,7 +41,6 @@ export async function Header() {
           <Link href="/search" aria-label={tc("search")} className="grid size-10 place-items-center rounded-xl text-muted transition hover:bg-brand-soft hover:text-brand xl:hidden">
             <FigmaIcon name="search" className="size-5" />
           </Link>
-          <LanguageSwitcher />
           <Link href={accountHref} className="hidden min-h-10 w-28 items-center justify-center gap-2 rounded-xl border border-line px-3 text-[12px] font-semibold text-ink transition hover:border-brand hover:text-brand sm:flex">
             <FigmaIcon name="user" className="size-4 shrink-0" />
             <span dir={contentDir}>{signedIn ? t("account") : t("login")}</span>
@@ -49,6 +48,8 @@ export async function Header() {
           {signedIn
             ? <NextLink href="/dr/businesses/new" className={addClass}><span dir={contentDir}>{t("addAd")}</span></NextLink>
             : <Link href="/for-business" className={addClass}><span dir={contentDir}>{t("addAd")}</span></Link>}
+          {/* Physical edge anchor: localized account/action labels must not move the switcher. */}
+          <LanguageSwitcher />
           <MobileNav items={mobileNav()} />
         </div>
       </div>
