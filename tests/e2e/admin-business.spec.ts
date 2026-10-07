@@ -73,8 +73,9 @@ test("admin adds a business: address lookup, confirmed map location, publish; it
   expect(other.data.some((i: { business: { name: string } }) => i.business.name === name)).toBe(false);
   // Detail page shows it on the map.
   await page.goto(`/de/businesses/${hit.business.slug}`);
+  const detailShell = page.getByTestId("places-map-shell");
+  await detailShell.scrollIntoViewIfNeeded();
   const detailMap = page.getByTestId("discovery-map");
-  await detailMap.scrollIntoViewIfNeeded();
   await expect(detailMap).toHaveAttribute("data-status", "ready", { timeout: 20_000 });
   await expect(detailMap.locator("button.rega-pin")).toHaveCount(1);
   // Nearby map: marker -> preview -> detail.
