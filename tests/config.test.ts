@@ -14,8 +14,13 @@ test("registry: disabled sections are invisible everywhere", () => {
   for (const surface of ["header", "mobile", "sitemap", "assistant"] as const) assert.ok(!sectionsFor(surface, off).some((s) => ["jobs", "events", "guides"].includes(s.key)), surface);
   assert.ok(!footerSections("explore", off).some((s) => s.key === "jobs"));
   assert.ok(!sectionEnabled("events", off));
-  // With no override the built content sections are on.
-  assert.ok(["jobs", "events", "guides"].every((k) => sectionEnabled(k, {})));
+  // Approved public defaults keep jobs/events hidden while guides remain available.
+  for (const key of ["jobs", "events"]) assert.ok(!sectionEnabled(key, {}), key);
+  assert.ok(sectionEnabled("guides", {}));
+  for (const surface of ["header", "mobile", "sitemap", "search", "assistant"] as const) {
+    assert.ok(!sectionsFor(surface, {}).some((s) => ["jobs", "events"].includes(s.key)), `${surface} defaults`);
+  }
+  assert.ok(!footerSections("explore", {}).some((s) => ["jobs", "events"].includes(s.key)), "footer defaults");
 });
 
 test("registry: a section added to the registry shows up in nav, footer and sitemap with no other edits (dummy section)", () => {
