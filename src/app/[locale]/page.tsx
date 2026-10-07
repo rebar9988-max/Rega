@@ -75,46 +75,45 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         <PageSchema name={t("ask")} description={t("lead")} />
         {degraded && <NoEdgeCache />}
 
-        {/* ---------- Hero (frame 204:943, without its photo) ---------- */}
-        <section className="hero-figma text-white">
-          <div className="relative mx-auto max-w-[1440px] px-4 py-8 sm:px-6 lg:h-[326px] lg:p-0">
-            <div className="hidden flex-col gap-1 text-start lg:absolute lg:start-[45px] lg:top-[48px] lg:flex lg:w-[385px] lg:max-w-[38%]">
-              <p className="text-[29px] font-black leading-[normal]"><span dir="ltr">REGA</span></p>
-              <p className="text-[17px] font-bold">{t("brandTag")}</p>
-              <p className="text-[12px] leading-[1.6] text-white/85">{t("brandSub")}</p>
+        {/* ---------- Approved REGA home hero ---------- */}
+        <section className="border-b border-line bg-surface">
+          <div className="mx-auto grid max-w-[1220px] gap-0 px-4 py-6 sm:px-6 lg:grid-cols-[1.05fr_.95fr] lg:px-0 lg:py-10">
+            <div className="flex min-h-[300px] flex-col justify-center px-0 py-6 text-start lg:px-8">
+              <span className="rega-kicker" aria-hidden="true" />
+              <h1 className="rega-display mt-5 max-w-xl text-[clamp(2.4rem,5vw,4.6rem)]">
+                {t("ask")}
+              </h1>
+              <p className="mt-4 max-w-xl text-sm leading-7 text-muted sm:text-base">{t("heroLead")}</p>
             </div>
-            <div className="flex flex-col gap-2 text-start lg:absolute lg:end-[38px] lg:top-[47px] lg:w-[625px] lg:max-w-[58%] lg:text-end">
-              <h1 className="text-[34px] font-black leading-[1.15] sm:text-[43px]">{t("ask")}</h1>
-              <p className="text-[15px] font-medium">{t("heroLead")}</p>
+            <div className="rega-red-panel relative hidden min-h-[300px] overflow-hidden rounded-s-[5.5rem] lg:block" aria-hidden="true">
+              <div className="absolute -end-20 -top-20 size-72 rounded-full border-[34px] border-white/18" />
+              <div className="absolute end-20 top-16 size-44 rounded-full border-[24px] border-white/12" />
+              <div className="absolute bottom-8 start-10 max-w-xs text-white">
+                <p dir="ltr" className="text-4xl font-black tracking-tight">REGA</p>
+                <p className="mt-2 text-sm font-semibold text-white/88">{t("brandTag")}</p>
+              </div>
             </div>
 
             <form action={`/${locale}/businesses`} role="search"
-              className="mt-6 flex flex-col overflow-hidden rounded-[8px] bg-surface text-ink shadow-[0_8px_24px_rgb(17_24_39/0.14)] lg:absolute lg:inset-x-0 lg:top-[236px] lg:mx-auto lg:mt-0 lg:h-[68px] lg:w-[960px] lg:max-w-[calc(100%-48px)] lg:flex-row">
-              <button type="submit" className="order-last flex min-h-[52px] items-center justify-center gap-[10px] bg-brand px-[27px] text-[15px] font-bold text-white transition-colors hover:bg-brand-hover lg:order-none lg:h-full lg:w-[158px] lg:shrink-0">
-                <FigmaIcon name="search" className="size-5 shrink-0" />{tn("search")}
-              </button>
-              <label className="flex min-h-[52px] min-w-0 flex-1 items-center border-b border-line px-5 focus-within:ring-2 focus-within:ring-inset focus-within:ring-[var(--ring)] lg:border-b-0">
+              className="rega-search-shell z-10 col-span-full -mt-1 grid overflow-hidden sm:grid-cols-[minmax(0,1.7fr)_minmax(12rem,.8fr)_auto] lg:mx-8 lg:-mt-8">
+              <label className="flex min-h-14 min-w-0 items-center gap-3 px-4 focus-within:ring-2 focus-within:ring-inset focus-within:ring-[var(--ring)]">
+                <FigmaIcon name="search" className="size-5 shrink-0 text-brand" />
                 <span className="sr-only">{t("what")}</span>
                 <input name="q" type="search" autoComplete="off" maxLength={120} placeholder={t("searchWhat")}
-                  className="min-w-0 flex-1 bg-transparent text-[13px] text-ink outline-none placeholder:text-[color:var(--placeholder)]" />
+                  className="min-w-0 flex-1 bg-transparent text-sm text-ink outline-none placeholder:text-muted" />
               </label>
-              <label className="flex min-h-[52px] min-w-0 items-center gap-[7px] border-b border-line px-[18px] focus-within:ring-2 focus-within:ring-inset focus-within:ring-[var(--ring)] lg:w-[208px] lg:shrink-0 lg:border-b-0 lg:border-s">
+              <label className="flex min-h-14 min-w-0 items-center gap-2 border-t border-line px-4 focus-within:ring-2 focus-within:ring-inset focus-within:ring-[var(--ring)] sm:border-s sm:border-t-0">
                 <FigmaIcon name="map-pin" className="size-4 shrink-0 text-brand" />
                 <span className="sr-only">{t("where")}</span>
-                <select name="city" defaultValue="" className="min-w-0 flex-1 cursor-pointer appearance-none bg-transparent text-[13px] text-muted outline-none">
+                <select name="city" defaultValue="" className="min-w-0 flex-1 cursor-pointer appearance-none bg-transparent text-sm text-muted outline-none">
                   <option value="">{t("anyCity")}</option>
                   {cities.map((c) => <option key={c.id} value={c.id}>{cityName(c).text}</option>)}
                 </select>
                 <FigmaIcon name="chevron-down" className="pointer-events-none size-4 shrink-0 text-muted" />
               </label>
-              <label className="flex min-h-[52px] min-w-0 items-center gap-2 border-b border-line px-[18px] focus-within:ring-2 focus-within:ring-inset focus-within:ring-[var(--ring)] lg:w-[214px] lg:shrink-0 lg:border-b-0 lg:border-s">
-                <span className="sr-only">{t("categoriesTitle")}</span>
-                <select name="category" defaultValue="" className="min-w-0 flex-1 cursor-pointer appearance-none bg-transparent text-[13px] text-muted outline-none">
-                  <option value="">{t("allSections")}</option>
-                  {rootCategories.map((c) => <option key={c.id} value={c.id}>{categoryName(c).text}</option>)}
-                </select>
-                <FigmaIcon name="chevron-down" className="pointer-events-none size-4 shrink-0 text-muted" />
-              </label>
+              <button type="submit" className="min-h-14 bg-brand px-8 text-sm font-bold text-white transition hover:bg-brand-hover">
+                {tn("search")}
+              </button>
             </form>
           </div>
         </section>
@@ -128,16 +127,16 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                 <Link href="/businesses" className="text-[11px] font-bold text-brand hover:underline">{t("viewAll")}</Link>
               </div>
               <nav aria-label={t("categoriesTitle")} className="mt-[14px]">
-                <ul className="grid grid-cols-3 gap-[10px] sm:grid-cols-5 lg:flex">
+                <ul className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">
                   <li className="lg:min-w-0 lg:flex-1">
-                    <Link href="/businesses" className="flex h-[83px] flex-col items-center justify-center gap-2 rounded-[8px] border border-line bg-surface px-1 text-center transition-colors hover:border-brand">
+                    <Link href="/businesses" className="rega-card flex min-h-[92px] flex-col items-center justify-center gap-2 px-2 text-center transition-colors hover:text-brand">
                       <FigmaIcon name="grid-3x3" className="size-6 shrink-0 text-brand" />
                       <span className="line-clamp-2 text-[11px] font-semibold">{t("allSections")}</span>
                     </Link>
                   </li>
-                  {rootCategories.slice(0, 8).map((c) => (
+                  {rootCategories.slice(0, 6).map((c) => (
                     <li key={c.id} className="lg:min-w-0 lg:flex-1">
-                      <Link href={`/businesses/${c.slug}`} className="flex h-[83px] flex-col items-center justify-center gap-2 rounded-[8px] border border-line bg-surface px-1 text-center transition-colors hover:border-brand">
+                      <Link href={`/businesses/${c.slug}`} className="rega-card flex min-h-[92px] flex-col items-center justify-center gap-2 px-2 text-center transition-colors hover:text-brand">
                         <FigmaIcon name={CATEGORY_ICON[c.slug] ?? "briefcase-business"} className="size-6 shrink-0 text-brand" />
                         <span className="line-clamp-2 text-[11px] font-semibold"><Text value={categoryName(c)} pageLang={pageLang} /></span>
                       </Link>
@@ -150,7 +149,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         )}
 
         {/* ---------- Latest additions (frame 204:998) ---------- */}
-        <section className="bg-surface-2" aria-labelledby="home-latest">
+        <section className="bg-surface" aria-labelledby="home-latest">
           <div className={`${BAND} py-3`}>
             <div className="flex items-center justify-between gap-4">
               <div className="flex min-w-0 flex-col gap-px">
@@ -160,7 +159,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               <Link href="/businesses?sort=newest" className="shrink-0 rounded-[4px] border border-brand px-[14px] py-[6px] text-[11px] font-bold text-brand transition-colors hover:bg-brand hover:text-white">{t("seeMore")}</Link>
             </div>
             {latest.length > 0 ? (
-              <div className="mt-2 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-x-[5.167%]">
+              <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {latest.slice(0, 4).map((b) => {
                   const c = categoryOf(b.categoryId);
                   return <LatestCard key={b.id} b={b} locale={l} pageLang={pageLang} category={c ? categoryName(c) : null} newLabel={t("newBadge")} />;
