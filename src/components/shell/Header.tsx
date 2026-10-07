@@ -42,7 +42,7 @@ export async function Header() {
             <FigmaIcon name="search" className="size-5" />
           </Link>
           <LanguageSwitcher />
-          <Link href={accountHref} className="hidden min-h-10 items-center gap-2 rounded-xl border border-line px-3 text-[12px] font-semibold text-ink transition hover:border-brand hover:text-brand sm:flex">
+          <Link href={accountHref} className="hidden min-h-10 w-28 items-center justify-center gap-2 rounded-xl border border-line px-3 text-[12px] font-semibold text-ink transition hover:border-brand hover:text-brand sm:flex">
             <FigmaIcon name="user" className="size-4 shrink-0" />
             <span dir={contentDir}>{signedIn ? t("account") : t("login")}</span>
           </Link>
