@@ -54,8 +54,9 @@ test("main navigation reaches every section", async ({ page, isMobile }) => {
 test("theme preference initializes and persists without a public toggle", async ({ page }) => {
   // The approved public header no longer exposes a theme toggle. Keep coverage on the
   // ThemeScript contract instead: a saved preference must be restored before paint.
-  await page.addInitScript(() => localStorage.setItem("rega-theme", "dark"));
   await page.goto("/de");
+  await page.evaluate(() => localStorage.setItem("rega-theme", "dark"));
+  await page.reload();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   await page.evaluate(() => localStorage.setItem("rega-theme", "light"));
   await page.reload();
