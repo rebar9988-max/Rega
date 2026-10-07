@@ -56,7 +56,8 @@ test("search is noindex; sitemap lists every locale with hreflang alternates", a
   const xml = await (await request.get("/sitemaps/pages.xml")).text();
   for (const l of LOCALES) expect(xml).toContain(`<loc>${HOST}/${l}/businesses</loc>`);
   for (const path of ["/impressum", "/privacy", "/terms", "/report", "/register", "/for-business", "/businesses/legal", "/city/berlin"]) expect(xml, path).toContain(`<loc>${HOST}/de${path}</loc>`);
-  for (const section of ["jobs", "events", "guides"]) expect(xml, section).toContain(`<loc>${HOST}/de/${section}</loc>`); // enabled content sections are listed
+  expect(xml, "guides").toContain(`<loc>${HOST}/de/guides</loc>`);
+  for (const section of ["jobs", "events"]) expect(xml, section).not.toContain(`<loc>${HOST}/de/${section}</loc>`); // approved hidden/removed sections stay out of public discovery
   expect((await request.get("/sitemaps/nonsense.xml")).status()).toBe(404);
   expect(xml).toContain('hreflang="x-default"');
   expect(xml).not.toContain("localhost");
