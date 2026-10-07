@@ -100,7 +100,7 @@ export default async function BusinessPage({ params }: Props) {
               </div>
               {about.text && <p className="mt-4 line-clamp-3 max-w-2xl text-sm leading-7 text-muted"><Text value={about} pageLang={pageLang} /></p>}
               <div className="mt-5 flex flex-wrap gap-2">
-                {tel && <a href={`tel:${tel}`} className={buttonClass("primary")}>{t("businesses.call")}</a>}
+                {tel && <a href={`tel:${tel}`} aria-label={`${t("businesses.call")} – ${name.text}`} className={buttonClass("primary")}>{t("businesses.call")}</a>}
                 {website && <a href={website} target="_blank" rel="noopener noreferrer nofollow" className={buttonClass("secondary")}>{t("businesses.visitWebsite")}</a>}
               </div>
             </div>
