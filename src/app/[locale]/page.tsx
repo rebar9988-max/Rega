@@ -95,12 +95,21 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             </div>
 
             <form action={`/${locale}/businesses`} role="search"
-              className="rega-search-shell z-10 col-span-full -mt-1 grid overflow-hidden sm:grid-cols-[minmax(0,1.7fr)_minmax(12rem,.8fr)_auto] lg:mx-8 lg:-mt-8">
+              className="rega-search-shell z-10 col-span-full -mt-1 grid overflow-hidden sm:grid-cols-[minmax(0,1.45fr)_minmax(10rem,.7fr)_minmax(10rem,.7fr)_auto] lg:mx-8 lg:-mt-8">
               <label className="flex min-h-14 min-w-0 items-center gap-3 px-4 focus-within:ring-2 focus-within:ring-inset focus-within:ring-[var(--ring)]">
                 <FigmaIcon name="search" className="size-5 shrink-0 text-brand" />
                 <span className="sr-only">{t("what")}</span>
                 <input name="q" type="search" autoComplete="off" maxLength={120} placeholder={t("searchWhat")}
                   className="min-w-0 flex-1 bg-transparent text-sm text-ink outline-none placeholder:text-muted" />
+              </label>
+              <label className="flex min-h-14 min-w-0 items-center gap-2 border-t border-line px-4 focus-within:ring-2 focus-within:ring-inset focus-within:ring-[var(--ring)] sm:border-s sm:border-t-0">
+                <FigmaIcon name="grid-3x3" className="size-4 shrink-0 text-brand" />
+                <span className="sr-only">{t("categoriesTitle")}</span>
+                <select name="category" defaultValue="" aria-label={t("categoriesTitle")} className="min-w-0 flex-1 cursor-pointer appearance-none bg-transparent text-sm text-muted outline-none">
+                  <option value="">{t("allSections")}</option>
+                  {rootCategories.map((c) => <option key={c.id} value={c.id}>{categoryName(c).text}</option>)}
+                </select>
+                <FigmaIcon name="chevron-down" className="pointer-events-none size-4 shrink-0 text-muted" />
               </label>
               <label className="flex min-h-14 min-w-0 items-center gap-2 border-t border-line px-4 focus-within:ring-2 focus-within:ring-inset focus-within:ring-[var(--ring)] sm:border-s sm:border-t-0">
                 <FigmaIcon name="map-pin" className="size-4 shrink-0 text-brand" />
