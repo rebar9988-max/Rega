@@ -12,7 +12,7 @@ import { ResultsMeta } from "@/components/ui/ResultsMeta";
 import { Link } from "@/i18n/routing";
 import type { Locale } from "@/i18n/locales";
 import { localizeText } from "@/lib/content";
-import { getCities, listLocations, type LocationQuery } from "@/lib/data";
+import { DEFAULT_PUBLIC_COUNTRY_CODE, getCities, listLocations, type LocationQuery } from "@/lib/data";
 import { listShape, parseParams } from "@/lib/data/params";
 import { log } from "@/lib/logger";
 
@@ -31,7 +31,7 @@ export default async function LocationsPage({ params, searchParams }: { params: 
   // locations page down. The result list below still retries its independent read.
   let cities: Awaited<ReturnType<typeof getCities>> = [];
   try {
-    cities = await getCities();
+    cities = await getCities({ countryCode: DEFAULT_PUBLIC_COUNTRY_CODE });
   } catch (error) {
     log.error("locations.cities_unavailable", { error: error instanceof Error ? error.message : String(error) });
   }

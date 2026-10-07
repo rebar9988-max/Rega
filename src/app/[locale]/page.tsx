@@ -10,7 +10,7 @@ import { Text } from "@/components/ui/Bidi";
 import { localize } from "@/lib/content";
 import { PlacesMap, type PlacePoint } from "@/components/map/PlacesMap";
 import { isValidCoordinate } from "@/lib/coordinates";
-import { getCategories, getCities, getHomeData } from "@/lib/data";
+import { DEFAULT_PUBLIC_COUNTRY_CODE, getCategories, getCities, getHomeData } from "@/lib/data";
 import { log } from "@/lib/logger";
 import { pageMetadata } from "@/lib/seo";
 import { NoEdgeCache } from "@/components/ui/NoEdgeCache";
@@ -49,7 +49,11 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const pageLang = LOCALE_META[l].htmlLang;
   let degraded = false;
   const failed = () => { degraded = true; };
-  const [data, categories, cities] = await Promise.all([homeData(), safe(getCategories, [], failed), safe(getCities, [], failed)]);
+  const [data, categories, cities] = await Promise.all([
+    homeData(),
+    safe(getCategories, [], failed),
+    safe(() => getCities({ countryCode: DEFAULT_PUBLIC_COUNTRY_CODE }), [], failed),
+  ]);
   if (!data) degraded = true;
 
   const categoryById = new Map(categories.map((c) => [c.id, c]));

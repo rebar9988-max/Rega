@@ -357,7 +357,13 @@ export type NearbyItem = Awaited<ReturnType<typeof nearbyBusinesses>>["items"][n
 const PRIMARY_COUNTRY = "DE";
 export const getNearbyCities = cache(async () =>
   (await prisma.city.findMany({
-    where: { isActive: true, latitude: { not: null }, longitude: { not: null }, locations: { some: { status: "active", deletedAt: null, business: PUBLIC_BUSINESS } } },
+    where: {
+      isActive: true,
+      country: { code: PRIMARY_COUNTRY, isActive: true },
+      latitude: { not: null },
+      longitude: { not: null },
+      locations: { some: { status: "active", deletedAt: null, business: PUBLIC_BUSINESS } },
+    },
     orderBy: { nameEn: "asc" },
     select: { id: true, nameEn: true, nameCkb: true, nameKmr: true, nameDe: true, nameAr: true, nameTr: true, latitude: true, longitude: true, country: { select: { code: true } } },
   })).sort((a, b) => Number(b.country.code === PRIMARY_COUNTRY) - Number(a.country.code === PRIMARY_COUNTRY) || a.nameEn.localeCompare(b.nameEn)),
