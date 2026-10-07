@@ -44,7 +44,7 @@ export function PlacesMap({ points, className = "h-80" }: { points: PlacePoint[]
   const sel = points.find((p) => p.id === selected);
 
   return (
-    <div ref={box} className={className}>
+    <div ref={box} className={className} data-testid="places-map-shell">
       {visible ? (
         <DiscoveryMap className="size-full" center={center} points={mapPoints} selectedId={selected} onSelect={setSelected} labels={labels} dir={LOCALE_META[locale].dir}>
           {sel && (
