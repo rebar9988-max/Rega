@@ -49,8 +49,8 @@ export const SECTIONS: readonly SectionDef[] = [
   { key: "nearby", path: "/nearby", icon: "compass", order: 40, enabled: true, mobile: true, footer: "explore", sitemap: true },
   { key: "ai", path: "/ai", icon: "spark", order: 50, enabled: true, mobile: true, footer: "more", sitemap: true },
   // Content sections built on the shared Listing core (features/content). Switch one off with SECTIONS_DISABLED=jobs (or enabled: false): it disappears from nav, footer, sitemap and returns 404.
-  { key: "jobs", path: "/jobs", icon: "briefcase", order: 60, enabled: true, content: true, header: true, mobile: true, footer: "explore", sitemap: true, assistant: true },
-  { key: "events", path: "/events", icon: "calendar", order: 70, enabled: true, content: true, mobile: true, footer: "explore", sitemap: true, assistant: true },
+  { key: "jobs", path: "/jobs", icon: "briefcase", order: 60, enabled: false, content: true, header: true, mobile: true, footer: "explore", sitemap: true, assistant: true, note: "Hidden until launch" },
+  { key: "events", path: "/events", icon: "calendar", order: 70, enabled: false, content: true, mobile: true, footer: "explore", sitemap: true, assistant: true, note: "Removed from public REGA navigation" },
   { key: "guides", path: "/guides", icon: "book", order: 80, enabled: true, content: true, mobile: true, footer: "explore", sitemap: true, assistant: true },
   { key: "about", path: "/about", icon: "info", order: 90, enabled: true, header: true, mobile: true, footer: "more", sitemap: true },
   { key: "forBusiness", path: "/for-business", icon: "store", order: 95, enabled: true, mobile: true, footer: "more", sitemap: true },
