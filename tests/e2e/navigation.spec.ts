@@ -51,16 +51,15 @@ test("main navigation reaches every section", async ({ page, isMobile }) => {
   }
 });
 
-test("theme toggle switches and persists", async ({ page }) => {
-  // Design frame 204:912 has no theme toggle in the desktop header; it stays in the header below the xl breakpoint.
-  await page.setViewportSize({ width: 1024, height: 800 });
+test("theme preference initializes and persists without a public toggle", async ({ page }) => {
+  // The approved public header no longer exposes a theme toggle. Keep coverage on the
+  // ThemeScript contract instead: a saved preference must be restored before paint.
+  await page.addInitScript(() => localStorage.setItem("rega-theme", "dark"));
   await page.goto("/de");
-  const before = await page.locator("html").getAttribute("data-theme");
-  await page.getByRole("button", { name: "Design wechseln" }).click();
-  const after = await page.locator("html").getAttribute("data-theme");
-  expect(after).not.toBe(before);
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await page.evaluate(() => localStorage.setItem("rega-theme", "light"));
   await page.reload();
-  await expect(page.locator("html")).toHaveAttribute("data-theme", after!);
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
 });
 
 test("unknown pages return a real 404 inside the shell", async ({ page }) => {
