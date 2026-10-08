@@ -2,7 +2,7 @@ import { expect, test } from "./fixtures";
 import type { Page } from "@playwright/test";
 
 const DIR: Record<string, "rtl" | "ltr"> = { ckb: "rtl", kmr: "ltr", de: "ltr", en: "ltr", ar: "rtl", fa: "rtl", tr: "ltr" };
-const LANG: Record<string, string> = { ckb: "ckb-IQ", kmr: "kmr-TR", de: "de-DE", en: "en", ar: "ar", fa: "fa-IR", tr: "tr-TR" };
+const LANG: Record<string, string> = { ckb: "ckb-IQ", kmr: "kmr", de: "de-DE", en: "en", ar: "ar", fa: "fa-IR", tr: "tr-TR" };
 const NATIVE: Record<string, string> = { ckb: "کوردیی ناوەندی", kmr: "Kurmancî", de: "Deutsch", en: "English", ar: "العربية", fa: "فارسی", tr: "Türkçe" };
 const MATRIX: [string, string][] = [
   ["ckb", "kmr"], ["ckb", "de"], ["ckb", "en"], ["ckb", "ar"], ["ckb", "fa"], ["ckb", "tr"],

@@ -62,7 +62,7 @@ const RAW_LOCALE_META: Record<Locale, RawLocaleMeta> = {
     nativeName: "Kurmancî (Badînî)",
     englishName: "Kurdish (Kurmanji/Badini)",
     // The kmr catalogue is Latin (Hawar) script, therefore LTR.
-    htmlLang: "kmr-TR",
+    htmlLang: "kmr",
     numberingSystem: "latn",
     fontStack: "'Inter', 'Segoe UI', system-ui, sans-serif",
     dateFormat: "DD.MM.YYYY",
