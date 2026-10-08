@@ -61,15 +61,9 @@ test("CMS page: written per language, published, rendered with language fallback
   expect(sitemap).toContain(`/de/p/${slug}`);
 });
 
-test("contact messages and content reports reach the dashboard and can be handled", async ({ page }) => {
-  // A visitor writes to the team.
-  await page.goto("/de/contact");
-  const form = page.getByTestId("contact-form");
-  await form.getByLabel("Name", { exact: true }).fill("E2E Besucher");
-  await form.getByLabel("Betreff").fill(`E2E Betreff ${stamp}`);
-  await form.getByLabel("Nachricht", { exact: true }).fill("Dies ist eine Testnachricht für das Dashboard.");
-  await form.getByRole("button", { name: "Senden" }).click();
-  await expect(page.getByTestId("contact-sent")).toBeVisible();
+// The contact page no longer has a message form (96a00d3: phone, email and WhatsApp only), so no new contact messages
+// arrive from the site; the content-report flow below is unchanged.
+test("content reports reach the dashboard and can be handled", async ({ page }) => {
   // A visitor reports content.
   await page.goto("/de/report");
   const report = page.getByTestId("report-form");
@@ -82,13 +76,6 @@ test("contact messages and content reports reach the dashboard and can be handle
   await expect(page.getByTestId("report-sent")).toBeVisible();
 
   await login(page);
-  await page.goto("/dr/messages");
-  await expect(page.getByTestId("message-row").filter({ hasText: `E2E Betreff ${stamp}` })).toBeVisible();
-  const msg = page.getByTestId("message-row").filter({ hasText: `E2E Betreff ${stamp}` });
-  await msg.locator("select").selectOption({ label: "Als beantwortet markieren" });
-  await msg.getByRole("button", { name: "Anwenden" }).click();
-  await expect(page.getByTestId("message-row").filter({ hasText: `E2E Betreff ${stamp}` })).toContainText("Beantwortet");
-
   await page.goto("/dr/reports");
   const row = page.getByTestId("report-row").filter({ hasText: `E2E Meldung ${stamp}` });
   await expect(row).toContainText("Offen");

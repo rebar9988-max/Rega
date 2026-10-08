@@ -118,7 +118,7 @@ test("footer stays at the bottom of the viewport on a short page", async ({ page
   expect(Math.abs(bottom - 1600)).toBeLessThanOrEqual(1);
 });
 
-test("contact page: heading once, phone + email + WhatsApp, RTL; the message form stores the message and says so", async ({ page }) => {
+test("contact page: heading once, phone + email + WhatsApp, RTL; contact details only, no message form", async ({ page }) => {
   await page.goto("/ckb");
   await page.locator("footer").getByRole("link", { name: "پەیوەندی", exact: true }).click();
   await expect(page).toHaveURL(/\/ckb\/contact$/);
@@ -136,25 +136,9 @@ test("contact page: heading once, phone + email + WhatsApp, RTL; the message for
   await phone.focus();
   await expect(phone).toBeFocused();
 
-  const form = page.getByTestId("contact-form");
-  await form.getByLabel("ناو", { exact: true }).fill("ئەحمەد");
-  await form.getByLabel("ئیمەیلەکەت").fill("ahmad@example.org");
-  await form.getByLabel("بابەت").fill("پرسیار");
-  await form.getByLabel("نامە", { exact: true }).fill("سڵاو، ئەمە نامەیەکی تاقیکردنەوەیە.");
-  await form.getByRole("button", { name: "ناردن", exact: true }).click();
-  await expect(page.getByTestId("contact-sent")).toBeVisible();
+  // 96a00d3: the page offers phone, email and WhatsApp only; there is no message form any more.
+  await expect(page.getByTestId("contact-form")).toHaveCount(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-});
-
-test("contact form: honeypot bots get a fake success and nothing is stored", async ({ page }) => {
-  await page.goto("/de/contact");
-  const form = page.getByTestId("contact-form");
-  await form.getByLabel("Name", { exact: true }).fill("Bot");
-  await form.getByLabel("Betreff").fill("Spam");
-  await form.getByLabel("Nachricht", { exact: true }).fill("Buy cheap things now, please.");
-  await form.locator('input[name="hp_website"]').evaluate((el: HTMLInputElement) => { el.value = "http://spam.example"; });
-  await form.getByRole("button", { name: "Senden" }).click();
-  await expect(page.getByTestId("contact-sent")).toBeVisible();
 });
 
 test("homepage social section: configured official profiles only, official brand icons, safe external links", async ({ page }) => {
