@@ -6,6 +6,7 @@ import { localizeText } from "@/lib/content";
 import { getCategories, getCityBySlug } from "@/lib/data";
 import { pageMetadata } from "@/lib/seo";
 import { pageDescription } from "@/lib/seo-server";
+import { hasPublicBusinesses } from "@/lib/indexable";
 
 type Props = { params: Promise<{ locale: string; citySlug: string; categorySlug: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> };
 
@@ -23,7 +24,7 @@ export async function generateMetadata({ params }: Props) {
   const city = localizeText({ ...r.city, name: r.city.nameEn }, "name", locale);
   const category = localizeText({ ...r.category, name: r.category.nameDe }, "name", locale);
   const t = await getTranslations({ locale, namespace: "seoPages" });
-  return pageMetadata({ locale, path: `/city/${citySlug}/${categorySlug}`, title: t("categoryInCity", { category, city }), description: await pageDescription(locale, "cityCategoryPage", { category, city }) });
+  return pageMetadata({ locale, path: `/city/${citySlug}/${categorySlug}`, title: t("categoryInCity", { category, city }), description: await pageDescription(locale, "cityCategoryPage", { category, city }), noindex: !(await hasPublicBusinesses(r.category.id, r.city.id)) });
 }
 
 /** /city/<city>/<category>: one category in one city. */
