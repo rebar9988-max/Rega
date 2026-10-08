@@ -5,13 +5,12 @@ import { Suspense } from "react";
 import { getLocale, getTranslations, setRequestLocale } from "next-intl/server";
 import { LocationCard } from "@/components/cards/LocationCard";
 import { FilterBar, cityOptions } from "@/components/ui/FilterBar";
+import { CityBrowser } from "@/components/ui/CityBrowser";
 import { Grid, GridSkeleton, NoResults } from "@/components/ui/Grid";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Pagination } from "@/components/ui/Pagination";
 import { ResultsMeta } from "@/components/ui/ResultsMeta";
-import { Link } from "@/i18n/routing";
 import type { Locale } from "@/i18n/locales";
-import { localizeText } from "@/lib/content";
 import { DEFAULT_PUBLIC_COUNTRY_CODE, getCities, listLocations, type LocationQuery } from "@/lib/data";
 import { listShape, parseParams } from "@/lib/data/params";
 import { log } from "@/lib/logger";
@@ -41,21 +40,16 @@ export default async function LocationsPage({ params, searchParams }: { params: 
     <>
       <PageSchema type="CollectionPage" name={t("locations.title")} path="/locations" crumbs={[{ name: t("locations.title"), path: "/locations" }]} />
       <PageHeader title={t("locations.title")} crumbs={[{ label: t("nav.home"), href: "/" }, { label: t("locations.title") }]} />
-      {cities.length > 0 && (
-        <section aria-label={t("locations.browseByCity")} className="container-page mb-6">
-          <ul className="flex flex-wrap gap-2">
-            {cities.map((c) => (
-              <li key={c.id}>
-                <Link prefetch={false} href={{ pathname: "/locations", query: { city: c.id } }} aria-current={query.city === c.id ? "true" : undefined}
-                  className={`inline-flex min-h-10 items-center gap-2 rounded-full border px-4 text-sm font-semibold ${query.city === c.id ? "border-brand bg-brand-soft text-brand" : "border-line bg-surface hover:bg-surface-2"}`}>
-                  {localizeText({ ...c, name: c.nameEn }, "name", active)}
-                  <span className="text-xs text-muted">{c.count}</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
+
+      {/* Modern grouped + searchable city browser */}
+      <CityBrowser
+        cities={cities}
+        locale={active}
+        activeCityId={query.city}
+        browseLabel={t("locations.browseByCity")}
+        searchPlaceholder={t("search.placeholder")}
+      />
+
       <FilterBar action="/locations" values={query} searchLabel={t("search.placeholder")} cities={await cityOptions(cities)} />
       <Suspense key={JSON.stringify(query)} fallback={<GridSkeleton />}><Results query={query} /></Suspense>
     </>
