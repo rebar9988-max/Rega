@@ -25,7 +25,10 @@ jobs:
       - name: Check Cloudflare credentials
         run: |
           if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
-            echo "::error::CLOUDFLARE_API_TOKEN is not set in GitHub Secrets. Deploy aborted."
+            echo "::error::CLOUDFLARE_API_TOKEN is not set in GitHub Secrets."
+            echo "Add it under Settings → Secrets and variables → Actions → New repository secret."
+            echo "Name: CLOUDFLARE_API_TOKEN"
+            echo "Value: a Cloudflare API token with Workers Scripts Edit permission."
             exit 1
           fi
           echo "Cloudflare credentials are present."
