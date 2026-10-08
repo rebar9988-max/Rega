@@ -114,11 +114,13 @@
    Arabic-script adjustments above, so inside `.figma` those adjustments roll back to the utility classes (headings
    therefore carry an explicit leading utility, otherwise the base layer's heading line height would come back). */
 .figma { font-family: "Inter Variable", var(--font-noto-arabic), system-ui, sans-serif; line-height: normal; --placeholder: #a7abb1; --map: #e9edf0; }
-:root:not([data-theme="dark"]) .figma {
+/* The approved concept is a light red/white surface. Keep it even when the phone is in dark mode. */
+.figma {
   --brand: #e30613; --brand-hover: #c9000c; --brand-soft: #fff1f2; --ring: #e30613;
-  --ink: #202124; --muted: #777b82; --line: #e7e8eb; --surface: #ffffff; --surface-2: #f7f7f8;
+  --ink: #17191d; --muted: #5c6168; --line: #e6e7eb; --surface: #ffffff; --surface-2: #f6f7f8; --bg: #ffffff;
+  color: #17191d;
+  background: #ffffff;
 }
-:root[data-theme="dark"] .figma { --placeholder: var(--muted); --map: var(--surface-2); }
 /* The frame's Arabic-script text boxes use Noto Sans Arabic's own line height (2.112 x size). The site loads Noto only
    for Arabic-script glyphs, so "normal" would come from Inter; RTL pages therefore set it explicitly. */
 [dir="rtl"] .figma { line-height: 2.112; }
@@ -165,21 +167,24 @@
   box-shadow: 0 1px 2px rgb(17 24 39 / .04);
 }
 .rega-card:hover, .rega-card:focus-within { border-color: rgb(227 6 19 / .34); box-shadow: var(--shadow); }
-/* Home hero: city photograph with the concept's red diagonal (mirrored in RTL). */
-.rega-hero-photo { background: #dd0201; }
-.rega-hero-photo::after {
-  content: "";
+/* Home hero: photograph plus a brand-red panel wide enough for the official lockup at retina size. */
+.rega-hero-frame { background: #dc0201; }
+.rega-hero-brand {
   position: absolute;
-  inset: 0 auto 0 0;
-  width: 34%;
-  background: #dd0201;
-  clip-path: polygon(0 0, 62% 0, 100% 100%, 0 100%);
-  z-index: 1;
-  pointer-events: none;
+  z-index: 2;
+  top: 0;
+  bottom: 0;
+  inset-inline-start: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: min(62%, 300px);
+  background: #dc0201;
+  clip-path: polygon(0 0, 78% 0, 100% 100%, 0 100%);
+  padding-inline: 0.65rem 18%;
 }
-[dir="rtl"] .rega-hero-photo::after {
-  inset: 0 0 0 auto;
-  clip-path: polygon(38% 0, 100% 0, 100% 100%, 0 100%);
+[dir="rtl"] .rega-hero-brand {
+  clip-path: polygon(22% 0, 100% 0, 100% 100%, 0 100%);
 }
 /* Toggle switch for boolean filters (native checkbox with role="switch": keyboard and forms work unchanged). */
 .rega-switch {

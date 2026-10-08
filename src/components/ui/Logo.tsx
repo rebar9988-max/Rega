@@ -7,7 +7,7 @@
 export function LogoMark({ className = "size-11" }: { className?: string }) {
   return (
     // eslint-disable-next-line @next/next/no-img-element
-    <img src="/brand/rega-mark-256.webp" alt="" width={256} height={256} decoding="async" fetchPriority="high" className={`${className} shrink-0 rounded-xl`} />
+    <img src="/brand/rega-mark-512.webp" alt="" width={512} height={512} decoding="async" fetchPriority="high" className={`${className} shrink-0 rounded-xl`} />
   );
 }
 
@@ -17,7 +17,7 @@ export function Logo({ className = "" }: { className?: string }) {
       <span className="inline-flex shrink-0 items-center overflow-hidden rounded-xl bg-[#dc0201]">
         <LogoMark className="size-11 rounded-none" />
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/brand/rega-wordmark.webp" alt="" width={640} height={147} decoding="async" className="hidden h-[1.4rem] w-auto max-w-none shrink-0 pe-3 sm:block" />
+        <img src="/brand/rega-wordmark.webp" alt="" width={640} height={147} decoding="async" className="h-[1.15rem] w-auto max-w-none shrink-0 pe-2.5 sm:h-[1.4rem] sm:pe-3" />
       </span>
       <span className="sr-only">REGA Platform</span>
       <span aria-hidden="true" className="hidden whitespace-nowrap text-base font-semibold text-ink lg:inline">Platform</span>
