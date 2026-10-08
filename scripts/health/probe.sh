@@ -8,7 +8,7 @@
 # together with the layer that answered (server, cf-ray, Cloudflare error code), and the first error is kept so a
 # recovery never hides that the route failed. Results: PROBE_CODE, PROBE_ATTEMPT, PROBE_FIRST_ERROR,
 # and the last response in $PROBE_BODY / $PROBE_HEADERS.
-PROBE_ATTEMPTS=${PROBE_ATTEMPTS:-3}
+PROBE_ATTEMPTS=${PROBE_ATTEMPTS:-5}
 PROBE_UA=${PROBE_UA:-"rega-ci-smoke-test/1.0 (+github-actions)"}
 PROBE_BODY=${PROBE_BODY:-$(mktemp)}
 PROBE_HEADERS=${PROBE_HEADERS:-$(mktemp)}
@@ -30,7 +30,7 @@ probe() {
   PROBE_FIRST_ERROR=""
   for PROBE_ATTEMPT in $(seq 1 "$PROBE_ATTEMPTS"); do
     : > "$PROBE_BODY"; : > "$PROBE_HEADERS"
-    PROBE_CODE=$(curl -sS -m 25 -A "$PROBE_UA" -D "$PROBE_HEADERS" -o "$PROBE_BODY" -w '%{http_code}' "$@" "$url" 2>/dev/null) || PROBE_CODE=000
+    PROBE_CODE=$(curl -sS -m 30 -A "$PROBE_UA" -D "$PROBE_HEADERS" -o "$PROBE_BODY" -w '%{http_code}' "$@" "$url" 2>/dev/null) || PROBE_CODE=000
     [ "$PROBE_CODE" = "$expected" ] && break
     case "$PROBE_CODE" in
       000|5??)
@@ -38,7 +38,8 @@ probe() {
         [ -z "$PROBE_FIRST_ERROR" ] && PROBE_FIRST_ERROR="$detail"
         if [ "$PROBE_ATTEMPT" -lt "$PROBE_ATTEMPTS" ]; then
           echo "retry $PROBE_ATTEMPT/$PROBE_ATTEMPTS $url -> $detail" | tee -a "$PROBE_RETRIES_LOG"
-          sleep $((PROBE_ATTEMPT * 3))
+          # Longer backoff for Cloudflare 1102 / resource limit pressure
+          sleep $((PROBE_ATTEMPT * 5))
         fi ;;
       *) break ;;
     esac
