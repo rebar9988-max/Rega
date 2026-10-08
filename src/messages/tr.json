@@ -86,7 +86,8 @@
     "report": "İçeriği bildir",
     "events": "Etkinlikler",
     "guides": "Rehberler",
-    "register": "Hesap oluştur"
+    "register": "Hesap oluştur",
+    "quick": "Hızlı gezinme"
   },
   "home": {
     "heroTitle": "Tüm işletmeler, hizmetler ve konumlar tek yerde",
@@ -146,7 +147,8 @@
     "openMap": "Yakınımdaki haritayı aç",
     "socialTitle": "REGA ile bağlantıda kalın",
     "socialText": "REGA'nın en yeni haberlerini, hizmetlerini ve bilgilerini sosyal medyada takip edin.",
-    "socialAria": "{platform} üzerinde REGA (yeni sekmede açılır)"
+    "socialAria": "{platform} üzerinde REGA (yeni sekmede açılır)",
+    "aiEntrySub": "Yerel hizmetler için kendi dilinizde öneriler alın."
   },
   "businesses": {
     "title": "İşletmeler",
@@ -170,7 +172,8 @@
     "noServices": "Henüz yayımlanmış hizmet yok.",
     "noRating": "Henüz değerlendirme yok",
     "reviewsCount": "{count} değerlendirme",
-    "servicesN": "{count} hizmet"
+    "servicesN": "{count} hizmet",
+    "lead": "Almanya genelindeki işletmelere ve hizmetlere göz atın."
   },
   "services": {
     "title": "Hizmetler",

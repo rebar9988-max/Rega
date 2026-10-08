@@ -1,0 +1,45 @@
+name: Production browser check
+
+# Read-only. Opens https://www.regaplatform.com in a real Chromium (desktop + mobile), checks the public journeys,
+# RTL/LTR, horizontal overflow, Germany-only city discovery and the approved UI, and uploads full-page screenshots.
+# Never signs in, never submits forms, never deploys or writes. Runs after each Beta health run on main and on demand.
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Beta health"]
+    types: [completed]
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-browser-check
+  cancel-in-progress: true
+
+jobs:
+  browser:
+    # Only after a successful health run triggered by CI on main (the hourly schedule does not need screenshots).
+    if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'workflow_run')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npx playwright install --with-deps chromium
+      - name: Browse the live site (read-only)
+        run: node scripts/health/browser-check.mjs
+        env:
+          BASE_URL: https://www.regaplatform.com
+          OUT_DIR: browser-check
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-screenshots
+          path: browser-check/
+          retention-days: 14

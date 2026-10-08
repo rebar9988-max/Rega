@@ -55,7 +55,8 @@ export async function Footer() {
           ))}
         </nav>
       </div>
-      <div className="border-t border-line py-3 text-center text-[11px] text-muted">
+      {/* Below md the fixed tab bar (BottomNav) sits over the page end: reserve its height here so the footer stays last and uncovered. */}
+      <div className="border-t border-line py-3 pb-[calc(4.75rem+env(safe-area-inset-bottom))] text-center text-[11px] text-muted md:pb-3">
         {tf("rights", { year: new Date().getFullYear() })}
       </div>
     </footer>

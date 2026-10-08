@@ -33,13 +33,11 @@ export function LanguageSwitcher() {
     return () => { document.removeEventListener("pointerdown", onPointer); document.removeEventListener("focusin", onPointer); };
   }, []);
 
-  // xl: the trigger box is 25px wider than the frame's 47px (room for every language name); the negative margin keeps
-  // the frame's geometry.
   return (
-    <details ref={ref} className="relative xl:-ms-[25px]" onKeyDown={(e) => e.key === "Escape" && close(true)}>
+    <details ref={ref} className="relative" onKeyDown={(e) => e.key === "Escape" && close(true)}>
       {/* Design frame 204:912: language name + chevron. Fixed width so the trigger never moves between languages. */}
       <summary aria-label={`${t("language")}: ${LOCALE_META[locale as keyof typeof LOCALE_META]?.nativeName ?? locale}`}
-        className="flex min-h-11 w-[4.5rem] cursor-pointer list-none items-center justify-end gap-[5px] rounded-xl text-[12px] font-normal text-muted transition-colors hover:text-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand [&::-webkit-details-marker]:hidden">
+        className="flex min-h-11 w-[5.25rem] cursor-pointer list-none items-center justify-center gap-[5px] rounded-xl text-[13px] font-medium text-muted transition-colors hover:text-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand [&::-webkit-details-marker]:hidden">
         <span className="whitespace-nowrap" lang={LOCALE_META[locale as keyof typeof LOCALE_META]?.htmlLang}>{TRIGGER_LABEL[locale] ?? locale.toUpperCase()}</span>
         <svg viewBox="0 0 24 24" className="size-3 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
       </summary>

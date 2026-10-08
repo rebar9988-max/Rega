@@ -19,7 +19,7 @@ const cityInclude = { select: { id: true, nameEn: true, nameCkb: true, nameKmr: 
 const businessCard = {
   id: true, slug: true, name: true, nameCkb: true, nameKmr: true, nameAr: true, nameTr: true,
   description: true, descriptionCkb: true, descriptionKmr: true, descriptionDe: true, descriptionAr: true, descriptionTr: true,
-  logoUrl: true, coverUrl: true, verified: true, featured: true, ratingAvg: true, ratingCount: true, categoryId: true,
+  logoUrl: true, coverUrl: true, verified: true, featured: true, ratingAvg: true, ratingCount: true, categoryId: true, languages: true,
   locations: { where: { isPrimary: true, deletedAt: null, status: "active" }, take: 1, select: { city: cityInclude, latitude: true, longitude: true } },
   _count: { select: { services: { where: { status: "published", deletedAt: null } } } },
 } satisfies Prisma.BusinessSelect;

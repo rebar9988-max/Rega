@@ -165,3 +165,22 @@
   box-shadow: 0 1px 2px rgb(17 24 39 / .04);
 }
 .rega-card:hover, .rega-card:focus-within { border-color: rgb(227 6 19 / .34); box-shadow: var(--shadow); }
+/* Home hero panel: the official artwork's own red field with a slanted leading edge (mirrored in RTL). */
+.rega-hero-panel {
+  background: #dc0201;
+  border-radius: 1.25rem;
+  clip-path: polygon(14% 0, 100% 0, 100% 100%, 0 100%);
+}
+[dir="rtl"] .rega-hero-panel { clip-path: polygon(0 0, 86% 0, 100% 100%, 0 100%); }
+/* Toggle switch for boolean filters (native checkbox with role="switch": keyboard and forms work unchanged). */
+.rega-switch {
+  appearance: none; position: relative; flex-shrink: 0; width: 2.5rem; height: 1.5rem; border-radius: 999px;
+  background: var(--line); cursor: pointer; transition: background-color .15s ease;
+}
+.rega-switch::after {
+  content: ""; position: absolute; top: .1875rem; inset-inline-start: .1875rem; width: 1.125rem; height: 1.125rem;
+  border-radius: 999px; background: #fff; box-shadow: 0 1px 2px rgb(17 24 39 / .25); transition: inset-inline-start .15s ease;
+}
+.rega-switch:checked { background: var(--brand); }
+.rega-switch:checked::after { inset-inline-start: 1.1875rem; }
+.rega-switch:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
