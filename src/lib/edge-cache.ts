@@ -89,7 +89,7 @@ export function edgeCacheKey(request: Request, version = ""): string | null {
   if (request.headers.has("authorization")) return null;
   if (PERSONAL_COOKIE.test(request.headers.get("cookie") ?? "")) return null;
   const vary = [...KEY_HEADERS.map((h) => `${h}:${request.headers.get(h) ?? ""}`), `bot:${clientKind(request)}`].join("|");
-  const key = `${url.origin}/__rega-edge-cache/v2${url.pathname}?u=${encodeURIComponent(url.search)}&v=${encodeURIComponent(vary)}&b=${encodeURIComponent(version)}`;
+  const key = `${url.origin}/__rega-edge-cache/v3${url.pathname}?u=${encodeURIComponent(url.search)}&v=${encodeURIComponent(vary)}&b=${encodeURIComponent(version)}`;
   return key.length > MAX_KEY_LENGTH ? null : key;
 }
 
