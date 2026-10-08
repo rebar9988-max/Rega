@@ -19,7 +19,7 @@ test("selector cities prefer listings, then curated German cities, and stay boun
 
 test("a city an admin added stays selectable at count 0 when the cap is already full", () => {
   const listings = Array.from({ length: SELECTOR_CITY_LIMIT }, (_, i) => ({
-    id: `l${i}`, slug: `listed-${i}`, nameEn: `Listed ${String(i).padStart(3, "0")}`, count: 1,
+    id: `l${i}`, slug: `listed-${i}`, nameEn: `Listed ${String(i).padStart(3, "0")}`, count: 1, pinned: false,
   }));
   const added = { id: "new", slug: "teststadt-x", nameEn: "Teststadt x", count: 0, pinned: true };
   const ranked = rankSelectorCities([...listings, added]);
