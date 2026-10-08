@@ -155,10 +155,14 @@ export const listSelectorCities = cache(async (scope: CityScope = {}) => {
     }),
   ]);
 
-  const byId = new Map<string, Omit<(typeof majors)[number], "_count"> & { count: number }>();
+  const pinned = new Set<string>();
+  for (const row of majors) pinned.add(row.id);
+  for (const row of added) pinned.add(row.id);
+
+  const byId = new Map<string, Omit<(typeof majors)[number], "_count"> & { count: number; pinned: boolean }>();
   for (const row of [...listed, ...majors, ...added]) {
     const { _count, ...city } = row;
-    byId.set(city.id, { ...city, count: _count.locations });
+    byId.set(city.id, { ...city, count: _count.locations, pinned: pinned.has(city.id) });
   }
   return rankSelectorCities([...byId.values()]);
 });

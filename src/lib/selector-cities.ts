@@ -32,15 +32,27 @@ export const MAJOR_CITY_SLUGS = [
 
 const majorOrder = new Map<string, number>(MAJOR_CITY_SLUGS.map((slug, index) => [slug, index]));
 
-export type RankedCity = { id: string; slug: string | null; nameEn: string; count: number };
+export type RankedCity = { id: string; slug: string | null; nameEn: string; count: number; pinned?: boolean };
 
-/** Listing cities first, then the curated German cities, capped. */
+/**
+ * Listing cities first, then curated German cities, then the rest — capped.
+ * `pinned` cities (curated set and cities an admin added) keep a slot even when
+ * their count is 0, so the cap cannot hide them behind towns that already have
+ * a listing. Display order stays the same: busy cities still come first.
+ */
 export function rankSelectorCities<T extends RankedCity>(rows: T[], limit = SELECTOR_CITY_LIMIT): T[] {
-  return [...rows]
-    .sort((a, b) =>
-      b.count - a.count
-      || (majorOrder.get(a.slug ?? "") ?? 1_000) - (majorOrder.get(b.slug ?? "") ?? 1_000)
-      || a.nameEn.localeCompare(b.nameEn),
-    )
-    .slice(0, limit);
+  const ranked = [...rows].sort((a, b) =>
+    b.count - a.count
+    || (majorOrder.get(a.slug ?? "") ?? 1_000) - (majorOrder.get(b.slug ?? "") ?? 1_000)
+    || a.nameEn.localeCompare(b.nameEn),
+  );
+  const keep = new Set<string>();
+  for (const city of ranked) {
+    if (city.pinned && keep.size < limit) keep.add(city.id);
+  }
+  for (const city of ranked) {
+    if (keep.size >= limit) break;
+    keep.add(city.id);
+  }
+  return ranked.filter((city) => keep.has(city.id));
 }
