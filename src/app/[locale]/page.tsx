@@ -90,13 +90,13 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                   </h1>
                   <p className="mt-4 max-w-md text-[15px] leading-7 text-muted">{t("communityLead")}</p>
                 </div>
-                <div className="rega-hero-photo relative min-h-[210px] lg:min-h-full" aria-hidden="true">
+                <div className="rega-hero-frame relative min-h-[232px] sm:min-h-[300px] lg:min-h-full" aria-hidden="true">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/brand/community-hero.jpg" alt="" width={1600} height={900} decoding="async" fetchPriority="high" className="absolute inset-0 size-full object-cover object-[center_40%]" />
-                  {/* Official lockup sits on the red panel, never on the city photograph. */}
-                  <div className="pointer-events-none absolute inset-y-0 start-0 z-[2] flex w-[18%] items-center justify-center px-1 pb-8">
+                  <img src="/brand/community-hero.jpg" alt="" width={1600} height={900} decoding="async" fetchPriority="high" className="absolute inset-0 size-full object-cover object-[center_42%]" />
+                  {/* Official lockup, unaltered, at a fixed size so it stays sharp on phones. It sits on the brand red, never stretched across the photograph. */}
+                  <div className="rega-hero-brand">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src="/brand/rega-logo.webp" alt="" width={512} height={512} decoding="async" className="w-full max-w-[7.5rem] object-contain" />
+                    <img src="/brand/rega-lockup.webp" alt="" width={1154} height={1255} decoding="async" className="h-auto w-[132px] sm:w-[168px] lg:w-[196px]" />
                   </div>
                 </div>
               </div>
