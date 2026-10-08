@@ -21,6 +21,17 @@ async function homeData() {
   try { return await getHomeData(); } catch (error) { log.error("home.data", { error: String(error) }); return null; }
 }
 
+/**
+ * Hero images: resized copies of the official files (same artwork, same colours) so phones do not download the
+ * 1600px photo or the 1154px lockup that is shown at 132–196 px. `sizes` follows the hero grid: the photo fills the
+ * frame (full width below lg, the right column of the max-1100px hero from lg), the lockup has fixed widths.
+ */
+const HERO_WIDTHS = [640, 960, 1280, 1600];
+const HERO_SIZES = "(min-width: 1024px) 520px, 100vw";
+const LOCKUP_WIDTHS = [200, 400, 600];
+const LOCKUP_SIZES = "(min-width: 1024px) 196px, (min-width: 640px) 168px, 132px";
+const srcSet = (base: string, ext: string, widths: number[]) => widths.map((w) => `${base}-${w}.${ext} ${w}w`).join(", ");
+
 /** Content band shared by the home sections (same width as the hero). */
 const BAND = "mx-auto max-w-[1220px] px-4 sm:px-6 lg:px-8";
 
@@ -101,12 +112,18 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                   <p className="mt-4 max-w-md text-[15px] leading-7 text-muted">{t("communityLead")}</p>
                 </div>
                 <div className="rega-hero-frame relative min-h-[232px] sm:min-h-[300px] lg:min-h-full" aria-hidden="true">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/brand/community-hero.jpg" alt="" width={1600} height={900} decoding="async" fetchPriority="high" className="absolute inset-0 size-full object-cover object-[center_42%]" />
+                  {/* Pre-resized AVIF/WebP variants (public/brand/community-hero-<width>.*); the JPEG stays the fallback. */}
+                  <picture>
+                    <source type="image/avif" srcSet={srcSet("/brand/community-hero", "avif", HERO_WIDTHS)} sizes={HERO_SIZES} />
+                    <source type="image/webp" srcSet={srcSet("/brand/community-hero", "webp", HERO_WIDTHS)} sizes={HERO_SIZES} />
+                    <img src="/brand/community-hero.jpg" alt="" width={1600} height={900} decoding="async" fetchPriority="high" className="absolute inset-0 size-full object-cover object-[center_42%]" />
+                  </picture>
                   {/* Official lockup, unaltered, at a fixed size so it stays sharp on phones. It sits on the brand red, never stretched across the photograph. */}
                   <div className="rega-hero-brand">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src="/brand/rega-lockup.webp" alt="" width={1154} height={1255} decoding="async" className="h-auto w-[132px] sm:w-[168px] lg:w-[196px]" />
+                    <picture>
+                      <source type="image/avif" srcSet={srcSet("/brand/rega-lockup", "avif", LOCKUP_WIDTHS)} sizes={LOCKUP_SIZES} />
+                      <img src="/brand/rega-lockup-400.webp" srcSet={srcSet("/brand/rega-lockup", "webp", LOCKUP_WIDTHS)} sizes={LOCKUP_SIZES} alt="" width={1154} height={1255} decoding="async" className="h-auto w-[132px] sm:w-[168px] lg:w-[196px]" />
+                    </picture>
                   </div>
                 </div>
               </div>
