@@ -243,8 +243,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                     <FigmaIcon name="crosshair" className="size-4 shrink-0" />{t("locateMe")}
                   </Link>
                 </div>
-                <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,.9fr)_minmax(0,1.2fr)]">
-                  <ul className="grid grid-cols-2 gap-2.5 sm:grid-cols-2">
+                <div className={`mt-4 grid grid-cols-1 gap-4 ${cityPoints.length > 0 ? "lg:grid-cols-[minmax(0,.9fr)_minmax(0,1.2fr)]" : ""}`}>
+                  <ul className={`grid grid-cols-2 gap-2.5 ${cityPoints.length > 0 ? "" : "sm:grid-cols-4"}`}>
                     {majorCities.map((c) => (
                       <li key={c.id}>
                         <Link href={`/city/${c.slug}`} className="rega-card flex min-h-14 items-center gap-2.5 px-3.5 py-3 text-sm font-bold hover:text-brand">
@@ -254,9 +254,12 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                       </li>
                     ))}
                   </ul>
-                  <div className="relative min-h-72 overflow-hidden rounded-2xl border border-line bg-[var(--map)]">
-                    {cityPoints.length > 0 && <PlacesMap points={cityPoints} className="absolute inset-0" />}
-                  </div>
+                  {/* No coordinates to show (e.g. the city lookup failed): no empty grey map frame. */}
+                  {cityPoints.length > 0 && (
+                    <div className="relative min-h-72 overflow-hidden rounded-2xl border border-line bg-[var(--map)]">
+                      <PlacesMap points={cityPoints} className="absolute inset-0" />
+                    </div>
+                  )}
                 </div>
               </>
             ) : (
