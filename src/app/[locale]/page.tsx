@@ -152,7 +152,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           <section className="bg-surface" aria-labelledby="home-cats">
             <div className={`${BAND} pt-8`}>
               <div className="flex items-end justify-between gap-4">
-                <h2 id="home-cats" className="text-xl font-extrabold leading-tight sm:text-[22px]">{t("browseByCategory")}</h2>
+                <div className="min-w-0">
+                  <span className="rega-kicker mb-3" aria-hidden="true" />
+                  <h2 id="home-cats" className="text-xl font-extrabold leading-tight sm:text-[22px]">{t("browseByCategory")}</h2>
+                </div>
                 <Link href="/businesses" className="shrink-0 text-sm font-bold text-brand hover:underline">{t("viewAll")}</Link>
               </div>
               <nav aria-label={t("categoriesTitle")} className="mt-4">
@@ -186,6 +189,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           <div className={`${BAND} pt-10`}>
             <div className="flex items-end justify-between gap-4">
               <div className="min-w-0">
+                <span className="rega-kicker mb-3" aria-hidden="true" />
                 <h2 id="home-latest" className="text-xl font-extrabold leading-tight sm:text-[22px]">{t("popularTitle")}</h2>
                 <p className="mt-1 text-sm text-muted">{t("latestSub")}</p>
               </div>
@@ -231,6 +235,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               <>
                 <div className="flex items-end justify-between gap-4">
                   <div className="min-w-0">
+                    <span className="rega-kicker mb-3" aria-hidden="true" />
                     <h2 id="home-nearby" className="text-xl font-extrabold leading-tight sm:text-[22px]">{t("citiesTitle")}</h2>
                     <p className="mt-1 text-sm text-muted">{t("citiesSub")}</p>
                   </div>
@@ -258,6 +263,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               <>
                 <div className="flex items-end justify-between gap-4">
                   <div className="min-w-0">
+                    <span className="rega-kicker mb-3" aria-hidden="true" />
                     <h2 id="home-nearby" className="text-xl font-extrabold leading-tight sm:text-[22px]">{t("nearTitle")}</h2>
                     <p className="mt-1 text-sm text-muted">{t("nearbySub")}</p>
                   </div>

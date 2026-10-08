@@ -13,12 +13,12 @@
   --ink: #17191d;
   --muted: #6f737a;
   --line: #e7e8eb;
-  --brand: #e30613; /* official REGA red direction */
-  --brand-hover: #c9000c;
+  --brand: #dc0201; /* the red of the official REGA artwork */
+  --brand-hover: #b80000;
   --brand-ink: #ffffff;
-  --brand-soft: #fff1f2;
+  --brand-soft: #fff1f1;
   --sun: oklch(0.8 0.16 80);
-  --ring: #e30613;
+  --ring: #dc0201;
   --shadow: 0 1px 2px rgb(17 24 39 / 0.05), 0 10px 26px -16px rgb(17 24 39 / 0.18);
   --shadow-hover: 0 2px 4px rgb(17 24 39 / 0.07), 0 18px 36px -18px rgb(227 6 19 / 0.24);
   color-scheme: light;
@@ -116,7 +116,7 @@
 .figma { font-family: "Inter Variable", var(--font-noto-arabic), system-ui, sans-serif; line-height: normal; --placeholder: #a7abb1; --map: #e9edf0; }
 /* The approved concept is a light red/white surface. Keep it even when the phone is in dark mode. */
 .figma {
-  --brand: #e30613; --brand-hover: #c9000c; --brand-soft: #fff1f2; --ring: #e30613;
+  --brand: #dc0201; --brand-hover: #b80000; --brand-soft: #fff1f1; --ring: #dc0201;
   --ink: #17191d; --muted: #5c6168; --line: #e6e7eb; --surface: #ffffff; --surface-2: #f6f7f8; --bg: #ffffff;
   color: #17191d;
   background: #ffffff;
