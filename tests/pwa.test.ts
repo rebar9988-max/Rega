@@ -2,17 +2,19 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, existsSync } from "node:fs";
 import vm from "node:vm";
-import manifest from "../src/app/manifest";
+
+type Manifest = { display: string; start_url: string; name: string; short_name: string; icons?: { src: string; sizes: string }[] };
 
 test("manifest: installable (name, start URL, standalone, a 192 and a 512 icon that exist on disk)", () => {
-  const m = manifest();
+  // A static asset (public/), served by Cloudflare without starting the Worker.
+  const m = JSON.parse(readFileSync("public/manifest.webmanifest", "utf8")) as Manifest;
   assert.equal(m.display, "standalone");
   assert.equal(m.start_url, "/");
   assert.ok(m.name && m.short_name);
   const sizes = (m.icons ?? []).map((i) => i.sizes);
   assert.ok(sizes.includes("192x192") && sizes.includes("512x512"));
   for (const icon of m.icons ?? []) {
-    const file = icon.src.startsWith("/brand/") ? `public${icon.src}` : `src/app${icon.src}`;
+    const file = `public${icon.src}`;
     assert.ok(existsSync(file), `${icon.src} -> ${file}`);
   }
 });
@@ -90,4 +92,12 @@ test("offline page script: language and direction follow the first path segment,
   assert.equal(run("/fa/x").dir, "rtl");
   assert.equal(run("/kmr/x").lang, "ku");
   assert.deepEqual(run("/zz/whatever"), { lang: "en", dir: "ltr", title: "You are offline" });
+});
+
+test("icons, manifest and the share image are static assets, not Worker routes", () => {
+  for (const f of ["icon.png", "apple-icon.png", "opengraph-image.png", "manifest.webmanifest"]) {
+    assert.ok(existsSync(`public/${f}`), `public/${f}`);
+    // An app/ file convention with the same name would shadow nothing but would turn it back into a Next.js route.
+    assert.ok(!existsSync(`src/app/${f}`) && !existsSync(`src/app/${f.replace(/\.\w+$/, ".ts")}`), `src/app/${f}`);
+  }
 });

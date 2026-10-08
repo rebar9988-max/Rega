@@ -2,6 +2,7 @@ import "../globals.css";
 import "@fontsource-variable/inter";
 import "@fontsource-variable/vazirmatn";
 import type { Metadata } from "next";
+import { SITE_ASSETS } from "@/lib/seo";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
@@ -14,7 +15,7 @@ import { ThemeScript } from "@/components/shell/ThemeScript";
 import { DR_NAV, contentNav } from "@/components/dr/nav";
 import { PRIVATE_BETA } from "@/lib/private-beta";
 
-export const metadata: Metadata = { metadataBase: new URL(`https://${process.env.CANONICAL_HOST || "www.regaplatform.com"}`), title: { default: "REGA Platform", template: "%s · REGA Platform" }, robots: { index: false, follow: false } };
+export const metadata: Metadata = { metadataBase: new URL(`https://${process.env.CANONICAL_HOST || "www.regaplatform.com"}`), icons: SITE_ASSETS.icons, title: { default: "REGA Platform", template: "%s · REGA Platform" }, robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
 
 export default async function DrLayout({ children }: { children: React.ReactNode }) {

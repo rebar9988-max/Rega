@@ -14,6 +14,17 @@ import { DEFAULT_LOCALE, LOCALES, LOCALE_META, type Locale } from "@/i18n/locale
 export const BRAND_NAME = "REGA Platform";
 export const BRAND_NAME_KU = "ڕێگا";
 export const SITE_NAME = BRAND_NAME;
+
+/**
+ * Icons, manifest and the default share image are plain files in public/: Cloudflare serves them as static assets
+ * without starting the Worker. (As app/ file conventions they were Next.js routes, so every browser fetch of an icon
+ * or the manifest cost a Worker invocation; Worker CPU is the platform's limit, see lib/edge-cache.ts.)
+ */
+export const SITE_ASSETS = {
+  icons: { icon: [{ url: "/icon.png", type: "image/png", sizes: "192x192" }], apple: [{ url: "/apple-icon.png", sizes: "180x180" }] },
+  manifest: "/manifest.webmanifest",
+  ogImage: { url: "/opengraph-image.png", width: 1200, height: 630 },
+} as const satisfies { icons: Metadata["icons"]; manifest: string; ogImage: { url: string; width: number; height: number } };
 export const SOCIAL_DISPLAY_NAME = BRAND_NAME;
 
 /** Official REGA contact details (shown in the footer). */

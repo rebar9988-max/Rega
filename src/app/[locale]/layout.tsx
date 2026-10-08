@@ -13,7 +13,7 @@ import { ThemeScript } from "@/components/shell/ThemeScript";
 import { ServiceWorker } from "@/components/shell/ServiceWorker";
 import { LOCALES, LOCALE_META, isLocale } from "@/i18n/locales";
 import { JsonLd } from "@/components/ui/JsonLd";
-import { BRAND_NAME, organizationJsonLd } from "@/lib/seo";
+import { BRAND_NAME, SITE_ASSETS, organizationJsonLd } from "@/lib/seo";
 import { currentUser } from "@/lib/auth-helpers";
 import { PRIVATE_BETA } from "@/lib/private-beta";
 
@@ -57,8 +57,10 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     title: { default: t("title"), template: `%s · ${BRAND_NAME}` },
     description: t("description"),
     // Canonical/hreflang are set per page (pageMetadata): a layout-level canonical would be inherited by every page.
-    openGraph: { siteName: BRAND_NAME, title: t("title"), description: t("description"), locale: LOCALE_META[locale].htmlLang.replace("-", "_"), type: "website" },
-    twitter: { card: "summary_large_image", title: t("title"), description: t("description") },
+    icons: SITE_ASSETS.icons,
+    manifest: SITE_ASSETS.manifest,
+    openGraph: { siteName: BRAND_NAME, title: t("title"), description: t("description"), locale: LOCALE_META[locale].htmlLang.replace("-", "_"), type: "website", images: [SITE_ASSETS.ogImage] },
+    twitter: { card: "summary_large_image", title: t("title"), description: t("description"), images: [SITE_ASSETS.ogImage.url] },
     formatDetection: { telephone: false },
     robots: PRIVATE_BETA ? { index: false, follow: false } : undefined,
   };
