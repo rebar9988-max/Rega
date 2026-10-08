@@ -116,6 +116,10 @@
       }
     ],
     "ask": "What are you looking for?",
+    "communityTitle": "Your community.",
+    "communityAccent": "Closer.",
+    "communityLead": "Discover trusted local businesses and services in Germany, powered by your community.",
+    "popularTitle": "Popular in your area",
     "lead": "Services, businesses, places and information with REGA",
     "what": "e.g. restaurant, doctor, lawyer …",
     "where": "Where? City",
