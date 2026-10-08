@@ -3,13 +3,13 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { BusinessIndex } from "@/features/listings/BusinessIndex";
 import { isLocale, type Locale } from "@/config/locales";
 import { localizeText } from "@/lib/content";
-import { getCities } from "@/lib/data";
+import { getCityBySlug } from "@/lib/data";
 import { pageMetadata } from "@/lib/seo";
 import { pageDescription } from "@/lib/seo-server";
 
 type Props = { params: Promise<{ locale: string; citySlug: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> };
 
-const cityBySlug = async (slug: string) => (await getCities()).find((c) => c.slug === slug);
+const cityBySlug = (slug: string) => getCityBySlug(slug);
 
 export async function generateMetadata({ params }: Props) {
   const { locale, citySlug } = await params;

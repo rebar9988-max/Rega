@@ -11,6 +11,7 @@ import { PUBLIC_BUSINESS, businessInCategories, businessInCity, textWhere } from
 import { searchTokens } from "@/lib/text";
 import { PER_PAGE } from "./params";
 import { descendantIds } from "@/lib/category-tree";
+import { MAJOR_CITY_SLUGS, rankSelectorCities } from "@/lib/selector-cities";
 const skipTake = (page: number) => ({ skip: (page - 1) * PER_PAGE, take: PER_PAGE });
 const pageCount = (total: number) => Math.max(1, Math.ceil(total / PER_PAGE));
 
@@ -100,6 +101,63 @@ export const getCities = cache(async (scope: CityScope = {}) => {
   });
   return rows.map(({ _count, ...c }) => ({ ...c, count: _count.locations }));
 });
+
+const cityNameSelect = {
+  id: true,
+  slug: true,
+  nameEn: true,
+  nameCkb: true,
+  nameKmr: true,
+  nameDe: true,
+  nameAr: true,
+  nameTr: true,
+} as const;
+
+/**
+ * Cities safe to embed in public HTML: the curated German set, plus cities that
+ * already have a matching public listing. Does not load the ~2,000-row gazetteer.
+ */
+export const listSelectorCities = cache(async (scope: CityScope = {}) => {
+  const countryCode = (scope.countryCode ?? DEFAULT_PUBLIC_COUNTRY_CODE).toUpperCase();
+  const cats = scope.categoryId ? await categoryIds(scope.categoryId) : undefined;
+  const businessWhere: Prisma.BusinessWhereInput = {
+    ...PUBLIC_BUSINESS,
+    ...textWhere(scope.q),
+    ...(scope.verified ? { verified: true } : {}),
+    ...(cats ? businessInCategories(cats) : {}),
+  };
+  const locWhere: Prisma.LocationWhereInput = {
+    status: "active",
+    deletedAt: null,
+    countryCode,
+    business: businessWhere,
+  };
+  const inCountry = { isActive: true, country: { code: countryCode, isActive: true } };
+  const select = { ...cityNameSelect, _count: { select: { locations: { where: locWhere } } } } as const;
+
+  const [majors, listed] = await Promise.all([
+    prisma.city.findMany({
+      where: { ...inCountry, slug: { in: [...MAJOR_CITY_SLUGS] } },
+      select,
+    }),
+    prisma.city.findMany({
+      where: { ...inCountry, locations: { some: locWhere } },
+      select,
+    }),
+  ]);
+
+  const byId = new Map<string, Omit<(typeof majors)[number], "_count"> & { count: number }>();
+  for (const row of [...listed, ...majors]) {
+    const { _count, ...city } = row;
+    byId.set(city.id, { ...city, count: _count.locations });
+  }
+  return rankSelectorCities([...byId.values()]);
+});
+
+/** One active city by its public slug. Does not scan the full city table. */
+export const getCityBySlug = cache(async (slug: string) =>
+  prisma.city.findFirst({ where: { slug, isActive: true }, select: cityNameSelect }),
+);
 
 /** A category filter also matches all of its sub-categories, at any depth. */
 async function categoryIds(id?: string): Promise<string[] | undefined> {
