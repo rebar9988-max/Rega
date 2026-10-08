@@ -126,6 +126,9 @@ test("map mode API: every match in range in one response, with category, no inte
 test("place search: typing a German city name offers to search there (RTL)", async ({ page }) => {
   await page.goto("/ckb/nearby");
   await expect(page.getByTestId("nearby-city")).toHaveValue("");
+  // The search box belongs to the results view: it appears once the visitor has chosen a location.
+  await page.getByTestId("nearby-city").selectOption({ label: "هامبورگ" });
+  await expect(page.getByTestId("nearby-place")).toContainText("هامبورگ");
   await page.getByTestId("nearby-q").fill("بەرل");
   await page.getByTestId("nearby-place-matches").getByRole("button", { name: /بەرلین/ }).click();
   await expect(page.getByTestId("nearby-place")).toContainText("بەرلین");

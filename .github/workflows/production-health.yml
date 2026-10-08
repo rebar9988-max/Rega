@@ -17,14 +17,20 @@ permissions:
 
 jobs:
   health:
-    # During the private/beta build phase, health checks remain fully visible but must not block ongoing work or deploys.
-    continue-on-error: true
+    # A failed required check fails this workflow. (It never blocks deploys: Cloudflare builds and deploys main
+    # independently.) Earlier, job-level continue-on-error turned failed smoke checks into a green run.
     if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     env:
       HEALTH_URL: https://www.regaplatform.com/api/v1/health
+      PROBE: ${{ github.workspace }}/scripts/health/probe.sh
     steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts/health
+          sparse-checkout-cone-mode: false
+
       - name: Detect Cloudflare Access protection
         id: access_probe
         shell: bash
@@ -147,17 +153,11 @@ jobs:
           base=https://www.regaplatform.com
           UA="rega-ci-smoke-test/1.0 (+github-actions)"
           fail=0
+          . "$PROBE"
           check() { # path, expected status, optional grep pattern for the body
-            local attempt code
-            for attempt in 1 2 3; do
-              code=$(curl -sS -m 25 -A "$UA" -o /tmp/body.txt -w '%{http_code}' "$base$1" || echo 000)
-              [ "$code" = "$2" ] && break
-              # Retry only transport/5xx failures. Deterministic 4xx mismatches must fail immediately.
-              case "$code" in 000|5??) [ "$attempt" -lt 3 ] && sleep 2 ;; *) break ;; esac
-            done
-            if [ "$code" != "$2" ]; then echo "FAIL $1 -> HTTP $code (expected $2) after $attempt attempt(s)"; fail=1; return; fi
-            if [ -n "${3:-}" ] && ! grep -qiE "$3" /tmp/body.txt; then echo "FAIL $1 -> body does not match /$3/"; fail=1; return; fi
-            echo "ok   $1 -> $code"
+            if ! probe "$2" "$base$1"; then probe_fail "$1" "$2"; fail=1; return; fi
+            if [ -n "${3:-}" ] && ! grep -qiE "$3" "$PROBE_BODY"; then echo "::error::FAIL $1 -> body does not match /$3/"; fail=1; return; fi
+            echo "ok   $1 -> $PROBE_CODE"
           }
           check /ckb 200 'dir="rtl"'
           check /de 200 'lang="de'
@@ -177,8 +177,7 @@ jobs:
           check '/api/v1/nearby?lat=52.52&lng=13.405&radius=10' 200 '"ok":true'
           check '/api/v1/nearby?lat=999&lng=0' 422
           # protected endpoints must reject anonymous callers
-          code=$(curl -sS -m 25 -A "$UA" -X POST -H 'content-type: application/json' -d '{}' -o /dev/null -w '%{http_code}' "$base/api/v1/businesses" || echo 000)
-          if [ "$code" = "401" ]; then echo "ok   POST /api/v1/businesses (anonymous) -> 401"; else echo "FAIL anonymous POST /api/v1/businesses -> $code (expected 401)"; fail=1; fi
+          if probe 401 "$base/api/v1/businesses" -X POST -H 'content-type: application/json' -d '{}'; then echo "ok   POST /api/v1/businesses (anonymous) -> 401"; else probe_fail "anonymous POST /api/v1/businesses" 401; fail=1; fi
           code=$(curl -sS -m 25 -A "$UA" -o /dev/null -w '%{http_code}' "$base/dr" || echo 000)
           echo "info /dr (anonymous) -> $code (expected a redirect to login)"
           exit $fail
@@ -240,14 +239,14 @@ jobs:
           set -u
           UA="rega-ci-smoke-test/1.0 (+github-actions)"
           fail=0
+          . "$PROBE"
           for p in /brand/rega-logo.webp /brand/rega-mark-256.webp /brand/rega-wordmark.webp /icon.png /apple-icon.png /opengraph-image.png /manifest.webmanifest; do
-            code=$(curl -sS -m 25 -A "$UA" -o /dev/null -w '%{http_code}' "https://www.regaplatform.com$p" || echo 000)
-            [ "$code" = "200" ] && echo "ok   $p -> 200" || { echo "FAIL $p -> $code"; fail=1; }
+            if probe 200 "https://www.regaplatform.com$p"; then echo "ok   $p -> 200"; else probe_fail "$p" 200; fail=1; fi
           done
-          home=$(curl -sS -m 25 -A "$UA" https://www.regaplatform.com/ckb)
-          grep -qF '/brand/rega-mark-256.webp' <<<"$home" && echo "ok   header uses the official logo" || { echo "FAIL header logo"; fail=1; }
-          about=$(curl -sS -m 25 -A "$UA" -o /tmp/about.html -w '%{http_code}' https://www.regaplatform.com/ckb/about)
-          [ "$about" = "200" ] && grep -qF 'دەربارەی ڕێگا (REGA)' /tmp/about.html && echo "ok   /ckb/about approved text" || { echo "FAIL /ckb/about ($about)"; fail=1; }
+          if probe 200 https://www.regaplatform.com/ckb && grep -qF '/brand/rega-mark-256.webp' "$PROBE_BODY"; then echo "ok   header uses the official logo"; else echo "::error::FAIL header logo (HTTP $PROBE_CODE)"; fail=1; fi
+          if ! probe 200 https://www.regaplatform.com/ckb/about; then probe_fail /ckb/about 200; fail=1
+          elif grep -qF 'دەربارەی ڕێگا (REGA)' "$PROBE_BODY"; then echo "ok   /ckb/about approved text"
+          else echo "::error::FAIL /ckb/about -> approved text missing"; fail=1; fi
           exit $fail
 
       - name: Legal go-live placeholders (read-only)
@@ -256,18 +255,14 @@ jobs:
         run: |
           set -u
           fail=0
+          . "$PROBE"
           for p in /de/impressum /de/privacy; do
-            for attempt in 1 2 3; do
-              code=$(curl -sS -m 25 -o /tmp/legal.html -w '%{http_code}' "https://www.regaplatform.com$p" || echo 000)
-              [ "$code" = "200" ] && break
-              case "$code" in 000|5??) [ "$attempt" -lt 3 ] && sleep 2 ;; *) break ;; esac
-            done
-            if [ "$code" != "200" ]; then
-              echo "FAIL $p -> HTTP $code after $attempt attempt(s)"
+            if ! probe 200 "https://www.regaplatform.com$p"; then
+              probe_fail "$p" 200
               fail=1
               continue
             fi
-            placeholders=$(grep -oE '\[\[LEGAL_[A-Z_]+\]\]' /tmp/legal.html | sort -u | tr '\n' ' ' || true)
+            placeholders=$(grep -oE '\[\[LEGAL_[A-Z_]+\]\]' "$PROBE_BODY" | sort -u | tr '\n' ' ' || true)
             if [ -n "$placeholders" ]; then
               echo "::warning::$p has unresolved legal placeholders (allowed during private/beta development): $placeholders"
               echo "beta $p -> legal identity details intentionally deferred until final public launch"
@@ -289,10 +284,22 @@ jobs:
             grep -qi "^$h" /tmp/sh.txt && echo "ok   header $h" || { echo "FAIL missing header $h"; fail=1; }
           done
           grep -qi '^x-powered-by:' /tmp/sh.txt && { echo "FAIL x-powered-by exposed"; fail=1; } || echo "ok   no x-powered-by"
+          . "$PROBE"
           for p in /api/v1/businesses /api/v1/categories /api/v1/locations /api/v1/businesses/bulk /api/v1/media/upload-url; do
-            code=$(curl -sS -m 25 -A "$UA" -X POST -H 'content-type: application/json' -d '{}' -o /dev/null -w '%{http_code}' "https://www.regaplatform.com$p" || echo 000)
-            [ "$code" = "401" ] && echo "ok   anonymous POST $p -> 401" || { echo "FAIL anonymous POST $p -> $code"; fail=1; }
+            if probe 401 "https://www.regaplatform.com$p" -X POST -H 'content-type: application/json' -d '{}'; then echo "ok   anonymous POST $p -> 401"; else probe_fail "anonymous POST $p" 401; fail=1; fi
           done
-          code=$(curl -sS -m 25 -A "$UA" -o /dev/null -w '%{http_code}' https://www.regaplatform.com/dr/ai || echo 000)
-          [ "$code" = "307" ] && echo "ok   /dr/ai (anonymous) -> 307 login" || { echo "FAIL /dr/ai -> $code"; fail=1; }
+          if probe 307 https://www.regaplatform.com/dr/ai; then echo "ok   /dr/ai (anonymous) -> 307 login"; else probe_fail "/dr/ai (anonymous)" 307; fail=1; fi
           exit $fail
+
+      - name: Retry record (transient failures that recovered or exhausted their retries)
+        if: always() && steps.access_probe.outputs.access_protected != 'true'
+        shell: bash
+        run: |
+          log="${RUNNER_TEMP}/probe-retries.log"
+          if [ -s "$log" ]; then
+            { echo "### Retried production probes"; echo; echo '```'; cat "$log"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+            echo "::warning::$(wc -l < "$log") probe retr(y/ies) recorded; see the job summary."
+            cat "$log"
+          else
+            echo "No retries were needed."
+          fi

@@ -6,9 +6,11 @@ on:
   push:
     branches: [main]
 
+# Pull requests: a new push supersedes the running check. main: every commit gets its own complete run, because
+# a cancelled main run leaves that commit unverified and Beta health (workflow_run on success) never follows it.
 concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  group: ci-${{ github.event_name == 'pull_request' && github.ref || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   verify:
