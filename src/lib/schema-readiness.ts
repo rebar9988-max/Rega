@@ -1,6 +1,6 @@
 /** Columns needed by the directory and CMS reads that failed in production. No application records are read. */
 export const REQUIRED_CONTENT_COLUMNS: Record<string, readonly string[]> = {
-  City: ["id", "countryId", "regionId", "slug", "nameEn", "nameCkb", "nameKmr", "nameDe", "nameFa", "nameAr", "nameTr", "sortOrder", "latitude", "longitude", "isActive", "inDirectory", "createdAt", "updatedAt"],
+  City: ["id", "countryId", "regionId", "slug", "nameEn", "nameCkb", "nameKmr", "nameDe", "nameFa", "nameAr", "nameTr", "sortOrder", "latitude", "longitude", "isActive", "createdAt", "updatedAt"],
   Page: ["id", "slug", "status", "sortOrder", "createdAt", "updatedAt"],
   PageTranslation: ["id", "pageId", "locale", "title", "body", "metaDescription"],
   Listing: ["id", "sectionKey", "slug", "status", "verified", "businessId", "createdById", "cityId", "categoryId", "publishedAt", "expiresAt", "searchText", "deletedAt", "createdAt", "updatedAt"],

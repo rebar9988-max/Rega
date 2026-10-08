@@ -9,7 +9,7 @@ export const SELECTOR_CITY_LIMIT = 80;
 /**
  * Curated German cities (prisma/seed-data/geography.ts). Always offered, even
  * before any business is published, so the "where" search stays useful.
- * Cities an admin adds are flagged `inDirectory` and offered the same way.
+ * Cities an admin adds are marked and offered the same way, even at count 0.
  * The bulk gazetteer appears only once a city has a public listing.
  */
 export const MAJOR_CITY_SLUGS = [

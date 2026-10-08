@@ -69,8 +69,7 @@ export async function saveCityAction(formData: FormData): Promise<void> {
   const clash = await prisma.city.findFirst({ where: { slug: citySlug, ...(id ? { NOT: { id } } : {}) }, select: { id: true } });
   if (clash) redirect(id ? `/dr/geography/city/${id}?error=slug` : "/dr/geography?error=exists");
   const names = localizedNames(formData, COLUMN_LOCALES);
-  // An admin-saved city belongs in the public filter immediately, even with no business yet.
-  const data = { countryId, regionId: regionId ?? null, nameEn, slug: citySlug, latitude: lat ?? null, longitude: lng ?? null, sortOrder, inDirectory: true, ...names };
+  const data = { countryId, regionId: regionId ?? null, nameEn, slug: citySlug, latitude: lat ?? null, longitude: lng ?? null, sortOrder, ...names };
   let cityId = id;
   if (id) {
     if (!(await prisma.city.findUnique({ where: { id }, select: { id: true } }))) redirect("/dr/geography?error=invalid");
@@ -79,6 +78,14 @@ export async function saveCityAction(formData: FormData): Promise<void> {
   } else {
     cityId = (await prisma.city.create({ data })).id;
   }
+  if (!cityId) redirect("/dr/geography?error=invalid");
+  // Marker, not a catalogue row: puts this city in the public filter even with zero businesses.
+  // The ~2,000 imported German towns never get one, so they stay out of the HTML.
+  await prisma.cityTranslation.upsert({
+    where: { cityId_locale: { cityId, locale: "directory" } },
+    update: { name: nameEn },
+    create: { cityId, locale: "directory", name: nameEn },
+  });
   await writeAudit({ actorId: user.id, actorEmail: user.email, action: id ? "city.update" : "city.create", entity: "City", entityId: cityId, after: { slug: citySlug } });
   revalidatePath("/", "layout");
   redirect(`/dr/geography/city/${cityId}?saved=1`);

@@ -115,8 +115,8 @@ const cityNameSelect = {
 
 /**
  * Cities safe to embed in public HTML: the curated German set, cities an admin
- * explicitly added (`inDirectory`), plus cities that already have a matching
- * public listing. Does not load the ~2,000-row gazetteer.
+ * explicitly added (a `directory` translation marker), plus cities that already
+ * have a matching public listing. Does not load the ~2,000-row gazetteer.
  */
 export const listSelectorCities = cache(async (scope: CityScope = {}) => {
   const countryCode = (scope.countryCode ?? DEFAULT_PUBLIC_COUNTRY_CODE).toUpperCase();
@@ -148,7 +148,7 @@ export const listSelectorCities = cache(async (scope: CityScope = {}) => {
     // Recently added directory cities first, then capped, so a new city with
     // zero businesses is never crowded out by the rest of the curated set.
     prisma.city.findMany({
-      where: { ...inCountry, inDirectory: true },
+      where: { ...inCountry, translations: { some: { locale: "directory" } } },
       select,
       orderBy: { updatedAt: "desc" },
       take: SELECTOR_CITY_LIMIT,

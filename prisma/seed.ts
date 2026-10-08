@@ -45,7 +45,6 @@ async function seedGeography() {
   // City schema intentionally requires a globally unique slug and a unique country + nameEn,
   // so seed only one deterministic representative for each name/slug. Existing curated CITIES
   // always win; imported rows never overwrite or delete anything already present.
-  const curatedSlugs = new Set(CITIES.map((c) => c.slug));
   const curatedGermanCities = CITIES.filter((c) => c.country === "DE");
   const seenGermanNames = new Set(curatedGermanCities.map((c) => c.names.de));
   const seenGermanSlugs = new Set(curatedGermanCities.map((c) => c.slug));
@@ -62,8 +61,7 @@ async function seedGeography() {
   for (const [i, c] of allCities.entries()) {
     const countryId = countries[c.country];
     const data = { nameCkb: c.names.ckb, nameKmr: c.names.kmr, nameDe: c.names.de, nameAr: c.names.ar, nameFa: c.names.fa, nameTr: c.names.tr, slug: c.slug, regionId: c.region ? regions[`${c.country}/${c.region}`] : undefined, latitude: c.lat, longitude: c.lng };
-    const directory = curatedSlugs.has(c.slug);
-    const row = await prisma.city.upsert({ where: { countryId_nameEn: { countryId, nameEn: c.names.en } }, update: directory ? { inDirectory: true } : {}, create: { countryId, nameEn: c.names.en, sortOrder: i, inDirectory: directory, ...data } });
+    const row = await prisma.city.upsert({ where: { countryId_nameEn: { countryId, nameEn: c.names.en } }, update: {}, create: { countryId, nameEn: c.names.en, sortOrder: i, ...data } });
     const fill = fillEmpty(row, data);
     if (Object.keys(fill).length) await prisma.city.update({ where: { id: row.id }, data: fill });
     cities[c.names.en] = row.id;
