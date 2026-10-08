@@ -75,55 +75,51 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   return (
     <>
       <div className="figma text-ink">
-        <PageSchema name={t("ask")} description={t("lead")} />
+        <PageSchema name={`${t("communityTitle")} ${t("communityAccent")}`} description={t("communityLead")} />
         {degraded && <NoEdgeCache />}
 
-        {/* ---------- Hero: search first (approved concept, page 2) ---------- */}
+        {/* ---------- Hero: approved red/white concept (community headline + city photo) ---------- */}
         <section className="border-b border-line bg-surface">
-          <div className="mx-auto max-w-[1220px] px-4 pb-8 pt-6 sm:px-6 lg:px-8 lg:pb-10 lg:pt-8">
-            <div className="grid items-stretch gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,.9fr)]">
-              <div className="flex flex-col justify-center py-4 text-start lg:py-10">
-                <span className="rega-kicker" aria-hidden="true" />
-                <h1 className="rega-display mt-5 max-w-xl text-[clamp(2.3rem,4.6vw,4.25rem)]">{t("ask")}</h1>
-                <p className="mt-4 max-w-lg text-base leading-7 text-muted">{t("heroLead")}</p>
+          <div className="mx-auto max-w-[1100px] px-4 pb-8 pt-5 sm:px-6 lg:px-8 lg:pb-10 lg:pt-8">
+            <div className="relative overflow-hidden rounded-[1.25rem] bg-surface">
+              <div className="grid min-h-[280px] lg:min-h-[340px] lg:grid-cols-[minmax(0,1.05fr)_minmax(0,.95fr)]">
+                <div className="relative z-10 flex flex-col justify-center px-5 py-8 sm:px-8 lg:py-10 lg:pe-6">
+                  <h1 className="rega-display max-w-xl text-[clamp(2.4rem,5vw,3.75rem)]">
+                    {t("communityTitle")}
+                    <span className="mt-1 block text-brand">{t("communityAccent")}</span>
+                  </h1>
+                  <p className="mt-4 max-w-md text-[15px] leading-7 text-muted">{t("communityLead")}</p>
+                </div>
+                <div className="rega-hero-photo relative min-h-[210px] lg:min-h-full" aria-hidden="true">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/brand/community-hero.jpg" alt="" width={1600} height={900} decoding="async" fetchPriority="high" className="absolute inset-0 size-full object-cover object-[center_40%]" />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/brand/rega-mark-256.webp" alt="" width={88} height={88} decoding="async" className="absolute bottom-6 end-6 z-[2] w-[72px] drop-shadow-md sm:w-[84px]" />
+                </div>
               </div>
-              {/* Official REGA artwork on its own red field; the slanted edge echoes the concept's red diagonal. */}
-              <div className="rega-hero-panel relative hidden min-h-[320px] overflow-hidden lg:grid lg:place-items-center" aria-hidden="true">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/brand/rega-logo.webp" alt="" width={320} height={320} decoding="async" fetchPriority="high" className="w-[min(58%,300px)] select-none" />
-              </div>
-            </div>
 
-            <form action={`/${locale}/businesses`} role="search"
-              className="rega-search-shell relative z-10 mt-6 grid overflow-hidden sm:grid-cols-[minmax(0,1.5fr)_minmax(9rem,.7fr)_minmax(9rem,.7fr)_auto] lg:-mt-10 lg:me-[8%]">
-              <label className="flex min-h-14 min-w-0 items-center gap-3 px-4 focus-within:ring-2 focus-within:ring-inset focus-within:ring-[var(--ring)]">
-                <FigmaIcon name="search" className="size-5 shrink-0 text-brand" />
-                <span className="sr-only">{t("what")}</span>
-                <input name="q" type="search" autoComplete="off" maxLength={120} placeholder={t("searchWhat")}
-                  className="min-w-0 flex-1 bg-transparent text-[15px] text-ink outline-none placeholder:text-muted" />
-              </label>
-              <label className="flex min-h-14 min-w-0 items-center gap-2 border-t border-line px-4 focus-within:ring-2 focus-within:ring-inset focus-within:ring-[var(--ring)] sm:border-s sm:border-t-0">
-                <FigmaIcon name="grid-3x3" className="size-4 shrink-0 text-brand" />
-                <span className="sr-only">{t("categoriesTitle")}</span>
-                <select name="category" defaultValue="" aria-label={t("categoriesTitle")} className="min-w-0 flex-1 cursor-pointer appearance-none bg-transparent text-sm text-ink outline-none">
-                  <option value="">{t("allSections")}</option>
-                  {rootCategories.map((c) => <option key={c.id} value={c.id}>{categoryName(c).text}</option>)}
-                </select>
-                <FigmaIcon name="chevron-down" className="pointer-events-none size-4 shrink-0 text-muted" />
-              </label>
-              <label className="flex min-h-14 min-w-0 items-center gap-2 border-t border-line px-4 focus-within:ring-2 focus-within:ring-inset focus-within:ring-[var(--ring)] sm:border-s sm:border-t-0">
-                <FigmaIcon name="map-pin" className="size-4 shrink-0 text-brand" />
-                <span className="sr-only">{t("where")}</span>
-                <select name="city" defaultValue="" className="min-w-0 flex-1 cursor-pointer appearance-none bg-transparent text-sm text-ink outline-none">
-                  <option value="">{t("anyCity")}</option>
-                  {cities.map((c) => <option key={c.id} value={c.id}>{cityName(c).text}</option>)}
-                </select>
-                <FigmaIcon name="chevron-down" className="pointer-events-none size-4 shrink-0 text-muted" />
-              </label>
-              <button type="submit" className="m-0 min-h-14 bg-brand px-9 text-[15px] font-bold text-white transition hover:bg-brand-hover sm:m-1.5 sm:min-h-0 sm:rounded-[0.55rem]">
-                {tn("search")}
-              </button>
-            </form>
+              <form action={`/${locale}/businesses`} role="search"
+                className="rega-search-shell relative z-20 mx-3 mb-3 mt-3 grid overflow-hidden sm:mx-5 sm:mb-5 sm:-mt-7 sm:grid-cols-[minmax(0,1.6fr)_minmax(11rem,.8fr)_auto] lg:mx-8">
+                <label className="flex min-h-14 min-w-0 items-center gap-3 px-4 focus-within:ring-2 focus-within:ring-inset focus-within:ring-[var(--ring)]">
+                  <FigmaIcon name="search" className="size-5 shrink-0 text-brand" />
+                  <span className="sr-only">{t("what")}</span>
+                  <input name="q" type="search" autoComplete="off" maxLength={120} placeholder={t("searchWhat")}
+                    className="min-w-0 flex-1 bg-transparent text-[15px] text-ink outline-none placeholder:text-muted" />
+                </label>
+                <label className="flex min-h-14 min-w-0 items-center gap-2 border-t border-line px-4 focus-within:ring-2 focus-within:ring-inset focus-within:ring-[var(--ring)] sm:border-s sm:border-t-0">
+                  <FigmaIcon name="map-pin" className="size-4 shrink-0 text-brand" />
+                  <span className="sr-only">{t("where")}</span>
+                  <select name="city" defaultValue="" className="min-w-0 flex-1 cursor-pointer appearance-none bg-transparent text-sm text-ink outline-none">
+                    <option value="">{t("anyCity")}</option>
+                    {cities.map((c) => <option key={c.id} value={c.id}>{cityName(c).text}</option>)}
+                  </select>
+                  <FigmaIcon name="chevron-down" className="pointer-events-none size-4 shrink-0 text-muted" />
+                </label>
+                <button type="submit" className="m-0 min-h-14 bg-brand px-8 text-[15px] font-bold text-white transition hover:bg-brand-hover sm:m-1.5 sm:min-h-0 sm:rounded-[0.7rem]">
+                  {tn("search")}
+                </button>
+              </form>
+            </div>
           </div>
         </section>
 
@@ -162,7 +158,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           <div className={`${BAND} pt-10`}>
             <div className="flex items-end justify-between gap-4">
               <div className="min-w-0">
-                <h2 id="home-latest" className="text-xl font-extrabold leading-tight sm:text-[22px]">{t("latestTitle")}</h2>
+                <h2 id="home-latest" className="text-xl font-extrabold leading-tight sm:text-[22px]">{t("popularTitle")}</h2>
                 <p className="mt-1 text-sm text-muted">{t("latestSub")}</p>
               </div>
               <Link href="/businesses?sort=newest" className="shrink-0 text-sm font-bold text-brand hover:underline">{t("seeMore")}</Link>

@@ -41,7 +41,7 @@ export async function Header() {
           <Link href="/search" aria-label={tc("search")} className="grid size-10 place-items-center rounded-xl text-muted transition hover:bg-brand-soft hover:text-brand xl:hidden">
             <FigmaIcon name="search" className="size-5" />
           </Link>
-          <Link href={accountHref} className="hidden min-h-10 w-28 items-center justify-center gap-2 rounded-xl border border-line px-3 text-[12px] font-semibold text-ink transition hover:border-brand hover:text-brand sm:flex">
+          <Link href={accountHref} className="hidden min-h-10 items-center justify-center gap-2 rounded-full border border-brand px-4 text-[13px] font-semibold text-brand transition hover:bg-brand hover:text-white sm:flex">
             <FigmaIcon name="user" className="size-4 shrink-0" />
             <span dir={contentDir}>{signedIn ? t("account") : t("login")}</span>
           </Link>
