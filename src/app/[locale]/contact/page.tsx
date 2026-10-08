@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { PageSchema } from "@/components/ui/PageSchema";
 import { HomeIcon } from "@/components/home/icons";
-import { ContactForm } from "@/features/contact/ContactForm";
 import { isLocale } from "@/config/locales";
 import { ownerDetails } from "@/config/owner";
 import { pageDescription } from "@/lib/seo-server";
@@ -83,12 +82,6 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
             </ul>
           </nav>
         )}
-
-        <section aria-labelledby="contact-form" className="rounded-[var(--radius-card)] border border-line bg-surface p-5 shadow-card sm:p-6">
-          <h2 id="contact-form" className="border-s-4 border-brand ps-3 text-xl font-extrabold">{t("formTitle")}</h2>
-          <p className="mb-5 mt-2 text-sm text-muted">{t("formIntro")}</p>
-          <ContactForm />
-        </section>
       </div>
     </>
   );
