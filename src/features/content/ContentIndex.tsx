@@ -11,7 +11,7 @@ import { Pagination } from "@/components/ui/Pagination";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { buttonClass } from "@/components/ui/Button";
 import { EMPLOYMENT_TYPES, type ContentSection } from "./config";
-import { listPublished, sectionCategories, sectionCities, type PublicFilters } from "./queries";
+import { listPublished, sectionCategories, sectionCitiesWithEntries, type PublicFilters } from "./queries";
 import { EntryCard } from "./EntryCard";
 
 type Sp = Record<string, string | string[] | undefined>;
@@ -21,7 +21,7 @@ const field = "min-h-11 w-full rounded-xl border border-line bg-surface px-3 tex
 export async function ContentIndex({ section, locale, searchParams }: { section: ContentSection; locale: Locale; searchParams: Sp }) {
   const query = parseParams(contentShape, searchParams);
   const t = await getTranslations();
-  const [categories, cities] = await Promise.all([sectionCategories(section), sectionCities(section)]);
+  const [categories, cities] = await Promise.all([sectionCategories(section), sectionCitiesWithEntries(section)]);
   const path = `/${section}`;
   const title = t(`nav.${section}`);
   const filters: PublicFilters = { q: query.q, city: query.city, category: query.category, employmentType: section === "jobs" ? query.employmentType : undefined, when: section === "events" ? query.when : undefined, page: query.page };
@@ -46,12 +46,12 @@ export async function ContentIndex({ section, locale, searchParams }: { section:
               </select>
             </div>
           )}
-          {cities.some((c) => c.count > 0) && (
+          {cities.length > 0 && (
             <div>
               <label htmlFor="c-city" className="sr-only">{t("content.city")}</label>
               <select id="c-city" name="city" defaultValue={query.city ?? ""} className={field}>
                 <option value="">{t("list.allCities")}</option>
-                {cities.filter((c) => c.count > 0).map((c) => <option key={c.id} value={c.id}>{`${localizeText({ ...c, name: c.nameEn }, "name", locale)} (${formatNumber(c.count, locale)})`}</option>)}
+                {cities.map((c) => <option key={c.id} value={c.id}>{`${localizeText({ ...c, name: c.nameEn }, "name", locale)} (${formatNumber(c.count, locale)})`}</option>)}
               </select>
             </div>
           )}
