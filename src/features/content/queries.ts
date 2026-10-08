@@ -63,6 +63,17 @@ export const sectionCategories = cache(async (section: ContentSection) =>
   prisma.category.findMany({ where: { sectionKey: section, isActive: true, deletedAt: null }, orderBy: [{ sortOrder: "asc" }, { nameDe: "asc" }], select: catNames.select }),
 );
 
+/**
+ * Public list filter: only the cities that have published entries of the section, with their count. Same result as
+ * `sectionCities(...).filter((c) => c.count > 0)`, without loading the whole gazetteer (about 2,000 cities, each with a
+ * count subquery) on every render of a public index page.
+ */
+export const sectionCitiesWithEntries = cache(async (section: ContentSection) => {
+  const published = { sectionKey: section, status: "published", deletedAt: null } as const;
+  const rows = await prisma.city.findMany({ where: { isActive: true, listings: { some: published } }, orderBy: [{ sortOrder: "asc" }, { nameEn: "asc" }], select: { id: true, slug: true, ...names.select, _count: { select: { listings: { where: published } } } } });
+  return rows.map(({ _count, ...c }) => ({ ...c, count: _count.listings }));
+});
+
 /** Cities that can be chosen (active, admin-managed geography) with the number of published entries of the section. */
 export const sectionCities = cache(async (section: ContentSection) => {
   const rows = await prisma.city.findMany({ where: { isActive: true }, orderBy: [{ sortOrder: "asc" }, { nameEn: "asc" }], select: { id: true, slug: true, ...names.select, _count: { select: { listings: { where: { sectionKey: section, status: "published", deletedAt: null } } } } } });

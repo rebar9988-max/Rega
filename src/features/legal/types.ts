@@ -23,4 +23,4 @@ export type LegalContext = {
 export type LegalBuilder = (owner: Owner, ctx: LegalContext) => LegalTexts;
 
 /** Date the texts were last reviewed by the maintainers (ISO). Update it with every change to the texts. */
-export const LEGAL_UPDATED = "2026-10-02";
+export const LEGAL_UPDATED = "2026-10-08";

@@ -12,6 +12,11 @@ test("hreflang alternates cover every locale plus x-default, all on the same pat
   assert.ok(LOCALES.includes("en" as never), "English is a supported locale");
 });
 
+test("hreflang language tags: Kurmanji is 'kmr' (its audience is not one country), every tag is a plain BCP-47 tag", () => {
+  assert.equal(LOCALE_META.kmr.htmlLang, "kmr");
+  for (const l of LOCALES) assert.match(LOCALE_META[l].htmlLang, /^[a-z]{2,3}(?:-[A-Z]{2})?$/, l);
+});
+
 test("page metadata is complete: canonical, Open Graph and X card", () => {
   const m = pageMetadata({ locale: "en", path: "/services", title: "Services", description: "d" });
   assert.equal((m.openGraph as { url: string }).url, "https://www.regaplatform.com/en/services");

@@ -42,9 +42,10 @@ test("personal, private and non-GET requests are never cached", () => {
   assert.ok(edgeCacheKey(req("/drinks"))); // only the /dr segment itself is private
 });
 
-test("only 200 HTML/RSC responses without personal cookies or foreign Vary are stored", () => {
+test("only 200 HTML/RSC/XML responses without personal cookies or foreign Vary are stored", () => {
   assert.ok(cacheableCopy(html()));
   assert.ok(cacheableCopy(new Response("x", { headers: { "content-type": "text/x-component" } })));
+  assert.ok(cacheableCopy(new Response("<urlset/>", { headers: { "content-type": "application/xml; charset=utf-8", "cache-control": "public, max-age=300" } })), "sitemaps");
   assert.equal(cacheableCopy(html({}, 404)), null);
   assert.equal(cacheableCopy(new Response("{}", { headers: { "content-type": "application/json" } })), null);
   assert.equal(cacheableCopy(html({ "set-cookie": "authjs.session-token=x; Path=/" })), null);

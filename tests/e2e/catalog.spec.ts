@@ -77,12 +77,11 @@ test("home search form: what + where (city) navigate to filtered businesses", as
   await expect(page.getByRole("link", { name: "Kurdistan Rechtsberatung" }).first()).toBeVisible();
 });
 
-test("home search form: category select narrows the businesses to that category", async ({ page }) => {
+// The approved homepage has no category select in the search form any more; categories are the entry cards below it.
+test("home category entry narrows the businesses to that category", async ({ page }) => {
   await page.goto("/de");
-  const form = page.locator("main form[role=search]");
-  await form.getByRole("combobox", { name: "Kategorien" }).selectOption({ label: "Recht" });
-  await form.getByRole("button", { name: "Suche" }).click();
-  await expect(page).toHaveURL(/\/de\/businesses\/legal\?q=&city=/);
+  await page.locator("main nav").filter({ has: page.getByRole("link", { name: "Recht" }) }).getByRole("link", { name: "Recht" }).click();
+  await expect(page).toHaveURL(/\/de\/businesses\/legal$/);
   await expect(page.getByRole("link", { name: "Kurdistan Rechtsberatung" }).first()).toBeVisible();
   await expect(page.getByRole("link", { name: "Zagros Restaurant" })).toHaveCount(0);
 });

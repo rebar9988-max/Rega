@@ -6,6 +6,7 @@ import { localizeText } from "@/lib/content";
 import { getBusiness, getCategories } from "@/lib/data";
 import { pageMetadata } from "@/lib/seo";
 import { pageDescription } from "@/lib/seo-server";
+import { hasPublicBusinesses } from "@/lib/indexable";
 
 type Props = { params: Promise<{ locale: string; slug: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> };
 
@@ -17,7 +18,7 @@ export async function generateMetadata({ params }: Props) {
   const category = await categoryBySlug(slug);
   if (!category) return {}; // a business slug: this URL redirects, the target carries the metadata
   const name = localizeText({ ...category, name: category.nameDe }, "name", locale);
-  return pageMetadata({ locale, path: `/businesses/${slug}`, title: name, description: await pageDescription(locale, "categoryPage", { name }) });
+  return pageMetadata({ locale, path: `/businesses/${slug}`, title: name, description: await pageDescription(locale, "categoryPage", { name }), noindex: !(await hasPublicBusinesses(category.id)) });
 }
 
 /**

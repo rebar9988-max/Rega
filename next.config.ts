@@ -80,14 +80,12 @@ const nextConfig: NextConfig = {
     ];
   },
   async redirects() {
-    // Browsers probe /favicon.ico regardless of <link rel="icon">; serve the PNG mark instead of a locale 404.
-    const common = [{ source: "/favicon.ico", destination: "/icon.png", permanent: false }];
-    if (APEX_HOST === CANONICAL_HOST) return common;
+    // /favicon.ico is a real file in public/ (served as a static asset, no Worker invocation): no redirect needed.
+    if (APEX_HOST === CANONICAL_HOST) return [];
     // The `has.value` of a host condition is a REGEX. It must be anchored and escaped: an unanchored
     // "regaplatform.com" also matches "www.regaplatform.com", which made www redirect to itself (redirect loop).
     const apexOnly = [{ type: "host" as const, value: `^${APEX_HOST.replace(/\./g, "\\.")}$` }];
     return [
-      ...common,
       // Two rules instead of "/:path*": OpenNext leaves ":path*" unsubstituted for the empty path ("/").
       { source: "/", has: apexOnly, destination: `https://${CANONICAL_HOST}/`, statusCode: 301 },
       { source: "/:path+", has: apexOnly, destination: `https://${CANONICAL_HOST}/:path+`, statusCode: 301 },

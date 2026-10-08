@@ -1,6 +1,7 @@
 import { PageSchema } from "@/components/ui/PageSchema";
 import { pageMetadata } from "@/lib/seo";
 import { pageDescription } from "@/lib/seo-server";
+import { hasPublicServices } from "@/lib/indexable";
 import type { Locale } from "@/i18n/locales";
 import { Suspense } from "react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -16,7 +17,7 @@ import { parseParams, serviceShape } from "@/lib/data/params";
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const t = await getTranslations();
-  return pageMetadata({ locale: locale as Locale, path: "/services", title: t("nav.services"), description: await pageDescription(locale as Locale, "services") });
+  return pageMetadata({ locale: locale as Locale, path: "/services", title: t("nav.services"), description: await pageDescription(locale as Locale, "services"), noindex: !(await hasPublicServices()) });
 }
 
 export default async function ServicesPage({ params, searchParams }: { params: Promise<{ locale: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> }) {

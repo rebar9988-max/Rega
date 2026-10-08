@@ -1,0 +1,6 @@
+# Cloudflare Workers static assets: response headers for files served from .open-next/assets (public/ is copied there).
+# Applies only to static assets, never to Worker-rendered pages. https://developers.cloudflare.com/workers/static-assets/headers/
+#
+# Next.js build output: every file name carries a content hash, so a changed file always gets a new URL.
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable

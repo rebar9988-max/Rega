@@ -2,7 +2,7 @@ import { expect, test } from "./fixtures";
 import type { Page } from "@playwright/test";
 
 const DIR: Record<string, "rtl" | "ltr"> = { ckb: "rtl", kmr: "ltr", de: "ltr", en: "ltr", ar: "rtl", fa: "rtl", tr: "ltr" };
-const LANG: Record<string, string> = { ckb: "ckb-IQ", kmr: "kmr-TR", de: "de-DE", en: "en", ar: "ar", fa: "fa-IR", tr: "tr-TR" };
+const LANG: Record<string, string> = { ckb: "ckb-IQ", kmr: "kmr", de: "de-DE", en: "en", ar: "ar", fa: "fa-IR", tr: "tr-TR" };
 const NATIVE: Record<string, string> = { ckb: "کوردیی ناوەندی", kmr: "Kurmancî", de: "Deutsch", en: "English", ar: "العربية", fa: "فارسی", tr: "Türkçe" };
 const MATRIX: [string, string][] = [
   ["ckb", "kmr"], ["ckb", "de"], ["ckb", "en"], ["ckb", "ar"], ["ckb", "fa"], ["ckb", "tr"],
@@ -26,7 +26,8 @@ test("Persian is a complete locale: rtl, lang, translated UI, no raw keys", asyn
   expect(res?.status()).toBe(200);
   await expect(page.locator("html")).toHaveAttribute("lang", "fa-IR");
   await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("دنبال چه هستید؟");
+  // The approved red/white hero (fa.json home.communityTitle); the old "what are you looking for?" headline is gone.
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("جامعهٔ شما.");
   await expect(page.locator("body")).not.toContainText(/\b(nav|home|common|footer)\.[a-zA-Z]+\b/);
   for (const p of ["/fa/businesses", "/fa/services", "/fa/locations", "/fa/search", "/fa/ai", "/fa/about", "/fa/login"]) {
     expect((await page.goto(p))?.status(), p).toBe(200);

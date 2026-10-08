@@ -5,12 +5,13 @@ import { isLocale } from "@/config/locales";
 import { getCategories } from "@/lib/data";
 import { pageMetadata } from "@/lib/seo";
 import { pageDescription } from "@/lib/seo-server";
+import { hasPublicBusinesses } from "@/lib/indexable";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   if (!isLocale(locale)) return {};
   const t = await getTranslations({ locale, namespace: "nav" });
-  return pageMetadata({ locale, path: "/businesses", title: t("businesses"), description: await pageDescription(locale, "businesses") });
+  return pageMetadata({ locale, path: "/businesses", title: t("businesses"), description: await pageDescription(locale, "businesses"), noindex: !(await hasPublicBusinesses()) });
 }
 
 type Sp = Record<string, string | string[] | undefined>;

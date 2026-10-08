@@ -6,6 +6,7 @@ import { localizeText } from "@/lib/content";
 import { getCityBySlug } from "@/lib/data";
 import { pageMetadata } from "@/lib/seo";
 import { pageDescription } from "@/lib/seo-server";
+import { hasPublicBusinesses } from "@/lib/indexable";
 
 type Props = { params: Promise<{ locale: string; citySlug: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> };
 
@@ -18,7 +19,7 @@ export async function generateMetadata({ params }: Props) {
   if (!city) return {};
   const name = localizeText({ ...city, name: city.nameEn }, "name", locale);
   const t = await getTranslations({ locale, namespace: "seoPages" });
-  return pageMetadata({ locale, path: `/city/${citySlug}`, title: t("inCity", { city: name }), description: await pageDescription(locale, "cityPage", { name }) });
+  return pageMetadata({ locale, path: `/city/${citySlug}`, title: t("inCity", { city: name }), description: await pageDescription(locale, "cityPage", { name }), noindex: !(await hasPublicBusinesses(undefined, city.id)) });
 }
 
 /** /city/<slug>: the businesses of one city, from the geography the admin maintains. */

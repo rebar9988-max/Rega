@@ -8,7 +8,7 @@
  * Only what is identical for every anonymous visitor is cached:
  * - GET requests without a session (auth) or draft-mode cookie and without an Authorization header;
  * - never /api, /dr (dashboard), /_next, login or account pages;
- * - only 200 responses with HTML or RSC content, whose Vary headers are all part of the cache key, and whose only
+ * - only 200 responses with HTML, RSC or XML (sitemaps) content, whose Vary headers are all part of the cache key, and whose only
  *   Set-Cookie headers are the locale preference cookies (derived from the URL, the same for everybody);
  * - never a render made without its data (database outage): see NO_STORE_MARKER and RENDER_ERROR.
  * The key is the full URL (path and query), the values of the Next.js router headers the response varies on (so client
@@ -97,7 +97,8 @@ export function edgeCacheKey(request: Request, version = ""): string | null {
 export function cacheableCopy(response: Response, now = Date.now()): Response | null {
   if (response.status !== 200 || !response.body) return null;
   const type = response.headers.get("content-type") ?? "";
-  if (!/^text\/html|^text\/x-component/i.test(type)) return null;
+  // XML: the sitemaps (/sitemap.xml, /sitemaps/*.xml), the same for everybody and costly to build from the database.
+  if (!/^text\/html|^text\/x-component|^application\/xml/i.test(type)) return null;
   const vary = (response.headers.get("vary") ?? "").split(",").map((v) => v.trim().toLowerCase()).filter(Boolean);
   if (vary.some((v) => !VARY_OK.has(v))) return null;
   const cookies = getSetCookies(response.headers);
