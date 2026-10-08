@@ -10,6 +10,9 @@ import { DEFAULT_LOCALE, LOCALES, LOCALE_META } from "@/config/locales";
 import { sectionEnabled, sectionsFor } from "@/config/sections";
 import { CONTENT_SECTIONS, isContentSection, type ContentSection } from "@/features/content/config";
 import { siteOrigin } from "@/lib/seo";
+import { descendantIds } from "@/lib/category-tree";
+import { hasPublicBusinesses, hasPublicServices, hasPublishedEntries } from "@/lib/indexable";
+import { PUBLIC_BUSINESS } from "@/lib/search-where";
 
 /** Records per file: 2,000 x 7 locales = 14,000 URLs, far below the protocol limit of 50,000. */
 export const CHUNK = 2000;
@@ -55,27 +58,59 @@ export async function sitemapFiles(): Promise<string[]> {
   }
 }
 
+/**
+ * Sections whose index page is a list: listed only while it has something to show (the same check as the page's
+ * robots metadata, src/lib/indexable.ts), so the sitemap never submits a URL that answers noindex.
+ */
+async function listSectionHasContent(key: string): Promise<boolean> {
+  if (key === "businesses") return hasPublicBusinesses();
+  if (key === "services") return hasPublicServices();
+  if (isContentSection(key)) return hasPublishedEntries(key);
+  return true;
+}
+
+/**
+ * Ids of the categories whose page lists at least one published business: a business's own category or the category
+ * of one of its published services, and every ancestor of those (a category page includes its sub-categories).
+ */
+async function categoriesWithBusinesses(rows: { id: string; parentId: string | null }[]): Promise<Set<string>> {
+  const [own, viaServices] = await Promise.all([
+    prisma.business.groupBy({ by: ["categoryId"], where: { ...PUBLIC_BUSINESS, categoryId: { not: null } } }),
+    prisma.service.groupBy({ by: ["categoryId"], where: { status: "published", deletedAt: null, business: PUBLIC_BUSINESS, categoryId: { not: null } } }),
+  ]);
+  const used = new Set([...own, ...viaServices].map((r) => r.categoryId).filter((id): id is string => Boolean(id)));
+  return new Set(rows.filter((c) => descendantIds(rows, c.id).some((id) => used.has(id))).map((c) => c.id));
+}
+
 /** Records of one sitemap file, or null when the file name is not one of ours. */
 export async function sitemapRecords(file: string): Promise<Record_[] | null> {
   if (file === "pages.xml") {
-    const fixed: Record_[] = sectionsFor("sitemap").map((s) => ({ path: s.path }));
+    const sections = sectionsFor("sitemap");
+    const hasContent = await Promise.all(sections.map((s) => listSectionHasContent(s.key)));
+    const fixed: Record_[] = sections.filter((_, i) => hasContent[i]).map((s) => ({ path: s.path }));
     try {
       const [categories, cities, combos, pages] = await Promise.all([
-        prisma.category.findMany({ where: { isActive: true, deletedAt: null }, select: { slug: true, updatedAt: true } }),
-        prisma.city.findMany({ where: { isActive: true, slug: { not: null } }, select: { slug: true, updatedAt: true } }),
+        prisma.category.findMany({ where: { isActive: true, deletedAt: null }, select: { id: true, parentId: true, slug: true, updatedAt: true } }),
+        // Only cities with at least one published business: an empty city page is noindex (about 2,000 German cities
+        // are in the gazetteer; listing all of them made pages.xml 14,000+ URLs and ~13 MB, rendered per request).
+        prisma.city.findMany({
+          where: { isActive: true, slug: { not: null }, locations: { some: { status: "active", deletedAt: null, business: PUBLIC_BUSINESS } } },
+          select: { slug: true, updatedAt: true },
+        }),
         // City x category pages only where something is listed: no thin, empty pages in the index.
         prisma.$queryRaw<{ city: string; category: string }[]>`
           SELECT DISTINCT c."slug" AS city, k."slug" AS category
           FROM "Business" b
-          JOIN "Location" l ON l."businessId" = b."id" AND l."isPrimary" = true AND l."deletedAt" IS NULL
-          JOIN "City" c ON c."id" = l."cityId" AND c."slug" IS NOT NULL
-          JOIN "Category" k ON k."id" = b."categoryId"
+          JOIN "Location" l ON l."businessId" = b."id" AND l."isPrimary" = true AND l."deletedAt" IS NULL AND l."status" = 'active'
+          JOIN "City" c ON c."id" = l."cityId" AND c."slug" IS NOT NULL AND c."isActive" = true
+          JOIN "Category" k ON k."id" = b."categoryId" AND k."isActive" = true AND k."deletedAt" IS NULL
           WHERE b."status" = 'published' AND b."deletedAt" IS NULL LIMIT 5000`,
         prisma.page.findMany({ where: { status: "published" }, select: { slug: true, updatedAt: true } }),
       ]);
+      const withBusinesses = await categoriesWithBusinesses(categories);
       return [
         ...fixed,
-        ...categories.map((c) => ({ path: `/businesses/${c.slug}`, at: c.updatedAt })),
+        ...categories.filter((c) => withBusinesses.has(c.id)).map((c) => ({ path: `/businesses/${c.slug}`, at: c.updatedAt })),
         ...cities.map((c) => ({ path: `/city/${c.slug}`, at: c.updatedAt })),
         ...combos.map((c) => ({ path: `/city/${c.city}/${c.category}` })),
         ...pages.map((p) => ({ path: `/p/${p.slug}`, at: p.updatedAt })),
