@@ -29,7 +29,9 @@ export function BottomNav() {
           const active = item.href === "/" ? pathname === "/" : pathname === item.href || pathname.startsWith(`${item.href}/`);
           return (
             <li key={item.href} className="min-w-0">
-              <Link href={item.href} aria-current={active ? "page" : undefined}
+              {/* No prefetch: on every mobile page view the five tabs would each cost an uncached server render
+                  (Worker CPU is the platform's limit, see lib/edge-cache.ts); a tap still navigates instantly enough. */}
+              <Link href={item.href} prefetch={false} aria-current={active ? "page" : undefined}
                 className={`flex h-full flex-col items-center justify-center gap-1 px-1 text-[11px] leading-tight transition-colors ${active ? "font-bold text-brand" : "font-medium text-muted hover:text-ink"}`}>
                 <FigmaIcon name={item.icon} className="size-[22px] shrink-0" />
                 {"short" in item
