@@ -11,6 +11,7 @@ import { localize } from "@/lib/content";
 import { PlacesMap, type PlacePoint } from "@/components/map/PlacesMap";
 import { isValidCoordinate } from "@/lib/coordinates";
 import { DEFAULT_PUBLIC_COUNTRY_CODE, getCategories, getHomeData, listSelectorCities } from "@/lib/data";
+import { MAJOR_CITY_SLUGS } from "@/lib/selector-cities";
 import { log } from "@/lib/logger";
 import { pageMetadata } from "@/lib/seo";
 import { NoEdgeCache } from "@/components/ui/NoEdgeCache";
@@ -61,6 +62,15 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const categoryOf = (id: string | null | undefined) => (id ? categoryById.get(id) : undefined);
   const cityName = (c: { nameEn: string } & Record<string, unknown>) => localize({ ...c, name: c.nameEn }, "name", l);
   const rootCategories = categories.filter((c) => !c.parentId);
+  const majorCities = MAJOR_CITY_SLUGS
+    .map((slug) => cities.find((c) => c.slug === slug))
+    .filter((c): c is (typeof cities)[number] & { slug: string } => Boolean(c?.slug))
+    .slice(0, 8);
+  const cityPoints: PlacePoint[] = majorCities.flatMap((c) => (
+    c.slug && isValidCoordinate(c.latitude, c.longitude) && c.longitude != null
+      ? [{ id: c.id, lat: c.latitude, lng: c.longitude, name: cityName(c).text, href: `/city/${c.slug}` }]
+      : []
+  ));
 
   // Latest additions; the nearby list: featured first, then the latest, without repeats.
   const latest = data?.latest ?? [];
@@ -126,6 +136,17 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           </div>
         </section>
 
+        <section className="border-b border-line bg-surface" aria-label={t("factGermany")}>
+          <ul className="mx-auto flex max-w-[1100px] flex-wrap items-center justify-center gap-x-8 gap-y-2 px-4 py-4 text-[13px] font-bold text-ink sm:text-sm">
+            {[t("factFree"), t("factLang"), t("factGermany")].map((label) => (
+              <li key={label} className="inline-flex items-center gap-2">
+                <span className="size-1.5 rounded-full bg-brand" aria-hidden="true" />
+                {label}
+              </li>
+            ))}
+          </ul>
+        </section>
+
         {/* ---------- Categories: six clear entry points + all ---------- */}
         {rootCategories.length > 0 && (
           <section className="bg-surface" aria-labelledby="home-cats">
@@ -138,15 +159,19 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                 <ul className="grid grid-cols-3 gap-2.5 sm:grid-cols-4 sm:gap-3 lg:grid-cols-7">
                   {rootCategories.slice(0, 6).map((c) => (
                     <li key={c.id} className="min-w-0">
-                      <Link href={`/businesses/${c.slug}`} className="rega-card flex h-full min-h-[96px] flex-col items-center justify-center gap-2 px-2 py-3 text-center transition-colors hover:text-brand">
-                        <FigmaIcon name={CATEGORY_ICON[c.slug] ?? "briefcase-business"} className="size-7 shrink-0 text-brand" />
+                      <Link href={`/businesses/${c.slug}`} className="rega-card flex h-full min-h-[108px] flex-col items-center justify-center gap-2.5 px-2 py-4 text-center transition-colors hover:text-brand">
+                        <span className="grid size-11 place-items-center rounded-2xl bg-brand-soft">
+                          <FigmaIcon name={CATEGORY_ICON[c.slug] ?? "briefcase-business"} className="size-6 shrink-0 text-brand" />
+                        </span>
                         <span className="line-clamp-2 text-[13px] font-semibold leading-snug"><Text value={categoryName(c)} pageLang={pageLang} /></span>
                       </Link>
                     </li>
                   ))}
                   <li className="min-w-0">
-                    <Link href="/businesses" className="rega-card flex h-full min-h-[96px] flex-col items-center justify-center gap-2 px-2 py-3 text-center transition-colors hover:text-brand">
-                      <FigmaIcon name="grid-3x3" className="size-7 shrink-0 text-brand" />
+                    <Link href="/businesses" className="rega-card flex h-full min-h-[108px] flex-col items-center justify-center gap-2.5 px-2 py-4 text-center transition-colors hover:text-brand">
+                      <span className="grid size-11 place-items-center rounded-2xl bg-brand-soft">
+                        <FigmaIcon name="grid-3x3" className="size-6 shrink-0 text-brand" />
+                      </span>
                       <span className="line-clamp-2 text-[13px] font-semibold leading-snug">{t("allSections")}</span>
                     </Link>
                   </li>
@@ -174,9 +199,12 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                 })}
               </div>
             ) : (
-              <div className="mt-4 rounded-xl border border-line bg-surface p-6 text-center text-sm text-muted">
-                <p>{t("emptyListings")}</p>
-                <Link href="/for-business" className="mt-3 inline-flex min-h-11 items-center justify-center rounded-lg bg-brand px-5 text-sm font-bold text-brand-ink hover:bg-brand-hover" data-testid="home-be-first">{te("beFirstCta")}</Link>
+              <div className="mt-4 flex flex-col items-start gap-4 rounded-2xl border border-line bg-surface px-6 py-8 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0">
+                  <p className="text-lg font-extrabold text-ink">{t("emptyListings")}</p>
+                  <p className="mt-1 max-w-lg text-sm leading-6 text-muted">{te("beFirstBody")}</p>
+                </div>
+                <Link href="/for-business" className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-xl bg-brand px-5 text-sm font-bold text-white hover:bg-brand-hover" data-testid="home-be-first">{te("beFirstCta")}</Link>
               </div>
             )}
           </div>
@@ -199,41 +227,72 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         {/* ---------- Nearby: list + map ---------- */}
         <section className="bg-surface" aria-labelledby="home-nearby">
           <div className={`${BAND} pb-10 pt-10`}>
-            <div className="flex items-end justify-between gap-4">
-              <div className="min-w-0">
-                <h2 id="home-nearby" className="text-xl font-extrabold leading-tight sm:text-[22px]">{t("nearTitle")}</h2>
-                <p className="mt-1 text-sm text-muted">{t("nearbySub")}</p>
-              </div>
-              <Link href="/nearby" className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-lg border border-brand px-3.5 text-sm font-bold text-brand transition-colors hover:bg-brand hover:text-white">
-                <FigmaIcon name="crosshair" className="size-4 shrink-0" />{t("locateMe")}
-              </Link>
-            </div>
-
-            <div className="mt-4 grid grid-cols-1 gap-4 lg:h-[340px] lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)]">
-              <ul className="flex flex-col overflow-y-auto rounded-xl border border-line">
-                {pool.length === 0 && <li className="p-4 text-sm text-muted">{t("emptyListings")}</li>}
-                {pool.map((b) => {
-                  const c = categoryOf(b.categoryId);
-                  return (
-                    <li key={b.id} className="relative flex min-h-[64px] items-center gap-3 border-b border-line bg-surface px-3.5 py-2.5 last:border-b-0 hover:bg-surface-2">
-                      <span className="grid size-10 shrink-0 place-items-center rounded-full bg-brand-soft">
-                        <FigmaIcon name={(c && ROW_ICON[c.slug]) || "building-2"} className="size-5 text-brand" />
-                      </span>
-                      <div className="flex min-w-0 flex-1 flex-col">
-                        <Link href={`/business/${b.slug}`} className="truncate text-sm font-bold after:absolute after:inset-0 after:content-['']">
-                          <Text value={localize(b, "name", l)} pageLang={pageLang} />
+            {pool.length === 0 ? (
+              <>
+                <div className="flex items-end justify-between gap-4">
+                  <div className="min-w-0">
+                    <h2 id="home-nearby" className="text-xl font-extrabold leading-tight sm:text-[22px]">{t("citiesTitle")}</h2>
+                    <p className="mt-1 text-sm text-muted">{t("citiesSub")}</p>
+                  </div>
+                  <Link href="/nearby" className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-full border border-brand px-3.5 text-sm font-bold text-brand transition-colors hover:bg-brand hover:text-white">
+                    <FigmaIcon name="crosshair" className="size-4 shrink-0" />{t("locateMe")}
+                  </Link>
+                </div>
+                <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,.9fr)_minmax(0,1.2fr)]">
+                  <ul className="grid grid-cols-2 gap-2.5 sm:grid-cols-2">
+                    {majorCities.map((c) => (
+                      <li key={c.id}>
+                        <Link href={`/city/${c.slug}`} className="rega-card flex min-h-14 items-center gap-2.5 px-3.5 py-3 text-sm font-bold hover:text-brand">
+                          <FigmaIcon name="map-pin" className="size-4 shrink-0 text-brand" />
+                          <span className="truncate"><Text value={cityName(c)} pageLang={pageLang} /></span>
                         </Link>
-                        {c && <span className="truncate text-xs text-muted"><Text value={categoryName(c)} pageLang={pageLang} /></span>}
-                      </div>
-                      <FigmaIcon name="arrow-right" className="rtl-flip size-4 shrink-0 text-brand" />
-                    </li>
-                  );
-                })}
-              </ul>
-              <div className="relative min-h-64 overflow-hidden rounded-xl border border-line bg-[var(--map)] lg:min-h-0">
-                {mapPoints.length > 0 && <PlacesMap points={mapPoints} className="absolute inset-0" />}
-              </div>
-            </div>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="relative min-h-72 overflow-hidden rounded-2xl border border-line bg-[var(--map)]">
+                    {cityPoints.length > 0 && <PlacesMap points={cityPoints} className="absolute inset-0" />}
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex items-end justify-between gap-4">
+                  <div className="min-w-0">
+                    <h2 id="home-nearby" className="text-xl font-extrabold leading-tight sm:text-[22px]">{t("nearTitle")}</h2>
+                    <p className="mt-1 text-sm text-muted">{t("nearbySub")}</p>
+                  </div>
+                  <Link href="/nearby" className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-full border border-brand px-3.5 text-sm font-bold text-brand transition-colors hover:bg-brand hover:text-white">
+                    <FigmaIcon name="crosshair" className="size-4 shrink-0" />{t("locateMe")}
+                  </Link>
+                </div>
+                <div className="mt-4 grid grid-cols-1 gap-4 lg:h-[340px] lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)]">
+                  <ul className="flex flex-col overflow-y-auto rounded-xl border border-line">
+                    {pool.map((b) => {
+                      const c = categoryOf(b.categoryId);
+                      return (
+                        <li key={b.id} className="relative flex min-h-[64px] items-center gap-3 border-b border-line bg-surface px-3.5 py-2.5 last:border-b-0 hover:bg-surface-2">
+                          <span className="grid size-10 shrink-0 place-items-center rounded-full bg-brand-soft">
+                            <FigmaIcon name={(c && ROW_ICON[c.slug]) || "building-2"} className="size-5 text-brand" />
+                          </span>
+                          <div className="flex min-w-0 flex-1 flex-col">
+                            <Link href={`/business/${b.slug}`} className="truncate text-sm font-bold after:absolute after:inset-0 after:content-['']">
+                              <Text value={localize(b, "name", l)} pageLang={pageLang} />
+                            </Link>
+                            {c && <span className="truncate text-xs text-muted"><Text value={categoryName(c)} pageLang={pageLang} /></span>}
+                          </div>
+                          <FigmaIcon name="arrow-right" className="rtl-flip size-4 shrink-0 text-brand" />
+                        </li>
+                      );
+                    })}
+                  </ul>
+                  {mapPoints.length > 0 && (
+                    <div className="relative min-h-64 overflow-hidden rounded-xl border border-line bg-[var(--map)] lg:min-h-0">
+                      <PlacesMap points={mapPoints} className="absolute inset-0" />
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
           </div>
         </section>
       </div>
