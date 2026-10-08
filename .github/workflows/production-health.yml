@@ -158,6 +158,8 @@ jobs:
             if ! probe "$2" "$base$1"; then probe_fail "$1" "$2"; fail=1; return; fi
             if [ -n "${3:-}" ] && ! grep -qiE "$3" "$PROBE_BODY"; then echo "::error::FAIL $1 -> body does not match /$3/"; fail=1; return; fi
             echo "ok   $1 -> $PROBE_CODE"
+            # small pause to reduce concurrent Worker CPU pressure (Cloudflare 1102)
+            sleep 0.4
           }
           check /ckb 200 'dir="rtl"'
           check /de 200 'lang="de'
@@ -189,9 +191,46 @@ jobs:
           set -u
           UA="rega-ci-smoke-test/1.0 (+github-actions)"
           fail=0
-          hop() { # url -> prints "status location"
-            curl -sS -m 25 -A "$UA" -o /dev/null -D /tmp/h.txt -w '%{http_code}' "$1" | tr -d '\n'
-            printf ' %s' "$(grep -i '^location:' /tmp/h.txt | tr -d '\r' | cut -d' ' -f2)"
+          # hop with retry on transient Cloudflare 1102 / 5xx / transport errors
+          hop() {
+            local url=$1 attempt=1 code loc
+            while [ $attempt -le 3 ]; do
+              code=$(curl -sS -m 25 -A "$UA" -o /dev/null -D /tmp/h.txt -w '%{http_code}' "$url" 2>/dev/null) || code=000
+              loc=$(grep -i '^location:' /tmp/h.txt | tr -d '\r' | cut -d' ' -f2 || true)
+              case "$code" in
+                000|5??)
+                  if [ $attempt -lt 3 ]; then
+                    echo "retry hop $attempt/3 $url -> HTTP $code"
+                    sleep $((attempt * 3))
+                    attempt=$((attempt + 1))
+                    continue
+                  fi
+                  ;;
+              esac
+              printf '%s %s' "$code" "$loc"
+              return
+            done
+            printf '%s %s' "$code" "$loc"
+          }
+          # fetch body with the same transient retry (for SEO / sitemap)
+          fetch_body() {
+            local url=$1 out=$2 attempt=1 code
+            while [ $attempt -le 3 ]; do
+              code=$(curl -sS -m 25 -A "$UA" -o "$out" -w '%{http_code}' "$url" 2>/dev/null) || code=000
+              case "$code" in
+                000|5??)
+                  if [ $attempt -lt 3 ]; then
+                    echo "retry fetch $attempt/3 $url -> HTTP $code"
+                    sleep $((attempt * 3))
+                    attempt=$((attempt + 1))
+                    continue
+                  fi
+                  ;;
+              esac
+              echo "$code"
+              return
+            done
+            echo "$code"
           }
           expect() { # label, actual, expected
             if [ "$2" = "$3" ]; then echo "ok   $1 -> $2"; else echo "FAIL $1 -> '$2' (expected '$3')"; fail=1; fi
@@ -199,10 +238,12 @@ jobs:
           # apex -> www: exactly one 301 hop that keeps the path
           for p in / /de /ckb /en "/de/businesses?q=x"; do
             expect "apex $p" "$(hop "https://regaplatform.com$p")" "301 https://www.regaplatform.com$p"
+            sleep 0.3
           done
           # www is served directly (no redirect to itself or to the apex); "/" only does the locale redirect to /ckb
           for p in /de /ckb /en /de/businesses /robots.txt /sitemap.xml; do
             expect "www $p" "$(hop "https://www.regaplatform.com$p" | sed 's/ $//')" "200"
+            sleep 0.3
           done
           expect "www /" "$(hop https://www.regaplatform.com/)" "307 /ckb"
           # full chain from the apex, following redirects: must end on www with 200 in at most 3 hops
@@ -211,25 +252,42 @@ jobs:
           # HTTP -> HTTPS
           code=$(curl -sS -m 25 -A "$UA" -o /dev/null -w '%{http_code}' http://www.regaplatform.com/de || echo 000)
           echo "info http://www /de -> $code (expected 301/308 to https, or 200 when Always-HTTPS is off)"
-          # SEO head, sitemap, robots
+          # SEO head, sitemap, robots (with retry)
           for l in ckb de en; do
-            html=$(curl -sS -m 25 -A "$UA" "https://www.regaplatform.com/$l/businesses")
+            code=$(fetch_body "https://www.regaplatform.com/$l/businesses" /tmp/seo.html)
+            if [ "$code" != "200" ]; then echo "FAIL /$l/businesses -> HTTP $code"; fail=1; continue; fi
+            html=$(cat /tmp/seo.html)
             for needle in "rel=\"canonical\" href=\"https://www.regaplatform.com/$l/businesses\"" 'property="og:image"' 'name="twitter:card"' 'hrefLang="x-default"'; do
               if grep -qF -- "$needle" <<<"$html"; then echo "ok   /$l/businesses has $needle"; else echo "FAIL /$l/businesses missing $needle"; fail=1; fi
             done
+            sleep 0.3
           done
-          home=$(curl -sS -m 25 -A "$UA" https://www.regaplatform.com/en)
-          grep -qF '"@type":"Organization"' <<<"$home" && echo "ok   /en Organization JSON-LD" || { echo "FAIL /en Organization JSON-LD"; fail=1; }
-          grep -q '<html lang="en"' <<<"$home" && echo "ok   /en lang=en" || { echo "FAIL /en lang"; fail=1; }
-          curl -sS -m 25 -A "$UA" https://www.regaplatform.com/sitemap.xml -o /tmp/sm-index.xml
-          grep -q '<sitemapindex' /tmp/sm-index.xml && echo "ok   sitemap index format" || { echo "FAIL sitemap index format"; fail=1; }
-          grep -q '<loc>https://www.regaplatform.com/sitemaps/pages.xml</loc>' /tmp/sm-index.xml && echo "ok   sitemap index lists pages.xml" || { echo "FAIL sitemap index lacks pages.xml"; fail=1; }
+          code=$(fetch_body https://www.regaplatform.com/en /tmp/home.html)
+          if [ "$code" != "200" ]; then echo "FAIL /en -> HTTP $code"; fail=1
+          else
+            home=$(cat /tmp/home.html)
+            grep -qF '"@type":"Organization"' <<<"$home" && echo "ok   /en Organization JSON-LD" || { echo "FAIL /en Organization JSON-LD"; fail=1; }
+            grep -q '<html lang="en"' <<<"$home" && echo "ok   /en lang=en" || { echo "FAIL /en lang"; fail=1; }
+          fi
+          code=$(fetch_body https://www.regaplatform.com/sitemap.xml /tmp/sm-index.xml)
+          if [ "$code" != "200" ]; then echo "FAIL sitemap.xml -> HTTP $code"; fail=1
+          else
+            grep -q '<sitemapindex' /tmp/sm-index.xml && echo "ok   sitemap index format" || { echo "FAIL sitemap index format"; fail=1; }
+            grep -q '<loc>https://www.regaplatform.com/sitemaps/pages.xml</loc>' /tmp/sm-index.xml && echo "ok   sitemap index lists pages.xml" || { echo "FAIL sitemap index lacks pages.xml"; fail=1; }
+          fi
 
-          curl -sS -m 25 -A "$UA" https://www.regaplatform.com/sitemaps/pages.xml -o /tmp/sm-pages.xml
-          grep -c '<loc>' /tmp/sm-pages.xml | xargs echo "pages sitemap <loc> count:"
-          grep -q '<loc>https://www.regaplatform.com/en</loc>' /tmp/sm-pages.xml && echo "ok   pages sitemap lists /en" || { echo "FAIL pages sitemap lacks /en"; fail=1; }
-          grep -qE 'https?://(localhost|regaplatform\.com/)' /tmp/sm-pages.xml && { echo "FAIL pages sitemap has a non-canonical host"; fail=1; } || echo "ok   pages sitemap uses only the canonical host"
-          curl -sS -m 25 -A "$UA" https://www.regaplatform.com/robots.txt | grep -q 'Sitemap: https://www.regaplatform.com/sitemap.xml' && echo "ok   robots sitemap line" || { echo "FAIL robots"; fail=1; }
+          code=$(fetch_body https://www.regaplatform.com/sitemaps/pages.xml /tmp/sm-pages.xml)
+          if [ "$code" != "200" ]; then echo "FAIL sitemaps/pages.xml -> HTTP $code"; fail=1
+          else
+            grep -c '<loc>' /tmp/sm-pages.xml | xargs echo "pages sitemap <loc> count:"
+            grep -q '<loc>https://www.regaplatform.com/en</loc>' /tmp/sm-pages.xml && echo "ok   pages sitemap lists /en" || { echo "FAIL pages sitemap lacks /en"; fail=1; }
+            grep -qE 'https?://(localhost|regaplatform\.com/)' /tmp/sm-pages.xml && { echo "FAIL pages sitemap has a non-canonical host"; fail=1; } || echo "ok   pages sitemap uses only the canonical host"
+          fi
+          code=$(fetch_body https://www.regaplatform.com/robots.txt /tmp/robots.txt)
+          if [ "$code" != "200" ]; then echo "FAIL robots.txt -> HTTP $code"; fail=1
+          else
+            grep -q 'Sitemap: https://www.regaplatform.com/sitemap.xml' /tmp/robots.txt && echo "ok   robots sitemap line" || { echo "FAIL robots"; fail=1; }
+          fi
           exit $fail
 
       - name: Official brand assets and About page (read-only)
@@ -242,6 +300,7 @@ jobs:
           . "$PROBE"
           for p in /brand/rega-logo.webp /brand/rega-mark-256.webp /brand/rega-wordmark.webp /icon.png /apple-icon.png /opengraph-image.png /manifest.webmanifest; do
             if probe 200 "https://www.regaplatform.com$p"; then echo "ok   $p -> 200"; else probe_fail "$p" 200; fail=1; fi
+            sleep 0.3
           done
           if probe 200 https://www.regaplatform.com/ckb && grep -qF '/brand/rega-mark-256.webp' "$PROBE_BODY"; then echo "ok   header uses the official logo"; else echo "::error::FAIL header logo (HTTP $PROBE_CODE)"; fail=1; fi
           if ! probe 200 https://www.regaplatform.com/ckb/about; then probe_fail /ckb/about 200; fail=1
@@ -279,14 +338,35 @@ jobs:
           set -u
           UA="rega-ci-smoke-test/1.0 (+github-actions)"
           fail=0
-          curl -sS -m 25 -A "$UA" -D /tmp/sh.txt -o /dev/null https://www.regaplatform.com/de
-          for h in 'content-security-policy:' 'strict-transport-security:' 'x-content-type-options: nosniff' 'x-frame-options: DENY' 'referrer-policy:' 'permissions-policy:'; do
-            grep -qi "^$h" /tmp/sh.txt && echo "ok   header $h" || { echo "FAIL missing header $h"; fail=1; }
+          # retry header fetch on transient 5xx / 000 (Cloudflare 1102)
+          attempt=1
+          while [ $attempt -le 3 ]; do
+            code=$(curl -sS -m 25 -A "$UA" -D /tmp/sh.txt -o /dev/null -w '%{http_code}' https://www.regaplatform.com/de 2>/dev/null) || code=000
+            case "$code" in
+              000|5??)
+                if [ $attempt -lt 3 ]; then
+                  echo "retry security headers $attempt/3 -> HTTP $code"
+                  sleep $((attempt * 3))
+                  attempt=$((attempt + 1))
+                  continue
+                fi
+                ;;
+            esac
+            break
           done
-          grep -qi '^x-powered-by:' /tmp/sh.txt && { echo "FAIL x-powered-by exposed"; fail=1; } || echo "ok   no x-powered-by"
+          if [ "$code" != "200" ]; then
+            echo "FAIL security headers fetch -> HTTP $code"
+            fail=1
+          else
+            for h in 'content-security-policy:' 'strict-transport-security:' 'x-content-type-options: nosniff' 'x-frame-options: DENY' 'referrer-policy:' 'permissions-policy:'; do
+              grep -qi "^$h" /tmp/sh.txt && echo "ok   header $h" || { echo "FAIL missing header $h"; fail=1; }
+            done
+            grep -qi '^x-powered-by:' /tmp/sh.txt && { echo "FAIL x-powered-by exposed"; fail=1; } || echo "ok   no x-powered-by"
+          fi
           . "$PROBE"
           for p in /api/v1/businesses /api/v1/categories /api/v1/locations /api/v1/businesses/bulk /api/v1/media/upload-url; do
             if probe 401 "https://www.regaplatform.com$p" -X POST -H 'content-type: application/json' -d '{}'; then echo "ok   anonymous POST $p -> 401"; else probe_fail "anonymous POST $p" 401; fail=1; fi
+            sleep 0.3
           done
           if probe 307 https://www.regaplatform.com/dr/ai; then echo "ok   /dr/ai (anonymous) -> 307 login"; else probe_fail "/dr/ai (anonymous)" 307; fail=1; fi
           exit $fail
