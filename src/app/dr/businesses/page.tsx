@@ -38,8 +38,10 @@ export default async function DrBusinesses({ searchParams }: { searchParams: Pro
   // Business owners see (and can open) only the businesses they are a member of, never other owners' drafts.
   const ownerOnly = user.role === "BUSINESS_OWNER";
   const where: Prisma.BusinessWhereInput = { deletedAt: null, ...(ownerOnly ? managedBusinessWhere(user) : {}), ...(status ? { status } : {}), ...textWhere(q), ...(needsLocation ? NEEDS_LOCATION : {}) };
-  const [audit, total, rows] = await Promise.all([
+  const [audit, ownerCounts, total, rows] = await Promise.all([
     ownerOnly ? Promise.resolve(null) : locationAudit(),
+    // Owner overview (approved concept, page 6): their own listings by status. Same membership scope as the list.
+    ownerOnly ? prisma.business.groupBy({ by: ["status"], where: { deletedAt: null, ...managedBusinessWhere(user) }, _count: { _all: true } }) : Promise.resolve(null),
     prisma.business.count({ where }),
     prisma.business.findMany({
       where, orderBy: { updatedAt: "desc" }, skip: (page - 1) * PER_PAGE, take: PER_PAGE,
@@ -84,6 +86,22 @@ export default async function DrBusinesses({ searchParams }: { searchParams: Pro
         <h1 className="text-2xl font-extrabold">{t("dashboard.businesses")}</h1>
         {canWrite && <Link href="/dr/businesses/new" className="inline-flex min-h-11 items-center rounded-xl bg-brand px-5 text-sm font-bold text-brand-ink hover:bg-brand-hover">+ {t("bizForm.new")}</Link>}
       </div>
+      {ownerCounts && (
+        <nav aria-label={t("dashboard.status")} className="mb-6" data-testid="owner-status-summary">
+          <ul className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            {([["published", "bg-[oklch(0.62_0.15_150)]"], ["pending", "bg-sun"], ["draft", "bg-line"]] as const).map(([s, dot]) => (
+              <li key={s}>
+                <Link href={`/dr/businesses?status=${s}`} aria-current={status === s ? "page" : undefined}
+                  className={`rega-card flex min-h-20 items-center gap-3 px-4 py-3 ${status === s ? "border-brand" : ""}`}>
+                  <span aria-hidden="true" className={`size-3 shrink-0 rounded-full ${dot}`} />
+                  <span className="text-3xl font-extrabold">{formatNumber(ownerCounts.find((c) => c.status === s)?._count._all ?? 0, locale)}</span>
+                  <span className="text-sm font-semibold">{t(`status.${s}`)}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )}
       {sp.blocked && <p role="alert" data-testid="publish-blocked" className="mb-6 rounded-xl bg-brand-soft px-4 py-3 text-sm font-semibold">{t("bizForm.blockedNotice")} <Link href={`/dr/businesses/${encodeURIComponent(sp.blocked)}`} className="text-brand underline">{t("bizForm.edit")}</Link></p>}
       {audit && <section aria-labelledby="loc-audit" className="mb-6 rounded-[var(--radius-card)] border border-line bg-surface p-4" data-testid="location-audit">
         <h2 id="loc-audit" className="mb-3 text-sm font-bold">{t("bizForm.auditTitle")}</h2>

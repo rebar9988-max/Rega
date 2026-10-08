@@ -86,7 +86,8 @@
     "report": "Report content",
     "events": "Events",
     "guides": "Guides",
-    "register": "Create account"
+    "register": "Create account",
+    "quick": "Quick navigation"
   },
   "home": {
     "heroTitle": "All businesses, services and places in one place",
@@ -146,7 +147,8 @@
     "openMap": "Open the nearby map",
     "socialTitle": "Stay connected with REGA",
     "socialText": "Follow REGA's latest news, services and updates on social media.",
-    "socialAria": "REGA on {platform} (opens in a new tab)"
+    "socialAria": "REGA on {platform} (opens in a new tab)",
+    "aiEntrySub": "Get recommendations for local services, in your language."
   },
   "businesses": {
     "title": "Businesses",
@@ -170,7 +172,8 @@
     "noServices": "No services published yet.",
     "noRating": "No reviews yet",
     "reviewsCount": "{count} reviews",
-    "servicesN": "{count} services"
+    "servicesN": "{count} services",
+    "lead": "Browse businesses and services across Germany."
   },
   "services": {
     "title": "Services",

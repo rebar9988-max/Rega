@@ -86,7 +86,8 @@
     "report": "Naverokê raporî bike",
     "events": "Bûyer",
     "guides": "Rêber",
-    "register": "Hesab çêke"
+    "register": "Hesab çêke",
+    "quick": "Navîgasyona bilez"
   },
   "home": {
     "heroTitle": "Hemû karsazî, xizmet û cih li cihekî",
@@ -146,7 +147,8 @@
     "openMap": "Nexşeya nêzîkî min veke",
     "socialTitle": "Bi REGA re bimîne",
     "socialText": "Nûçe, xizmet û agahiyên herî nû yên REGA li ser medyaya civakî bişopîne.",
-    "socialAria": "REGA li ser {platform} (di tabeke nû de vedibe)"
+    "socialAria": "REGA li ser {platform} (di tabeke nû de vedibe)",
+    "aiEntrySub": "Bi zimanê xwe pêşniyarên ji bo xizmetên herêmî bistîne."
   },
   "businesses": {
     "title": "Karsazî",
@@ -170,7 +172,8 @@
     "noServices": "Hê xizmet nehatiye weşandin.",
     "noRating": "Hê nirxandin tune",
     "reviewsCount": "{count} nirxandin",
-    "servicesN": "{count} xizmet"
+    "servicesN": "{count} xizmet",
+    "lead": "Karsaz û xizmetên li seranserê Almanyayê bibîne."
   },
   "services": {
     "title": "Xizmet",

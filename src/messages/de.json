@@ -86,7 +86,8 @@
     "report": "Inhalt melden",
     "events": "Veranstaltungen",
     "guides": "Ratgeber",
-    "register": "Konto erstellen"
+    "register": "Konto erstellen",
+    "quick": "Schnellnavigation"
   },
   "home": {
     "heroTitle": "Alle Unternehmen, Dienstleistungen und Orte an einem Ort",
@@ -146,7 +147,8 @@
     "openMap": "Karte in der Nähe öffnen",
     "socialTitle": "Mit REGA in Verbindung bleiben",
     "socialText": "Die neuesten Nachrichten, Dienstleistungen und Informationen von REGA in den sozialen Medien verfolgen.",
-    "socialAria": "REGA auf {platform} (öffnet in neuem Tab)"
+    "socialAria": "REGA auf {platform} (öffnet in neuem Tab)",
+    "aiEntrySub": "Erhalten Sie Empfehlungen für Angebote vor Ort – in Ihrer Sprache."
   },
   "businesses": {
     "title": "Unternehmen",
@@ -170,7 +172,8 @@
     "noServices": "Noch keine Dienstleistungen veröffentlicht.",
     "noRating": "Noch keine Bewertungen",
     "reviewsCount": "{count} Bewertungen",
-    "servicesN": "{count} Dienstleistungen"
+    "servicesN": "{count} Dienstleistungen",
+    "lead": "Unternehmen und Dienstleistungen in ganz Deutschland entdecken."
   },
   "services": {
     "title": "Dienstleistungen",

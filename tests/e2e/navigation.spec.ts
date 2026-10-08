@@ -41,7 +41,7 @@ test("main navigation reaches every section", async ({ page, isMobile }) => {
   // Desktop: the header navigation (generated from the section registry; one label per section, the same as the menu sheet). Mobile: the menu sheet keeps every section.
   const routes: [string, RegExp][] = isMobile
     ? [["Unternehmen", /\/de\/businesses$/], ["Dienstleistungen", /\/de\/services$/], ["Standorte", /\/de\/locations$/], ["REGA-Assistent", /\/de\/ai$/]]
-    : [["Unternehmen", /\/de\/businesses$/], ["Dienstleistungen", /\/de\/services$/], ["Über uns", /\/de\/about$/]];
+    : [["Unternehmen", /\/de\/businesses$/], ["Dienstleistungen", /\/de\/services$/], ["In der Nähe", /\/de\/nearby$/], ["REGA-Assistent", /\/de\/ai$/]];
   for (const [name, url] of routes) {
     if (isMobile) await page.getByRole("button", { name: "Menü" }).click();
     await page.getByRole("navigation", { name: "Hauptnavigation" }).getByRole("link", { name, exact: true }).click();
@@ -210,4 +210,29 @@ test("mobile menu: contact is the last item, once; close button works; RTL", asy
   await menu.getByRole("link", { name: "پەیوەندی", exact: true }).click();
   await expect(page).toHaveURL(/\/ckb\/contact$/);
   await expect(menu).toBeHidden();
+});
+
+test("approved layout: compact AI entry on the home page; tab bar on mobile only, mirrored in RTL", async ({ page, isMobile }) => {
+  await page.goto("/de");
+  await expect(page.getByTestId("home-ai-entry")).toHaveAttribute("href", "/de/ai");
+  const bar = page.getByRole("navigation", { name: "Schnellnavigation" });
+  if (!isMobile) {
+    await expect(bar).toBeHidden();
+    return;
+  }
+  await expect(bar).toBeVisible();
+  await expect(bar.getByRole("link")).toHaveCount(5);
+  await expect(bar.getByRole("link", { name: "Startseite" })).toHaveAttribute("aria-current", "page");
+  await bar.getByRole("link", { name: "Suchen" }).click();
+  await expect(page).toHaveURL(/\/de\/search$/);
+  // The footer reserves the bar's height, so its last line is never covered.
+  const covered = await page.evaluate(() => {
+    window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "instant" });
+    const range = document.createRange();
+    range.selectNodeContents(document.querySelector("footer > :last-child")!);
+    return range.getBoundingClientRect().bottom > document.querySelector('[data-testid="bottom-nav"]')!.getBoundingClientRect().top;
+  });
+  expect(covered).toBe(false);
+  await page.goto("/ckb");
+  expect(await page.getByTestId("bottom-nav").evaluate((el) => getComputedStyle(el).direction)).toBe("rtl");
 });

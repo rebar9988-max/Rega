@@ -8,6 +8,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
 import { Header } from "@/components/shell/Header";
 import { Footer } from "@/components/shell/Footer";
+import { BottomNav } from "@/components/shell/BottomNav";
 import { ThemeScript } from "@/components/shell/ThemeScript";
 import { ServiceWorker } from "@/components/shell/ServiceWorker";
 import { LOCALES, LOCALE_META, isLocale } from "@/i18n/locales";
@@ -116,6 +117,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
           <Header />
           <main id="main" className="flex-1">{children}</main>
           <Footer />
+          <BottomNav />
         </NextIntlClientProvider>
         <ServiceWorker />
       </body>

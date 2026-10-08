@@ -7,7 +7,9 @@ import { getLocale, getTranslations, setRequestLocale } from "next-intl/server";
 import { LOCALE_META, formatNumber, type Locale } from "@/i18n/locales";
 import { Link } from "@/i18n/routing";
 import { localize, localizeText } from "@/lib/content";
-import { getBusiness } from "@/lib/data";
+import { getBusiness, getCategories } from "@/lib/data";
+import { languageNames } from "@/components/cards/BusinessRow";
+import { FigmaIcon } from "@/components/home/FigmaIcon";
 import { safeHttpUrl, safeTel } from "@/lib/urls";
 import { priceLabel } from "@/components/cards/ServiceCard";
 import { Avatar } from "@/components/ui/Avatar";
@@ -54,6 +56,10 @@ export default async function BusinessPage({ params }: Props) {
   const about = localize(b, "description", l);
   const website = safeHttpUrl(b.website);
   const tel = safeTel(b.phone);
+  const category = b.categoryId ? (await getCategories()).find((c) => c.id === b.categoryId) : undefined;
+  const categoryName = category ? localize({ ...category, name: category.nameDe }, "name", l) : null;
+  const primaryCity = b.locations[0]?.city ? localize({ ...b.locations[0].city, name: b.locations[0].city.nameEn }, "name", l) : null;
+  const langs = languageNames(b.languages);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -84,8 +90,8 @@ export default async function BusinessPage({ params }: Props) {
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={b.coverUrl} alt="" width={900} height={650} decoding="async" fetchPriority="high" className="absolute inset-0 size-full object-cover" />
               ) : (
-                <div className="grid size-full min-h-[17rem] place-items-center">
-                  <Avatar name={name.text} src={b.logoUrl} size="size-24" />
+                <div className="grid size-full min-h-[17rem] place-items-center bg-[radial-gradient(circle_at_30%_20%,var(--surface),var(--brand-soft))]">
+                  <Avatar name={name.text} src={b.logoUrl} size="size-28 shadow-card" />
                 </div>
               )}
             </div>
@@ -94,6 +100,15 @@ export default async function BusinessPage({ params }: Props) {
                 <h1 className="rega-display min-w-0 text-3xl sm:text-4xl"><Text value={name} pageLang={pageLang} /></h1>
                 {b.verified && <VerifiedBadge />}
               </div>
+              {(categoryName || primaryCity) && (
+                <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[15px] text-muted">
+                  {categoryName && <span><Text value={categoryName} pageLang={pageLang} /></span>}
+                  {categoryName && primaryCity && <span aria-hidden="true">·</span>}
+                  {primaryCity && (
+                    <span className="inline-flex items-center gap-1"><FigmaIcon name="map-pin" className="size-4 shrink-0 text-brand" /><Text value={primaryCity} pageLang={pageLang} /></span>
+                  )}
+                </p>
+              )}
               <div className="mt-3 flex flex-wrap items-center gap-3">
                 <Rating value={b.ratingAvg} count={b.ratingCount} />
                 {b.featured && <Chip>{t("businesses.featured")}</Chip>}
@@ -112,6 +127,15 @@ export default async function BusinessPage({ params }: Props) {
               <section aria-labelledby="about">
                 <h2 id="about" className="mb-3 text-xl font-bold">{t("businesses.about")}</h2>
                 <p className="whitespace-pre-line text-pretty leading-relaxed"><Text value={about} pageLang={pageLang} /></p>
+              </section>
+            )}
+
+            {langs.length > 0 && (
+              <section aria-labelledby="languages">
+                <h2 id="languages" className="mb-3 text-xl font-bold">{t("bizForm.languagesSpoken")}</h2>
+                <ul className="flex flex-wrap gap-2">
+                  {langs.map((lang) => <li key={lang} className="rounded-lg border border-line bg-surface-2 px-3 py-1.5 text-sm font-medium">{lang}</li>)}
+                </ul>
               </section>
             )}
 

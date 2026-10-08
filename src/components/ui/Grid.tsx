@@ -12,10 +12,10 @@ export function Grid({ children }: { children: ReactNode }) {
  * Empty list. Without filters nothing is published yet: invite the first business (free listing). With filters the
  * result is just empty: say so, and still offer the way in.
  */
-export async function NoResults({ filtered = false }: { filtered?: boolean }) {
+export async function NoResults({ filtered = false, bare = false }: { filtered?: boolean; bare?: boolean }) {
   const t = await getTranslations();
   return (
-    <div className="container-page">
+    <div className={bare ? undefined : "container-page"}>
       <EmptyState
         title={filtered ? t("common.empty") : t("empty.beFirstTitle")}
         body={filtered ? t("empty.tryOther") : t("empty.beFirstBody")}

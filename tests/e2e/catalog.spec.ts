@@ -92,3 +92,10 @@ test("draft businesses are never public", async ({ request }) => {
   const json = await res.json();
   expect(json.data.every((b: { status: string }) => b.status === "published")).toBe(true);
 });
+
+test("directory: sort applies on change and keeps the other filters", async ({ page }) => {
+  await page.goto("/de/businesses?q=e");
+  await page.getByLabel("Sortieren nach").selectOption("name");
+  await expect(page).toHaveURL((url) => url.searchParams.get("sort") === "name" && url.searchParams.get("q") === "e");
+  await expect(page.getByRole("switch", { name: "Nur verifizierte" })).toBeVisible();
+});
