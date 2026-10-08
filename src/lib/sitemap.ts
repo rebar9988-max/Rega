@@ -10,6 +10,7 @@ import { DEFAULT_LOCALE, LOCALES, LOCALE_META } from "@/config/locales";
 import { sectionEnabled, sectionsFor } from "@/config/sections";
 import { CONTENT_SECTIONS, isContentSection, type ContentSection } from "@/features/content/config";
 import { siteOrigin } from "@/lib/seo";
+import { NO_STORE_MARKER } from "@/lib/edge-cache";
 import { descendantIds } from "@/lib/category-tree";
 import { hasPublicBusinesses, hasPublicServices, hasPublishedEntries } from "@/lib/indexable";
 import { PUBLIC_BUSINESS } from "@/lib/search-where";
@@ -20,6 +21,14 @@ export const CHUNK = 2000;
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
 type Record_ = { path: string; at?: Date };
+
+/**
+ * A list built without the database (fallback). Its XML carries the edge-cache no-store marker, so the fallback is
+ * sent to the crawler but never stored and served from the cache in place of the full sitemap.
+ */
+export type Degradable<T> = T[] & { degraded?: true };
+const degraded = <T>(items: T[]): Degradable<T> => Object.assign(items, { degraded: true as const });
+export const xmlNoStoreMark = (list: { degraded?: true }) => (list.degraded ? `<!-- ${NO_STORE_MARKER} -->` : "");
 
 /** One <url> per locale, each listing every alternate (itself included) and x-default, as Google's hreflang sitemap spec requires. */
 export function urlset(records: Record_[], origin = siteOrigin()): string {
@@ -43,7 +52,7 @@ const listed = (section: ContentSection) => ({ sectionKey: section, status: "pub
 const chunks = (count: number) => Math.max(1, Math.ceil(count / CHUNK));
 
 /** File names the index lists. Without a database the static file alone is listed (a crawl still works). */
-export async function sitemapFiles(): Promise<string[]> {
+export async function sitemapFiles(): Promise<Degradable<string>> {
   try {
     const on = CONTENT_SECTIONS.filter((k) => sectionEnabled(k));
     const [b, s, ...content] = await Promise.all([
@@ -54,7 +63,7 @@ export async function sitemapFiles(): Promise<string[]> {
     const files = (name: string, count: number) => (count ? Array.from({ length: chunks(count) }, (_, i) => `${name}-${i + 1}.xml`) : []);
     return ["pages.xml", ...files("businesses", b), ...files("services", s), ...on.flatMap((k, i) => files(k, content[i]))];
   } catch {
-    return ["pages.xml"];
+    return degraded(["pages.xml"]);
   }
 }
 
@@ -83,7 +92,7 @@ async function categoriesWithBusinesses(rows: { id: string; parentId: string | n
 }
 
 /** Records of one sitemap file, or null when the file name is not one of ours. */
-export async function sitemapRecords(file: string): Promise<Record_[] | null> {
+export async function sitemapRecords(file: string): Promise<Degradable<Record_> | null> {
   if (file === "pages.xml") {
     const sections = sectionsFor("sitemap");
     const hasContent = await Promise.all(sections.map((s) => listSectionHasContent(s.key)));
@@ -116,7 +125,7 @@ export async function sitemapRecords(file: string): Promise<Record_[] | null> {
         ...pages.map((p) => ({ path: `/p/${p.slug}`, at: p.updatedAt })),
       ];
     } catch {
-      return fixed; // database unavailable: still serve the static routes rather than failing the crawl
+      return degraded(fixed); // database unavailable: still serve the static routes rather than failing the crawl
     }
   }
   const m = /^(businesses|services|jobs|events|guides)-(\d{1,4})\.xml$/.exec(file);
@@ -135,6 +144,6 @@ export async function sitemapRecords(file: string): Promise<Record_[] | null> {
     const rows = await prisma.service.findMany({ where: { status: "published", deletedAt: null, business: { status: "published", deletedAt: null } }, select: { slug: true, updatedAt: true, business: { select: { slug: true } } }, orderBy: { id: "asc" }, skip, take: CHUNK });
     return rows.map((s) => ({ path: `/services/${s.business.slug}/${s.slug}`, at: s.updatedAt }));
   } catch {
-    return [];
+    return degraded([]);
   }
 }
