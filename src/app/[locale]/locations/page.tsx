@@ -11,13 +11,11 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Pagination } from "@/components/ui/Pagination";
 import { ResultsMeta } from "@/components/ui/ResultsMeta";
 import type { Locale } from "@/i18n/locales";
-import { DEFAULT_PUBLIC_COUNTRY_CODE, getCities, listLocations, type LocationQuery } from "@/lib/data";
+import { DEFAULT_PUBLIC_COUNTRY_CODE, listLocations, listSelectorCities, type LocationQuery } from "@/lib/data";
 import { listShape, parseParams } from "@/lib/data/params";
 import { log } from "@/lib/logger";
 
-/** Cap the city list embedded in HTML so the Worker stays under CPU limits (CF 1102). */
-const CITY_BROWSER_LIMIT = 120;
-const CITY_FALLBACK_LIMIT = 40;
+/** Cap is applied inside listSelectorCities so this page never loads the full gazetteer. */
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -32,22 +30,12 @@ export default async function LocationsPage({ params, searchParams }: { params: 
   const t = await getTranslations();
   // City chips are helpful, but a transient database read must not take the whole public
   // locations page down. The result list below still retries its independent read.
-  let cities: Awaited<ReturnType<typeof getCities>> = [];
+  let browseCities: Awaited<ReturnType<typeof listSelectorCities>> = [];
   try {
-    cities = await getCities({ countryCode: DEFAULT_PUBLIC_COUNTRY_CODE });
+    browseCities = await listSelectorCities({ countryCode: DEFAULT_PUBLIC_COUNTRY_CODE });
   } catch (error) {
     log.error("locations.cities_unavailable", { error: error instanceof Error ? error.message : String(error) });
   }
-
-  // Prefer cities that already have public listings; never ship the full ~2k DE city list in HTML.
-  const withListings = cities
-    .filter((c) => c.count > 0)
-    .sort((a, b) => b.count - a.count || a.nameEn.localeCompare(b.nameEn))
-    .slice(0, CITY_BROWSER_LIMIT);
-  const browseCities =
-    withListings.length > 0
-      ? withListings
-      : cities.slice(0, CITY_FALLBACK_LIMIT);
 
   const active = (await getLocale()) as Locale;
 

@@ -11,7 +11,7 @@ import { Link } from "@/i18n/routing";
 import { formatNumber, type Locale } from "@/i18n/locales";
 import { PageHeader, type Crumb } from "@/components/ui/PageHeader";
 import { Pagination } from "@/components/ui/Pagination";
-import { DEFAULT_PUBLIC_COUNTRY_CODE, getCategories, getCities, listBusinesses, type BusinessQuery } from "@/lib/data";
+import { DEFAULT_PUBLIC_COUNTRY_CODE, getCategories, listBusinesses, listSelectorCities, type BusinessQuery } from "@/lib/data";
 import { businessShape, parseParams } from "@/lib/data/params";
 
 const SORTS = ["featured", "rating", "newest", "name"] as const;
@@ -39,7 +39,7 @@ export async function BusinessIndex({ pathname, searchParams, title, crumbs, fix
     getCategories(),
     fixed?.city
       ? Promise.resolve([])
-      : getCities({
+      : listSelectorCities({
           countryCode: DEFAULT_PUBLIC_COUNTRY_CODE,
           categoryId: fixed?.category ?? query.category,
           q: query.q,

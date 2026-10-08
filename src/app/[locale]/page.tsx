@@ -10,7 +10,7 @@ import { Text } from "@/components/ui/Bidi";
 import { localize } from "@/lib/content";
 import { PlacesMap, type PlacePoint } from "@/components/map/PlacesMap";
 import { isValidCoordinate } from "@/lib/coordinates";
-import { DEFAULT_PUBLIC_COUNTRY_CODE, getCategories, getCities, getHomeData } from "@/lib/data";
+import { DEFAULT_PUBLIC_COUNTRY_CODE, getCategories, getHomeData, listSelectorCities } from "@/lib/data";
 import { log } from "@/lib/logger";
 import { pageMetadata } from "@/lib/seo";
 import { NoEdgeCache } from "@/components/ui/NoEdgeCache";
@@ -52,7 +52,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const [data, categories, cities] = await Promise.all([
     homeData(),
     safe(getCategories, [], failed),
-    safe(() => getCities({ countryCode: DEFAULT_PUBLIC_COUNTRY_CODE }), [], failed),
+    safe(() => listSelectorCities({ countryCode: DEFAULT_PUBLIC_COUNTRY_CODE }), [], failed),
   ]);
   if (!data) degraded = true;
 

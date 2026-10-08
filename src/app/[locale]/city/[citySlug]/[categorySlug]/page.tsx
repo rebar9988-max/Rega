@@ -3,15 +3,14 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { BusinessIndex } from "@/features/listings/BusinessIndex";
 import { isLocale, type Locale } from "@/config/locales";
 import { localizeText } from "@/lib/content";
-import { getCategories, getCities } from "@/lib/data";
+import { getCategories, getCityBySlug } from "@/lib/data";
 import { pageMetadata } from "@/lib/seo";
 import { pageDescription } from "@/lib/seo-server";
 
 type Props = { params: Promise<{ locale: string; citySlug: string; categorySlug: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> };
 
 async function resolve(citySlug: string, categorySlug: string) {
-  const [cities, categories] = await Promise.all([getCities(), getCategories()]);
-  const city = cities.find((c) => c.slug === citySlug);
+  const [city, categories] = await Promise.all([getCityBySlug(citySlug), getCategories()]);
   const category = categories.find((c) => c.slug === categorySlug);
   return city && category ? { city, category } : null;
 }

@@ -10,7 +10,7 @@ import { Grid, GridSkeleton, NoResults } from "@/components/ui/Grid";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Pagination } from "@/components/ui/Pagination";
 import { ResultsMeta } from "@/components/ui/ResultsMeta";
-import { DEFAULT_PUBLIC_COUNTRY_CODE, getCategories, getCities, listServices, type ServiceQuery } from "@/lib/data";
+import { DEFAULT_PUBLIC_COUNTRY_CODE, getCategories, listSelectorCities, listServices, type ServiceQuery } from "@/lib/data";
 import { parseParams, serviceShape } from "@/lib/data/params";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
@@ -26,7 +26,7 @@ export default async function ServicesPage({ params, searchParams }: { params: P
   const t = await getTranslations();
   const [categories, cities] = await Promise.all([
     getCategories(),
-    getCities({ countryCode: DEFAULT_PUBLIC_COUNTRY_CODE }),
+    listSelectorCities({ countryCode: DEFAULT_PUBLIC_COUNTRY_CODE }),
   ]);
 
   return (
