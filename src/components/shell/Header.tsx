@@ -24,13 +24,10 @@ export async function Header() {
   const addClass = "hidden min-h-11 items-center justify-center rounded-xl bg-brand px-4 text-[13px] font-bold text-brand-ink shadow-sm transition hover:bg-brand-hover xl:inline-flex";
 
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-surface/95 text-ink backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-line bg-surface text-ink">
       <div dir="ltr" className="mx-auto flex h-[72px] w-full max-w-[1440px] items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
         <Link href="/" aria-label="REGA Platform" className="shrink-0 rounded-xl">
-          <span className="inline-flex items-center gap-2">
-            <Logo className="[&>span:last-child]:hidden" />
-            <span className="rounded-full border border-brand/20 bg-brand-soft px-2 py-0.5 text-[9px] font-extrabold tracking-[0.12em] text-brand" aria-label="Beta">BETA</span>
-          </span>
+          <Logo />
         </Link>
 
         <nav aria-label={t("primary")} className="hidden h-full xl:block">
