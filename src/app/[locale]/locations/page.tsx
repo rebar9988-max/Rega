@@ -15,6 +15,10 @@ import { DEFAULT_PUBLIC_COUNTRY_CODE, getCities, listLocations, type LocationQue
 import { listShape, parseParams } from "@/lib/data/params";
 import { log } from "@/lib/logger";
 
+/** Cap the city list embedded in HTML so the Worker stays under CPU limits (CF 1102). */
+const CITY_BROWSER_LIMIT = 120;
+const CITY_FALLBACK_LIMIT = 40;
+
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const t = await getTranslations();
@@ -34,6 +38,17 @@ export default async function LocationsPage({ params, searchParams }: { params: 
   } catch (error) {
     log.error("locations.cities_unavailable", { error: error instanceof Error ? error.message : String(error) });
   }
+
+  // Prefer cities that already have public listings; never ship the full ~2k DE city list in HTML.
+  const withListings = cities
+    .filter((c) => c.count > 0)
+    .sort((a, b) => b.count - a.count || a.nameEn.localeCompare(b.nameEn))
+    .slice(0, CITY_BROWSER_LIMIT);
+  const browseCities =
+    withListings.length > 0
+      ? withListings
+      : cities.slice(0, CITY_FALLBACK_LIMIT);
+
   const active = (await getLocale()) as Locale;
 
   return (
@@ -41,16 +56,16 @@ export default async function LocationsPage({ params, searchParams }: { params: 
       <PageSchema type="CollectionPage" name={t("locations.title")} path="/locations" crumbs={[{ name: t("locations.title"), path: "/locations" }]} />
       <PageHeader title={t("locations.title")} crumbs={[{ label: t("nav.home"), href: "/" }, { label: t("locations.title") }]} />
 
-      {/* Modern grouped + searchable city browser */}
+      {/* Modern grouped + searchable city browser (bounded payload) */}
       <CityBrowser
-        cities={cities}
+        cities={browseCities}
         locale={active}
         activeCityId={query.city}
         browseLabel={t("locations.browseByCity")}
         searchPlaceholder={t("search.placeholder")}
       />
 
-      <FilterBar action="/locations" values={query} searchLabel={t("search.placeholder")} cities={await cityOptions(cities)} />
+      <FilterBar action="/locations" values={query} searchLabel={t("search.placeholder")} cities={await cityOptions(browseCities)} />
       <Suspense key={JSON.stringify(query)} fallback={<GridSkeleton />}><Results query={query} /></Suspense>
     </>
   );
