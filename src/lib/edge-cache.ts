@@ -26,7 +26,16 @@ import { getBotType } from "next/dist/shared/lib/router/utils/is-bot";
  * be up to five minutes behind an admin edit; signed-in visitors (and the dashboard) always see fresh renders.
  */
 export const TTL_SECONDS = 300;
+/**
+ * Stale-while-revalidate: after TTL_SECONDS a stored page stays usable for this long. The visitor gets it at once
+ * (a cache hit, ~1–2 ms CPU) and one background render refreshes it. A refresh that fails (error 1102, database
+ * outage, a render without its data) leaves the working copy in place, so visitors no longer see the failure; a page
+ * that is gone (404/410) is removed. Edits still reach public pages after TTL_SECONDS plus one visit.
+ */
+export const STALE_SECONDS = 86_400;
 export const CACHE_HEADER = "x-rega-cache";
+/** When the copy was stored (ms since epoch), on the stored copy only. */
+const STORED_AT_HEADER = "x-rega-stored-at";
 /**
  * Pages that had to render without their data (database briefly unavailable) say so with this marker
  * (<NoEdgeCache />). Such a render is sent to the visitor but never stored, so a short outage is not served from the
@@ -68,20 +77,24 @@ export function clientKind(request: Request): string {
   return getBotType(request.headers.get("user-agent") ?? "") ?? "";
 }
 
-/** Cache key URL for a request, or null when the request must not use the cache. Pure. */
-export function edgeCacheKey(request: Request): string | null {
+/**
+ * Cache key URL for a request, or null when the request must not use the cache. Pure. `version` is the deployed Worker
+ * version: a page from an earlier deployment links JS/CSS chunks that the new deployment no longer serves, so it is
+ * never shown after a deploy.
+ */
+export function edgeCacheKey(request: Request, version = ""): string | null {
   if (request.method !== "GET") return null;
   const url = new URL(request.url);
   if (BYPASS_PATH.test(url.pathname)) return null;
   if (request.headers.has("authorization")) return null;
   if (PERSONAL_COOKIE.test(request.headers.get("cookie") ?? "")) return null;
   const vary = [...KEY_HEADERS.map((h) => `${h}:${request.headers.get(h) ?? ""}`), `bot:${clientKind(request)}`].join("|");
-  const key = `${url.origin}/__rega-edge-cache/v2${url.pathname}?u=${encodeURIComponent(url.search)}&v=${encodeURIComponent(vary)}`;
+  const key = `${url.origin}/__rega-edge-cache/v2${url.pathname}?u=${encodeURIComponent(url.search)}&v=${encodeURIComponent(vary)}&b=${encodeURIComponent(version)}`;
   return key.length > MAX_KEY_LENGTH ? null : key;
 }
 
 /** A copy of `response` suitable for the cache, or null when it must not be cached. Pure. */
-export function cacheableCopy(response: Response): Response | null {
+export function cacheableCopy(response: Response, now = Date.now()): Response | null {
   if (response.status !== 200 || !response.body) return null;
   const type = response.headers.get("content-type") ?? "";
   if (!/^text\/html|^text\/x-component/i.test(type)) return null;
@@ -94,7 +107,8 @@ export function cacheableCopy(response: Response): Response | null {
   headers.delete("set-cookie");
   if (cookies.length) headers.set(REPLAY_HEADER, JSON.stringify(cookies));
   headers.set(CLIENT_CC_HEADER, response.headers.get("cache-control") ?? "");
-  headers.set("cache-control", `public, max-age=${TTL_SECONDS}`);
+  headers.set("cache-control", `public, max-age=${TTL_SECONDS + STALE_SECONDS}`);
+  headers.set(STORED_AT_HEADER, String(now));
   headers.delete(CACHE_HEADER);
   return new Response(response.clone().body, { status: response.status, statusText: response.statusText, headers });
 }
@@ -110,6 +124,7 @@ export function fromCache(cached: Response, label = "HIT"): Response {
   if (clientCc) headers.set("cache-control", clientCc); else headers.delete("cache-control");
   headers.delete("age");
   headers.delete("cf-cache-status");
+  headers.delete(STORED_AT_HEADER);
   headers.set(CACHE_HEADER, label);
   return new Response(cached.body, { status: cached.status, statusText: cached.statusText, headers });
 }
@@ -151,6 +166,15 @@ export function inFlightCount(): number {
   return inFlight.size;
 }
 
+/** True when a stored copy is older than TTL_SECONDS (copies without a timestamp count as fresh). Pure. */
+export function isStale(cached: Response, now = Date.now()): boolean {
+  const at = Number(cached.headers.get(STORED_AT_HEADER));
+  return Number.isFinite(at) && at > 0 && now - at > TTL_SECONDS * 1000;
+}
+
+/** Keys being refreshed in the background in this isolate (one refresh per key at a time), with their expiry. */
+const refreshing = new Map<string, number>();
+
 /** Reads a cacheable copy; null when the page was rendered without its data (never stored or shared). */
 async function readUnlessMarked(copy: Response): Promise<Stored | null> {
   const body = await copy.text();
@@ -165,6 +189,11 @@ function within<T>(promise: Promise<T>, ms: number): Promise<T | null> {
 }
 
 type Ctx = { waitUntil(promise: Promise<unknown>): void };
+
+/** Deployed Worker version from the `version_metadata` binding (wrangler.jsonc); "" where it does not exist. */
+function versionOf(env: unknown): string {
+  return (env as { CF_VERSION_METADATA?: { id?: string } } | undefined)?.CF_VERSION_METADATA?.id ?? "";
+}
 type Fetch<E> = (request: Request, env: E, ctx: Ctx) => Promise<Response>;
 
 /**
@@ -173,14 +202,34 @@ type Fetch<E> = (request: Request, env: E, ctx: Ctx) => Promise<Response>;
  */
 export function withEdgeCache<E>(render: Fetch<E>, { coalesceWaitMs = COALESCE_WAIT_MS }: { coalesceWaitMs?: number } = {}): Fetch<E> {
   return async (request, env, ctx) => {
-    const key = edgeCacheKey(request);
+    const key = edgeCacheKey(request, versionOf(env));
     const cache = key ? (globalThis as unknown as { caches?: { default?: Cache } }).caches?.default : undefined;
     if (!key || !cache) return withHeader(await render(request, env, ctx), "BYPASS");
 
     const keyRequest = new Request(key, { method: "GET" });
     try {
       const hit = await cache.match(keyRequest);
-      if (hit) return fromCache(hit);
+      if (hit && !isStale(hit)) return fromCache(hit);
+      if (hit) {
+        // Stale: answer with the stored page now (fully read, so the answer is complete before any refresh work) and
+        // refresh it once in the background.
+        const body = await hit.text();
+        const now = Date.now();
+        if ((refreshing.get(key) ?? 0) <= now) {
+          refreshing.set(key, now + coalesceWaitMs);
+          ctx.waitUntil(Promise.resolve()
+            .then(() => render(request, env, ctx))
+            .then(async (fresh) => {
+              if (fresh.status === 404 || fresh.status === 410) return void (await cache.delete(keyRequest));
+              const copy = cacheableCopy(fresh);
+              const stored = copy ? await readUnlessMarked(copy) : null;
+              if (stored) await cache.put(keyRequest, toResponse(stored));
+            })
+            .catch(() => undefined)
+            .finally(() => refreshing.delete(key)));
+        }
+        return fromCache(new Response(body, hit), "STALE");
+      }
     } catch {
       // Cache unavailable: render normally.
     }

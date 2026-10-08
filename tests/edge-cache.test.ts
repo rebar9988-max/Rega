@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { CACHE_HEADER, NO_STORE_MARKER, cacheableCopy, edgeCacheKey, fromCache, inFlightCount, renderedWithoutData, withEdgeCache } from "../src/lib/edge-cache";
+import { CACHE_HEADER, NO_STORE_MARKER, TTL_SECONDS, cacheableCopy, edgeCacheKey, fromCache, inFlightCount, isStale, renderedWithoutData, withEdgeCache } from "../src/lib/edge-cache";
 
 const req = (path: string, init: RequestInit = {}) => new Request(`https://www.regaplatform.com${path}`, init);
 const html = (headers: Record<string, string> = {}, status = 200) =>
@@ -55,12 +55,14 @@ test("only 200 HTML/RSC responses without personal cookies or foreign Vary are s
 test("cached copy: public TTL in the cache, original Cache-Control and locale cookies for the visitor", () => {
   const original = html({ "set-cookie": "REGA_LOCALE=ckb; Path=/; Max-Age=31536000; SameSite=lax" });
   const copy = cacheableCopy(original)!;
-  assert.equal(copy.headers.get("cache-control"), "public, max-age=300");
+  assert.equal(copy.headers.get("cache-control"), "public, max-age=86700"); // TTL + stale-while-revalidate window
+  assert.ok(Number(copy.headers.get("x-rega-stored-at")) > 0);
   assert.equal(copy.headers.get("set-cookie"), null);
   const back = fromCache(copy);
   assert.equal(back.headers.get("cache-control"), "private, no-cache, no-store, max-age=0, must-revalidate");
   assert.match(back.headers.get("set-cookie") ?? "", /^REGA_LOCALE=ckb/);
   assert.equal(back.headers.get(CACHE_HEADER), "HIT");
+  assert.equal(back.headers.get("x-rega-stored-at"), null); // internal, never sent to visitors
 });
 
 test("wrapper: second identical request is served from the cache without rendering; personal requests always render", async () => {
@@ -367,4 +369,99 @@ test("an older render finishing after expiry never removes the newer entry for t
     finishNewer.resolve();
     delete (globalThis as unknown as { caches?: unknown }).caches;
   }
+});
+
+
+// ---------------------------------------------------------------- stale-while-revalidate and deploy versions
+
+function fakeCache() {
+  const store = new Map<string, Response>();
+  (globalThis as unknown as { caches: unknown }).caches = {
+    default: {
+      match: async (r: Request) => store.get(r.url)?.clone(),
+      put: async (r: Request, res: Response) => { store.set(r.url, new Response(await res.text(), res)); },
+      delete: async (r: Request) => store.delete(r.url),
+    },
+  };
+  return store;
+}
+
+async function withClock<T>(at: number, fn: () => Promise<T>): Promise<T> {
+  const real = Date.now;
+  Date.now = () => at;
+  try { return await fn(); } finally { Date.now = real; }
+}
+
+test("a deployed version is part of the key: pages of an earlier deployment are never served", () => {
+  assert.notEqual(edgeCacheKey(req("/ckb"), "v1"), edgeCacheKey(req("/ckb"), "v2"));
+  assert.equal(edgeCacheKey(req("/ckb"), "v1"), edgeCacheKey(req("/ckb"), "v1"));
+});
+
+test("isStale: only after TTL_SECONDS; copies without a timestamp count as fresh", () => {
+  const t0 = 1_000_000;
+  const copy = cacheableCopy(html(), t0)!;
+  assert.equal(isStale(copy, t0 + TTL_SECONDS * 1000), false);
+  assert.equal(isStale(copy, t0 + TTL_SECONDS * 1000 + 1), true);
+  assert.equal(isStale(html(), t0 * 1000), false);
+});
+
+test("stale page: served at once, refreshed once in the background, then fresh again", async () => {
+  fakeCache();
+  let renders = 0;
+  const pending: Promise<unknown>[] = [];
+  const ctx = { waitUntil: (p: Promise<unknown>) => { pending.push(p); } };
+  const handler = withEdgeCache(async () => { renders++; return new Response(`<html>v${renders}</html>`, { headers: { "content-type": "text/html" } }); });
+  const t0 = 5_000_000_000;
+  await withClock(t0, async () => { await handler(req("/swr-a"), {}, ctx); await Promise.all(pending.splice(0)); });
+  assert.equal(renders, 1);
+
+  const later = t0 + TTL_SECONDS * 1000 + 5_000;
+  const [a, b] = await withClock(later, async () => Promise.all([handler(req("/swr-a"), {}, ctx), handler(req("/swr-a"), {}, ctx)]));
+  assert.equal(a.headers.get(CACHE_HEADER), "STALE");
+  assert.equal(b.headers.get(CACHE_HEADER), "STALE");
+  assert.equal(await a.text(), "<html>v1</html>"); // the visitor never waits for a render
+  await withClock(later, () => Promise.all(pending.splice(0)));
+  assert.equal(renders, 2); // two stale visitors, one refresh
+
+  const after = await withClock(later + 1_000, () => handler(req("/swr-a"), {}, ctx));
+  assert.equal(after.headers.get(CACHE_HEADER), "HIT");
+  assert.equal(await after.text(), "<html>v2</html>");
+});
+
+test("a failed refresh (error, 1102-style 503, render without data) keeps the working copy", async () => {
+  const store = fakeCache();
+  const pending: Promise<unknown>[] = [];
+  const ctx = { waitUntil: (p: Promise<unknown>) => { pending.push(p); } };
+  const outcomes: (() => Response)[] = [
+    () => new Response("<html>good</html>", { headers: { "content-type": "text/html" } }),
+    () => { throw new Error("worker exceeded resource limits"); },
+    () => new Response("error code: 1102", { status: 503, headers: { "content-type": "text/plain" } }),
+    () => new Response(`<html>${NO_STORE_MARKER}</html>`, { headers: { "content-type": "text/html" } }),
+  ];
+  let i = 0;
+  const handler = withEdgeCache(async () => outcomes[i++]());
+  let t = 7_000_000_000;
+  await withClock(t, async () => { await handler(req("/swr-b"), {}, ctx); await Promise.all(pending.splice(0)); });
+  for (let n = 0; n < 3; n++) {
+    t += TTL_SECONDS * 1000 + 1;
+    const res = await withClock(t, async () => { const r = await handler(req("/swr-b"), {}, ctx); await Promise.all(pending.splice(0)); return r; });
+    assert.equal(res.headers.get(CACHE_HEADER), "STALE");
+    assert.equal(await res.text(), "<html>good</html>");
+  }
+  assert.equal(i, 4);
+  assert.equal(store.size, 1);
+});
+
+test("a page that is gone (404) is removed on refresh instead of being served for a day", async () => {
+  const store = fakeCache();
+  const pending: Promise<unknown>[] = [];
+  const ctx = { waitUntil: (p: Promise<unknown>) => { pending.push(p); } };
+  let gone = false;
+  const handler = withEdgeCache(async () => gone ? html({}, 404) : html());
+  const t0 = 9_000_000_000;
+  await withClock(t0, async () => { await handler(req("/swr-c"), {}, ctx); await Promise.all(pending.splice(0)); });
+  assert.equal(store.size, 1);
+  gone = true;
+  await withClock(t0 + TTL_SECONDS * 1000 + 1, async () => { await handler(req("/swr-c"), {}, ctx); await Promise.all(pending.splice(0)); });
+  assert.equal(store.size, 0);
 });
