@@ -81,7 +81,8 @@ try {
       note((res?.status() ?? 0) === 200, `${vp} profile ${href}`, String(res?.status()));
       await page.screenshot({ path: `${OUT}/${vp}_profile.png`, fullPage: true });
     } else {
-      lines.push(`info ${vp} directory has no published business to open`);
+      const count = (await page.locator("main [aria-live=polite]").first().textContent().catch(() => ""))?.trim();
+      lines.push(`info ${vp} directory has no published business to open (result line: "${count}")`);
     }
 
     // The dashboard is never public.
