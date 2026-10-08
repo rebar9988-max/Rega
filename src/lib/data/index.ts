@@ -134,7 +134,7 @@ export const listSelectorCities = cache(async (scope: CityScope = {}) => {
     business: businessWhere,
   };
   const inCountry = { isActive: true, country: { code: countryCode, isActive: true } };
-  const select = { ...cityNameSelect, _count: { select: { locations: { where: locWhere } } } } as const;
+  const select = { ...cityNameSelect, latitude: true, longitude: true, _count: { select: { locations: { where: locWhere } } } } as const;
 
   const [majors, listed, added] = await Promise.all([
     prisma.city.findMany({
