@@ -69,7 +69,8 @@ export async function saveCityAction(formData: FormData): Promise<void> {
   const clash = await prisma.city.findFirst({ where: { slug: citySlug, ...(id ? { NOT: { id } } : {}) }, select: { id: true } });
   if (clash) redirect(id ? `/dr/geography/city/${id}?error=slug` : "/dr/geography?error=exists");
   const names = localizedNames(formData, COLUMN_LOCALES);
-  const data = { countryId, regionId: regionId ?? null, nameEn, slug: citySlug, latitude: lat ?? null, longitude: lng ?? null, sortOrder, ...names };
+  // An admin-saved city belongs in the public filter immediately, even with no business yet.
+  const data = { countryId, regionId: regionId ?? null, nameEn, slug: citySlug, latitude: lat ?? null, longitude: lng ?? null, sortOrder, inDirectory: true, ...names };
   let cityId = id;
   if (id) {
     if (!(await prisma.city.findUnique({ where: { id }, select: { id: true } }))) redirect("/dr/geography?error=invalid");

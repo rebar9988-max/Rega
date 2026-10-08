@@ -11,7 +11,7 @@ import { PUBLIC_BUSINESS, businessInCategories, businessInCity, textWhere } from
 import { searchTokens } from "@/lib/text";
 import { PER_PAGE } from "./params";
 import { descendantIds } from "@/lib/category-tree";
-import { MAJOR_CITY_SLUGS, rankSelectorCities } from "@/lib/selector-cities";
+import { MAJOR_CITY_SLUGS, rankSelectorCities, SELECTOR_CITY_LIMIT } from "@/lib/selector-cities";
 const skipTake = (page: number) => ({ skip: (page - 1) * PER_PAGE, take: PER_PAGE });
 const pageCount = (total: number) => Math.max(1, Math.ceil(total / PER_PAGE));
 
@@ -114,8 +114,9 @@ const cityNameSelect = {
 } as const;
 
 /**
- * Cities safe to embed in public HTML: the curated German set, plus cities that
- * already have a matching public listing. Does not load the ~2,000-row gazetteer.
+ * Cities safe to embed in public HTML: the curated German set, cities an admin
+ * explicitly added (`inDirectory`), plus cities that already have a matching
+ * public listing. Does not load the ~2,000-row gazetteer.
  */
 export const listSelectorCities = cache(async (scope: CityScope = {}) => {
   const countryCode = (scope.countryCode ?? DEFAULT_PUBLIC_COUNTRY_CODE).toUpperCase();
@@ -135,7 +136,7 @@ export const listSelectorCities = cache(async (scope: CityScope = {}) => {
   const inCountry = { isActive: true, country: { code: countryCode, isActive: true } };
   const select = { ...cityNameSelect, _count: { select: { locations: { where: locWhere } } } } as const;
 
-  const [majors, listed] = await Promise.all([
+  const [majors, listed, added] = await Promise.all([
     prisma.city.findMany({
       where: { ...inCountry, slug: { in: [...MAJOR_CITY_SLUGS] } },
       select,
@@ -144,10 +145,18 @@ export const listSelectorCities = cache(async (scope: CityScope = {}) => {
       where: { ...inCountry, locations: { some: locWhere } },
       select,
     }),
+    // Recently added directory cities first, then capped, so a new city with
+    // zero businesses is never crowded out by the rest of the curated set.
+    prisma.city.findMany({
+      where: { ...inCountry, inDirectory: true },
+      select,
+      orderBy: { updatedAt: "desc" },
+      take: SELECTOR_CITY_LIMIT,
+    }),
   ]);
 
   const byId = new Map<string, Omit<(typeof majors)[number], "_count"> & { count: number }>();
-  for (const row of [...listed, ...majors]) {
+  for (const row of [...listed, ...majors, ...added]) {
     const { _count, ...city } = row;
     byId.set(city.id, { ...city, count: _count.locations });
   }

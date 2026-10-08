@@ -184,6 +184,10 @@ model City {
   latitude  Float?
   longitude Float?
   isActive  Boolean  @default(true)
+  /// Public city filters include this city even when it has no listing yet.
+  /// True for the curated set and for cities an admin adds. The bulk German
+  /// gazetteer stays false so those ~2,000 towns are not embedded in HTML.
+  inDirectory Boolean @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
