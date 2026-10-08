@@ -166,13 +166,13 @@
 }
 .rega-card:hover, .rega-card:focus-within { border-color: rgb(227 6 19 / .34); box-shadow: var(--shadow); }
 /* Home hero: city photograph with the concept's red diagonal (mirrored in RTL). */
-.rega-hero-photo { background: #dc0201; }
+.rega-hero-photo { background: #dd0201; }
 .rega-hero-photo::after {
   content: "";
   position: absolute;
   inset: 0 auto 0 0;
   width: 34%;
-  background: #e30613;
+  background: #dd0201;
   clip-path: polygon(0 0, 62% 0, 100% 100%, 0 100%);
   z-index: 1;
   pointer-events: none;

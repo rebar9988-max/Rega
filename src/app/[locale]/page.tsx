@@ -93,8 +93,11 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                 <div className="rega-hero-photo relative min-h-[210px] lg:min-h-full" aria-hidden="true">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src="/brand/community-hero.jpg" alt="" width={1600} height={900} decoding="async" fetchPriority="high" className="absolute inset-0 size-full object-cover object-[center_40%]" />
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/brand/rega-mark-256.webp" alt="" width={88} height={88} decoding="async" className="absolute bottom-6 end-6 z-[2] w-[72px] drop-shadow-md sm:w-[84px]" />
+                  {/* Official lockup sits on the red panel, never on the city photograph. */}
+                  <div className="pointer-events-none absolute inset-y-0 start-0 z-[2] flex w-[18%] items-center justify-center px-1 pb-8">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/brand/rega-logo.webp" alt="" width={512} height={512} decoding="async" className="w-full max-w-[7.5rem] object-contain" />
+                  </div>
                 </div>
               </div>
 
