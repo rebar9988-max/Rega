@@ -1,9 +1,15 @@
 name: Cloudflare diagnostics
 
 # Read-only. Prints the NAMES of the Worker's secrets/variables and its deployment history, never values.
-# Uses the CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID repository secrets.
+# With a build id it also prints that Workers Builds log (e.g. a failed preview build on a pull request: the id is
+# the last part of the "View logs" link). Uses the CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID repository secrets.
 on:
   workflow_dispatch:
+    inputs:
+      build_id:
+        description: "Optional Workers Builds build id (UUID from the build's dashboard link) whose log to print"
+        required: false
+        default: ""
 
 permissions:
   contents: read
@@ -43,3 +49,14 @@ jobs:
       - if: steps.creds.outputs.present == 'true'
         name: Versions
         run: npx wrangler versions list --name rega-platform 2>&1 | tail -40
+      - if: steps.creds.outputs.present == 'true' && inputs.build_id != ''
+        name: Workers Builds log
+        env:
+          BUILD_ID: ${{ inputs.build_id }}
+        run: |
+          case "$BUILD_ID" in *[!0-9a-f-]*) echo "::error::build_id must be a UUID"; exit 1;; esac
+          curl -sS -m 30 -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+            "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/builds/builds/$BUILD_ID/logs" -o log.json
+          # Lines are [timestamp, text] pairs; fall back to the raw response (errors, other shapes).
+          jq -r '.result.lines[]? | if type == "array" then .[-1] else . end' log.json 2>/dev/null | tail -150 || true
+          jq -e '.success == true' log.json >/dev/null 2>&1 || { echo "--- API response"; head -c 2000 log.json; echo; }
