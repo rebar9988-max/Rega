@@ -32,6 +32,21 @@ If memory conflicts with verified live state, live state wins and memory must be
 - Deployment source observed: Wrangler.
 - Establishing this memory system made no production runtime change.
 
+## Verified GitHub state and open risk — 2026-10-15 (later)
+- `main` has no branch protection or required checks (GitHub API `protected: false`). Hosted GitHub Actions run normally.
+- Every push to `main` deploys production twice, independently: the `Deploy to Cloudflare Workers` workflow
+  (`npx wrangler deploy`, not gated on CI) and Cloudflare Workers Builds (`Workers Builds: rega-platform`). The deploy
+  workflow finishes before the `CI` workflow's E2E tests, so a commit can reach production before CI has verified it.
+  Example: docs commit `93888c9` — deploy success, Workers Builds version `2baa6e60`, CI still running at that moment.
+  Not changed: choosing a single, CI-gated deploy path changes production infrastructure and needs an owner decision.
+- The active version above (`bba819a0`) was observed before those two deploys and is probably stale. No Cloudflare
+  connector was available in this session to confirm the current active version; the public site loaded normally.
+- Agent entry points: `AGENTS.md` (Codex) points to `CLAUDE.md` §6, which now includes the troubleshooting rules.
+
+## Next safe continuation point
+Follow `CLAUDE.md` §6 for every task. Re-check the active Cloudflare version before any production work. Open PR:
+#10 (read-only Workers Builds log diagnostics). Owner decision pending: one CI-gated production deploy path.
+
 ## Safety
 - Never store secrets or secret values here.
 - Never reset or delete production data.
