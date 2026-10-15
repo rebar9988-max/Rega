@@ -33,6 +33,17 @@ orphans/duplicates before adding constraints; deletes nothing), `content_section
 
 ## 3. Deploy
 
+Production uses a **single CI-gated deploy path**:
+
+1. `.github/workflows/ci.yml` runs on `main`.
+2. Only when that CI workflow completes successfully, `.github/workflows/deploy.yml` runs through `workflow_run`.
+3. The deploy workflow checks out the exact CI-verified commit SHA, builds it, and runs `npx wrangler deploy`.
+4. Cloudflare Workers Builds may still build `main` for visibility, but its production deploy command is configured as a dry-run so it cannot publish a second production version.
+
+Manual fallback remains available through `workflow_dispatch` on the deploy workflow.
+
+Local/manual command:
+
 ```bash
 npm run build && npx wrangler deploy
 ```
