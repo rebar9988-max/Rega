@@ -66,3 +66,17 @@ After material work append:
 - production impact
 - blockers
 - next safe continuation point
+
+
+## Deploy-path repair — 2026-10-15
+Owner approved removing the duplicate/ungated production deployment risk.
+
+Target architecture:
+- CI remains the quality gate on `main`.
+- `.github/workflows/deploy.yml` deploys only after a successful `CI` `workflow_run`, and checks out that exact verified SHA.
+- `workflow_dispatch` remains a manual fallback.
+- Cloudflare Workers Builds production deploy is changed to dry-run only, so it cannot publish a second version.
+- Result: one production deployment path, after CI success.
+
+Branch: `chatgpt/ci-gated-single-deploy-20261015`.
+No application code, routes, database schema, secrets, or branding are changed by this repair.
