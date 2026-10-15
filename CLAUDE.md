@@ -39,3 +39,27 @@ These rules come from the project owner and apply to every task in this reposito
 ## 5. Safety (always)
 - Never expose, print, commit or ask for secrets. Never reset, drop, truncate or delete production data.
 - No fake data, fake links, invented handles, fake brand assets or placeholder icons in production.
+
+## 6. Permanent shared project-memory workflow
+Central memory document:
+- **REGA — Project Memory & Documentation Hub**
+- https://docs.google.com/open?id=1pp6GW-UM9AQ9TuUJHumziaujxB6ZOza5S3xwA6dmxu4
+
+Use the connected Google Drive / Docs, GitHub, and Cloudflare together for every substantial REGA task.
+
+Source-of-truth priority:
+1. GitHub = code, branches, PRs, workflows, commits, repository configuration.
+2. Cloudflare = live Worker state, routes, runtime configuration, builds and deployments.
+3. Google Drive / Docs = durable decisions, architecture rules, runbooks, incident notes, blockers and continuation memory.
+
+Mandatory flow:
+READ MEMORY -> VERIFY GITHUB -> VERIFY CLOUDFLARE -> IDENTIFY ROOT CAUSE -> FIX ONLY THE RESPONSIBLE LAYER -> TEST -> VERIFY LIVE -> UPDATE MEMORY.
+
+Rules:
+- Read `PROJECT_MEMORY.md` and the central Google Doc before substantial work.
+- Do not ask the owner to repeat information that already exists in Docs, GitHub or Cloudflare.
+- If memory conflicts with verified GitHub or Cloudflare state, verified live state wins and memory must be corrected.
+- Never store API keys, passwords, tokens, database credentials, connection strings or secret values in memory.
+- Never claim a deployment, test, fix or production state that was not actually verified.
+- Never change unrelated architecture, routes, domains, secrets, database configuration or production behavior.
+- After every material change, update project memory with date, task, root cause, changes, tests, PR/commit, Cloudflare verification, production impact, blockers and next safe continuation point.
