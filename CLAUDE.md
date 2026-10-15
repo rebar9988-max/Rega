@@ -63,3 +63,24 @@ Rules:
 - Never claim a deployment, test, fix or production state that was not actually verified.
 - Never change unrelated architecture, routes, domains, secrets, database configuration or production behavior.
 - After every material change, update project memory with date, task, root cause, changes, tests, PR/commit, Cloudflare verification, production impact, blockers and next safe continuation point.
+
+### Troubleshooting & continuation (owner instruction, 2026-10-15)
+Applies to every Claude Code and Codex session (`AGENTS.md` points here). The central Doc above (Drive file ID
+`1pp6GW-UM9AQ9TuUJHumziaujxB6ZOza5S3xwA6dmxu4`) and `PROJECT_MEMORY.md` together are the single documentation layer:
+the Doc keeps the cross-tool summary and change log, the repository keeps detail. Do not create another memory system.
+
+1. Start of each task: read this file, `PROJECT_MEMORY.md`, the relevant `docs/` files (`docs/DEPLOYMENT.md` when
+   deployment is involved) and the central Doc; then inspect current GitHub and Cloudflare state before acting.
+2. For any problem: check earlier notes/fixes in the Doc and repository memory -> inspect repository, PR and CI state
+   in GitHub -> inspect build, deployment and runtime state in Cloudflare -> reproduce where possible -> find the real
+   root cause -> fix only that layer -> run the appropriate tests -> verify the real result -> record it in the Doc
+   and `PROJECT_MEMORY.md`.
+3. If a source cannot be reached from the current session (no Cloudflare connector, no network access), say so and
+   record it as an environment limitation, never as a code failure. Read-only fallbacks: the `Workers Builds:
+   rega-platform` check run and the `Deploy to Cloudflare Workers` workflow run on a GitHub commit show build/deploy
+   results; a public fetch of `https://www.regaplatform.com` shows the site is served. Neither proves which version
+   is active at 100%; do not claim that without Cloudflare access.
+4. `main` is the only production branch unless the owner explicitly changes this rule. Never bypass GitHub protection,
+   required checks or production safeguards; never merge or deploy unverified changes; no speculative fixes.
+5. Proceed autonomously with safe read, diagnosis, documentation and verified repair work. Ask the owner only for an
+   unavoidable billing, permission, authentication, destructive or security approval.
