@@ -259,6 +259,7 @@
     "role": "Rol",
     "tooMany": "Çok fazla deneme. Lütfen daha sonra tekrar deneyin.",
     "registerTitle": "Hesap oluştur",
+    "registerHeading": "Hesap oluştur",
     "registerLead": "Ücretsizdir. İşletmenizi REGA'ya eklemek için hesap oluşturun.",
     "accountType": "Hesap türü",
     "typeUser": "Kullanıcı",

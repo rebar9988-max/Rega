@@ -10,6 +10,7 @@ import { allowShared } from "@/lib/rate-limit";
 import { clientIp } from "@/lib/client-ip";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Link } from "@/i18n/routing";
+import { SubmitButton } from "@/features/auth/AuthForms";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -63,7 +64,7 @@ export default async function LoginPage({ params, searchParams }: { params: Prom
             <label htmlFor="password" className="mb-1 block text-sm font-semibold">{t("auth.password")}</label>
             <input id="password" name="password" type="password" required minLength={8} autoComplete="current-password" dir="ltr" className={`${field} text-start`} />
           </div>
-          <button type="submit" className="min-h-11 w-full rounded-xl bg-brand text-sm font-semibold text-brand-ink hover:bg-brand-hover">{t("auth.signIn")}</button>
+          <SubmitButton>{t("auth.signIn")}</SubmitButton>
           <p className="text-center text-sm"><Link href="/forgot-password" className="font-semibold text-brand underline">{t("auth.forgot")}</Link></p>
           <p className="text-center text-sm text-muted">{t("auth.noAccount")} <Link href="/register" className="font-semibold text-brand underline">{t("auth.createAccount")}</Link></p>
         </form>

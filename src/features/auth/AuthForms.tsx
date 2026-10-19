@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { useFormStatus } from "react-dom";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { Honeypot } from "@/features/forms/Honeypot";
@@ -9,8 +10,14 @@ import { confirmEmail, forgotPassword, register, resendVerification, resetPasswo
 
 const field = "min-h-11 w-full rounded-xl border border-line bg-surface px-3 text-base outline-none focus:border-brand aria-[invalid=true]:border-brand";
 const card = "mx-auto max-w-md space-y-4 rounded-[var(--radius-card)] border border-line bg-surface p-6 shadow-card";
-const primary = "min-h-11 w-full rounded-xl bg-brand text-sm font-semibold text-brand-ink hover:bg-brand-hover disabled:opacity-60";
+const primary = "min-h-12 w-full rounded-xl bg-brand text-base font-semibold text-brand-ink hover:bg-brand-hover disabled:opacity-60";
 const link = "font-semibold text-brand underline";
+
+/** Submit button for a plain server-action form (the login page): disabled and marked busy while the action runs. */
+export function SubmitButton({ children }: { children: React.ReactNode }) {
+  const { pending } = useFormStatus();
+  return <button type="submit" disabled={pending} aria-busy={pending} className={primary}>{children}</button>;
+}
 
 function Notice({ title, body, children }: { title?: string; body: string; children?: React.ReactNode }) {
   return (
