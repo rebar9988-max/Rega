@@ -67,12 +67,17 @@ async function notifyReturned(businessId: string, listing: string, reason?: stri
   await sendEmail({ to: owner.email, subject: t("reviewSubject"), text: t("reviewBody", { name: owner.name ?? "", listing, reason: reason ? `\n${reason}\n` : "", link: `${origin}/dr/businesses/${businessId}` }) });
 }
 
-export type BusinessFormState = { error?: "invalid" | "not_found" | "published_incomplete" | "city_unknown" | "unverified"; fields?: string[] } | undefined;
+export type BusinessFormState = {
+  error?: "invalid" | "not_found" | "published_incomplete" | "city_unknown" | "unverified" | "media_invalid";
+  fields?: string[];
+  /** Set after a wizard "save draft": the form stays where it is and carries this id, so the next save updates the same draft. */
+  draft?: { id: string; at: number };
+} | undefined;
 
 /** Create / edit form. Validation, permissions and publish rules all run here, on the server. */
 export async function saveBusinessAction(_prev: BusinessFormState, formData: FormData): Promise<BusinessFormState> {
   const user = await requirePermission("business.write");
-  const parsed = businessFormSchema.safeParse({ ...Object.fromEntries(formData), languages: formData.getAll("languages") });
+  const parsed = businessFormSchema.safeParse({ ...Object.fromEntries(formData), languages: formData.getAll("languages"), photoUrls: formData.getAll("photoUrls") });
   if (!parsed.success) return { error: "invalid", fields: [...new Set(parsed.error.issues.map((i) => String(i.path[0])))] };
   const input = parsed.data;
   if (input.id) await assertBusinessAccess(user, input.id);
@@ -81,16 +86,18 @@ export async function saveBusinessAction(_prev: BusinessFormState, formData: For
   if (input.intent === "submit" && !(await hasConfirmedEmail(user))) return { error: "unverified" };
   const result = await saveBusiness(input, user, { canPublish, canCreateCity: canPublish });
   if (!result.ok) return { error: result.error, ...(result.error === "city_unknown" ? { fields: ["city"] } : {}) };
-  if (!input.id) await addCreatorAsMember(user, result.id);
+  if (result.created || !input.id) await addCreatorAsMember(user, result.id);
   if (result.submittedNow) {
     await sendEmail({ to: teamInbox(), subject: `[REGA] New listing to review: ${input.name}`.slice(0, 200), text: `${input.name}\nSubmitted by ${user.email}\nReview: ${process.env.AUTH_URL ? new URL(process.env.AUTH_URL).origin : `https://${process.env.CANONICAL_HOST || "www.regaplatform.com"}`}/dr/businesses?status=pending` });
   }
 
   await writeAudit({
-    actorId: user.id, actorEmail: user.email, action: input.id ? "business.update" : "business.create", entity: "Business", entityId: result.id,
+    actorId: user.id, actorEmail: user.email, action: result.created ? "business.create" : "business.update", entity: "Business", entityId: result.id,
     after: { name: input.name, published: result.published, locationComplete: result.missing.length === 0 },
   });
   revalidatePath("/", "layout");
+  // Wizard draft: stay on the same screen (the person is in the middle of the steps) and hand back the saved id.
+  if (input.intent === "draft") return { draft: { id: result.id, at: Date.now() } };
   const flag = input.intent === "publish" ? (result.published ? "published" : "blocked") : input.intent === "submit" ? (result.submitted ? "submitted" : "blocked") : "saved";
   redirect(`/dr/businesses/${result.id}?${flag}=1`);
 }

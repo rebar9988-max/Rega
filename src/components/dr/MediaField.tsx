@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Image control for a business logo or cover. Uses the existing upload endpoint (POST /api/v1/media/upload-url):
+ * Image control for a business logo or cover (and an offer image). Uses the existing upload endpoint (POST /api/v1/media/upload-url):
  * the server validates type, size and permission and returns a short-lived pre-signed URL; the browser uploads the
  * file straight to storage and the public URL goes into a hidden form field. The URL is only saved with the form.
  * When storage is not configured on the server the control says so instead of pretending to upload.
@@ -15,7 +15,7 @@ const MAX_BYTES = 5 * 1024 * 1024;
 type State = "idle" | "uploading" | "done" | "error" | "tooLarge" | "badType" | "notConfigured";
 
 export function MediaField({ name, label, initial, businessId, storageReady, invalid, wide }: {
-  name: "logoUrl" | "coverUrl"; label: string; initial: string; businessId?: string; storageReady: boolean; invalid?: boolean; wide?: boolean;
+  name: "logoUrl" | "coverUrl" | "imageUrl"; label: string; initial: string; businessId?: string; storageReady: boolean; invalid?: boolean; wide?: boolean;
 }) {
   const t = useTranslations("bizForm");
   const id = useId();

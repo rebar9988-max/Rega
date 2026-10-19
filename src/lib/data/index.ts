@@ -9,6 +9,7 @@ import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { PUBLIC_BUSINESS, businessInCategories, businessInCity, textWhere } from "@/lib/search-where";
 import { searchTokens } from "@/lib/text";
+import { OFFER_LIMITS, activeOfferWhere } from "@/lib/offers";
 import { PER_PAGE } from "./params";
 import { descendantIds } from "@/lib/category-tree";
 import { MAJOR_CITY_SLUGS, rankSelectorCities, SELECTOR_CITY_LIMIT } from "@/lib/selector-cities";
@@ -211,7 +212,14 @@ export const getBusiness = cache(async (slug: string) =>
   prisma.business.findFirst({
     where: { slug, ...PUBLIC_BUSINESS },
     select: {
-      ...businessCard, email: true, phone: true, website: true, coverUrl: true, tags: true, updatedAt: true,
+      ...businessCard, email: true, phone: true, whatsapp: true, photos: true, website: true, coverUrl: true, tags: true, updatedAt: true,
+      // Only offers that are running right now (switch on, started, not ended); the page also re-checks the clock in the browser.
+      offers: {
+        where: activeOfferWhere(new Date()),
+        orderBy: { endsAt: "asc" },
+        take: OFFER_LIMITS.publicMax,
+        select: { id: true, title: true, description: true, imageUrl: true, discountType: true, discountValue: true, currency: true, startsAt: true, endsAt: true },
+      },
       services: {
         where: { status: "published", deletedAt: null },
         orderBy: [{ featured: "desc" }, { sortOrder: "asc" }],

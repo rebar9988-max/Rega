@@ -12,6 +12,8 @@ import { isStorageConfigured } from "@/lib/env";
 import { hoursRows } from "@/lib/opening-hours";
 import { assertBusinessAccess } from "@/lib/business-access";
 import { BusinessTeam } from "@/components/dr/BusinessTeam";
+import { MAX_PHOTOS } from "@/lib/business-admin";
+import { offerState } from "@/lib/offers";
 import { formOptions } from "../form-options";
 
 type Sp = { saved?: string; published?: string; blocked?: string; submitted?: string; team?: string };
@@ -33,6 +35,8 @@ export default async function EditBusiness({ params, searchParams }: { params: P
     where: { businessId: b.id, deletedAt: null }, orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
     select: { id: true, name: true, nameCkb: true, status: true },
   });
+  const offers = await prisma.offer.findMany({ where: { businessId: b.id }, orderBy: { endsAt: "desc" }, take: 50, select: { id: true, title: true, isActive: true, startsAt: true, endsAt: true } });
+  const now = new Date();
   const options = await formOptions(locale);
   const readiness = publishReadiness({ name: b.name, categoryId: b.categoryId, primary: loc });
   const notice = sp.published ? "published" : sp.submitted ? "submitted" : sp.blocked ? "blocked" : sp.saved ? "saved" : null;
@@ -74,12 +78,12 @@ export default async function EditBusiness({ params, searchParams }: { params: P
         key={b.updatedAt.toISOString()}
         initial={{
           id: b.id, name: b.name, nameCkb: b.nameCkb ?? undefined, categoryId: b.categoryId ?? undefined,
-          description: b.description ?? undefined, phone: b.phone ?? undefined, email: b.email ?? undefined, website: b.website ?? undefined,
+          description: b.description ?? undefined, phone: b.phone ?? undefined, whatsapp: b.whatsapp ?? undefined, email: b.email ?? undefined, website: b.website ?? undefined,
           addressLine1: loc?.addressLine1, postalCode: loc?.postalCode ?? undefined, countryCode: loc?.countryCode ?? "DE",
           city: loc?.city ? localize({ ...loc.city, name: loc.city.nameEn }, "name", locale).text : undefined,
           latitude: loc?.latitude, longitude: loc?.longitude, coordsSource: loc?.coordsSource, coordsVerified: Boolean(loc?.coordsVerifiedAt),
           hours: Object.fromEntries(hoursRows(loc?.openingHours).map((r) => [r.day, r.value])),
-          logoUrl: b.logoUrl, coverUrl: b.coverUrl, status: b.status, languages: b.languages,
+          logoUrl: b.logoUrl, coverUrl: b.coverUrl, photos: b.photos, status: b.status, languages: b.languages,
           translations: {
             ckb: b.descriptionCkb ?? undefined, kmr: b.descriptionKmr ?? undefined, de: b.descriptionDe ?? undefined, ar: b.descriptionAr ?? undefined, tr: b.descriptionTr ?? undefined,
             ...Object.fromEntries(b.translations.flatMap((x) => (x.description ? [[x.locale, x.description]] : []))),
@@ -88,6 +92,7 @@ export default async function EditBusiness({ params, searchParams }: { params: P
         {...options}
         canPublish={can(user.role, "business.publish")}
         storageReady={isStorageConfigured()}
+        maxPhotos={MAX_PHOTOS}
       />
 
       <section aria-labelledby="biz-services" className="mt-8 rounded-[var(--radius-card)] border border-line bg-surface p-5" data-testid="business-services">
@@ -102,6 +107,24 @@ export default async function EditBusiness({ params, searchParams }: { params: P
                 <bdi className="font-semibold">{s.nameCkb && locale === "ckb" ? s.nameCkb : s.name}</bdi>
                 <span className="flex items-center gap-3"><span className="text-muted">{t(`status.${s.status}`)}</span>
                   {can(user.role, "service.write") && <Link href={`/dr/services/${s.id}`} className="font-semibold text-brand hover:underline">{t("bizForm.edit")}</Link>}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <section aria-labelledby="biz-offers" className="mt-8 rounded-[var(--radius-card)] border border-line bg-surface p-5" data-testid="business-offers">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+          <h2 id="biz-offers" className="text-base font-bold">{t("offerForm.sectionOffers")}</h2>
+          <Link href={`/dr/offers/new?business=${b.id}`} className="inline-flex min-h-10 items-center rounded-xl border-2 border-brand px-4 text-sm font-bold text-brand hover:bg-brand hover:text-brand-ink" data-testid="new-offer">+ {t("offerForm.new")}</Link>
+        </div>
+        {offers.length === 0 ? <p className="text-sm text-muted">{t("offerForm.noneYet")}</p> : (
+          <ul className="divide-y divide-line">
+            {offers.map((o) => (
+              <li key={o.id} className="flex flex-wrap items-center justify-between gap-2 py-2 text-sm">
+                <bdi className="font-semibold">{o.title}</bdi>
+                <span className="flex items-center gap-3"><span className="text-muted">{t(`offerForm.state_${offerState(o, now)}`)}</span>
+                  <Link href={`/dr/offers/${o.id}`} className="font-semibold text-brand hover:underline">{t("bizForm.edit")}</Link></span>
               </li>
             ))}
           </ul>

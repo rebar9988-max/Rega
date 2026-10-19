@@ -20,6 +20,33 @@ async function login(page: Page, email: string, password: string, next = "%2Fdr"
   await expect(page).not.toHaveURL(/\/login/);
 }
 
+/**
+ * The owner's three-step form. Step 1 (basics) and step 2 (location) are filled here; the caller continues on step 3.
+ * Next stores the progress as a draft on the server.
+ */
+async function fillOwnerSteps(page: Page, name: string, opts: { german?: boolean } = {}) {
+  await page.goto("/dr/businesses/new");
+  await expect(page.getByTestId("wizard-step-1")).toHaveAttribute("aria-current", "step");
+  await page.getByLabel("Name", { exact: true }).fill(name);
+  await page.getByLabel("Kategorie").selectOption({ label: "Recht" });
+  if (opts.german) {
+    await page.getByText("Sprachen", { exact: false }).first().scrollIntoViewIfNeeded();
+    await page.getByLabel("Deutsch", { exact: true }).check();
+  }
+  await page.getByTestId("wizard-next").click();
+  await expect(page.getByTestId("wizard-step-2")).toHaveAttribute("aria-current", "step");
+  await expect(page.getByTestId("draft-saved")).toBeVisible();
+  await page.getByLabel("Straße und Hausnummer").fill("Oranienstraße 1");
+  await page.getByLabel("Land").selectOption("DE");
+  await page.getByLabel("Stadt", { exact: true }).fill("Berlin");
+  await page.getByLabel("Postleitzahl").fill("10999");
+  await page.getByTestId("find-location").click();
+  await expect(page.getByTestId("geocode-hits")).toBeVisible();
+  await page.getByTestId("confirm-location").check();
+  await page.getByTestId("wizard-next").click();
+  await expect(page.getByTestId("wizard-step-3")).toHaveAttribute("aria-current", "step");
+}
+
 test.describe.configure({ mode: "serial" });
 
 test("for-business page: free statement, steps, verified explanation, register CTA; no pricing", async ({ page }) => {
@@ -73,20 +100,10 @@ test("owner registers, creates a listing, submits it; an admin approves; it is p
   await login(page, OWNER.email, OWNER.password);
   await expect(page).toHaveURL(/\/dr\/businesses$/); // owners land on their listings, not on platform totals
   const name = `E2E Inserat ${stamp}`;
-  await page.goto("/dr/businesses/new");
   // Owners cannot publish: only "submit for review" exists.
+  await fillOwnerSteps(page, name, { german: true });
   await expect(page.getByRole("button", { name: "Speichern und veröffentlichen" })).toHaveCount(0);
-  await page.getByLabel("Name", { exact: true }).fill(name);
-  await page.getByLabel("Kategorie").selectOption({ label: "Recht" });
-  await page.getByLabel("Straße und Hausnummer").fill("Oranienstraße 1");
-  await page.getByLabel("Land").selectOption("DE");
-  await page.getByLabel("Stadt", { exact: true }).fill("Berlin");
-  await page.getByLabel("Postleitzahl").fill("10999");
-  await page.getByText("Sprachen", { exact: false }).first().scrollIntoViewIfNeeded();
-  await page.getByLabel("Deutsch", { exact: true }).check();
-  await page.getByTestId("find-location").click();
-  await expect(page.getByTestId("geocode-hits")).toBeVisible();
-  await page.getByTestId("confirm-location").check();
+  await expect(page.getByTestId("wizard-review")).toContainText(name);
   // Unconfirmed address: submitting for review is refused.
   await page.getByTestId("submit-review").click();
   await expect(page.getByTestId("form-error")).toContainText("E-Mail-Adresse");
@@ -133,16 +150,7 @@ test("owner registers, creates a listing, submits it; an admin approves; it is p
 test("an admin can return a pending listing for changes", async ({ page, browser }) => {
   await login(page, OWNER.email, OWNER.password);
   const name = `E2E Rückgabe ${stamp}`;
-  await page.goto("/dr/businesses/new");
-  await page.getByLabel("Name", { exact: true }).fill(name);
-  await page.getByLabel("Kategorie").selectOption({ label: "Recht" });
-  await page.getByLabel("Straße und Hausnummer").fill("Oranienstraße 1");
-  await page.getByLabel("Land").selectOption("DE");
-  await page.getByLabel("Stadt", { exact: true }).fill("Berlin");
-  await page.getByLabel("Postleitzahl").fill("10999");
-  await page.getByTestId("find-location").click();
-  await expect(page.getByTestId("geocode-hits")).toBeVisible();
-  await page.getByTestId("confirm-location").check();
+  await fillOwnerSteps(page, name);
   await page.getByTestId("submit-review").click();
   await expect(page.getByTestId("business-status")).toHaveText("Ausstehend");
 
@@ -157,6 +165,48 @@ test("an admin can return a pending listing for changes", async ({ page, browser
   await admin.goto(`/dr/businesses?q=${encodeURIComponent(name)}`);
   await expect(admin.locator("tr", { hasText: name }).getByTestId("row-status")).toHaveText("Entwurf");
   await adminCtx.close();
+});
+
+test("owner wizard: Next needs a confirmed map pin, Back keeps what was typed, the draft is saved once, WhatsApp is checked", async ({ page }) => {
+  await login(page, OWNER.email, OWNER.password);
+  const name = `E2E Schritte ${stamp}`;
+  await page.goto("/dr/businesses/new");
+  // Step 1 needs a name and a category.
+  await page.getByTestId("wizard-next").click();
+  await expect(page.getByTestId("step-error")).toBeVisible();
+  await expect(page.getByTestId("wizard-step-1")).toHaveAttribute("aria-current", "step");
+  await page.getByLabel("Name", { exact: true }).fill(name);
+  await page.getByLabel("Kategorie").selectOption({ label: "Recht" });
+  await page.getByTestId("wizard-next").click();
+  await expect(page.getByTestId("wizard-step-2")).toHaveAttribute("aria-current", "step");
+  await expect(page.getByTestId("draft-saved")).toBeVisible();
+  // Step 2: address typed, but no confirmed pin -> stays on step 2.
+  await page.getByLabel("Straße und Hausnummer").fill("Oranienstraße 1");
+  await page.getByLabel("Stadt", { exact: true }).fill("Berlin");
+  await page.getByTestId("wizard-next").click();
+  await expect(page.getByTestId("step-error")).toBeVisible();
+  await expect(page.getByTestId("wizard-step-2")).toHaveAttribute("aria-current", "step");
+  // Back and forth loses nothing.
+  await page.getByTestId("wizard-back").click();
+  await expect(page.getByLabel("Name", { exact: true })).toHaveValue(name);
+  await page.getByTestId("wizard-next").click();
+  await expect(page.getByLabel("Straße und Hausnummer")).toHaveValue("Oranienstraße 1");
+  await page.getByTestId("find-location").click();
+  await expect(page.getByTestId("geocode-hits")).toBeVisible();
+  await page.getByTestId("confirm-location").check();
+  await page.getByTestId("wizard-next").click();
+  // Step 3: a WhatsApp number must be a real international number.
+  await page.getByTestId("whatsapp").fill("https://evil.example/x");
+  await expect(page.getByTestId("whatsapp-hint")).toContainText("gültige Nummer");
+  await page.getByTestId("save-draft").click();
+  await expect(page.getByTestId("form-error")).toBeVisible(); // the server refuses it too
+  await page.getByTestId("whatsapp").fill("0178 4228269");
+  await expect(page.getByTestId("whatsapp-hint")).toContainText("+491784228269");
+  await page.getByTestId("save-draft").click();
+  await expect(page.getByTestId("draft-saved")).toBeVisible();
+  // Saving the draft again (and the earlier Next) never created a second listing.
+  await page.goto(`/dr/businesses?q=${encodeURIComponent(name)}`);
+  await expect(page.locator("tr", { hasText: name })).toHaveCount(1);
 });
 
 test("an owner sees only their own listings", async ({ page }) => {

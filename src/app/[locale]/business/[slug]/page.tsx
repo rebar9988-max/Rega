@@ -11,6 +11,9 @@ import { getBusiness, getCategories } from "@/lib/data";
 import { languageNames } from "@/components/cards/BusinessRow";
 import { FigmaIcon } from "@/components/home/FigmaIcon";
 import { safeHttpUrl, safeTel } from "@/lib/urls";
+import { whatsappLink } from "@/lib/whatsapp";
+import { offerTimezone } from "@/lib/offers";
+import { OfferList } from "@/components/business/OfferList";
 import { priceLabel } from "@/components/cards/ServiceCard";
 import { Avatar } from "@/components/ui/Avatar";
 import { Chip, VerifiedBadge } from "@/components/ui/Badge";
@@ -56,6 +59,9 @@ export default async function BusinessPage({ params }: Props) {
   const about = localize(b, "description", l);
   const website = safeHttpUrl(b.website);
   const tel = safeTel(b.phone);
+  // Only the business's public WhatsApp number (never an account phone), and only when it is a valid stored number.
+  const whatsapp = whatsappLink(b.whatsapp);
+  const offers = b.offers.map((o) => ({ ...o, discountValue: o.discountValue == null ? null : Number(o.discountValue), startsAt: o.startsAt.toISOString(), endsAt: o.endsAt.toISOString() }));
   const category = b.categoryId ? (await getCategories()).find((c) => c.id === b.categoryId) : undefined;
   const categoryName = category ? localize({ ...category, name: category.nameDe }, "name", l) : null;
   const primaryCity = b.locations[0]?.city ? localize({ ...b.locations[0].city, name: b.locations[0].city.nameEn }, "name", l) : null;
@@ -116,6 +122,7 @@ export default async function BusinessPage({ params }: Props) {
               {about.text && <p className="mt-4 line-clamp-3 max-w-2xl text-sm leading-7 text-muted"><Text value={about} pageLang={pageLang} /></p>}
               <div className="mt-5 flex flex-wrap gap-2">
                 {tel && <a href={`tel:${tel}`} aria-label={`${t("businesses.call")} – ${name.text}`} className={buttonClass("primary")}>{t("businesses.call")}</a>}
+                {whatsapp && <a href={whatsapp} target="_blank" rel="noopener noreferrer" aria-label={`${t("businesses.whatsapp")} – ${name.text}`} className={buttonClass("secondary")} data-testid="whatsapp-button">{t("businesses.whatsapp")}</a>}
               </div>
             </div>
           </div>
@@ -127,6 +134,22 @@ export default async function BusinessPage({ params }: Props) {
               <section aria-labelledby="about">
                 <h2 id="about" className="mb-3 text-xl font-bold">{t("businesses.about")}</h2>
                 <p className="whitespace-pre-line text-pretty leading-relaxed"><Text value={about} pageLang={pageLang} /></p>
+              </section>
+            )}
+
+            <OfferList offers={offers} serverNow={new Date().toISOString()} timeZone={offerTimezone(b.locations[0]?.countryCode)} />
+
+            {b.photos.length > 0 && (
+              <section aria-labelledby="photos">
+                <h2 id="photos" className="mb-3 text-xl font-bold">{t("businesses.photos")}</h2>
+                <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  {b.photos.map((src) => (
+                    <li key={src}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={src} alt="" loading="lazy" decoding="async" className="aspect-[4/3] w-full rounded-xl border border-line bg-surface-2 object-cover" />
+                    </li>
+                  ))}
+                </ul>
               </section>
             )}
 
@@ -200,6 +223,7 @@ export default async function BusinessPage({ params }: Props) {
           <aside aria-label={t("businesses.contact")} className="rega-shell h-fit space-y-3 p-5 lg:sticky lg:top-24">
             <h2 className="text-lg font-bold">{t("businesses.contact")}</h2>
             {tel && <a href={`tel:${tel}`} className={buttonClass("primary", "w-full")}>{t("businesses.call")}</a>}
+            {whatsapp && <a href={whatsapp} target="_blank" rel="noopener noreferrer" className={buttonClass("secondary", "w-full")} data-testid="whatsapp-button-aside">{t("businesses.whatsapp")}</a>}
             {b.email && <a href={`mailto:${b.email}`} className={buttonClass("secondary", "w-full")}>{t("businesses.sendEmail")}</a>}
             {website && <a href={website} target="_blank" rel="noopener noreferrer nofollow" className={buttonClass("secondary", "w-full")}>{t("businesses.visitWebsite")}</a>}
             <dl className="space-y-1 pt-2 text-sm text-muted">

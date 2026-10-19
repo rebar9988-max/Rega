@@ -3,16 +3,23 @@
 /**
  * Admin create/edit form: business details, address and a confirmed map location. Everything is validated again
  * on the server (saveBusinessAction); this component only helps the admin fill it in correctly.
+ *
+ * Business owners (who submit for review rather than publish) fill it in three steps: 1 basics, 2 location and hours,
+ * 3 contact, images and a final review. All steps stay mounted in the same form, so Back/Next never loses anything;
+ * "Save draft" (and every Next, while the listing is still a draft) stores the progress on the server through the same
+ * action. Staff who publish keep the single-page form.
  */
 import dynamic from "next/dynamic";
-import { useActionState, useMemo, useState, useTransition } from "react";
+import { useActionState, useMemo, useRef, useState, useTransition, useEffect } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { LOCALES, LOCALE_META, localeSuffix, type Locale } from "@/config/locales";
 import { isValidCoordinate } from "@/lib/coordinates";
 import type { GeocodeHit } from "@/lib/geocoder-parse";
 import { geocodeAction, saveBusinessAction, type BusinessFormState } from "@/app/dr/businesses/actions";
 import { WEEK, type WeekDay } from "@/lib/opening-hours";
+import { normalizeWhatsapp } from "@/lib/whatsapp";
 import { MediaField } from "./MediaField";
+import { PhotosField } from "./PhotosField";
 
 const LocationPicker = dynamic(() => import("./LocationPicker").then((m) => m.LocationPicker), {
   ssr: false,
@@ -22,10 +29,10 @@ const LocationPicker = dynamic(() => import("./LocationPicker").then((m) => m.Lo
 export type FormCity = { id: string; name: string; names: string[]; countryCode: string; lat: number | null; lng: number | null };
 export type FormInitial = {
   id?: string; name?: string; nameCkb?: string; categoryId?: string; description?: string; descriptionCkb?: string;
-  phone?: string; email?: string; website?: string; addressLine1?: string; postalCode?: string; city?: string; countryCode?: string;
+  phone?: string; whatsapp?: string; email?: string; website?: string; addressLine1?: string; postalCode?: string; city?: string; countryCode?: string;
   latitude?: number | null; longitude?: number | null; coordsSource?: string | null; coordsVerified?: boolean;
   status?: string;
-  hours?: Partial<Record<WeekDay, string>>; logoUrl?: string | null; coverUrl?: string | null;
+  hours?: Partial<Record<WeekDay, string>>; logoUrl?: string | null; coverUrl?: string | null; photos?: string[];
   /** Description per language (key = locale code; field name is description<Suffix>). */
   translations?: Partial<Record<Locale, string>>;
   languages?: string[];
@@ -33,9 +40,9 @@ export type FormInitial = {
 
 const input = "min-h-11 w-full rounded-xl border border-line bg-surface px-3 text-sm outline-none focus:border-brand aria-[invalid=true]:border-brand";
 
-export function BusinessForm({ initial, categories, countries, cities, canPublish, storageReady }: {
+export function BusinessForm({ initial, categories, countries, cities, canPublish, storageReady, maxPhotos }: {
   initial: FormInitial; categories: { id: string; name: string }[]; countries: { code: string; name: string }[];
-  cities: FormCity[]; canPublish: boolean; storageReady: boolean;
+  cities: FormCity[]; canPublish: boolean; storageReady: boolean; maxPhotos: number;
 }) {
   const t = useTranslations("bizForm");
   const td = useTranslations("days");
@@ -43,6 +50,15 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
   const locale = useLocale() as Locale;
   const dir = LOCALE_META[locale].dir;
   const [state, formAction, saving] = useActionState<BusinessFormState, FormData>(saveBusinessAction, undefined);
+  const wizard = !canPublish;
+  const isDraft = !initial.status || initial.status === "draft";
+  const formRef = useRef<HTMLFormElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [stepErrors, setStepErrors] = useState<string[]>([]);
+  const [dirtyAt, setDirtyAt] = useState(0);
+  const [name, setName] = useState(initial.name ?? "");
+  const [wa, setWa] = useState(initial.whatsapp ?? "");
   const [categoryId, setCategoryId] = useState(initial.categoryId ?? "");
   const [country, setCountry] = useState(initial.countryCode ?? "DE");
   const [city, setCity] = useState(initial.city ?? "");
@@ -55,7 +71,26 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
   const [lookup, setLookup] = useState<{ status: "idle" | "hits" | "not_found" | "unavailable"; hits: GeocodeHit[] }>({ status: "idle", hits: [] });
   const [finding, startFinding] = useTransition();
   const [, startSubmit] = useTransition();
-  const bad = (f: string) => state?.fields?.includes(f) || undefined;
+  const bad = (f: string) => state?.fields?.includes(f) || stepErrors.includes(f) || undefined;
+  /** The business as far as it is saved: a draft saved from this form carries its id, so the next save updates it. */
+  // Remembered here because a later failed save replaces `state`, and the draft must stay the one being edited.
+  const [draftId, setDraftId] = useState<string | undefined>(undefined);
+  const [savedAt, setSavedAt] = useState(0);
+  if (state?.draft && (state.draft.id !== draftId || state.draft.at !== savedAt)) {
+    setDraftId(state.draft.id);
+    setSavedAt(state.draft.at);
+  }
+  const businessId = draftId ?? initial.id;
+  const show = (n: number) => !wizard || step === n;
+  const unsaved = wizard && dirtyAt > savedAt;
+
+  // Leaving the page with changes that were not saved: the browser asks first.
+  useEffect(() => {
+    if (!unsaved) return;
+    const warn = (e: BeforeUnloadEvent) => { e.preventDefault(); };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [unsaved]);
 
   const latNum = lat.trim() === "" ? NaN : Number(lat);
   const lngNum = lng.trim() === "" ? NaN : Number(lng);
@@ -65,6 +100,38 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
   const countryCities = cities.filter((c) => c.countryCode === country);
   const cityMatch = useMemo(() => countryCities.find((c) => c.names.some((n) => n.toLocaleLowerCase() === city.trim().toLocaleLowerCase())), [countryCities, city]);
   const cityCentre = cityMatch?.lat != null && cityMatch.lng != null ? { lat: cityMatch.lat, lng: cityMatch.lng } : null;
+
+  const waResult = wa.trim() ? normalizeWhatsapp(wa, country) : null;
+
+  /** What is missing on a step (convenience only: the server checks everything again). */
+  function missingOn(n: number): string[] {
+    if (n === 1) return [...(name.trim().length < 2 ? ["name"] : []), ...(categoryId ? [] : ["categoryId"])];
+    if (n === 2) return [
+      ...(address.trim().length < 3 ? ["addressLine1"] : []), ...(cityMatch ? [] : ["city"]), ...(country ? [] : ["countryCode"]),
+      ...(coordsOk && confirmed ? [] : ["latitude"]),
+    ];
+    return waResult && !waResult.ok ? ["whatsapp"] : [];
+  }
+
+  function goTo(n: 1 | 2 | 3) {
+    setStep(n);
+    setStepErrors([]);
+    formRef.current?.scrollIntoView?.({ block: "start" });
+    requestAnimationFrame(() => panelRef.current?.focus());
+  }
+
+  function next() {
+    const missing = missingOn(step);
+    setStepErrors(missing);
+    if (missing.length > 0) return;
+    // Progress is kept on the server while the listing is still a draft, so a lost connection or a closed tab costs nothing.
+    if (isDraft && formRef.current) {
+      const data = new FormData(formRef.current);
+      data.set("intent", "draft");
+      startSubmit(() => formAction(data));
+    }
+    goTo((step + 1) as 2 | 3);
+  }
 
   function place(v: { lat: number; lng: number }, how: "geocoded" | "manual") {
     setLat(String(v.lat));
@@ -85,7 +152,11 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
 
   return (
     <form
+      ref={formRef}
       className="space-y-8"
+      // The wizard checks each step itself (hidden steps would otherwise block the browser's own validation).
+      noValidate={wizard}
+      onChange={() => setDirtyAt(Date.now())}
       // Dispatch manually (not via the action prop) so a server-side validation error never resets what was typed.
       onSubmit={(e) => {
         e.preventDefault();
@@ -93,13 +164,30 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
         startSubmit(() => formAction(data));
       }}
     >
-      {initial.id && <input type="hidden" name="id" value={initial.id} />}
-      {state?.error && <p role="alert" className="rounded-xl bg-brand-soft px-4 py-3 text-sm font-semibold text-ink" data-testid="form-error">{t(state.error === "published_incomplete" ? "publishedIncomplete" : state.error === "unverified" ? "unverifiedEmail" : state.error === "city_unknown" ? "cityUnknown" : "invalid")}</p>}
+      {businessId && <input type="hidden" name="id" value={businessId} />}
+      {wizard && (
+        <nav aria-label={t("wizard.steps")}>
+          <ol className="flex flex-wrap gap-2 text-sm font-semibold" data-testid="wizard-steps">
+            {([1, 2, 3] as const).map((n) => (
+              <li key={n} aria-current={step === n ? "step" : undefined} data-testid={`wizard-step-${n}`}
+                className={`flex items-center gap-2 rounded-xl border px-3 py-2 ${step === n ? "border-brand bg-brand-soft text-ink" : "border-line text-muted"}`}>
+                <span aria-hidden="true" className={`grid size-6 place-items-center rounded-full text-xs font-bold ${step === n ? "bg-brand text-brand-ink" : "bg-surface-2"}`}>{n}</span>
+                {t(`wizard.step${n}`)}
+              </li>
+            ))}
+          </ol>
+        </nav>
+      )}
+      {state?.error && <p role="alert" className="rounded-xl bg-brand-soft px-4 py-3 text-sm font-semibold text-ink" data-testid="form-error">{t(state.error === "published_incomplete" ? "publishedIncomplete" : state.error === "unverified" ? "unverifiedEmail" : state.error === "city_unknown" ? "cityUnknown" : state.error === "media_invalid" ? "mediaInvalid" : "invalid")}</p>}
+      {stepErrors.length > 0 && <p role="alert" className="rounded-xl bg-brand-soft px-4 py-3 text-sm font-semibold text-ink" data-testid="step-error">{t(stepErrors.includes("latitude") && stepErrors.length === 1 ? "wizard.needPin" : "wizard.fixFields")}</p>}
+      {state?.draft && !state.error && <p role="status" className="rounded-xl bg-surface-2 px-4 py-3 text-sm font-semibold" data-testid="draft-saved">{t("wizard.draftSaved")}</p>}
 
+      <div ref={panelRef} tabIndex={-1} className="grid gap-8 outline-none">
+      <div hidden={!show(1)}>
       <fieldset className="grid gap-4 rounded-[var(--radius-card)] border border-line bg-surface p-5 sm:grid-cols-2">
         <legend className="px-1 text-base font-bold">{t("sectionBasics")}</legend>
         <label className="flex flex-col gap-1 text-sm font-semibold">{t("name")}
-          <input name="name" required minLength={2} maxLength={200} defaultValue={initial.name} className={input} aria-invalid={bad("name")} />
+          <input name="name" required minLength={2} maxLength={200} value={name} onChange={(e) => setName(e.target.value)} className={input} aria-invalid={bad("name")} />
         </label>
         <label className="flex flex-col gap-1 text-sm font-semibold">{t("nameCkb")}
           <input name="nameCkb" maxLength={200} defaultValue={initial.nameCkb} dir="rtl" className={input} />
@@ -144,12 +232,24 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
           </div>
         </fieldset>
       </fieldset>
+      </div>
 
-      <fieldset className="grid gap-4 rounded-[var(--radius-card)] border border-line bg-surface p-5 sm:grid-cols-3">
+      <div hidden={!show(3)}>
+      <fieldset className="grid gap-4 rounded-[var(--radius-card)] border border-line bg-surface p-5 sm:grid-cols-2">
         <legend className="px-1 text-base font-bold">{t("sectionContact")}</legend>
+        <p className="text-xs text-muted sm:col-span-2">{t("publicContactHint")}</p>
         <label className="flex flex-col gap-1 text-sm font-semibold">{t("phone")}
           <input name="phone" type="tel" dir="ltr" maxLength={50} defaultValue={initial.phone} className={input} />
         </label>
+        <div className="flex flex-col gap-1">
+          <label className="flex flex-col gap-1 text-sm font-semibold">{t("whatsapp")}
+            <input name="whatsapp" type="tel" dir="ltr" maxLength={50} placeholder="+49 178 1234567" value={wa} onChange={(e) => setWa(e.target.value)} className={input}
+              aria-invalid={bad("whatsapp") || (waResult && !waResult.ok ? true : undefined)} aria-describedby="whatsapp-hint" data-testid="whatsapp" />
+          </label>
+          <span id="whatsapp-hint" className={`text-xs ${waResult && !waResult.ok ? "font-semibold text-brand" : "text-muted"}`} data-testid="whatsapp-hint">
+            {waResult && !waResult.ok ? t("whatsappInvalid") : waResult?.ok ? t("whatsappSaved", { number: waResult.value }) : t("whatsappHint")}
+          </span>
+        </div>
         <label className="flex flex-col gap-1 text-sm font-semibold">{t("email")}
           <input name="email" type="email" dir="ltr" maxLength={200} defaultValue={initial.email} className={input} aria-invalid={bad("email")} />
         </label>
@@ -158,6 +258,9 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
         </label>
       </fieldset>
 
+      </div>
+
+      <div hidden={!show(2)} className="grid gap-8">
       <fieldset className="space-y-4 rounded-[var(--radius-card)] border border-line bg-surface p-5">
         <legend className="px-1 text-base font-bold">{t("sectionLocation")}</legend>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -208,7 +311,8 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
         </div>
 
         <p className="text-sm text-muted">{t("pickerHint")}</p>
-        <LocationPicker value={value} fallbackCenter={cityCentre} onPick={(v) => place(v, "manual")} label={t("location")} unavailable={tm("unavailable")} dir={dir} />
+        {/* Mounted only while its step is on screen: a map created in a hidden box would have no size. */}
+        {show(2) && <LocationPicker value={value} fallbackCenter={cityCentre} onPick={(v) => place(v, "manual")} label={t("location")} unavailable={tm("unavailable")} dir={dir} />}
 
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="flex flex-col gap-1 text-sm font-semibold">{t("latitude")}
@@ -239,17 +343,42 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
         </div>
       </fieldset>
 
+      </div>
+
+      <div hidden={!show(3)} className="grid gap-8">
       <fieldset className="grid gap-4 rounded-[var(--radius-card)] border border-line bg-surface p-5 sm:grid-cols-2">
         <legend className="px-1 text-base font-bold">{t("sectionMedia")}</legend>
-        <MediaField name="logoUrl" label={t("logo")} initial={initial.logoUrl ?? ""} businessId={initial.id} storageReady={storageReady} invalid={bad("logoUrl")} />
-        <MediaField name="coverUrl" label={t("cover")} initial={initial.coverUrl ?? ""} businessId={initial.id} storageReady={storageReady} invalid={bad("coverUrl")} wide />
+        <MediaField name="logoUrl" label={t("logo")} initial={initial.logoUrl ?? ""} businessId={businessId} storageReady={storageReady} invalid={bad("logoUrl")} />
+        <MediaField name="coverUrl" label={t("cover")} initial={initial.coverUrl ?? ""} businessId={businessId} storageReady={storageReady} invalid={bad("coverUrl")} wide />
+        <PhotosField label={t("photos")} initial={initial.photos ?? []} max={maxPhotos} businessId={businessId} storageReady={storageReady} />
       </fieldset>
 
+      {wizard && (
+        <section aria-labelledby="review-title" className="rounded-[var(--radius-card)] border border-line bg-surface p-5" data-testid="wizard-review">
+          <h2 id="review-title" className="mb-3 text-base font-bold">{t("wizard.review")}</h2>
+          <dl className="grid gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
+            <div><dt className="text-muted">{t("name")}</dt><dd className="font-semibold"><bdi>{name}</bdi></dd></div>
+            <div><dt className="text-muted">{t("category")}</dt><dd className="font-semibold"><bdi>{categories.find((c) => c.id === categoryId)?.name ?? "—"}</bdi></dd></div>
+            <div><dt className="text-muted">{t("address")}</dt><dd className="font-semibold"><bdi>{[address, postal, city, countries.find((c) => c.code === country)?.name].filter(Boolean).join(", ") || "—"}</bdi></dd></div>
+            <div><dt className="text-muted">{t("location")}</dt><dd className="font-semibold">{coordsOk && confirmed ? t("wizard.pinConfirmed") : t("wizard.pinMissing")}</dd></div>
+          </dl>
+          <p className="mt-3 text-xs text-muted">{t("wizard.reviewHint")}</p>
+        </section>
+      )}
+      </div>
+      </div>
+
       <div className="flex flex-wrap gap-3">
-        <button type="submit" name="intent" value="save" disabled={saving} className="min-h-11 rounded-xl border border-line bg-surface px-6 text-sm font-bold hover:border-brand hover:text-brand disabled:opacity-60">{t("save")}</button>
+        {wizard && step > 1 && (
+          <button type="button" onClick={() => goTo((step - 1) as 1 | 2)} disabled={saving} data-testid="wizard-back" className="min-h-11 rounded-xl border border-line bg-surface px-6 text-sm font-bold hover:border-brand hover:text-brand disabled:opacity-60">{t("wizard.back")}</button>
+        )}
+        {wizard && step < 3 && (
+          <button type="button" onClick={next} disabled={saving} data-testid="wizard-next" className="min-h-11 rounded-xl bg-brand px-6 text-sm font-bold text-brand-ink hover:bg-brand-hover disabled:opacity-60">{t("wizard.next")}</button>
+        )}
+        <button type="submit" name="intent" value={wizard && isDraft ? "draft" : "save"} disabled={saving || (wizard && isDraft && name.trim().length < 2)} data-testid={wizard && isDraft ? "save-draft" : "save"} className="min-h-11 rounded-xl border border-line bg-surface px-6 text-sm font-bold hover:border-brand hover:text-brand disabled:opacity-60">{wizard && isDraft ? t("wizard.saveDraft") : t("save")}</button>
         {canPublish ? (
           <button type="submit" name="intent" value="publish" disabled={saving} className="min-h-11 rounded-xl bg-brand px-6 text-sm font-bold text-brand-ink hover:bg-brand-hover disabled:opacity-60">{t("savePublish")}</button>
-        ) : (
+        ) : (!wizard || step === 3) && (
           <button type="submit" name="intent" value="submit" disabled={saving || initial.status === "pending" || initial.status === "published"} data-testid="submit-review" className="min-h-11 rounded-xl bg-brand px-6 text-sm font-bold text-brand-ink hover:bg-brand-hover disabled:opacity-60">{t("submitReview")}</button>
         )}
       </div>
