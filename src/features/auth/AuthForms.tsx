@@ -36,8 +36,13 @@ export function RegisterForm({ next }: { next?: string }) {
   const [state, action, pending] = useActionState<AuthFormState, FormData>(register, IDLE);
   const loginHref = next ? `/login?next=${encodeURIComponent(next)}` : "/login";
   if (state.status === "ok") {
-    return <Notice title={t("registerDoneTitle")} body={state.detail === "unavailable" ? t("registerDoneUnavailable") : t("registerDoneBody")}>
-      {state.detail === "unavailable" && <Link href={loginHref} className={link}>{t("signIn")}</Link>}
+    // Registration must not disclose whether an email is already registered.
+    // A verified existing account receives no new email, so never claim that one was sent.
+    return <Notice
+      title={state.detail === "unavailable" ? t("registerTitle") : t("registerDoneTitleGeneric")}
+      body={state.detail === "unavailable" ? t("registerDoneUnavailable") : t("registerDoneGeneric")}
+    >
+      <Link href={loginHref} className={link}>{t("signIn")}</Link>
     </Notice>;
   }
   const bad = (n: string) => state.fields?.includes(n) || undefined;
