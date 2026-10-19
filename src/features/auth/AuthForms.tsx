@@ -37,7 +37,7 @@ export function RegisterForm({ next }: { next?: string }) {
   const loginHref = next ? `/login?next=${encodeURIComponent(next)}` : "/login";
   if (state.status === "ok") {
     return <Notice title={t("registerDoneTitle")} body={state.detail === "unavailable" ? t("registerDoneUnavailable") : t("registerDoneBody")}>
-      {state.detail === "unavailable" && <Link href={loginHref} className={link}>{t("signIn")}</Link>}
+      <p className="text-sm text-muted">{t("haveAccount")} <Link href={loginHref} className={link}>{t("signIn")}</Link></p>
     </Notice>;
   }
   const bad = (n: string) => state.fields?.includes(n) || undefined;
