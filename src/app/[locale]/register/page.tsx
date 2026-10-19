@@ -26,7 +26,7 @@ export default async function RegisterPage({ params, searchParams }: { params: P
   const t = await getTranslations("auth");
   return (
     <>
-      <PageHeader title={t("registerTitle")} subtitle={t("registerLead")} />
+      <PageHeader title={t("registerHeading")} subtitle={t("registerLead")} />
       <div className="container-page"><RegisterForm next={safeNext(next)} /></div>
     </>
   );
