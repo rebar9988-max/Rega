@@ -172,3 +172,30 @@ engine`, which ran for this merge and FAILED at its smoke-test step (health chec
 from here, 403). The step precedes enabling the integration, so the main site is unaffected; cause not diagnosed. Next safe
 continuation point: owner supplies provider credentials -> sync secrets -> test Google first, then Facebook, then Apple; re-run
 `Deploy Python AI engine` manually and read why its smoke test fails.
+
+## 2026-10-20 — Strict-scope features: production migration and release (PR #24, merge `aae1558`)
+Task: apply the PR #24 migration to production and release registration steps, offers and the WhatsApp button.
+Sequence and root cause of the outage window: PR #24 merged at 08:12 (CEST). The manual `Database migrate (production)` run
+`39379100157` failed at its first step because the Actions secret `DIRECT_DATABASE_URL` was not yet set (nothing changed in the
+database); the CI run on `aae1558` was cancelled so it would not deploy. The owner's merge of PR #27 (`44d1360`) at 08:50 then ran
+CI and `Deploy to Cloudflare Workers` (run `39384189161`, success), which published the PR #24 code BEFORE the database was migrated
+(new code reads `Business.whatsapp`, `Business.photos`, table `Offer`). Detected ~09:06; it was not cancellable (already finished).
+Lesson: a migration that is part of a PR must be applied before any later merge to `main` deploys that code (the migrate workflow only
+runs from `main`, so the secret must exist first and the migration run right after the merge).
+Backup: Neon project `rega-platform` (`lucky-glitter-73195208`), fresh branch `backup-pre-offers-whatsapp-2026-10-20`
+(`br-soft-unit-b2vrn5o1`) created from production before the migration; older: manual snapshot 2026-10-02 and `backup-pre-*`
+branches; PITR window 6 h. Target check: production branch had 35 public tables, 9 applied migrations (last
+`20261002120000_content_sections_core`), 0 businesses, 2 users, 19 categories.
+Migration: `Database migrate (production)` run `39384519799` from `main`: secret present, `migrate deploy` applied 4 migrations
+(`20261006112000_remove_events_weddings_category`, `20261006112500_refine_sorani_category_names`,
+`20261006133000_update_sorani_category_labels`, `20261020090000_business_whatsapp_offers`). The two `DELETE FROM "Category"` statements
+targeted `events-weddings`, which did not exist in production (no-op). The job then hit its 10-minute limit during the idempotent seed
+step (cancelled; cause not diagnosed) so the connectivity-check step did not run.
+Verified in the database (read-only SQL via Neon): `Business.whatsapp text`, `Business.photos text[] DEFAULT '{}'`, table `Offer` with 14
+columns, `Offer_dates_check`, `Offer_discount_check`, FK cascade and 2 indexes; 13 migrations applied, 0 unfinished; users 2,
+categories 19, businesses 0, offers 0 (unchanged). Public pages after the migration: `/en/register` and `/en/businesses` serve 200
+(fresh fetch). Not verified live: the three features themselves (registration steps, offers, WhatsApp button): they are behind login
+and production has no published business (no test account, no fake data created); covered by the PR's E2E tests on CI only.
+Not verified: active Cloudflare version (Worker `rega-platform` is readable but the deployment/version is not).
+Next safe continuation point: the owner (or a test account the owner provides) registers a real business, submits it, an admin
+approves it, then check on the live profile: WhatsApp button (wa.me link), an active offer and an expired offer.
