@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import NextLink from "next/link";
 import { Link } from "@/i18n/routing";
 import { Logo } from "@/components/ui/Logo";
+import { SessionRenewal } from "@/features/auth/SessionRenewal";
 import { FigmaIcon } from "@/components/home/FigmaIcon";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { MobileNav } from "./MobileNav";
@@ -25,6 +26,7 @@ export async function Header() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-surface text-ink">
+      {signedIn && <SessionRenewal />}
       <div dir="ltr" className="mx-auto flex h-[72px] w-full max-w-[1440px] items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
         <Link href="/" aria-label="REGA Platform" className="shrink-0 rounded-xl">
           <Logo />
