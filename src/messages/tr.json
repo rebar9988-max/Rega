@@ -1105,5 +1105,18 @@
     "labelStarts": "Başlangıç",
     "labelEnds": "Bitiş",
     "labelReading": "Okuma süresi"
+  },
+  "locationPicker": {
+    "title": "Konum seçin",
+    "search": "Şehir ara",
+    "close": "Kapat",
+    "clear": "Aramayı temizle",
+    "region": "Bölge",
+    "allRegions": "Tüm bölgeler",
+    "moreHint": "Daha fazla şehir için yazın",
+    "noResults": "Eşleşen şehir yok",
+    "noNearbyCity": "Yakınınızda desteklenen bir şehir yok. Lütfen birini seçin.",
+    "loadFailed": "Şehirler yüklenemedi. Lütfen tekrar deneyin.",
+    "searching": "Aranıyor …"
   }
 }

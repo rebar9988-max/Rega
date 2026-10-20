@@ -72,7 +72,7 @@ export async function BusinessIndex({ pathname, searchParams, title, crumbs, fix
               <FigmaIcon name="map-pin" className="size-5 shrink-0 text-brand" />
               <div className="min-w-0 flex-1">
                 <CityFilter cities={cityList} value={query.city} allLabel={t("list.allCities")} cityLabel={t("locations.city")}
-                  fieldClass="min-h-11 w-full bg-transparent px-1 text-sm outline-none" />
+                  fieldClass="min-h-11 w-full bg-transparent px-1 text-sm outline-none" applySavedToUrl />
               </div>
             </div>
           )}
@@ -84,7 +84,7 @@ export async function BusinessIndex({ pathname, searchParams, title, crumbs, fix
           <aside aria-labelledby="dir-filters-title" className="rega-card p-4 lg:sticky lg:top-24">
             <div className="flex items-center justify-between gap-3">
               <h2 id="dir-filters-title" className="text-base font-bold">{t("list.filters")}</h2>
-              {active && <Link href={pathname} className="text-sm font-semibold text-brand hover:underline">{t("list.reset")}</Link>}
+              {active && <Link href={cityList ? `${pathname}?city=` : pathname} className="text-sm font-semibold text-brand hover:underline">{t("list.reset")}</Link>}
             </div>
             <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
               {categoryList && (

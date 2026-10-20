@@ -4,7 +4,7 @@ import { formatNumber, type Locale } from "@/i18n/locales";
 import { localizeText } from "@/lib/content";
 import { CityFilter } from "@/components/ui/CityFilter";
 
-type Option = { id: string; label: string };
+type Option = { id: string; label: string; name?: string };
 type Props = {
   action: string;
   values: { q?: string; category?: string; city?: string; sort?: string; verified?: string };
@@ -38,7 +38,7 @@ export async function FilterBar({ action, values, categories, cities, sorts, ver
           </div>
         )}
         {cities && (
-          <CityFilter cities={cities} value={values.city} allLabel={t("list.allCities")} cityLabel={t("locations.city")} fieldClass={`${field} w-full`} />
+          <CityFilter cities={cities} value={values.city} allLabel={t("list.allCities")} cityLabel={t("locations.city")} fieldClass={`${field} w-full`} applySavedToUrl />
         )}
         {sorts && (
           <div>
@@ -57,7 +57,7 @@ export async function FilterBar({ action, values, categories, cities, sorts, ver
             {t("list.verifiedOnly")}
           </label>
         )}
-        {active && <Link href={action} className="text-brand hover:underline">{t("list.reset")}</Link>}
+        {active && <Link href={cities ? `${action}?city=` : action} className="text-brand hover:underline">{t("list.reset")}</Link>}
       </div>
     </form>
   );
@@ -80,5 +80,8 @@ export async function categoryOptions<T extends { id: string; parentId: string |
 
 export async function cityOptions<T extends { id: string; nameEn: string; count?: number }>(rows: T[]): Promise<Option[]> {
   const locale = (await getLocale()) as Locale;
-  return rows.map((c) => ({ id: c.id, label: `${localizeText({ ...c, name: c.nameEn }, "name", locale)}${c.count === undefined ? "" : ` (${formatNumber(c.count, locale)})`}` }));
+  return rows.map((c) => {
+    const name = localizeText({ ...c, name: c.nameEn }, "name", locale);
+    return { id: c.id, name, label: `${name}${c.count === undefined ? "" : ` (${formatNumber(c.count, locale)})`}` };
+  });
 }

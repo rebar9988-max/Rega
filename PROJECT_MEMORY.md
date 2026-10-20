@@ -240,3 +240,19 @@ Task (owner): users must stay signed in after refresh, navigation, closing the t
   everyone out).
 - Next safe continuation point: owner signs in once on production and checks the cookie expiry (~90 days, `__Secure-authjs.session-token`) and that
   it moves later after a page load; then resume the Google sign-in diagnosis.
+
+## Location filter upgrade — 2026-10-20 (branch `claude/location-filter-upgrade-20261020`; status: PR pending, not yet deployed)
+Task (owner brief, strictly limited to the existing location filter): hierarchical, searchable selector (country, region, city), shared by home page,
+business list and map, saved without an account, mobile bottom sheet, Kurdish RTL, optional nearby detection; Dalil Iraq only as a functional reference.
+- Audit: city filter was a native `<select>` of <=80 ranked cities (`listSelectorCities`), single city (`businessInCity`), no memory, separate map choice;
+  data has Country/Region/City(+translations, coordinates) and no district model. Reused all of it; no schema change or migration.
+- Changes: `src/lib/location-pref.ts` (pure helpers), `src/lib/location-store.ts` (client store, localStorage `rega-location`),
+  `src/lib/data/geo.ts` + `src/app/api/v1/geo/route.ts` (bounded search API), `CityFilter.tsx` (rewritten panel, same export/form contract),
+  `FilterBar.tsx`, `BusinessIndex.tsx` (saved city applied, Reset -> `?city=`), home hero (compact selector), `NearbyDiscovery.tsx` (shares saved city),
+  `locationPicker` messages in 7 languages, privacy bullet for `rega-location` in 7 languages, ADR 0011.
+- Not implemented on purpose: districts (no data), multi-city (existing filter is single-city). Countries = Germany + countries with public listings.
+- Tests: `tests/location-pref.test.ts` 8/8 run locally; i18n/glossary/legal unit tests pass locally. Local lint/typecheck/build/e2e could NOT run
+  (npm registry blocked in this session: environment limitation); `tests/e2e/location-filter.spec.ts` (new) and `catalog.spec.ts` (updated) rely on CI `verify`.
+- Deploy / production verification: pending (see next entry once done).
+- Next safe continuation point: open PR, read `verify` result (check-run annotations), fix only related failures, merge after green CI, wait for
+  `Deploy to Cloudflare Workers`, verify https://www.regaplatform.com (`/api/v1/geo?country=DE`, `/ckb/businesses`, privacy page).

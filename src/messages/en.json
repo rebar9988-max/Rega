@@ -1105,5 +1105,18 @@
     "labelStarts": "Starts",
     "labelEnds": "Ends",
     "labelReading": "Reading time"
+  },
+  "locationPicker": {
+    "title": "Choose a location",
+    "search": "Search for a city",
+    "close": "Close",
+    "clear": "Clear search",
+    "region": "Region",
+    "allRegions": "All regions",
+    "moreHint": "Type to search more cities",
+    "noResults": "No matching city",
+    "noNearbyCity": "No supported city near you. Please choose one.",
+    "loadFailed": "Cities could not be loaded. Please try again.",
+    "searching": "Searching …"
   }
 }

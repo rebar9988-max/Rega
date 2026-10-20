@@ -16,6 +16,7 @@ import { LOCALE_META, formatNumber, type Locale } from "@/i18n/locales";
 import { localize } from "@/lib/content";
 import { RADII_KM, coarsen } from "@/lib/geo";
 import { forwardGeocode, reverseGeocode, type Place } from "@/lib/geocode";
+import { getSavedLocation, saveLocation } from "@/lib/location-store";
 import { Ltr, Text } from "@/components/ui/Bidi";
 import { Rating } from "@/components/ui/Rating";
 import { VerifiedBadge } from "@/components/ui/Badge";
@@ -101,8 +102,21 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
 
   function pickCity(id: string) {
     const c = cities.find((x) => x.id === id);
-    if (c?.latitude != null && c.longitude != null) setCenter({ lat: c.latitude, lng: c.longitude, label: { kind: "city", id } });
+    if (c?.latitude != null && c.longitude != null) {
+      setCenter({ lat: c.latitude, lng: c.longitude, label: { kind: "city", id } });
+      // The same place is then offered on the home page and the business lists (saved in this browser only).
+      saveLocation({ cityId: id, countryCode: c.country?.code ?? null });
+    }
   }
+
+  // The place the visitor chose elsewhere on the site starts the map there. Nothing is assumed when none was chosen.
+  useEffect(() => {
+    const pref = getSavedLocation();
+    const city = pref ? cities.find((c) => c.id === pref.cityId) : undefined;
+    const lat = city?.latitude;
+    const lng = city?.longitude;
+    if (city && lat != null && lng != null) setCenter((current) => current ?? { lat, lng, label: { kind: "city", id: city.id } });
+  }, [cities]);
 
   // Keep the filters in the address bar (never the location), so refresh, back/forward and shared links keep them.
   useEffect(() => {

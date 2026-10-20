@@ -1105,5 +1105,18 @@
     "labelStarts": "Dest pê dike",
     "labelEnds": "Dawî",
     "labelReading": "Dema xwendinê"
+  },
+  "locationPicker": {
+    "title": "Cihekî hilbijêre",
+    "search": "Li bajarekî bigere",
+    "close": "Bigire",
+    "clear": "Lêgerînê paqij bike",
+    "region": "Herêm",
+    "allRegions": "Hemû herêm",
+    "moreHint": "Binivîse da ku bajarên din bibînî",
+    "noResults": "Tu bajarê lihevhatî tune ye",
+    "noNearbyCity": "Nêzîkî te tu bajarekî piştgirîkirî tune ye. Ji kerema xwe yekî hilbijêre.",
+    "loadFailed": "Bajar nehatin barkirin. Ji kerema xwe dîsa biceribîne.",
+    "searching": "Tê lêgerîn …"
   }
 }
