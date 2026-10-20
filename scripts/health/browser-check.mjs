@@ -87,7 +87,10 @@ async function checkLocationFilter(browser, ctx, page, vp, opts) {
       out.push(`info ${tag}: ${await sticking("sheet open")}`);
       const box = await dialog.boundingBox();
       const view = page.viewportSize();
-      if (vp === "mobile") rec(Boolean(box && view && Math.round(box.y + box.height) === view.height && Math.round(box.width) === view.width), "phone bottom sheet fits the screen", box ? `${Math.round(box.width)}x${Math.round(box.height)}` : "");
+      // Measured against the layout viewport the browser actually uses: when another part of the page is wider than the
+      // screen (reported by the "sticking out" lines above) a fixed sheet is as wide as that layout viewport.
+      const layout = await page.evaluate(() => ({ w: window.innerWidth, h: window.innerHeight }));
+      if (vp === "mobile") rec(Boolean(box && Math.round(box.y + box.height) === layout.h && Math.round(box.width) === layout.w && box.x >= 0), "phone bottom sheet is flush with the bottom and spans the layout viewport", box ? `${Math.round(box.width)}x${Math.round(box.height)} in ${layout.w}x${layout.h}` : "");
       else rec(Boolean(box && view && box.x >= 0 && box.x + box.width <= view.width), "desktop panel stays inside the window");
       await dialog.locator("input").first().fill("ber");
       const berlin = dialog.getByRole("listbox").getByRole("option", { name: /^Berlin/ }).first();
