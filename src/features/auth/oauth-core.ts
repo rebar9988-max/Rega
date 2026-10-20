@@ -239,3 +239,44 @@ export function socialErrorKeyOrGeneric(code: string | undefined): SocialErrorKe
   if (!code || code === "1" || code === "rate") return null;
   return socialErrorKey(code) ?? "socialFailed";
 }
+
+/**
+ * Error codes that Auth.js puts in `?error=` when the return from a provider fails, plus REGA's own `social_failed`.
+ * Used only to record WHICH code a failed return carried (src/features/auth/oauth-diagnostics.ts): anything not in this
+ * list (a made-up value in the address bar, the e-mail form's own codes, `CredentialsSignin`) is never recorded.
+ */
+const DIAGNOSABLE_AUTH_ERRORS: ReadonlySet<string> = new Set([
+  "AccessDenied",
+  "AccountNotLinked",
+  "AdapterError",
+  "AuthorizedCallbackError",
+  "CallbackRouteError",
+  "Configuration",
+  "ErrorPageLoop",
+  "EventError",
+  "InvalidCallbackUrl",
+  "InvalidCheck",
+  "InvalidEndpoints",
+  "InvalidProvider",
+  "JWTSessionError",
+  "MissingAdapter",
+  "MissingAdapterMethods",
+  "MissingAuthorize",
+  "MissingSecret",
+  "OAuthAccountNotLinked",
+  "OAuthCallbackError",
+  "OAuthProfileParseError",
+  "OAuthSignInError",
+  "SessionTokenError",
+  "SignInError",
+  "UnknownAction",
+  "UnsupportedStrategy",
+  "UntrustedHost",
+  "Verification",
+  "social_failed",
+]);
+
+/** The code itself when it is a known Auth.js (or `social_failed`) error code, otherwise null. */
+export function diagnosableAuthError(code: string | null | undefined): string | null {
+  return typeof code === "string" && DIAGNOSABLE_AUTH_ERRORS.has(code) ? code : null;
+}

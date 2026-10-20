@@ -172,3 +172,20 @@ engine`, which ran for this merge and FAILED at its smoke-test step (health chec
 from here, 403). The step precedes enabling the integration, so the main site is unaffected; cause not diagnosed. Next safe
 continuation point: owner supplies provider credentials -> sync secrets -> test Google first, then Facebook, then Apple; re-run
 `Deploy Python AI engine` manually and read why its smoke test fails.
+
+## Google sign-in fails after consent — diagnosis in progress — 2026-10-20 (branch `claude/google-oauth-error-capture-20261020`)
+Report (owner, with screenshots): Google account chooser and consent work; after Continue the sign-in page shows the generic
+"sign-in did not work" message (the `socialFailed` text, so NOT one of REGA's own account-rule denials).
+Verified: Google button renders (both `AUTH_GOOGLE_ID` and `AUTH_GOOGLE_SECRET` are non-empty in the running Worker; correctness of the
+pair is unverified); production DB schema matches the Prisma schema for `User`/`Account`, all migrations applied, `Account` has 0 rows
+(no social sign-in has ever completed); edge cache and middleware bypass `/api` and the login page; the "Sync Worker runtime secrets"
+workflow has never run (secrets were set by hand in the Cloudflare dashboard, Worker modified 2026-10-20 ~09:20 and ~13:03 UTC);
+replacing the secret at ~13:03 UTC did not change the symptom.
+Not available in this session (environment limits, not code failures): Cloudflare runtime logs, GitHub Actions job logs (403),
+Neon log backend (empty), the `?error=` value (the in-app browser hides the address bar).
+Change (diagnostic only, NOT the fix): the login page records the Auth.js `?error=` code of a failed return as one `AuditLog` row
+(`action auth.oauth.failed`, `entity auth`, `entityId` = code; no PII, no IP, max 5 per client per 15 min, fixed allow-list in
+`oauth-core.ts`). No schema change, no UI change, e-mail login untouched. Remove once the cause is fixed.
+Next safe continuation point: after the deploy, one failed Google attempt -> read the row (`SELECT entityId, createdAt FROM "AuditLog"
+WHERE action='auth.oauth.failed'`) -> fix only the layer it names (OAuthCallbackError = token exchange/secret pair; InvalidCheck =
+state/PKCE cookie; CallbackRouteError/social_failed = exception inside the callbacks).

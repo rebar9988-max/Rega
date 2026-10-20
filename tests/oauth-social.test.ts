@@ -12,6 +12,7 @@ import {
   serializeSocialContext,
   socialErrorKey,
   socialErrorKeyOrGeneric,
+  diagnosableAuthError,
   displayName,
   normalizeEmail,
   type NewOAuthUser,
@@ -240,4 +241,16 @@ test("the start action validates provider, language, redirect and role before le
 test("provider tokens are never stored", () => {
   const source = read("src/features/auth/oauth.ts");
   for (const field of ["access_token", "refresh_token", "id_token"]) assert.ok(!source.includes(field), field);
+});
+
+test("diagnosableAuthError: only known Auth.js codes (and social_failed) are recorded", () => {
+  for (const code of ["OAuthCallbackError", "InvalidCheck", "Configuration", "CallbackRouteError", "AccessDenied", "social_failed"]) {
+    assert.equal(diagnosableAuthError(code), code);
+  }
+  // The e-mail form's own codes, REGA's rule denials, made-up values and non-strings are never recorded.
+  for (const code of ["1", "rate", "CredentialsSignin", "social_no_account", "social_exists_unverified", "<script>", "", "oauthcallbackerror"]) {
+    assert.equal(diagnosableAuthError(code), null);
+  }
+  assert.equal(diagnosableAuthError(undefined), null);
+  assert.equal(diagnosableAuthError(null), null);
 });
