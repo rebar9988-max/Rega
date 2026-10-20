@@ -122,7 +122,10 @@ export async function geoCities(opts: { countryCode: string; regionId?: string; 
     // Names that start with the text first; a city found only through a stored translation keeps its place after them.
     const preferred = rankByQuery(rows, q, (c) => [...cityNames(c), c.slug], SEARCH_CANDIDATES);
     const seen = new Set(preferred.map((c) => c.id));
-    const ranked = [...preferred, ...rows.filter((c) => !seen.has(c.id))];
+    // Among the name matches, cities with public listings come first (stable: equal counts stay alphabetical).
+    const counts = await countsFor(rows.map((c) => c.id));
+    const byListings = [...preferred].sort((a, b) => (counts.get(b.id) ?? 0) - (counts.get(a.id) ?? 0));
+    const ranked = [...byListings, ...rows.filter((c) => !seen.has(c.id))];
     return { cities: await toCities(ranked.slice(0, limit)), hasMore: ranked.length > limit || rows.length >= SEARCH_CANDIDATES };
   }
 
