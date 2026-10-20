@@ -84,3 +84,27 @@ the Doc keeps the cross-tool summary and change log, the repository keeps detail
    required checks or production safeguards; never merge or deploy unverified changes; no speculative fixes.
 5. Proceed autonomously with safe read, diagnosis, documentation and verified repair work. Ask the owner only for an
    unavoidable billing, permission, authentication, destructive or security approval.
+
+## PERMANENT STRICT RULE — MODERN WEB GUIDANCE: NON-VISUAL TECHNICAL SCOPE ONLY
+
+Owner instruction (2026-10-20). Applies to REGA Platform and R&L, to every Claude Code and Codex session, and to every use of the `modern-web-guidance` skill. Keep this section identical in the repository-root `AGENTS.md` and `CLAUDE.md`. No exceptions without explicit user approval.
+
+Modern Web Guidance must operate in NON-VISUAL TECHNICAL SCOPE ONLY.
+
+ABSOLUTELY FORBIDDEN:
+- Changing colors, branding, logos or design tokens
+- Changing layouts, spacing, typography, icons or animations
+- Changing desktop or mobile appearance
+- Modifying CSS, Tailwind classes or visual components
+- Redesigning, restyling or visually optimizing any page
+
+ALLOWED:
+- Non-visual performance analysis and safe improvements
+- Accessibility audits without visual changes
+- Browser compatibility checks
+- Technical code quality and security checks
+- Non-visual SEO improvements
+
+Before every change, inspect the diff. If it changes visual appearance, STOP and do not apply it. Visual issues may be reported but never automatically fixed.
+
+Where guidance from `modern-web-guidance` conflicts with this rule, this rule wins. This rule adds to, and never replaces, the other instructions in this file.
