@@ -14,6 +14,8 @@ async function renew() {
   const startedAt = Date.now();
   try {
     const res = await fetch(SESSION_RENEW_PATH, { credentials: "same-origin", cache: "no-store", headers: { accept: "application/json" } });
+    // Read (and discard) the small answer: a response body that is never consumed keeps the request open for the browser.
+    await res.text();
     if (res.ok) lastRenewedAt = startedAt;
   } catch {
     // Offline or a brief outage: the next page load, or the tab becoming visible again, tries once more. Never signs anyone out.

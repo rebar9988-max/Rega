@@ -73,6 +73,7 @@ test("session renewal: rendered for signed-in visitors only, never stores anythi
   const renewal = read("src/features/auth/SessionRenewal.tsx");
   assert.match(renewal, /credentials:\s*"same-origin"/);
   assert.match(renewal, /cache:\s*"no-store"/);
+  assert.match(renewal, /await res\.text\(\)/, "the answer must be consumed, or the request never finishes for the browser");
 });
 
 test("legal texts: every language states the 90-day, renewed session (no stale 14-day wording)", () => {

@@ -11,7 +11,6 @@ const launchOptions = { ...(executablePath ? { executablePath } : {}), args: ["-
 
 export default defineConfig({
   testDir: "tests/e2e",
-  testMatch: /zz-debug\.spec\.ts/, // TEMPORARY (diagnostic run)
   globalSetup: "./tests/e2e/global-setup.ts",
   fullyParallel: false, // tests share one database; dashboard tests mutate rows
   workers: 1,
