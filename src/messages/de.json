@@ -1105,5 +1105,18 @@
     "labelStarts": "Beginn",
     "labelEnds": "Ende",
     "labelReading": "Lesezeit"
+  },
+  "locationPicker": {
+    "title": "Ort wählen",
+    "search": "Stadt suchen",
+    "close": "Schließen",
+    "clear": "Suche löschen",
+    "region": "Region",
+    "allRegions": "Alle Regionen",
+    "moreHint": "Tippen, um weitere Städte zu suchen",
+    "noResults": "Keine passende Stadt",
+    "noNearbyCity": "In Ihrer Nähe gibt es keine unterstützte Stadt. Bitte wählen Sie eine.",
+    "loadFailed": "Städte konnten nicht geladen werden. Bitte versuchen Sie es erneut.",
+    "searching": "Suche läuft …"
   }
 }

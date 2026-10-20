@@ -12,6 +12,7 @@ import { PlacesMap, type PlacePoint } from "@/components/map/PlacesMap";
 import { isValidCoordinate } from "@/lib/coordinates";
 import { DEFAULT_PUBLIC_COUNTRY_CODE, getCategories, getHomeData, listSelectorCities } from "@/lib/data";
 import { MAJOR_CITY_SLUGS } from "@/lib/selector-cities";
+import { CityFilter } from "@/components/ui/CityFilter";
 import { log } from "@/lib/logger";
 import { pageMetadata } from "@/lib/seo";
 import { NoEdgeCache } from "@/components/ui/NoEdgeCache";
@@ -136,15 +137,19 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                   <input name="q" type="search" autoComplete="off" maxLength={120} placeholder={t("searchWhat")}
                     className="min-w-0 flex-1 bg-transparent text-[15px] text-ink outline-none placeholder:text-muted" />
                 </label>
-                <label className="flex min-h-14 min-w-0 items-center gap-2 border-t border-line px-4 focus-within:ring-2 focus-within:ring-inset focus-within:ring-[var(--ring)] sm:border-s sm:border-t-0">
+                <div className="flex min-h-14 min-w-0 items-center gap-2 border-t border-line px-4 focus-within:ring-2 focus-within:ring-inset focus-within:ring-[var(--ring)] sm:border-s sm:border-t-0">
                   <FigmaIcon name="map-pin" className="size-4 shrink-0 text-brand" />
-                  <span className="sr-only">{t("where")}</span>
-                  <select name="city" defaultValue="" className="min-w-0 flex-1 cursor-pointer appearance-none bg-transparent text-sm text-ink outline-none">
-                    <option value="">{t("anyCity")}</option>
-                    {cities.map((c) => <option key={c.id} value={c.id}>{cityName(c).text}</option>)}
-                  </select>
+                  <div className="min-w-0 flex-1">
+                    <CityFilter
+                      cities={cities.map((c) => { const name = cityName(c).text; return { id: c.id, label: name, name }; })}
+                      allLabel={t("anyCity")}
+                      cityLabel={t("where")}
+                      fieldClass="min-h-11 w-full text-sm text-ink outline-none"
+                      chevron={false}
+                    />
+                  </div>
                   <FigmaIcon name="chevron-down" className="pointer-events-none size-4 shrink-0 text-muted" />
-                </label>
+                </div>
                 <button type="submit" className="m-0 min-h-14 bg-brand px-8 text-[15px] font-bold text-white transition hover:bg-brand-hover sm:m-1.5 sm:min-h-0 sm:rounded-[0.7rem]">
                   {tn("search")}
                 </button>

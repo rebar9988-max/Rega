@@ -71,7 +71,8 @@ test("home search form: what + where (city) navigate to filtered businesses", as
   await page.goto("/de");
   const form = page.locator("main form[role=search]");
   await form.getByRole("searchbox").fill("rechtsberatung");
-  await form.getByRole("combobox", { name: "Wo? Stadt" }).selectOption({ label: "Berlin" });
+  await form.getByRole("button", { name: /^Wo\? Stadt/ }).click();
+  await page.getByRole("dialog").getByRole("listbox").getByRole("option", { name: /^Berlin/ }).click();
   await form.getByRole("button", { name: "Suche" }).click();
   await expect(page).toHaveURL((url) => url.pathname === "/de/businesses" && url.searchParams.get("q") === "rechtsberatung" && Boolean(url.searchParams.get("city")));
   await expect(page.getByRole("link", { name: "Kurdistan Rechtsberatung" }).first()).toBeVisible();
