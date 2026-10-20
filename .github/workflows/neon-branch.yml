@@ -90,7 +90,32 @@ jobs:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
     runs-on: ubuntu-latest
     steps:
+      - name: Check whether the Neon preview branch exists
+        id: find_branch
+        env:
+          NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+          BRANCH_NAME: preview/pr-${{ github.event.number }}-${{ needs.setup.outputs.branch }}
+        run: |
+          set -euo pipefail
+          # A PR whose preview branch was never created (or was already removed) has nothing to
+          # delete. Skip in that case; any real API failure still fails this step.
+          status=$(curl -sS -o branches.json -w '%{http_code}' \
+            -H "Authorization: Bearer ${NEON_API_KEY}" \
+            "https://console.neon.tech/api/v2/projects/lucky-glitter-73195208/branches")
+          if [ "$status" != "200" ]; then
+            echo "Neon branch lookup failed with HTTP ${status}" >&2
+            exit 1
+          fi
+          count=$(jq --arg name "$BRANCH_NAME" '[.branches[] | select(.name == $name)] | length' branches.json)
+          if [ "$count" -gt 0 ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Neon branch '${BRANCH_NAME}' does not exist; nothing to delete."
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Delete Neon Branch
+        if: steps.find_branch.outputs.exists == 'true'
         uses: neondatabase/delete-branch-action@v3
         with:
           project_id: lucky-glitter-73195208
