@@ -68,12 +68,29 @@ async function checkLocationFilter(browser, ctx, page, vp, opts) {
     // Selector on the business list
     await page.goto(`${BASE}/de/businesses`, { waitUntil: "domcontentloaded" });
     await page.waitForLoadState("networkidle", { timeout: 15_000 }).catch(() => {});
+    // Diagnosis: which elements stick out of the viewport on the list page (reported, never changed here).
+    const sticking = (label) => page.evaluate(({ label, width }) => {
+      const out = [];
+      for (const el of document.querySelectorAll("body *")) {
+        const r = el.getBoundingClientRect();
+        if (r.width === 0 || r.height === 0) continue;
+        if (getComputedStyle(el).position === "fixed") continue;
+        if (r.right > width + 1 || r.left < -1) out.push(`${el.tagName.toLowerCase()}${el.id ? "#" + el.id : ""}.${String(el.className).split(/\s+/).slice(0, 3).join(".")} L${Math.round(r.left)} R${Math.round(r.right)}`);
+      }
+      const d = document.documentElement;
+      return `${label}: scrollWidth ${d.scrollWidth}, clientWidth ${d.clientWidth}, innerWidth ${innerWidth}, viewport ${Math.round(visualViewport?.width ?? 0)}; sticking out: ${out.length ? out.slice(0, 8).join(" | ") : "none"}`;
+    }, { label, width: page.viewportSize().width });
+    out.push(`info ${tag}: ${await sticking("before opening")}`);
     const dialog = await openPicker(page);
     rec(Boolean(dialog), "selector opens");
     if (dialog) {
+      out.push(`info ${tag}: ${await sticking("sheet open")}`);
       const box = await dialog.boundingBox();
       const view = page.viewportSize();
-      if (vp === "mobile") rec(Boolean(box && view && Math.round(box.y + box.height) === view.height && Math.round(box.width) === view.width), "phone bottom sheet fits the screen", box ? `${Math.round(box.width)}x${Math.round(box.height)}` : "");
+      // Measured against the layout viewport the browser actually uses: when another part of the page is wider than the
+      // screen (reported by the "sticking out" lines above) a fixed sheet is as wide as that layout viewport.
+      const layout = await page.evaluate(() => ({ w: window.innerWidth, h: window.innerHeight }));
+      if (vp === "mobile") rec(Boolean(box && Math.round(box.y + box.height) === layout.h && Math.round(box.width) === layout.w && box.x >= 0), "phone bottom sheet is flush with the bottom and spans the layout viewport", box ? `${Math.round(box.width)}x${Math.round(box.height)} in ${layout.w}x${layout.h}` : "");
       else rec(Boolean(box && view && box.x >= 0 && box.x + box.width <= view.width), "desktop panel stays inside the window");
       await dialog.locator("input").first().fill("ber");
       const berlin = dialog.getByRole("listbox").getByRole("option", { name: /^Berlin/ }).first();

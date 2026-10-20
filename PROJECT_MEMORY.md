@@ -241,18 +241,35 @@ Task (owner): users must stay signed in after refresh, navigation, closing the t
 - Next safe continuation point: owner signs in once on production and checks the cookie expiry (~90 days, `__Secure-authjs.session-token`) and that
   it moves later after a page load; then resume the Google sign-in diagnosis.
 
-## Location filter upgrade — 2026-10-20 (branch `claude/location-filter-upgrade-20261020`; status: PR pending, not yet deployed)
+## Location filter upgrade — 2026-10-20 (PR #34 squash `74476e5`; verification script PR #36 `c18918c` and follow-up; status: DEPLOYED and VERIFIED live)
 Task (owner brief, strictly limited to the existing location filter): hierarchical, searchable selector (country, region, city), shared by home page,
 business list and map, saved without an account, mobile bottom sheet, Kurdish RTL, optional nearby detection; Dalil Iraq only as a functional reference.
 - Audit: city filter was a native `<select>` of <=80 ranked cities (`listSelectorCities`), single city (`businessInCity`), no memory, separate map choice;
   data has Country/Region/City(+translations, coordinates) and no district model. Reused all of it; no schema change or migration.
 - Changes: `src/lib/location-pref.ts` (pure helpers), `src/lib/location-store.ts` (client store, localStorage `rega-location`),
-  `src/lib/data/geo.ts` + `src/app/api/v1/geo/route.ts` (bounded search API), `CityFilter.tsx` (rewritten panel, same export/form contract),
-  `FilterBar.tsx`, `BusinessIndex.tsx` (saved city applied, Reset -> `?city=`), home hero (compact selector), `NearbyDiscovery.tsx` (shares saved city),
-  `locationPicker` messages in 7 languages, privacy bullet for `rega-location` in 7 languages, ADR 0011.
+  `src/lib/data/geo.ts` + `src/app/api/v1/geo/route.ts` (bounded search API; name matches ranked by public listings), `CityFilter.tsx` (rewritten panel,
+  same export/form contract), `FilterBar.tsx`, `BusinessIndex.tsx` (saved city applied, Reset -> `?city=`), home hero (compact selector),
+  `NearbyDiscovery.tsx` (shares saved city), `locationPicker` messages in 7 languages, privacy bullet for `rega-location` in 7 languages, ADR 0011.
 - Not implemented on purpose: districts (no data), multi-city (existing filter is single-city). Countries = Germany + countries with public listings.
-- Tests: `tests/location-pref.test.ts` 8/8 run locally; i18n/glossary/legal unit tests pass locally. Local lint/typecheck/build/e2e could NOT run
-  (npm registry blocked in this session: environment limitation); `tests/e2e/location-filter.spec.ts` (new) and `catalog.spec.ts` (updated) rely on CI `verify`.
-- Deploy / production verification: pending (see next entry once done).
-- Next safe continuation point: open PR, read `verify` result (check-run annotations), fix only related failures, merge after green CI, wait for
-  `Deploy to Cloudflare Workers`, verify https://www.regaplatform.com (`/api/v1/geo?country=DE`, `/ckb/businesses`, privacy page).
+- CI on PR #34: first run failed 8 new tests (the region `<select>` inside the panel also exposes role=option so the Berlin locator matched twice; "ber"
+  listed Berching before Berlin; a page-width assertion). Fixed in `11d4696` / `bf50a5f` (locators scoped to the listbox, ranking by public listings,
+  assertion compares width before/after opening). Final `verify` on `bf50a5f`: success, 281 e2e tests passed. `Workers Builds` fails on PR branches (known).
+  `Create Neon Branch` returned HTTP 422 once on PR #36 (infrastructure, not part of `verify`).
+- Deploy: CI on main success, `Deploy to Cloudflare Workers` success for `74476e5` and again for `c18918c` (script-only change).
+- LIVE VERIFICATION (real Chromium against https://www.regaplatform.com, Production browser check run 39494203619, `workflow_dispatch` on the verification
+  branch, conclusion success, 42 location checks ok / 0 FAIL, desktop 1366 and Pixel 5): `/api/v1/geo?country=DE` 200, Germany listed, 15 cities / 16
+  regions, all German; invalid country -> 422; nearest city to central Berlin = Berlin 0 km with no-store; selector opens; search "ber" finds Berlin;
+  choice shown in the field and in the hidden form value; saved place holds only cityId/countryCode/regionId/savedAt/v; home page shows the saved city;
+  `/de/businesses` applies `?city=`; `?city=` clears the saved place; "use my location" (granted position near Berlin) selects Berlin; Kurdish `/ckb/businesses`
+  selector opens, stays inside the window, no horizontal scroll; privacy page names `rega-location`; the existing checks of that workflow (all public pages,
+  dir, directory city options, Germany-only cities, `/dr` requires sign-in) also passed.
+- Finding, reported not changed (outside scope, visual): on `/de/businesses` at Pixel 5 (393 px) the page is 4 px wider than the screen (scrollWidth 397) before
+  the selector is opened; the elements are the header link (`a.inline-flex.min-h-9`, right edge 397) and the bottom navigation (`ul.grid.h-16`), not the location
+  panel. The phone sheet is flush with the bottom and spans the layout viewport (397x618 in 397x735).
+- Not verified: the live business list with real businesses (production currently has none published: counts show 0 and the list says no business published yet);
+  live sign-in; the active Cloudflare version/allocation (no Cloudflare connector); Safari/iPhone hardware; shell and fetch tools cannot reach the site
+  (robots/proxy), so evidence comes from the repository's own read-only browser workflow. Local lint/typecheck/build could not run (npm registry blocked);
+  CI covered them.
+- Next safe continuation point: owner decides about the 4 px header/bottom-navigation overflow on phones; add a real published business to production to
+  exercise the city-filtered list with data.
+
