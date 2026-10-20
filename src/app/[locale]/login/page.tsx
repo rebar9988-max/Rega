@@ -8,6 +8,7 @@ import { headers } from "next/headers";
 import { auth, signIn } from "@/auth";
 import { allowShared } from "@/lib/rate-limit";
 import { clientIp } from "@/lib/client-ip";
+import { LogoMark } from "@/components/ui/Logo";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Link } from "@/i18n/routing";
 import { SubmitButton } from "@/features/auth/AuthForms";
@@ -52,6 +53,7 @@ export default async function LoginPage({ params, searchParams }: { params: Prom
     <>
       <PageHeader title={t("auth.loginTitle")} />
       <div className="container-page">
+        <div className="mx-auto mb-4 flex max-w-md justify-center"><LogoMark className="size-14" /></div>
         <form action={login} className="mx-auto max-w-md space-y-4 rounded-[var(--radius-card)] border border-line bg-surface p-6 shadow-card">
           {banner && !error && <p role="status" className="rounded-xl bg-brand-soft px-4 py-3 text-sm font-semibold">{t(`auth.${banner}`)}</p>}
           {error && <p role="alert" className="rounded-xl bg-brand-soft px-4 py-3 text-sm font-semibold">{error === "rate" ? t("auth.tooMany") : t("auth.invalid")}</p>}
