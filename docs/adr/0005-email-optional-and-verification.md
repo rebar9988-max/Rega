@@ -18,4 +18,7 @@ and expires (`src/config/site.ts`).
 
 ## Consequences
 Configure a provider before production traffic (without one, new members can never submit); the owner details check (`LEGAL_*`, `EMAIL_*`) reports what is missing.
-Resetting a password does not revoke existing JWT sessions (they expire on their own).
+Resetting or changing a password ends every session opened with the old password at the next re-check (within
+`AUTH_SESSION_REVALIDATE_MS`, default 5 minutes): the encrypted session token carries a one-way marker of the password hash
+(`src/features/auth/session-policy.ts`, `src/auth.config.ts`). Sessions issued before the marker existed carry none and are kept.
+Session policy: 90 days, renewed while the account is used (docs/adr/0010-persistent-sessions.md).

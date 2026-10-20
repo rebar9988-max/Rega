@@ -21,6 +21,7 @@ import { maskEmail } from "@/lib/client-ip";
 import { completeSocialSignIn } from "@/features/auth/oauth";
 import { oauthCredentials } from "@/features/auth/oauth-core";
 import { recordAuthErrorCause } from "@/features/auth/oauth-diagnostics";
+import { SESSION_MAX_AGE_SECONDS, passwordChanged, passwordMarker } from "@/features/auth/session-policy";
 import type { Role } from "@/lib/rbac";
 
 /** How often a signed-in session re-checks role/status against the database. */
@@ -79,7 +80,8 @@ function appleCookies(): NextAuthConfig["cookies"] | undefined {
 export function buildAuthConfig(): NextAuthConfig {
   return {
     trustHost: true,
-    session: { strategy: "jwt", maxAge: 60 * 60 * 24 * 14 },
+    // 90 days, renewed while the account is used (SessionRenewal asks the session endpoint, which re-issues the cookie). Policy: session-policy.ts.
+    session: { strategy: "jwt", maxAge: SESSION_MAX_AGE_SECONDS },
     // Failed provider returns (cancelled consent, provider error) land on the sign-in page with a message, not on an Auth.js error page.
     pages: { signIn: "/login", error: "/login" },
     cookies: appleCookies(),
@@ -136,6 +138,7 @@ export function buildAuthConfig(): NextAuthConfig {
             image: user.avatarUrl ?? undefined,
             role: user.role as Role,
             locale: user.locale,
+            pv: await passwordMarker(user.passwordHash),
           };
         },
       }),
@@ -172,14 +175,19 @@ export function buildAuthConfig(): NextAuthConfig {
           token.role = user.role ?? "USER";
           token.locale = user.locale ?? "ckb";
           token.checkedAt = Date.now();
+          if (user.pv) token.pv = user.pv; // password marker of this sign-in (social sign-ins get theirs at the first re-check)
           return token;
         }
-        // JWTs live 14 days: re-read role and status regularly so a demoted, suspended or deleted account loses
-        // its privileges within minutes instead of keeping them until the token expires.
+        // JWTs live 90 days (renewed while used): re-read role, status and password marker regularly so a demoted, suspended
+        // or deleted account, or one whose password was changed or reset, loses its sessions within minutes
+        // instead of keeping them until the token expires.
         if (token.uid && Date.now() - Number(token.checkedAt ?? 0) > REVALIDATE_MS) {
           try {
-            const current = await prisma.user.findFirst({ where: { id: String(token.uid), deletedAt: null }, select: { role: true, status: true } });
+            const current = await prisma.user.findFirst({ where: { id: String(token.uid), deletedAt: null }, select: { role: true, status: true, passwordHash: true } });
             if (!current || current.status !== "active") return null; // ends the session
+            const marker = await passwordMarker(current.passwordHash);
+            if (passwordChanged(token.pv, marker)) return null; // password changed or reset: sign in again with the new one
+            token.pv = marker;
             token.role = current.role;
             token.checkedAt = Date.now();
           } catch (error) {

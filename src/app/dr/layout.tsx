@@ -14,6 +14,7 @@ import { Logo } from "@/components/ui/Logo";
 import { ThemeScript } from "@/components/shell/ThemeScript";
 import { DR_NAV, contentNav } from "@/components/dr/nav";
 import { PRIVATE_BETA } from "@/lib/private-beta";
+import { SessionRenewal } from "@/features/auth/SessionRenewal";
 
 export const metadata: Metadata = { metadataBase: new URL(`https://${process.env.CANONICAL_HOST || "www.regaplatform.com"}`), icons: SITE_ASSETS.icons, title: { default: "REGA Platform", template: "%s · REGA Platform" }, robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
@@ -29,6 +30,7 @@ export default async function DrLayout({ children }: { children: React.ReactNode
     <html lang={meta.htmlLang} dir={meta.dir} suppressHydrationWarning>
       <head><ThemeScript /></head>
       <body className="min-h-dvh">
+        <SessionRenewal />
         <NextIntlClientProvider messages={messages}>
           {!canEnterDashboard(user.role) ? (
             <main className="container-page py-24 text-center">
