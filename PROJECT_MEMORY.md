@@ -103,3 +103,16 @@ busy/disabled state on the login button. No routes, schema, secrets or other pag
 
 Environment limits in this session: no npm registry access (egress 403), so lint/typecheck/tests/build ran only in GitHub CI.
 No Cloudflare connector, and no authorized test inbox, so a live registration/OTP test was not run.
+
+## Auth screen logo — 2026-10-20
+Task: same register/login brief (logo on the auth screen). Change: the existing official `LogoMark` (artwork unchanged) is
+centred above the auth card on `/[locale]/login` and `/[locale]/register`. Files: `src/app/[locale]/login/page.tsx`,
+`src/app/[locale]/register/page.tsx`. PR #25, head `3c23c95`, merge `c53d444`.
+Tests: local typecheck, lint, `npm test` 203 pass / 0 fail (3 skipped), OpenNext build and `wrangler deploy --dry-run` pass;
+hosted `verify` success. `Workers Builds: rega-platform` failed on this PR and already on #23 (visibility-only dry-run path;
+log is dashboard-only, cause not read). Deploy: CI on `main` then `deploy.yml`; the logo was served on
+https://www.regaplatform.com/ckb/login about 14 minutes after the merge. Live Chromium checks at 390px and 1366px on
+ckb/register, ckb/login, en/login and ar/register: logo present, no page errors, no horizontal overflow. Active version and
+allocation not readable (no Cloudflare connector). Unchanged blockers: OAuth providers need owner-registered apps and
+secrets (ADR 0006); no six-digit OTP exists; live registration needs an authorized test inbox; the provided reference
+screenshot was not the Dalil Iraq auth screen.
