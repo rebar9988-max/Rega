@@ -20,6 +20,7 @@ import { allowShared } from "@/lib/rate-limit";
 import { maskEmail } from "@/lib/client-ip";
 import { completeSocialSignIn } from "@/features/auth/oauth";
 import { oauthCredentials } from "@/features/auth/oauth-core";
+import { recordAuthErrorCause } from "@/features/auth/oauth-diagnostics";
 import type { Role } from "@/lib/rbac";
 
 /** How often a signed-in session re-checks role/status against the database. */
@@ -82,6 +83,17 @@ export function buildAuthConfig(): NextAuthConfig {
     // Failed provider returns (cancelled consent, provider error) land on the sign-in page with a message, not on an Auth.js error page.
     pages: { signIn: "/login", error: "/login" },
     cookies: appleCookies(),
+    logger: {
+      // Same server log lines as Auth.js's own logger, plus a safe summary (error type and error CODES, never messages) kept in
+      // the audit trail so a failed Google return can be diagnosed (src/features/auth/oauth-diagnostics.ts). Wrong e-mail passwords are not kept.
+      error(error) {
+        const detail = error as unknown as { type?: unknown; cause?: { err?: unknown } };
+        console.error(`[auth][error] ${typeof detail.type === "string" ? detail.type : error.name}: ${error.message}`);
+        const inner = detail.cause?.err;
+        if (inner instanceof Error && inner.stack) console.error("[auth][cause]:", inner.stack);
+        void recordAuthErrorCause(error);
+      },
+    },
     providers: [
       Credentials({
         name: "credentials",

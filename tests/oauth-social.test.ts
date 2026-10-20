@@ -13,6 +13,7 @@ import {
   socialErrorKey,
   socialErrorKeyOrGeneric,
   diagnosableAuthError,
+  describeAuthError,
   displayName,
   normalizeEmail,
   type NewOAuthUser,
@@ -253,4 +254,33 @@ test("diagnosableAuthError: only known Auth.js codes (and social_failed) are rec
   }
   assert.equal(diagnosableAuthError(undefined), null);
   assert.equal(diagnosableAuthError(null), null);
+});
+
+test("describeAuthError: keeps only types and codes, never messages, and skips wrong e-mail passwords", () => {
+  // A token-exchange failure as Auth.js wraps it: CallbackRouteError { err: ResponseBodyError { error, status, code }, provider }.
+  const tokenFailure = Object.assign(new Error("secret message with someone@example.org and a token abc.def.ghi"), {
+    type: "CallbackRouteError",
+    cause: {
+      provider: "google",
+      err: Object.assign(new Error("invalid_client: Unauthorized for client 123-abc.apps.googleusercontent.com"), {
+        name: "ResponseBodyError", error: "invalid_client", status: 401, code: "OAUTH_RESPONSE_BODY_ERROR",
+      }),
+    },
+  });
+  assert.deepEqual(describeAuthError(tokenFailure), {
+    type: "CallbackRouteError", inner: "ResponseBodyError", code: "OAUTH_RESPONSE_BODY_ERROR", providerError: "invalid_client", status: 401, provider: "google",
+  });
+  assert.ok(!JSON.stringify(describeAuthError(tokenFailure)).includes("someone@example.org"));
+
+  assert.deepEqual(describeAuthError(Object.assign(new Error("x"), { type: "InvalidCheck" })), { type: "InvalidCheck" });
+  // A database error underneath: its Prisma code is kept, its text is not.
+  const db = Object.assign(new Error("x"), { type: "CallbackRouteError", cause: { err: Object.assign(new Error("Unique constraint failed on the fields: (`email`)"), { name: "PrismaClientKnownRequestError", code: "P2002" }) } });
+  assert.deepEqual(describeAuthError(db), { type: "CallbackRouteError", inner: "PrismaClientKnownRequestError", code: "P2002" });
+  // Free text in a field that should hold a code is dropped.
+  const odd = Object.assign(new Error("x"), { type: "CallbackRouteError", cause: { err: { name: "TypeError", error: "Hello World!", code: "has spaces", status: 99999 }, provider: "Not A Provider" } });
+  assert.deepEqual(describeAuthError(odd), { type: "CallbackRouteError", inner: "TypeError" });
+
+  assert.equal(describeAuthError(Object.assign(new Error("x"), { type: "CredentialsSignin" })), null);
+  assert.equal(describeAuthError("a string"), null);
+  assert.equal(describeAuthError(null), null);
 });

@@ -280,3 +280,46 @@ const DIAGNOSABLE_AUTH_ERRORS: ReadonlySet<string> = new Set([
 export function diagnosableAuthError(code: string | null | undefined): string | null {
   return typeof code === "string" && DIAGNOSABLE_AUTH_ERRORS.has(code) ? code : null;
 }
+
+// ---------------------------------------------------------------------------------------------------------------------
+// What may be kept of an Auth.js error for diagnosis (src/features/auth/oauth-diagnostics.ts)
+// ---------------------------------------------------------------------------------------------------------------------
+
+/** Identifier-shaped values only: library constants and class names, never free text. */
+const NAME = /^[A-Za-z][A-Za-z0-9_]{0,59}$/;
+/** OAuth error codes such as `invalid_client`. */
+const OAUTH_CODE = /^[a-z][a-z0-9_]{0,39}$/;
+/** Library error codes such as `OAUTH_RESPONSE_BODY_ERROR`, or a Prisma code such as `P2002`. */
+const LIB_CODE = /^(?:[A-Z][A-Z0-9_]{0,59}|P\d{4})$/;
+
+export type AuthErrorInfo = { type: string; inner?: string; code?: string; providerError?: string; status?: number; provider?: string };
+
+const pick = (value: unknown, pattern: RegExp): string | undefined => (typeof value === "string" && pattern.test(value) ? value : undefined);
+
+/**
+ * The safe summary of an error that Auth.js logged: its type, the name and code of the error underneath it (for a
+ * `CallbackRouteError` the real failure), the provider's own OAuth error code and HTTP status when it sent one, and the
+ * provider id. Messages are NEVER kept (they can carry addresses, URLs or tokens). Null for a wrong e-mail password
+ * (`CredentialsSignin`) and for anything that is not an object.
+ */
+export function describeAuthError(error: unknown): AuthErrorInfo | null {
+  if (typeof error !== "object" || error === null) return null;
+  const e = error as { type?: unknown; name?: unknown; cause?: unknown };
+  const type = pick(e.type, NAME) ?? pick(e.name, NAME);
+  if (!type || type === "CredentialsSignin") return null;
+  const cause = typeof e.cause === "object" && e.cause !== null ? (e.cause as Record<string, unknown>) : undefined;
+  const inner = cause && typeof cause.err === "object" && cause.err !== null ? (cause.err as Record<string, unknown>) : undefined;
+  const status = typeof inner?.status === "number" && Number.isInteger(inner.status) && inner.status >= 100 && inner.status <= 599 ? inner.status : undefined;
+  const innerName = pick(inner?.name, NAME);
+  const code = pick(inner?.code, LIB_CODE);
+  const providerError = pick(inner?.error, OAUTH_CODE);
+  const provider = pick(cause?.provider, OAUTH_CODE);
+  return {
+    type,
+    ...(innerName ? { inner: innerName } : {}),
+    ...(code ? { code } : {}),
+    ...(providerError ? { providerError } : {}),
+    ...(status ? { status } : {}),
+    ...(provider ? { provider } : {}),
+  };
+}
