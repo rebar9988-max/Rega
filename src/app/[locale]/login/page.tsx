@@ -15,6 +15,7 @@ import { SubmitButton } from "@/features/auth/AuthForms";
 import { AuthDivider } from "@/features/auth/AuthDivider";
 import { SocialButtons } from "@/features/auth/SocialButtons";
 import { enabledOAuthProviders, socialErrorKeyOrGeneric } from "@/features/auth/oauth-core";
+import { recordSocialSignInFailure } from "@/features/auth/oauth-diagnostics";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -32,6 +33,7 @@ export default async function LoginPage({ params, searchParams }: { params: Prom
   const { locale } = await params;
   setRequestLocale(locale);
   const { error, next, registered, reset, verified } = await searchParams;
+  await recordSocialSignInFailure(error, locale);
   const banner = registered ? "bannerRegistered" : reset ? "bannerReset" : verified ? "bannerVerified" : null;
   const t = await getTranslations();
   const session = await auth().catch(() => null);
