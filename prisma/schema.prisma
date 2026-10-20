@@ -270,6 +270,8 @@ model Business {
   descriptionTr  String?
   email          String?
   phone          String?
+  /// Public business WhatsApp number in international format ("+491784228269"). Never the owner's account phone.
+  whatsapp       String?
   website        String?
   logoUrl        String?
   coverUrl       String?
@@ -282,6 +284,8 @@ model Business {
   tags           String[]  @default([])
   /// Languages spoken at the business (locale codes from config/locales.ts).
   languages      String[]  @default([])
+  /// Public photos of the business (REGA media URLs, in display order). Logo and cover have their own columns.
+  photos         String[]  @default([])
   searchText     String    @default("")
   publishedAt    DateTime?
   archivedAt     DateTime?
@@ -300,6 +304,7 @@ model Business {
   reviews      Review[]
   translations BusinessTranslation[]
   listings     Listing[]
+  offers       Offer[]
 
   @@index([status, deletedAt, createdAt])
   @@index([status, featured])
@@ -393,6 +398,34 @@ model Service {
   @@index([categoryId, status])
   @@index([status, featured])
   @@index([searchText(ops: raw("gin_trgm_ops"))], type: Gin, map: "Service_searchText_trgm_idx")
+}
+
+/// A genuine, time-limited offer of one business. There is deliberately no "original price" column: REGA never stores
+/// or shows a computed "was/now" price, only the discount the owner really gives (none | percent | amount).
+/// Whether an offer is running is never stored: it is computed from `isActive`, `startsAt` and `endsAt` on every read
+/// (src/lib/offers.ts), so an expired or not-yet-started offer can never look active. Money/percent rules are also
+/// enforced by CHECK constraints in the migration.
+model Offer {
+  id            String    @id @default(cuid())
+  businessId    String
+  title         String
+  description   String?
+  imageUrl      String?
+  /// none = no numeric discount | percent = 1-90 % off | amount = a fixed amount off, in `currency`.
+  discountType  String    @default("none")
+  discountValue Decimal?  @db.Decimal(12, 2)
+  currency      String?
+  startsAt      DateTime
+  endsAt        DateTime
+  /// Owner switch: false = deactivated.
+  isActive      Boolean   @default(true)
+  createdById   String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([businessId, isActive, startsAt, endsAt])
 }
 
 model BusinessMember {

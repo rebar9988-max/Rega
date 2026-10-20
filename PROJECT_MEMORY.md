@@ -81,6 +81,36 @@ Target architecture:
 Branch: `chatgpt/ci-gated-single-deploy-20261015`.
 No application code, routes, database schema, secrets, or branding are changed by this repair.
 
+
+## Strict-scope features — 2026-10-20 (branch `claude/three-features-registration-offers-whatsapp`)
+Owner-authorised scope, exactly three features: (1) three-step business registration (improving the existing form),
+(2) genuine business offers and discounts, (3) WhatsApp contact button on business profiles.
+
+- Root cause / audit: the owner flow was one long single-page form; offers and a public WhatsApp number did not exist.
+  Empty public listings were investigated read-only: production has zero businesses, so empty results are correct
+  (no code defect; nothing was seeded, approved or published).
+- Registration: owners (who submit for review) get a 3-step wizard in the same `BusinessForm` (1 basics, 2 location + hours,
+  3 contact/WhatsApp/logo/cover/photos + review). Same action, same validation, same approval workflow; staff who publish
+  keep the single-page form. New `draft` intent saves progress without changing status; a repeated create within 10 min
+  for the same person and name reuses the first draft (advisory lock), so a double tap cannot create duplicates.
+- Offers: `Offer` model + `/dr/offers/*` (permission `business.write` + `assertBusinessAccess` on the business read from
+  the database). Discount is none | percent 1-90 | amount with currency; no original price anywhere; text may not claim
+  another percentage; dates are calendar days in the business country's time zone; "running" is computed on every read
+  and the public list also re-checks the clock in the browser (pages are edge-cached up to 5 min + SWR).
+- WhatsApp: `Business.whatsapp` (public business number, E.164, never the account phone); `src/lib/whatsapp.ts`
+  normalises/validates; the button only renders for a stored valid number and links to `https://wa.me/<digits>`.
+- Database: ADDITIVE migration `20261020090000_business_whatsapp_offers` (2 columns on `Business`, new table `Offer`
+  with CHECK constraints). No existing row or column is changed. It is NOT applied to production.
+- Blocker for production: the new code reads the new columns on every business page, and `main` deploys after CI, so the
+  migration must be applied FIRST through the manual `DB migrate` workflow (needs the owner's `confirm=migrate` and
+  `backup_confirmed=backup-verified`). Do not merge before that.
+- Environment limitations of the authoring session: no npm registry access (policy-denied), so lint/typecheck/build/e2e
+  were verified through GitHub CI, not locally; no Cloudflare connector (live version not verifiable from here).
+- Local checks run: 19 unit tests of the pure WhatsApp/offer logic (pass), TypeScript syntax check of all changed files,
+  7-locale key parity and placeholder parity for all new texts.
+- Next safe continuation point: read CI on the PR; owner runs the DB migration; then merge; then verify the three
+  features live (WhatsApp link, offer expiry, wizard) and record the result here and in the central Doc.
+
 ## Authentication audit and register/login polish — 2026-10-20
 Task: audit the existing registration and login, polish only their UI. Scope locked to authentication.
 
