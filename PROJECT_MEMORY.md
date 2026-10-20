@@ -110,3 +110,26 @@ Owner-authorised scope, exactly three features: (1) three-step business registra
   7-locale key parity and placeholder parity for all new texts.
 - Next safe continuation point: read CI on the PR; owner runs the DB migration; then merge; then verify the three
   features live (WhatsApp link, offer expiry, wizard) and record the result here and in the central Doc.
+
+## Authentication audit and register/login polish — 2026-10-20
+Task: audit the existing registration and login, polish only their UI. Scope locked to authentication.
+
+Audit findings (verified from code, `docs/adr/0005`, `docs/adr/0006`, Resend and the public pages):
+- Sign-in is Auth.js Credentials (email + bcrypt password, JWT sessions). There is no OAuth provider and no six-digit OTP.
+  Email confirmation and password reset use single-use 256-bit link tokens (SHA-256 hash stored, 48 h / 60 min expiry).
+  These were kept: replacing a working mechanism was out of scope.
+- Already in place and left unchanged: per-account and per-IP login limits, constant-time login for unknown accounts,
+  same-site-only `next` redirects, honeypot + rate-limited forms, no OTP/secret values in logs.
+- Resend: sending domain `regaplatform.com` is verified; a REGA verification mail sent 2026-10-06 shows status `delivered`.
+  No newer REGA verification mail was visible, so current production delivery is not freshly proven.
+- No Facebook/Google/Apple buttons were added: nothing is configured (ADR 0006). Enabling them needs owner-registered OAuth
+  apps (Apple also needs a paid developer membership), their credentials in the Worker secrets, and an owner decision on
+  account-linking (never link on an unverified email).
+- Known gap, unchanged: a password reset does not revoke existing JWT sessions (ADR 0005); fixing it needs a schema change.
+
+Change: Central Kurdish registration heading «ئەکاونت دروست بکە» (new `auth.registerHeading` key in all 7 catalogues; other
+languages keep their existing wording), Kurdish "already have an account?" question, larger primary auth buttons, and a
+busy/disabled state on the login button. No routes, schema, secrets or other pages touched.
+
+Environment limits in this session: no npm registry access (egress 403), so lint/typecheck/tests/build ran only in GitHub CI.
+No Cloudflare connector, and no authorized test inbox, so a live registration/OTP test was not run.

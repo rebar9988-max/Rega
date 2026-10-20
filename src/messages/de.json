@@ -261,6 +261,7 @@
     "role": "Rolle",
     "tooMany": "Zu viele Versuche. Bitte später erneut versuchen.",
     "registerTitle": "Konto erstellen",
+    "registerHeading": "Konto erstellen",
     "registerLead": "Kostenlos. Erstellen Sie ein Konto, um Ihr Unternehmen auf REGA einzutragen.",
     "accountType": "Kontoart",
     "typeUser": "Nutzer",

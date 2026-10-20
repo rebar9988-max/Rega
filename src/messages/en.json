@@ -261,6 +261,7 @@
     "role": "Role",
     "tooMany": "Too many attempts. Please try again later.",
     "registerTitle": "Create an account",
+    "registerHeading": "Create an account",
     "registerLead": "Free of charge. Create an account to list your business on REGA.",
     "accountType": "Account type",
     "typeUser": "User",
