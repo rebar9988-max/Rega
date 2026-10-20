@@ -1,31 +1,39 @@
-// TEMPORARY diagnostic (removed before merge): why do signed-in pages not reach network idle for the admin account?
+// TEMPORARY diagnostic (removed before merge): does GET /api/auth/session answer from the browser?
 import type { Page } from "@playwright/test";
 import { expect, test } from "./fixtures";
-import { ADMIN, EMPLOYEE } from "./global-setup";
+import { EMPLOYEE } from "./global-setup";
 
-async function trace(page: Page, who: { email: string; password: string }, label: string) {
-  const log: string[] = [];
-  const t0 = Date.now();
-  const path = (u: string) => u.replace(/^http:\/\/localhost:\d+/, "");
-  page.on("request", (r) => { if (!r.url().includes("/_next/static")) log.push(`${Date.now() - t0} > ${r.method()} ${path(r.url())}`); });
-  page.on("requestfinished", async (r) => { if (!r.url().includes("/_next/static")) log.push(`${Date.now() - t0} < ${(await r.response())?.status()} ${path(r.url())}`); });
-  page.on("requestfailed", (r) => log.push(`${Date.now() - t0} x ${r.failure()?.errorText} ${path(r.url())}`));
-  page.on("console", (m) => { if (m.type() === "error" || m.type() === "warning") log.push(`console.${m.type()}: ${m.text().slice(0, 160)}`); });
-  page.on("pageerror", (e) => log.push(`pageerror ${e.message.slice(0, 160)}`));
-  await page.goto("/de/login?next=%2Fde%2Faccount");
-  await page.getByLabel("E-Mail", { exact: true }).fill(who.email);
-  await page.getByLabel("Passwort", { exact: true }).fill(who.password);
-  log.push(`${Date.now() - t0} -- submit`);
-  await page.getByRole("button", { name: "Anmelden" }).click();
-  await expect(page).toHaveURL(/\/de\/account$/);
-  log.push(`${Date.now() - t0} -- on account`);
-  await page.waitForTimeout(3000);
-  log.push(`${Date.now() - t0} -- goto businesses`);
-  await page.goto("/de/businesses", { waitUntil: "commit" });
-  await page.waitForTimeout(6000);
-  log.push(`${Date.now() - t0} -- end`);
-  expect(`${label}\n${log.join("\n")}`).toBe("");
+async function probe(page: Page, label: string, init: string) {
+  return page.evaluate(async ([l, i]) => {
+    const t = performance.now();
+    const ctl = new AbortController();
+    const timer = setTimeout(() => ctl.abort(), 8000);
+    try {
+      const res = await fetch("/api/auth/session", { ...(JSON.parse(i) as RequestInit), signal: ctl.signal });
+      const body = (await res.text()).slice(0, 60);
+      return `${l}: ${res.status} in ${Math.round(performance.now() - t)}ms ct=${res.headers.get("content-type")} body=${body}`;
+    } catch (e) {
+      return `${l}: ERROR ${String(e).slice(0, 80)} after ${Math.round(performance.now() - t)}ms`;
+    } finally { clearTimeout(timer); }
+  }, [label, init] as const);
 }
 
-test("debug admin", async ({ page }) => { await trace(page, ADMIN, "ADMIN"); });
-test("debug employee", async ({ page }) => { await trace(page, EMPLOYEE, "EMPLOYEE"); });
+test("debug session endpoint", async ({ page, browser }) => {
+  const log: string[] = [];
+  await page.goto("/de/login?next=%2Fde%2Faccount");
+  await page.getByLabel("E-Mail", { exact: true }).fill(EMPLOYEE.email);
+  await page.getByLabel("Passwort", { exact: true }).fill(EMPLOYEE.password);
+  await page.getByRole("button", { name: "Anmelden" }).click();
+  await expect(page).toHaveURL(/\/de\/account$/);
+  await page.waitForTimeout(10_000); // let the page's own ping finish or be stuck
+  log.push(await probe(page, "A default", "{}"));
+  log.push(await probe(page, "B no-store+json", JSON.stringify({ credentials: "same-origin", cache: "no-store", headers: { accept: "application/json" } })));
+  log.push(await probe(page, "C credentials only", JSON.stringify({ credentials: "same-origin" })));
+  const t = Date.now();
+  const r = await page.request.get("/api/auth/session", { timeout: 8000 }).catch((e) => ({ status: () => `ERR ${String(e).slice(0, 60)}` }));
+  log.push(`D page.request: ${r.status()} in ${Date.now() - t}ms`);
+  const anon = await (await browser.newContext()).newPage();
+  await anon.goto(`${test.info().project.use.baseURL}/de/login`);
+  log.push(await probe(anon, "E anonymous", "{}"));
+  expect(log.join("\n")).toBe("");
+});
