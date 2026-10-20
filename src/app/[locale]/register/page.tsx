@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { auth } from "@/auth";
+import { LogoMark } from "@/components/ui/Logo";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { RegisterForm } from "@/features/auth/AuthForms";
 import { isLocale } from "@/config/locales";
@@ -27,7 +28,10 @@ export default async function RegisterPage({ params, searchParams }: { params: P
   return (
     <>
       <PageHeader title={t("registerHeading")} subtitle={t("registerLead")} />
-      <div className="container-page"><RegisterForm next={safeNext(next)} /></div>
+      <div className="container-page">
+        <div className="mx-auto mb-4 flex max-w-md justify-center"><LogoMark className="size-14" /></div>
+        <RegisterForm next={safeNext(next)} />
+      </div>
     </>
   );
 }
