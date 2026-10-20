@@ -15,7 +15,8 @@ export default defineConfig({
   fullyParallel: false, // tests share one database; dashboard tests mutate rows
   workers: 1,
   retries: process.env.CI ? 1 : 0,
-  reporter: [["list"]],
+  // In CI the failures are also written as annotations on the check run (readable without downloading the job log).
+  reporter: process.env.CI ? [["list"], ["github"]] : [["list"]],
   use: { baseURL: `http://localhost:${PORT}`, trace: "retain-on-failure" },
   webServer: {
     command: `npm run start -- -p ${PORT}`,
