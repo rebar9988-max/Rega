@@ -146,3 +146,21 @@ ckb/register, ckb/login, en/login and ar/register: logo present, no page errors,
 allocation not readable (no Cloudflare connector). Unchanged blockers: OAuth providers need owner-registered apps and
 secrets (ADR 0006); no six-digit OTP exists; live registration needs an authorized test inbox; the provided reference
 screenshot was not the Dalil Iraq auth screen.
+
+## Social sign-in foundation — 2026-10-20 (branch `claude/social-login-foundation-20261020`)
+Task (owner, Kurdish, with two reference screenshots): add Facebook / Google / Apple sign-in buttons on register and login
+and a "log in or create account" chooser screen, from the foundation. Decision record: `docs/adr/0009-social-sign-in.md`
+(supersedes the "deferred" part of ADR 0006).
+Change: env-gated Auth.js providers (`src/auth.config.ts` builds the config per request), pure rules in
+`src/features/auth/oauth-core.ts` (unit tested), Prisma store + glue in `oauth.ts`, `social-actions.ts` (buttons),
+`SocialButtons/SocialSubmit/AuthDivider`, chooser page `/[locale]/auth`, social error messages on login/register, 7-language
+strings (owner's exact Kurdish labels), `AUTH_FACEBOOK_*` / `AUTH_APPLE_*` in env schema, `.env.example` and the secrets-sync
+workflow allowlist. No schema change (the `Account` table existed). Linking only on provider-verified + confirmed REGA
+address, never staff, creation only from the register page.
+Production impact: none visible until credentials are configured; no provider is configured today, so no social button shows.
+Owner must provide: Google OAuth client, Facebook app, Apple Services ID + client secret (paid membership), callback URLs
+`https://www.regaplatform.com/api/auth/callback/{google|facebook|apple}`, `AUTH_URL`; add as GitHub secrets, run "Sync Worker
+runtime secrets". Not verified: any live OAuth flow (no credentials), Apple cookie handling. "Continue = accept terms"
+wording needs owner/legal approval.
+Local checks: oauth-social 24/24, i18n, glossary, workflows, config, rbac, seo pass; zod/next-dependent tests could not run
+here (no npm registry) and rely on CI. CI/deploy results: pending (see next entry).
