@@ -65,9 +65,14 @@ const serverSchema = z.object({
   SECTIONS_DISABLED: z.string().max(200).optional(),
   // Error monitoring hook: when set, logged errors are POSTed there (JSON). Off when unset.
   ERROR_WEBHOOK_URL: z.string().url().optional(),
-  // Optional OAuth sign-in (not enabled in this build; see docs/adr/0006-oauth-deferred.md).
+  // Optional social sign-in (docs/adr/0009-social-sign-in.md). A provider is offered only when BOTH of its values are set.
   AUTH_GOOGLE_ID: z.string().optional(),
   AUTH_GOOGLE_SECRET: z.string().optional(),
+  AUTH_FACEBOOK_ID: z.string().optional(),
+  AUTH_FACEBOOK_SECRET: z.string().optional(),
+  // Apple: the Services ID and the generated client secret (a JWT that Apple limits to six months).
+  AUTH_APPLE_ID: z.string().optional(),
+  AUTH_APPLE_SECRET: z.string().optional(),
   // Operator details of the legal pages (public, not secret; src/config/owner.ts).
   LEGAL_OPERATOR_TYPE: z.string().max(120).optional(),
   LEGAL_NAME: z.string().max(200).optional(),

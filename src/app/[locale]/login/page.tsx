@@ -12,6 +12,9 @@ import { LogoMark } from "@/components/ui/Logo";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Link } from "@/i18n/routing";
 import { SubmitButton } from "@/features/auth/AuthForms";
+import { AuthDivider } from "@/features/auth/AuthDivider";
+import { SocialButtons } from "@/features/auth/SocialButtons";
+import { enabledOAuthProviders, socialErrorKeyOrGeneric } from "@/features/auth/oauth-core";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -48,28 +51,43 @@ export default async function LoginPage({ params, searchParams }: { params: Prom
     redirect(target);
   }
 
+  const providers = enabledOAuthProviders(process.env);
+  const socialError = socialErrorKeyOrGeneric(error);
   const field = "min-h-11 w-full rounded-xl border border-line bg-surface px-3 text-base outline-none focus:border-brand";
   return (
     <>
       <PageHeader title={t("auth.loginTitle")} />
       <div className="container-page">
         <div className="mx-auto mb-4 flex max-w-md justify-center"><LogoMark className="size-14" /></div>
-        <form action={login} className="mx-auto max-w-md space-y-4 rounded-[var(--radius-card)] border border-line bg-surface p-6 shadow-card">
+        <div className="mx-auto max-w-md space-y-4 rounded-[var(--radius-card)] border border-line bg-surface p-6 shadow-card">
           {banner && !error && <p role="status" className="rounded-xl bg-brand-soft px-4 py-3 text-sm font-semibold">{t(`auth.${banner}`)}</p>}
-          {error && <p role="alert" className="rounded-xl bg-brand-soft px-4 py-3 text-sm font-semibold">{error === "rate" ? t("auth.tooMany") : t("auth.invalid")}</p>}
-          <input type="hidden" name="next" value={next ?? ""} />
-          <div>
-            <label htmlFor="email" className="mb-1 block text-sm font-semibold">{t("auth.email")}</label>
-            <input id="email" name="email" type="email" required autoComplete="email" dir="ltr" className={`${field} text-start`} />
-          </div>
-          <div>
-            <label htmlFor="password" className="mb-1 block text-sm font-semibold">{t("auth.password")}</label>
-            <input id="password" name="password" type="password" required minLength={8} autoComplete="current-password" dir="ltr" className={`${field} text-start`} />
-          </div>
-          <SubmitButton>{t("auth.signIn")}</SubmitButton>
-          <p className="text-center text-sm"><Link href="/forgot-password" className="font-semibold text-brand underline">{t("auth.forgot")}</Link></p>
-          <p className="text-center text-sm text-muted">{t("auth.noAccount")} <Link href="/register" className="font-semibold text-brand underline">{t("auth.createAccount")}</Link></p>
-        </form>
+          {error && <p role="alert" className="rounded-xl bg-brand-soft px-4 py-3 text-sm font-semibold">{error === "rate" ? t("auth.tooMany") : socialError ? t(`auth.${socialError}`) : t("auth.invalid")}</p>}
+          {providers.length > 0 && (
+            <>
+              <form data-testid="social-login">
+                <input type="hidden" name="intent" value="login" />
+                <input type="hidden" name="locale" value={locale} />
+                {next && <input type="hidden" name="next" value={next} />}
+                <SocialButtons providers={providers} intent="login" />
+              </form>
+              <AuthDivider label={t("auth.orDivider")} />
+            </>
+          )}
+          <form action={login} className="space-y-4">
+            <input type="hidden" name="next" value={next ?? ""} />
+            <div>
+              <label htmlFor="email" className="mb-1 block text-sm font-semibold">{t("auth.email")}</label>
+              <input id="email" name="email" type="email" required autoComplete="email" dir="ltr" className={`${field} text-start`} />
+            </div>
+            <div>
+              <label htmlFor="password" className="mb-1 block text-sm font-semibold">{t("auth.password")}</label>
+              <input id="password" name="password" type="password" required minLength={8} autoComplete="current-password" dir="ltr" className={`${field} text-start`} />
+            </div>
+            <SubmitButton>{t("auth.signIn")}</SubmitButton>
+            <p className="text-center text-sm"><Link href="/forgot-password" className="font-semibold text-brand underline">{t("auth.forgot")}</Link></p>
+            <p className="text-center text-sm text-muted">{t("auth.noAccount")} <Link href="/register" className="font-semibold text-brand underline">{t("auth.createAccount")}</Link></p>
+          </form>
+        </div>
       </div>
     </>
   );

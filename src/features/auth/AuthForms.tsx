@@ -5,6 +5,7 @@ import { useFormStatus } from "react-dom";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { Honeypot } from "@/features/forms/Honeypot";
+import { AuthDivider } from "./AuthDivider";
 import { IDLE } from "@/features/forms/state";
 import { confirmEmail, forgotPassword, register, resendVerification, resetPassword, type AuthFormState } from "./actions";
 
@@ -36,7 +37,11 @@ function ErrorLine({ state, map }: { state: AuthFormState; map: Partial<Record<"
   return <p role="alert" className="rounded-xl bg-brand-soft px-4 py-3 text-sm font-semibold">{text}</p>;
 }
 
-export function RegisterForm({ next }: { next?: string }) {
+/**
+ * `social` is the server-rendered block of social sign-in buttons (only when a provider is configured). Without it the
+ * form is exactly the e-mail registration; with it the e-mail fields open behind "Continue with e-mail".
+ */
+export function RegisterForm({ next, social }: { next?: string; social?: React.ReactNode }) {
   const t = useTranslations("auth");
   const tf = useTranslations("forms");
   const locale = useLocale();
@@ -49,21 +54,8 @@ export function RegisterForm({ next }: { next?: string }) {
   }
   const bad = (n: string) => state.fields?.includes(n) || undefined;
   const taken = state.error === "failed" && state.fields?.includes("email");
-  return (
-    <form action={action} data-testid="register-form" className={`${card} relative`}>
-      <input type="hidden" name="locale" value={locale} />
-      {next && <input type="hidden" name="next" value={next} />}
-      <Honeypot label={tf("leaveEmpty")} />
-      <ErrorLine state={state} map={{ invalid: state.fields?.includes("password") ? t("weakPassword") : state.fields?.includes("password2") ? t("passwordMismatch") : tf("invalid"), failed: taken ? t("emailTaken") : undefined }} />
-      <fieldset className="space-y-2">
-        <legend className="mb-1 text-sm font-semibold">{t("accountType")}</legend>
-        {(["user", "owner"] as const).map((v) => (
-          <label key={v} className="flex min-h-12 cursor-pointer items-start gap-3 rounded-xl border border-line px-3 py-2 has-[:checked]:border-brand has-[:checked]:bg-brand-soft">
-            <input type="radio" name="accountType" value={v} defaultChecked={v === "owner"} className="mt-1 size-5 accent-[var(--brand)]" />
-            <span><span className="block text-sm font-semibold">{t(v === "user" ? "typeUser" : "typeOwner")}</span><span className="block text-xs text-muted">{t(v === "user" ? "typeUserHint" : "typeOwnerHint")}</span></span>
-          </label>
-        ))}
-      </fieldset>
+  const emailFields = (
+    <>
       <div>
         <label htmlFor="r-name" className="mb-1 block text-sm font-semibold">{t("name")}</label>
         <input id="r-name" name="name" required minLength={2} maxLength={120} autoComplete="name" aria-invalid={bad("name")} className={field} />
@@ -86,6 +78,37 @@ export function RegisterForm({ next }: { next?: string }) {
         <span>{t.rich("accept", { terms: (c) => <Link href="/terms" target="_blank" className={link}>{c}</Link>, privacy: (c) => <Link href="/privacy" target="_blank" className={link}>{c}</Link> })}</span>
       </label>
       <button type="submit" disabled={pending} className={primary}>{t("createAccount")}</button>
+    </>
+  );
+  return (
+    <form action={action} data-testid="register-form" className={`${card} relative`}>
+      <input type="hidden" name="locale" value={locale} />
+      <input type="hidden" name="intent" value="register" />
+      {next && <input type="hidden" name="next" value={next} />}
+      <Honeypot label={tf("leaveEmpty")} />
+      <ErrorLine state={state} map={{ invalid: state.fields?.includes("password") ? t("weakPassword") : state.fields?.includes("password2") ? t("passwordMismatch") : tf("invalid"), failed: taken ? t("emailTaken") : undefined }} />
+      <fieldset className="space-y-2">
+        <legend className="mb-1 text-sm font-semibold">{t("accountType")}</legend>
+        {(["user", "owner"] as const).map((v) => (
+          <label key={v} className="flex min-h-12 cursor-pointer items-start gap-3 rounded-xl border border-line px-3 py-2 has-[:checked]:border-brand has-[:checked]:bg-brand-soft">
+            <input type="radio" name="accountType" value={v} defaultChecked={v === "owner"} className="mt-1 size-5 accent-[var(--brand)]" />
+            <span><span className="block text-sm font-semibold">{t(v === "user" ? "typeUser" : "typeOwner")}</span><span className="block text-xs text-muted">{t(v === "user" ? "typeUserHint" : "typeOwnerHint")}</span></span>
+          </label>
+        ))}
+      </fieldset>
+      {social ? (
+        <>
+          {social}
+          <AuthDivider label={t("orDivider")} />
+          <details className="group" data-testid="email-register">
+            <summary className="flex min-h-12 w-full cursor-pointer list-none items-center justify-center gap-3 rounded-xl border border-line bg-surface px-4 text-base font-semibold transition hover:bg-surface-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand group-open:hidden [&::-webkit-details-marker]:hidden">
+              <svg viewBox="0 0 24 24" className="size-6 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></svg>
+              <span>{t("continueWithEmail")}</span>
+            </summary>
+            <div className="space-y-4">{emailFields}</div>
+          </details>
+        </>
+      ) : emailFields}
       <p className="text-center text-sm text-muted">{t("haveAccount")} <Link href={loginHref} className={link}>{t("signIn")}</Link></p>
     </form>
   );

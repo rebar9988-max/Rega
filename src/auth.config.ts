@@ -1,18 +1,25 @@
 /**
  * Auth.js v5 configuration.
  * - Credentials provider (email + password, bcrypt) for staff & users
+ * - Optional social sign-in (Google, Facebook, Apple) for public accounts: a provider exists here only when its client id
+ *   AND secret are configured; the rules for matching/creating accounts live in src/features/auth/oauth-core.ts
  * - JWT sessions so the API stays stateless and works for mobile clients too
  * - Role is embedded in the token; permissions are derived, never trusted from the client
  */
 import "server-only";
 import type { NextAuthConfig } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
+import Google from "next-auth/providers/google";
+import Facebook from "next-auth/providers/facebook";
+import Apple from "next-auth/providers/apple";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { log } from "@/lib/logger";
 import { allowShared } from "@/lib/rate-limit";
 import { maskEmail } from "@/lib/client-ip";
+import { completeSocialSignIn } from "@/features/auth/oauth";
+import { oauthCredentials } from "@/features/auth/oauth-core";
 import type { Role } from "@/lib/rbac";
 
 /** How often a signed-in session re-checks role/status against the database. */
@@ -32,87 +39,152 @@ const credentialsSchema = z.object({
   password: z.string().min(8).max(200),
 });
 
-export const authConfig: NextAuthConfig = {
-  trustHost: true,
-  session: { strategy: "jwt", maxAge: 60 * 60 * 24 * 14 },
-  pages: { signIn: "/login" },
-  providers: [
-    Credentials({
-      name: "credentials",
-      credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" },
-      },
-      async authorize(raw) {
-        const parsed = credentialsSchema.safeParse(raw);
-        if (!parsed.success) return null;
-        const { email, password } = parsed.data;
+/** Absolute site origin for redirects that Auth.js sends from its own callback (AUTH_URL wins, else the canonical host). */
+const siteBase = () => (process.env.AUTH_URL ? new URL(process.env.AUTH_URL).origin : `https://${process.env.CANONICAL_HOST || "www.regaplatform.com"}`);
 
-        // 10 attempts per account per 15 minutes, regardless of source.
-        if (!(await allowShared("LOGIN_LIMITER", `login:${email.toLowerCase()}`, LOGIN_ATTEMPTS, 15 * 60_000))) {
-          log.warn("auth.login.rate_limited", { email: maskEmail(email) });
-          return null;
-        }
+/** Google / Facebook / Apple: only those with BOTH client id and secret in the environment. */
+function socialProviders(): NextAuthConfig["providers"] {
+  const providers: NextAuthConfig["providers"] = [];
+  const google = oauthCredentials("google", process.env);
+  if (google) providers.push(Google(google));
+  const facebook = oauthCredentials("facebook", process.env);
+  if (facebook) providers.push(Facebook(facebook));
+  const apple = oauthCredentials("apple", process.env);
+  if (apple) providers.push(Apple(apple));
+  return providers;
+}
 
-        const user = await prisma.user.findFirst({
-          where: { email: email.toLowerCase(), deletedAt: null },
+/**
+ * Apple returns to /api/auth/callback/apple with a cross-site POST (response_mode=form_post). Cookies that are SameSite=lax are
+ * not sent with such a request, so while Apple is configured the short-lived state/PKCE/nonce cookies (httpOnly, secure,
+ * single-use, bound to the `state` parameter) are SameSite=none in production.
+ */
+function appleCookies(): NextAuthConfig["cookies"] | undefined {
+  if (!oauthCredentials("apple", process.env)) return undefined;
+  const secure = process.env.NODE_ENV === "production";
+  const prefix = secure ? "__Secure-" : "";
+  const options = { httpOnly: true, sameSite: secure ? ("none" as const) : ("lax" as const), path: "/", secure };
+  return {
+    pkceCodeVerifier: { name: `${prefix}authjs.pkce.code_verifier`, options },
+    state: { name: `${prefix}authjs.state`, options },
+    nonce: { name: `${prefix}authjs.nonce`, options },
+  };
+}
+
+/**
+ * Built per request (see src/auth.ts) so the provider list follows the Worker's runtime secrets: Workers hand their
+ * secrets to the code when a request arrives, not when the bundle is built.
+ */
+export function buildAuthConfig(): NextAuthConfig {
+  return {
+    trustHost: true,
+    session: { strategy: "jwt", maxAge: 60 * 60 * 24 * 14 },
+    // Failed provider returns (cancelled consent, provider error) land on the sign-in page with a message, not on an Auth.js error page.
+    pages: { signIn: "/login", error: "/login" },
+    cookies: appleCookies(),
+    providers: [
+      Credentials({
+        name: "credentials",
+        credentials: {
+          email: { label: "Email", type: "email" },
+          password: { label: "Password", type: "password" },
+        },
+        async authorize(raw) {
+          const parsed = credentialsSchema.safeParse(raw);
+          if (!parsed.success) return null;
+          const { email, password } = parsed.data;
+
+          // 10 attempts per account per 15 minutes, regardless of source.
+          if (!(await allowShared("LOGIN_LIMITER", `login:${email.toLowerCase()}`, LOGIN_ATTEMPTS, 15 * 60_000))) {
+            log.warn("auth.login.rate_limited", { email: maskEmail(email) });
+            return null;
+          }
+
+          const user = await prisma.user.findFirst({
+            where: { email: email.toLowerCase(), deletedAt: null },
+          });
+          // Constant-ish response: always run a full cost-12 hash comparison. The stand-in must be a well-formed
+          // 60-character bcrypt hash: bcryptjs answers `false` at once for any other length (no hashing at all),
+          // which made unknown e-mail addresses answer measurably faster than real accounts (user enumeration).
+          const hash = user?.passwordHash ?? DUMMY_HASH;
+          const ok = await bcrypt.compare(password, hash);
+
+          if (!user || !ok || user.status !== "active") {
+            log.warn("auth.login.failed", { email: maskEmail(email), reason: !user ? "unknown_user" : "bad_credentials" });
+            return null;
+          }
+
+          await prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } });
+          log.info("auth.login.success", { userId: user.id, role: user.role });
+
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name ?? undefined,
+            image: user.avatarUrl ?? undefined,
+            role: user.role as Role,
+            locale: user.locale,
+          };
+        },
+      }),
+      ...socialProviders(),
+    ],
+    callbacks: {
+      async signIn({ user, account, profile }) {
+        if (!account || account.provider === "credentials") return true;
+        const result = await completeSocialSignIn({
+          provider: account.provider,
+          providerAccountId: account.providerAccountId,
+          email: profile?.email ?? user.email,
+          name: profile?.name ?? user.name,
+          profile: profile as Record<string, unknown> | undefined,
         });
-        // Constant-ish response: always run a full cost-12 hash comparison. The stand-in must be a well-formed
-        // 60-character bcrypt hash: bcryptjs answers `false` at once for any other length (no hashing at all),
-        // which made unknown e-mail addresses answer measurably faster than real accounts (user enumeration).
-        const hash = user?.passwordHash ?? DUMMY_HASH;
-        const ok = await bcrypt.compare(password, hash);
-
-        if (!user || !ok || user.status !== "active") {
-          log.warn("auth.login.failed", { email: maskEmail(email), reason: !user ? "unknown_user" : "bad_credentials" });
-          return null;
+        if (!result.ok) {
+          // Back to the page the visitor came from; "no account" sends a plain sign-in to the registration page.
+          const page = result.reason === "no_account" || result.context.intent === "register" ? "register" : "login";
+          const query = new URLSearchParams({ error: `social_${result.reason}` });
+          if (result.context.next) query.set("next", result.context.next);
+          return `${siteBase()}/${result.context.locale}/${page}?${query}`;
         }
-
-        await prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } });
-        log.info("auth.login.success", { userId: user.id, role: user.role });
-
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name ?? undefined,
-          image: user.avatarUrl ?? undefined,
-          role: user.role as Role,
-          locale: user.locale,
-        };
+        // The token is built from this object: it must carry REGA's own user id, role and language, not the provider's.
+        user.id = result.user.id;
+        user.email = result.user.email;
+        user.name = result.user.name ?? undefined;
+        user.role = result.user.role as Role;
+        user.locale = result.user.locale;
+        return true;
       },
-    }),
-  ],
-  callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.uid = user.id;
-        token.role = user.role ?? "USER";
-        token.locale = user.locale ?? "ckb";
-        token.checkedAt = Date.now();
-        return token;
-      }
-      // JWTs live 14 days: re-read role and status regularly so a demoted, suspended or deleted account loses
-      // its privileges within minutes instead of keeping them until the token expires.
-      if (token.uid && Date.now() - Number(token.checkedAt ?? 0) > REVALIDATE_MS) {
-        try {
-          const current = await prisma.user.findFirst({ where: { id: String(token.uid), deletedAt: null }, select: { role: true, status: true } });
-          if (!current || current.status !== "active") return null; // ends the session
-          token.role = current.role;
+      async jwt({ token, user }) {
+        if (user) {
+          token.uid = user.id;
+          token.role = user.role ?? "USER";
+          token.locale = user.locale ?? "ckb";
           token.checkedAt = Date.now();
-        } catch (error) {
-          // Database briefly unreachable: keep the session, but never upgrade it; retry on the next request.
-          log.warn("auth.session.revalidate_failed", { error: error instanceof Error ? error.message : String(error) });
+          return token;
         }
-      }
-      return token;
+        // JWTs live 14 days: re-read role and status regularly so a demoted, suspended or deleted account loses
+        // its privileges within minutes instead of keeping them until the token expires.
+        if (token.uid && Date.now() - Number(token.checkedAt ?? 0) > REVALIDATE_MS) {
+          try {
+            const current = await prisma.user.findFirst({ where: { id: String(token.uid), deletedAt: null }, select: { role: true, status: true } });
+            if (!current || current.status !== "active") return null; // ends the session
+            token.role = current.role;
+            token.checkedAt = Date.now();
+          } catch (error) {
+            // Database briefly unreachable: keep the session, but never upgrade it; retry on the next request.
+            log.warn("auth.session.revalidate_failed", { error: error instanceof Error ? error.message : String(error) });
+          }
+        }
+        return token;
+      },
+      async session({ session, token }) {
+        if (session.user) {
+          session.user.id = (token.uid as string | undefined) ?? "";
+          session.user.role = (token.role as Role | undefined) ?? "USER";
+          session.user.locale = (token.locale as string | undefined) ?? "ckb";
+        }
+        return session;
+      },
     },
-    async session({ session, token }) {
-      if (session.user) {
-        session.user.id = (token.uid as string | undefined) ?? "";
-        session.user.role = (token.role as Role | undefined) ?? "USER";
-        session.user.locale = (token.locale as string | undefined) ?? "ckb";
-      }
-      return session;
-    },
-  },
-};
+  };
+}

@@ -1,4 +1,5 @@
 import NextAuth from "next-auth";
-import { authConfig } from "@/auth.config";
+import { buildAuthConfig } from "@/auth.config";
 
-export const { handlers, auth, signIn, signOut } = NextAuth(authConfig);
+// Lazy configuration: built for each request so social providers follow the runtime secrets (src/auth.config.ts).
+export const { handlers, auth, signIn, signOut } = NextAuth(() => buildAuthConfig());

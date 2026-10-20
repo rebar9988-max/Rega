@@ -5,7 +5,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "./fixtures";
 
-const PAGES = ["/de", "/ckb", "/de/businesses", "/de/business/zagros-restaurant", "/de/contact", "/de/register", "/de/login", "/de/for-business", "/de/impressum", "/de/privacy", "/de/report", "/ar/about", "/de/ai"];
+const PAGES = ["/de", "/ckb", "/de/businesses", "/de/business/zagros-restaurant", "/de/contact", "/de/register", "/de/login", "/de/auth", "/de/for-business", "/de/impressum", "/de/privacy", "/de/report", "/ar/about", "/de/ai"];
 
 for (const path of PAGES) {
   test(`axe: ${path}`, async ({ page }, info) => {
