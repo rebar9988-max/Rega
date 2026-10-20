@@ -25,6 +25,117 @@ const PAGES = [
 ];
 const FOREIGN_CITIES = ["Stockholm", "London", "Paris", "Amsterdam", "Wien", "Erbil"];
 
+
+/** Opens the location panel (retrying until the page has hydrated). Returns the dialog locator. */
+async function openPicker(page) {
+  const dialog = page.getByRole("dialog", { name: /.+/ }).filter({ has: page.getByRole("listbox") });
+  for (let attempt = 0; attempt < 4; attempt++) {
+    await page.locator("#f-city-search").click();
+    if (await dialog.first().isVisible({ timeout: 3000 }).catch(() => false)) return dialog.first();
+  }
+  return null;
+}
+
+/**
+ * Location filter (read-only): the geo API, the searchable selector, the saved place shared by the home page and the
+ * list, nearest-city detection with a granted position, the phone bottom sheet and Kurdish RTL. Nothing is submitted
+ * and nothing is stored outside this throw-away browser context.
+ */
+async function checkLocationFilter(browser, ctx, page, vp, opts) {
+  const tag = `${vp} location`;
+  const out = [];
+  const rec = (ok, label, detail = "") => {
+    note(ok, `${tag}: ${label}`, detail);
+    out.push(`${ok ? "ok" : "FAIL"} ${tag}: ${label}${detail ? ` (${detail})` : ""}`);
+  };
+  try {
+    // API
+    const list = await ctx.request.get(`${BASE}/api/v1/geo?country=DE`);
+    const body = list.ok() ? (await list.json()).data : null;
+    rec(list.status() === 200 && Boolean(body), "API /api/v1/geo?country=DE", String(list.status()));
+    if (body) {
+      rec(body.countries.some((c) => c.code === "DE"), "API lists Germany");
+      rec(body.cities.length > 0 && body.cities.length <= 40, "API city list is bounded", `${body.cities.length} cities, ${body.regions.length} regions`);
+      rec(body.cities.every((c) => c.countryCode === "DE"), "API cities are German");
+    }
+    const bad = await ctx.request.get(`${BASE}/api/v1/geo?country=Germany`);
+    rec(bad.status() === 422, "API rejects an invalid country", String(bad.status()));
+    const near = await ctx.request.get(`${BASE}/api/v1/geo?lat=52.52&lng=13.405`);
+    const nearest = near.ok() ? (await near.json()).data?.nearest : null;
+    rec(near.ok() && nearest?.city?.nameEn === "Berlin", "API nearest city to central Berlin", nearest ? `${nearest.city.nameEn}, ${nearest.km} km` : String(near.status()));
+    rec((near.headers()["cache-control"] || "").includes("no-store"), "API nearest answer is not cached");
+
+    // Selector on the business list
+    await page.goto(`${BASE}/de/businesses`, { waitUntil: "domcontentloaded" });
+    await page.waitForLoadState("networkidle", { timeout: 15_000 }).catch(() => {});
+    const dialog = await openPicker(page);
+    rec(Boolean(dialog), "selector opens");
+    if (dialog) {
+      const box = await dialog.boundingBox();
+      const view = page.viewportSize();
+      if (vp === "mobile") rec(Boolean(box && view && Math.round(box.y + box.height) === view.height && Math.round(box.width) === view.width), "phone bottom sheet fits the screen", box ? `${Math.round(box.width)}x${Math.round(box.height)}` : "");
+      else rec(Boolean(box && view && box.x >= 0 && box.x + box.width <= view.width), "desktop panel stays inside the window");
+      await dialog.locator("input").first().fill("ber");
+      const berlin = dialog.getByRole("listbox").getByRole("option", { name: /^Berlin/ }).first();
+      await berlin.waitFor({ timeout: 10_000 }).catch(() => {});
+      rec(await berlin.isVisible(), "search finds Berlin");
+      if (await berlin.isVisible()) await berlin.click();
+      await page.locator("#f-city-search").filter({ hasText: "Berlin" }).waitFor({ timeout: 5000 }).catch(() => {});
+      rec((await page.locator("#f-city-search").textContent())?.includes("Berlin") === true, "chosen city shown in the field");
+      rec((await page.locator("#f-city").inputValue()) !== "", "form value carries the city id");
+      const stored = await page.evaluate(() => localStorage.getItem("rega-location"));
+      let keys = "";
+      try { keys = Object.keys(JSON.parse(stored)).sort().join(","); } catch { /* not stored */ }
+      rec(keys === "cityId,countryCode,regionId,savedAt,v", "saved place holds ids only", keys || "nothing stored");
+      // Shared state: the home page and the list pick it up without choosing again.
+      await page.goto(`${BASE}/de`, { waitUntil: "domcontentloaded" });
+      await page.locator("#f-city-search").filter({ hasText: "Berlin" }).waitFor({ timeout: 8000 }).catch(() => {});
+      rec((await page.locator("#f-city-search").textContent())?.includes("Berlin") === true, "home page shows the saved city");
+      await page.goto(`${BASE}/de/businesses`, { waitUntil: "domcontentloaded" });
+      await page.waitForURL(/[?&]city=/, { timeout: 8000 }).catch(() => {});
+      rec(/[?&]city=[^&]/.test(page.url()), "business list applies the saved city", page.url().replace(BASE, ""));
+      // Reset to all cities clears the saved place.
+      await page.goto(`${BASE}/de/businesses?city=`, { waitUntil: "domcontentloaded" });
+      await page.waitForFunction(() => localStorage.getItem("rega-location") === null, null, { timeout: 8000 }).catch(() => {});
+      rec((await page.evaluate(() => localStorage.getItem("rega-location"))) === null, "all cities clears the saved place");
+    }
+
+    // Nearest-city detection with a granted position (a fresh context so nothing is saved yet)
+    const geoCtx = await browser.newContext({ ...opts, userAgent: (opts.userAgent || "Mozilla/5.0 (X11; Linux x86_64) Chrome/125.0 Safari/537.36") + UA_SUFFIX, geolocation: { latitude: 52.5201, longitude: 13.4049 }, permissions: ["geolocation"] });
+    const gp = await geoCtx.newPage();
+    await gp.goto(`${BASE}/de/businesses`, { waitUntil: "domcontentloaded" });
+    await gp.waitForLoadState("networkidle", { timeout: 15_000 }).catch(() => {});
+    const gd = await openPicker(gp);
+    if (gd) {
+      await gd.getByRole("button", { name: /Standort/ }).click();
+      await gp.locator("#f-city-search").filter({ hasText: "Berlin" }).waitFor({ timeout: 10_000 }).catch(() => {});
+      rec((await gp.locator("#f-city-search").textContent())?.includes("Berlin") === true, "use my location selects the nearest city");
+    } else rec(false, "selector opens for location detection");
+    await geoCtx.close();
+
+    // Kurdish, right to left
+    await page.goto(`${BASE}/ckb/businesses`, { waitUntil: "domcontentloaded" });
+    await page.waitForLoadState("networkidle", { timeout: 15_000 }).catch(() => {});
+    const kd = await openPicker(page);
+    rec(Boolean(kd), "Kurdish selector opens");
+    if (kd) {
+      const kb = await kd.boundingBox();
+      const view = page.viewportSize();
+      rec(Boolean(kb && view && kb.x >= 0 && kb.x + kb.width <= view.width + 1), "Kurdish panel stays inside the window");
+      rec((await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)) <= 1, "Kurdish page has no horizontal scroll with the panel open");
+      await page.keyboard.press("Escape");
+    }
+
+    // Privacy text names the storage key
+    await page.goto(`${BASE}/de/privacy`, { waitUntil: "domcontentloaded" });
+    rec((await page.locator("main").innerText()).includes("rega-location"), "privacy page names the rega-location storage key");
+  } catch (error) {
+    rec(false, "location checks ran to the end", String(error).split("\n")[0]);
+  }
+  // One notice per viewport so the results can be read from the run's annotations.
+  console.log(`::notice title=${tag}::${out.join("%0A")}`);
+}
+
 const browser = await chromium.launch();
 try {
   for (const [vp, opts] of [["desktop", { viewport: { width: 1366, height: 900 } }], ["mobile", devices["Pixel 5"]]]) {
@@ -84,6 +195,8 @@ try {
       const count = (await page.locator("main [aria-live=polite]").first().textContent().catch(() => ""))?.trim();
       lines.push(`info ${vp} directory has no published business to open (result line: "${count}")`);
     }
+
+    await checkLocationFilter(browser, ctx, page, vp, opts);
 
     // The dashboard is never public.
     const dr = await page.goto(`${BASE}/dr`, { waitUntil: "domcontentloaded" });
