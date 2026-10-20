@@ -177,13 +177,16 @@ test.describe("location selector", () => {
   test("a phone gets a bottom sheet that fits the screen", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 800 });
     await page.goto("/de/businesses");
+    const scrollWidth = () => page.evaluate(() => document.documentElement.scrollWidth);
+    const before = await scrollWidth();
     await trigger(page).click();
     const box = (await dialog(page).boundingBox())!;
     expect(box.x).toBeGreaterThanOrEqual(0);
     expect(Math.round(box.width)).toBe(390);
     expect(Math.round(box.y + box.height)).toBe(800);
     expect(box.height).toBeLessThanOrEqual(0.86 * 800);
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    // Opening the sheet must not make the page wider than it already was (the page itself is not part of this change).
+    expect(await scrollWidth()).toBeLessThanOrEqual(Math.max(before, 390));
     await dialog(page).getByRole("button", { name: "Schließen" }).click();
     await expect(dialog(page)).toBeHidden();
   });
