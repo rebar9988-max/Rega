@@ -163,4 +163,12 @@ Owner must provide: Google OAuth client, Facebook app, Apple Services ID + clien
 runtime secrets". Not verified: any live OAuth flow (no credentials), Apple cookie handling. "Continue = accept terms"
 wording needs owner/legal approval.
 Local checks: oauth-social 24/24, i18n, glossary, workflows, config, rbac, seo pass; zod/next-dependent tests could not run
-here (no npm registry) and rely on CI. CI/deploy results: pending (see next entry).
+here (no npm registry) and rely on CI. Release: PR #27, squash merge `44d1360`. Hosted `verify` success on the PR; CI on `main` success; `Deploy to Cloudflare Workers`
+success for `44d1360`. `Workers Builds: rega-platform` failed on the PR branch (known, non-main). Live check (public fetch of
+https://www.regaplatform.com, ckb): `/ckb/auth` serves the chooser (Login / Create account, no social buttons), `/ckb/register`
+and `/ckb/login` still show the e-mail forms with no social buttons, as expected with no credentials configured. Active version
+and allocation not readable (no Cloudflare connector). Side effect: `src/lib/env.ts` is in the path filter of `Deploy Python AI
+engine`, which ran for this merge and FAILED at its smoke-test step (health check of the separate Python Worker; log not readable
+from here, 403). The step precedes enabling the integration, so the main site is unaffected; cause not diagnosed. Next safe
+continuation point: owner supplies provider credentials -> sync secrets -> test Google first, then Facebook, then Apple; re-run
+`Deploy Python AI engine` manually and read why its smoke test fails.
