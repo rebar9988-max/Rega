@@ -273,3 +273,9 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
 - Next safe continuation point: owner decides about the 4 px header/bottom-navigation overflow on phones; add a real published business to production to
   exercise the city-filtered list with data.
 
+
+
+## Autonomous recovery installation — 2026-10-21
+Scope: install owner's operational protocol in REGA only; resume verified unfinished work without expanding scope or changing visuals.
+Audit: fetched origin/main at c221ef4; read repository instructions, memory and central Google Doc. No existing WORK_PROGRESS.md or TASK_CHECKPOINT.json found. Location work is recorded as deployed/verified; do not repeat it. Open PRs: #38 footer visual overflow, #35 Modern Web Guidance, #29 migration memory, #10 diagnostics. None merged by this session. New instruction freezes unauthorized visual edits, including the pending footer change. Historical Google OAuth blocker requires fresh evidence before any repair.
+Changes: additive operational instructions plus progress/checkpoint files. No application, schema, deployment configuration, or visual changes. No persistent external runner configured. Production version has not yet been verified this session.

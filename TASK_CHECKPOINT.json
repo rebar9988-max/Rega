@@ -1,0 +1,47 @@
+{
+  "repository": "rebar9988-max/Rega",
+  "branch": "codex/autonomous-recovery-20261021",
+  "assigned_task": "Install permanent autonomous work and recovery protocol; resume only verified unfinished work",
+  "authorized_scope": "Operational rules and recovery memory; no visual or unrelated changes",
+  "completed_work": [
+    "Read current repository instructions and project memory",
+    "Fetched remote main and inspected open PRs",
+    "Read central Google Doc",
+    "Installed additive protocol and initial checkpoints"
+  ],
+  "remaining_work": [
+    "Commit and push protocol",
+    "Open PR and inspect CI",
+    "Merge/deploy only after existing gates pass",
+    "Reconcile unfinished business publishing report with current production evidence before repair"
+  ],
+  "execution_stage": "publishing_protocol",
+  "last_successful_command": "git worktree add -b codex/autonomous-recovery-20261021 /workspace/scratch/a09647e575d0/rega origin/main",
+  "failed_commands": [
+    {
+      "command": "gh pr list --repo rebar9988-max/Rega",
+      "root_cause": "gh is not installed; used GitHub connector successfully"
+    },
+    {
+      "command": "git push -u origin codex/autonomous-recovery-20261021",
+      "root_cause": "Terminal lacks GitHub credentials; trying connected GitHub API"
+    }
+  ],
+  "changed_files": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "PROJECT_MEMORY.md",
+    "WORK_PROGRESS.md",
+    "TASK_CHECKPOINT.json"
+  ],
+  "commit_sha": "c221ef4d08d3a5f8d14589daf9e8ca21c58a2687",
+  "commit_sha_meaning": "Verified parent revision; find checkpoint commit using git log -1 -- TASK_CHECKPOINT.json",
+  "pull_request_status": "not_created",
+  "test_results": "git diff --check and JSON parsing passed",
+  "build_results": "Not run; no application changes",
+  "deployment_status": "Not attempted",
+  "production_verification_results": "Not verified in this session",
+  "blockers": [],
+  "next_executable_action": "Publish documentation tree through connected GitHub API; create PR and inspect checks",
+  "updated_at": "2026-10-21"
+}
