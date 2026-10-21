@@ -23,9 +23,9 @@ export default async function RegisterPage({ params, searchParams }: { params: P
   const { locale } = await params;
   const { next, error } = await searchParams;
   setRequestLocale(locale);
-  if ((await auth().catch(() => null))?.user) redirect(safeRelativePath(next) ?? `/${locale}/account`);
-  const t = await getTranslations("auth");
   const business = isBusinessDestination(next);
+  if ((await auth().catch(() => null))?.user) redirect(business ? next! : `/${locale}/account`);
+  const t = await getTranslations("auth");
   const providers = enabledOAuthProviders(process.env);
   const errorKey = socialErrorKeyOrGeneric(error);
   return (
