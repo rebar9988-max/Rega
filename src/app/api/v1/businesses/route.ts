@@ -12,6 +12,7 @@ import { addCreatorAsMember } from "@/lib/business-access";
 import { can } from "@/lib/rbac";
 import { requirePermission } from "@/lib/auth-helpers";
 import { businessCreateSchema } from "@/lib/validation";
+import { ownsBusinessImages } from "@/lib/business-media";
 import { BUSINESS_CATEGORY } from "@/lib/business-publication";
 import { descendantIds } from "@/lib/category-tree";
 import { writeAudit } from "@/lib/audit";
@@ -78,6 +79,7 @@ export async function POST(request: NextRequest) {
     if (payload.verified || payload.status === "published") return fail(422, "not_publishable", "Missing before publishing: category, address, city, country, location, locationVerified.");
 
     if (!payload.categoryId || !await prisma.category.findFirst({ where: { id: payload.categoryId, ...BUSINESS_CATEGORY }, select: { id: true } })) return fail(422, "category_invalid", "Choose an active business category.");
+    if (!await ownsBusinessImages(prisma, [payload.logoUrl ?? "", payload.coverUrl ?? ""], user.id)) return fail(422, "media_invalid", "Choose images uploaded through this business form.");
     // Business has no nameDe column (`name` is the canonical/German text); never pass it to Prisma.
     const { nameDe, ...columns } = payload;
     void nameDe;

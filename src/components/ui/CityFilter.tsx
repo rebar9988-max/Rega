@@ -43,6 +43,8 @@ type Props = {
   fieldClass: string;
   /** List pages: a saved place is added to the address when the visitor arrives without choosing one. */
   applySavedToUrl?: boolean;
+  /** Directory country scope; other consumers retain the current default. */
+  countryCode?: string;
   /** Hide the built-in chevron when the parent draws its own. */
   chevron?: boolean;
 };
@@ -53,7 +55,7 @@ type Locating = "busy" | "denied" | "unavailable" | "unsupported" | "none" | nul
 const nameOf = (row: GeoNames, locale: Locale): Localized => localize({ ...row, name: row.nameEn }, "name", locale);
 const pickedFrom = (city: GeoCity, locale: Locale): Picked => ({ id: city.id, name: nameOf(city, locale).text, countryCode: city.countryCode, regionId: city.regionId });
 
-export function CityFilter({ cities, value, allLabel, cityLabel, fieldClass, applySavedToUrl = false, chevron = true }: Props) {
+export function CityFilter({ cities, value, allLabel, cityLabel, fieldClass, applySavedToUrl = false, chevron = true, countryCode }: Props) {
   const t = useTranslations("locationPicker");
   const locale = useLocale() as Locale;
   const router = useRouter();
@@ -153,6 +155,7 @@ export function CityFilter({ cities, value, allLabel, cityLabel, fieldClass, app
 
       {open && (
         <LocationPanel
+          countryCode={countryCode}
           panelId={panelId}
           anchorRef={buttonRef}
           fallback={cities}
@@ -172,6 +175,7 @@ export function CityFilter({ cities, value, allLabel, cityLabel, fieldClass, app
 // ------------------------------------------------------------------ the panel
 
 type PanelProps = {
+  countryCode?: string;
   panelId: string;
   anchorRef: RefObject<HTMLButtonElement | null>;
   fallback: Option[];
@@ -186,7 +190,7 @@ type PanelProps = {
 
 type Row = { id: string; text: string; localized?: Localized; count?: number; picked: Picked | null; names?: (string | null | undefined)[] };
 
-function LocationPanel({ panelId, anchorRef, fallback, selectedId, title, allLabel, cityLabel, locale, onChoose, onClose }: PanelProps) {
+function LocationPanel({ countryCode, panelId, anchorRef, fallback, selectedId, title, allLabel, cityLabel, locale, onChoose, onClose }: PanelProps) {
   const t = useTranslations("locationPicker");
   const tn = useTranslations("nearby");
   const tl = useTranslations("locations");
@@ -195,7 +199,7 @@ function LocationPanel({ panelId, anchorRef, fallback, selectedId, title, allLab
   const searchRef = useRef<HTMLInputElement>(null);
   const [isSheet] = useState(() => window.matchMedia("(max-width: 639px)").matches);
   const [box, setBox] = useState<{ top: number; start: number; width: number; maxHeight: number } | null>(null);
-  const [country, setCountry] = useState<string | undefined>(undefined);
+  const [country, setCountry] = useState<string | undefined>(countryCode);
   const [region, setRegion] = useState("");
   const [query, setQuery] = useState("");
   const [searched, setSearched] = useState("");

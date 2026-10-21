@@ -95,12 +95,10 @@ export type GeoCity = GeoNames & {
 export type GeoList = { countryCode: string; countries: GeoCountry[]; regions: GeoRegion[]; cities: GeoCity[]; hasMore: boolean };
 
 const GEO_PATH = "/api/v1/geo";
-const FRESH_MS = 5 * 60 * 1000;
-const listCache = new Map<string, { at: number; value: GeoList }>();
-const cityCache = new Map<string, { at: number; value: GeoCity | null }>();
+// Geography responses carry moderation-sensitive listing counts; fetch fresh on every open.
 
 async function getData<T>(query: URLSearchParams, signal?: AbortSignal): Promise<T> {
-  const res = await fetch(`${GEO_PATH}?${query}`, { headers: { accept: "application/json" }, signal });
+  const res = await fetch(`${GEO_PATH}?${query}`, { cache: "no-store", headers: { accept: "application/json" }, signal });
   if (!res.ok) throw new Error(`geo ${res.status}`);
   const body = (await res.json()) as { ok?: boolean; data?: T };
   if (!body.ok || body.data === undefined) throw new Error("geo response");
@@ -113,20 +111,12 @@ export async function fetchGeoList(params: { country?: string; region?: string; 
   if (params.country) query.set("country", params.country);
   if (params.region) query.set("region", params.region);
   if (params.q) query.set("q", params.q);
-  const key = query.toString();
-  const hit = listCache.get(key);
-  if (hit && Date.now() - hit.at < FRESH_MS) return hit.value;
-  const value = await getData<GeoList>(query, signal);
-  listCache.set(key, { at: Date.now(), value });
-  return value;
+  return getData<GeoList>(query, signal);
 }
 
 /** One city by id, or null when it no longer exists (a stale saved choice). */
 export async function fetchGeoCity(id: string): Promise<GeoCity | null> {
-  const hit = cityCache.get(id);
-  if (hit && Date.now() - hit.at < FRESH_MS) return hit.value;
   const data = await getData<{ city: GeoCity | null }>(new URLSearchParams({ city: id }));
-  cityCache.set(id, { at: Date.now(), value: data.city });
   return data.city;
 }
 

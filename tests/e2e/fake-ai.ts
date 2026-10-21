@@ -10,6 +10,11 @@ export const FAKE_ANTHROPIC_ANSWER = "Antwort von Claude (fake)";
 
 export function startFakeAi(port = 3999): Promise<Server> {
   const server = createServer((req, res) => {
+    // Existing test server also accepts the SDK's S3 PUT/DELETE against local dummy storage.
+    // No external storage, real keys, source metadata or production files are involved.
+    if (req.url?.startsWith("/storage/") && ["PUT", "DELETE"].includes(req.method ?? "")) {
+      req.resume(); req.on("end", () => { res.writeHead(200, { etag: '"test-object"' }); res.end(); }); return;
+    }
     let raw = "";
     req.on("data", (c) => { raw += c; });
     req.on("end", () => {

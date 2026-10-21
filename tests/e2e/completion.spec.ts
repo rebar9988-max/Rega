@@ -47,7 +47,7 @@ test("services: create, validate, publish, show publicly, find in search, archiv
   const name = `E2E Service ${stamp}`;
   // A select inside its label contributes its selected option to the label's name, so these match by substring.
   await page.getByLabel("Unternehmen").selectOption({ label: "Zagros Restaurant" });
-  await page.getByLabel("Kategorie").selectOption({ label: "Gastronomie" });
+  await page.getByRole("combobox", { name: "Kategorie", exact: true }).selectOption({ label: "Gastronomie" });
   await page.getByLabel("Name", { exact: true }).fill(name);
   await page.getByTestId("price-from").fill("25");
   await page.getByTestId("price-to").fill("10"); // below "from": refused on the server
@@ -116,7 +116,7 @@ test("opening hours: validated input, shown on the detail page; 'Open now' keeps
   const name = `E2E Rund um die Uhr ${stamp}`;
   await page.goto("/dr/businesses/new");
   await page.getByLabel("Name", { exact: true }).fill(name);
-  await page.getByLabel("Kategorie").selectOption({ label: "Recht" });
+  await page.getByRole("combobox", { name: "Kategorie", exact: true }).selectOption({ label: "Recht" });
   // Hamburg, away from the Berlin demo data that other map tests cluster on.
   await page.getByLabel("Straße und Hausnummer").fill("Jungfernstieg 7");
   await page.getByLabel("Land").selectOption("DE");

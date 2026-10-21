@@ -79,7 +79,7 @@ async function notifyReturned(businessId: string, listing: string, reason?: stri
 }
 
 export type BusinessFormState = {
-  error?: "invalid" | "not_found" | "published_incomplete" | "city_unknown" | "unverified" | "media_invalid" | "category_invalid";
+  error?: "invalid" | "not_found" | "published_incomplete" | "city_unknown" | "unverified" | "media_invalid" | "category_invalid" | "draft_changed";
   fields?: string[];
   /** Set after a wizard "save draft": the form stays where it is and carries this id, so the next save updates the same draft. */
   draft?: { id: string; at: number };
@@ -108,7 +108,8 @@ export async function saveBusinessAction(_prev: BusinessFormState, formData: For
   });
   revalidatePath("/", "layout");
   // Wizard draft: stay on the same screen (the person is in the middle of the steps) and hand back the saved id.
-  if (input.intent === "draft") return { draft: { id: result.id, at: Date.now() } };
+  const revision = Number(formData.get("draftRevision"));
+  if (input.intent === "draft") return { draft: { id: result.id, at: Number.isSafeInteger(revision) && revision > 0 ? revision : Date.now() } };
   const flag = input.intent === "publish" ? (result.published ? "published" : "blocked") : input.intent === "submit" ? (result.submitted ? "submitted" : "blocked") : "saved";
   redirect(`/dr/businesses/${result.id}?${flag}=1`);
 }

@@ -4,13 +4,11 @@
  * Admin create/edit form: business details, address and a confirmed map location. Everything is validated again
  * on the server (saveBusinessAction); this component only helps the admin fill it in correctly.
  *
- * Business owners (who submit for review rather than publish) fill it in three steps: 1 basics, 2 location and hours,
- * 3 contact, images and a final review. All steps stay mounted in the same form, so Back/Next never loses anything;
- * "Save draft" (and every Next, while the listing is still a draft) stores the progress on the server through the same
- * action. Staff who publish keep the single-page form.
+ * Owners use three steps: information/location, images, then review. All panels stay mounted.
+ * Valid draft progress is saved through the existing server action; staff keep the single-page form.
  */
 import dynamic from "next/dynamic";
-import { useActionState, useMemo, useRef, useState, useTransition, useEffect } from "react";
+import { useCallback, useActionState, useMemo, useRef, useState, useTransition, useEffect } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { LOCALES, LOCALE_META, localeSuffix, type Locale } from "@/config/locales";
 import { isValidCoordinate } from "@/lib/coordinates";
@@ -18,7 +16,7 @@ import type { GeocodeHit } from "@/lib/geocoder-parse";
 import { geocodeAction, saveBusinessAction, type BusinessFormState } from "@/app/dr/businesses/actions";
 import { WEEK, type WeekDay } from "@/lib/opening-hours";
 import { normalizeWhatsapp } from "@/lib/whatsapp";
-import { MediaField } from "./MediaField";
+import { BusinessImageField } from "./BusinessImageField";
 import { PhotosField } from "./PhotosField";
 
 const LocationPicker = dynamic(() => import("./LocationPicker").then((m) => m.LocationPicker), {
@@ -38,7 +36,7 @@ export type FormInitial = {
   languages?: string[];
 };
 
-const input = "min-h-11 w-full rounded-xl border border-line bg-surface px-3 text-sm outline-none focus:border-brand aria-[invalid=true]:border-brand";
+const input = "min-h-12 w-full rounded-xl border border-line bg-surface px-3 text-base outline-none focus:border-brand aria-[invalid=true]:border-brand";
 
 export function BusinessForm({ initial, categories, countries, cities, canPublish, storageReady, maxPhotos }: {
   initial: FormInitial; categories: { id: string; name: string }[]; countries: { code: string; name: string }[];
@@ -55,8 +53,15 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
   const formRef = useRef<HTMLFormElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [reviewImages, setReviewImages] = useState<string[]>([]);
+  const [reviewContact, setReviewContact] = useState<string[]>([]);
   const [stepErrors, setStepErrors] = useState<string[]>([]);
+  const attemptedRevision = useRef(0);
   const [dirtyAt, setDirtyAt] = useState(0);
+  const [mediaBusy, setMediaBusy] = useState(0);
+  const onMediaBusy = useCallback((delta: number) => { setMediaBusy((n) => n + delta); }, []);
+  const onMediaChange = useCallback(() => setDirtyAt(Date.now()), []);
+  const [categorySearch, setCategorySearch] = useState("");
   const [name, setName] = useState(initial.name ?? "");
   const [wa, setWa] = useState(initial.whatsapp ?? "");
   const [categoryId, setCategoryId] = useState(initial.categoryId ?? "");
@@ -92,6 +97,25 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
     return () => window.removeEventListener("beforeunload", warn);
   }, [unsaved]);
 
+  useEffect(() => {
+    if (!wizard || !isDraft || !unsaved || saving || mediaBusy > 0 || name.trim().length < 2) return;
+    const timer = setTimeout(() => {
+      if (!formRef.current || attemptedRevision.current >= dirtyAt) return;
+      const data = new FormData(formRef.current);
+      // Avoid saving partially typed optional fields or half an address/coordinate pair.
+      const text = (key: string) => String(data.get(key) ?? "").trim();
+      const address = text("addressLine1"), city = text("city");
+      if ((address || city) && (address.length < 3 || !city)) return;
+      if (Boolean(text("latitude")) !== Boolean(text("longitude"))) return;
+      if (text("whatsapp") && !normalizeWhatsapp(text("whatsapp"), text("countryCode")).ok) return;
+      if ([...formRef.current.elements].some((el) => el instanceof HTMLInputElement && el.value && !el.validity.valid)) return;
+      attemptedRevision.current = dirtyAt;
+      data.set("intent", "draft"); data.set("draftRevision", String(dirtyAt));
+      startSubmit(() => formAction(data));
+    }, 1800);
+    return () => clearTimeout(timer);
+  }, [wizard, isDraft, unsaved, saving, mediaBusy, name, dirtyAt, formAction, startSubmit]);
+
   const latNum = lat.trim() === "" ? NaN : Number(lat);
   const lngNum = lng.trim() === "" ? NaN : Number(lng);
   const coordsGiven = lat.trim() !== "" || lng.trim() !== "";
@@ -105,15 +129,20 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
 
   /** What is missing on a step (convenience only: the server checks everything again). */
   function missingOn(n: number): string[] {
-    if (n === 1) return [...(name.trim().length < 2 ? ["name"] : []), ...(categoryId ? [] : ["categoryId"])];
-    if (n === 2) return [
+    if (n === 1) return [
+      ...(name.trim().length < 2 ? ["name"] : []), ...(categoryId ? [] : ["categoryId"]),
       ...(address.trim().length < 3 ? ["addressLine1"] : []), ...(cityMatch ? [] : ["city"]), ...(country ? [] : ["countryCode"]),
-      ...(coordsOk && confirmed ? [] : ["latitude"]),
+      ...(coordsOk && confirmed ? [] : ["latitude"]), ...(waResult && !waResult.ok ? ["whatsapp"] : []),
     ];
-    return waResult && !waResult.ok ? ["whatsapp"] : [];
+    return [];
   }
 
   function goTo(n: 1 | 2 | 3) {
+    if (n === 3 && formRef.current) {
+      const data = new FormData(formRef.current);
+      setReviewImages([data.get("logoUrl"), data.get("coverUrl"), ...data.getAll("photoUrls")].filter((v): v is string => typeof v === "string" && v.startsWith("https://")));
+      setReviewContact([data.get("phone"),data.get("email"),data.get("whatsapp"),data.get("website")].filter((v): v is string => typeof v === "string" && Boolean(v)));
+    }
     setStep(n);
     setStepErrors([]);
     formRef.current?.scrollIntoView?.({ block: "start" });
@@ -127,7 +156,7 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
     // Progress is kept on the server while the listing is still a draft, so a lost connection or a closed tab costs nothing.
     if (isDraft && formRef.current) {
       const data = new FormData(formRef.current);
-      data.set("intent", "draft");
+      data.set("intent", "draft"); data.set("draftRevision", String(dirtyAt));
       startSubmit(() => formAction(data));
     }
     goTo((step + 1) as 2 | 3);
@@ -156,11 +185,18 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
       className="space-y-8"
       // The wizard checks each step itself (hidden steps would otherwise block the browser's own validation).
       noValidate={wizard}
+      aria-busy={saving}
       onChange={() => setDirtyAt(Date.now())}
       // Dispatch manually (not via the action prop) so a server-side validation error never resets what was typed.
       onSubmit={(e) => {
         e.preventDefault();
+        if (mediaBusy > 0) return;
         const data = new FormData(e.currentTarget, (e.nativeEvent as SubmitEvent).submitter);
+        data.set("draftRevision", String(dirtyAt));
+        if (wizard && data.get("intent") === "submit") {
+          const missing = missingOn(1);
+          if (missing.length) { goTo(1); setStepErrors(missing); return; }
+        }
         startSubmit(() => formAction(data));
       }}
     >
@@ -178,9 +214,9 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
           </ol>
         </nav>
       )}
-      {state?.error && <p role="alert" className="rounded-xl bg-brand-soft px-4 py-3 text-sm font-semibold text-ink" data-testid="form-error">{t(state.error === "published_incomplete" ? "publishedIncomplete" : state.error === "unverified" ? "unverifiedEmail" : state.error === "city_unknown" ? "cityUnknown" : state.error === "media_invalid" ? "mediaInvalid" : "invalid")}</p>}
+      {state?.error && <p role="alert" className="rounded-xl bg-brand-soft px-4 py-3 text-sm font-semibold text-ink" data-testid="form-error">{t(state.error === "draft_changed" ? "wizard.draftChanged" : state.error === "published_incomplete" ? "publishedIncomplete" : state.error === "unverified" ? "unverifiedEmail" : state.error === "city_unknown" ? "cityUnknown" : state.error === "media_invalid" ? "mediaInvalid" : "invalid")}</p>}
       {stepErrors.length > 0 && <p role="alert" className="rounded-xl bg-brand-soft px-4 py-3 text-sm font-semibold text-ink" data-testid="step-error">{t(stepErrors.includes("latitude") && stepErrors.length === 1 ? "wizard.needPin" : "wizard.fixFields")}</p>}
-      {state?.draft && !state.error && <p role="status" className="rounded-xl bg-surface-2 px-4 py-3 text-sm font-semibold" data-testid="draft-saved">{t("wizard.draftSaved")}</p>}
+      {state?.draft && !state.error && !unsaved && <p role="status" className="rounded-xl bg-surface-2 px-4 py-3 text-sm font-semibold" data-testid="draft-saved">{t("wizard.draftSaved")}</p>}
 
       <div ref={panelRef} tabIndex={-1} className="grid gap-8 outline-none">
       <div hidden={!show(1)}>
@@ -192,6 +228,10 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
         <label className="flex flex-col gap-1 text-sm font-semibold">{t("nameCkb")}
           <input name="nameCkb" maxLength={200} defaultValue={initial.nameCkb} dir="rtl" className={input} />
         </label>
+        <div className="space-y-2">
+        <label className="flex flex-col gap-1 text-sm font-semibold">{t("categorySearch")}
+          <input type="search" value={categorySearch} onChange={(e) => setCategorySearch(e.target.value)} className={input} autoComplete="off" />
+        </label>
         <label className="flex flex-col gap-1 text-sm font-semibold">{t("category")}
           <select
             name="categoryId"
@@ -202,10 +242,12 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
             aria-invalid={bad("categoryId")}
           >
             <option value="">{t("chooseCategory")}</option>
-            {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+            {categories.filter((c) => c.id === categoryId || c.name.toLocaleLowerCase().includes(categorySearch.toLocaleLowerCase())).map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
         </label>
-        <label className="flex flex-col gap-1 text-sm font-semibold sm:col-span-2">{t("description")}
+        </div>
+        <details className="sm:col-span-2 rounded-xl border border-line p-3"><summary className="cursor-pointer text-sm font-semibold">{t("optionalDetails")}</summary>
+        <label className="mt-3 flex flex-col gap-1 text-sm font-semibold sm:col-span-2">{t("description")}
           <textarea name="description" rows={3} maxLength={8000} defaultValue={initial.description} className={`${input} py-2`} />
         </label>
         <details className="rounded-xl border border-line px-4 py-3 sm:col-span-2" open={LOCALES.some((l) => initial.translations?.[l])}>
@@ -231,10 +273,11 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
             ))}
           </div>
         </fieldset>
+        </details>
       </fieldset>
       </div>
 
-      <div hidden={!show(3)}>
+      <div hidden={!show(1)}>
       <fieldset className="grid gap-4 rounded-[var(--radius-card)] border border-line bg-surface p-5 sm:grid-cols-2">
         <legend className="px-1 text-base font-bold">{t("sectionContact")}</legend>
         <p className="text-xs text-muted sm:col-span-2">{t("publicContactHint")}</p>
@@ -260,7 +303,7 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
 
       </div>
 
-      <div hidden={!show(2)} className="grid gap-8">
+      <div hidden={!show(1)} className="grid gap-8">
       <fieldset className="space-y-4 rounded-[var(--radius-card)] border border-line bg-surface p-5">
         <legend className="px-1 text-base font-bold">{t("sectionLocation")}</legend>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -312,7 +355,7 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
 
         <p className="text-sm text-muted">{t("pickerHint")}</p>
         {/* Mounted only while its step is on screen: a map created in a hidden box would have no size. */}
-        {show(2) && <LocationPicker value={value} fallbackCenter={cityCentre} onPick={(v) => place(v, "manual")} label={t("location")} unavailable={tm("unavailable")} dir={dir} />}
+        {show(1) && <LocationPicker value={value} fallbackCenter={cityCentre} onPick={(v) => place(v, "manual")} label={t("location")} unavailable={tm("unavailable")} dir={dir} />}
 
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="flex flex-col gap-1 text-sm font-semibold">{t("latitude")}
@@ -330,8 +373,9 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
         </label>
       </fieldset>
 
-      <fieldset className="space-y-4 rounded-[var(--radius-card)] border border-line bg-surface p-5">
-        <legend className="px-1 text-base font-bold">{t("sectionHours")}</legend>
+      <details open={canPublish} className="rounded-[var(--radius-card)] border border-line bg-surface p-5"><summary className="cursor-pointer text-sm font-semibold">{t("sectionHours")}</summary>
+      <fieldset className="mt-3 space-y-4">
+        <legend className="sr-only">{t("sectionHours")}</legend>
         <p className="text-sm text-muted" id="hours-hint">{t("hoursHint")}</p>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {WEEK.map((d) => (
@@ -342,17 +386,20 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
           ))}
         </div>
       </fieldset>
+      </details>
 
       </div>
 
-      <div hidden={!show(3)} className="grid gap-8">
+      <div hidden={!show(2)} className="grid gap-8">
       <fieldset className="grid gap-4 rounded-[var(--radius-card)] border border-line bg-surface p-5 sm:grid-cols-2">
         <legend className="px-1 text-base font-bold">{t("sectionMedia")}</legend>
-        <MediaField name="logoUrl" label={t("logo")} initial={initial.logoUrl ?? ""} businessId={businessId} storageReady={storageReady} invalid={bad("logoUrl")} />
-        <MediaField name="coverUrl" label={t("cover")} initial={initial.coverUrl ?? ""} businessId={businessId} storageReady={storageReady} invalid={bad("coverUrl")} wide />
-        <PhotosField label={t("photos")} initial={initial.photos ?? []} max={maxPhotos} businessId={businessId} storageReady={storageReady} />
+        <BusinessImageField name="logoUrl" label={t("logo")} initial={initial.logoUrl ?? ""} businessId={businessId} storageReady={storageReady} invalid={bad("logoUrl")} onBusyChange={onMediaBusy} onValueChange={onMediaChange} />
+        <BusinessImageField name="coverUrl" label={t("cover")} initial={initial.coverUrl ?? ""} businessId={businessId} storageReady={storageReady} invalid={bad("coverUrl")} wide onBusyChange={onMediaBusy} onValueChange={onMediaChange} />
+        <PhotosField label={t("photos")} initial={initial.photos ?? []} max={maxPhotos} businessId={businessId} storageReady={storageReady} onBusyChange={onMediaBusy} onValueChange={onMediaChange} />
       </fieldset>
 
+      </div>
+      <div hidden={!show(3)}>
       {wizard && (
         <section aria-labelledby="review-title" className="rounded-[var(--radius-card)] border border-line bg-surface p-5" data-testid="wizard-review">
           <h2 id="review-title" className="mb-3 text-base font-bold">{t("wizard.review")}</h2>
@@ -362,6 +409,11 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
             <div><dt className="text-muted">{t("address")}</dt><dd className="font-semibold"><bdi>{[address, postal, city, countries.find((c) => c.code === country)?.name].filter(Boolean).join(", ") || "—"}</bdi></dd></div>
             <div><dt className="text-muted">{t("location")}</dt><dd className="font-semibold">{coordsOk && confirmed ? t("wizard.pinConfirmed") : t("wizard.pinMissing")}</dd></div>
           </dl>
+          <p className="mt-3 text-sm" dir="auto">{reviewContact.join(" · ")}</p>
+          <ul className="mt-4 flex flex-wrap gap-3">{reviewImages.map((url) => <li key={url}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={url} alt="" className="size-24 rounded-xl border border-line bg-surface-2 object-contain" />
+          </li>)}</ul>
           <p className="mt-3 text-xs text-muted">{t("wizard.reviewHint")}</p>
         </section>
       )}
@@ -370,16 +422,16 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
 
       <div className="flex flex-wrap gap-3">
         {wizard && step > 1 && (
-          <button type="button" onClick={() => goTo((step - 1) as 1 | 2)} disabled={saving} data-testid="wizard-back" className="min-h-11 rounded-xl border border-line bg-surface px-6 text-sm font-bold hover:border-brand hover:text-brand disabled:opacity-60">{t("wizard.back")}</button>
+          <button type="button" onClick={() => goTo((step - 1) as 1 | 2)} disabled={saving || mediaBusy > 0} data-testid="wizard-back" className="min-h-11 rounded-xl border border-line bg-surface px-6 text-sm font-bold hover:border-brand hover:text-brand disabled:opacity-60">{t("wizard.back")}</button>
         )}
         {wizard && step < 3 && (
-          <button type="button" onClick={next} disabled={saving} data-testid="wizard-next" className="min-h-11 rounded-xl bg-brand px-6 text-sm font-bold text-brand-ink hover:bg-brand-hover disabled:opacity-60">{t("wizard.next")}</button>
+          <button type="button" onClick={next} disabled={saving || mediaBusy > 0} data-testid="wizard-next" className="min-h-11 rounded-xl bg-brand px-6 text-sm font-bold text-brand-ink hover:bg-brand-hover disabled:opacity-60">{t("wizard.next")}</button>
         )}
-        <button type="submit" name="intent" value={wizard && isDraft ? "draft" : "save"} disabled={saving || (wizard && isDraft && name.trim().length < 2)} data-testid={wizard && isDraft ? "save-draft" : "save"} className="min-h-11 rounded-xl border border-line bg-surface px-6 text-sm font-bold hover:border-brand hover:text-brand disabled:opacity-60">{wizard && isDraft ? t("wizard.saveDraft") : t("save")}</button>
+        <button type="submit" name="intent" value={wizard && isDraft ? "draft" : "save"} disabled={saving || mediaBusy > 0 || (wizard && isDraft && name.trim().length < 2)} data-testid={wizard && isDraft ? "save-draft" : "save"} className="min-h-11 rounded-xl border border-line bg-surface px-6 text-sm font-bold hover:border-brand hover:text-brand disabled:opacity-60">{wizard && isDraft ? t("wizard.saveDraft") : t("save")}</button>
         {canPublish ? (
-          <button type="submit" name="intent" value="publish" disabled={saving} className="min-h-11 rounded-xl bg-brand px-6 text-sm font-bold text-brand-ink hover:bg-brand-hover disabled:opacity-60">{t("savePublish")}</button>
+          <button type="submit" name="intent" value="publish" disabled={saving || mediaBusy > 0} className="min-h-11 rounded-xl bg-brand px-6 text-sm font-bold text-brand-ink hover:bg-brand-hover disabled:opacity-60">{t("savePublish")}</button>
         ) : (!wizard || step === 3) && (
-          <button type="submit" name="intent" value="submit" disabled={saving || initial.status === "pending" || initial.status === "published"} data-testid="submit-review" className="min-h-11 rounded-xl bg-brand px-6 text-sm font-bold text-brand-ink hover:bg-brand-hover disabled:opacity-60">{t("submitReview")}</button>
+          <button type="submit" name="intent" value="submit" disabled={saving || mediaBusy > 0 || initial.status === "pending" || initial.status === "published"} data-testid="submit-review" className="min-h-11 rounded-xl bg-brand px-6 text-sm font-bold text-brand-ink hover:bg-brand-hover disabled:opacity-60">{t("submitReview")}</button>
         )}
       </div>
     </form>

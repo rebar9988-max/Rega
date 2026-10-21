@@ -34,7 +34,8 @@ const querySchema = z
   })
   .refine((v) => (v.lat === undefined) === (v.lng === undefined), { message: "lat and lng go together" });
 
-const CACHEABLE = "public, max-age=60, s-maxage=300, stale-while-revalidate=600";
+// These responses include live publication counts; a suspended listing must not survive in a cached total.
+const CACHE_CONTROL = "no-store";
 
 export async function GET(request: NextRequest) {
   try {
@@ -46,7 +47,7 @@ export async function GET(request: NextRequest) {
 
     if (query.city) {
       const res = ok({ city: await geoCityById(query.city) });
-      res.headers.set("Cache-Control", CACHEABLE);
+      res.headers.set("Cache-Control", CACHE_CONTROL);
       return res;
     }
 
@@ -65,7 +66,7 @@ export async function GET(request: NextRequest) {
       geoCities({ countryCode, regionId: query.region, q, limit: query.limit }),
     ]);
     const res = ok({ countryCode, countries, regions, cities: list.cities, hasMore: list.hasMore });
-    res.headers.set("Cache-Control", CACHEABLE);
+    res.headers.set("Cache-Control", CACHE_CONTROL);
     return res;
   } catch (error) {
     return handleError(error, "geo");

@@ -1,7 +1,10 @@
+import { prisma } from "@/lib/db";
+import { PUBLIC_BUSINESS } from "@/lib/search-where";
+import { CategoryNavigation } from "./categories/CategoryNavigation";
 import { Suspense } from "react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { PageSchema } from "@/components/ui/PageSchema";
-import { BusinessCard } from "@/components/cards/BusinessCard";
+import { DirectoryBusinessCard } from "@/components/cards/DirectoryBusinessCard";
 import { categoryOptions, cityOptions } from "@/components/ui/FilterBar";
 import { NoResults } from "@/components/ui/Grid";
 import { AutoSubmitSelect } from "@/components/ui/AutoSubmitSelect";
@@ -40,17 +43,20 @@ export async function BusinessIndex({ pathname, searchParams, title, crumbs, fix
     fixed?.city
       ? Promise.resolve([])
       : listSelectorCities({
-          countryCode: DEFAULT_PUBLIC_COUNTRY_CODE,
+          countryCode: query.country ?? DEFAULT_PUBLIC_COUNTRY_CODE,
           categoryId: fixed?.category ?? query.category,
           q: query.q,
           verified: query.verified,
         }),
   ]);
 
+  const countries = await prisma.country.findMany({ where: { isActive: true, OR: [{code:"DE"},{cities:{some:{locations:{some:{status:"active",deletedAt:null,business:PUBLIC_BUSINESS}}}}}] }, select:{code:true}, orderBy:{sortOrder:"asc"} });
+  const locale = await getLocale();
+  const countryName = (code: string) => { try {return new Intl.DisplayNames([locale,"en"],{type:"region"}).of(code) ?? code;} catch {return code;} };
   const formId = "directory-filters";
   const categoryList = fixed?.category ? undefined : await categoryOptions(categories);
   const cityList = fixed?.city ? undefined : await cityOptions(cities);
-  const active = Boolean(query.q || query.verified || (!fixed?.category && query.category) || (!fixed?.city && query.city));
+  const active = Boolean(query.q || query.country || query.verified || (!fixed?.category && query.category) || (!fixed?.city && query.city));
   const field = "min-h-11 w-full rounded-lg border border-line bg-surface px-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/10";
 
   return (
@@ -58,6 +64,7 @@ export async function BusinessIndex({ pathname, searchParams, title, crumbs, fix
       <PageSchema type="CollectionPage" name={title} path={pathname} crumbs={crumbs.map((c) => ({ name: String(c.label), path: c.href ?? pathname }))} />
       <PageHeader title={title} subtitle={subtitle ?? t("businesses.lead")} crumbs={crumbs} />
       <div className="container-page">
+        <CategoryNavigation categoryId={fixed?.category ?? query.category} showCounts={!Boolean(query.q || query.city || query.country || fixed?.city)} />
         {/* Search first (approved concept, page 3): what + where. Every other filter joins this form via `form=`. */}
         <form id={formId} action={pathname} role="search"
           className={`rega-search-shell grid gap-0 overflow-visible ${cityList ? "sm:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_auto]" : "sm:grid-cols-[minmax(0,1fr)_auto]"}`}>
@@ -65,13 +72,13 @@ export async function BusinessIndex({ pathname, searchParams, title, crumbs, fix
             <FigmaIcon name="search" className="size-5 shrink-0 text-brand" />
             <label htmlFor="f-q" className="sr-only">{t("search.placeholder")}</label>
             <input id="f-q" name="q" type="search" defaultValue={query.q} placeholder={t("search.placeholder")} autoComplete="off" maxLength={120}
-              className="min-w-0 flex-1 bg-transparent text-[15px] outline-none placeholder:text-muted" />
+              className="min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-muted" />
           </div>
           {cityList && (
             <div className="flex min-h-14 min-w-0 items-center gap-2 border-t border-line px-3 sm:border-s sm:border-t-0">
               <FigmaIcon name="map-pin" className="size-5 shrink-0 text-brand" />
               <div className="min-w-0 flex-1">
-                <CityFilter cities={cityList} value={query.city} allLabel={t("list.allCities")} cityLabel={t("locations.city")}
+                <CityFilter countryCode={query.country} cities={cityList} value={query.city} allLabel={t("list.allCities")} cityLabel={t("locations.city")}
                   fieldClass="min-h-11 w-full bg-transparent px-1 text-sm outline-none" applySavedToUrl />
               </div>
             </div>
@@ -79,14 +86,21 @@ export async function BusinessIndex({ pathname, searchParams, title, crumbs, fix
           <button type="submit" className="min-h-12 rounded-b-[0.7rem] bg-brand px-8 text-[15px] font-bold text-brand-ink transition hover:bg-brand-hover sm:m-1.5 sm:rounded-[0.55rem]">{t("nav.search")}</button>
         </form>
 
-        <div className="mt-6 grid items-start gap-6 lg:grid-cols-[15.5rem_minmax(0,1fr)]">
+        <div className="mt-5 grid items-start gap-5 lg:grid-cols-[15.5rem_minmax(0,1fr)]">
           {/* Progressive filters. */}
           <aside aria-labelledby="dir-filters-title" className="rega-card p-4 lg:sticky lg:top-24">
             <div className="flex items-center justify-between gap-3">
               <h2 id="dir-filters-title" className="text-base font-bold">{t("list.filters")}</h2>
               {active && <Link href={cityList ? `${pathname}?city=` : pathname} className="text-sm font-semibold text-brand hover:underline">{t("list.reset")}</Link>}
             </div>
-            <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
+            <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-1">
+              <div>
+                <label htmlFor="f-country" className="mb-1.5 block text-sm font-semibold">{t("bizForm.country")}</label>
+                <select id="f-country" name="country" form={formId} defaultValue={query.country ?? ""} className={field}>
+                  <option value="">{t("common.all")}</option>
+                  {countries.map((c)=><option key={c.code} value={c.code}>{countryName(c.code)}</option>)}
+                </select>
+              </div>
               {categoryList && (
                 <div>
                   <label htmlFor="f-cat" className="mb-1.5 block text-sm font-semibold">{t("services.category")}</label>
@@ -129,7 +143,7 @@ async function Results({ query, pathname, fixed, heading, formId }: { query: Bus
   const result = await listBusinesses(query);
   const t = await getTranslations();
   const locale = (await getLocale()) as Locale;
-  const filtered = Boolean(query.q || query.verified || (!fixed?.category && query.category) || (!fixed?.city && query.city));
+  const filtered = Boolean(query.q || query.country || query.verified || (!fixed?.category && query.category) || (!fixed?.city && query.city));
   const empty = result.items.length === 0;
   return (
     <>
@@ -146,10 +160,10 @@ async function Results({ query, pathname, fixed, heading, formId }: { query: Bus
         </div>
       </div>
       {empty ? <NoResults bare filtered={filtered || Boolean(fixed?.category || fixed?.city)} /> : (
-        <div className="grid grid-cols-1 gap-3">{result.items.map((b) => <BusinessCard key={b.id} b={b} />)}</div>
+        <div className="grid grid-cols-1 gap-3">{result.items.map((b) => <DirectoryBusinessCard key={b.id} b={b} />)}</div>
       )}
       <Pagination page={result.page} pages={result.pages} pathname={pathname}
-        params={{ q: query.q, category: fixed?.category ? undefined : query.category, city: fixed?.city ? undefined : query.city, verified: query.verified, sort: query.sort === "featured" ? undefined : query.sort }} />
+        params={{ q: query.q, country: query.country, category: fixed?.category ? undefined : query.category, city: fixed?.city ? undefined : query.city, verified: query.verified, sort: query.sort === "featured" ? undefined : query.sort }} />
     </>
   );
 }
