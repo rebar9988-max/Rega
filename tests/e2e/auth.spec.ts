@@ -66,3 +66,13 @@ test("employee is rejected by the server for privileged API calls", async ({ pag
   const res = await page.request.post("/api/v1/categories", { data: { key: "x", slug: "x", nameCkb: "x", nameDe: "x" } });
   expect(res.status()).toBe(403);
 });
+
+// Business continuation must not alter the established redirect of unrelated registration entries.
+test("signed-in registration preserves business continuation and unrelated account redirects", async ({ page }) => {
+  await login(page, ADMIN, "/de/account");
+  await expect(page).toHaveURL(/\/de\/account$/);
+  await page.goto("/de/register?next=%2Fdr");
+  await expect(page).toHaveURL(/\/de\/account$/);
+  await page.goto("/de/register?next=%2Fdr%2Fbusinesses%2Fnew");
+  await expect(page).toHaveURL(/\/dr\/businesses\/new$/);
+});

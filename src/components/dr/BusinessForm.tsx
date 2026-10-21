@@ -38,7 +38,7 @@ export type FormInitial = {
   languages?: string[];
 };
 
-const input = "min-h-11 w-full rounded-xl border border-line bg-surface px-3 text-sm outline-none focus:border-brand aria-[invalid=true]:border-brand";
+const input = "min-h-11 w-full rounded-xl border border-line bg-surface px-3 text-base outline-none focus:border-brand aria-[invalid=true]:border-brand";
 
 export function BusinessForm({ initial, categories, countries, cities, canPublish, storageReady, maxPhotos }: {
   initial: FormInitial; categories: { id: string; name: string }[]; countries: { code: string; name: string }[];
@@ -167,10 +167,10 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
       {businessId && <input type="hidden" name="id" value={businessId} />}
       {wizard && (
         <nav aria-label={t("wizard.steps")}>
-          <ol className="flex flex-wrap gap-2 text-sm font-semibold" data-testid="wizard-steps">
+          <ol className="grid grid-cols-3 gap-2 text-xs font-semibold sm:text-sm" data-testid="wizard-steps">
             {([1, 2, 3] as const).map((n) => (
               <li key={n} aria-current={step === n ? "step" : undefined} data-testid={`wizard-step-${n}`}
-                className={`flex items-center gap-2 rounded-xl border px-3 py-2 ${step === n ? "border-brand bg-brand-soft text-ink" : "border-line text-muted"}`}>
+                className={`flex min-w-0 flex-col items-center gap-2 rounded-xl border px-2 py-3 text-center sm:flex-row sm:text-start ${step === n ? "border-brand bg-brand-soft text-ink" : "border-line text-muted"}`}>
                 <span aria-hidden="true" className={`grid size-6 place-items-center rounded-full text-xs font-bold ${step === n ? "bg-brand text-brand-ink" : "bg-surface-2"}`}>{n}</span>
                 {t(`wizard.step${n}`)}
               </li>

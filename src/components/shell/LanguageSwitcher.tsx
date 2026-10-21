@@ -15,7 +15,7 @@ const TRIGGER_LABEL: Record<string, string> = { ckb: "کوردی", kmr: "Kurmanc
  * with `right-0` to its trigger, so the trigger and the menu sit in exactly the same place in every language.
  * Page direction (RTL/LTR) only affects the text of each item, via `dir` on the label itself.
  */
-export function LanguageSwitcher() {
+export function LanguageSwitcher({ destination }: { destination?: string } = {}) {
   const locale = useLocale();
   const pathname = usePathname();
   const t = useTranslations("common");
@@ -47,7 +47,7 @@ export function LanguageSwitcher() {
           const current = code === locale;
           return (
             <li key={code}>
-              <Link href={pathname} locale={code} onClick={() => close()} hrefLang={meta.htmlLang}
+              <Link href={destination ?? pathname} locale={code} onClick={() => close()} hrefLang={meta.htmlLang}
                 aria-current={current ? "true" : undefined}
                 className={`flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm hover:bg-brand-soft focus-visible:outline-2 focus-visible:outline-brand ${current ? "bg-brand-soft font-bold text-brand" : ""}`}>
                 <span className="w-5 shrink-0 text-center" aria-hidden="true">{current ? "✓" : ""}</span>

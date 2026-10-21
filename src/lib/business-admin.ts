@@ -3,6 +3,8 @@
  * resolves city and country, and decides whether it may be published. Server-only; callers check permissions.
  */
 import "server-only";
+import { addCreatorAsMember, hasGlobalBusinessAccess } from "@/lib/business-access";
+import type { Role } from "@/lib/rbac";
 import { z } from "zod";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
@@ -141,7 +143,7 @@ export type SavePerms = { canPublish: boolean; canCreateCity: boolean };
  * explicit confirmation lose their verification, so a moved marker must be confirmed again before publishing.
  * With intent "publish" the business is published only when every publish requirement is met.
  */
-export async function saveBusiness(input: BusinessForm, actor: { id: string }, perms: SavePerms): Promise<SaveResult> {
+export async function saveBusiness(input: BusinessForm, actor: { id: string; role: Role }, perms: SavePerms): Promise<SaveResult> {
   try {
     return await save(input, actor, perms);
   } catch (error) {
@@ -153,7 +155,7 @@ export async function saveBusiness(input: BusinessForm, actor: { id: string }, p
   }
 }
 
-async function save(input: BusinessForm, actor: { id: string }, { canPublish, canCreateCity }: SavePerms): Promise<SaveResult> {
+async function save(input: BusinessForm, actor: { id: string; role: Role }, { canPublish, canCreateCity }: SavePerms): Promise<SaveResult> {
   const result = await prisma.$transaction(async (tx) => {
     // A draft may not have a location yet; every other intent was validated to have one.
     const loc = input.addressLine1 && input.city && input.countryCode ? { addressLine1: input.addressLine1, city: input.city, countryCode: input.countryCode } : null;
@@ -167,7 +169,7 @@ async function save(input: BusinessForm, actor: { id: string }, { canPublish, ca
     if (!targetId) {
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${actor.id}::text))`;
       const recent = await tx.business.findFirst({
-        where: { createdById: actor.id, deletedAt: null, status: { in: ["draft", "pending"] }, name: { equals: input.name, mode: "insensitive" }, createdAt: { gte: new Date(Date.now() - DUPLICATE_WINDOW_MS) } },
+        where: { ...(!hasGlobalBusinessAccess(actor.role) ? { members: { some: { userId: actor.id, isActive: true } } } : {}), createdById: actor.id, deletedAt: null, status: { in: ["draft", "pending"] }, name: { equals: input.name, mode: "insensitive" }, createdAt: { gte: new Date(Date.now() - DUPLICATE_WINDOW_MS) } },
         select: { id: true }, orderBy: { createdAt: "desc" },
       });
       targetId = recent?.id;
@@ -201,6 +203,8 @@ async function save(input: BusinessForm, actor: { id: string }, { canPublish, ca
       const taken = (await tx.business.findUnique({ where: { slug }, select: { id: true } })) || (await tx.category.findUnique({ where: { slug }, select: { id: true } }));
       if (taken) slug = `${slug}-${Date.now().toString(36)}`;
       business = await tx.business.create({ data: { ...businessData, slug, status: "draft", createdById: actor.id } });
+      // Ownership commits with the business: a failed membership write rolls back the whole creation.
+      await addCreatorAsMember(actor, business.id, tx);
     }
 
     // Languages without a column of their own (en, fa) live in BusinessTranslation rows.

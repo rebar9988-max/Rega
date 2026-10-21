@@ -22,6 +22,10 @@ const PAGES = [
   ["/de/businesses", "ltr"], ["/ckb/businesses", "rtl"], ["/de/services", "ltr"], ["/de/nearby", "ltr"], ["/ckb/nearby", "rtl"],
   ["/de/search?q=a", "ltr"], ["/de/ai", "ltr"], ["/de/for-business", "ltr"], ["/de/register", "ltr"], ["/de/login", "ltr"],
   ["/de/impressum", "ltr"], ["/de/privacy", "ltr"], ["/de/terms", "ltr"], ["/de/about", "ltr"],
+  ...["ckb", "kmr", "de", "en", "ar", "tr", "fa"].flatMap((locale) => [
+    [`/${locale}/business-owner`, ["ckb", "ar", "fa"].includes(locale) ? "rtl" : "ltr"],
+    [`/${locale}/register?next=%2Fdr%2Fbusinesses%2Fnew`, ["ckb", "ar", "fa"].includes(locale) ? "rtl" : "ltr"],
+  ]),
 ];
 const FOREIGN_CITIES = ["Stockholm", "London", "Paris", "Amsterdam", "Wien", "Erbil"];
 
@@ -174,6 +178,11 @@ try {
         note(facts.dir === dir, `${label} dir=${dir}`, facts.dir);
         note(facts.h1.length > 0, `${label} has an h1`, facts.h1);
         note(facts.overflow <= 1, `${label} no horizontal scroll`, `${facts.overflow}px`);
+        if (path.endsWith("/business-owner")) {
+          const target = new URL(page.url());
+          note(target.pathname.endsWith("/login") && target.searchParams.get("next") === "/dr/business-owner", `${label} uses existing sign-in with canonical destination`);
+          note(await page.locator('main nav a[href*="/register?next="]').count() === 1, `${label} business registration tab preserves context`);
+        }
         await page.screenshot({ path: `${OUT}/${vp}${path.replace(/[/?=&]/g, "_")}.png`, fullPage: true });
       } catch (error) {
         note(false, `${label} loads`, String(error).split("\n")[0]);

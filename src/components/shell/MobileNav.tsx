@@ -4,6 +4,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { dirOf } from "@/i18n/locales";
 import { useRef } from "react";
 import { Link, usePathname } from "@/i18n/routing";
+import { FigmaIcon } from "@/components/home/FigmaIcon";
 import type { NavItem } from "./nav";
 
 /** Full-height sheet built on native <dialog>: focus trap, Escape and inert background for free. */
@@ -31,12 +32,13 @@ export function MobileNav({ items }: { items: NavItem[] }) {
         </div>
         <nav aria-label={t("primary")} dir={contentDir}>
           <ul className="flex flex-col gap-1">
-            {/* Registry order (home first); login before contact, and contact always last. */}
-            {[...items.filter((i) => i.key !== "contact"), { key: "login", href: "/login" }, ...items.filter((i) => i.key === "contact")].map((item) => (
+            {/* Business workspace first; all public sections retain their registry order. */}
+            {[{ key: "businessOwner", href: "/business-owner" }, ...items].map((item) => (
               <li key={item.key}>
                 <Link href={item.href} onClick={() => dialog.current?.close()}
                   aria-current={pathname === item.href ? "page" : undefined}
-                  className={`flex min-h-12 items-center rounded-xl px-4 text-base font-semibold hover:bg-surface-2 ${pathname === item.href ? "bg-brand-soft text-brand" : ""}`}>
+                  className={`flex min-h-12 items-center rounded-xl px-4 text-base font-semibold hover:bg-surface-2 ${pathname === item.href || item.key === "businessOwner" ? "bg-brand-soft text-brand" : ""}`}>
+                  {item.key === "businessOwner" && <FigmaIcon name="user" className="me-3 size-5 shrink-0" />}
                   {t(item.key)}
                 </Link>
               </li>

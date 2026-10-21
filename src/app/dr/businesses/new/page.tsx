@@ -17,7 +17,7 @@ export default async function NewBusiness() {
     <>
       <nav className="mb-2 text-sm"><Link href="/dr/businesses" className="text-muted hover:text-ink">{t("dashboard.businesses")}</Link></nav>
       <h1 className="mb-6 text-2xl font-extrabold">{t("bizForm.newTitle")}</h1>
-      <BusinessForm initial={{ countryCode: "DE" }} {...options} canPublish={can(user.role, "business.publish")} storageReady={isStorageConfigured()} maxPhotos={MAX_PHOTOS} />
+      <div className={user.role === "BUSINESS_OWNER" ? "mx-auto max-w-3xl" : ""}><BusinessForm initial={{ countryCode: "DE" }} {...options} canPublish={can(user.role, "business.publish")} storageReady={isStorageConfigured()} maxPhotos={MAX_PHOTOS} /></div>
     </>
   );
 }

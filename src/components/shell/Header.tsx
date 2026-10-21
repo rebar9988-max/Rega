@@ -21,15 +21,15 @@ export async function Header() {
   const tc = await getTranslations("common");
   const contentDir = dirOf(await getLocale());
   const signedIn = Boolean((await auth().catch(() => null))?.user);
-  const accountHref = signedIn ? "/account" : "/login";
+  const accountHref = "/business-owner";
   const addClass = "hidden min-h-11 items-center justify-center rounded-xl bg-brand px-4 text-[13px] font-bold text-brand-ink shadow-sm transition hover:bg-brand-hover xl:inline-flex";
 
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-surface text-ink">
       {signedIn && <SessionRenewal />}
-      <div dir="ltr" className="mx-auto flex h-[72px] w-full max-w-[1440px] items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
+      <div dir="ltr" className="mx-auto flex h-[72px] w-full max-w-[1440px] items-center justify-between gap-1 px-3 min-[401px]:gap-3 min-[401px]:px-4 sm:px-6 lg:px-8">
         <Link href="/" aria-label="REGA Platform" className="shrink-0 rounded-xl">
-          <Logo />
+          <Logo className="max-[400px]:[&_img:first-child]:size-8 max-[400px]:[&_img:last-of-type]:h-4" />
         </Link>
 
         <nav aria-label={t("primary")} className="hidden h-full xl:block">
@@ -42,11 +42,11 @@ export async function Header() {
           </Link>
           <Link href={accountHref} className="hidden min-h-10 items-center justify-center gap-2 rounded-full border border-brand px-4 text-[13px] font-semibold text-brand transition hover:bg-brand hover:text-white sm:flex">
             <FigmaIcon name="user" className="size-4 shrink-0" />
-            <span dir={contentDir}>{signedIn ? t("account") : t("login")}</span>
+            <span dir={contentDir}>{t("businessOwner")}</span>
           </Link>
           {signedIn
             ? <NextLink href="/dr/businesses/new" className={addClass}><span dir={contentDir}>{t("addAd")}</span></NextLink>
-            : <Link href="/for-business" className={addClass}><span dir={contentDir}>{t("addAd")}</span></Link>}
+            : <Link href="/business-owner?add=1" className={addClass}><span dir={contentDir}>{t("addAd")}</span></Link>}
           {/* Physical edge anchor: localized account/action labels must not move the switcher. */}
           <LanguageSwitcher />
           <MobileNav items={mobileNav()} />

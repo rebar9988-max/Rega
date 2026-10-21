@@ -41,9 +41,9 @@ export async function manageableIds(user: Actor, ids: string[]): Promise<string[
 }
 
 /** A non-global creator becomes a member of the business they created, so they can keep editing it. */
-export async function addCreatorAsMember(user: Actor, businessId: string): Promise<void> {
+export async function addCreatorAsMember(user: Actor, businessId: string, db: Pick<Prisma.TransactionClient, "businessMember"> = prisma): Promise<void> {
   if (hasGlobalBusinessAccess(user.role)) return;
-  await prisma.businessMember.upsert({
+  await db.businessMember.upsert({
     where: { businessId_userId: { businessId, userId: user.id } },
     update: { isActive: true },
     create: { businessId, userId: user.id, role: "EMPLOYEE" },

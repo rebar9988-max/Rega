@@ -87,7 +87,8 @@
     "events": "Bûyer",
     "guides": "Rêber",
     "register": "Hesab çêke",
-    "quick": "Navîgasyona bilez"
+    "quick": "Navîgasyona bilez",
+    "businessOwner": "Hesabê xwediyê kar"
   },
   "home": {
     "heroTitle": "Hemû karsazî, xizmet û cih li cihekî",
@@ -1123,5 +1124,16 @@
     "verification": "Piştrastkirina tîmê",
     "unverified": "Hê ji aliyê tîmê ve nehatiye piştrastkirin",
     "approve": "Piştrast bike û biweşîne"
+  },
+  "businessOwner": {
+    "title": "Hesabê xwediyê kar",
+    "dashboard": "Panela xwediyê kar",
+    "myBusinesses": "Karsaziyên min",
+    "addBusiness": "Karsaziya xwe zêde bike",
+    "requests": "Daxwaz û piştrastkirin",
+    "authLead": "Karsazî û xizmetên xwe li REGA birêve bibe.",
+    "welcome": "Bi xêr hatî. Ji bo destpêkirinê karsaziya xwe zêde bike.",
+    "manageLead": "Karsaziyên te, rewşa wan û gavên te yên pêş li yek cihî.",
+    "help": "Alîkarî hewce ye? Bi tîma REGA re têkilî dayne."
   }
 }

@@ -87,7 +87,8 @@
     "events": "Etkinlikler",
     "guides": "Rehberler",
     "register": "Hesap oluştur",
-    "quick": "Hızlı gezinme"
+    "quick": "Hızlı gezinme",
+    "businessOwner": "İşletme sahibi hesabı"
   },
   "home": {
     "heroTitle": "Tüm işletmeler, hizmetler ve konumlar tek yerde",
@@ -1123,5 +1124,16 @@
     "verification": "Personel doğrulaması",
     "unverified": "Henüz personel tarafından doğrulanmadı",
     "approve": "Doğrula ve yayınla"
+  },
+  "businessOwner": {
+    "title": "İşletme sahibi hesabı",
+    "dashboard": "İşletme paneli",
+    "myBusinesses": "İşletmelerim",
+    "addBusiness": "İşletmeni ekle",
+    "requests": "Başvurular ve doğrulama",
+    "authLead": "İşletmelerini ve hizmetlerini REGA'da yönet.",
+    "welcome": "Hoş geldin. Başlamak için işletmeni ekle.",
+    "manageLead": "İşletmelerin, durumları ve sonraki adımların tek yerde.",
+    "help": "Yardıma mı ihtiyacın var? REGA ekibiyle iletişime geç."
   }
 }
