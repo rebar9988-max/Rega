@@ -32,15 +32,20 @@ export class HttpError extends Error {
   }
 }
 
-/** Privileged guards must use the current account, even while the JWT's role cache is still valid. */
-async function authorizedUser(): Promise<SessionUser> {
+/** Fresh optional account for private reads; never grant access from the JWT's cached role. */
+export async function currentAccount(): Promise<SessionUser | null> {
   const sessionUser = await currentUser();
-  if (!sessionUser) throw new HttpError(401, "unauthenticated", "Authentication required.");
-  const user = await prisma.user.findFirst({
+  if (!sessionUser) return null;
+  // Query failures propagate: a database outage cannot restore cached privileges.
+  return prisma.user.findFirst({
     where: { id: sessionUser.id, deletedAt: null, status: "active" },
     select: { id: true, email: true, name: true, role: true },
   });
-  // Never fall back to cached privileges on database failures: the query error propagates.
+}
+
+/** Privileged guards must use the current account, even while the JWT's role cache is still valid. */
+async function authorizedUser(): Promise<SessionUser> {
+  const user = await currentAccount();
   if (!user) throw new HttpError(401, "unauthenticated", "Authentication required.");
   return user;
 }

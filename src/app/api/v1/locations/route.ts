@@ -11,7 +11,7 @@ import { PUBLIC_BUSINESS, textWhere } from "@/lib/search-where";
 import { reindexBusinessTree } from "@/lib/search-index";
 import { assertBusinessAccess } from "@/lib/business-access";
 import { parseOpeningHours } from "@/lib/opening-hours";
-import { currentUser, requirePermission } from "@/lib/auth-helpers";
+import { currentAccount, requirePermission } from "@/lib/auth-helpers";
 import { isStaff } from "@/lib/rbac";
 import { locationCreateSchema } from "@/lib/validation";
 import { writeAudit } from "@/lib/audit";
@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
     const cityId = url.searchParams.get("cityId");
     const countryCode = url.searchParams.get("countryCode");
     const status = url.searchParams.get("status");
-    const staff = isStaff((await currentUser())?.role);
+    const staff = isStaff((await currentAccount())?.role);
 
     const where = {
       deletedAt: null,
@@ -54,7 +54,9 @@ export async function GET(request: NextRequest) {
       }),
     ]);
 
-    return ok(rows, metaFor(total, { page, perPage, skip, take }));
+    const response = ok(rows, metaFor(total, { page, perPage, skip, take }));
+    if (staff) response.headers.set("Cache-Control", "private, no-store");
+    return response;
   } catch (error) {
     return handleError(error, "locations.list");
   }

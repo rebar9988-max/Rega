@@ -2,7 +2,7 @@
 import type { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { fail, handleError, ok } from "@/lib/api";
-import { currentUser } from "@/lib/auth-helpers";
+import { currentAccount } from "@/lib/auth-helpers";
 import { PUBLIC_BUSINESS } from "@/lib/search-where";
 import { BUSINESS_CATEGORY, approvalData, businessReadiness, lockBusiness, publicationSelect } from "@/lib/business-publication";
 import { isStaff } from "@/lib/rbac";
@@ -13,7 +13,7 @@ export const dynamic = "force-dynamic";
 export async function GET(_request: NextRequest, ctx: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await ctx.params;
-    const user = await currentUser();
+    const user = await currentAccount();
 
     const business = await prisma.business.findFirst({
       where: { OR: [{ id }, { slug: id }], deletedAt: null, ...(!isStaff(user?.role) ? PUBLIC_BUSINESS : {}) },
@@ -34,7 +34,11 @@ export async function GET(_request: NextRequest, ctx: { params: Promise<{ id: st
       return fail(404, "not_found", "Business not found.");
     }
 
-    if (isStaff(user?.role)) return ok(business);
+    if (isStaff(user?.role)) {
+      const response = ok(business);
+      response.headers.set("Cache-Control", "private, no-store");
+      return response;
+    }
     // Public callers get the public profile only: no internal ids, counters or storage keys.
     const { createdById: _c, viewCount: _v, deletedAt: _d, media, ...rest } = business;
     void _c; void _v; void _d;

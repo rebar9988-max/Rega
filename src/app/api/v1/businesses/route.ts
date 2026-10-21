@@ -64,7 +64,9 @@ export async function GET(request: NextRequest) {
       status: b.status, description: b.description, logoUrl: b.logoUrl, coverUrl: b.coverUrl, verified: b.verified, categoryId: b.categoryId,
       locations: b.locations.filter((l) => l.status === "active").map((l) => ({ cityId: l.cityId, countryCode: l.countryCode, city: l.city, addressLine1: l.addressLine1 })),
       ratingAvg: b.ratingAvg, ratingCount: b.ratingCount, languages: b.languages }));
-    return ok(publicOnly ? publicRows : rows, metaFor(total, { page, perPage, skip, take }));
+    const response = ok(publicOnly ? publicRows : rows, metaFor(total, { page, perPage, skip, take }));
+    if (!publicOnly) response.headers.set("Cache-Control", "private, no-store");
+    return response;
   } catch (error) {
     return handleError(error, "businesses.list");
   }
@@ -110,7 +112,7 @@ export async function POST(request: NextRequest) {
 }
 
 async function isStaffRequest(): Promise<boolean> {
-  const { currentUser } = await import("@/lib/auth-helpers");
+  const { currentAccount } = await import("@/lib/auth-helpers");
   const { isStaff } = await import("@/lib/rbac");
-  return isStaff((await currentUser())?.role);
+  return isStaff((await currentAccount())?.role);
 }
