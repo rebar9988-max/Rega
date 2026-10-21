@@ -406,3 +406,43 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
   attached state file. Existing `storageState` references are localhost test fixtures, never production sessions.
   Minimum secure attachment requested (path or variable names only). Positive authenticated production verification
   and the historical 404 cause remain blocked. Control-center redesign/workflow expansion remains paused.
+
+### Release verification — 2026-10-21, /dr technical recovery
+
+- PR #41 merged with the expected-head guard after exact-head CI `39626133403` succeeded on `e802af9`.
+  Release commit: `59d8df12d61246f6cf1e16b68a6cf1059faad5bd`. Its tree matched the verified PR tree.
+  Main CI `39669207845` succeeded, then the existing approved deploy workflow `39670885274` succeeded.
+  No manual deployment or safeguard bypass. No schema migration, credential or production-data/role change.
+- Cloudflare diagnostics `39671303842` verified active version `d52f90e9-f1d3-4d74-ad59-f914aed391fc` at 100%
+  (version created 20:31:54 UTC, deployment created 20:31:57 UTC). The Cloudflare connector still errors, but the
+  existing diagnostics workflow's actual Cloudflare response is available through decoded GitHub job logs.
+- Hosted results: 287 unit/integration tests passed, 0 failed/skipped. PR browser run: 286 passed. Main browser run:
+  285 passed on first attempt plus one CMS test passed on its existing retry (admin-growth.spec.ts:33, heading
+  assertion); no persistent failures and no weakened test/retry policy. The cached-session authorization regression
+  passed first attempt. Python tests, lint, typecheck, Node/Worker builds, dry-run and actual Worker routing/auth/DB
+  smoke all passed. The optional Neon preview HTTP422 and non-main Workers Builds failures remain unrelated and
+  unchanged; required verify and the production deploy succeeded.
+- Live 20:33 UTC checks: /dr, /dr/businesses, /dr/users and /dr/audit returned 307 to login, private/no-store with
+  edge BYPASS. Health returned 200/ok. Seven anonymous management mutation probes returned 401/unauthenticated
+  (empty JSON, or the nonexistent sentinel ID). No private response content was collected or production data changed.
+- Public preservation evidence: eight pre-/post-deploy pages (/de, /en, /ckb, /ar, both German/Kurdish business lists
+  and login pages) all returned 200; parsed lang/dir/header/footer/logo/heading signatures have zero changes.
+  Full scope diff has no public page, header/footer/nav, branding, CSS, message, routing or Cloudflare config changes.
+- Production browser workflow `39671309491`, explicitly dispatched after deploy success, completed successfully.
+  Decoded logs confirm desktop/mobile public journeys, RTL/LTR and the live /dr sign-in requirement passed with no
+  failed checks. It superseded the automatic run via existing workflow concurrency. Screenshots are retained in
+  that workflow's `production-screenshots` artifact. This verifies the anonymous/public experience, not positive
+  authenticated management access.
+- Remaining limitations: the historical authenticated /dr 404 has not been reproduced; positive authorized production
+  access remains blocked by the missing legitimate session. Current environment revision 17 has no configured
+  secret/session bindings or attached state file. Local fixtures and cached test tokens were never used in production.
+  Repository file reads and connected Docs access pass; the Codex UI loader itself cannot be tested from execution
+  tools, so the reported file-loading error is not claimed fixed. No repository-owned malformed path was found.
+- Final checkpoint updates only this memory file on `audit/dr-recovery-20261021`; it is not another application
+  deployment. Source code remains the verified/deployed `59d8df1` tree. Central Doc records the same release and
+  blockers. Detailed non-secret evidence is in `/workspace/scratch/rega-dr-recovery` and the linked workflow runs.
+- Continuation: securely attach an existing authorized management session to verify /dr for its actual DB role.
+  For file loading, reopen `/workspace/Rega` and open a real repository
+  file; keep Docs in connected Drive/ordinary HTTPS links. If UI failure persists, use its timestamp/request ID for
+  Codex support. Only resume management workflow improvements after the authorized production gate is verified;
+  preserve the unrelated prepared public-site checkpoint and every public visual constraint.
