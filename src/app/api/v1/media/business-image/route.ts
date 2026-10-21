@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
       Buffer.concat(chunks),
       request.headers.get("content-type")!.split(";")[0],
     );
-    const key = `business-images/${user.id}/${crypto.randomUUID()}.${image.extension}`;
+    const key = `business-images/${crypto.randomUUID()}.${image.extension}`;
     const url = await storeBusinessImage(key, image.bytes, image.mimeType);
     try {
       const asset = await prisma.media.create({

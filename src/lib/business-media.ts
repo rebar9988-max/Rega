@@ -5,6 +5,6 @@ export async function ownsBusinessImages(db: Prisma.TransactionClient | PrismaCl
   const fresh = [...new Set(urls.filter((url) => url && !existing.includes(url)))];
   if (!fresh.length) return true;
   const rows = await db.media.findMany({ where: { url: { in: fresh }, uploadedById: actorId,
-    deletedAt: null, storageKey: { startsWith: `business-images/${actorId}/` }, kind: "image" }, select: { url: true } });
+    deletedAt: null, storageKey: { startsWith: "business-images/" }, kind: "image" }, select: { url: true } });
   return new Set(rows.map((row) => row.url)).size === fresh.length;
 }

@@ -481,7 +481,8 @@ test("server validates image bytes and upload permissions before storage", async
   const asset = (await upload.json()).data;
   const media = await db.media.findUniqueOrThrow({where:{id:asset.assetId}});
   expect(media).toMatchObject({uploadedById:actor.id,width:1,height:1,mimeType:"image/png"});
-  expect(media.storageKey).toMatch(new RegExp(`^business-images/${actor.id}/`));
+  expect(media.storageKey).toMatch(/^business-images\/[0-9a-f-]+\.png$/);
+  expect(media.url).not.toContain(actor.id);
   const category = await db.category.findFirstOrThrow({where:{key:"legal"}});
   const create = await page.request.post("/api/v1/businesses", {data:{name:`E2E Asset ${stamp} ${test.info().project.name}`,categoryId:category.id,logoUrl:asset.publicUrl}});
   expect(create.status()).toBe(201);
