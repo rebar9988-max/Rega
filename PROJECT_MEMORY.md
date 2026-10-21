@@ -355,3 +355,48 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
   failing layer, verify authorized/unauthorized access live, then implement the scoped management improvements.
   Keep unrelated prepared public-site checkpoint `838d0cf` isolated. Evidence logs are in this session's
   `/workspace/scratch/rega-dr-recovery`; this file and the central Doc remain the only shared project-memory layer.
+
+## Resume: workspace loading and private-read authorization — 2026-10-21
+
+- Resumed from verified remote checkpoint `ebb6e93430b9c88fcb9c9f65236d1b9d5fbf2d6b`; working tree was clean.
+  Current main is still `3ce672d`. Its CI `39619955621`, deploy `39621629114`, production browser check
+  `39621797819` and Cloudflare diagnostics `39622124475` all succeeded. Diagnostics observed version
+  `72611998-7f04-44c0-9cc4-90bf6731717d` at 100%. These are the previous release, not this repair's deployment.
+- Workspace finding: all required repository files load through execution tools. No malformed Docs path,
+  `.code-workspace`, `.codex` or editor workspace configuration was found in repository-owned files.
+  The previous chat answer emitted `codex-file-citation` with a Google Docs HTTPS URL. Treating that URL as a
+  filesystem path reproduces the exact path shape: `path.resolve('/workspace', 'https://docs.google.com/document/d/example')`
+  becomes `/workspace/https:/docs.google.com/document/d/example`. This verifies URL-to-path normalization, but host
+  file-loader logs/UI are unavailable, so the source of the reported Codex server error remains unconfirmed.
+  Supported Drive fetch of the real central document succeeds. No fake local document or internal service change.
+- Safe file-loader continuation: open the actual repository root `/workspace/Rega`; remove/reselect the malformed
+  document reference through supported workspace UI; use real local paths for file attachments and ordinary HTTPS
+  links or connected Drive tools for Google Docs. Refresh/reopen the workspace, then retry a real repository file.
+  If UI loading still fails, retain timestamp/error/request ID for Codex support. Do not manufacture a `https:` folder.
+  Use ordinary web links in reports instead of wrapping external URLs in local file-citation directives.
+- Production /dr still has no reproduced 404. Fresh 15:25 UTC diagnostic/browser-user-agent requests: /dr 307 to
+  `/ckb/login?next=%2Fdr`, login 200, /de and /ckb 200, health 200/ok; management/login responses private/no-store and
+  edge BYPASS. Default Python-urllib user agent received Cloudflare 403 on every path; diagnostic and Chromium user
+  agents succeeded. This request-dependent edge response is separate from application routing; no WAF change made.
+- Confirmed authorization defect: private business list/detail and location GET handlers used `currentUser()`'s
+  cached JWT role (default 5 minutes), so demotion/suspension/deletion did not immediately remove private read access.
+  Before repair, 9 of 12 new handler tests failed: stale staff role exposed drafts, missing no-store, and no fresh
+  account lookup on DB failure. Three anonymous-public projection tests already passed.
+- Technical repair: reuse the existing active/nondeleted-account query as optional `currentAccount()`; permission
+  guards retain their original 401/403 behavior. The three GET handlers and /dr layout now use the fresh account.
+  Staff GET responses explicitly set private/no-store. A cached session whose account is revoked sees the existing
+  forbidden screen, avoiding a /dr <-> login loop (login redirects a cached signed-in session back to /dr).
+  No markup/styles, public UI, role matrix, session policy, workflow decisions, schema or dependencies changed.
+- Regression coverage: 12 handler tests cover current roles, stale roles, inactive/missing accounts, DB failure,
+  cache headers and anonymous public projections; existing permission/RBAC tests remain unchanged. Added real local
+  E2E coverage retaining a cached JWT while DB roles/status change. Tokens and account changes are isolated test-only;
+  no production session is fabricated and no production role/data is changed. Initial browser assertion expected
+  German but the fixture had no locale cookie (actual existing forbidden UI was Kurdish); fixture selects German.
+- Current validation: lint/typecheck, 283 unit tests (4 skipped), 22 focused authorization/RBAC tests and Node build
+  passed. All 31 unique local auth/security/public-navigation cases passed across the initial run and the corrected
+  security-fixture rerun (6/6). Worker checks, hosted full CI and production release remain required; update this
+  checkpoint before handoff.
+- Authorized production session remains unavailable: runtime has no configured secret/session bindings and no
+  attached state file. Existing `storageState` references are localhost test fixtures, never production sessions.
+  Minimum secure attachment requested (path or variable names only). Positive authenticated production verification
+  and the historical 404 cause remain blocked. Control-center redesign/workflow expansion remains paused.
