@@ -20,7 +20,7 @@ export async function BusinessWorkspaceNav({ locale }: { locale: string }) {
       <Link href={`/${locale}`} aria-label="REGA Platform" className="shrink-0"><Logo className="max-[400px]:[&_img:first-child]:size-8 max-[400px]:[&_img:last-of-type]:h-4" /></Link>
       <div className="flex min-w-0 items-center gap-2">
         <LanguageSwitcher destination="/business-owner" />
-        <Link href={`/${locale}/account`} aria-label={t("auth.profile")} className="grid size-11 shrink-0 place-items-center rounded-full border border-line hover:bg-brand-soft"><FigmaIcon name="user" className="size-5" /></Link>
+        <Link href={`/${locale}/account`} aria-label={t("auth.profile")} className="hidden size-11 shrink-0 place-items-center rounded-full md:grid border border-line hover:bg-brand-soft"><FigmaIcon name="user" className="size-5" /></Link>
         <BusinessMobileMenu label={t("nav.menu")} items={items.map(([href, key, icon]) => ({ href, label: t(key), icon }))} />
       </div>
     </div>
