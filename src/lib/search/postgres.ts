@@ -4,6 +4,7 @@
  * registered later automatically takes part as soon as its retriever is added here: no other code changes.
  */
 import "server-only";
+import { PUBLIC_BUSINESS } from "@/lib/search-where";
 import { prisma } from "@/lib/db";
 import { localizeText } from "@/lib/content";
 import { sectionsFor } from "@/config/sections";
@@ -28,7 +29,7 @@ const businesses: SectionRetriever = {
     if (terms.length === 0 && !verifiedOnly) return [];
     const anyTerm = terms.flat().map((v) => ({ searchText: { contains: v } }));
     const rows = await prisma.business.findMany({
-      where: { status: "published", deletedAt: null, ...(verifiedOnly ? { verified: true } : {}), ...(anyTerm.length ? { OR: anyTerm } : {}) },
+      where: { ...PUBLIC_BUSINESS, ...(verifiedOnly ? { verified: true } : {}), ...(anyTerm.length ? { OR: anyTerm } : {}) },
       select: {
         slug: true, id: true, name: true, nameCkb: true, nameKmr: true, nameAr: true, nameTr: true, searchText: true, verified: true, ratingAvg: true, ratingCount: true,
         category: categoryNames,
@@ -63,7 +64,7 @@ const services: SectionRetriever = {
     if (terms.length === 0) return [];
     const anyTerm = terms.flat().map((v) => ({ searchText: { contains: v } }));
     const rows = await prisma.service.findMany({
-      where: { status: "published", deletedAt: null, business: { status: "published", deletedAt: null }, OR: anyTerm },
+      where: { status: "published", deletedAt: null, business: PUBLIC_BUSINESS, OR: anyTerm },
       select: {
         id: true, slug: true, name: true, nameCkb: true, nameKmr: true, nameAr: true, nameTr: true, searchText: true, priceFrom: true, priceTo: true, currency: true,
         business: { select: { slug: true, name: true, nameCkb: true, nameKmr: true, nameAr: true, nameTr: true, verified: true } },

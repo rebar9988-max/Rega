@@ -27,6 +27,6 @@ export default defineConfig({
     url: `http://localhost:${PORT}/api/v1/health`, reuseExistingServer: true, timeout: 60_000 },
   projects: [
     { name: "desktop", use: { ...devices["Desktop Chrome"], launchOptions } },
-    { name: "mobile", use: { ...devices["Pixel 5"], launchOptions }, testMatch: /(navigation|catalog|language-switcher|nearby)\.spec\.ts/ },
+    { name: "mobile", use: { ...devices["Pixel 5"], launchOptions }, testMatch: /(navigation|catalog|language-switcher|nearby|business-publication)\.spec\.ts/ },
   ],
 });

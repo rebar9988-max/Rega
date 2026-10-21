@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
+import { PUBLIC_BUSINESS } from "@/lib/search-where";
 import { prisma } from "@/lib/db";
 import { currentUser } from "@/lib/auth-helpers";
 import { hasConfirmedEmail } from "@/lib/email/verified";
@@ -39,7 +40,7 @@ export async function submitReview(_prev: ReviewFormState, formData: FormData): 
   const { businessId, rating, comment, locale } = parsed.data;
 
   const [business, account, member] = await Promise.all([
-    prisma.business.findFirst({ where: { id: businessId, status: "published", deletedAt: null }, select: { id: true, slug: true } }),
+    prisma.business.findFirst({ where: { id: businessId, ...PUBLIC_BUSINESS }, select: { id: true, slug: true } }),
     prisma.user.findFirst({ where: { id: user.id, deletedAt: null, status: "active" }, select: { emailVerified: true } }),
     prisma.businessMember.findFirst({ where: { businessId, userId: user.id, isActive: true }, select: { id: true } }),
   ]);

@@ -591,7 +591,7 @@
     "req_location": "الموقع على الخريطة",
     "req_locationVerified": "تأكيد الموقع",
     "location": "الموقع",
-    "locOk": "مؤكد",
+    "locOk": "تم تأكيد الموقع",
     "locUnverified": "غير مؤكد",
     "locMissing": "مفقود",
     "auditTitle": "تدقيق المواقع",
@@ -1118,5 +1118,10 @@
     "noNearbyCity": "لا توجد مدينة مدعومة بالقرب منك. يرجى اختيار واحدة.",
     "loadFailed": "تعذّر تحميل المدن. يرجى المحاولة مرة أخرى.",
     "searching": "جارٍ البحث …"
+  },
+  "businessModeration": {
+    "verification": "تحقق الموظفين",
+    "unverified": "لم يتحقق الموظفون بعد",
+    "approve": "تحقق وانشر"
   }
 }

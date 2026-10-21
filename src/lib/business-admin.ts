@@ -8,10 +8,12 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { slugify } from "@/lib/api";
 import { geocodeCity } from "@/lib/geocoder";
-import { isValidCoordinate, publishReadiness } from "@/lib/coordinates";
+import { isValidCoordinate } from "@/lib/coordinates";
 import { WEEK, parseOpeningHours, type OpeningHours } from "@/lib/opening-hours";
 import { reindexBusinessTree } from "@/lib/search-index";
 import { LOCALES } from "@/config/locales";
+import { BUSINESS_CATEGORY, lockBusiness, publicationSelect, businessReadiness } from "@/lib/business-publication";
+import { PUBLIC_BUSINESS } from "@/lib/search-where";
 import { normalizeWhatsapp } from "@/lib/whatsapp";
 
 /** ISO 3166-1 alpha-2 codes offered in the form (plus any country already in the database). */
@@ -105,7 +107,7 @@ async function resolveCity(tx: Prisma.TransactionClient, countryId: string, type
   const match = await tx.city.findFirst({
     where: { countryId, OR: (["nameEn", "nameCkb", "nameKmr", "nameDe", "nameAr", "nameTr"] as const).map((k) => ({ [k]: { equals: name, mode: "insensitive" } })) },
   });
-  if (match) return { city: match, created: false };
+  if (match) { if (!match.isActive) throw new CityUnknown(); return { city: match, created: false }; }
   // Owners choose from the geography the team maintains; only staff add new places (otherwise anyone could litter the city list).
   if (!allowCreate) throw new CityUnknown();
   return { city: await tx.city.create({ data: { countryId, nameEn: name } }), created: true };
@@ -113,11 +115,12 @@ async function resolveCity(tx: Prisma.TransactionClient, countryId: string, type
 
 export type SaveResult =
   | { ok: true; id: string; slug: string; created: boolean; published: boolean; submitted: boolean; submittedNow: boolean; missing: string[] }
-  | { ok: false; error: "not_found" | "published_incomplete" | "city_unknown" | "media_invalid" };
+  | { ok: false; error: "not_found" | "published_incomplete" | "city_unknown" | "media_invalid" | "category_invalid" };
 
 class PublishedIncomplete extends Error {}
 class CityUnknown extends Error {}
 class MediaInvalid extends Error {}
+class CategoryInvalid extends Error {}
 
 /** A repeated create (double tap, network retry) within this window updates the first draft instead of adding a second one. */
 const DUPLICATE_WINDOW_MS = 10 * 60_000;
@@ -145,6 +148,7 @@ export async function saveBusiness(input: BusinessForm, actor: { id: string }, p
     if (error instanceof PublishedIncomplete) return { ok: false, error: "published_incomplete" };
     if (error instanceof CityUnknown) return { ok: false, error: "city_unknown" };
     if (error instanceof MediaInvalid) return { ok: false, error: "media_invalid" };
+    if (error instanceof CategoryInvalid) return { ok: false, error: "category_invalid" };
     throw error;
   }
 }
@@ -168,11 +172,14 @@ async function save(input: BusinessForm, actor: { id: string }, { canPublish, ca
       });
       targetId = recent?.id;
     }
+    if (targetId) await lockBusiness(tx, targetId);
+    if (input.categoryId && !await tx.category.findFirst({ where: { id: input.categoryId, ...BUSINESS_CATEGORY }, select: { id: true } })) throw new CategoryInvalid();
     const before = targetId
       ? await tx.business.findFirst({ where: { id: targetId, deletedAt: null }, include: { locations: { where: { isPrimary: true, deletedAt: null }, take: 1 } } })
       : null;
     if (input.id && !before) return { ok: false as const, error: "not_found" as const };
 
+    if (before && before.status !== "draft" && before.categoryId !== (input.categoryId ?? null) && !canPublish) throw new CategoryInvalid();
     const photos = [...new Set(input.photoUrls)];
     await assertOwnMedia(tx, photos, actor.id, before?.photos ?? []);
     const whatsapp = input.whatsapp ? normalizeWhatsapp(input.whatsapp, input.countryCode) : null;
@@ -204,7 +211,6 @@ async function save(input: BusinessForm, actor: { id: string }, { canPublish, ca
 
     const prev = before?.locations[0] ?? null;
     // No location entered yet (a first-step draft): nothing is written, and an existing location is left as it is.
-    let location = prev;
     if (loc && city) {
       const hasCoords = input.latitude !== undefined && input.longitude !== undefined;
       const moved = !prev || prev.latitude !== (input.latitude ?? null) || prev.longitude !== (input.longitude ?? null);
@@ -216,19 +222,19 @@ async function save(input: BusinessForm, actor: { id: string }, { canPublish, ca
         coordsVerifiedAt: verifiedAt,
         openingHours: (formHours(input) as Prisma.InputJsonObject | null) ?? Prisma.DbNull,
       };
-      location = prev
-        ? await tx.location.update({ where: { id: prev.id }, data: locationData })
-        : await tx.location.create({ data: { ...locationData, businessId: business.id, isPrimary: true, status: "active" } });
+      await (prev
+        ? tx.location.update({ where: { id: prev.id }, data: locationData })
+        : tx.location.create({ data: { ...locationData, businessId: business.id, isPrimary: true, status: "active" } }));
     }
 
-    const readiness = publishReadiness({ name: business.name, categoryId: business.categoryId, primary: location });
+    const readiness = businessReadiness(await tx.business.findUniqueOrThrow({ where: { id: business.id }, select: publicationSelect }));
     // A live business must stay complete: an edit that would leave it without a confirmed location is rolled back.
     if (business.status === "published" && !readiness.ok) throw new PublishedIncomplete();
     let published = business.status === "published";
     let submitted = business.status === "pending";
     let submittedNow = false;
-    if (input.intent === "publish" && canPublish && readiness.ok && !published) {
-      await tx.business.update({ where: { id: business.id }, data: { status: "published", publishedAt: new Date(), archivedAt: null } });
+    if (input.intent === "publish" && canPublish && readiness.ok && ["draft", "pending", "published"].includes(business.status) && !business.archivedAt) {
+      await tx.business.update({ where: { id: business.id }, data: { status: "published", verified: true, publishedAt: business.publishedAt ?? new Date(), archivedAt: null } });
       published = true;
     }
     // Owners cannot publish: a complete draft is submitted for moderation (draft -> pending).
@@ -237,11 +243,16 @@ async function save(input: BusinessForm, actor: { id: string }, { canPublish, ca
       submitted = true;
       submittedNow = true;
     }
+    if (before?.categoryId !== business.categoryId || (input.intent === "publish" && published && !before?.verified)) {
+      await tx.auditLog.create({ data: { actorId: actor.id, action: input.intent === "publish" ? "business.verify" : "business.category", entity: "Business", entityId: business.id,
+        before: { categoryId: before?.categoryId ?? null, verified: before?.verified ?? false, status: before?.status ?? "draft" },
+        after: { categoryId: business.categoryId, verified: published ? true : business.verified, status: published ? "published" : business.status } } });
+    }
+    await reindexBusinessTree(tx, business.id);
     return { ok: true as const, id: business.id, slug: business.slug, created: !before, published, submitted, submittedNow, missing: readiness.missing, cityId: cityCreated && city ? city.id : null };
   });
 
   if (!result.ok) return result;
-  await reindexBusinessTree(prisma, result.id);
   // A newly created city gets its public centre coordinates (for the Nearby city picker) outside the transaction.
   if (result.cityId && input.city && input.countryCode) {
     const centre = await geocodeCity(input.city, input.countryCode).catch(() => null);
@@ -254,10 +265,10 @@ async function save(input: BusinessForm, actor: { id: string }, { canPublish, ca
 export async function readinessFor(businessId: string) {
   const b = await prisma.business.findFirst({
     where: { id: businessId, deletedAt: null },
-    select: { name: true, categoryId: true, locations: { where: { isPrimary: true, deletedAt: null }, take: 1, select: { addressLine1: true, cityId: true, countryCode: true, latitude: true, longitude: true, coordsVerifiedAt: true } } },
+    select: publicationSelect,
   });
   if (!b) return { ok: false, missing: ["name"] as string[] };
-  return publishReadiness({ name: b.name, categoryId: b.categoryId, primary: b.locations[0] ?? null });
+  return businessReadiness(b);
 }
 
 /** Location health of all (non-deleted) businesses, for the dashboard audit. Counts only; nothing is changed. */
@@ -268,8 +279,8 @@ export async function locationAudit() {
   };
   const live = { deletedAt: null } as const;
   const [published, unpublished, missing, invalid, unverified] = await Promise.all([
-    prisma.business.count({ where: { ...live, status: "published" } }),
-    prisma.business.count({ where: { ...live, status: { not: "published" } } }),
+    prisma.business.count({ where: PUBLIC_BUSINESS }),
+    prisma.business.count({ where: { ...live, NOT: PUBLIC_BUSINESS } }),
     prisma.business.count({ where: { ...live, NOT: { locations: { some: { ...primary, latitude: { not: null }, longitude: { not: null } } } } } }),
     prisma.business.count({ where: { ...live, locations: { some: { ...primary, latitude: { not: null }, longitude: { not: null }, NOT: inRange } } } }),
     prisma.business.count({ where: { ...live, locations: { some: { ...primary, ...inRange, coordsVerifiedAt: null } } } }),

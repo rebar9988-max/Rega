@@ -273,3 +273,17 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
 - Next safe continuation point: owner decides about the 4 px header/bottom-navigation overflow on phones; add a real published business to production to
   exercise the city-filtered list with data.
 
+
+## Business platform audit checkpoint — 2026-10-21
+- User authorized two sequential production phases: (1) publication/category isolation/admin, (2) registration/images/directory UI.
+- Audited AGENTS.md, CLAUDE.md, this memory, central Google Doc, architecture, Prisma, write/read paths, CI/deploy and production records.
+- Confirmed code defects: verify only toggled a badge; public read required published; service categories leaked businesses into unrelated directories; independent edge HTML cache survived Next revalidation.
+- Production read-only evidence: `Sky berlin` (not Sly) is pending, category travel-tickets; `taakline` is draft, category transport-moving. Both have verified=false. Their green screenshot badges are location confirmation, not staff verification. Audit has only create/update, no staff approval. No existing record is eligible for automatic repair; none was changed.
+- Local prepared work: publication policy, transactional approval/audit, canonical categories, public query consistency, focused tests; separate registration/image/UI work is preserved pending phase 1 production verification.
+- Local combined snapshot: typecheck and Node build passed; unit 273 passed, 3 skipped. Initial focused E2E proved approval/category/search/count/suspension and authorization; failures in old category locators and demo fixtures were diagnosed and corrected. Full checks are still pending for the separated phase 1 diff.
+- Cloudflare connector search/execute/whoami returned Internal error on bounded attempts. Public production Chromium fetch worked. GitHub permissions include push/maintain/admin; main c221ef4 has no protection. Existing CI-gated production pipeline is preserved.
+- Concurrent PRs #39 (autonomy/checkpoints), #38 (footer), #35, #29, #10 are unrelated and must not be overwritten or merged as part of this task.
+- Resume: finish and deploy phase 1 first; keep prepared phase 2 isolated. No production schema migration or data mutation has occurred.
+- Prepared phase 2 was preserved remotely as checkpoint/business-platform-prepared-20261021 at 838d0cf. Current phase 1 work is isolated from its image codecs, uploader, registration wizard and directory UI.
+- Phase 1 focused regression results so far: all 5 admin-business journeys passed (publish guard, address lookup, map/Nearby, city creation and collocated businesses). Full suite continues; no phase 1 PR or deployment yet.
+- Live role audit confirmed one active SUPER_ADMIN and two active BUSINESS_OWNER accounts. No permissions, passwords or roles were changed.

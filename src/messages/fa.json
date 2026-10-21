@@ -591,7 +591,7 @@
     "req_location": "موقعیت روی نقشه",
     "req_locationVerified": "تأیید موقعیت",
     "location": "موقعیت",
-    "locOk": "تأییدشده",
+    "locOk": "موقعیت تأیید شده",
     "locUnverified": "تأییدنشده",
     "locMissing": "ندارد",
     "auditTitle": "بررسی موقعیت‌ها",
@@ -1118,5 +1118,10 @@
     "noNearbyCity": "شهر پشتیبانی‌شده‌ای نزدیک شما نیست. لطفاً یکی را انتخاب کنید.",
     "loadFailed": "بارگذاری شهرها ممکن نشد. لطفاً دوباره تلاش کنید.",
     "searching": "در حال جستجو …"
+  },
+  "businessModeration": {
+    "verification": "تأیید کارکنان",
+    "unverified": "هنوز توسط کارکنان تأیید نشده",
+    "approve": "تأیید و انتشار"
   }
 }

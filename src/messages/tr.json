@@ -591,7 +591,7 @@
     "req_location": "Haritadaki konum",
     "req_locationVerified": "Konum onayı",
     "location": "Konum",
-    "locOk": "Onaylı",
+    "locOk": "Konum onaylandı",
     "locUnverified": "Onaysız",
     "locMissing": "Yok",
     "auditTitle": "Konum denetimi",
@@ -1118,5 +1118,10 @@
     "noNearbyCity": "Yakınınızda desteklenen bir şehir yok. Lütfen birini seçin.",
     "loadFailed": "Şehirler yüklenemedi. Lütfen tekrar deneyin.",
     "searching": "Aranıyor …"
+  },
+  "businessModeration": {
+    "verification": "Personel doğrulaması",
+    "unverified": "Henüz personel tarafından doğrulanmadı",
+    "approve": "Doğrula ve yayınla"
   }
 }

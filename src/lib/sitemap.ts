@@ -56,8 +56,8 @@ export async function sitemapFiles(): Promise<Degradable<string>> {
   try {
     const on = CONTENT_SECTIONS.filter((k) => sectionEnabled(k));
     const [b, s, ...content] = await Promise.all([
-      prisma.business.count({ where: { status: "published", deletedAt: null } }),
-      prisma.service.count({ where: { status: "published", deletedAt: null, business: { status: "published", deletedAt: null } } }),
+      prisma.business.count({ where: PUBLIC_BUSINESS }),
+      prisma.service.count({ where: { status: "published", deletedAt: null, business: PUBLIC_BUSINESS } }),
       ...on.map((k) => prisma.listing.count({ where: listed(k) })),
     ]);
     const files = (name: string, count: number) => (count ? Array.from({ length: chunks(count) }, (_, i) => `${name}-${i + 1}.xml`) : []);
@@ -83,11 +83,8 @@ async function listSectionHasContent(key: string): Promise<boolean> {
  * of one of its published services, and every ancestor of those (a category page includes its sub-categories).
  */
 async function categoriesWithBusinesses(rows: { id: string; parentId: string | null }[]): Promise<Set<string>> {
-  const [own, viaServices] = await Promise.all([
-    prisma.business.groupBy({ by: ["categoryId"], where: { ...PUBLIC_BUSINESS, categoryId: { not: null } } }),
-    prisma.service.groupBy({ by: ["categoryId"], where: { status: "published", deletedAt: null, business: PUBLIC_BUSINESS, categoryId: { not: null } } }),
-  ]);
-  const used = new Set([...own, ...viaServices].map((r) => r.categoryId).filter((id): id is string => Boolean(id)));
+  const own = await prisma.business.groupBy({ by: ["categoryId"], where: { ...PUBLIC_BUSINESS, categoryId: { not: null } } });
+  const used = new Set(own.map((r) => r.categoryId).filter((id): id is string => Boolean(id)));
   return new Set(rows.filter((c) => descendantIds(rows, c.id).some((id) => used.has(id))).map((c) => c.id));
 }
 
@@ -113,7 +110,7 @@ export async function sitemapRecords(file: string): Promise<Degradable<Record_> 
           JOIN "Location" l ON l."businessId" = b."id" AND l."isPrimary" = true AND l."deletedAt" IS NULL AND l."status" = 'active'
           JOIN "City" c ON c."id" = l."cityId" AND c."slug" IS NOT NULL AND c."isActive" = true
           JOIN "Category" k ON k."id" = b."categoryId" AND k."isActive" = true AND k."deletedAt" IS NULL
-          WHERE b."status" = 'published' AND b."deletedAt" IS NULL LIMIT 5000`,
+          WHERE b."status" = 'published' AND b.verified = true AND b."archivedAt" IS NULL AND b."deletedAt" IS NULL AND EXISTS (SELECT 1 FROM "Category" c WHERE c.id=b."categoryId" AND c."isActive"=true AND c."deletedAt" IS NULL AND c."sectionKey"='businesses') LIMIT 5000`,
         prisma.page.findMany({ where: { status: "published" }, select: { slug: true, updatedAt: true } }),
       ]);
       const withBusinesses = await categoriesWithBusinesses(categories);
@@ -138,10 +135,10 @@ export async function sitemapRecords(file: string): Promise<Degradable<Record_> 
       return rows.map((r) => ({ path: `/${m[1]}/${r.slug}`, at: r.updatedAt }));
     }
     if (m[1] === "businesses") {
-      const rows = await prisma.business.findMany({ where: { status: "published", deletedAt: null }, select: { slug: true, updatedAt: true }, orderBy: { id: "asc" }, skip, take: CHUNK });
+      const rows = await prisma.business.findMany({ where: PUBLIC_BUSINESS, select: { slug: true, updatedAt: true }, orderBy: { id: "asc" }, skip, take: CHUNK });
       return rows.map((b) => ({ path: `/business/${b.slug}`, at: b.updatedAt }));
     }
-    const rows = await prisma.service.findMany({ where: { status: "published", deletedAt: null, business: { status: "published", deletedAt: null } }, select: { slug: true, updatedAt: true, business: { select: { slug: true } } }, orderBy: { id: "asc" }, skip, take: CHUNK });
+    const rows = await prisma.service.findMany({ where: { status: "published", deletedAt: null, business: PUBLIC_BUSINESS }, select: { slug: true, updatedAt: true, business: { select: { slug: true } } }, orderBy: { id: "asc" }, skip, take: CHUNK });
     return rows.map((s) => ({ path: `/services/${s.business.slug}/${s.slug}`, at: s.updatedAt }));
   } catch {
     return degraded([]);

@@ -591,7 +591,7 @@
     "req_location": "Standort auf der Karte",
     "req_locationVerified": "Standort bestätigt",
     "location": "Standort",
-    "locOk": "Bestätigt",
+    "locOk": "Standort bestätigt",
     "locUnverified": "Nicht bestätigt",
     "locMissing": "Fehlt",
     "auditTitle": "Standort-Prüfung",
@@ -1118,5 +1118,10 @@
     "noNearbyCity": "In Ihrer Nähe gibt es keine unterstützte Stadt. Bitte wählen Sie eine.",
     "loadFailed": "Städte konnten nicht geladen werden. Bitte versuchen Sie es erneut.",
     "searching": "Suche läuft …"
+  },
+  "businessModeration": {
+    "verification": "Prüfung durch das Team",
+    "unverified": "Noch nicht vom Team geprüft",
+    "approve": "Prüfen & veröffentlichen"
   }
 }

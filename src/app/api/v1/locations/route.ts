@@ -3,9 +3,11 @@
  * POST /api/v1/locations — create
  */
 import type { NextRequest } from "next/server";
+import { lockBusiness, businessReadiness, publicationSelect } from "@/lib/business-publication";
+import { HttpError } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/db";
 import { created, fail, handleError, metaFor, ok, orderBy, pageParams } from "@/lib/api";
-import { textWhere } from "@/lib/search-where";
+import { PUBLIC_BUSINESS, textWhere } from "@/lib/search-where";
 import { reindexBusinessTree } from "@/lib/search-index";
 import { assertBusinessAccess } from "@/lib/business-access";
 import { parseOpeningHours } from "@/lib/opening-hours";
@@ -35,7 +37,7 @@ export async function GET(request: NextRequest) {
       ...(businessId ? { businessId } : {}),
       ...(cityId ? { cityId } : {}),
       ...(countryCode ? { countryCode: countryCode.toUpperCase() } : {}),
-      ...(staff ? {} : { business: { status: "published", deletedAt: null } }),
+      ...(staff ? {} : { business: PUBLIC_BUSINESS }),
     };
 
     const [total, rows] = await Promise.all([
@@ -72,12 +74,14 @@ export async function POST(request: NextRequest) {
       payload.openingHours = (parsed.value ?? undefined) as Record<string, string> | undefined;
     }
 
+    if (payload.cityId && !await prisma.city.findFirst({ where: { id: payload.cityId, isActive: true, country: { code: payload.countryCode } }, select: { id: true } })) return fail(422, "validation_error", "The city must belong to the selected country.");
     // A business may have exactly one primary location; demote the previous one first.
     const location = await prisma.$transaction(async (tx) => {
+      await lockBusiness(tx, payload.businessId);
       if (payload.isPrimary) {
         await tx.location.updateMany({ where: { businessId: payload.businessId, isPrimary: true }, data: { isPrimary: false } });
       }
-      return tx.location.create({
+      const row = await tx.location.create({
         data: {
           ...payload,
           email: payload.email === "" ? null : payload.email,
@@ -86,6 +90,9 @@ export async function POST(request: NextRequest) {
           cityId: payload.cityId ?? null,
         },
       });
+      const business = await tx.business.findUniqueOrThrow({ where: { id: payload.businessId }, select: publicationSelect });
+      if (business.status === "published" && !businessReadiness(business).ok) throw new HttpError(422, "not_publishable", "A published business must keep its confirmed primary location.");
+      return row;
     });
     await reindexBusinessTree(prisma, payload.businessId);
 

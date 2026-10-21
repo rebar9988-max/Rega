@@ -7,13 +7,14 @@ import { prisma } from "@/lib/db";
 import { requirePermission } from "@/lib/auth-helpers";
 import { writeAudit } from "@/lib/audit";
 import { can, type Permission } from "@/lib/rbac";
-import { businessFormSchema, readinessFor, saveBusiness } from "@/lib/business-admin";
+import { businessFormSchema, saveBusiness } from "@/lib/business-admin";
 import { geocodeAddress, type GeocodeOutcome } from "@/lib/geocoder";
 import { addCreatorAsMember, assertBusinessAccess } from "@/lib/business-access";
 import { reindexBusinessTree } from "@/lib/search-index";
 import { getTranslations } from "next-intl/server";
 import { sendEmail, teamInbox } from "@/lib/email";
 import { hasConfirmedEmail } from "@/lib/email/verified";
+import { approvalData, lockBusiness, publicationSelect } from "@/lib/business-publication";
 import { isLocale } from "@/config/locales";
 
 const schema = z.object({
@@ -25,14 +26,14 @@ const schema = z.object({
 
 const EFFECT = {
   publish: { permission: "business.publish", data: () => ({ status: "published", publishedAt: new Date(), archivedAt: null }) },
-  unpublish: { permission: "business.publish", data: () => ({ status: "draft" }) },
+  unpublish: { permission: "business.publish", data: () => ({ status: "draft", verified: false }) },
   archive: { permission: "business.write", data: () => ({ status: "archived", archivedAt: new Date() }) },
   feature: { permission: "business.publish", data: () => ({ featured: true }) },
   unfeature: { permission: "business.publish", data: () => ({ featured: false }) },
   // Moderation: a pending listing goes back to draft so its owner can fix it and submit again.
-  reject: { permission: "business.publish", data: () => ({ status: "draft" }) },
+  reject: { permission: "business.publish", data: () => ({ status: "draft", verified: false }) },
   verify: { permission: "business.publish", data: () => ({ verified: true }) },
-  unverify: { permission: "business.publish", data: () => ({ verified: false }) },
+  unverify: { permission: "business.publish", data: () => ({ verified: false, status: "draft" }) },
 } as const satisfies Record<string, { permission: Permission; data: () => Record<string, unknown> }>;
 
 /** Server action: every check runs on the server, so the UI can never grant itself a permission. */
@@ -41,17 +42,27 @@ export async function updateBusiness(formData: FormData): Promise<void> {
   const effect = EFFECT[intent];
   const user = await requirePermission(effect.permission);
 
-  const before = await prisma.business.findFirst({ where: { id, deletedAt: null }, select: { status: true, featured: true, verified: true, name: true } });
-  if (!before) return;
   await assertBusinessAccess(user, id);
-  if (intent === "reject" && before.status !== "pending") return; // only submitted listings are returned for changes
-  // Only complete businesses with a confirmed location can go live (and onto the map / Nearby).
-  if (intent === "publish" && !(await readinessFor(id)).ok) redirect(`/dr/businesses?blocked=${encodeURIComponent(id)}`);
-  const after = await prisma.business.update({ where: { id }, data: effect.data(), select: { status: true, featured: true, verified: true } });
-  await reindexBusinessTree(prisma, id);
-
-  await writeAudit({ actorId: user.id, actorEmail: user.email, action: `business.${intent}`, entity: "Business", entityId: id, before, after: { ...after, ...(reason ? { reason } : {}) } });
-  if (intent === "reject") await notifyReturned(id, before.name, reason);
+  const result = await prisma.$transaction(async (tx) => {
+    await lockBusiness(tx, id);
+    const before = await tx.business.findFirst({ where: { id, deletedAt: null }, select: { ...publicationSelect, featured: true } });
+    if (!before || (intent === "reject" && before.status !== "pending")) return null;
+    const approving = intent === "verify" || intent === "publish";
+    const data = approving ? approvalData(before) : { ...effect.data(), ...(intent === "unverify" && before.status !== "published" ? { status: before.status } : {}) };
+    if (!data) return { blocked: true as const, name: before.name };
+    // An identical retry is a no-op, including its audit entry.
+    if (Object.entries(data).every(([key, value]) => {
+      const previous = before[key as keyof typeof before];
+      return value instanceof Date ? previous instanceof Date && value.getTime() === previous.getTime() : previous === value;
+    })) return null;
+    const after = await tx.business.update({ where: { id }, data, select: { status: true, verified: true, featured: true, categoryId: true } });
+    await reindexBusinessTree(tx, id);
+    await tx.auditLog.create({ data: { actorId: user.id, actorEmail: user.email, action: `business.${intent}`, entity: "Business", entityId: id,
+      before: { status: before.status, verified: before.verified, categoryId: before.categoryId }, after: { ...after, ...(reason ? { reason } : {}) } } });
+    return { blocked: false as const, name: before.name };
+  });
+  if (result?.blocked) redirect(`/dr/businesses?blocked=${encodeURIComponent(id)}`);
+  if (intent === "reject" && result) await notifyReturned(id, result.name, reason);
   revalidatePath("/dr", "layout");
   revalidatePath("/", "layout");
 }
@@ -68,7 +79,7 @@ async function notifyReturned(businessId: string, listing: string, reason?: stri
 }
 
 export type BusinessFormState = {
-  error?: "invalid" | "not_found" | "published_incomplete" | "city_unknown" | "unverified" | "media_invalid";
+  error?: "invalid" | "not_found" | "published_incomplete" | "city_unknown" | "unverified" | "media_invalid" | "category_invalid";
   fields?: string[];
   /** Set after a wizard "save draft": the form stays where it is and carries this id, so the next save updates the same draft. */
   draft?: { id: string; at: number };

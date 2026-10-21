@@ -8,7 +8,7 @@ import type { FormCity } from "@/components/dr/BusinessForm";
 /** Options for the business form: real categories, countries and cities from the database (plus ISO countries). */
 export async function formOptions(locale: Locale) {
   const [categories, countries, cities] = await Promise.all([
-    prisma.category.findMany({ where: { isActive: true, deletedAt: null }, orderBy: [{ sortOrder: "asc" }, { nameDe: "asc" }], select: { id: true, parentId: true, nameCkb: true, nameKmr: true, nameDe: true, nameEn: true, nameAr: true, nameFa: true, nameTr: true } }),
+    prisma.category.findMany({ where: { sectionKey: "businesses", isActive: true, deletedAt: null }, orderBy: [{ sortOrder: "asc" }, { nameDe: "asc" }], select: { id: true, parentId: true, nameCkb: true, nameKmr: true, nameDe: true, nameEn: true, nameAr: true, nameFa: true, nameTr: true } }),
     prisma.country.findMany({ select: { code: true, nameEn: true, nameCkb: true, nameKmr: true, nameDe: true, nameAr: true, nameTr: true } }),
     prisma.city.findMany({ where: { isActive: true }, orderBy: { nameEn: "asc" }, select: { id: true, nameEn: true, nameCkb: true, nameKmr: true, nameDe: true, nameAr: true, nameTr: true, latitude: true, longitude: true, country: { select: { code: true } } } }),
   ]);

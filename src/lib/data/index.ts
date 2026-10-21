@@ -4,7 +4,6 @@
  */
 import "server-only";
 import { cache } from "react";
-import { unstable_cache } from "next/cache";
 import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { PUBLIC_BUSINESS, businessInCategories, businessInCity, textWhere } from "@/lib/search-where";
@@ -22,7 +21,7 @@ const businessCard = {
   id: true, slug: true, name: true, nameCkb: true, nameKmr: true, nameAr: true, nameTr: true,
   description: true, descriptionCkb: true, descriptionKmr: true, descriptionDe: true, descriptionAr: true, descriptionTr: true,
   logoUrl: true, coverUrl: true, verified: true, featured: true, ratingAvg: true, ratingCount: true, categoryId: true, languages: true,
-  locations: { where: { isPrimary: true, deletedAt: null, status: "active" }, take: 1, select: { city: cityInclude, latitude: true, longitude: true } },
+  locations: { where: { isPrimary: true, deletedAt: null, status: "active" }, take: 1, select: { city: cityInclude, countryCode: true, latitude: true, longitude: true } },
   _count: { select: { services: { where: { status: "published", deletedAt: null } } } },
 } satisfies Prisma.BusinessSelect;
 
@@ -35,7 +34,7 @@ const businessCard = {
 export const getCategories = cache(async () => {
   const [rows, perCategory] = await Promise.all([
     prisma.category.findMany({
-      where: { isActive: true, deletedAt: null },
+      where: { sectionKey: "businesses", isActive: true, deletedAt: null },
       orderBy: [{ sortOrder: "asc" }, { nameDe: "asc" }],
       select: { id: true, slug: true, parentId: true, nameCkb: true, nameKmr: true, nameDe: true, nameEn: true, nameAr: true, nameFa: true, nameTr: true },
     }),
@@ -181,7 +180,7 @@ async function categoryIds(id?: string): Promise<string[] | undefined> {
 
 // ------------------------------------------------------------------ businesses
 
-export type BusinessQuery = { q?: string; category?: string; city?: string; verified?: "1"; sort: "featured" | "rating" | "newest" | "name"; page: number };
+export type BusinessQuery = { q?: string; category?: string; city?: string; verified?: "1"; country?: string; sort: "featured" | "rating" | "newest" | "name"; page: number };
 
 const businessOrder = {
   featured: [{ featured: "desc" }, { ratingAvg: "desc" }, { name: "asc" }],
@@ -194,14 +193,14 @@ export async function listBusinesses(query: BusinessQuery) {
   const cats = await categoryIds(query.category);
   const where: Prisma.BusinessWhereInput = {
     ...PUBLIC_BUSINESS,
-    ...textWhere(query.q),
+    AND: [...(textWhere(query.q).AND ?? []), ...(query.country ? [{ locations: { some: { status: "active", deletedAt: null, countryCode: query.country, ...(query.city ? { cityId: query.city } : {}) } } }] : [])],
     ...(query.verified ? { verified: true } : {}),
     ...(cats ? businessInCategories(cats) : {}),
     ...(query.city ? businessInCity(query.city) : {}),
   };
   const [total, items] = await Promise.all([
     prisma.business.count({ where }),
-    prisma.business.findMany({ where, orderBy: businessOrder[query.sort], select: businessCard, ...skipTake(query.page) }),
+    prisma.business.findMany({ where, orderBy: [...businessOrder[query.sort], { id: "asc" }], select: businessCard, ...skipTake(query.page) }),
   ]);
   return { items, total, pages: pageCount(total), page: query.page };
 }
@@ -325,7 +324,7 @@ export async function searchAll({ q, type, page }: { q: string; type: SearchType
   return { businesses, services, locations };
 }
 
-export const getHomeData = unstable_cache(
+export const getHomeData = cache(
   async () => {
     const [businesses, services, locations, featured, latest, newServices] = await Promise.all([
       prisma.business.count({ where: PUBLIC_BUSINESS }),
@@ -345,8 +344,6 @@ export const getHomeData = unstable_cache(
     ]);
     return { stats: { businesses, services, locations }, featured, latest, newServices };
   },
-  ["home-data"],
-  { revalidate: 120 },
 );
 
 // ------------------------------------------------------------------ nearby discovery

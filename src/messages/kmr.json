@@ -591,7 +591,7 @@
     "req_location": "Cih li ser nexşeyê",
     "req_locationVerified": "Cih hat piştrastkirin",
     "location": "Cih",
-    "locOk": "Piştrastkirî",
+    "locOk": "Cih hatiye piştrastkirin",
     "locUnverified": "Nepiştrastkirî",
     "locMissing": "Tune",
     "auditTitle": "Kontrola cihan",
@@ -1118,5 +1118,10 @@
     "noNearbyCity": "Nêzîkî te tu bajarekî piştgirîkirî tune ye. Ji kerema xwe yekî hilbijêre.",
     "loadFailed": "Bajar nehatin barkirin. Ji kerema xwe dîsa biceribîne.",
     "searching": "Tê lêgerîn …"
+  },
+  "businessModeration": {
+    "verification": "Piştrastkirina tîmê",
+    "unverified": "Hê ji aliyê tîmê ve nehatiye piştrastkirin",
+    "approve": "Piştrast bike û biweşîne"
   }
 }

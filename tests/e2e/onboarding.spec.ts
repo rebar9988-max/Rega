@@ -121,7 +121,7 @@ test("owner registers, creates a listing, submits it; an admin approves; it is p
   // 3. An owner cannot reach admin pages or self-verify through the API.
   expect((await page.request.get("/dr/users")).status()).not.toBe(200);
   const patch = await page.request.patch(`/api/v1/businesses/${id}`, { data: { verified: true, featured: true } });
-  expect(patch.ok()).toBe(true);
+  expect(patch.status()).toBe(403);
   const publish = await page.request.patch(`/api/v1/businesses/${id}`, { data: { status: "published" } });
   expect(publish.status()).toBe(403);
 
@@ -136,7 +136,7 @@ test("owner registers, creates a listing, submits it; an admin approves; it is p
   await admin.goto(`/dr/businesses?status=pending&q=${encodeURIComponent(name)}`);
   const row = admin.locator("tr", { hasText: name });
   await expect(row.getByTestId("row-status")).toHaveText("Ausstehend");
-  await row.getByTestId("moderation").getByRole("button", { name: "Veröffentlichen" }).click();
+  await row.getByTestId("moderation").getByRole("button", { name: "Prüfen & veröffentlichen" }).click();
   await expect(admin.locator("tr", { hasText: name })).toHaveCount(0, { timeout: 15_000 }); // no longer pending
   await admin.goto(`/dr/businesses?q=${encodeURIComponent(name)}`);
   await expect(admin.locator("tr", { hasText: name }).getByTestId("row-status")).toHaveText("Veröffentlicht");
