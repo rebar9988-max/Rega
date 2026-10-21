@@ -5,7 +5,7 @@ import { spawn } from "node:child_process";
 const port = 8798;
 // Hosted PostgreSQL service ports are IPv4; workerd does not share Node's dual-stack fallback.
 const databaseUrl = new URL(process.env.DATABASE_URL);
-if (databaseUrl.hostname === "localhost") databaseUrl.hostname = "127.0.0.1";
+if (!process.argv.includes("--hostname-control") && databaseUrl.hostname === "localhost") databaseUrl.hostname = "127.0.0.1";
 const child = spawn(process.execPath, [
   "node_modules/wrangler/bin/wrangler.js", "dev", "--local", "--port", String(port),
   "--var", `DATABASE_URL:${databaseUrl}`,

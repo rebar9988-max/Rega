@@ -36,3 +36,5 @@ jobs:
       - run: npx prisma migrate deploy
       - run: npm run build
       - run: node scripts/health/worker-smoke.mjs
+      - name: Compare the original localhost endpoint on the same Worker
+        run: node scripts/health/worker-smoke.mjs --hostname-control
