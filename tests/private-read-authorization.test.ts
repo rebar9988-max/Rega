@@ -47,6 +47,7 @@ function requestFor(route: string, role: rbac.Role | null | Error, { anonymous =
       metaFor: () => ({}), orderBy: () => ({ id: "asc" }),
     },
     "@/lib/search-where": { PUBLIC_BUSINESS, textWhere: () => ({}) },
+    "@/lib/business-media": { ownsBusinessImages: () => assert.fail("Public reads must not validate or write upload ownership") },
     "@/lib/search-index": {}, "@/lib/business-access": {}, "@/lib/validation": {},
     "@/lib/business-publication": {}, "@/lib/category-tree": {}, "@/lib/audit": {}, "@/lib/opening-hours": {},
   };
