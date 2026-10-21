@@ -3,9 +3,12 @@ import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 
 const port = 8798;
+// Hosted PostgreSQL service ports are IPv4; workerd does not share Node's dual-stack fallback.
+const databaseUrl = new URL(process.env.DATABASE_URL);
+if (databaseUrl.hostname === "localhost") databaseUrl.hostname = "127.0.0.1";
 const child = spawn(process.execPath, [
   "node_modules/wrangler/bin/wrangler.js", "dev", "--local", "--port", String(port),
-  "--var", `DATABASE_URL:${process.env.DATABASE_URL ?? ""}`,
+  "--var", `DATABASE_URL:${databaseUrl}`,
   "--var", "AUTH_SECRET:worker-smoke-local-only", "--var", "REGA_PRIVATE_BETA:0",
 ], { stdio: ["ignore", "ignore", "ignore"] });
 let exited = false;
@@ -24,7 +27,7 @@ try {
     }
   }
   assert.equal(health?.service, "rega-platform", "Built Worker must execute a Next.js route and return its health report");
-  assert.equal(health.ok, true, "Worker database and migrations must be ready");
+  assert.equal(health.ok, true, `Worker database and migrations must be ready: ${JSON.stringify(health.checks)}`);
   const directory = await fetch(`http://localhost:${port}/api/v1/businesses`);
   assert.equal(directory.status, 200);
   const result = await directory.json();
