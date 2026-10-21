@@ -17,18 +17,6 @@ async function main() {
     adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL! }),
   });
   const apply = process.argv.includes("--apply");
-  const restricted = [
-    "business.unpublish",
-    "business.archive",
-    "business.reject",
-    "business.unverify",
-    "business.delete.soft",
-    "business.delete.hard",
-    "business.bulk.unpublish",
-    "business.bulk.archive",
-    "business.bulk.delete",
-    "business.bulk.restore",
-  ];
   try {
     const candidates = await db.business.findMany({
       where: { verified: true, status: { not: "published" } },
@@ -59,7 +47,9 @@ async function main() {
                   entity: "Business",
                   entityId: id,
                   createdAt: { gte: verification.createdAt },
-                  action: { in: restricted },
+                  // Any subsequent edit requires fresh staff review; never infer that a later
+                  // business.update was harmless or undo a status transition hidden in it.
+                  id: { not: verification.id },
                 },
                 select: { id: true },
               })
