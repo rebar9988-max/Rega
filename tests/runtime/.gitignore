@@ -1,0 +1,2 @@
+# Local-only codec smoke state, never source or deployment input.
+.wrangler/

@@ -7,7 +7,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages, getTranslations } from "next-intl/server";
-import { currentUser } from "@/lib/auth-helpers";
+import { currentAccount, currentUser } from "@/lib/auth-helpers";
 import { can, canEnterDashboard } from "@/lib/rbac";
 import { LOCALE_META, type Locale } from "@/i18n/locales";
 import { Logo } from "@/components/ui/Logo";
@@ -22,9 +22,11 @@ export const dynamic = "force-dynamic";
 export default async function DrLayout({ children }: { children: React.ReactNode }) {
   const locale = (await getLocale()) as Locale;
   const meta = LOCALE_META[locale];
-  const [messages, t, tn, user] = await Promise.all([getMessages(), getTranslations("dashboard"), getTranslations("nav"), currentUser().catch(() => null)]);
+  const [messages, t, tn, user] = await Promise.all([getMessages(), getTranslations("dashboard"), getTranslations("nav"), currentAccount().catch(() => null)]);
   if (PRIVATE_BETA && user?.role !== "SUPER_ADMIN") redirect("/owner-login?next=%2Fdr");
-  if (!user) redirect(`/${locale}/login?next=${encodeURIComponent("/dr")}`);
+  // A revoked account can still have a cached session. Show the existing forbidden state rather than
+  // bouncing between /dr and login (login sends an already signed-in session back to /dr).
+  if (!user && !(await currentUser().catch(() => null))) redirect(`/${locale}/login?next=${encodeURIComponent("/dr")}`);
 
   return (
     <html lang={meta.htmlLang} dir={meta.dir} suppressHydrationWarning>
@@ -32,7 +34,7 @@ export default async function DrLayout({ children }: { children: React.ReactNode
       <body className="min-h-dvh">
         <SessionRenewal />
         <NextIntlClientProvider messages={messages}>
-          {!canEnterDashboard(user.role) ? (
+          {!user || !canEnterDashboard(user.role) ? (
             <main className="container-page py-24 text-center">
               <h1 className="mb-3 text-2xl font-extrabold">{t("title")}</h1>
               <p className="text-muted">{t("forbidden")}</p>

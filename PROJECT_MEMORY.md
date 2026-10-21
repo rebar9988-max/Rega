@@ -322,3 +322,111 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
 - Real local workerd now also executes the existing S3 helper against dummy local storage: actual PNG bytes/pixels and metadata stripping verified after upload. No external storage, production credentials or paid service used.
 - Concurrent main advanced to 59d8df12d61246f6cf1e16b68a6cf1059faad5bd via PR #41 (fresh-account authorization for private management reads). Integrate and preserve it before final-head CI/release; do not overwrite its API, auth, Worker smoke or memory changes.
 - WebKit completion: all 8 unique iPhone cases now passed (7 in HTTPS run, corrected crop-retry case 1/1). The retry test alone blocks service workers for interception and captures the actual canvas Blob in-browser, avoiding WebKit's unavailable POST-body API. Actual uploads and publication tests keep the production service worker enabled. Full final-head CI and release are still pending.
+
+## Private Control Center /dr recovery checkpoint — 2026-10-21
+
+- Scope: the owner's new, separate /dr recovery/control-center specification. Public UI/routes/branding are locked.
+  Phase 2 must wait until Phase 1 is verified in production with an authorized management session.
+- Read AGENTS.md, CLAUDE.md, this file, central Doc, architecture and deployment runbook. Fresh checkout base:
+  `3ce672deec309a9350a312112f809a4f796cd7b2` (PR #40 was already merged). Its existing main CI run
+  `39619955621` was in progress at this audit; do not duplicate or interfere with that separate release.
+- Exact reported 404 root cause: **not established / not reproduced**. At 14:49–14:55 UTC, unauthenticated
+  `https://www.regaplatform.com/dr` returned 307 to `/ckb/login?next=%2Fdr`, then login returned 200.
+  `/dr/` first returned 308 to `/dr`; `/dr/businesses`, `/dr/users`, `/dr/audit` also redirected to login.
+  Redirect targets returned `Cache-Control: private, no-cache, no-store, max-age=0, must-revalidate`
+  and `x-rega-cache: BYPASS`. Firecrawl live fetch independently confirmed the login destination.
+  This establishes the anonymous auth path, not authorized dashboard rendering or the cause of a historical 404.
+- Routing audit: `src/app/dr/page.tsx` and `layout.tsx` exist; middleware excludes `/dr` from locale rewriting;
+  `src/i18n/request.ts` resolves its locale from the cookie/default; the custom edge cache excludes `/dr` and `/api`.
+  No `notFound()` exists on the /dr root. Child record pages intentionally use 404 for missing/inaccessible records.
+  No speculative route/auth bypass was implemented.
+- Cloudflare connector `whoami` and spec search returned Internal error. Existing read-only diagnostics workflow
+  `39620570270` succeeded: latest deployment observed at 14:52 UTC uses version
+  `84a4a585-4c15-479b-859d-85d76ae425dc` at 100% (created 2026-10-20T21:53:46Z).
+  Evidence: https://github.com/rebar9988-max/Rega/actions/runs/39620570270 . No runtime settings were changed.
+- Live anonymous mutation probes used empty JSON and a nonexistent sentinel ID; all returned 401/unauthenticated:
+  POST businesses, bulk, categories, locations, media/upload-url; PATCH and DELETE businesses/[sentinel].
+  No production record, role, account or permission was created/changed.
+- Existing server guards re-read active/nondeleted account and role for mutations, fail closed on DB errors,
+  and enforce business membership. The business list/detail GET APIs instead use the cached `currentUser()` role
+  (`AUTH_SESSION_REVALIDATE_MS` defaults to 5 minutes); fresh authorization for private reads needs review in Phase 2.
+- Required workflow gaps found (audit only): persisted roles are SUPER_ADMIN/ADMIN/MANAGER/EMPLOYEE/BUSINESS_OWNER/USER,
+  with no STAFF role or per-user permission grants. MANAGER can publish; EMPLOYEE cannot and writes require membership.
+  `approvalData()` and form/REST/bulk paths currently combine verify + publish, including `verify` actions.
+  Separate decisions must be implemented consistently across these existing paths after the Phase 1 gate.
+  Reject currently returns pending to draft with an optional reason; correction and suspension are not distinct
+  dashboard decisions. Audit stores actor/action/time/status but not an immutable actor-role snapshot.
+  Existing search/status filters/pagination/mobile cards/i18n must be preserved. No Phase 2 implementation started.
+- Local baseline: `npm ci`, Prisma generation, lint, typecheck and Node production build passed. Unit tests:
+  271 passed, 4 skipped, 0 failed (no DATABASE_URL was set for this unit invocation). Isolated local PostgreSQL 16
+  and existing migrations were used for 12 auth/security browser tests: all passed, including SUPER_ADMIN/EMPLOYEE
+  dashboard access, anonymous API denial, forbidden employee API calls, suspension and public response projection.
+  The fixture named ADMIN actually has role SUPER_ADMIN; this is not live ADMIN/STAFF verification.
+- Worker production build and `wrangler deploy --dry-run` passed (3498.18 KiB gzip). Existing local workerd smoke
+  passed database/migration health, approved-only public query and API validation. These are baseline checks of
+  `3ce672d`, not evidence of a new deployment, authorized production access or the requested Phase 2 behavior.
+- Files changed by this task: only this existing project-memory file; central Doc also updated with the checkpoint.
+  Auto-generated `next-env.d.ts` build drift was reverted. No test/source/config/schema changes were necessary to
+  document a nonreproduced failure. Branch `audit/dr-recovery-20261021` preserves the checkpoint without deploying it.
+- Blocker: no authorized production management test session is available. Secure session configuration was requested;
+  never paste credentials, fabricate a session, promote an account or use local fixture credentials on production.
+  Phase 1 authorized access and exact 404 reproduction remain unverified, so Phase 2 and deployment are gated by the
+  owner's execution order. No application code, schema, public UI or deployment workflow was changed by this task.
+- Continuation: securely attach an existing authorized test session; reproduce the exact URL/role and failed request
+  without retaining private content; re-check current main CI/deployment/active Worker version, fix only an evidenced
+  failing layer, verify authorized/unauthorized access live, then implement the scoped management improvements.
+  Keep unrelated prepared public-site checkpoint `838d0cf` isolated. Evidence logs are in this session's
+  `/workspace/scratch/rega-dr-recovery`; this file and the central Doc remain the only shared project-memory layer.
+
+## Resume: workspace loading and private-read authorization — 2026-10-21
+
+- Resumed from verified remote checkpoint `ebb6e93430b9c88fcb9c9f65236d1b9d5fbf2d6b`; working tree was clean.
+  Current main is still `3ce672d`. Its CI `39619955621`, deploy `39621629114`, production browser check
+  `39621797819` and Cloudflare diagnostics `39622124475` all succeeded. Diagnostics observed version
+  `72611998-7f04-44c0-9cc4-90bf6731717d` at 100%. These are the previous release, not this repair's deployment.
+- Workspace finding: all required repository files load through execution tools. No malformed Docs path,
+  `.code-workspace`, `.codex` or editor workspace configuration was found in repository-owned files.
+  The previous chat answer emitted `codex-file-citation` with a Google Docs HTTPS URL. Treating that URL as a
+  filesystem path reproduces the exact path shape: `path.resolve('/workspace', 'https://docs.google.com/document/d/example')`
+  becomes `/workspace/https:/docs.google.com/document/d/example`. This verifies URL-to-path normalization, but host
+  file-loader logs/UI are unavailable, so the source of the reported Codex server error remains unconfirmed.
+  Supported Drive fetch of the real central document succeeds. No fake local document or internal service change.
+- Safe file-loader continuation: open the actual repository root `/workspace/Rega`; remove/reselect the malformed
+  document reference through supported workspace UI; use real local paths for file attachments and ordinary HTTPS
+  links or connected Drive tools for Google Docs. Refresh/reopen the workspace, then retry a real repository file.
+  If UI loading still fails, retain timestamp/error/request ID for Codex support. Do not manufacture a `https:` folder.
+  Use ordinary web links in reports instead of wrapping external URLs in local file-citation directives.
+- Production /dr still has no reproduced 404. Fresh 15:25 UTC diagnostic/browser-user-agent requests: /dr 307 to
+  `/ckb/login?next=%2Fdr`, login 200, /de and /ckb 200, health 200/ok; management/login responses private/no-store and
+  edge BYPASS. Default Python-urllib user agent received Cloudflare 403 on every path; diagnostic and Chromium user
+  agents succeeded. This request-dependent edge response is separate from application routing; no WAF change made.
+- Confirmed authorization defect: private business list/detail and location GET handlers used `currentUser()`'s
+  cached JWT role (default 5 minutes), so demotion/suspension/deletion did not immediately remove private read access.
+  Before repair, 9 of 12 new handler tests failed: stale staff role exposed drafts, missing no-store, and no fresh
+  account lookup on DB failure. Three anonymous-public projection tests already passed.
+- Technical repair: reuse the existing active/nondeleted-account query as optional `currentAccount()`; permission
+  guards retain their original 401/403 behavior. The three GET handlers and /dr layout now use the fresh account.
+  Staff GET responses explicitly set private/no-store. A cached session whose account is revoked sees the existing
+  forbidden screen, avoiding a /dr <-> login loop (login redirects a cached signed-in session back to /dr).
+  No markup/styles, public UI, role matrix, session policy, workflow decisions, schema or dependencies changed.
+- Regression coverage: 12 handler tests cover current roles, stale roles, inactive/missing accounts, DB failure,
+  cache headers and anonymous public projections; existing permission/RBAC tests remain unchanged. Added real local
+  E2E coverage retaining a cached JWT while DB roles/status change. Tokens and account changes are isolated test-only;
+  no production session is fabricated and no production role/data is changed. Initial browser assertion expected
+  German but the fixture had no locale cookie (actual existing forbidden UI was Kurdish); fixture selects German.
+- Current validation: lint/typecheck, 283 unit tests (4 skipped), 22 focused authorization/RBAC tests and Node build
+  passed. All 31 unique local auth/security/public-navigation cases passed across the initial run and the corrected
+  security-fixture rerun (6/6). Worker build and dry-run passed (3503.99 KiB gzip); actual local workerd passed DB,
+  /dr 307/login/no-store, anonymous mutation 401, public-query and validation checks. The extra private-route/auth
+  assertions are now in the existing `scripts/health/worker-smoke.mjs` CI check.
+- Repair implementation commit `656bc61`; PR https://github.com/rebar9988-max/Rega/pull/41 . Its first CI run
+  `39625818405` was superseded by the added Worker routing regression check. Existing optional Neon preview workflow
+  again failed HTTP 422 (`39625818273`), matching the earlier documented infrastructure failure; it is unchanged.
+  The full `verify` job uses disposable local Postgres and remains the release gate. Final-head hosted CI and
+  production release are still required; update this checkpoint before handoff.
+- Authorized production session remains unavailable: runtime has no configured secret/session bindings and no
+  attached state file. Existing `storageState` references are localhost test fixtures, never production sessions.
+  Minimum secure attachment requested (path or variable names only). Positive authenticated production verification
+  and the historical 404 cause remain blocked. Control-center redesign/workflow expansion remains paused.
+
+- Business-task integration: preserved the complete independent /dr recovery notes and PR #41 implementation while resolving only an append conflict in this memory file. Its separate control-center redesign gate is unchanged; this branch continues the original business registration/image phase after phase-1 public production verification.

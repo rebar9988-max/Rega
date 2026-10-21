@@ -2,6 +2,8 @@ import { expect, test } from "./fixtures";
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { EMPLOYEE } from "./global-setup";
+import { encode } from "@auth/core/jwt";
+import { randomUUID } from "node:crypto";
 
 test("security headers: CSP, frame protection, nosniff, HSTS, referrer and permissions policies", async ({ request }) => {
   const res = await request.get("/de");
@@ -70,6 +72,58 @@ test("a suspended account loses access immediately (session revalidation)", asyn
     expect(api.status()).toBe(401);
   } finally {
     await prisma.user.update({ where: { email: EMPLOYEE.email }, data: { status: "active" } });
+    await prisma.$disconnect();
+  }
+});
+
+test("private reads recheck roles and account status even while the session role is cached", async ({ context, page }) => {
+  test.skip(!process.env.AUTH_SECRET, "requires the local test server's signing secret");
+  const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }) });
+  const original = await prisma.user.findUniqueOrThrow({ where: { email: EMPLOYEE.email } });
+  const marker = `e2eprivate${randomUUID().replaceAll("-", "")}`;
+  let businessId: string | undefined;
+  try {
+    const business = await prisma.business.create({ data: {
+      name: `E2E private read ${marker}`, slug: marker, searchText: marker, status: "draft",
+      locations: { create: { addressLine1: "Local test address", countryCode: "DE", isPrimary: true } },
+    } });
+    businessId = business.id;
+    const cookie = "authjs.session-token";
+    // The suite normally revalidates sessions immediately. Keep this local test's JWT role cached so that
+    // a passing test proves the private handlers recheck the account, independently of Auth.js renewal.
+    const token = await encode({ secret: process.env.AUTH_SECRET!, salt: cookie, maxAge: 600,
+      token: { uid: original.id, sub: original.id, email: original.email, role: "SUPER_ADMIN", locale: "de", checkedAt: Date.now() + 300_000 } });
+    await context.addCookies([
+      { name: cookie, value: token, url: String(test.info().project.use.baseURL), httpOnly: true, sameSite: "Lax" },
+      { name: "REGA_LOCALE", value: "de", url: String(test.info().project.use.baseURL) },
+    ]);
+
+    for (const role of ["ADMIN", "MANAGER", "EMPLOYEE", "BUSINESS_OWNER", "USER"] as const) {
+      await prisma.user.update({ where: { id: original.id }, data: { role, status: "active", deletedAt: null } });
+      const cached = await (await context.request.get("/api/auth/session")).json();
+      expect(cached.user.role).toBe("SUPER_ADMIN");
+      const staff = ["ADMIN", "MANAGER", "EMPLOYEE"].includes(role);
+      const list = await context.request.get(`/api/v1/businesses?q=${marker}`);
+      expect((await list.json()).data.map((b: { id: string }) => b.id)).toEqual(staff ? [business.id] : []);
+      const detail = await context.request.get(`/api/v1/businesses/${business.id}`);
+      expect(detail.status()).toBe(staff ? 200 : 404);
+      const locations = await context.request.get(`/api/v1/locations?businessId=${business.id}`);
+      expect((await locations.json()).data).toHaveLength(staff ? 1 : 0);
+      if (staff) for (const response of [list, detail, locations]) expect(response.headers()["cache-control"]).toContain("no-store");
+    }
+    for (const state of [{ status: "suspended", deletedAt: null }, { status: "active", deletedAt: new Date() }]) {
+      await prisma.user.update({ where: { id: original.id }, data: { role: "ADMIN", ...state } });
+      expect((await context.request.get(`/api/v1/businesses/${business.id}`)).status()).toBe(404);
+      expect((await (await context.request.get(`/api/v1/businesses?q=${marker}`)).json()).data).toEqual([]);
+      expect((await (await context.request.get(`/api/v1/locations?businessId=${business.id}`)).json()).data).toEqual([]);
+      await page.goto("/dr");
+      await expect(page).toHaveURL(/\/dr$/);
+      await expect(page.getByText("Dieses Konto hat keinen Verwaltungszugriff.")).toBeVisible();
+      await expect(page.getByRole("navigation")).toHaveCount(0);
+    }
+  } finally {
+    await prisma.user.update({ where: { id: original.id }, data: { role: original.role, status: original.status, deletedAt: original.deletedAt } });
+    if (businessId) await prisma.business.delete({ where: { id: businessId } });
     await prisma.$disconnect();
   }
 });
