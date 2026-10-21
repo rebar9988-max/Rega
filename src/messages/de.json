@@ -591,7 +591,7 @@
     "req_location": "Standort auf der Karte",
     "req_locationVerified": "Standort bestätigt",
     "location": "Standort",
-    "locOk": "Bestätigt",
+    "locOk": "Standort bestätigt",
     "locUnverified": "Nicht bestätigt",
     "locMissing": "Fehlt",
     "auditTitle": "Standort-Prüfung",
@@ -634,9 +634,9 @@
     "mediaInvalid": "Ein Foto konnte nicht übernommen werden. Laden Sie es erneut mit der Upload-Schaltfläche hoch.",
     "wizard": {
       "steps": "Schritte der Registrierung",
-      "step1": "Unternehmen",
-      "step2": "Standort",
-      "step3": "Kontakt und Bilder",
+      "step1": "Unternehmen & Standort",
+      "step2": "Logo & Bilder",
+      "step3": "Prüfen & einreichen",
       "next": "Weiter",
       "back": "Zurück",
       "saveDraft": "Entwurf speichern",
@@ -647,7 +647,9 @@
       "reviewHint": "Nach dem Einreichen prüft das REGA-Team Ihren Eintrag. Er wird erst nach der Freigabe veröffentlicht.",
       "pinConfirmed": "Auf der Karte bestätigt",
       "pinMissing": "Noch nicht gesetzt"
-    }
+    },
+    "categorySearch": "Kategorien suchen",
+    "optionalDetails": "Optionale Angaben"
   },
   "contact": {
     "title": "Kontakt",
@@ -1118,5 +1120,24 @@
     "noNearbyCity": "In Ihrer Nähe gibt es keine unterstützte Stadt. Bitte wählen Sie eine.",
     "loadFailed": "Städte konnten nicht geladen werden. Bitte versuchen Sie es erneut.",
     "searching": "Suche läuft …"
+  },
+  "businessImages": {
+    "title": "Bild positionieren",
+    "hint": "Zum Verschieben ziehen, mit zwei Fingern oder dem Regler zoomen. Auch die Pfeiltasten bewegen das Bild.",
+    "preview": "Vorschau des endgültigen Ausschnitts",
+    "zoom": "Zoom",
+    "reset": "Zurücksetzen",
+    "cancel": "Abbrechen",
+    "confirm": "Bild bestätigen",
+    "saving": "Wird gespeichert…",
+    "retry": "Upload fehlgeschlagen. Der Ausschnitt bleibt erhalten; erneut bestätigen.",
+    "formats": "JPG, PNG, WebP, GIF und unterstütztes HEIC/HEIF. Animationen werden als Standbild gespeichert.",
+    "unsupported": "Dieser Browser kann das Bild nicht lesen. Als JPG oder PNG exportieren und erneut versuchen.",
+    "tooLarge": "Ein Bild unter 20 MB wählen (bis zu 48 Megapixel)."
+  },
+  "businessModeration": {
+    "verification": "Prüfung durch das Team",
+    "unverified": "Noch nicht vom Team geprüft",
+    "approve": "Prüfen & veröffentlichen"
   }
 }

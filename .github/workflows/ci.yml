@@ -64,7 +64,7 @@ jobs:
       - name: Build (Node, used by E2E)
         run: npm run build:node
       - name: Install Playwright browser
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install --with-deps chromium webkit
       - name: E2E tests
         run: npm run e2e
       - name: Build for Cloudflare Workers + validate the Worker bundle (no credentials, no deploy)

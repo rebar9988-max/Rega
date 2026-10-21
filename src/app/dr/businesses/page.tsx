@@ -11,6 +11,7 @@ import { isValidCoordinate } from "@/lib/coordinates";
 import { locationAudit } from "@/lib/business-admin";
 import { hasGlobalBusinessAccess, managedBusinessWhere } from "@/lib/business-access";
 import { textWhere } from "@/lib/search-where";
+import { BusinessActionButton } from "@/components/dr/BusinessActionButton";
 import { updateBusiness } from "./actions";
 
 const PER_PAGE = 20;
@@ -46,7 +47,7 @@ export default async function DrBusinesses({ searchParams }: { searchParams: Pro
     prisma.business.findMany({
       where, orderBy: { updatedAt: "desc" }, skip: (page - 1) * PER_PAGE, take: PER_PAGE,
       select: {
-        id: true, slug: true, name: true, nameCkb: true, nameKmr: true, nameAr: true, nameTr: true, status: true, verified: true, featured: true, viewCount: true,
+        id: true, slug: true, name: true, nameCkb: true, nameKmr: true, nameAr: true, nameTr: true, status: true, verified: true, featured: true, viewCount: true, category: { select: { nameDe: true, nameCkb: true, nameKmr: true, nameEn: true, nameAr: true, nameFa: true, nameTr: true } },
         locations: { where: { isPrimary: true, deletedAt: null }, take: 1, select: { latitude: true, longitude: true, coordsVerifiedAt: true } },
       },
     }),
@@ -64,7 +65,7 @@ export default async function DrBusinesses({ searchParams }: { searchParams: Pro
   const act = (id: string, intent: string) => (
     <form key={intent} action={updateBusiness}>
       <input type="hidden" name="id" value={id} /><input type="hidden" name="intent" value={intent} />
-      <button type="submit" className={btn}>{t(`dashboard.${intent}`)}</button>
+      <BusinessActionButton className={btn}>{intent === "verify" || intent === "publish" ? t("businessModeration.approve") : t(`dashboard.${intent}`)}</BusinessActionButton>
     </form>
   );
   // Moderation of a submitted listing: approve (publish rules still apply) or return it with an optional reason for the owner.
@@ -130,6 +131,7 @@ export default async function DrBusinesses({ searchParams }: { searchParams: Pro
             <thead className="bg-surface-2 text-muted"><tr>
               <th scope="col" className="px-4 py-3 text-start font-semibold">{t("businesses.singular")}</th>
               <th scope="col" className="px-4 py-3 text-start font-semibold">{t("common.status")}</th>
+              <th scope="col" className="px-4 py-3 text-start font-semibold">{t("bizForm.category")}</th>
               <th scope="col" className="px-4 py-3 text-start font-semibold">{t("bizForm.location")}</th>
               <th scope="col" className="px-4 py-3 text-start font-semibold">{t("dashboard.views")}</th>
               <th scope="col" className="px-4 py-3 text-start font-semibold">{t("common.actions")}</th>
@@ -139,18 +141,19 @@ export default async function DrBusinesses({ searchParams }: { searchParams: Pro
                 <tr key={b.id}>
                   <td className="px-4 py-3">
                     <Link href={`/${locale}/business/${b.slug}`} className="font-semibold hover:underline"><Text value={localize(b, "name", locale)} pageLang={pageLang} /></Link>
-                    <div className="mt-1 flex gap-2 text-xs text-muted">{b.verified && <span>✓ {t("businesses.verified")}</span>}{b.featured && <span>★ {t("businesses.featured")}</span>}</div>
+                    <div className="mt-1 flex gap-2 text-xs text-muted"><span data-testid="staff-verification">{b.verified ? `✓ ${t("businessModeration.verification")}` : t("businessModeration.unverified")}</span>{b.featured && <span>★ {t("businesses.featured")}</span>}</div>
                   </td>
                   <td className="px-4 py-3"><span data-testid="row-status">{t(`status.${b.status}`)}</span></td>
+                  <td className="px-4 py-3" data-testid="primary-category">{b.category ? localize({ ...b.category, name: b.category.nameDe }, "name", locale).text : "—"}</td>
                   <td className="px-4 py-3" data-testid="loc-state">{(() => { const st = locState(b.locations[0]); return <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${st === "locOk" ? "bg-[oklch(0.95_0.05_150)] text-[oklch(0.35_0.1_150)]" : "bg-brand-soft text-brand"}`}>{t(`bizForm.${st}`)}</span>; })()}</td>
                   <td className="px-4 py-3">{formatNumber(b.viewCount, locale)}</td>
                   <td className="px-4 py-3"><div className="flex flex-wrap gap-1.5">
                     {canWrite && manages(b.id) && <Link href={`/dr/businesses/${b.id}`} className={`${btn} inline-flex items-center`}>{t("bizForm.edit")}</Link>}
                     {canPublish && b.status === "pending" && moderate(b.id)}
-                    {canPublish && b.status !== "pending" && (b.status === "published" ? act(b.id, "unpublish") : act(b.id, "publish"))}
+                    {canPublish && b.status !== "pending" && b.status !== "archived" && (b.status === "published" ? act(b.id, "unpublish") : act(b.id, "publish"))}
                     {canWrite && manages(b.id) && b.status !== "archived" && act(b.id, "archive")}
                     {canPublish && act(b.id, b.featured ? "unfeature" : "feature")}
-                    {canPublish && act(b.id, b.verified ? "unverify" : "verify")}
+                    {canPublish && b.verified && act(b.id, "unverify")}
                   </div></td>
                 </tr>
               ))}

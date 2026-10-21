@@ -591,7 +591,7 @@
     "req_location": "Location on the map",
     "req_locationVerified": "Location confirmed",
     "location": "Location",
-    "locOk": "Confirmed",
+    "locOk": "Location confirmed",
     "locUnverified": "Not confirmed",
     "locMissing": "Missing",
     "auditTitle": "Location audit",
@@ -634,9 +634,9 @@
     "mediaInvalid": "A photo could not be accepted. Upload it again with the upload button.",
     "wizard": {
       "steps": "Registration steps",
-      "step1": "Business",
-      "step2": "Location",
-      "step3": "Contact and images",
+      "step1": "Business & location",
+      "step2": "Logo & images",
+      "step3": "Review & submit",
       "next": "Next",
       "back": "Back",
       "saveDraft": "Save draft",
@@ -647,7 +647,9 @@
       "reviewHint": "After you submit, the REGA team checks your listing. It is published only after approval.",
       "pinConfirmed": "Confirmed on the map",
       "pinMissing": "Not set yet"
-    }
+    },
+    "categorySearch": "Search categories",
+    "optionalDetails": "Optional details"
   },
   "contact": {
     "title": "Contact",
@@ -1118,5 +1120,24 @@
     "noNearbyCity": "No supported city near you. Please choose one.",
     "loadFailed": "Cities could not be loaded. Please try again.",
     "searching": "Searching …"
+  },
+  "businessImages": {
+    "title": "Position your image",
+    "hint": "Drag to position, pinch with two fingers or use the zoom slider. Arrow keys also move the image.",
+    "preview": "Final crop preview",
+    "zoom": "Zoom",
+    "reset": "Reset",
+    "cancel": "Cancel",
+    "confirm": "Confirm image",
+    "saving": "Saving…",
+    "retry": "Upload failed. Your crop is kept; try Confirm again.",
+    "formats": "JPG, PNG, WebP, GIF and supported HEIC/HEIF. Animated images are saved as a still frame.",
+    "unsupported": "This browser cannot decode this image. Export it as JPG or PNG and try again.",
+    "tooLarge": "Choose an image under 20 MB (up to 48 megapixels)."
+  },
+  "businessModeration": {
+    "verification": "Staff verification",
+    "unverified": "Not verified by staff",
+    "approve": "Verify & publish"
   }
 }

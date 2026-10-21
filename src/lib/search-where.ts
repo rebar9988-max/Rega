@@ -11,9 +11,9 @@ export function textWhere(q: string | null | undefined): { AND: { searchText: { 
   return tokens.length ? { AND: tokens.map((t) => ({ searchText: { contains: t } })) } : {};
 }
 
-/** A business is in a category through its own (primary) category or any of its published services. */
+/** Business directories classify only by the canonical primary category (including descendants). */
 export function businessInCategories(ids: string[]): Prisma.BusinessWhereInput {
-  return { OR: [{ categoryId: { in: ids } }, { services: { some: { categoryId: { in: ids }, status: "published", deletedAt: null } } }] };
+  return { categoryId: { in: ids } };
 }
 
 /** A business is in a city when it has an active location there. */
@@ -21,4 +21,4 @@ export function businessInCity(cityId: string): Prisma.BusinessWhereInput {
   return { locations: { some: { cityId, status: "active", deletedAt: null } } };
 }
 
-export const PUBLIC_BUSINESS = { status: "published", deletedAt: null } satisfies Prisma.BusinessWhereInput;
+export const PUBLIC_BUSINESS = { status: "published", verified: true, deletedAt: null, archivedAt: null, category: { sectionKey: "businesses", isActive: true, deletedAt: null } } satisfies Prisma.BusinessWhereInput;

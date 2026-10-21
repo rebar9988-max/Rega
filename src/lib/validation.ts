@@ -31,6 +31,7 @@ export const localisedTextSchema = {
 };
 
 export const businessCreateSchema = z.object({
+  categoryId: idSchema.optional(),
   name: z.string().trim().min(2).max(200),
   ...translationFields,
   ...localisedTextSchema,

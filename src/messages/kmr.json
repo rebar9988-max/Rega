@@ -591,7 +591,7 @@
     "req_location": "Cih li ser nexşeyê",
     "req_locationVerified": "Cih hat piştrastkirin",
     "location": "Cih",
-    "locOk": "Piştrastkirî",
+    "locOk": "Cih hatiye piştrastkirin",
     "locUnverified": "Nepiştrastkirî",
     "locMissing": "Tune",
     "auditTitle": "Kontrola cihan",
@@ -634,9 +634,9 @@
     "mediaInvalid": "Yek ji wêneyan nehat qebûlkirin. Bi bişkoka barkirinê dîsa bar bike.",
     "wizard": {
       "steps": "Gavên tomarkirinê",
-      "step1": "Karsazî",
-      "step2": "Cih",
-      "step3": "Têkilî û wêne",
+      "step1": "Kar û cih",
+      "step2": "Logo û wêne",
+      "step3": "Binirxîne û bişîne",
       "next": "Pêş",
       "back": "Paş",
       "saveDraft": "Reşnivîsê tomar bike",
@@ -647,7 +647,9 @@
       "reviewHint": "Piştî şandinê, tîma REGA tomara te kontrol dike. Tenê piştî pejirandinê tê weşandin.",
       "pinConfirmed": "Li ser nexşeyê hat piştrastkirin",
       "pinMissing": "Hê nehatiye danîn"
-    }
+    },
+    "categorySearch": "Di kategoriyan de bigere",
+    "optionalDetails": "Agahiyên vebijarkî"
   },
   "contact": {
     "title": "Têkilî",
@@ -1118,5 +1120,24 @@
     "noNearbyCity": "Nêzîkî te tu bajarekî piştgirîkirî tune ye. Ji kerema xwe yekî hilbijêre.",
     "loadFailed": "Bajar nehatin barkirin. Ji kerema xwe dîsa biceribîne.",
     "searching": "Tê lêgerîn …"
+  },
+  "businessImages": {
+    "title": "Wêneyê bi cih bike",
+    "hint": "Ji bo guhertina cihê bikişîne, bi du tiliyan an rêkera zoomê mezintir bike. Bi tîran jî dikare were livandin.",
+    "preview": "Pêşdîtina birîna dawî",
+    "zoom": "Mezinkirin",
+    "reset": "Vegere destpêkê",
+    "cancel": "Betal bike",
+    "confirm": "Wêneyê piştrast bike",
+    "saving": "Tê tomarkirin…",
+    "retry": "Barkirin bi ser neket. Birîn hatiye parastin; dîsa piştrast bike.",
+    "formats": "JPG, PNG, WebP, GIF û HEIC/HEIF ya piştgirîkirî. Wêneyên livbar wek çarçoveyek sabît tên tomarkirin.",
+    "unsupported": "Ev gerok nikare vê wêneyê bixwîne. Wê wek JPG an PNG derxe û dîsa biceribîne.",
+    "tooLarge": "Wêneyek ji 20 MB biçûktir hilbijêre (heta 48 megapîksel)."
+  },
+  "businessModeration": {
+    "verification": "Piştrastkirina tîmê",
+    "unverified": "Hê ji aliyê tîmê ve nehatiye piştrastkirin",
+    "approve": "Piştrast bike û biweşîne"
   }
 }

@@ -74,3 +74,11 @@ export async function deleteObject(key: string): Promise<void> {
 
 /** Safe object key: never trust a client filename. */
 export { buildObjectKey } from "@/lib/object-key";
+
+/** Only decoded, re-encoded business images reach this path. Never grant a public PUT for their source. */
+export async function storeBusinessImage(key: string, bytes: Uint8Array, mimeType: string) {
+  if (!isStorageConfigured()) throw new StorageNotConfiguredError();
+  await s3().send(new PutObjectCommand({ Bucket: serverEnv().STORAGE_BUCKET!, Key: key, Body: bytes, ContentType: mimeType,
+    CacheControl: 'public, max-age=31536000, immutable', ContentDisposition: 'inline' }));
+  return publicUrlFor(key);
+}

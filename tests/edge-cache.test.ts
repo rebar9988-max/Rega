@@ -7,23 +7,23 @@ const html = (headers: Record<string, string> = {}, status = 200) =>
   new Response("<html>ok</html>", { status, headers: { "content-type": "text/html; charset=utf-8", "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate", ...headers } });
 
 test("public anonymous GET pages get a key; query strings and router headers are part of it", () => {
-  const a = edgeCacheKey(req("/ckb"));
+  const a = edgeCacheKey(req("/ckb/guides"));
   assert.ok(a);
-  assert.notEqual(edgeCacheKey(req("/ckb?q=1")), a);
-  assert.notEqual(edgeCacheKey(req("/ckb", { headers: { rsc: "1" } })), a);
-  assert.notEqual(edgeCacheKey(req("/ckb", { headers: { rsc: "1", "next-router-state-tree": "x" } })), edgeCacheKey(req("/ckb", { headers: { rsc: "1" } })));
-  assert.equal(edgeCacheKey(req("/ckb", { headers: { cookie: "theme=dark; REGA_LOCALE=ckb" } })), a); // non-personal cookies
+  assert.notEqual(edgeCacheKey(req("/ckb/guides?q=1")), a);
+  assert.notEqual(edgeCacheKey(req("/ckb/guides", { headers: { rsc: "1" } })), a);
+  assert.notEqual(edgeCacheKey(req("/ckb/guides", { headers: { rsc: "1", "next-router-state-tree": "x" } })), edgeCacheKey(req("/ckb/guides", { headers: { rsc: "1" } })));
+  assert.equal(edgeCacheKey(req("/ckb/guides", { headers: { cookie: "theme=dark; REGA_LOCALE=ckb" } })), a); // non-personal cookies
 });
 
 test("bots that get a different HTML variant never share an entry with browsers", () => {
-  const ua = (v: string) => req("/ckb", { headers: { "user-agent": v } });
+  const ua = (v: string) => req("/ckb/guides", { headers: { "user-agent": v } });
   const chrome = edgeCacheKey(ua("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36"));
   const safari = edgeCacheKey(ua("Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1"));
   const facebook = edgeCacheKey(ua("facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)"));
   const whatsapp = edgeCacheKey(ua("WhatsApp/2.23.20.0"));
   const googlebot = edgeCacheKey(ua("Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"));
   assert.equal(chrome, safari); // all browsers share one entry
-  assert.equal(chrome, edgeCacheKey(req("/ckb"))); // no user agent = browser variant
+  assert.equal(chrome, edgeCacheKey(req("/ckb/guides"))); // no user agent = browser variant
   assert.equal(facebook, whatsapp); // all HTML-limited bots share one entry
   assert.notEqual(facebook, chrome);
   assert.notEqual(googlebot, chrome);
@@ -32,13 +32,13 @@ test("bots that get a different HTML variant never share an entry with browsers"
 
 test("personal, private and non-GET requests are never cached", () => {
   for (const cookie of ["authjs.session-token=x", "__Secure-authjs.session-token=x", "a=1; __Secure-authjs.session-token.0=x", "next-auth.session-token=x", "__prerender_bypass=x"]) {
-    assert.equal(edgeCacheKey(req("/ckb", { headers: { cookie } })), null, cookie);
+    assert.equal(edgeCacheKey(req("/ckb/guides", { headers: { cookie } })), null, cookie);
   }
-  assert.equal(edgeCacheKey(req("/ckb", { headers: { authorization: "Bearer x" } })), null);
-  assert.equal(edgeCacheKey(req("/ckb", { method: "POST" })), null);
-  assert.equal(edgeCacheKey(req("/ckb", { method: "HEAD" })), null);
+  assert.equal(edgeCacheKey(req("/ckb/guides", { headers: { authorization: "Bearer x" } })), null);
+  assert.equal(edgeCacheKey(req("/ckb/guides", { method: "POST" })), null);
+  assert.equal(edgeCacheKey(req("/ckb/guides", { method: "HEAD" })), null);
   for (const p of ["/api/v1/health", "/dr", "/dr/businesses", "/_next/static/x.js", "/ckb/login", "/de/login?next=%2Fdr", "/ckb/account"]) assert.equal(edgeCacheKey(req(p)), null, p);
-  assert.ok(edgeCacheKey(req("/ckb/businesses")));
+  assert.ok(edgeCacheKey(req("/ckb/guides")));
   assert.ok(edgeCacheKey(req("/drinks"))); // only the /dr segment itself is private
 });
 
@@ -79,17 +79,17 @@ test("wrapper: second identical request is served from the cache without renderi
   const ctx = { waitUntil: (p: Promise<unknown>) => { pending.push(p); } };
   const handler = withEdgeCache(async () => { renders++; return html({ "set-cookie": "REGA_LOCALE=ckb; Path=/" }); });
 
-  const first = await handler(req("/ckb"), {}, ctx);
+  const first = await handler(req("/ckb/guides"), {}, ctx);
   assert.equal(first.headers.get(CACHE_HEADER), "MISS");
   assert.equal(await first.text(), "<html>ok</html>");
   await Promise.all(pending);
-  const second = await handler(req("/ckb"), {}, ctx);
+  const second = await handler(req("/ckb/guides"), {}, ctx);
   assert.equal(second.headers.get(CACHE_HEADER), "HIT");
   assert.equal(await second.text(), "<html>ok</html>");
   assert.match(second.headers.get("set-cookie") ?? "", /REGA_LOCALE=ckb/);
   assert.equal(renders, 1);
 
-  const signedIn = await handler(req("/ckb", { headers: { cookie: "__Secure-authjs.session-token=abc" } }), {}, ctx);
+  const signedIn = await handler(req("/ckb/guides", { headers: { cookie: "__Secure-authjs.session-token=abc" } }), {}, ctx);
   assert.equal(signedIn.headers.get(CACHE_HEADER), "BYPASS");
   assert.equal(renders, 2);
   delete (globalThis as unknown as { caches?: unknown }).caches;
@@ -110,14 +110,14 @@ test("a render marked as rendered without its data is sent but never stored", as
   const page = () => new Response(`<html><head>${degraded ? `<meta name="${NO_STORE_MARKER}" content="1"/>` : ""}</head><body>x</body></html>`, { headers: { "content-type": "text/html" } });
   const handler = withEdgeCache(async () => { renders++; return page(); });
 
-  const outage = await handler(req("/ckb"), {}, ctx);
+  const outage = await handler(req("/ckb/guides"), {}, ctx);
   assert.match(await outage.text(), new RegExp(NO_STORE_MARKER)); // the visitor still gets the page
   await Promise.all(pending);
   assert.equal(store.size, 0);
   degraded = false;
-  assert.equal((await handler(req("/ckb"), {}, ctx)).headers.get(CACHE_HEADER), "MISS"); // rendered again
+  assert.equal((await handler(req("/ckb/guides"), {}, ctx)).headers.get(CACHE_HEADER), "MISS"); // rendered again
   await Promise.all(pending);
-  assert.equal((await handler(req("/ckb"), {}, ctx)).headers.get(CACHE_HEADER), "HIT");
+  assert.equal((await handler(req("/ckb/guides"), {}, ctx)).headers.get(CACHE_HEADER), "HIT");
   assert.equal(renders, 2);
   delete (globalThis as unknown as { caches?: unknown }).caches;
 });
@@ -165,7 +165,7 @@ test("a page whose streamed section failed (database outage) is sent but neither
       if (renders === 1) await gate;
       return new Response(outage ? failed : ok, { headers: { "content-type": type } });
     });
-    const path = `/de/businesses?t=${encodeURIComponent(type)}`;
+    const path = `/de/guides?t=${encodeURIComponent(type)}`;
     const leader = handler(req(path), {}, ctx);
     const waiter = handler(req(path), {}, ctx); // waits for the leader's render
     release();
@@ -201,7 +201,7 @@ test("concurrent identical misses share one render; only a cacheable, unmarked r
   const burst = async (path: string, n: number, init: RequestInit = {}) => Promise.all(Array.from({ length: n }, () => handler(req(path, init), {}, ctx)));
 
   // 1. A cacheable page: one render, everyone gets the same page and the locale cookie, the original Cache-Control.
-  let res = await burst("/ckb/a", 6);
+  let res = await burst("/ckb/guides/a", 6);
   assert.equal(renders, 1);
   assert.deepEqual(res.map((r) => r.headers.get(CACHE_HEADER)).sort(), ["COALESCED", "COALESCED", "COALESCED", "COALESCED", "COALESCED", "MISS"]);
   for (const r of res) {
@@ -210,14 +210,14 @@ test("concurrent identical misses share one render; only a cacheable, unmarked r
     assert.equal(r.headers.get("cache-control"), "private, no-cache, no-store, max-age=0, must-revalidate");
   }
   await Promise.all(pending);
-  assert.equal((await handler(req("/ckb/a"), {}, ctx)).headers.get(CACHE_HEADER), "HIT");
+  assert.equal((await handler(req("/ckb/guides/a"), {}, ctx)).headers.get(CACHE_HEADER), "HIT");
   assert.equal(renders, 1);
 
   // 2. Not cacheable (a personal cookie, an error status) or marked as rendered without data: every request renders.
   for (const [path, page] of [
-    ["/ckb/b", () => html({ "set-cookie": "authjs.session-token=x; Path=/" })],
-    ["/ckb/c", () => html({}, 500)],
-    ["/ckb/d", () => new Response(`<meta name="${NO_STORE_MARKER}" content="1">`, { headers: { "content-type": "text/html" } })],
+    ["/ckb/guides/b", () => html({ "set-cookie": "authjs.session-token=x; Path=/" })],
+    ["/ckb/guides/c", () => html({}, 500)],
+    ["/ckb/guides/d", () => new Response(`<meta name="${NO_STORE_MARKER}" content="1">`, { headers: { "content-type": "text/html" } })],
   ] as const) {
     renders = 0;
     make = page;
@@ -230,12 +230,12 @@ test("concurrent identical misses share one render; only a cacheable, unmarked r
   // 3. A failed render is not shared either; different keys (browser vs bot) never share.
   renders = 0;
   make = () => { throw new Error("render failed"); };
-  const failed = await Promise.allSettled(Array.from({ length: 3 }, () => handler(req("/ckb/e"), {}, ctx)));
+  const failed = await Promise.allSettled(Array.from({ length: 3 }, () => handler(req("/ckb/guides/e"), {}, ctx)));
   assert.equal(renders, 3);
   assert.ok(failed.every((r) => r.status === "rejected"));
   renders = 0;
   make = () => html();
-  await Promise.all([handler(req("/ckb/f"), {}, ctx), handler(req("/ckb/f", { headers: { "user-agent": "facebookexternalhit/1.1" } }), {}, ctx)]);
+  await Promise.all([handler(req("/ckb/guides/f"), {}, ctx), handler(req("/ckb/guides/f", { headers: { "user-agent": "facebookexternalhit/1.1" } }), {}, ctx)]);
   assert.equal(renders, 2);
   await Promise.all(pending);
   delete (globalThis as unknown as { caches?: unknown }).caches;
@@ -261,20 +261,20 @@ test("an unfinished leader holds its key only until the entry expires; the next 
   let renders = 0;
   const h = withEdgeCache(async () => { renders++; if (renders === 1) return new Promise<Response>(() => undefined); await sleep(5); return html(); }, { coalesceWaitMs: 300 });
 
-  void h(req("/ckb/stuck"), {}, ctx); // never settles
+  void h(req("/ckb/guides/stuck"), {}, ctx); // never settles
   await sleep(10);
   let t = Date.now();
-  const waiting = await Promise.all([h(req("/ckb/stuck"), {}, ctx), h(req("/ckb/stuck"), {}, ctx)]);
+  const waiting = await Promise.all([h(req("/ckb/guides/stuck"), {}, ctx), h(req("/ckb/guides/stuck"), {}, ctx)]);
   const waited = Date.now() - t;
   assert.deepEqual(waiting.map((r) => r.headers.get(CACHE_HEADER)), ["BYPASS", "BYPASS"]); // own render after expiry
   assert.ok(waited >= 250 && waited < 2000, `waited ${waited} ms`);
 
   t = Date.now();
-  const next = await h(req("/ckb/stuck"), {}, ctx); // entry expired: leads at once instead of waiting
+  const next = await h(req("/ckb/guides/stuck"), {}, ctx); // entry expired: leads at once instead of waiting
   assert.equal(next.headers.get(CACHE_HEADER), "MISS");
   assert.ok(Date.now() - t < 250);
   await Promise.all(pending);
-  assert.equal((await h(req("/ckb/stuck"), {}, ctx)).headers.get(CACHE_HEADER), "HIT");
+  assert.equal((await h(req("/ckb/guides/stuck"), {}, ctx)).headers.get(CACHE_HEADER), "HIT");
   assert.equal(renders, 4);
   assert.equal(inFlightCount(), 0);
   delete (globalThis as unknown as { caches?: unknown }).caches;
@@ -284,12 +284,12 @@ test("expired entries of other keys are swept when a render starts (no growth fr
   const { pending, ctx } = memoryCache();
   let renders = 0;
   const h = withEdgeCache(async (r: Request) => { renders++; if (r.url.includes("/never")) return new Promise<Response>(() => undefined); return html(); }, { coalesceWaitMs: 50 });
-  void h(req("/ckb/never-1"), {}, ctx);
-  void h(req("/ckb/never-2"), {}, ctx);
+  void h(req("/ckb/guides/never-1"), {}, ctx);
+  void h(req("/ckb/guides/never-2"), {}, ctx);
   await sleep(10);
   assert.equal(inFlightCount(), 2);
   await sleep(60);
-  await h(req("/ckb/other"), {}, ctx);
+  await h(req("/ckb/guides/other"), {}, ctx);
   await Promise.all(pending);
   assert.equal(inFlightCount(), 0);
   assert.equal(renders, 3);
@@ -305,20 +305,20 @@ test("entries are removed after normal completion, a non-cacheable response and 
     return mode === "500" ? html({}, 500) : html();
   }, { coalesceWaitMs: 5_000 });
 
-  assert.equal((await h(req("/ckb/c1"), {}, ctx)).headers.get(CACHE_HEADER), "MISS");
+  assert.equal((await h(req("/ckb/guides/c1"), {}, ctx)).headers.get(CACHE_HEADER), "MISS");
   await Promise.all(pending);
   assert.equal(inFlightCount(), 0);
 
   mode = "500";
-  assert.equal((await h(req("/ckb/c2"), {}, ctx)).headers.get(CACHE_HEADER), "BYPASS");
+  assert.equal((await h(req("/ckb/guides/c2"), {}, ctx)).headers.get(CACHE_HEADER), "BYPASS");
   assert.equal(inFlightCount(), 0);
 
   mode = "throw";
-  await assert.rejects(h(req("/ckb/c3"), {}, ctx), /render failed/);
+  await assert.rejects(h(req("/ckb/guides/c3"), {}, ctx), /render failed/);
   assert.equal(inFlightCount(), 0);
   mode = "ok";
   const t = Date.now();
-  assert.equal((await h(req("/ckb/c3"), {}, ctx)).headers.get(CACHE_HEADER), "MISS"); // no wait on the failed render
+  assert.equal((await h(req("/ckb/guides/c3"), {}, ctx)).headers.get(CACHE_HEADER), "MISS"); // no wait on the failed render
   assert.ok(Date.now() - t < 1000);
   await Promise.all(pending);
   assert.equal(inFlightCount(), 0);
@@ -349,15 +349,15 @@ test("an older render finishing after expiry never removes the newer entry for t
     return html();
   }, { coalesceWaitMs: 10_000 });
   try {
-    const old = h(req("/ckb/race"), {}, ctx);
+    const old = h(req("/ckb/guides/race"), {}, ctx);
     await oldStarted.promise;
     now = 10_001;
-    const newer = h(req("/ckb/race"), {}, ctx);
+    const newer = h(req("/ckb/guides/race"), {}, ctx);
     await newerStarted.promise;
     finishOld.resolve();
     assert.equal((await old).headers.get(CACHE_HEADER), "BYPASS");
     assert.equal(inFlightCount(), 1);
-    const late = h(req("/ckb/race"), {}, ctx);
+    const late = h(req("/ckb/guides/race"), {}, ctx);
     await new Promise<void>((resolve) => setImmediate(resolve));
     finishNewer.resolve();
     assert.equal((await newer).headers.get(CACHE_HEADER), "MISS");
@@ -394,8 +394,8 @@ async function withClock<T>(at: number, fn: () => Promise<T>): Promise<T> {
 }
 
 test("a deployed version is part of the key: pages of an earlier deployment are never served", () => {
-  assert.notEqual(edgeCacheKey(req("/ckb"), "v1"), edgeCacheKey(req("/ckb"), "v2"));
-  assert.equal(edgeCacheKey(req("/ckb"), "v1"), edgeCacheKey(req("/ckb"), "v1"));
+  assert.notEqual(edgeCacheKey(req("/ckb/guides"), "v1"), edgeCacheKey(req("/ckb/guides"), "v2"));
+  assert.equal(edgeCacheKey(req("/ckb/guides"), "v1"), edgeCacheKey(req("/ckb/guides"), "v1"));
 });
 
 test("isStale: only after TTL_SECONDS; copies without a timestamp count as fresh", () => {
@@ -465,4 +465,8 @@ test("a page that is gone (404) is removed on refresh instead of being served fo
   gone = true;
   await withClock(t0 + TTL_SECONDS * 1000 + 1, async () => { await handler(req("/swr-c"), {}, ctx); await Promise.all(pending.splice(0)); });
   assert.equal(store.size, 0);
+});
+
+test("business-bearing views bypass every edge copy so suspension is immediate", () => {
+  for (const path of ["/ckb","/en/businesses","/ar/businesses/travel-tickets","/de/business/taakline","/de/search?q=x","/ckb/city/berlin","/en/services","/en/nearby","/sitemap.xml","/sitemaps/businesses-1.xml"]) assert.equal(edgeCacheKey(req(path)),null,path);
 });

@@ -32,8 +32,11 @@ export async function BusinessCard({ b }: { b: BusinessCardData }) {
           // eslint-disable-next-line @next/next/no-img-element
           <img src={b.coverUrl} alt="" width={480} height={320} loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover transition-transform duration-300 group-hover:scale-[1.025]" />
         ) : (
-          <div className="absolute inset-0 grid place-items-center bg-[radial-gradient(circle_at_30%_20%,var(--surface),var(--brand-soft))]">
-            <Avatar name={name.text} src={b.logoUrl} size="size-14" />
+          <div className="absolute inset-0 grid place-items-center bg-brand-soft">
+            {b.logoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={b.logoUrl} alt="" width={160} height={160} loading="lazy" decoding="async" className="aspect-square w-4/5 rounded-xl bg-surface object-contain" />
+            ) : <Avatar name={name.text} size="size-14" />}
           </div>
         )}
       </div>
@@ -41,19 +44,19 @@ export async function BusinessCard({ b }: { b: BusinessCardData }) {
       <div className="min-w-0 p-3.5 sm:px-2 sm:py-4">
         <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
           <h3 className="min-w-0 truncate text-base font-bold sm:text-lg">
-            <Link href={`/business/${b.slug}`} className="after:absolute after:inset-0 after:content-[''] focus-visible:outline-none">
+            <Link href={`/business/${b.slug}`} className="after:absolute after:inset-0 after:content-[''] focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-4">
               <Text value={name} pageLang={pageLang} />
             </Link>
           </h3>
           {b.verified && <VerifiedBadge />}
         </div>
         {categoryName && <p className="mt-0.5 truncate text-sm text-muted"><Text value={categoryName} pageLang={pageLang} /></p>}
-        <div className="mt-2"><Stars value={b.ratingAvg} count={b.ratingCount} /></div>
+        {b.ratingCount > 0 && <div className="mt-2"><Stars value={b.ratingAvg} count={b.ratingCount} /></div>}
         <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted">
           {cityName && (
             <span className="inline-flex min-w-0 items-center gap-1.5">
               <svg viewBox="0 0 24 24" className="size-3.5 shrink-0 text-brand" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d={PIN} /><circle cx="12" cy="10" r="2.5" /></svg>
-              <span className="truncate"><Text value={cityName} pageLang={pageLang} /></span>
+              <span className="truncate"><Text value={cityName} pageLang={pageLang} />{b.locations[0]?.countryCode && <span> · {(() => { try { return new Intl.DisplayNames([locale, "en"], {type:"region"}).of(b.locations[0].countryCode); } catch { return b.locations[0].countryCode; } })()}</span>}</span>
             </span>
           )}
           {langs.length > 0 && <span className="truncate">{langs.join(" · ")}</span>}

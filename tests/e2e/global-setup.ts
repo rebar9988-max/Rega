@@ -55,9 +55,9 @@ export default async function globalSetup() {
       create: { email: EMPLOYEE.email, name: "E2E Employee", role: "EMPLOYEE", locale: "de", passwordHash: await bcrypt.hash(EMPLOYEE.password, 10) },
     });
     await prisma.user.update({ where: { email: ADMIN.email }, data: { role: "SUPER_ADMIN", status: "active", passwordHash: await bcrypt.hash(ADMIN.password, 10) } });
-    const demo = { "kurdistan-rechtsberatung": { verified: true, featured: true }, "zagros-restaurant": { verified: true, featured: false }, "sulaymaniyah-clinic": { verified: false, featured: true } };
+    const demo = { "kurdistan-rechtsberatung": { verified: true, featured: true }, "zagros-restaurant": { verified: true, featured: false }, "sulaymaniyah-clinic": { verified: true, featured: true } };
     for (const [slug, flags] of Object.entries(demo)) {
-      await prisma.business.update({ where: { slug }, data: { status: "published", ...flags } });
+      await prisma.business.update({ where: { slug }, data: { status: "published", archivedAt: null, categoryId: `seed_category_${slug === "kurdistan-rechtsberatung" ? "legal" : slug === "zagros-restaurant" ? "food" : "health"}`, ...flags } });
     }
   } finally {
     await prisma.$disconnect();

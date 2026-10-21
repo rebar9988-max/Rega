@@ -22,6 +22,7 @@ export const listShape = {
 };
 
 export const businessShape = {
+  country: z.string().regex(/^[A-Z]{2}$/).optional().catch(undefined),
   ...listShape,
   verified: z.enum(["1"]).optional().catch(undefined),
   sort: z.enum(["featured", "rating", "newest", "name"]).catch("featured"),

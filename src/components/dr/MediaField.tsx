@@ -6,6 +6,7 @@
  * file straight to storage and the public URL goes into a hidden form field. The URL is only saved with the form.
  * When storage is not configured on the server the control says so instead of pretending to upload.
  */
+import { BusinessImageField } from "./BusinessImageField";
 import { useId, useState } from "react";
 import { useTranslations } from "next-intl";
 
@@ -14,7 +15,7 @@ const MAX_BYTES = 5 * 1024 * 1024;
 
 type State = "idle" | "uploading" | "done" | "error" | "tooLarge" | "badType" | "notConfigured";
 
-export function MediaField({ name, label, initial, businessId, storageReady, invalid, wide }: {
+function LegacyMediaField({ name, label, initial, businessId, storageReady, invalid, wide }: {
   name: "logoUrl" | "coverUrl" | "imageUrl"; label: string; initial: string; businessId?: string; storageReady: boolean; invalid?: boolean; wide?: boolean;
 }) {
   const t = useTranslations("bizForm");
@@ -66,4 +67,8 @@ export function MediaField({ name, label, initial, businessId, storageReady, inv
       {message && <p role={state === "done" ? "status" : "alert"} className={`text-xs ${state === "done" ? "text-muted" : "font-semibold text-brand"}`} data-testid={`upload-${name}-state`}>{message}</p>}
     </div>
   );
+}
+
+export function MediaField(props: Parameters<typeof LegacyMediaField>[0] & { onBusyChange?: (delta: number) => void }) {
+  return props.name === "imageUrl" ? <LegacyMediaField {...props} /> : <BusinessImageField {...props} />;
 }

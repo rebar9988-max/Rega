@@ -591,7 +591,7 @@
     "req_location": "Haritadaki konum",
     "req_locationVerified": "Konum onayı",
     "location": "Konum",
-    "locOk": "Onaylı",
+    "locOk": "Konum onaylandı",
     "locUnverified": "Onaysız",
     "locMissing": "Yok",
     "auditTitle": "Konum denetimi",
@@ -634,9 +634,9 @@
     "mediaInvalid": "Bir fotoğraf kabul edilemedi. Yükleme düğmesiyle yeniden yükleyin.",
     "wizard": {
       "steps": "Kayıt adımları",
-      "step1": "İşletme",
-      "step2": "Konum",
-      "step3": "İletişim ve görseller",
+      "step1": "İşletme ve konum",
+      "step2": "Logo ve görseller",
+      "step3": "İncele ve gönder",
       "next": "İleri",
       "back": "Geri",
       "saveDraft": "Taslağı kaydet",
@@ -647,7 +647,9 @@
       "reviewHint": "Gönderdikten sonra REGA ekibi kaydınızı inceler. Yalnızca onaydan sonra yayımlanır.",
       "pinConfirmed": "Haritada onaylandı",
       "pinMissing": "Henüz ayarlanmadı"
-    }
+    },
+    "categorySearch": "Kategori ara",
+    "optionalDetails": "İsteğe bağlı ayrıntılar"
   },
   "contact": {
     "title": "İletişim",
@@ -1118,5 +1120,24 @@
     "noNearbyCity": "Yakınınızda desteklenen bir şehir yok. Lütfen birini seçin.",
     "loadFailed": "Şehirler yüklenemedi. Lütfen tekrar deneyin.",
     "searching": "Aranıyor …"
+  },
+  "businessImages": {
+    "title": "Görseli konumlandır",
+    "hint": "Konumu değiştirmek için sürükleyin; iki parmakla veya kaydırıcıyla yakınlaştırın. Ok tuşlarıyla da hareket ettirebilirsiniz.",
+    "preview": "Son kırpma önizlemesi",
+    "zoom": "Yakınlaştır",
+    "reset": "Sıfırla",
+    "cancel": "İptal",
+    "confirm": "Görseli onayla",
+    "saving": "Kaydediliyor…",
+    "retry": "Yükleme başarısız. Kırpma korundu; yeniden onaylayın.",
+    "formats": "JPG, PNG, WebP, GIF ve desteklenen HEIC/HEIF. Animasyonlar sabit bir kare olarak kaydedilir.",
+    "unsupported": "Bu tarayıcı görseli okuyamıyor. JPG veya PNG olarak dışa aktarıp tekrar deneyin.",
+    "tooLarge": "20 MB altında bir görsel seçin (48 megapiksele kadar)."
+  },
+  "businessModeration": {
+    "verification": "Personel doğrulaması",
+    "unverified": "Henüz personel tarafından doğrulanmadı",
+    "approve": "Doğrula ve yayınla"
   }
 }

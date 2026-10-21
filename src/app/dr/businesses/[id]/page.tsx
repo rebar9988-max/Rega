@@ -5,7 +5,7 @@ import { prisma } from "@/lib/db";
 import { requireDr } from "@/lib/dr-auth";
 import { can } from "@/lib/rbac";
 import { localize } from "@/lib/content";
-import { publishReadiness } from "@/lib/coordinates";
+import { businessReadiness, publicationSelect } from "@/lib/business-publication";
 import type { Locale } from "@/i18n/locales";
 import { BusinessForm } from "@/components/dr/BusinessForm";
 import { isStorageConfigured } from "@/lib/env";
@@ -26,7 +26,7 @@ export default async function EditBusiness({ params, searchParams }: { params: P
   const t = await getTranslations();
   const b = await prisma.business.findFirst({
     where: { id, deletedAt: null },
-    include: { locations: { where: { isPrimary: true, deletedAt: null }, take: 1, include: { city: true } }, translations: { select: { locale: true, description: true } } },
+    include: { category: true, locations: { where: { isPrimary: true, deletedAt: null }, take: 1, include: { city: true } }, translations: { select: { locale: true, description: true } } },
   });
   if (!b) notFound();
   await assertBusinessAccess(user, b.id);
@@ -38,7 +38,8 @@ export default async function EditBusiness({ params, searchParams }: { params: P
   const offers = await prisma.offer.findMany({ where: { businessId: b.id }, orderBy: { endsAt: "desc" }, take: 50, select: { id: true, title: true, isActive: true, startsAt: true, endsAt: true } });
   const now = new Date();
   const options = await formOptions(locale);
-  const readiness = publishReadiness({ name: b.name, categoryId: b.categoryId, primary: loc });
+  const readyRecord = await prisma.business.findUniqueOrThrow({ where: { id }, select: publicationSelect });
+  const readiness = businessReadiness(readyRecord);
   const notice = sp.published ? "published" : sp.submitted ? "submitted" : sp.blocked ? "blocked" : sp.saved ? "saved" : null;
 
   return (
@@ -48,7 +49,8 @@ export default async function EditBusiness({ params, searchParams }: { params: P
         <h1 className="text-2xl font-extrabold">{t("bizForm.editTitle")}: <bdi>{b.name}</bdi></h1>
         <div className="flex items-center gap-3 text-sm">
           <span className="rounded-full bg-surface-2 px-3 py-1 font-semibold" data-testid="business-status">{t(`status.${b.status}`)}</span>
-          {b.status === "published" && <Link href={`/${locale}/business/${b.slug}`} className="font-semibold text-brand hover:underline">{t("bizForm.viewPublic")}</Link>}
+          <span data-testid="staff-verification">{b.verified ? t("businesses.verified") : t("businessModeration.unverified")}</span>
+          {b.status === "published" && b.verified && <Link href={`/${locale}/business/${b.slug}`} className="font-semibold text-brand hover:underline">{t("bizForm.viewPublic")}</Link>}
         </div>
       </div>
 
