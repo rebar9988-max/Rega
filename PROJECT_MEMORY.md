@@ -394,8 +394,14 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
   German but the fixture had no locale cookie (actual existing forbidden UI was Kurdish); fixture selects German.
 - Current validation: lint/typecheck, 283 unit tests (4 skipped), 22 focused authorization/RBAC tests and Node build
   passed. All 31 unique local auth/security/public-navigation cases passed across the initial run and the corrected
-  security-fixture rerun (6/6). Worker checks, hosted full CI and production release remain required; update this
-  checkpoint before handoff.
+  security-fixture rerun (6/6). Worker build and dry-run passed (3503.99 KiB gzip); actual local workerd passed DB,
+  /dr 307/login/no-store, anonymous mutation 401, public-query and validation checks. The extra private-route/auth
+  assertions are now in the existing `scripts/health/worker-smoke.mjs` CI check.
+- Repair implementation commit `656bc61`; PR https://github.com/rebar9988-max/Rega/pull/41 . Its first CI run
+  `39625818405` was superseded by the added Worker routing regression check. Existing optional Neon preview workflow
+  again failed HTTP 422 (`39625818273`), matching the earlier documented infrastructure failure; it is unchanged.
+  The full `verify` job uses disposable local Postgres and remains the release gate. Final-head hosted CI and
+  production release are still required; update this checkpoint before handoff.
 - Authorized production session remains unavailable: runtime has no configured secret/session bindings and no
   attached state file. Existing `storageState` references are localhost test fixtures, never production sessions.
   Minimum secure attachment requested (path or variable names only). Positive authenticated production verification

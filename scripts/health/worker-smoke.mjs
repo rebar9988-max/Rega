@@ -27,6 +27,14 @@ try {
   }
   assert.equal(health?.service, "rega-platform", "Built Worker must execute a Next.js route and return its health report");
   assert.equal(health.ok, true, `Worker database and migrations must be ready: ${JSON.stringify(health.checks)}`);
+  const management = await fetch(`http://localhost:${port}/dr`, { redirect: "manual" });
+  assert.equal(management.status, 307, "Built Worker must route anonymous /dr requests to login, not 404");
+  assert.match(management.headers.get("location") ?? "", /\/(?:ckb|de|en)\/login\?next=%2Fdr$/);
+  assert.match(management.headers.get("cache-control") ?? "", /no-store/);
+  const denied = await fetch(`http://localhost:${port}/api/v1/businesses`, {
+    method: "POST", headers: { "content-type": "application/json" }, body: "{}",
+  });
+  assert.equal(denied.status, 401, "Built Worker must reject anonymous management mutations");
   const directory = await fetch(`http://localhost:${port}/api/v1/businesses`);
   assert.equal(directory.status, 200);
   const result = await directory.json();
@@ -34,7 +42,7 @@ try {
   assert.ok(result.data.every((business) => business.verified && business.status === "published"));
   const response = await fetch(`http://localhost:${port}/api/v1/businesses?country=invalid`);
   assert.equal(response.status, 422, "Business directory validation must run inside the Worker");
-  console.log("Worker runtime: database, public business query and validation passed");
+  console.log("Worker runtime: database, private routing/auth, public business query and validation passed");
 } finally {
   child.kill("SIGTERM");
 }
