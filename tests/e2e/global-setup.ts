@@ -59,6 +59,7 @@ export default async function globalSetup() {
     for (const [slug, flags] of Object.entries(demo)) {
       const primary = await prisma.category.findUniqueOrThrow({ where: { key: slug === "kurdistan-rechtsberatung" ? "legal" : slug === "zagros-restaurant" ? "food" : "health" } });
       await prisma.business.update({ where: { slug }, data: { status: "published", archivedAt: null, categoryId: primary.id, ...flags } });
+      await prisma.location.updateMany({ where: { business: { slug }, isPrimary: true, deletedAt: null }, data: { status: "active", coordsVerifiedAt: new Date() } });
     }
   } finally {
     await prisma.$disconnect();
