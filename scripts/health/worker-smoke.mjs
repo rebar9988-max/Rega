@@ -3,11 +3,9 @@ import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 
 const port = 8798;
-// Pin the local test service explicitly; workerd and Node can resolve localhost differently.
 let databaseUrl;
 try { databaseUrl = new URL(process.env.DATABASE_URL); }
 catch { throw new Error("Configure a valid local DATABASE_URL for the Worker smoke test."); }
-if (databaseUrl.hostname === "localhost") databaseUrl.hostname = "127.0.0.1";
 const child = spawn(process.execPath, [
   "node_modules/wrangler/bin/wrangler.js", "dev", "--local", "--port", String(port),
   "--var", `DATABASE_URL:${databaseUrl}`,
