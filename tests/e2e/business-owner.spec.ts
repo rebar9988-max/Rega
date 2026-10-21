@@ -101,6 +101,11 @@ test("empty workspace, canonical creation and atomic membership use the existing
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await page.screenshot({ path: `test-results/business-dashboard-${width}.png`, fullPage: true });
   }
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.locator('header summary[aria-label="Menü"]').click();
+  await page.getByRole("navigation", { name: "Menü", exact: true }).getByRole("link", { name: "Meine Unternehmen", exact: true }).click();
+  await expect(page).toHaveURL(/\/dr\/businesses$/);
+  await expect(page.locator('header summary[aria-label="Menü"]').locator("..")).not.toHaveAttribute("open", "");
   await page.goto(`/dr/businesses/${ownId}`);
   for (const width of [320, 430, 1440]) {
     await page.setViewportSize({ width, height: 900 });
@@ -130,8 +135,8 @@ test("another owner cannot read or mutate this owner's business; USER gains no p
 
 test("workspace language links keep a valid canonical URL", async ({ page }) => {
   await login(page);
-  await page.locator('summary[aria-label]').click();
-  await page.getByRole("link", { name: "کوردی", exact: true }).click();
+  await page.locator('summary[aria-label^="Sprache"]').click();
+  await page.locator('header a[href="/ckb/business-owner"]').click();
   await expect(page).toHaveURL(/\/dr\/business-owner$/);
   await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
   await expect(page.locator("h1")).toHaveText("پانێڵی خاوەنکار");

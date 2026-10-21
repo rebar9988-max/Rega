@@ -39,6 +39,7 @@ export default async function DrLayout({ children }: { children: React.ReactNode
             <main className="container-page py-24 text-center">
               <h1 className="mb-3 text-2xl font-extrabold">{t("title")}</h1>
               <p className="text-muted">{t("forbidden")}</p>
+              <Link href={`/${locale}/account`} className="mt-6 me-4 inline-block font-semibold text-brand hover:underline">{tn("account")}</Link>
               <Link href={`/${locale}`} className="mt-6 inline-block font-semibold text-brand hover:underline">{t("back")}</Link>
             </main>
           ) : user.role === "BUSINESS_OWNER" ? (
