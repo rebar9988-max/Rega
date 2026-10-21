@@ -406,3 +406,32 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
   attached state file. Existing `storageState` references are localhost test fixtures, never production sessions.
   Minimum secure attachment requested (path or variable names only). Positive authenticated production verification
   and the historical 404 cause remain blocked. Control-center redesign/workflow expansion remains paused.
+
+## REGA Business unified workspace — 2026-10-21 (implementation branch)
+
+- Task: owner's four-screen reference and unified business-owner journey. Base main `59d8df1`; existing open PR #42
+  (registration/images/directory) remains separate and untouched. No schema, role matrix, identity provider, branding
+  tokens, public listing URLs or staff dashboard redesign.
+- Audit/reuse: Auth.js Credentials + env-gated OAuth; existing register/verification/reset/session modules;
+  `/dr/businesses`, `/dr/businesses/new`, `BusinessForm`, `saveBusinessAction`, `saveBusiness`, `BusinessMember`,
+  `requirePermission`, `assertBusinessAccess`, publication/verification and duplicate-create advisory locks.
+- Entry: localized `/[locale]/business-owner` resolves to `/dr/business-owner`, or existing login with a fixed safe
+  next target. `?add=1` resolves to the one existing `/dr/businesses/new` form. Desktop/mobile header, For Businesses
+  CTAs and existing owner account/legacy `/dr` entry converge. Normal unrelated auth destinations stay intact.
+- Owner-only layout uses shared business navigation, existing profile/logout and seven-language catalogues.
+  Dashboard queries only active memberships (even for staff entering this page); empty owners see one clear Add
+  action; existing owners see actual counts/records/statuses. Owner submission returns to My Businesses.
+- Ownership now commits in the same transaction as form creation using the existing membership helper. Retries
+  cannot reactivate a revoked membership. No client-supplied owner identifier is used. Approval remains staff-only.
+- Responsive checks found existing 320px header clipping and long footer-link overflow in business auth. Only
+  small-screen logo sizing/spacing and wrapping were adjusted; artwork, colors/fonts and global tokens stay intact.
+- Initial local validation: lint/typecheck and Node build passed before final test additions. Existing/new unit suite
+  passed 289/289; added real isolated-DB test passed atomic creation, concurrent retries, membership-write rollback
+  and revoked-membership preservation. First focused browser run: 28 passed, three failures diagnosed (pre-existing
+  narrow overflow, old nav expectation, missing wait before reading edit URL); corrections made, rerun pending.
+- Production state before this change: Cloudflare connector initially failed but retry succeeded, observing version
+  `72611998-7f04-44c0-9cc4-90bf6731717d` at 100%. Main CI for prior #41 succeeded; its existing deployment is running.
+  This feature has not been deployed. No production records were created, modified, verified or deleted.
+- Remaining gates: final local/hosted tests, Worker build/dry-run/runtime smoke, PR review, exact-head green merge,
+  existing CI-gated production deployment, live desktop/mobile checks. No legitimate production owner test session
+  is attached; requested secure attachment names/paths only. Never use local fixture credentials on production.

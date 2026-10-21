@@ -9,7 +9,7 @@ import { redirect } from "next/navigation";
 export default async function Overview() {
   const user = await requireDr("business.read");
   // Owners see their own listings, not platform-wide totals.
-  if (user.role === "BUSINESS_OWNER") redirect("/dr/businesses");
+  if (user.role === "BUSINESS_OWNER") redirect("/dr/business-owner");
   const locale = (await getLocale()) as Locale;
   const t = await getTranslations("dashboard");
   const live = { deletedAt: null };

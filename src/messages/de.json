@@ -87,7 +87,8 @@
     "events": "Veranstaltungen",
     "guides": "Ratgeber",
     "register": "Konto erstellen",
-    "quick": "Schnellnavigation"
+    "quick": "Schnellnavigation",
+    "businessOwner": "Geschäftskonto"
   },
   "home": {
     "heroTitle": "Alle Unternehmen, Dienstleistungen und Orte an einem Ort",
@@ -1123,5 +1124,16 @@
     "verification": "Prüfung durch das Team",
     "unverified": "Noch nicht vom Team geprüft",
     "approve": "Prüfen & veröffentlichen"
+  },
+  "businessOwner": {
+    "title": "Geschäftskonto",
+    "dashboard": "Unternehmensübersicht",
+    "myBusinesses": "Meine Unternehmen",
+    "addBusiness": "Unternehmen hinzufügen",
+    "requests": "Anträge & Verifizierung",
+    "authLead": "Verwalte deine Unternehmen und Dienstleistungen auf REGA.",
+    "welcome": "Willkommen. Füge dein Unternehmen hinzu, um loszulegen.",
+    "manageLead": "Deine Unternehmen, ihr Status und die nächsten Schritte an einem Ort.",
+    "help": "Brauchst du Hilfe? Kontaktiere das REGA-Team."
   }
 }

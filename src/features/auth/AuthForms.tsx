@@ -41,7 +41,7 @@ function ErrorLine({ state, map }: { state: AuthFormState; map: Partial<Record<"
  * `social` is the server-rendered block of social sign-in buttons (only when a provider is configured). Without it the
  * form is exactly the e-mail registration; with it the e-mail fields open behind "Continue with e-mail".
  */
-export function RegisterForm({ next, social }: { next?: string; social?: React.ReactNode }) {
+export function RegisterForm({ next, social, intro }: { next?: string; social?: React.ReactNode; intro?: React.ReactNode }) {
   const t = useTranslations("auth");
   const tf = useTranslations("forms");
   const locale = useLocale();
@@ -84,10 +84,11 @@ export function RegisterForm({ next, social }: { next?: string; social?: React.R
     <form action={action} data-testid="register-form" className={`${card} relative`}>
       <input type="hidden" name="locale" value={locale} />
       <input type="hidden" name="intent" value="register" />
+      {intro}
       {next && <input type="hidden" name="next" value={next} />}
       <Honeypot label={tf("leaveEmpty")} />
       <ErrorLine state={state} map={{ invalid: state.fields?.includes("password") ? t("weakPassword") : state.fields?.includes("password2") ? t("passwordMismatch") : tf("invalid"), failed: taken ? t("emailTaken") : undefined }} />
-      <fieldset className="space-y-2">
+      {intro ? <input type="hidden" name="accountType" value="owner" /> : <fieldset className="space-y-2">
         <legend className="mb-1 text-sm font-semibold">{t("accountType")}</legend>
         {(["user", "owner"] as const).map((v) => (
           <label key={v} className="flex min-h-12 cursor-pointer items-start gap-3 rounded-xl border border-line px-3 py-2 has-[:checked]:border-brand has-[:checked]:bg-brand-soft">
@@ -95,7 +96,7 @@ export function RegisterForm({ next, social }: { next?: string; social?: React.R
             <span><span className="block text-sm font-semibold">{t(v === "user" ? "typeUser" : "typeOwner")}</span><span className="block text-xs text-muted">{t(v === "user" ? "typeUserHint" : "typeOwnerHint")}</span></span>
           </label>
         ))}
-      </fieldset>
+      </fieldset>}
       {social ? (
         <>
           {social}

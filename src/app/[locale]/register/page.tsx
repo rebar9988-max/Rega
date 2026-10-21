@@ -1,3 +1,5 @@
+import { isBusinessDestination } from "@/features/business/paths";
+import { BusinessAuthTabs } from "@/features/business/BusinessAuthTabs";
 import { redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { auth } from "@/auth";
@@ -25,17 +27,18 @@ export default async function RegisterPage({ params, searchParams }: { params: P
   const { locale } = await params;
   const { next, error } = await searchParams;
   setRequestLocale(locale);
-  if ((await auth().catch(() => null))?.user) redirect(`/${locale}/account`);
+  if ((await auth().catch(() => null))?.user) redirect(safeNext(next) ?? `/${locale}/account`);
   const t = await getTranslations("auth");
+  const business = isBusinessDestination(next);
   const providers = enabledOAuthProviders(process.env);
   const errorKey = socialErrorKeyOrGeneric(error);
   return (
     <>
-      <PageHeader title={t("registerHeading")} subtitle={t("registerLead")} />
-      <div className="container-page">
-        <div className="mx-auto mb-4 flex max-w-md justify-center"><LogoMark className="size-14" /></div>
+      {!business && <PageHeader title={t("registerHeading")} subtitle={t("registerLead")} />}
+      <div className={`container-page ${business ? "py-8 sm:py-12" : ""}`}>
+        {!business && <div className="mx-auto mb-4 flex max-w-md justify-center"><LogoMark className="size-14" /></div>}
         {errorKey && <p role="alert" className="mx-auto mb-4 max-w-md rounded-xl bg-brand-soft px-4 py-3 text-sm font-semibold">{t(errorKey)}</p>}
-        <RegisterForm next={safeNext(next)} social={providers.length ? <SocialButtons providers={providers} intent="register" /> : undefined} />
+        <RegisterForm intro={business ? <BusinessAuthTabs next={next!} active="register" /> : undefined} next={safeNext(next)} social={providers.length ? <SocialButtons providers={providers} intent="register" /> : undefined} />
       </div>
     </>
   );

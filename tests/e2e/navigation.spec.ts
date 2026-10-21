@@ -183,7 +183,7 @@ test("mobile menu: contact is the last item, once; close button works; RTL", asy
   const menu = page.getByRole("dialog");
   await expect(menu).toBeVisible();
   const items = menu.getByRole("navigation").getByRole("link");
-  await expect(items).toHaveText(["سەرەتا", "بازرگانییەکان", "خزمەتگوزارییەکان", "شوێنەکان", "نزیک", "یاریدەدەری REGA", "ڕێبەرەکان", "دەربارە", "بۆ بازرگانان", "چوونەژوورەوە", "پەیوەندی"]);
+  await expect(items).toHaveText(["هەژماری خاوەنکار", "سەرەتا", "بازرگانییەکان", "خزمەتگوزارییەکان", "شوێنەکان", "نزیک", "یاریدەدەری REGA", "ڕێبەرەکان", "دەربارە", "بۆ بازرگانان", "پەیوەندی"]);
   await expect(items.last()).toHaveAttribute("href", "/ckb/contact");
   await expect(menu.getByRole("link", { name: "پەیوەندی", exact: true })).toHaveCount(1);
   expect(await menu.getByRole("navigation").evaluate((el) => getComputedStyle(el).direction)).toBe("rtl");

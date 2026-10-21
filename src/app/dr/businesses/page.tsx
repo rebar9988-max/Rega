@@ -17,7 +17,7 @@ import { updateBusiness } from "./actions";
 const PER_PAGE = 20;
 const STATUSES = ["pending", "draft", "published", "archived"] as const;
 
-type Sp = { q?: string; status?: string; page?: string; loc?: string; blocked?: string };
+type Sp = { q?: string; status?: string; page?: string; loc?: string; submitted?: string; blocked?: string };
 
 /** Businesses whose primary location is missing, invalid or not yet confirmed. */
 const NEEDS_LOCATION: Prisma.BusinessWhereInput = {
@@ -87,7 +87,7 @@ export default async function DrBusinesses({ searchParams }: { searchParams: Pro
         <h1 className="text-2xl font-extrabold">{t("dashboard.businesses")}</h1>
         {canWrite && <Link href="/dr/businesses/new" className="inline-flex min-h-11 items-center rounded-xl bg-brand px-5 text-sm font-bold text-brand-ink hover:bg-brand-hover">+ {t("bizForm.new")}</Link>}
       </div>
-      {ownerCounts && (
+      {ownerCounts && ownerCounts.length > 0 && (
         <nav aria-label={t("dashboard.status")} className="mb-6" data-testid="owner-status-summary">
           <ul className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             {([["published", "bg-[oklch(0.62_0.15_150)]"], ["pending", "bg-sun"], ["draft", "bg-line"]] as const).map(([s, dot]) => (
@@ -103,6 +103,7 @@ export default async function DrBusinesses({ searchParams }: { searchParams: Pro
           </ul>
         </nav>
       )}
+      {sp.submitted === "1" && <p role="status" data-testid="form-notice" className="mb-6 rounded-xl bg-brand-soft px-4 py-3 text-sm font-semibold">{t("bizForm.submitted")}</p>}
       {sp.blocked && <p role="alert" data-testid="publish-blocked" className="mb-6 rounded-xl bg-brand-soft px-4 py-3 text-sm font-semibold">{t("bizForm.blockedNotice")} <Link href={`/dr/businesses/${encodeURIComponent(sp.blocked)}`} className="text-brand underline">{t("bizForm.edit")}</Link></p>}
       {audit && <section aria-labelledby="loc-audit" className="mb-6 rounded-[var(--radius-card)] border border-line bg-surface p-4" data-testid="location-audit">
         <h2 id="loc-audit" className="mb-3 text-sm font-bold">{t("bizForm.auditTitle")}</h2>

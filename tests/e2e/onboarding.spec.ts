@@ -56,13 +56,13 @@ test("for-business page: free statement, steps, verified explanation, register C
   await expect(page.getByRole("main")).toContainText("Rega Verified");
   await expect(page.getByRole("main")).not.toContainText(/€|\bEUR\b|Preis|Premium/);
   await page.getByTestId("cta-register").click();
-  await expect(page).toHaveURL(/\/de\/register\?next=%2Fdr%2Fbusinesses%2Fnew$/);
+  await expect(page).toHaveURL(/\/de\/login\?next=%2Fdr%2Fbusinesses%2Fnew$/);
 });
 
-test("header 'add listing' goes to /for-business when logged out", async ({ page }) => {
+test("header 'add listing' resolves to the canonical creation flow when logged out", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/de");
-  await expect(page.locator("header").locator('a[href="/de/for-business"]').first()).toBeVisible();
+  await expect(page.locator("header").locator('a[href="/de/business-owner?add=1"]').first()).toBeVisible();
 });
 
 test("registration validates: terms are required, passwords must match and be long enough", async ({ page }) => {
@@ -98,7 +98,7 @@ test("owner registers, creates a listing, submits it; an admin approves; it is p
 
   // 2. Sign in, create a listing in the dashboard.
   await login(page, OWNER.email, OWNER.password);
-  await expect(page).toHaveURL(/\/dr\/businesses$/); // owners land on their listings, not on platform totals
+  await expect(page).toHaveURL(/\/dr\/business-owner$/); // owners land on their own workspace
   const name = `E2E Inserat ${stamp}`;
   // Owners cannot publish: only "submit for review" exists.
   await fillOwnerSteps(page, name, { german: true });
@@ -110,7 +110,11 @@ test("owner registers, creates a listing, submits it; an admin approves; it is p
   await confirmEmailOf(OWNER.email);
   await page.getByTestId("submit-review").click();
   await expect(page.getByTestId("form-notice")).toContainText("zur Prüfung eingereicht");
-  await expect(page.getByTestId("business-status")).toHaveText("Ausstehend");
+  await expect(page).toHaveURL(/\/dr\/businesses\?submitted=1$/);
+  const ownerRow = page.locator("tr", { hasText: name });
+  await expect(ownerRow.getByTestId("row-status")).toHaveText("Ausstehend");
+  await ownerRow.getByRole("link", { name: "Bearbeiten", exact: true }).click();
+  await expect(page).toHaveURL(/\/dr\/businesses\/[^/?]+$/);
   const editUrl = page.url().split("?")[0];
   const id = editUrl.split("/").pop()!;
 
@@ -152,7 +156,7 @@ test("an admin can return a pending listing for changes", async ({ page, browser
   const name = `E2E Rückgabe ${stamp}`;
   await fillOwnerSteps(page, name);
   await page.getByTestId("submit-review").click();
-  await expect(page.getByTestId("business-status")).toHaveText("Ausstehend");
+  await expect(page.locator("tr", { hasText: name }).getByTestId("row-status")).toHaveText("Ausstehend");
 
   const adminCtx = await browser.newContext();
   const admin = await adminCtx.newPage();

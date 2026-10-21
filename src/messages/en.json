@@ -87,7 +87,8 @@
     "events": "Events",
     "guides": "Guides",
     "register": "Create account",
-    "quick": "Quick navigation"
+    "quick": "Quick navigation",
+    "businessOwner": "Business owner account"
   },
   "home": {
     "heroTitle": "All businesses, services and places in one place",
@@ -1123,5 +1124,16 @@
     "verification": "Staff verification",
     "unverified": "Not verified by staff",
     "approve": "Verify & publish"
+  },
+  "businessOwner": {
+    "title": "Business owner account",
+    "dashboard": "Business dashboard",
+    "myBusinesses": "My businesses",
+    "addBusiness": "Add your business",
+    "requests": "Requests & verification",
+    "authLead": "Manage your businesses and services on REGA.",
+    "welcome": "Welcome. Add your business to get started.",
+    "manageLead": "Your businesses, their status and your next steps in one place.",
+    "help": "Need help? Contact the REGA team."
   }
 }

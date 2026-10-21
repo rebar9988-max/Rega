@@ -14,6 +14,7 @@ import { Logo } from "@/components/ui/Logo";
 import { ThemeScript } from "@/components/shell/ThemeScript";
 import { DR_NAV, contentNav } from "@/components/dr/nav";
 import { PRIVATE_BETA } from "@/lib/private-beta";
+import { BusinessWorkspaceNav } from "@/features/business/BusinessWorkspaceNav";
 import { SessionRenewal } from "@/features/auth/SessionRenewal";
 
 export const metadata: Metadata = { metadataBase: new URL(`https://${process.env.CANONICAL_HOST || "www.regaplatform.com"}`), icons: SITE_ASSETS.icons, title: { default: "REGA Platform", template: "%s · REGA Platform" }, robots: { index: false, follow: false } };
@@ -40,6 +41,11 @@ export default async function DrLayout({ children }: { children: React.ReactNode
               <p className="text-muted">{t("forbidden")}</p>
               <Link href={`/${locale}`} className="mt-6 inline-block font-semibold text-brand hover:underline">{t("back")}</Link>
             </main>
+          ) : user.role === "BUSINESS_OWNER" ? (
+            <div className="min-h-dvh bg-bg">
+              <BusinessWorkspaceNav locale={locale} />
+              <main className="mx-auto min-w-0 max-w-6xl px-4 py-8 sm:px-6 sm:py-10">{children}</main>
+            </div>
           ) : (
             <div className="min-h-dvh bg-bg md:grid md:grid-cols-[16rem_1fr]">
               <aside className="border-b border-line bg-surface md:min-h-dvh md:border-b-0 md:border-e">

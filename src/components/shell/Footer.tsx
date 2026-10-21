@@ -15,7 +15,7 @@ export async function Footer() {
   const tf = await getTranslations("footer");
   const tc = await getTranslations("contact");
   const social = socialProfiles();
-  const link = "inline-flex min-h-9 items-center text-muted hover:text-ink md:min-h-8";
+  const link = "inline-flex min-h-9 max-w-full items-center [overflow-wrap:anywhere] text-muted hover:text-ink md:min-h-8";
   // Columns and their links come from the section registry (config/sections.ts): no route is listed here.
   const groups = [
     { title: tf("explore"), items: footerNav("explore") },
@@ -47,7 +47,7 @@ export async function Footer() {
         </div>
         <nav aria-label={tf("explore")} className="grid grid-cols-3 gap-x-5 gap-y-3 text-xs sm:gap-x-8">
           {groups.map((g) => (
-            <div key={g.title}>
+            <div key={g.title} className="min-w-0">
               <h2 className="mb-1 text-xs font-bold text-ink">{g.title}</h2>
               <ul>
                 {g.items.map((i) => <li key={i.href}><Link href={i.href} className={link}>{i.label}</Link></li>)}

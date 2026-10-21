@@ -9,7 +9,7 @@ import { writeAudit } from "@/lib/audit";
 import { can, type Permission } from "@/lib/rbac";
 import { businessFormSchema, saveBusiness } from "@/lib/business-admin";
 import { geocodeAddress, type GeocodeOutcome } from "@/lib/geocoder";
-import { addCreatorAsMember, assertBusinessAccess } from "@/lib/business-access";
+import { assertBusinessAccess } from "@/lib/business-access";
 import { reindexBusinessTree } from "@/lib/search-index";
 import { getTranslations } from "next-intl/server";
 import { sendEmail, teamInbox } from "@/lib/email";
@@ -97,7 +97,6 @@ export async function saveBusinessAction(_prev: BusinessFormState, formData: For
   if (input.intent === "submit" && !(await hasConfirmedEmail(user))) return { error: "unverified" };
   const result = await saveBusiness(input, user, { canPublish, canCreateCity: canPublish });
   if (!result.ok) return { error: result.error, ...(result.error === "city_unknown" ? { fields: ["city"] } : {}) };
-  if (result.created || !input.id) await addCreatorAsMember(user, result.id);
   if (result.submittedNow) {
     await sendEmail({ to: teamInbox(), subject: `[REGA] New listing to review: ${input.name}`.slice(0, 200), text: `${input.name}\nSubmitted by ${user.email}\nReview: ${process.env.AUTH_URL ? new URL(process.env.AUTH_URL).origin : `https://${process.env.CANONICAL_HOST || "www.regaplatform.com"}`}/dr/businesses?status=pending` });
   }
@@ -109,6 +108,7 @@ export async function saveBusinessAction(_prev: BusinessFormState, formData: For
   revalidatePath("/", "layout");
   // Wizard draft: stay on the same screen (the person is in the middle of the steps) and hand back the saved id.
   if (input.intent === "draft") return { draft: { id: result.id, at: Date.now() } };
+  if (user.role === "BUSINESS_OWNER" && input.intent === "submit" && result.submitted) redirect("/dr/businesses?submitted=1");
   const flag = input.intent === "publish" ? (result.published ? "published" : "blocked") : input.intent === "submit" ? (result.submitted ? "submitted" : "blocked") : "saved";
   redirect(`/dr/businesses/${result.id}?${flag}=1`);
 }
