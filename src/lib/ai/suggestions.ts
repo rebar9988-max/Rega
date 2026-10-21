@@ -1,5 +1,6 @@
 /** Where to send someone whose question found nothing: real categories (most listings first) and the free "add your business" page. */
 import "server-only";
+import { PUBLIC_BUSINESS } from "@/lib/search-where";
 import { prisma } from "@/lib/db";
 import { localizeText } from "@/lib/content";
 import type { Locale } from "@/config/locales";
@@ -10,7 +11,7 @@ export async function categorySuggestions(locale: Locale, take = 4): Promise<Sug
   try {
     const [categories, counts] = await Promise.all([
       prisma.category.findMany({ where: { isActive: true, deletedAt: null, parentId: null }, orderBy: [{ sortOrder: "asc" }], select: { id: true, nameCkb: true, nameKmr: true, nameDe: true, nameEn: true, nameAr: true, nameFa: true, nameTr: true } }),
-      prisma.business.groupBy({ by: ["categoryId"], where: { status: "published", deletedAt: null, categoryId: { not: null } }, _count: { _all: true } }),
+      prisma.business.groupBy({ by: ["categoryId"], where: { ...PUBLIC_BUSINESS, categoryId: { not: null } }, _count: { _all: true } }),
     ]);
     const n = new Map(counts.map((c) => [c.categoryId, c._count._all]));
     return categories

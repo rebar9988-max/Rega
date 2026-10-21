@@ -7,8 +7,10 @@
 import type { NextRequest } from "next/server";
 import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
-import { handleError, normalizeSearch, ok, pageParams } from "@/lib/api";
+import { fail, handleError, normalizeSearch, ok, pageParams } from "@/lib/api";
 import { PUBLIC_BUSINESS, businessInCategories, businessInCity, textWhere } from "@/lib/search-where";
+import { descendantIds } from "@/lib/category-tree";
+import { BUSINESS_CATEGORY } from "@/lib/business-publication";
 import { searchTokens } from "@/lib/text";
 
 export const runtime = "nodejs";
@@ -25,6 +27,8 @@ export async function GET(request: NextRequest) {
     const type = TYPES.find((t) => t === url.searchParams.get("type")) ?? "all";
     const cityId = url.searchParams.get("cityId")?.trim().slice(0, 64) || null;
     const categoryId = url.searchParams.get("categoryId")?.trim().slice(0, 64) || null;
+    const country = url.searchParams.get("country");
+    if (country && !/^[A-Z]{2}$/.test(country)) return fail(422, "validation_error", "Invalid country.");
     const { page, perPage, skip, take } = pageParams(url, 12, 50);
 
     if (searchTokens(raw).length === 0) {
@@ -32,7 +36,7 @@ export async function GET(request: NextRequest) {
     }
 
     const categoryIds = categoryId
-      ? [categoryId, ...(await prisma.category.findMany({ where: { parentId: categoryId, deletedAt: null }, select: { id: true } })).map((c) => c.id)]
+      ? descendantIds(await prisma.category.findMany({ where: BUSINESS_CATEGORY, select: { id: true, parentId: true } }), categoryId)
       : null;
 
     const businessWhere: Prisma.BusinessWhereInput = {
@@ -56,6 +60,12 @@ export async function GET(request: NextRequest) {
       business: { ...PUBLIC_BUSINESS, ...(categoryIds ? businessInCategories(categoryIds) : {}) },
     };
 
+    if (country) {
+      const place = { locations: { some: { countryCode: country, status: "active", deletedAt: null, ...(cityId ? { cityId } : {}) } } };
+      businessWhere.AND = [...(textWhere(raw).AND ?? []), place];
+      serviceWhere.business = { ...PUBLIC_BUSINESS, ...place };
+      locationWhere.countryCode = country;
+    }
     const wantBusinesses = type === "all" || type === "businesses";
     const wantServices = type === "all" || type === "services";
     const wantLocations = type === "all" || type === "locations";

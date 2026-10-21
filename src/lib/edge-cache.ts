@@ -86,6 +86,9 @@ export function edgeCacheKey(request: Request, version = ""): string | null {
   if (request.method !== "GET") return null;
   const url = new URL(request.url);
   if (BYPASS_PATH.test(url.pathname)) return null;
+  // Business-bearing views must reflect moderation on the next request, in every edge location.
+  if (/^\/[a-z]{2,3}(?:\/(?:businesses|business|city|search|services|locations|nearby|offers)(?:\/|$)|\/?$)/.test(url.pathname)
+    || /^\/sitemaps?(?:\/|\.)/.test(url.pathname)) return null;
   if (request.headers.has("authorization")) return null;
   if (PERSONAL_COOKIE.test(request.headers.get("cookie") ?? "")) return null;
   const vary = [...KEY_HEADERS.map((h) => `${h}:${request.headers.get(h) ?? ""}`), `bot:${clientKind(request)}`].join("|");

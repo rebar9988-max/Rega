@@ -104,6 +104,7 @@ async function main() {
           slug: d.slug, name: d.name, nameCkb: d.nameCkb, nameKmr: (d as { nameKmr?: string }).nameKmr, nameAr: d.nameAr,
           description: d.description, descriptionCkb: d.descriptionCkb, phone: d.phone, email: d.email, website: d.website,
           status: "published", publishedAt: new Date(), verified: d.verified, featured: d.featured, ratingAvg: d.ratingAvg, ratingCount: d.ratingCount,
+          categoryId: cats[d.cat],
           searchText: search(d.name, d.nameCkb, d.nameAr, (d as { nameKmr?: string }).nameKmr, d.city),
           locations: { create: { addressLine1: d.addr, postalCode: d.postal, countryCode: d.cc, cityId: cities[d.city], isPrimary: true, openingHours: d.hours, latitude: COORDS[d.city]?.[0], longitude: COORDS[d.city]?.[1], searchText: search(d.addr, d.city, d.name) } },
           services: { create: { slug: "main", name: d.service.name, nameCkb: d.service.nameCkb, priceFrom: d.service.price, durationMin: d.service.dur, categoryId: cats[d.cat], status: "published", searchText: search(d.service.name, d.service.nameCkb, d.name) } },

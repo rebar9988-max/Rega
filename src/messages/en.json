@@ -591,7 +591,7 @@
     "req_location": "Location on the map",
     "req_locationVerified": "Location confirmed",
     "location": "Location",
-    "locOk": "Confirmed",
+    "locOk": "Location confirmed",
     "locUnverified": "Not confirmed",
     "locMissing": "Missing",
     "auditTitle": "Location audit",
@@ -1118,5 +1118,10 @@
     "noNearbyCity": "No supported city near you. Please choose one.",
     "loadFailed": "Cities could not be loaded. Please try again.",
     "searching": "Searching …"
+  },
+  "businessModeration": {
+    "verification": "Staff verification",
+    "unverified": "Not verified by staff",
+    "approve": "Verify & publish"
   }
 }

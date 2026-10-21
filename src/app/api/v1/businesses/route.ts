@@ -6,12 +6,14 @@ import type { NextRequest } from "next/server";
 import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { created, fail, handleError, metaFor, ok, orderBy, pageParams, slugify } from "@/lib/api";
-import { businessInCategories, businessInCity, textWhere } from "@/lib/search-where";
+import { PUBLIC_BUSINESS, businessInCategories, businessInCity, textWhere } from "@/lib/search-where";
 import { reindexBusinessTree } from "@/lib/search-index";
 import { addCreatorAsMember } from "@/lib/business-access";
 import { can } from "@/lib/rbac";
 import { requirePermission } from "@/lib/auth-helpers";
 import { businessCreateSchema } from "@/lib/validation";
+import { BUSINESS_CATEGORY } from "@/lib/business-publication";
+import { descendantIds } from "@/lib/category-tree";
 import { writeAudit } from "@/lib/audit";
 
 export const runtime = "nodejs";
@@ -26,29 +28,31 @@ export async function GET(request: NextRequest) {
     const featured = url.searchParams.get("featured");
     const categoryId = url.searchParams.get("categoryId");
     const cityId = url.searchParams.get("cityId");
+    const country = url.searchParams.get("country");
+    if (country && !/^[A-Z]{2}$/.test(country)) return fail(422,"validation_error","Invalid country.");
 
     // Anonymous and non-staff callers only ever see published records.
     const publicOnly = !(await isStaffRequest());
-    // Same category rule as the public pages: own category or a published service in it, children included.
+    // Canonical primary category only, including descendants at any depth.
     const categoryIds = categoryId
-      ? [categoryId, ...(await prisma.category.findMany({ where: { parentId: categoryId, deletedAt: null }, select: { id: true } })).map((c) => c.id)]
+      ? descendantIds(await prisma.category.findMany({ where: BUSINESS_CATEGORY, select: { id: true, parentId: true } }), categoryId)
       : null;
     const where: Prisma.BusinessWhereInput = {
-      deletedAt: null,
-      ...(publicOnly ? { status: "published" } : status ? { status } : {}),
+      ...(publicOnly ? PUBLIC_BUSINESS : { deletedAt: null, ...(status ? { status } : {}) }),
       ...(featured === "true" ? { featured: true } : {}),
       ...textWhere(q),
       ...(categoryIds ? businessInCategories(categoryIds) : {}),
       ...(cityId ? businessInCity(cityId) : {}),
     };
 
+    if (country) where.AND = [...(Array.isArray(where.AND) ? where.AND : []), { locations: { some: { countryCode: country, status: "active", deletedAt: null, ...(cityId ? { cityId } : {}) } } }];
     const [total, rows] = await Promise.all([
       prisma.business.count({ where }),
       prisma.business.findMany({
         where,
         skip,
         take,
-        orderBy: orderBy(url, ["createdAt", "updatedAt", "name", "ratingAvg", "viewCount"], "createdAt"),
+        orderBy: [orderBy(url, ["createdAt", "updatedAt", "name", "ratingAvg", "viewCount"], "createdAt"), { id: "asc" }],
         include: {
           _count: { select: { services: true, locations: true } },
           locations: { where: { isPrimary: true, deletedAt: null }, take: 1, include: { city: true } },
@@ -56,7 +60,11 @@ export async function GET(request: NextRequest) {
       }),
     ]);
 
-    return ok(rows, metaFor(total, { page, perPage, skip, take }));
+    const publicRows = rows.map((b) => ({ id: b.id, slug: b.slug, name: b.name, nameCkb: b.nameCkb, nameKmr: b.nameKmr, nameAr: b.nameAr, nameTr: b.nameTr,
+      status: b.status, description: b.description, logoUrl: b.logoUrl, coverUrl: b.coverUrl, verified: b.verified, categoryId: b.categoryId,
+      locations: b.locations.filter((l) => l.status === "active").map((l) => ({ cityId: l.cityId, countryCode: l.countryCode, city: l.city, addressLine1: l.addressLine1 })),
+      ratingAvg: b.ratingAvg, ratingCount: b.ratingCount, languages: b.languages }));
+    return ok(publicOnly ? publicRows : rows, metaFor(total, { page, perPage, skip, take }));
   } catch (error) {
     return handleError(error, "businesses.list");
   }
@@ -67,8 +75,9 @@ export async function POST(request: NextRequest) {
     const user = await requirePermission("business.write");
     const payload = businessCreateSchema.parse(await request.json());
     // A new business has no confirmed location yet, so it always starts as a draft (publish after adding one).
-    if (payload.status === "published") return fail(422, "not_publishable", "Missing before publishing: category, address, city, country, location, locationVerified.");
+    if (payload.verified || payload.status === "published") return fail(422, "not_publishable", "Missing before publishing: category, address, city, country, location, locationVerified.");
 
+    if (!payload.categoryId || !await prisma.category.findFirst({ where: { id: payload.categoryId, ...BUSINESS_CATEGORY }, select: { id: true } })) return fail(422, "category_invalid", "Choose an active business category.");
     // Business has no nameDe column (`name` is the canonical/German text); never pass it to Prisma.
     const { nameDe, ...columns } = payload;
     void nameDe;

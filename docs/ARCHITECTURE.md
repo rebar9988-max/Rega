@@ -18,7 +18,7 @@ put together and where each decision lives. Decisions with trade-offs have an AD
 
 ```mermaid
 flowchart LR
-  V[Visitor / PWA] -->|HTTPS| CF[Cloudflare Worker<br/>OpenNext + Next.js 15]
+  V[Visitor / PWA] -->|HTTPS| CF[Cloudflare Worker<br/>OpenNext + Next.js 16]
   CF --> MW[middleware: locale, 301 redirects, security headers]
   MW --> APP[App Router<br/>/[locale]/..., /dr, /api/v1]
   APP --> PG[(PostgreSQL via Prisma<br/>driver adapter, Hyperdrive optional)]

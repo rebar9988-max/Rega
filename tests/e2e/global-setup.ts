@@ -55,9 +55,11 @@ export default async function globalSetup() {
       create: { email: EMPLOYEE.email, name: "E2E Employee", role: "EMPLOYEE", locale: "de", passwordHash: await bcrypt.hash(EMPLOYEE.password, 10) },
     });
     await prisma.user.update({ where: { email: ADMIN.email }, data: { role: "SUPER_ADMIN", status: "active", passwordHash: await bcrypt.hash(ADMIN.password, 10) } });
-    const demo = { "kurdistan-rechtsberatung": { verified: true, featured: true }, "zagros-restaurant": { verified: true, featured: false }, "sulaymaniyah-clinic": { verified: false, featured: true } };
+    const demo = { "kurdistan-rechtsberatung": { verified: true, featured: true }, "zagros-restaurant": { verified: true, featured: false }, "sulaymaniyah-clinic": { verified: true, featured: true } };
     for (const [slug, flags] of Object.entries(demo)) {
-      await prisma.business.update({ where: { slug }, data: { status: "published", ...flags } });
+      const primary = await prisma.category.findUniqueOrThrow({ where: { key: slug === "kurdistan-rechtsberatung" ? "legal" : slug === "zagros-restaurant" ? "food" : "health" } });
+      await prisma.business.update({ where: { slug }, data: { status: "published", archivedAt: null, categoryId: primary.id, ...flags } });
+      await prisma.location.updateMany({ where: { business: { slug }, isPrimary: true, deletedAt: null }, data: { status: "active", coordsVerifiedAt: new Date() } });
     }
   } finally {
     await prisma.$disconnect();
