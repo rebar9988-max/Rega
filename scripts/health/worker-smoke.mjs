@@ -10,7 +10,7 @@ const child = spawn(process.execPath, [
   "node_modules/wrangler/bin/wrangler.js", "dev", "--local", "--port", String(port),
   "--var", `DATABASE_URL:${databaseUrl}`,
   "--var", "AUTH_SECRET:worker-smoke-local-only", "--var", "REGA_PRIVATE_BETA:0",
-], { stdio: ["ignore", "ignore", "ignore"] });
+], { stdio: ["ignore", "inherit", "inherit"] });
 let exited = false;
 child.on("exit", () => { exited = true; });
 try {
