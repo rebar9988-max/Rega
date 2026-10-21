@@ -16,7 +16,7 @@ import { Link } from "@/i18n/routing";
 import { SubmitButton } from "@/features/auth/AuthForms";
 import { AuthDivider } from "@/features/auth/AuthDivider";
 import { SocialButtons } from "@/features/auth/SocialButtons";
-import { enabledOAuthProviders, socialErrorKeyOrGeneric } from "@/features/auth/oauth-core";
+import { enabledOAuthProviders, socialErrorKeyOrGeneric, safeRelativePath } from "@/features/auth/oauth-core";
 import { recordSocialSignInFailure } from "@/features/auth/oauth-diagnostics";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
@@ -27,8 +27,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 
 /** Only same-site relative paths may be used as a post-login destination (blocks open redirects). */
 function safeNext(value: FormDataEntryValue | string | undefined | null, locale: string): string {
-  const v = typeof value === "string" ? value : "";
-  return v.startsWith("/") && !v.startsWith("//") && !v.includes("\\") ? v : `/${locale}/account`;
+  return safeRelativePath(value) ?? `/${locale}/account`;
 }
 
 export default async function LoginPage({ params, searchParams }: { params: Promise<{ locale: string }>; searchParams: Promise<{ error?: string; next?: string; registered?: string; reset?: string; verified?: string }> }) {
