@@ -300,3 +300,58 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
 - Confirmed hosted build-order root cause in diagnostic 39559658698: after a Node build, the Worker reused Next's cached Node Prisma entry and tried to read `/bundle/node_modules/.prisma/client/query_compiler_bg.wasm`. Fresh Worker-only builds passed both localhost/IPv4, excluding the hostname theory. OpenNext's existing build command now clears only generated `.next` output before compiling the Worker, keeping the Node/Worker Prisma resolutions isolated. Removed the unnecessary hostname override. Required CI 39559542281 was cancelled after this reproduction; verify the corrected build-order diagnostic and final-head CI before merge. No production change has occurred.
 - Conservative repair guard: any audit event at or after staff verification other than that verification itself requires fresh staff review, including older status changes recorded as business.update. Current REST schemas already reject direct pending transitions; no additional API transition or state was introduced. Production candidates remain zero; no repair has been applied.
 - Full CI 39560221964 on cc9e98c passed, including the built Worker runtime. Added a real repair integration test using an isolated, disposable local PostgreSQL database: dry run changes nothing, later business.update is preserved, eligible verification is repaired and repeated apply writes only one repair audit. This last repair-only change must pass final-head CI before merge. Production read-only refresh found three unverified records (a new pending beauty/barber business), all preserved; no eligible production repair candidates.
+
+## Private Control Center /dr recovery checkpoint — 2026-10-21
+
+- Scope: the owner's new, separate /dr recovery/control-center specification. Public UI/routes/branding are locked.
+  Phase 2 must wait until Phase 1 is verified in production with an authorized management session.
+- Read AGENTS.md, CLAUDE.md, this file, central Doc, architecture and deployment runbook. Fresh checkout base:
+  `3ce672deec309a9350a312112f809a4f796cd7b2` (PR #40 was already merged). Its existing main CI run
+  `39619955621` was in progress at this audit; do not duplicate or interfere with that separate release.
+- Exact reported 404 root cause: **not established / not reproduced**. At 14:49–14:55 UTC, unauthenticated
+  `https://www.regaplatform.com/dr` returned 307 to `/ckb/login?next=%2Fdr`, then login returned 200.
+  `/dr/` first returned 308 to `/dr`; `/dr/businesses`, `/dr/users`, `/dr/audit` also redirected to login.
+  Redirect targets returned `Cache-Control: private, no-cache, no-store, max-age=0, must-revalidate`
+  and `x-rega-cache: BYPASS`. Firecrawl live fetch independently confirmed the login destination.
+  This establishes the anonymous auth path, not authorized dashboard rendering or the cause of a historical 404.
+- Routing audit: `src/app/dr/page.tsx` and `layout.tsx` exist; middleware excludes `/dr` from locale rewriting;
+  `src/i18n/request.ts` resolves its locale from the cookie/default; the custom edge cache excludes `/dr` and `/api`.
+  No `notFound()` exists on the /dr root. Child record pages intentionally use 404 for missing/inaccessible records.
+  No speculative route/auth bypass was implemented.
+- Cloudflare connector `whoami` and spec search returned Internal error. Existing read-only diagnostics workflow
+  `39620570270` succeeded: latest deployment observed at 14:52 UTC uses version
+  `84a4a585-4c15-479b-859d-85d76ae425dc` at 100% (created 2026-10-20T21:53:46Z).
+  Evidence: https://github.com/rebar9988-max/Rega/actions/runs/39620570270 . No runtime settings were changed.
+- Live anonymous mutation probes used empty JSON and a nonexistent sentinel ID; all returned 401/unauthenticated:
+  POST businesses, bulk, categories, locations, media/upload-url; PATCH and DELETE businesses/[sentinel].
+  No production record, role, account or permission was created/changed.
+- Existing server guards re-read active/nondeleted account and role for mutations, fail closed on DB errors,
+  and enforce business membership. The business list/detail GET APIs instead use the cached `currentUser()` role
+  (`AUTH_SESSION_REVALIDATE_MS` defaults to 5 minutes); fresh authorization for private reads needs review in Phase 2.
+- Required workflow gaps found (audit only): persisted roles are SUPER_ADMIN/ADMIN/MANAGER/EMPLOYEE/BUSINESS_OWNER/USER,
+  with no STAFF role or per-user permission grants. MANAGER can publish; EMPLOYEE cannot and writes require membership.
+  `approvalData()` and form/REST/bulk paths currently combine verify + publish, including `verify` actions.
+  Separate decisions must be implemented consistently across these existing paths after the Phase 1 gate.
+  Reject currently returns pending to draft with an optional reason; correction and suspension are not distinct
+  dashboard decisions. Audit stores actor/action/time/status but not an immutable actor-role snapshot.
+  Existing search/status filters/pagination/mobile cards/i18n must be preserved. No Phase 2 implementation started.
+- Local baseline: `npm ci`, Prisma generation, lint, typecheck and Node production build passed. Unit tests:
+  271 passed, 4 skipped, 0 failed (no DATABASE_URL was set for this unit invocation). Isolated local PostgreSQL 16
+  and existing migrations were used for 12 auth/security browser tests: all passed, including SUPER_ADMIN/EMPLOYEE
+  dashboard access, anonymous API denial, forbidden employee API calls, suspension and public response projection.
+  The fixture named ADMIN actually has role SUPER_ADMIN; this is not live ADMIN/STAFF verification.
+- Worker production build and `wrangler deploy --dry-run` passed (3498.18 KiB gzip). Existing local workerd smoke
+  passed database/migration health, approved-only public query and API validation. These are baseline checks of
+  `3ce672d`, not evidence of a new deployment, authorized production access or the requested Phase 2 behavior.
+- Files changed by this task: only this existing project-memory file; central Doc also updated with the checkpoint.
+  Auto-generated `next-env.d.ts` build drift was reverted. No test/source/config/schema changes were necessary to
+  document a nonreproduced failure. Branch `audit/dr-recovery-20261021` preserves the checkpoint without deploying it.
+- Blocker: no authorized production management test session is available. Secure session configuration was requested;
+  never paste credentials, fabricate a session, promote an account or use local fixture credentials on production.
+  Phase 1 authorized access and exact 404 reproduction remain unverified, so Phase 2 and deployment are gated by the
+  owner's execution order. No application code, schema, public UI or deployment workflow was changed by this task.
+- Continuation: securely attach an existing authorized test session; reproduce the exact URL/role and failed request
+  without retaining private content; re-check current main CI/deployment/active Worker version, fix only an evidenced
+  failing layer, verify authorized/unauthorized access live, then implement the scoped management improvements.
+  Keep unrelated prepared public-site checkpoint `838d0cf` isolated. Evidence logs are in this session's
+  `/workspace/scratch/rega-dr-recovery`; this file and the central Doc remain the only shared project-memory layer.
