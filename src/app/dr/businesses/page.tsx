@@ -59,7 +59,7 @@ export default async function DrBusinesses({ searchParams }: { searchParams: Pro
   const href = (p: number) => `/dr/businesses?${new URLSearchParams({ ...(q ? { q } : {}), ...(status ? { status } : {}), ...(needsLocation ? { loc: "missing" } : {}), ...(p > 1 ? { page: String(p) } : {}) })}`;
   const locState = (l?: { latitude: number | null; longitude: number | null; coordsVerifiedAt: Date | null }) =>
     !l || l.latitude == null || l.longitude == null ? "locMissing" : !isValidCoordinate(l.latitude, l.longitude) ? "auditInvalid" : l.coordsVerifiedAt ? "locOk" : "locUnverified";
-  const btn = "min-h-9 rounded-lg border border-line px-3 text-xs font-semibold hover:bg-surface-2";
+  const btn = "min-h-11 rounded-lg border border-line px-3 text-xs font-semibold hover:bg-surface-2";
   const pageLang = LOCALE_META[locale].htmlLang;
 
   const act = (id: string, intent: string) => (
@@ -127,8 +127,8 @@ export default async function DrBusinesses({ searchParams }: { searchParams: Pro
 
       {rows.length === 0 ? <p className="text-muted">{t("dashboard.empty")}</p> : (
         <div className="overflow-x-auto rounded-[var(--radius-card)] border border-line bg-surface">
-          <table className="w-full min-w-[52rem] text-sm">
-            <thead className="bg-surface-2 text-muted"><tr>
+          <table role="table" className="block w-full text-sm md:table md:min-w-[52rem]">
+            <thead className="sr-only bg-surface-2 text-muted md:not-sr-only md:table-header-group"><tr>
               <th scope="col" className="px-4 py-3 text-start font-semibold">{t("businesses.singular")}</th>
               <th scope="col" className="px-4 py-3 text-start font-semibold">{t("common.status")}</th>
               <th scope="col" className="px-4 py-3 text-start font-semibold">{t("bizForm.category")}</th>
@@ -136,18 +136,18 @@ export default async function DrBusinesses({ searchParams }: { searchParams: Pro
               <th scope="col" className="px-4 py-3 text-start font-semibold">{t("dashboard.views")}</th>
               <th scope="col" className="px-4 py-3 text-start font-semibold">{t("common.actions")}</th>
             </tr></thead>
-            <tbody className="divide-y divide-line">
+            <tbody role="rowgroup" className="block divide-y divide-line md:table-row-group">
               {rows.map((b) => (
-                <tr key={b.id}>
-                  <td className="px-4 py-3">
+                <tr key={b.id} role="row" className="grid grid-cols-2 gap-x-3 gap-y-2 p-4 md:table-row md:p-0">
+                  <td role="cell" className="col-span-2 min-w-0 break-words md:px-4 md:py-3">
                     <Link href={`/${locale}/business/${b.slug}`} className="font-semibold hover:underline"><Text value={localize(b, "name", locale)} pageLang={pageLang} /></Link>
                     <div className="mt-1 flex gap-2 text-xs text-muted"><span data-testid="staff-verification">{b.verified ? `✓ ${t("businessModeration.verification")}` : t("businessModeration.unverified")}</span>{b.featured && <span>★ {t("businesses.featured")}</span>}</div>
                   </td>
-                  <td className="px-4 py-3"><span data-testid="row-status">{t(`status.${b.status}`)}</span></td>
-                  <td className="px-4 py-3" data-testid="primary-category">{b.category ? localize({ ...b.category, name: b.category.nameDe }, "name", locale).text : "—"}</td>
-                  <td className="px-4 py-3" data-testid="loc-state">{(() => { const st = locState(b.locations[0]); return <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${st === "locOk" ? "bg-[oklch(0.95_0.05_150)] text-[oklch(0.35_0.1_150)]" : "bg-brand-soft text-brand"}`}>{t(`bizForm.${st}`)}</span>; })()}</td>
-                  <td className="px-4 py-3">{formatNumber(b.viewCount, locale)}</td>
-                  <td className="px-4 py-3"><div className="flex flex-wrap gap-1.5">
+                  <td role="cell" className="min-w-0 md:px-4 md:py-3"><span className="me-2 text-xs text-muted md:hidden">{t("common.status")}:</span><span data-testid="row-status">{t(`status.${b.status}`)}</span></td>
+                  <td role="cell" className="min-w-0 break-words md:px-4 md:py-3" data-testid="primary-category"><span className="me-2 text-xs text-muted md:hidden">{t("bizForm.category")}:</span>{b.category ? localize({ ...b.category, name: b.category.nameDe }, "name", locale).text : "—"}</td>
+                  <td role="cell" className="min-w-0 md:px-4 md:py-3" data-testid="loc-state">{(() => { const st = locState(b.locations[0]); return <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${st === "locOk" ? "bg-[oklch(0.95_0.05_150)] text-[oklch(0.35_0.1_150)]" : "bg-brand-soft text-brand"}`}>{t(`bizForm.${st}`)}</span>; })()}</td>
+                  <td role="cell" className="min-w-0 md:px-4 md:py-3"><span className="me-2 text-xs text-muted md:hidden">{t("dashboard.views")}:</span>{formatNumber(b.viewCount, locale)}</td>
+                  <td role="cell" className="col-span-2 min-w-0 border-t border-line pt-3 md:border-0 md:px-4 md:py-3"><div className="flex flex-wrap gap-1.5">
                     {canWrite && manages(b.id) && <Link href={`/dr/businesses/${b.id}`} className={`${btn} inline-flex items-center`}>{t("bizForm.edit")}</Link>}
                     {canPublish && b.status === "pending" && moderate(b.id)}
                     {canPublish && b.status !== "pending" && b.status !== "archived" && (b.status === "published" ? act(b.id, "unpublish") : act(b.id, "publish"))}
