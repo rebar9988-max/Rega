@@ -73,11 +73,11 @@ async function toCities(rows: CityRow[]): Promise<GeoCity[]> {
 }
 
 /** The public market's country first, then any other active country that already has a public listing. */
-export async function geoCountries(): Promise<GeoCountry[]> {
+export async function geoCountries(selectedCountryCode?: string): Promise<GeoCountry[]> {
   const rows = await prisma.country.findMany({
     where: {
       isActive: true,
-      OR: [{ code: DEFAULT_PUBLIC_COUNTRY_CODE }, { cities: { some: { isActive: true, locations: { some: publicLocation } } } }],
+      OR: [{ code: DEFAULT_PUBLIC_COUNTRY_CODE }, { code: selectedCountryCode ?? DEFAULT_PUBLIC_COUNTRY_CODE }, { cities: { some: { isActive: true, locations: { some: publicLocation } } } }],
     },
     orderBy: [{ sortOrder: "asc" }, { nameEn: "asc" }],
     take: 30,

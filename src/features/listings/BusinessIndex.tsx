@@ -50,7 +50,7 @@ export async function BusinessIndex({ pathname, searchParams, title, crumbs, fix
         }),
   ]);
 
-  const countries = await prisma.country.findMany({ where: { isActive: true, OR: [{code:"DE"},{cities:{some:{locations:{some:{status:"active",deletedAt:null,business:PUBLIC_BUSINESS}}}}}] }, select:{code:true}, orderBy:{sortOrder:"asc"} });
+  const countries = await prisma.country.findMany({ where: { isActive: true, OR: [{code:"DE"},{code:query.country ?? "DE"},{cities:{some:{locations:{some:{status:"active",deletedAt:null,business:PUBLIC_BUSINESS}}}}}] }, select:{code:true}, orderBy:{sortOrder:"asc"} });
   const locale = await getLocale();
   const countryName = (code: string) => { try {return new Intl.DisplayNames([locale,"en"],{type:"region"}).of(code) ?? code;} catch {return code;} };
   const formId = "directory-filters";

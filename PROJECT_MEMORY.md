@@ -430,3 +430,4 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
   and the historical 404 cause remain blocked. Control-center redesign/workflow expansion remains paused.
 
 - Business-task integration: preserved the complete independent /dr recovery notes and PR #41 implementation while resolving only an append conflict in this memory file. Its separate control-center redesign gate is unchanged; this branch continues the original business registration/image phase after phase-1 public production verification.
+- Final review found an empty-country display inconsistency: a shared URL for active IQ could filter correctly while the country dropdown omitted IQ (only Germany/public-listing countries were offered). Directory and geo selectors now retain the explicitly requested active country even at count zero, with a focused country-isolation regression. Existing default country policy is unchanged. Final-head CI must run on this follow-up.
