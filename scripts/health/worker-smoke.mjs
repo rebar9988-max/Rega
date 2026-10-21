@@ -17,16 +17,15 @@ let exited = false;
 child.on("exit", () => { exited = true; });
 try {
   let health;
-  for (let attempt = 0; attempt < 45; attempt++) {
+  const deadline = Date.now() + 60_000;
+  while (Date.now() < deadline) {
     assert.ok(!exited, "Local Worker exited before readiness");
     try {
       const response = await fetch(`http://localhost:${port}/api/v1/health`, { signal: AbortSignal.timeout(8000) });
       health = await response.json();
-      assert.equal(health.service, "rega-platform");
-      break;
-    } catch {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-    }
+      if (health.service === "rega-platform" && health.ok) break;
+    } catch { /* The local server can still be starting. */ }
+    await new Promise((resolve) => setTimeout(resolve, 1000));
   }
   assert.equal(health?.service, "rega-platform", "Built Worker must execute a Next.js route and return its health report");
   assert.equal(health.ok, true, `Worker database and migrations must be ready: ${JSON.stringify(health.checks)}`);
