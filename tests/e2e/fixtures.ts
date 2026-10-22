@@ -8,7 +8,10 @@ export const test = base.extend({
   page: async ({ page }, run) => {
     const goto = page.goto.bind(page);
     page.goto = (async (url: string, options?: Parameters<typeof goto>[1]) => {
-      const res = await goto(url, { waitUntil: "networkidle", ...options });
+      const res = await goto(url, { waitUntil: "load", ...options });
+      // Settle the network, but bounded: with page.route active, a request the browser cancels mid-navigation
+      // (Next's /dr prefetches) can stay counted as in flight, and "networkidle" then never arrives.
+      await page.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => undefined);
       await page.waitForFunction(() => {
         const el = document.querySelector("header a, main a, main button");
         return !el || Object.keys(el).some((k) => k.startsWith("__reactProps"));

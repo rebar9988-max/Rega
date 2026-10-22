@@ -439,3 +439,37 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
 - Browser evidence also confirmed a real directory city-picker geometry defect: category navigation moved the field low enough that its fixed popover extended offscreen. Positioning now chooses available space above/below and bounds its height; no style or brand changes. Existing tests still perform actual clicks, and now assert full viewport containment on either side. All 41 focused desktop business/image, language and location browser tests passed, including actual saved512px public logo bytes, RTL city selection and shared homepage/map location behavior. Lint/typecheck/Node build passed. Full exact-head hosted CI and final mobile/WebKit checks are next; phase2 remains undeployed. No production data/schema/permissions/infrastructure changes.
 
 - Final local mobile browser16/16 passed (WebKit/iPhone13 and Chromium/Pixel5); focused total57/57, including real S3 bytes/crop/retry/submission/approval. Hosted CI39736412806 passed Python, lint, typecheck,292/292 unit/integration (zero skipped) and Node build, then failed before any browser cases: `Cannot install dependencies for ubuntu26.04-x64 with Playwright 1.56.1`. The runner's ubuntu-latest moved to26.04; this is a verified OS compatibility failure, not an application regression. Pin only the two browser-running workflows (CI and production-browser) to supported ubuntu-24.04, matching the already passing local Noble browser image. No Playwright upgrade, weakened checks, app change or deployment bypass. New exact-head full CI required before merge; existing production unchanged.
+
+## Release blocker: main CI E2E stall after PR #42 — 2026-10-22 (branch `claude/rega-platform-checkpoint-ucgcwf`)
+- State found: PR #42 squash `d25d69c` is on `main` but NOT deployed. Main CI `39739599053`: attempt 1 cancelled during a slow
+  apt mirror (Playwright install), attempt 2 (the one re-run) failed E2E: 304 passed, `admin-business.spec.ts` "same position" failed
+  twice and "failed address lookup" flaky, both `page.goto('/dr/businesses/new')` timing out while waiting for `networkidle`.
+  `Deploy to Cloudflare Workers` was therefore skipped (correct gate). Exact PR head `13edf12` (identical tree) had passed full CI
+  `39737361652`. Cloudflare diagnostics `39750520962`: latest deployment 2026-10-21 20:31:57Z, version
+  `d52f90e9-f1d3-4d74-ad59-f914aed391fc` at 100% = PR #41. PR #41's private-read repair remains the live code.
+- Root cause (reproduced, test-harness layer, pre-existing): `tests/e2e/fixtures.ts` made every `page.goto` wait for `networkidle`.
+  With `page.route` interception active (`stubBasemap`) a navigation from a `/dr` page cancels ~13 in-flight Next RSC prefetches; a
+  request cancelled while paused for interception can stay counted as in flight, so `networkidle` never arrives. Timing-dependent:
+  CI's attempt-2 runner was degraded (npm ci 3m45s vs 26s; browser install 8m vs 37s). Evidence: under CPU starvation (all processes
+  on one core shared with a busy loop) the same navigation stalled 3/3 on `d25d69c` and 2/2 on the production baseline `59d8df1`
+  (no network activity for 44 s, past a 60 s budget); with the route disabled it never stalled (2/2); a Playwright trace showed the
+  last request finishing at 16 s and nothing afterwards. Not an application defect and not caused by PR #42.
+- Fix (test harness only): the fixture now navigates with `waitUntil: "load"`, then waits for `networkidle` bounded to 10 s, then the
+  existing hydration check. No assertion, test, timeout, retry or CI gate weakened or skipped; no application, schema, UI, route,
+  workflow or deployment change.
+- Local verification (this session, disposable PostgreSQL 16, Node build of the fixed head): lint, typecheck, unit 292/292 (0 skipped),
+  full E2E desktop+mobile on a fresh database 298/298 passed, 0 flaky (WebKit/iPhone project not installed here; CI covers it). Under
+  the CPU-starvation reproduction all 5 admin-business journeys passed in two consecutive runs. A first full run on a reused database
+  failed `catalog` "locations page" only because 24 leftover E2E businesses from repeated local runs pushed the demo listing off
+  Berlin's first page; not a code issue (CI always starts empty).
+- Production checks before release (anonymous only): Firecrawl live fetch `/dr` -> `/ckb/login?next=%2Fdr` 200 (no 404);
+  `/api/v1/businesses?status=draft` anonymous -> 0 records although production has a draft and two pending listings, so the private
+  projection holds. Shell egress to the site and to the GitHub artifact store is blocked in this environment (proxy 403); the CI trace
+  artifact was therefore not readable and the failure was reproduced locally instead.
+- Codex workspace loading: rechecked; still no `.code-workspace`, `.codex`, `.vscode`/`.idea` or path-shaped tracked file. The earlier
+  conclusion stands (external-URL-as-path citation; host Codex logs unavailable). Tracked root file `rega` (4 bytes, "rega", from the
+  initial import) is unrelated and left unchanged.
+- Remaining blockers: no authorized production management session is available to this session (none attached; never fabricated), so
+  positive authenticated `/dr` verification is still blocked. Physical-device checks unavailable.
+- Next safe continuation point: PR CI on this branch -> merge -> main CI -> existing `Deploy to Cloudflare Workers` -> confirm the new
+  Cloudflare version at 100% (Cloudflare diagnostics workflow) -> Production browser check -> record the release here and in the Doc.
