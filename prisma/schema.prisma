@@ -83,6 +83,18 @@ model Session {
   @@index([userId])
 }
 
+/// Administrative sign-in codes for /dr. Separate from VerificationToken so dashboard access
+/// never shares a row, a cooldown or a guess budget with e-mail verification or password reset.
+/// Only an HMAC of the six digits is stored (see features/auth/admin-code-core.ts).
+model AdminSignInCode {
+  email     String   @id
+  codeHash  String
+  state     String   @default("pending") // pending | active
+  expiresAt DateTime
+  attempts  Int      @default(0)
+  sentAt    DateTime @default(now())
+}
+
 model VerificationToken {
   identifier String
   token      String   @unique

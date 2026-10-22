@@ -67,7 +67,8 @@ test("a suspended account loses access immediately (session revalidation)", asyn
   try {
     await prisma.user.update({ where: { email: EMPLOYEE.email }, data: { status: "suspended" } });
     await page.goto("/dr");
-    await expect(page).toHaveURL(/\/login/);
+    // The session is gone: /dr shows its sign-in, not the dashboard.
+    await expect(page.getByRole("heading", { name: "چوونەژوورەوەی بەڕێوەبەر" })).toBeVisible();
     const api = await page.request.post("/api/v1/businesses", { data: { name: "x" } });
     expect(api.status()).toBe(401);
   } finally {
