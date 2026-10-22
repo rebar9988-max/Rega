@@ -468,13 +468,32 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
   `39760925614` succeeded for that exact SHA (OpenNext build + `wrangler deploy`, 10:11 UTC); `Beta health` `39760925505`
   and the read-only `Production browser check` `39761148783` (live site, desktop + mobile Chromium) passed afterwards.
   This also ships PR #42 (business registration, safe image crop/upload, category-scoped directory), which main CI had
-  blocked since `d25d69c`. `Workers Builds: rega-platform` is red on PR heads (also on #42) and fails in under a second; it
-  is not a gate (docs/DEPLOYMENT.md) and its Cloudflare-side reason is unverified.
+  blocked since `d25d69c`. `Workers Builds: rega-platform` is red on PR heads (also on #42); its GitHub check run
+  starts and completes in the same second, but that only reflects when Cloudflare reports it (PR #10 recorded PR builds
+  running ~2 minutes before failing), so it does not show where the build fails. It is not a gate (docs/DEPLOYMENT.md) and its Cloudflare-side reason is unverified.
 - Not verified (environment limits, not code failures): this session's network policy returns 403 for
-  `www.regaplatform.com`, and there is no Cloudflare dashboard access, so the active version at 100% was not read directly.
+  `www.regaplatform.com`, and there is no Cloudflare dashboard access (the active version was later read via the API; see the next entry).
   Authenticated live checks (sign-in, business publish, real image upload) were not run: no authorized production
   session exists and those actions write production data. Next safe continuation: attach an authorized test session or
   allow the host, then run those flows; owner may also check Cloudflare Workers Builds settings.
+
+## Workers Builds diagnosis and live-version check — 2026-10-22
+- Read-only `Cloudflare diagnostics` run `39768663995` (branch `claude/resume-codex-fix-ci-deploy-161xax`, with the
+  build-log step from open PR #10) for build `f2ee1ece-4cfd-4b22-bcca-193001093830` (PR #46):
+  `GET /accounts/{id}/builds/builds/{id}/logs` returned `{"code":12004,"message":"Forbidden"}`. The repository token
+  lists secrets, deployments and versions but has no Workers Builds read permission. Root cause of the red
+  `Workers Builds: rega-platform` check: UNKNOWN; diagnosis blocked by PERMISSIONS. Nothing was changed in the
+  Workers Builds integration. Per Cloudflare's Builds API reference, that API needs a USER-scoped token
+  (account-scoped tokens are not supported) with Account > Workers Builds Configuration (documented level: Edit; it
+  covers logs). Owner action, either: (a) dash.cloudflare.com/profile/api-tokens -> create a user token with Account >
+  Workers Builds Configuration and Workers Scripts Read for account ee07860d..., store it as a separate repository
+  secret, and point only the diagnostics step at it (keep the deploy token unchanged); or (b) open the failed build in
+  the dashboard (Workers & Pages -> rega-platform -> Deployments/Builds -> build f2ee1ece...) and share the error line.
+- Same run, live state via the Cloudflare API: latest deployment 2026-10-22T10:11:10Z serves version
+  `506d302e-a9ed-4789-9545-d7d1df72bbec` at 100%, created 10:11:06Z inside deploy run `39760925614` for `1bee9c3`, so
+  `1bee9c3` is verified live. All listed versions come from wrangler uploads; none from Workers Builds.
+- `ad1c755` (#46, docs-only) main CI `39768050765` was still running at the time of this entry.
+- Isolation: REGA only; `rega-cargo` / rlgo.net were not accessed.
 
 ## P0 project-isolation rule and identity guard — 2026-10-22
 - Task: owner's permanent P0 rule "STRICT REGA / R&L PROJECT ISOLATION" persisted in this repository (and, separately, in `rebar9988-max/rega-cargo`).
@@ -484,3 +503,20 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
 - Cloudflare verification: not applicable — no runtime, Worker, route or deployment change.
 - Production impact: none at merge time beyond one extra read-only step before the existing production steps; if the guard ever blocks a legitimate run, the workflow fails before changing anything.
 - Next safe continuation point: confirm CI is green on the PR, then re-run the guard from the first real `Deploy to Cloudflare Workers` run after merge and record its result here.
+
+## /dr owner-access audit and 403 diagnosis — 2026-10-22 (read-only, no code or data change)
+- Identity guard: `node scripts/project-identity-guard.mjs --project REGA --domain www.regaplatform.com --worker rega-platform` -> OK.
+- Live after deploy `39774721716` (`df79250`, PR #48): Beta health `39774721718` at ~12:00 UTC from GitHub runners —
+  `/api/v1/health` 200 `ok=true database=ok auth=true`; `/de/login` 200 with password field; anonymous `/dr` and `/dr/ai`
+  307 to login; anonymous POSTs to businesses/categories/locations/bulk/media upload-url 401; CSP/HSTS/nosniff/DENY/
+  referrer/permissions headers present. Production browser check `39775026675` passed.
+- The 403 seen in Claude sessions is this sandbox's egress proxy (`gateway answered 403 to CONNECT ... www.regaplatform.com`),
+  not production. Production answered 200/307/401 as designed from GitHub runners.
+- `/dr` authorization (code): `src/app/dr/layout.tsx` re-reads the account from the database (`currentAccount()`), not the
+  cached JWT; with `PRIVATE_BETA` only SUPER_ADMIN enters; nav items filtered by `can(role, permission)` (`src/lib/rbac.ts`,
+  SUPER_ADMIN = `*`); API/server handlers use the same permission matrix (PR #41). No defect found; nothing changed.
+- Owner SUPER_ADMIN: memory records one active SUPER_ADMIN in production (address not recorded). The repository secrets
+  `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` are empty (db-migrate run `39384519799` shows both blank), so GitHub cannot
+  show which address holds the role. Not verified that rebar9988@gmail.com is that account; no role was changed (a
+  production role change is a security action needing the owner's secure confirmation and DB access this session lacks).
+- Authenticated owner login and every /dr feature were not exercised on production (no authorized session).
