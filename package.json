@@ -19,7 +19,8 @@
     "e2e": "playwright test",
     "build:node": "node scripts/vendor-maplibre.mjs && prisma generate && next build --webpack",
     "cf:preview": "npm run build && opennextjs-cloudflare preview",
-    "cf:dry-run": "wrangler deploy --dry-run"
+    "cf:dry-run": "wrangler deploy --dry-run",
+    "guard:identity": "node scripts/project-identity-guard.mjs --project REGA"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

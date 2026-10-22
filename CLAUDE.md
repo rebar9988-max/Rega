@@ -2,6 +2,57 @@
 
 These rules come from the project owner and apply to every task in this repository.
 
+## 0. PERMANENT P0 RULE — STRICT REGA / R&L PROJECT ISOLATION
+
+**Priority: CRITICAL — NON-NEGOTIABLE.** Owner instruction (2026-10-22). Applies to every Claude Code and Codex session and every coding workflow that loads these instructions. It adds to, and never replaces, the other rules in this file.
+
+**REGA ≠ R&L. Never mix. Never silently switch. Always verify. Stop automatically on mismatch.**
+
+### 0.1 Two completely independent projects
+| | PROJECT A — REGA Platform | PROJECT B — R&L |
+|---|---|---|
+| Repository | `rebar9988-max/Rega` | `rebar9988-max/rega-cargo` |
+| Production | https://www.regaplatform.com | https://www.rlgo.net |
+| Identity | REGA Platform | R&L Marketplace & Delivery |
+| Cloudflare Worker | `rega-platform` (+ `rega-ai-python`) | `rega-cargo` (+ `rega-cargo-staging`) |
+
+**This repository is PROJECT A — REGA Platform.** The two are separate projects; never treat them as one system. Shared technologies do not imply shared project ownership.
+
+### 0.2 Automatic project identity guard
+Before any coding, editing, testing, migration, commit, PR, merge or deployment:
+1. Identify the requested project.
+2. Verify the Git repository owner and name.
+3. Verify the Git remote URL.
+4. Verify the working directory and current branch.
+5. Verify the production domain and deployment configuration.
+6. Confirm that every referenced PR, commit, CI run and Cloudflare resource belongs to the selected repository.
+7. Read the selected project's own `CLAUDE.md`, `AGENTS.md` and `PROJECT_MEMORY.md`, where available.
+
+Never identify a project by a PR number or CI run ID alone.
+
+### 0.3 Automatic stop on mismatch — fail closed
+If an operation intended for REGA points to R&L, or an operation intended for R&L points to REGA: **STOP IMMEDIATELY.** Do not edit files, run migrations, commit or push, merge PRs, trigger deployments, modify secrets or infrastructure, or automatically switch repositories. Display this error in Kurdish Sorani:
+
+> هەڵەی گرنگ: پڕۆژەکان تێکەڵ بوون! REGA و R&L دوو پڕۆژەی جیاوازن. کارەکە بە خۆکار وەستێنرا بۆ پاراستنی کۆد و داتابەیس و Production. تکایە پڕۆژەی دروست دیاری بکە.
+
+Then report the expected project, the detected project, the conflicting identifiers and any operations already performed. Resume only after explicit owner confirmation.
+
+### 0.4 Strict isolation
+Never mix or reuse between the two projects: source code and project folders; database connections and migrations; Cloudflare Workers and bindings; deployment environments; environment variables and secrets; GitHub branches, commits and PRs; CI/CD workflows and run IDs; authentication configurations; domain and routing configurations; project memory and checkpoints; design, branding and assets.
+
+### 0.5 Enforcement in this repository
+- `scripts/project-identity-guard.mjs` is a read-only, dependency-free, fail-closed check: `node scripts/project-identity-guard.mjs --project REGA [--domain …] [--worker …]`. It reads `GITHUB_REPOSITORY`, every `git remote` URL and the local `wrangler.jsonc`, exits 1 with the Sorani error above on a project mismatch, mixed repository/domain/worker identifiers, an unknown identifier, or no repository evidence, and never changes anything.
+- It runs before the first production-changing step of `deploy.yml`, `db-migrate.yml`, `worker-secrets-sync.yml` and `ai-python-deploy.yml`. Run it by hand before any manual deploy, migration, secret change or merge done outside those workflows.
+- `tests/project-identity-guard.test.ts` (part of `npm test`) proves the six cases in 0.7 and that each workflow runs the guard before its production step. Never weaken, skip or remove the guard, its test or these workflow steps to make another task pass.
+- The same guard file lives in the R&L repository; the two copies differ only in the `LOCAL_PROJECT` line. Change the identity table only on explicit owner instruction, in both repositories.
+- Not covered (environment limit): Cloudflare Workers Builds has no Actions/git context, so verify its repository connection and target Worker in Cloudflare instead.
+
+### 0.6 Session and context safety
+At the start of every new session recover the project identity from this repository and its instructions. Never assume that an earlier conversation, copied prompt, checkpoint or CI identifier belongs to this project. If a prompt contains conflicting project identifiers, stop and ask. Never silently correct a conflict by switching projects.
+
+### 0.7 Verification matrix
+REGA task in the REGA repository — ALLOW. R&L task in the R&L repository — ALLOW. REGA task in the R&L repository — BLOCK. R&L task in the REGA repository — BLOCK. Mixed repository/domain identifiers — BLOCK. Unknown or ambiguous project identity — BLOCK. A blocked run makes no production or database change: the guard runs first and edits nothing.
+
 ## 1. Foundation rule (REGA is a finished house)
 - The foundation is fixed. Architecture and structure are not changed without a real reason.
 - Routing and navigation are not disturbed by small requests.
