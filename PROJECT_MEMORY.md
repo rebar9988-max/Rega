@@ -480,3 +480,28 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
   authenticated `/dr` verification and live owner upload/staff approval remain unverified; no physical-device test.
 - Next safe continuation point: attach an authorized management session securely (variable/path names only) to verify `/dr` for a
   real role, then exercise one live owner upload/crop and staff approval. Open PRs #43, #39, #38, #35, #10 remain untouched.
+
+## Final production completion pass — 2026-10-22 (branch `claude/rega-platform-checkpoint-ucgcwf`)
+- Authorized session: BLOCKED. This session has no REGA session cookie, storage state or session variable (checked by name
+  only). Repository secrets `SEED_ADMIN_EMAIL`/`SEED_ADMIN_PASSWORD` and `AUTH_SECRET` exist, but signing in with them or minting
+  a JWT would be credential use / session forgery, not an existing authorized session; not done. Authenticated SUPER_ADMIN `/dr`
+  rendering and the live owner upload/crop/submit + staff approval on production therefore remain unverified.
+- Production data (single read-only Neon query, project `rega-platform`, no PII): 3 businesses, none approved:
+  `karwans-hairtuning` pending/unverified beauty-barber DE, `sky-berlin` pending/unverified travel-tickets IQ, `taakline`
+  draft/unverified transport-moving IQ (unchanged since 2026-10-21). No genuine approved business exists, so "approved appears in
+  the correct country/category" cannot be shown live without a real staff decision; no test data was created.
+- Live privacy check (anonymous, Firecrawl, after release `506d302e`): all three `/de/business/<slug>` -> 404; API
+  `?q=sky|karwan|taakline` -> 0; `/de/search?q=sky berlin` -> "0 Ergebnisse"; `/de/businesses?country=IQ&category=travel-tickets`
+  and `?country=DE&category=beauty-barber` -> 0 results; `status=draft|pending` -> 0.
+- Journey evidence on the deployed commit `1bee9c3` (app code identical to `d25d69c`): main CI `39757908801` 306/306 incl. owner
+  registration + real upload/crop + draft autosave + submit (pending) + owner category change 403 + staff approval -> published
+  + stale-autosave protection + public listing in its category with the stored 512 px logo, on iPhone 13 (WebKit), desktop and
+  Pixel 5; local re-run on a fresh DB: business-publication, security and admin-business specs 27/27 (desktop + Pixel 5).
+  This is tested, not production-verified.
+- Open PR review (none merged): #43 owner workspace (44 files; header/footer/nav/auth UI) conflicts with deployed #42 in
+  `actions.ts`, `BusinessForm.tsx` and all 7 message catalogues -> needs rebase and owner design approval; #38 footer wrap (merges
+  cleanly; visual change, needs owner approval under the design freeze); #39 autonomy protocol and #29 old migration memory
+  (conflict only in PROJECT_MEMORY.md); #35 skill docs and #10 diagnostics input (merge cleanly, no runtime effect); #46 docs-only
+  release memory from a parallel session (overlaps this entry).
+- Memory sync: every merge to `main` (docs included) runs full CI and redeploys (no path filter; changing that needs an owner
+  decision). Merge exactly ONE docs change (this branch or #46) together with the next real code change. Central Doc updated.
