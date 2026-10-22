@@ -459,10 +459,25 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
   `39760925614` succeeded for that exact SHA (OpenNext build + `wrangler deploy`, 10:11 UTC); `Beta health` `39760925505`
   and the read-only `Production browser check` `39761148783` (live site, desktop + mobile Chromium) passed afterwards.
   This also ships PR #42 (business registration, safe image crop/upload, category-scoped directory), which main CI had
-  blocked since `d25d69c`. `Workers Builds: rega-platform` is red on PR heads (also on #42) and fails in under a second; it
-  is not a gate (docs/DEPLOYMENT.md) and its Cloudflare-side reason is unverified.
+  blocked since `d25d69c`. `Workers Builds: rega-platform` is red on PR heads (also on #42); its GitHub check run
+  starts and completes in the same second, but that only reflects when Cloudflare reports it (PR #10 recorded PR builds
+  running ~2 minutes before failing), so it does not show where the build fails. It is not a gate (docs/DEPLOYMENT.md) and its Cloudflare-side reason is unverified.
 - Not verified (environment limits, not code failures): this session's network policy returns 403 for
-  `www.regaplatform.com`, and there is no Cloudflare dashboard access, so the active version at 100% was not read directly.
+  `www.regaplatform.com`, and there is no Cloudflare dashboard access (the active version was later read via the API; see the next entry).
   Authenticated live checks (sign-in, business publish, real image upload) were not run: no authorized production
   session exists and those actions write production data. Next safe continuation: attach an authorized test session or
   allow the host, then run those flows; owner may also check Cloudflare Workers Builds settings.
+
+## Workers Builds diagnosis and live-version check — 2026-10-22
+- Read-only `Cloudflare diagnostics` run `39768663995` (branch `claude/resume-codex-fix-ci-deploy-161xax`, with the
+  build-log step from open PR #10) for build `f2ee1ece-4cfd-4b22-bcca-193001093830` (PR #46):
+  `GET /accounts/{id}/builds/builds/{id}/logs` returned `{"code":12004,"message":"Forbidden"}`. The repository token
+  lists secrets, deployments and versions but has no Workers Builds read permission. Root cause of the red
+  `Workers Builds: rega-platform` check: UNKNOWN; diagnosis blocked by PERMISSIONS. Nothing was changed in the
+  Workers Builds integration. Owner action: add Workers Builds read to that API token (then re-run the diagnostics
+  with the build id), or read the build log in the dashboard (Workers → rega-platform → Builds).
+- Same run, live state via the Cloudflare API: latest deployment 2026-10-22T10:11:10Z serves version
+  `506d302e-a9ed-4789-9545-d7d1df72bbec` at 100%, created 10:11:06Z inside deploy run `39760925614` for `1bee9c3`, so
+  `1bee9c3` is verified live. All listed versions come from wrangler uploads; none from Workers Builds.
+- `ad1c755` (#46, docs-only) main CI `39768050765` was still running at the time of this entry.
+- Isolation: REGA only; `rega-cargo` / rlgo.net were not accessed.
