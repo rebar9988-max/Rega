@@ -15,6 +15,10 @@ import { maskEmail } from "@/lib/client-ip";
 import { writeAudit } from "@/lib/audit";
 import {
   CODE_TTL_MINUTES,
+  DURABLE_FAIL_DAY_LIMIT,
+  DURABLE_SEND_DAY_LIMIT,
+  DURABLE_SEND_HOUR_LIMIT,
+  OWNER_PASSWORD_FAIL_HOUR_LIMIT,
   MAX_ATTEMPTS,
   RESEND_COOLDOWN_SECONDS,
   SEND_HOUR_LIMIT,
@@ -26,6 +30,9 @@ import {
   newAdminCode,
   normalizeEmail,
 } from "./admin-code-core";
+
+const HOUR_MS = 60 * 60_000;
+const DAY_MS = 24 * HOUR_MS;
 
 export type SendResult = { sent: true } | { error: "email" | "rate" | "unavailable" };
 export type VerifyResult =
@@ -55,17 +62,6 @@ export async function requestAdminCode(rawEmail: unknown, ip: string): Promise<S
   const email = normalizeEmail(rawEmail);
   if (!email) return { error: "email" };
 
-  const now = new Date();
-  // Cooldown first, so a too-early resend does not spend the hourly budget.
-  const live = await prisma.adminSignInCode.findUnique({ where: { email } });
-  if (
-    live &&
-    live.expiresAt > now &&
-    (live.sentAt > new Date(now.getTime() - RESEND_COOLDOWN_SECONDS * 1000) ||
-      live.attempts >= MAX_ATTEMPTS)
-  ) {
-    return { error: "rate" };
-  }
   if (
     !(await allowShared("LOGIN_LIMITER", `dr-code-send:${email}`, SEND_HOUR_LIMIT, 60 * 60_000)) ||
     !(await allowShared("LOGIN_LIMITER", `dr-code-ip:${ip}`, SEND_HOUR_LIMIT * 3, 60 * 60_000))
@@ -73,21 +69,44 @@ export async function requestAdminCode(rawEmail: unknown, ip: string): Promise<S
     return { error: "rate" };
   }
 
+  const account = await dashboardAccount(email);
+  if (!account) {
+    // The same answer as a served address: no mail, no code and nothing written for an address that is not served.
+    log.info("auth.dr_code.not_served", { email: maskEmail(email) });
+    return { sent: true };
+  }
+
+  // Durable limits across every instance (audit trail), before anything is reserved or sent.
+  if (
+    (await ownerEvents(account.id, "auth.dr_code.sent", HOUR_MS)) >= DURABLE_SEND_HOUR_LIMIT ||
+    (await ownerEvents(account.id, "auth.dr_code.sent", DAY_MS)) >= DURABLE_SEND_DAY_LIMIT ||
+    (await ownerEvents(account.id, "auth.dr_code.failed", DAY_MS)) >= DURABLE_FAIL_DAY_LIMIT
+  ) {
+    log.warn("auth.dr_code.durable_limit", { userId: account.id });
+    return { error: "rate" };
+  }
+
+  const now = new Date();
   const code = newAdminCode();
   const codeHash = await hashAdminCode(serverEnv().AUTH_SECRET, email, code);
   const expiresAt = new Date(now.getTime() + CODE_TTL_MINUTES * 60_000);
-  // Reserve before delivery, so two concurrent requests cannot both pass the cooldown.
-  await prisma.adminSignInCode.upsert({
-    where: { email },
-    create: { email, codeHash, state: "pending", expiresAt, attempts: 0, sentAt: now },
-    update: { codeHash, state: "pending", expiresAt, attempts: 0, sentAt: now },
+  // Reserve atomically: only one request per cooldown wins, even when several arrive at once on different instances.
+  const cooldownStart = new Date(now.getTime() - RESEND_COOLDOWN_SECONDS * 1000);
+  const replaced = await prisma.adminSignInCode.updateMany({
+    where: {
+      email,
+      sentAt: { lte: cooldownStart },
+      OR: [{ expiresAt: { lte: now } }, { attempts: { lt: MAX_ATTEMPTS } }],
+    },
+    data: { codeHash, state: "pending", expiresAt, attempts: 0, sentAt: now },
   });
-
-  const account = await dashboardAccount(email);
-  if (!account) {
-    // The same answer as a served address, but no mail and no usable code.
-    log.info("auth.dr_code.not_served", { email: maskEmail(email) });
-    return { sent: true };
+  if (replaced.count !== 1) {
+    try {
+      await prisma.adminSignInCode.create({ data: { email, codeHash, state: "pending", expiresAt, attempts: 0, sentAt: now } });
+    } catch {
+      // A row exists and is still in its cooldown (or a parallel request just created one).
+      return { error: "rate" };
+    }
   }
 
   const delivered = await sendEmail({
@@ -113,6 +132,7 @@ export async function requestAdminCode(rawEmail: unknown, ip: string): Promise<S
     where: { email, codeHash, state: "pending", expiresAt: { gt: new Date() } },
     data: { state: "active" },
   });
+  await writeAudit({ actorId: account.id, actorEmail: email, action: "auth.dr_code.sent", entity: "User", entityId: account.id });
   log.info("auth.dr_code.sent", { email: maskEmail(email) });
   return { sent: true };
 }
@@ -127,6 +147,15 @@ export async function verifyAdminCode(
   const code = cleanCode(rawCode);
   if (!email || !code) return { error: "code" };
   if (!(await allowShared("LOGIN_LIMITER", `dr-code-verify:${ip}`, VERIFY_HOUR_LIMIT, 60 * 60_000))) {
+    return { error: "rate" };
+  }
+  // Codes only ever exist for the owner's account; anything else has nothing to check.
+  const account = await dashboardAccount(email);
+  if (!account) return { error: "code" };
+  // Too many wrong codes today: no further guesses, and the current code is withdrawn.
+  if ((await ownerEvents(account.id, "auth.dr_code.failed", DAY_MS)) >= DURABLE_FAIL_DAY_LIMIT) {
+    await prisma.adminSignInCode.deleteMany({ where: { email } });
+    log.warn("auth.dr_code.durable_limit", { userId: account.id });
     return { error: "rate" };
   }
 
@@ -145,6 +174,8 @@ export async function verifyAdminCode(
 
   const expected = await hashAdminCode(serverEnv().AUTH_SECRET, email, code);
   if (!codesMatch(expected, row.codeHash)) {
+    // Recorded durably: the daily wrong-code limit counts these rows.
+    await writeAudit({ actorId: account.id, actorEmail: email, action: "auth.dr_code.failed", entity: "User", entityId: account.id });
     log.warn("auth.dr_code.wrong", { email: maskEmail(email) });
     return { error: "code" };
   }
@@ -154,6 +185,21 @@ export async function verifyAdminCode(
   });
   if (consumed.count !== 1) return { error: "code" };
   return { ok: true, email };
+}
+
+/** How many audit rows of one kind the owner's account has within the last `withinMs` (uses the actorId/createdAt index). */
+async function ownerEvents(actorId: string, action: string, withinMs: number): Promise<number> {
+  return prisma.auditLog.count({ where: { actorId, action, createdAt: { gte: new Date(Date.now() - withinMs) } } });
+}
+
+/** True while the owner's account has had too many wrong passwords in the last hour (durable, all instances). */
+export async function ownerPasswordLocked(userId: string): Promise<boolean> {
+  return (await ownerEvents(userId, "auth.password.failed", HOUR_MS)) >= OWNER_PASSWORD_FAIL_HOUR_LIMIT;
+}
+
+/** Audit every password sign-in attempt on the owner's account: failures feed the durable limit, successes the trail. */
+export async function recordOwnerPassword(user: { id: string; email: string }, ok: boolean): Promise<void> {
+  await writeAudit({ actorId: user.id, actorEmail: user.email, action: ok ? "auth.password.sign_in" : "auth.password.failed", entity: "User", entityId: user.id });
 }
 
 /** The account to open a session for, re-read after the code was spent. */

@@ -21,8 +21,8 @@ import { maskEmail } from "@/lib/client-ip";
 import { completeSocialSignIn } from "@/features/auth/oauth";
 import { oauthCredentials } from "@/features/auth/oauth-core";
 import { recordAuthErrorCause } from "@/features/auth/oauth-diagnostics";
-import { SESSION_MAX_AGE_SECONDS, passwordChanged, passwordMarker } from "@/features/auth/session-policy";
-import { effectiveRole, type Role } from "@/lib/rbac";
+import { SESSION_MAX_AGE_SECONDS, passwordChanged, passwordMarker, superAdminSessionExpired } from "@/features/auth/session-policy";
+import { effectiveRole, isSuperAdminEmail, type Role } from "@/lib/rbac";
 
 /** How often a signed-in session re-checks role/status against the database. */
 const REVALIDATE_MS = Number(process.env.AUTH_SESSION_REVALIDATE_MS ?? 5 * 60_000);
@@ -120,8 +120,17 @@ export function buildAuthConfig(): NextAuthConfig {
           // Constant-ish response: always run a full cost-12 hash comparison. The stand-in must be a well-formed
           // 60-character bcrypt hash: bcryptjs answers `false` at once for any other length (no hashing at all),
           // which made unknown e-mail addresses answer measurably faster than real accounts (user enumeration).
+          // The owner's account (the only effective SUPER_ADMIN): durable, cross-instance limit on wrong passwords,
+          // counted from the audit trail; the in-memory/edge limiter above alone resets per instance and per minute.
+          const owner = user && isSuperAdminEmail(user.email) ? user : null;
+          const { ownerPasswordLocked, recordOwnerPassword } = await import("@/features/auth/admin-code");
+          if (owner && (await ownerPasswordLocked(owner.id))) {
+            log.warn("auth.login.owner_locked", { userId: owner.id });
+            return null;
+          }
           const hash = user?.passwordHash ?? DUMMY_HASH;
           const ok = await bcrypt.compare(password, hash);
+          if (owner) await recordOwnerPassword(owner, ok && owner.status === "active");
 
           if (!user || !ok || user.status !== "active") {
             log.warn("auth.login.failed", { email: maskEmail(email), reason: !user ? "unknown_user" : "bad_credentials" });
@@ -211,10 +220,16 @@ export function buildAuthConfig(): NextAuthConfig {
           token.uid = user.id;
           // SUPER_ADMIN only for the owner's address, whichever provider signed in (rbac.effectiveRole).
           token.role = effectiveRole(user.role, user.email);
+          token.authAt = Date.now(); // sign-in time: a SUPER_ADMIN session ends 7 days after it, however it is renewed
           token.locale = user.locale ?? "ckb";
           token.checkedAt = Date.now();
           if (user.pv) token.pv = user.pv; // password marker of this sign-in (social sign-ins get theirs at the first re-check)
           return token;
+        }
+        // The most powerful session has a fixed lifetime from its sign-in (session-policy.ts).
+        if (superAdminSessionExpired(effectiveRole(token.role as Role | undefined, token.email as string | undefined), token.authAt, Date.now())) {
+          log.info("auth.session.super_admin_expired", { userId: String(token.uid ?? "") });
+          return null;
         }
         // JWTs live 90 days (renewed while used): re-read role, status and password marker regularly so a demoted, suspended
         // or deleted account, or one whose password was changed or reset, loses its sessions within minutes

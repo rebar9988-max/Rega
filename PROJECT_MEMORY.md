@@ -502,3 +502,13 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
 - Change: `SUPER_ADMIN_EMAILS` + `effectiveRole` in `src/lib/rbac.ts` (fails closed to USER); applied in `auth.config.ts` (jwt sign-in + revalidation, session callback) and `auth-helpers.ts` (`currentUser`, `currentAccount`). `user-admin.ts` refuses to give SUPER_ADMIN to another address and counts only the owner as "last SUPER_ADMIN". /dr code allowlist now reuses the same constant. No database row changed: regaplatform1@gmail.com keeps its stored role but acts as USER.
 - Also fixed: the hourly `Beta health` check still expected anonymous /dr/ai -> 307 (failed 21:41 UTC on fa32c81 although production was correct); it now requires the /dr sign-in form only.
 - Tests: `tests/super-admin-owner.test.ts`; E2E `security.spec.ts` "SUPER_ADMIN power exists only for the owner's address"; the E2E SUPER_ADMIN fixture uses the owner address (throw-away CI DB, no mail provider).
+
+## /dr security review and hardening — 2026-10-23
+- Owner request: review /dr security (weak points or not); owner chose item 4 (90-day session) and asked to audit OTP, all sign-in methods, session lifetime and audit logging, fixing only confirmed issues while preserving owner access.
+- Confirmed weak points and fixes:
+  - `allowShared` keeps long windows only in memory per isolate; the edge binding is 10/60 s. The hourly code/verify/password caps therefore did not hold across Workers (about 600 code guesses/h, password about 10/min). Fix: durable limits from the audit trail for the owner's account only (`auth.dr_code.sent` 5/h + 12/day, `auth.dr_code.failed` 10/day, `auth.password.failed` 10/h).
+  - Code rows were written for any address; now only for the served owner account. Reservation is an atomic conditional update/create (no cooldown race).
+  - SUPER_ADMIN sessions lived 90 days; now they end 7 days after sign-in (`token.authAt`, `superAdminSessionExpired`). Other roles unchanged.
+  - Failed codes/passwords were only logged; now audited. `setMessageStatus` was the only dashboard mutation without an audit row.
+- Verified without change: owner-only SUPER_ADMIN on every route (#51), OAuth cannot grant it, codes HMAC-stored, single use, constant-time compare, neutral answers, no codes or secrets in logs, server-action origin checks.
+- Accepted trade-off (reported to owner): the durable limits let an attacker temporarily pause the owner's code or password sign-in (up to a day / an hour); the other method keeps working. Password sign-in for the owner stays (owner access preserved; not changed without an explicit owner decision).
