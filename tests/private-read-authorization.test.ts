@@ -27,7 +27,10 @@ function requestFor(route: string, role: rbac.Role | null | Error, { anonymous =
         assert.equal(query.where.status, "active");
         assert.equal(query.where.deletedAt, null);
         if (role instanceof Error) throw role;
-        return role ? { id: "actor", role, email: "current@example.org" } : null;
+        // SUPER_ADMIN is honoured only on the owner's address (rbac.SUPER_ADMIN_EMAILS); "SUPER_ADMIN_OTHER" stands for
+        // a stored SUPER_ADMIN role on any other address.
+        if (role === ("SUPER_ADMIN_OTHER" as rbac.Role)) return { id: "actor", role: "SUPER_ADMIN", email: "other-admin@example.org" };
+        return role ? { id: "actor", role, email: role === "SUPER_ADMIN" ? rbac.SUPER_ADMIN_EMAILS[0] : "current@example.org" } : null;
       } },
       business: {
         count: async (q: Query) => isVisible(q) ? 1 : 0,
@@ -70,7 +73,8 @@ function requestFor(route: string, role: rbac.Role | null | Error, { anonymous =
 
 for (const route of routes) {
   test(`${route}: a cached staff role cannot expose drafts after demotion or account removal`, async () => {
-    for (const role of ["USER", "BUSINESS_OWNER", null] as const) {
+    // "SUPER_ADMIN_OTHER": a stored SUPER_ADMIN on a non-owner address is treated as USER.
+    for (const role of ["USER", "BUSINESS_OWNER", null, "SUPER_ADMIN_OTHER" as rbac.Role] as const) {
       const req = requestFor(route, role);
       const response = await req.get();
       assert.equal(response.status, route.includes("[id]") ? 404 : 200);
