@@ -503,3 +503,20 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
 - Cloudflare verification: not applicable — no runtime, Worker, route or deployment change.
 - Production impact: none at merge time beyond one extra read-only step before the existing production steps; if the guard ever blocks a legitimate run, the workflow fails before changing anything.
 - Next safe continuation point: confirm CI is green on the PR, then re-run the guard from the first real `Deploy to Cloudflare Workers` run after merge and record its result here.
+
+## /dr owner-access audit and 403 diagnosis — 2026-10-22 (read-only, no code or data change)
+- Identity guard: `node scripts/project-identity-guard.mjs --project REGA --domain www.regaplatform.com --worker rega-platform` -> OK.
+- Live after deploy `39774721716` (`df79250`, PR #48): Beta health `39774721718` at ~12:00 UTC from GitHub runners —
+  `/api/v1/health` 200 `ok=true database=ok auth=true`; `/de/login` 200 with password field; anonymous `/dr` and `/dr/ai`
+  307 to login; anonymous POSTs to businesses/categories/locations/bulk/media upload-url 401; CSP/HSTS/nosniff/DENY/
+  referrer/permissions headers present. Production browser check `39775026675` passed.
+- The 403 seen in Claude sessions is this sandbox's egress proxy (`gateway answered 403 to CONNECT ... www.regaplatform.com`),
+  not production. Production answered 200/307/401 as designed from GitHub runners.
+- `/dr` authorization (code): `src/app/dr/layout.tsx` re-reads the account from the database (`currentAccount()`), not the
+  cached JWT; with `PRIVATE_BETA` only SUPER_ADMIN enters; nav items filtered by `can(role, permission)` (`src/lib/rbac.ts`,
+  SUPER_ADMIN = `*`); API/server handlers use the same permission matrix (PR #41). No defect found; nothing changed.
+- Owner SUPER_ADMIN: memory records one active SUPER_ADMIN in production (address not recorded). The repository secrets
+  `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` are empty (db-migrate run `39384519799` shows both blank), so GitHub cannot
+  show which address holds the role. Not verified that rebar9988@gmail.com is that account; no role was changed (a
+  production role change is a security action needing the owner's secure confirmation and DB access this session lacks).
+- Authenticated owner login and every /dr feature were not exercised on production (no authorized session).
