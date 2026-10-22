@@ -454,3 +454,15 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
 - Fix (test layer only, `tests/e2e/fixtures.ts`): the shared `goto` wrapper lets the page being left finish its in-flight
   requests (bounded 10 s) before navigating. The strict `networkidle` check on the destination page is unchanged; no retry
   count, timeout or assertion was loosened. Probe with the same pre-wait: 0 hangs in 80 logins.
+- Release verification — 2026-10-22: PR #44 merged as `1bee9c3`. Main CI `39757908801` passed (lint, typecheck, unit, Node
+  build, full desktop/mobile/iPhone E2E, Worker build + workerd smoke). The CI-gated `Deploy to Cloudflare Workers`
+  `39760925614` succeeded for that exact SHA (OpenNext build + `wrangler deploy`, 10:11 UTC); `Beta health` `39760925505`
+  and the read-only `Production browser check` `39761148783` (live site, desktop + mobile Chromium) passed afterwards.
+  This also ships PR #42 (business registration, safe image crop/upload, category-scoped directory), which main CI had
+  blocked since `d25d69c`. `Workers Builds: rega-platform` is red on PR heads (also on #42) and fails in under a second; it
+  is not a gate (docs/DEPLOYMENT.md) and its Cloudflare-side reason is unverified.
+- Not verified (environment limits, not code failures): this session's network policy returns 403 for
+  `www.regaplatform.com`, and there is no Cloudflare dashboard access, so the active version at 100% was not read directly.
+  Authenticated live checks (sign-in, business publish, real image upload) were not run: no authorized production
+  session exists and those actions write production data. Next safe continuation: attach an authorized test session or
+  allow the host, then run those flows; owner may also check Cloudflare Workers Builds settings.
