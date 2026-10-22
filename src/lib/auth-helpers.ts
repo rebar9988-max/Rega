@@ -1,7 +1,7 @@
 import "server-only";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
-import { canAny, isStaff, type Permission, type Role } from "@/lib/rbac";
+import { canAny, effectiveRole, isStaff, type Permission, type Role } from "@/lib/rbac";
 
 export type SessionUser = {
   id: string;
@@ -18,7 +18,8 @@ export async function currentUser(): Promise<SessionUser | null> {
     id: session.user.id,
     email: session.user.email ?? "",
     name: session.user.name ?? null,
-    role: session.user.role ?? "USER",
+    // SUPER_ADMIN only for the owner's address, even for a session issued before that rule.
+    role: effectiveRole(session.user.role, session.user.email),
   };
 }
 
@@ -37,10 +38,12 @@ export async function currentAccount(): Promise<SessionUser | null> {
   const sessionUser = await currentUser();
   if (!sessionUser) return null;
   // Query failures propagate: a database outage cannot restore cached privileges.
-  return prisma.user.findFirst({
+  const row = await prisma.user.findFirst({
     where: { id: sessionUser.id, deletedAt: null, status: "active" },
     select: { id: true, email: true, name: true, role: true },
   });
+  // Every privileged guard reads the role here: a stored SUPER_ADMIN on any address but the owner's fails closed.
+  return row ? { ...row, role: effectiveRole(row.role, row.email) } : null;
 }
 
 /** Privileged guards must use the current account, even while the JWT's role cache is still valid. */

@@ -22,7 +22,7 @@ import { completeSocialSignIn } from "@/features/auth/oauth";
 import { oauthCredentials } from "@/features/auth/oauth-core";
 import { recordAuthErrorCause } from "@/features/auth/oauth-diagnostics";
 import { SESSION_MAX_AGE_SECONDS, passwordChanged, passwordMarker } from "@/features/auth/session-policy";
-import type { Role } from "@/lib/rbac";
+import { effectiveRole, type Role } from "@/lib/rbac";
 
 /** How often a signed-in session re-checks role/status against the database. */
 const REVALIDATE_MS = Number(process.env.AUTH_SESSION_REVALIDATE_MS ?? 5 * 60_000);
@@ -209,7 +209,8 @@ export function buildAuthConfig(): NextAuthConfig {
       async jwt({ token, user }) {
         if (user) {
           token.uid = user.id;
-          token.role = user.role ?? "USER";
+          // SUPER_ADMIN only for the owner's address, whichever provider signed in (rbac.effectiveRole).
+          token.role = effectiveRole(user.role, user.email);
           token.locale = user.locale ?? "ckb";
           token.checkedAt = Date.now();
           if (user.pv) token.pv = user.pv; // password marker of this sign-in (social sign-ins get theirs at the first re-check)
@@ -220,12 +221,12 @@ export function buildAuthConfig(): NextAuthConfig {
         // instead of keeping them until the token expires.
         if (token.uid && Date.now() - Number(token.checkedAt ?? 0) > REVALIDATE_MS) {
           try {
-            const current = await prisma.user.findFirst({ where: { id: String(token.uid), deletedAt: null }, select: { role: true, status: true, passwordHash: true } });
+            const current = await prisma.user.findFirst({ where: { id: String(token.uid), deletedAt: null }, select: { role: true, email: true, status: true, passwordHash: true } });
             if (!current || current.status !== "active") return null; // ends the session
             const marker = await passwordMarker(current.passwordHash);
             if (passwordChanged(token.pv, marker)) return null; // password changed or reset: sign in again with the new one
             token.pv = marker;
-            token.role = current.role;
+            token.role = effectiveRole(current.role, current.email);
             token.checkedAt = Date.now();
           } catch (error) {
             // Database briefly unreachable: keep the session, but never upgrade it; retry on the next request.
@@ -237,7 +238,8 @@ export function buildAuthConfig(): NextAuthConfig {
       async session({ session, token }) {
         if (session.user) {
           session.user.id = (token.uid as string | undefined) ?? "";
-          session.user.role = (token.role as Role | undefined) ?? "USER";
+          // Re-applied on every read, so a token issued before the owner-only rule never carries SUPER_ADMIN for another address.
+          session.user.role = effectiveRole(token.role as Role | undefined, (token.email as string | undefined) ?? session.user.email);
           session.user.locale = (token.locale as string | undefined) ?? "ckb";
         }
         return session;

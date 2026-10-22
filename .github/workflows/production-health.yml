@@ -181,7 +181,7 @@ jobs:
           # protected endpoints must reject anonymous callers
           if probe 401 "$base/api/v1/businesses" -X POST -H 'content-type: application/json' -d '{}'; then echo "ok   POST /api/v1/businesses (anonymous) -> 401"; else probe_fail "anonymous POST /api/v1/businesses" 401; fail=1; fi
           code=$(curl -sS -m 25 -A "$UA" -o /dev/null -w '%{http_code}' "$base/dr" || echo 000)
-          echo "info /dr (anonymous) -> $code (expected a redirect to login)"
+          echo "info /dr (anonymous) -> $code (expected 200 with the /dr sign-in form)"
           exit $fail
 
       - name: Canonical host redirects and SEO (read-only)
@@ -368,7 +368,8 @@ jobs:
             if probe 401 "https://www.regaplatform.com$p" -X POST -H 'content-type: application/json' -d '{}'; then echo "ok   anonymous POST $p -> 401"; else probe_fail "anonymous POST $p" 401; fail=1; fi
             sleep 0.3
           done
-          if probe 307 https://www.regaplatform.com/dr/ai; then echo "ok   /dr/ai (anonymous) -> 307 login"; else probe_fail "/dr/ai (anonymous)" 307; fail=1; fi
+          # Anonymous /dr pages answer with the /dr sign-in form only (e-mail code, #49), never dashboard content.
+          if probe 200 https://www.regaplatform.com/dr/ai && grep -q 'data-dr-sign-in' "$PROBE_BODY" && ! grep -q '<aside' "$PROBE_BODY"; then echo "ok   /dr/ai (anonymous) -> sign-in form only"; else echo "::error::FAIL /dr/ai (anonymous) must show only the sign-in form (HTTP $PROBE_CODE)"; fail=1; fi
           exit $fail
 
       - name: Retry record (transient failures that recovered or exhausted their retries)

@@ -93,7 +93,7 @@ test("private reads recheck roles and account status even while the session role
     // The suite normally revalidates sessions immediately. Keep this local test's JWT role cached so that
     // a passing test proves the private handlers recheck the account, independently of Auth.js renewal.
     const token = await encode({ secret: process.env.AUTH_SECRET!, salt: cookie, maxAge: 600,
-      token: { uid: original.id, sub: original.id, email: original.email, role: "SUPER_ADMIN", locale: "de", checkedAt: Date.now() + 300_000 } });
+      token: { uid: original.id, sub: original.id, email: original.email, role: "ADMIN", locale: "de", checkedAt: Date.now() + 300_000 } });
     await context.addCookies([
       { name: cookie, value: token, url: String(test.info().project.use.baseURL), httpOnly: true, sameSite: "Lax" },
       { name: "REGA_LOCALE", value: "de", url: String(test.info().project.use.baseURL) },
@@ -102,7 +102,7 @@ test("private reads recheck roles and account status even while the session role
     for (const role of ["ADMIN", "MANAGER", "EMPLOYEE", "BUSINESS_OWNER", "USER"] as const) {
       await prisma.user.update({ where: { id: original.id }, data: { role, status: "active", deletedAt: null } });
       const cached = await (await context.request.get("/api/auth/session")).json();
-      expect(cached.user.role).toBe("SUPER_ADMIN");
+      expect(cached.user.role).toBe("ADMIN");
       const staff = ["ADMIN", "MANAGER", "EMPLOYEE"].includes(role);
       const list = await context.request.get(`/api/v1/businesses?q=${marker}`);
       expect((await list.json()).data.map((b: { id: string }) => b.id)).toEqual(staff ? [business.id] : []);
@@ -125,6 +125,39 @@ test("private reads recheck roles and account status even while the session role
   } finally {
     await prisma.user.update({ where: { id: original.id }, data: { role: original.role, status: original.status, deletedAt: original.deletedAt } });
     if (businessId) await prisma.business.delete({ where: { id: businessId } });
+    await prisma.$disconnect();
+  }
+});
+
+test("SUPER_ADMIN power exists only for the owner's address: another SUPER_ADMIN account gets nothing", async ({ context, page }) => {
+  test.skip(!process.env.AUTH_SECRET, "requires the local test server's signing secret");
+  const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }) });
+  const original = await prisma.user.findUniqueOrThrow({ where: { email: EMPLOYEE.email } });
+  try {
+    // A stored SUPER_ADMIN role on a non-owner address, signed in with its password.
+    await prisma.user.update({ where: { id: original.id }, data: { role: "SUPER_ADMIN", status: "active", deletedAt: null } });
+    await page.goto(`/de/login?next=${encodeURIComponent("/dr")}`);
+    await page.getByLabel("E-Mail", { exact: true }).fill(EMPLOYEE.email);
+    await page.getByLabel("Passwort", { exact: true }).fill(EMPLOYEE.password);
+    await page.getByRole("button", { name: "Anmelden" }).click();
+    await expect(page).toHaveURL(/\/dr$/);
+    await expect(page.getByText("Dieses Konto hat keinen Verwaltungszugriff.")).toBeVisible();
+    await expect(page.locator("aside")).toHaveCount(0);
+    expect((await (await context.request.get("/api/auth/session")).json()).user.role).toBe("USER");
+    expect((await context.request.post("/api/v1/businesses", { data: { name: "x" } })).status()).toBe(403);
+
+    // A forged or old token that still says SUPER_ADMIN for that address is not honoured either.
+    const cookie = "authjs.session-token";
+    const token = await encode({ secret: process.env.AUTH_SECRET!, salt: cookie, maxAge: 600,
+      token: { uid: original.id, sub: original.id, email: original.email, role: "SUPER_ADMIN", locale: "de", checkedAt: Date.now() + 300_000 } });
+    await context.clearCookies();
+    await context.addCookies([{ name: cookie, value: token, url: String(test.info().project.use.baseURL), httpOnly: true, sameSite: "Lax" }]);
+    expect((await (await context.request.get("/api/auth/session")).json()).user.role).toBe("USER");
+    expect((await context.request.post("/api/v1/businesses", { data: { name: "x" } })).status()).toBe(403);
+    await page.goto("/dr/users");
+    await expect(page.locator("aside")).toHaveCount(0);
+  } finally {
+    await prisma.user.update({ where: { id: original.id }, data: { role: original.role, status: original.status, deletedAt: original.deletedAt } });
     await prisma.$disconnect();
   }
 });

@@ -8,16 +8,18 @@
  * a code for one address can never be replayed for another.
  */
 
+import { SUPER_ADMIN_EMAILS, isSuperAdminEmail } from "../../lib/rbac";
+
 /**
- * The only addresses /dr ever sends a code to (owner instruction, 2026-10-22: "no code to anyone
- * but rebar9988@gmail.com"). Not a secret, and deliberately in reviewed code rather than a runtime
- * variable: widening it takes a commit. The account must also be an active, verified SUPER_ADMIN.
+ * The only addresses /dr ever sends a code to (owner instruction, 2026-10-22): the same single owner address that may
+ * hold SUPER_ADMIN power at all (`SUPER_ADMIN_EMAILS` in lib/rbac.ts). The account must also be an active, verified
+ * SUPER_ADMIN.
  */
-export const DR_CODE_EMAILS: readonly string[] = Object.freeze(["rebar9988@gmail.com"]);
+export const DR_CODE_EMAILS: readonly string[] = SUPER_ADMIN_EMAILS;
 
 /** True only for an address on the /dr code allowlist (compared normalised). */
 export function mayReceiveDrCode(email: string): boolean {
-  return DR_CODE_EMAILS.includes(email.trim().toLowerCase());
+  return isSuperAdminEmail(email);
 }
 
 /** A code is usable for this long. */
