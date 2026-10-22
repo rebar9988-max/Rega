@@ -454,3 +454,29 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
 - Fix (test layer only, `tests/e2e/fixtures.ts`): the shared `goto` wrapper lets the page being left finish its in-flight
   requests (bounded 10 s) before navigating. The strict `networkidle` check on the destination page is unchanged; no retry
   count, timeout or assertion was loosened. Probe with the same pre-wait: 0 hangs in 80 logins.
+
+## Release verified: PR #42 + #44 live — 2026-10-22 10:11 UTC (branch `claude/rega-platform-checkpoint-ucgcwf`)
+- Release: `main` `1bee9c3` (PR #44 fixture fix on top of PR #42 `d25d69c`). Main CI `39757908801` success; `Deploy to Cloudflare
+  Workers` `39760925614` success (deploy step 10:10:53-10:11:11 UTC). Cloudflare diagnostics `39761862414`: deployment
+  2026-10-22T10:11:10Z, version `506d302e-a9ed-4789-9545-d7d1df72bbec` at 100% (replaces PR #41's `d52f90e9`).
+- Live verification after the deploy: Production browser check `39761148783` (browse step 10:11:42-10:16:32, i.e. after the
+  deploy) 239 ok / 0 FAIL, desktop 1366 and Pixel 5: every public locale page with correct dir (RTL/LTR) and 0 px horizontal scroll,
+  location selector journeys incl. Kurdish panel, `/dr` requires sign-in. Firecrawl live: `/dr` -> `/ckb/login?next=%2Fdr` 200;
+  anonymous `/api/v1/businesses?status=draft` and `?status=pending` -> 0 records (production holds one draft and two pending
+  listings), so PR #41's private projection still holds; `/de/businesses?country=IQ` serves the country select with IQ offered
+  and selected at zero listings and the new `category-navigation` block (PR #42 markers).
+- Independent evidence from this session (complements PR #44's entry; PR #45 with an alternative fixture fix was closed as a
+  duplicate): under CPU starvation (all processes on one core shared with a busy loop) the `/dr/businesses/new` networkidle stall
+  reproduced 3/3 on `d25d69c` and 2/2 on `59d8df1`, so it was pre-existing; with `stubBasemap`'s `page.route` disabled it did not
+  occur (2/2). Local checks of `d25d69c`: lint, typecheck, unit 292/292, fresh-DB E2E desktop+mobile 298/298. A reused local DB
+  accumulates published E2E businesses (24 in Berlin after ~12 runs) and then fails `catalog` "locations page" falsely: always
+  use a fresh database for full local E2E.
+- Codex workspace loading: rechecked; no repository-owned workspace/editor config or path-shaped tracked file. The earlier
+  conclusion stands (external URL treated as a file path; host Codex logs unavailable). Root file `rega` (4 bytes, initial import)
+  is unrelated and unchanged.
+- Environment limits of this session: shell egress to www.regaplatform.com and to the GitHub artifact store is denied by the proxy
+  (evidence came from repository workflows and Firecrawl); the Cloudflare connector returns only the Worker name/id.
+- Remaining blockers: no authorized production management session is available (none attached, none fabricated), so positive
+  authenticated `/dr` verification and live owner upload/staff approval remain unverified; no physical-device test.
+- Next safe continuation point: attach an authorized management session securely (variable/path names only) to verify `/dr` for a
+  real role, then exercise one live owner upload/crop and staff approval. Open PRs #43, #39, #38, #35, #10 remain untouched.
