@@ -439,3 +439,18 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
 - Browser evidence also confirmed a real directory city-picker geometry defect: category navigation moved the field low enough that its fixed popover extended offscreen. Positioning now chooses available space above/below and bounds its height; no style or brand changes. Existing tests still perform actual clicks, and now assert full viewport containment on either side. All 41 focused desktop business/image, language and location browser tests passed, including actual saved512px public logo bytes, RTL city selection and shared homepage/map location behavior. Lint/typecheck/Node build passed. Full exact-head hosted CI and final mobile/WebKit checks are next; phase2 remains undeployed. No production data/schema/permissions/infrastructure changes.
 
 - Final local mobile browser16/16 passed (WebKit/iPhone13 and Chromium/Pixel5); focused total57/57, including real S3 bytes/crop/retry/submission/approval. Hosted CI39736412806 passed Python, lint, typecheck,292/292 unit/integration (zero skipped) and Node build, then failed before any browser cases: `Cannot install dependencies for ubuntu26.04-x64 with Playwright 1.56.1`. The runner's ubuntu-latest moved to26.04; this is a verified OS compatibility failure, not an application regression. Pin only the two browser-running workflows (CI and production-browser) to supported ubuntu-24.04, matching the already passing local Noble browser image. No Playwright upgrade, weakened checks, app change or deployment bypass. New exact-head full CI required before merge; existing production unchanged.
+
+## CI recovery after PR #42 merge — 2026-10-22
+- Resumed from Codex checkpoint. The reported "PR #145" does not exist; the business registration/image work is PR #42,
+  already merged to `main` as `d25d69c`. Nothing was recreated or reverted. The PR's own CI (`39737361652`, head
+  `13edf12`, same tree) passed; push-to-main CI `39739599053` (attempt 2) failed only in E2E, so the CI-gated deploy
+  workflow was skipped and #42 was not yet deployed.
+- Failure: `[desktop] admin-business.spec.ts` `page.goto('/dr/businesses/new', networkidle)` timed out (304 passed, 2 tests
+  affected, always the first navigation straight after `login()`). No `/api/auth/*` HTTP 500 appears in this run's log.
+- Root cause (reproduced): a test-harness race, not an app defect. A signed-in `/dr` page fires a second batch of RSC link
+  prefetches right after render; navigating away mid-batch leaves requests Chromium cancels without Playwright seeing them
+  finish, so `networkidle` never settles. Isolated probe: 1 hang in 40 fresh logins; the server answered every request.
+  Full local desktop run also reproduced it once on a different test of the same file.
+- Fix (test layer only, `tests/e2e/fixtures.ts`): the shared `goto` wrapper lets the page being left finish its in-flight
+  requests (bounded 10 s) before navigating. The strict `networkidle` check on the destination page is unchanged; no retry
+  count, timeout or assertion was loosened. Probe with the same pre-wait: 0 hangs in 80 logins.
