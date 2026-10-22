@@ -9,7 +9,9 @@ import bcrypt from "bcryptjs";
 import { startFakeAi } from "./fake-ai";
 import { isMissingBusinessTable } from "./database-safety";
 
-export const ADMIN = { email: "admin@example.org", password: "correct-horse-battery" };
+// The E2E SUPER_ADMIN uses the owner's address: SUPER_ADMIN power is honoured for that address only (rbac.SUPER_ADMIN_EMAILS).
+// Throw-away test database, no e-mail provider configured in CI, so nothing is ever sent to it.
+export const ADMIN = { email: "rebar9988@gmail.com", password: "correct-horse-battery" };
 export const EMPLOYEE = { email: "employee@example.org", password: "employee-pass-123" };
 
 /** Demo slugs this setup creates and resets; any other published business means the database holds real data. */

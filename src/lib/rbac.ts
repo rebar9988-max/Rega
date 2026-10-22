@@ -10,6 +10,25 @@
 export const ROLES = ["SUPER_ADMIN", "ADMIN", "MANAGER", "EMPLOYEE", "BUSINESS_OWNER", "USER"] as const;
 export type Role = (typeof ROLES)[number];
 
+/**
+ * The only address that may ever hold SUPER_ADMIN power (owner instruction, 2026-10-22: "only rebar9988@gmail.com is the
+ * administrator"). A SUPER_ADMIN role stored on any other account is never honoured: `effectiveRole` treats it as USER
+ * everywhere a role is read for authorization (sign-in, session, current account). Not a secret, and deliberately in
+ * reviewed code rather than a runtime variable: widening it takes a commit. The stored role is left unchanged.
+ */
+export const SUPER_ADMIN_EMAILS: readonly string[] = Object.freeze(["rebar9988@gmail.com"]);
+
+/** True only for an address on SUPER_ADMIN_EMAILS (compared trimmed and lower-cased). */
+export function isSuperAdminEmail(email: string | null | undefined): boolean {
+  return typeof email === "string" && SUPER_ADMIN_EMAILS.includes(email.trim().toLowerCase());
+}
+
+/** The role an account may act with: its stored role, except that SUPER_ADMIN on a non-owner address fails closed to USER. */
+export function effectiveRole(role: Role | string | null | undefined, email: string | null | undefined): Role {
+  const stored = (ROLES as readonly string[]).includes(String(role)) ? (role as Role) : "USER";
+  return stored === "SUPER_ADMIN" && !isSuperAdminEmail(email) ? "USER" : stored;
+}
+
 export const PERMISSIONS = [
   "business.read",
   "business.write",

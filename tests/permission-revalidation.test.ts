@@ -51,8 +51,18 @@ test("database failure never restores cached administrator privileges", async ()
 
 test("allowed requests return current account details and role", async () => {
   const current = actor("MANAGER");
-  assert.equal(await guards(current).permission("business.publish"), current);
-  assert.equal(await guards(current).staff(), current);
+  // currentAccount returns a copy carrying the effective role, created inside the vm context: compare its fields.
+  assert.deepEqual({ ...(await guards(current).permission("business.publish")) }, current);
+  assert.deepEqual({ ...(await guards(current).staff()) }, current);
+});
+
+test("a stored SUPER_ADMIN on any address but the owner's has no privileges", async () => {
+  const other = actor("SUPER_ADMIN"); // current@example.org
+  await assert.rejects(guards(other).permission("user.role"), { status: 403 });
+  await assert.rejects(guards(other).staff(), { status: 403 });
+  const owner = { ...actor("SUPER_ADMIN"), email: rbac.SUPER_ADMIN_EMAILS[0]! };
+  assert.equal((await guards(owner).permission("user.role")).role, "SUPER_ADMIN");
+  assert.equal((await guards(owner).staff()).role, "SUPER_ADMIN");
 });
 
 test("anonymous guards fail before querying the database", async () => {
