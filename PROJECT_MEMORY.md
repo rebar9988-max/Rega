@@ -24,6 +24,15 @@ If memory conflicts with verified live state, live state wins and memory must be
 - Cloudflare Worker: `rega-platform`
 - Production branch: `main`
 
+## PERMANENT P0 RULE — REGA / R&L project isolation (owner instruction, 2026-10-22)
+**REGA ≠ R&L. Never mix. Never silently switch. Always verify. Stop automatically on mismatch.** Full rule: `CLAUDE.md` section 0.
+- PROJECT A — REGA Platform: repository `rebar9988-max/Rega`, production `https://www.regaplatform.com`, Workers `rega-platform` / `rega-ai-python`. **This repository.**
+- PROJECT B — R&L Marketplace & Delivery: repository `rebar9988-max/rega-cargo`, production `https://www.rlgo.net`, Workers `rega-cargo` / `rega-cargo-staging`. A separate repository, database, Worker and domain set.
+- Before any edit, migration, commit, PR, merge or deployment verify repository owner/name, git remote, branch, production domain and deployment configuration, and that every referenced PR, commit, CI run and Cloudflare resource belongs to this repository. A PR number or CI run ID alone never identifies a project.
+- On any mismatch: STOP (fail closed), change nothing, show the Sorani error from `CLAUDE.md` 0.3, report expected vs detected project, conflicting identifiers and operations already performed, and resume only after explicit owner confirmation.
+- Enforced by `scripts/project-identity-guard.mjs` (read-only, no dependencies), run before the production step of `deploy.yml`, `db-migrate.yml`, `worker-secrets-sync.yml` and `ai-python-deploy.yml`, and tested by `tests/project-identity-guard.test.ts`. Not covered: Cloudflare Workers Builds (no Actions/git context) — verify its repository connection in Cloudflare.
+- Never mix between the projects: code, database connections/migrations, Cloudflare Workers/bindings, environments, variables/secrets, branches/commits/PRs, CI/CD and run IDs, authentication, domains/routing, project memory/checkpoints, design/branding/assets.
+
 ## Verified checkpoint — 2026-10-15
 - Cloudflare Worker `rega-platform` exists.
 - Routes observed: `www.regaplatform.com/*` and `regaplatform.com/*`.
@@ -485,3 +494,12 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
   `1bee9c3` is verified live. All listed versions come from wrangler uploads; none from Workers Builds.
 - `ad1c755` (#46, docs-only) main CI `39768050765` was still running at the time of this entry.
 - Isolation: REGA only; `rega-cargo` / rlgo.net were not accessed.
+
+## P0 project-isolation rule and identity guard — 2026-10-22
+- Task: owner's permanent P0 rule "STRICT REGA / R&L PROJECT ISOLATION" persisted in this repository (and, separately, in `rebar9988-max/rega-cargo`).
+- Root cause: none (preventive). Two similarly named projects share tooling (Cloudflare account, GitHub owner, Prisma/Wrangler/CI patterns), so a copied prompt, PR number or CI run ID could be applied to the wrong repository.
+- Change: `CLAUDE.md` section 0 (full rule), `AGENTS.md` pointer, this file, `scripts/project-identity-guard.mjs`, a guard step before the production step of `deploy.yml`, `db-migrate.yml`, `worker-secrets-sync.yml`, `ai-python-deploy.yml`, and `tests/project-identity-guard.test.ts`. No application code, UI, dependency, route, secret, database or Cloudflare configuration changed.
+- Tests run (local, Node 22 type-stripping runner; this session has no npm registry access, so `npm ci`, lint, typecheck and the full suite were not run locally): `tests/project-identity-guard.test.ts` — the six owner scenarios (allow, allow, block, block, mixed block, unknown block), the exact Sorani error, CLI exit codes, read-only guarantee and guard-before-production ordering in all four workflows.
+- Cloudflare verification: not applicable — no runtime, Worker, route or deployment change.
+- Production impact: none at merge time beyond one extra read-only step before the existing production steps; if the guard ever blocks a legitimate run, the workflow fails before changing anything.
+- Next safe continuation point: confirm CI is green on the PR, then re-run the guard from the first real `Deploy to Cloudflare Workers` run after merge and record its result here.
