@@ -11,6 +11,7 @@ const db = new PrismaClient({
   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL! }),
 });
 const stamp = Date.now().toString(36);
+const uploadedBusinessIds: string[] = [];
 async function login(page: Page, who = ADMIN) {
   await page.goto("/de/login?next=%2Fdr");
   await page.getByLabel("E-Mail", { exact: true }).fill(who.email);
@@ -18,7 +19,15 @@ async function login(page: Page, who = ADMIN) {
   await page.getByRole("button", { name: "Anmelden" }).click();
   await expect(page).toHaveURL(/\/dr(?:\/businesses)?$/);
 }
-test.afterAll(async () => db.$disconnect());
+test.afterAll(async () => {
+  try {
+    // The local fake object store lives for one test run. Retain the rows, but stop serving image fixtures afterwards.
+    for (const id of uploadedBusinessIds) {
+      await db.business.update({where:{id},data:{status:"archived",verified:false,archivedAt:new Date()}});
+      await reindexBusinessTree(db,id);
+    }
+  } finally { await db.$disconnect(); }
+});
 test("staff verification publishes atomically; canonical categories, search, country, counts and suspension agree", async ({
   page,
   browser,
@@ -346,7 +355,6 @@ test("owner completes registration and real image upload; approval publishes and
   page, browser,
 }) => {
   test.setTimeout(60_000);
-  await page.route("https://media.example.org/**", route => route.fulfill({contentType:"image/png",body:Buffer.from(encode({width:1,height:1,data:new Uint8Array(4)}))}));
   const owner = {
     email: `business-owner-${stamp}-${test.info().project.name}@example.org`,
     password: "e2e-business-owner-password",
@@ -417,6 +425,7 @@ test("owner completes registration and real image upload; approval publishes and
   await expect(page.getByTestId("business-status")).toHaveText("Ausstehend");
   const rows = await db.business.findMany({ where: { name } });
   expect(rows).toHaveLength(1);
+  uploadedBusinessIds.push(rows[0].id);
   expect(rows[0].verified).toBe(false);
   expect(
     (
@@ -438,6 +447,7 @@ test("owner completes registration and real image upload; approval publishes and
   await page.goto(`/de/businesses/legal?q=${encodeURIComponent(name)}&city=`);
   await expect(page.getByRole("main").getByRole("link", {name,exact:true})).toBeVisible();
   await expect(page.locator(`main article img[src="${logoUrl}"]`)).toHaveCSS("object-fit","contain");
+  await expect(page.locator(`main article img[src="${logoUrl}"]`)).toHaveJSProperty("naturalWidth",512);
   await adminCtx.close(); await stale.close();
 
 });

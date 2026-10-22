@@ -10,7 +10,9 @@ const dir = mkdtempSync(join(tmpdir(), "rega-e2e-tls-"));
 try {
   execFileSync("openssl", ["req", "-x509", "-newkey", "rsa:2048", "-nodes", "-keyout", join(dir,"key.pem"), "-out", join(dir,"cert.pem"), "-days", "1", "-subj", "/CN=localhost", "-addext", "subjectAltName=DNS:localhost,IP:127.0.0.1"], {stdio:"ignore",timeout:10_000});
   const server = https.createServer({key:readFileSync(join(dir,"key.pem")),cert:readFileSync(join(dir,"cert.pem"))}, (request,response) => {
-    const upstream = http.request({hostname:"127.0.0.1",port,path:request.url,method:request.method,
+    const media = request.url?.startsWith("/e2e-media/");
+    const upstream = http.request({hostname:"127.0.0.1",port:media ? 3999 : port,
+      path:media ? `/storage/business-e2e/${request.url.slice("/e2e-media/".length)}` : request.url,method:request.method,
       headers:{...request.headers,"x-forwarded-proto":"https","x-forwarded-host":request.headers.host}}, res => {
         response.writeHead(res.statusCode ?? 502,res.headers);res.pipe(response);
       });

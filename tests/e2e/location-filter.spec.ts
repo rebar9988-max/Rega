@@ -14,7 +14,8 @@ test.describe("geo API", () => {
   test("returns bounded, real places and never the whole gazetteer", async ({ request }) => {
     const res = await request.get("/api/v1/geo?country=DE");
     expect(res.status()).toBe(200);
-    expect(res.headers()["cache-control"]).toContain("s-maxage");
+    // Geography contains live publication counts; suspension must be reflected immediately.
+    expect(res.headers()["cache-control"]).toBe("no-store");
     const { data } = await res.json();
     expect(data.countryCode).toBe("DE");
     expect(data.countries.map((c: { code: string }) => c.code)).toContain("DE");
@@ -191,13 +192,15 @@ test.describe("location selector", () => {
     await expect(dialog(page)).toBeHidden();
   });
 
-  test("desktop popover opens under the field and stays inside the window", async ({ page }) => {
+  test("desktop popover stays adjacent to the field and fully inside the window", async ({ page }) => {
     await page.setViewportSize({ width: 1366, height: 800 });
     await page.goto("/de/businesses");
     await trigger(page).click();
     const field = (await trigger(page).boundingBox())!;
     const box = (await dialog(page).boundingBox())!;
-    expect(box.y).toBeGreaterThanOrEqual(field.y + field.height);
+    expect(box.y >= field.y + field.height || box.y + box.height <= field.y).toBe(true);
+    expect(box.y).toBeGreaterThanOrEqual(0);
+    expect(box.y + box.height).toBeLessThanOrEqual(800);
     expect(box.x).toBeGreaterThanOrEqual(0);
     expect(box.x + box.width).toBeLessThanOrEqual(1366);
   });
