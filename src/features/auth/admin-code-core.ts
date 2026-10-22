@@ -8,6 +8,18 @@
  * a code for one address can never be replayed for another.
  */
 
+/**
+ * The only addresses /dr ever sends a code to (owner instruction, 2026-10-22: "no code to anyone
+ * but rebar9988@gmail.com"). Not a secret, and deliberately in reviewed code rather than a runtime
+ * variable: widening it takes a commit. The account must also be an active, verified SUPER_ADMIN.
+ */
+export const DR_CODE_EMAILS: readonly string[] = Object.freeze(["rebar9988@gmail.com"]);
+
+/** True only for an address on the /dr code allowlist (compared normalised). */
+export function mayReceiveDrCode(email: string): boolean {
+  return DR_CODE_EMAILS.includes(email.trim().toLowerCase());
+}
+
 /** A code is usable for this long. */
 export const CODE_TTL_MINUTES = 5;
 /** Wait between two sends to the same address. */

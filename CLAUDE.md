@@ -53,6 +53,11 @@ At the start of every new session recover the project identity from this reposit
 ### 0.7 Verification matrix
 REGA task in the REGA repository — ALLOW. R&L task in the R&L repository — ALLOW. REGA task in the R&L repository — BLOCK. R&L task in the REGA repository — BLOCK. Mixed repository/domain identifiers — BLOCK. Unknown or ambiguous project identity — BLOCK. A blocked run makes no production or database change: the guard runs first and edits nothing.
 
+### 0.8 /dr administrator sign-in (owner instruction, 2026-10-22)
+- www.regaplatform.com/dr signs the owner in with a six-digit e-mail code. Only `rebar9988@gmail.com` (`DR_CODE_EMAILS`
+  in `src/features/auth/admin-code-core.ts`), held by an active, verified SUPER_ADMIN, is ever sent a code. Widening that
+  list needs a new explicit owner instruction. Details and verification evidence: `PROJECT_MEMORY.md`.
+
 ## 1. Foundation rule (REGA is a finished house)
 - The foundation is fixed. Architecture and structure are not changed without a real reason.
 - Routing and navigation are not disturbed by small requests.

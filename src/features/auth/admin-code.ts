@@ -21,6 +21,7 @@ import {
   VERIFY_HOUR_LIMIT,
   cleanCode,
   codesMatch,
+  mayReceiveDrCode,
   hashAdminCode,
   newAdminCode,
   normalizeEmail,
@@ -32,10 +33,12 @@ export type VerifyResult =
   | { error: "code" | "expired" | "rate" };
 
 /**
- * The account a verified code may open: an active SUPER_ADMIN with a verified address, nothing
- * else. Every other account keeps signing in exactly as before (password, Google, Apple).
+ * The account a verified code may open: the owner's address on DR_CODE_EMAILS, held by an
+ * active SUPER_ADMIN with a verified address, nothing else. Every other account keeps signing in exactly as before (password, Google, Apple).
  */
 async function dashboardAccount(email: string) {
+  // Owner-only: any other address, SUPER_ADMIN or not, is never sent a code and never opened.
+  if (!mayReceiveDrCode(email)) return null;
   const user = await prisma.user.findFirst({
     where: { email, deletedAt: null, status: "active" },
     select: { id: true, email: true, name: true, avatarUrl: true, role: true, locale: true, passwordHash: true, emailVerified: true },

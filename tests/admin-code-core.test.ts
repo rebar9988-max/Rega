@@ -1,6 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+  DR_CODE_EMAILS,
+  mayReceiveDrCode,
   MAX_ATTEMPTS,
   RESEND_COOLDOWN_SECONDS,
   cleanCode,
@@ -126,4 +128,19 @@ test("the /dr sign-in actions module exports async functions only (Next.js rejec
   assert.match(src, /^"use server";/);
   assert.doesNotMatch(src, /^export (const|let|var|class|\{|default)/m);
   for (const m of src.matchAll(/^export (?!type )(\w+)/gm)) assert.equal(m[1], "async", m[0]);
+});
+
+test("admin code: only the owner's address is ever sent a /dr code", () => {
+  assert.deepEqual([...DR_CODE_EMAILS], ["rebar9988@gmail.com"]);
+  assert.ok(Object.isFrozen(DR_CODE_EMAILS));
+  assert.ok(mayReceiveDrCode("rebar9988@gmail.com"));
+  assert.ok(mayReceiveDrCode("  Rebar9988@Gmail.com "));
+  // Another SUPER_ADMIN, look-alikes and anything else get nothing.
+  for (const other of ["regaplatform1@gmail.com", "rebar9989@gmail.com", "rebar9988@gmail.co", "rebar9988+x@gmail.com", "x.rebar9988@gmail.com", ""]) {
+    assert.equal(mayReceiveDrCode(other), false, other);
+  }
+  // The allowlist is checked before any account lookup, for sending and for opening a session.
+  const src = read("src/features/auth/admin-code.ts");
+  const body = src.slice(src.indexOf("async function dashboardAccount"), src.indexOf("export async function requestAdminCode"));
+  assert.ok(body.indexOf("mayReceiveDrCode(email)") > -1 && body.indexOf("mayReceiveDrCode(email)") < body.indexOf("prisma.user.findFirst"));
 });
