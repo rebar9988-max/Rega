@@ -52,7 +52,9 @@ test("admin: full dashboard access, actions are audited, logout works", async ({
   await page.getByRole("button", { name: "Abmelden" }).click();
   await expect(page).toHaveURL(/\/de$/);
   await page.goto("/dr");
-  await expect(page).toHaveURL(/\/login/);
+  // Signed out: /dr shows its own sign-in, never the dashboard.
+  await expect(page.getByRole("heading", { name: "چوونەژوورەوەی بەڕێوەبەر" })).toBeVisible();
+  await expect(page.locator("aside")).toHaveCount(0);
 });
 
 test("employee: sees the dashboard but only actions their role allows", async ({ page }) => {

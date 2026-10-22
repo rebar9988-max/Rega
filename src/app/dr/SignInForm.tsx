@@ -56,7 +56,7 @@ export function SignInForm({ passwordHref }: { passwordHref: string }) {
   const onCode = state.step === "code";
 
   return (
-    <main lang="ckb" dir="rtl" className="grid min-h-dvh place-items-center px-4 py-12">
+    <main data-dr-sign-in="" lang="ckb" dir="rtl" className="grid min-h-dvh place-items-center px-4 py-12">
       <section className="w-full max-w-md">
         <div className="mb-6 text-center">
           <p dir="ltr" className="text-3xl font-black text-brand">

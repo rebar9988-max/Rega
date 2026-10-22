@@ -217,7 +217,9 @@ try {
 
     // The dashboard is never public.
     const dr = await page.goto(`${BASE}/dr`, { waitUntil: "domcontentloaded" });
-    note(!new URL(page.url()).pathname.startsWith("/dr") || (dr?.status() ?? 0) >= 400, `${vp} /dr requires sign-in`, page.url());
+    // Either it sends the visitor away, or /dr shows only its own sign-in form (e-mail code), never the dashboard.
+    const drSignIn = (await page.locator("[data-dr-sign-in]").count()) === 1 && (await page.locator("aside").count()) === 0;
+    note(!new URL(page.url()).pathname.startsWith("/dr") || (dr?.status() ?? 0) >= 400 || drSignIn, `${vp} /dr requires sign-in`, page.url());
     await ctx.close();
   }
 } finally {
