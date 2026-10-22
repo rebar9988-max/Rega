@@ -51,8 +51,9 @@ test("database failure never restores cached administrator privileges", async ()
 
 test("allowed requests return current account details and role", async () => {
   const current = actor("MANAGER");
-  assert.deepEqual(await guards(current).permission("business.publish"), current);
-  assert.deepEqual(await guards(current).staff(), current);
+  // currentAccount returns a copy carrying the effective role, created inside the vm context: compare its fields.
+  assert.deepEqual({ ...(await guards(current).permission("business.publish")) }, current);
+  assert.deepEqual({ ...(await guards(current).staff()) }, current);
 });
 
 test("a stored SUPER_ADMIN on any address but the owner's has no privileges", async () => {
