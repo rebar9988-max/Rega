@@ -28,9 +28,20 @@ export const CODE_TTL_MINUTES = 5;
 export const RESEND_COOLDOWN_SECONDS = 30;
 /** Guesses allowed per code before it is locked. */
 export const MAX_ATTEMPTS = 5;
-/** Codes one address may be sent per hour, and guesses one client may make per hour. */
+/** Codes one address may be sent per hour, and guesses one client may make per hour (per-instance + edge limiter). */
 export const SEND_HOUR_LIMIT = 8;
 export const VERIFY_HOUR_LIMIT = 30;
+
+/**
+ * Durable limits for the owner's address, counted from the audit trail so they hold across every Worker instance and
+ * survive restarts (the edge limiter only keeps a 60-second window). They bound a distributed guessing attack to at most
+ * DURABLE_FAIL_DAY_LIMIT wrong codes per day (about 0.4 % chance per year of guessing a six-digit code).
+ */
+export const DURABLE_SEND_HOUR_LIMIT = 5;
+export const DURABLE_SEND_DAY_LIMIT = 12;
+export const DURABLE_FAIL_DAY_LIMIT = 10;
+/** Wrong passwords for the owner's account per hour before password sign-in pauses (the code sign-in still works). */
+export const OWNER_PASSWORD_FAIL_HOUR_LIMIT = 10;
 
 /** Six digits, uniform. Rejection sampling, so no digit is likelier than another. */
 export function newAdminCode(): string {

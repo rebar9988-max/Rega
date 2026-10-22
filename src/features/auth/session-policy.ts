@@ -11,6 +11,23 @@
 /** 90 days, renewed while the account keeps being used; a session unused for 90 days asks for a normal sign-in. */
 export const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 90;
 
+/**
+ * A SUPER_ADMIN session ends 7 days after its sign-in, however actively it is used (owner decision, 2026-10-23): the most
+ * powerful session must not live for 90 days on a lost or shared device. Every other role keeps the 90-day policy.
+ */
+export const SUPER_ADMIN_SESSION_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
+
+/**
+ * True when a SUPER_ADMIN session is older than SUPER_ADMIN_SESSION_MAX_AGE_MS since its sign-in (`authAt`, ms since
+ * epoch). A SUPER_ADMIN token without a sign-in time fails closed. `effectiveRole` is the role after the owner-only rule. Pure.
+ */
+export function superAdminSessionExpired(effectiveRole: string | null | undefined, authAt: unknown, now: number): boolean {
+  if (effectiveRole !== "SUPER_ADMIN") return false;
+  const at = Number(authAt);
+  if (!Number.isFinite(at) || at <= 0 || at > now + 60_000) return true;
+  return now - at > SUPER_ADMIN_SESSION_MAX_AGE_MS;
+}
+
 /** The Auth.js endpoint that re-issues the session cookie for a still-valid session. */
 export const SESSION_RENEW_PATH = "/api/auth/session";
 
