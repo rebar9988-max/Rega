@@ -38,6 +38,9 @@ jobs:
           fi
 
       - uses: actions/checkout@v4
+      # P0 isolation: REGA != R&L. Read-only; fails closed before any production-changing step below.
+      - name: Project identity guard (REGA only)
+        run: node scripts/project-identity-guard.mjs --project REGA --worker rega-ai-python
       - uses: actions/setup-node@v4
         with:
           node-version: 22
