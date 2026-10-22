@@ -2,12 +2,8 @@
 
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
-import {
-  CODE_IDLE,
-  sendDashboardCode,
-  verifyDashboardCode,
-  type CodeFormState,
-} from "./sign-in-actions";
+import { sendDashboardCode, verifyDashboardCode } from "./sign-in-actions";
+import { CODE_IDLE, type CodeFormState } from "./sign-in-state";
 
 // The same field, card and button classes the owner sign-in page already uses.
 const field =

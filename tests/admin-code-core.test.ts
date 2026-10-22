@@ -120,3 +120,10 @@ test("admin code: the code is stored only as a hash and the table is additive", 
   assert.match(sql, /"codeHash"/);
   assert.doesNotMatch(sql, /"code" /);
 });
+
+test("the /dr sign-in actions module exports async functions only (Next.js rejects anything else at runtime)", () => {
+  const src = read("src/app/dr/sign-in-actions.ts");
+  assert.match(src, /^"use server";/);
+  assert.doesNotMatch(src, /^export (const|let|var|class|\{|default)/m);
+  for (const m of src.matchAll(/^export (?!type )(\w+)/gm)) assert.equal(m[1], "async", m[0]);
+});

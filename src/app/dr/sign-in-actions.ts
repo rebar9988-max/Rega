@@ -7,15 +7,8 @@ import { signIn } from "@/auth";
 import { clientIp } from "@/lib/client-ip";
 import { requestAdminCode } from "@/features/auth/admin-code";
 
-/** What the sign-in form shows: which step it is on, and the one line under it. */
-export type CodeFormState = {
-  step: "email" | "code";
-  email: string;
-  tone: "idle" | "note" | "error";
-  message: string;
-};
-
-export const CODE_IDLE: CodeFormState = { step: "email", email: "", tone: "idle", message: "" };
+// A "use server" module may export async functions only; the form state lives in sign-in-state.ts.
+import type { CodeFormState } from "./sign-in-state";
 
 /**
  * Ask for a code. Every address gets the same answer, so this never reveals who holds
