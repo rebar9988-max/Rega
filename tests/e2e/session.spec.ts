@@ -124,7 +124,8 @@ test("anonymous visitors cannot use protected pages or the session", async ({ pa
   await page.goto("/de/account");
   await expect(page).toHaveURL(/\/de\/login/);
   await page.goto("/dr");
-  await expect(page).toHaveURL(/\/login/);
+  await expect(page.getByRole("heading", { name: "چوونەژوورەوەی بەڕێوەبەر" })).toBeVisible();
+  await expect(page.locator("aside")).toHaveCount(0);
   expect(await (await page.request.get("/api/auth/session")).json()).toBeNull();
 });
 

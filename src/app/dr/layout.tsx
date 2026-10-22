@@ -15,6 +15,7 @@ import { ThemeScript } from "@/components/shell/ThemeScript";
 import { DR_NAV, contentNav } from "@/components/dr/nav";
 import { PRIVATE_BETA } from "@/lib/private-beta";
 import { SessionRenewal } from "@/features/auth/SessionRenewal";
+import { SignInForm } from "./SignInForm";
 
 export const metadata: Metadata = { metadataBase: new URL(`https://${process.env.CANONICAL_HOST || "www.regaplatform.com"}`), icons: SITE_ASSETS.icons, title: { default: "REGA Platform", template: "%s · REGA Platform" }, robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
@@ -23,10 +24,20 @@ export default async function DrLayout({ children }: { children: React.ReactNode
   const locale = (await getLocale()) as Locale;
   const meta = LOCALE_META[locale];
   const [messages, t, tn, user] = await Promise.all([getMessages(), getTranslations("dashboard"), getTranslations("nav"), currentAccount().catch(() => null)]);
+  const signedIn = user ?? (await currentUser().catch(() => null));
+  // Signed out: sign in here, with a code to the address on the account. /owner-login keeps its
+  // password form, so an e-mail outage never locks the dashboard.
+  if (!signedIn) {
+    return (
+      <html lang={meta.htmlLang} dir={meta.dir} suppressHydrationWarning>
+        <head><ThemeScript /></head>
+        <body className="min-h-dvh"><SignInForm passwordHref={PRIVATE_BETA ? "/owner-login?next=%2Fdr" : `/${locale}/login?next=${encodeURIComponent("/dr")}`} /></body>
+      </html>
+    );
+  }
   if (PRIVATE_BETA && user?.role !== "SUPER_ADMIN") redirect("/owner-login?next=%2Fdr");
-  // A revoked account can still have a cached session. Show the existing forbidden state rather than
-  // bouncing between /dr and login (login sends an already signed-in session back to /dr).
-  if (!user && !(await currentUser().catch(() => null))) redirect(`/${locale}/login?next=${encodeURIComponent("/dr")}`);
+  // A revoked account can still have a cached session: it reaches the existing forbidden state below
+  // rather than bouncing between /dr and login (login sends an already signed-in session back to /dr).
 
   return (
     <html lang={meta.htmlLang} dir={meta.dir} suppressHydrationWarning>

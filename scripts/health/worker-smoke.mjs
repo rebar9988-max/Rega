@@ -28,8 +28,12 @@ try {
   assert.equal(health?.service, "rega-platform", "Built Worker must execute a Next.js route and return its health report");
   assert.equal(health.ok, true, `Worker database and migrations must be ready: ${JSON.stringify(health.checks)}`);
   const management = await fetch(`http://localhost:${port}/dr`, { redirect: "manual" });
-  assert.equal(management.status, 307, "Built Worker must route anonymous /dr requests to login, not 404");
-  assert.match(management.headers.get("location") ?? "", /\/(?:ckb|de|en)\/login\?next=%2Fdr$/);
+  // Anonymous /dr answers with its own sign-in (e-mail code) and nothing of the dashboard, never a 404.
+  assert.equal(management.status, 200, "Built Worker must render the /dr sign-in for anonymous requests, not 404");
+  const managementHtml = await management.text();
+  assert.match(managementHtml, /data-dr-sign-in/, "anonymous /dr must show the sign-in form");
+  assert.doesNotMatch(managementHtml, /<aside/, "anonymous /dr must not render dashboard navigation");
+  assert.match(managementHtml, /\/(?:ckb|de|en)\/login\?next=%2Fdr/, "the password sign-in stays linked");
   assert.match(management.headers.get("cache-control") ?? "", /no-store/);
   const denied = await fetch(`http://localhost:${port}/api/v1/businesses`, {
     method: "POST", headers: { "content-type": "application/json" }, body: "{}",

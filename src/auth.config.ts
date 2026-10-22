@@ -142,11 +142,48 @@ export function buildAuthConfig(): NextAuthConfig {
           };
         },
       }),
+      // Administrative sign-in at /dr: a six-digit code to the address already on the account.
+      // It opens a session only for an account that already has dashboard access, never
+      // creates a user and never grants a role; the code itself is checked in admin-code.ts.
+      Credentials({
+        id: "admin-code",
+        name: "admin-code",
+        credentials: {
+          email: { label: "Email", type: "email" },
+          code: { label: "Code", type: "text" },
+        },
+        async authorize(raw, request) {
+          const input = raw as { email?: unknown; code?: unknown };
+          const { adminCodeAccount, recordAdminSignIn, verifyAdminCode } = await import("@/features/auth/admin-code");
+          // The address the request came from, as the edge reports it; never a value the caller sends.
+          const { clientIp } = await import("@/lib/client-ip");
+          const ip = clientIp(request.headers);
+          const checked = await verifyAdminCode(input.email, input.code, ip);
+          if ("error" in checked) return null;
+          // Read the role again, after the code was spent: access removed in between opens nothing.
+          const user = await adminCodeAccount(checked.email);
+          if (!user) return null;
+          await prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } });
+          log.info("auth.dr_code.success", { userId: user.id, role: user.role });
+          await recordAdminSignIn(user, ip);
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name ?? undefined,
+            image: user.avatarUrl ?? undefined,
+            role: user.role as Role,
+            locale: user.locale,
+            pv: await passwordMarker(user.passwordHash),
+          };
+        },
+      }),
       ...socialProviders(),
     ],
     callbacks: {
       async signIn({ user, account, profile }) {
         if (!account || account.provider === "credentials") return true;
+        // The /dr code provider decided everything in its own authorize (SUPER_ADMIN only).
+        if (account.provider === "admin-code") return true;
         const result = await completeSocialSignIn({
           provider: account.provider,
           providerAccountId: account.providerAccountId,

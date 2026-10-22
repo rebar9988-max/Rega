@@ -9,9 +9,14 @@ async function login(page: Page, who: { email: string; password: string }, next 
   await page.getByRole("button", { name: "Anmelden" }).click();
 }
 
-test("anonymous visitors are sent to login from /dr and /account", async ({ page }) => {
+test("anonymous visitors get the dashboard sign-in at /dr and login for /account", async ({ page }) => {
   await page.goto("/dr");
-  await expect(page).toHaveURL(/\/login\?next=%2Fdr/);
+  // /dr signs administrators in with an e-mail code; the password sign-in stays one link away.
+  await expect(page).toHaveURL(/\/dr$/);
+  await expect(page.getByRole("heading", { name: "چوونەژوورەوەی بەڕێوەبەر" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "چوونەژوورەوە بە وشەی نهێنی" })).toHaveAttribute("href", /\/login\?next=%2Fdr/);
+  // Nothing of the dashboard is rendered for an anonymous visitor.
+  await expect(page.locator("aside, nav[aria-label]")).toHaveCount(0);
   await page.goto("/de/account");
   await expect(page).toHaveURL(/\/de\/login/);
 });
@@ -47,7 +52,9 @@ test("admin: full dashboard access, actions are audited, logout works", async ({
   await page.getByRole("button", { name: "Abmelden" }).click();
   await expect(page).toHaveURL(/\/de$/);
   await page.goto("/dr");
-  await expect(page).toHaveURL(/\/login/);
+  // Signed out: /dr shows its own sign-in, never the dashboard.
+  await expect(page.getByRole("heading", { name: "چوونەژوورەوەی بەڕێوەبەر" })).toBeVisible();
+  await expect(page.locator("aside")).toHaveCount(0);
 });
 
 test("employee: sees the dashboard but only actions their role allows", async ({ page }) => {
