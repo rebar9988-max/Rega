@@ -21,7 +21,8 @@ jobs:
   browser:
     # Only after a successful health run triggered by CI on main (the hourly schedule does not need screenshots).
     if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'workflow_run')
-    runs-on: ubuntu-latest
+    # Match the supported Playwright OS used by the CI browser gate.
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4

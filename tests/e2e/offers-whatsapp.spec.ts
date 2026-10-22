@@ -29,7 +29,7 @@ test("a valid public WhatsApp number is stored in international form and shown a
   await login(page, ADMIN);
   await page.goto("/dr/businesses/new");
   await page.getByLabel("Name", { exact: true }).fill(name);
-  await page.getByLabel("Kategorie").selectOption({ label: "Recht" });
+  await page.getByRole("combobox", { name: "Kategorie", exact: true }).selectOption({ label: "Recht" });
   await page.getByLabel("Straße und Hausnummer").fill("Jungfernstieg 7");
   await page.getByLabel("Land").selectOption("DE");
   await page.getByLabel("Stadt", { exact: true }).fill("Hamburg");

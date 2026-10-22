@@ -28,14 +28,11 @@ async function fillOwnerSteps(page: Page, name: string, opts: { german?: boolean
   await page.goto("/dr/businesses/new");
   await expect(page.getByTestId("wizard-step-1")).toHaveAttribute("aria-current", "step");
   await page.getByLabel("Name", { exact: true }).fill(name);
-  await page.getByLabel("Kategorie").selectOption({ label: "Recht" });
+  await page.getByRole("combobox", { name: "Kategorie", exact: true }).selectOption({ label: "Recht" });
   if (opts.german) {
-    await page.getByText("Sprachen", { exact: false }).first().scrollIntoViewIfNeeded();
+    await page.getByText("Optionale Angaben", { exact: true }).click();
     await page.getByLabel("Deutsch", { exact: true }).check();
   }
-  await page.getByTestId("wizard-next").click();
-  await expect(page.getByTestId("wizard-step-2")).toHaveAttribute("aria-current", "step");
-  await expect(page.getByTestId("draft-saved")).toBeVisible();
   await page.getByLabel("Straße und Hausnummer").fill("Oranienstraße 1");
   await page.getByLabel("Land").selectOption("DE");
   await page.getByLabel("Stadt", { exact: true }).fill("Berlin");
@@ -43,6 +40,8 @@ async function fillOwnerSteps(page: Page, name: string, opts: { german?: boolean
   await page.getByTestId("find-location").click();
   await expect(page.getByTestId("geocode-hits")).toBeVisible();
   await page.getByTestId("confirm-location").check();
+  await page.getByTestId("wizard-next").click();
+  await expect(page.getByTestId("wizard-step-2")).toHaveAttribute("aria-current", "step");
   await page.getByTestId("wizard-next").click();
   await expect(page.getByTestId("wizard-step-3")).toHaveAttribute("aria-current", "step");
 }
@@ -176,25 +175,22 @@ test("owner wizard: Next needs a confirmed map pin, Back keeps what was typed, t
   await expect(page.getByTestId("step-error")).toBeVisible();
   await expect(page.getByTestId("wizard-step-1")).toHaveAttribute("aria-current", "step");
   await page.getByLabel("Name", { exact: true }).fill(name);
-  await page.getByLabel("Kategorie").selectOption({ label: "Recht" });
-  await page.getByTestId("wizard-next").click();
-  await expect(page.getByTestId("wizard-step-2")).toHaveAttribute("aria-current", "step");
+  await page.getByRole("combobox", { name: "Kategorie", exact: true }).selectOption({ label: "Recht" });
   await expect(page.getByTestId("draft-saved")).toBeVisible();
-  // Step 2: address typed, but no confirmed pin -> stays on step 2.
+  // Information includes location: an unconfirmed map pin cannot advance.
   await page.getByLabel("Straße und Hausnummer").fill("Oranienstraße 1");
   await page.getByLabel("Stadt", { exact: true }).fill("Berlin");
   await page.getByTestId("wizard-next").click();
   await expect(page.getByTestId("step-error")).toBeVisible();
-  await expect(page.getByTestId("wizard-step-2")).toHaveAttribute("aria-current", "step");
-  // Back and forth loses nothing.
-  await page.getByTestId("wizard-back").click();
-  await expect(page.getByLabel("Name", { exact: true })).toHaveValue(name);
-  await page.getByTestId("wizard-next").click();
-  await expect(page.getByLabel("Straße und Hausnummer")).toHaveValue("Oranienstraße 1");
+  await expect(page.getByTestId("wizard-step-1")).toHaveAttribute("aria-current", "step");
   await page.getByTestId("find-location").click();
   await expect(page.getByTestId("geocode-hits")).toBeVisible();
   await page.getByTestId("confirm-location").check();
   await page.getByTestId("wizard-next").click();
+  await expect(page.getByTestId("wizard-step-2")).toHaveAttribute("aria-current", "step");
+  await page.getByTestId("wizard-back").click();
+  await expect(page.getByLabel("Name", { exact: true })).toHaveValue(name);
+  await expect(page.getByLabel("Straße und Hausnummer")).toHaveValue("Oranienstraße 1");
   // Step 3: a WhatsApp number must be a real international number.
   await page.getByTestId("whatsapp").fill("https://evil.example/x");
   await expect(page.getByTestId("whatsapp-hint")).toContainText("gültige Nummer");

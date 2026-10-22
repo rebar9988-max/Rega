@@ -26,7 +26,7 @@ async function stubBasemap(page: Page) {
 async function fillBasics(page: Page, name: string, address: string, city: string) {
   await page.goto("/dr/businesses/new");
   await page.getByLabel("Name", { exact: true }).fill(name);
-  await page.getByLabel("Kategorie").selectOption({ label: "Recht" });
+  await page.getByRole("combobox", { name: "Kategorie", exact: true }).selectOption({ label: "Recht" });
   await page.getByLabel("Telefon").fill("+49 30 000000");
   await page.getByLabel("Straße und Hausnummer").fill(address);
   await page.getByLabel("Land").selectOption("DE");

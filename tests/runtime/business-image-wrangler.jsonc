@@ -1,0 +1,16 @@
+{
+  "name": "rega-business-image-local-test",
+  "main": "business-image-worker.ts",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "alias": { "server-only": "./empty.ts" },
+  "vars": {
+    "DATABASE_URL": "postgresql://local-test-unused",
+    "AUTH_SECRET": "local-worker-image-test-only",
+    "STORAGE_BUCKET": "local-test",
+    "STORAGE_ACCESS_KEY_ID": "local-test",
+    "STORAGE_SECRET_ACCESS_KEY": "local-test",
+    "STORAGE_ENDPOINT": "http://127.0.0.1:8796",
+    "MEDIA_PUBLIC_URL": "https://media.example.org"
+  }
+}

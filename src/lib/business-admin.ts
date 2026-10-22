@@ -14,6 +14,7 @@ import { reindexBusinessTree } from "@/lib/search-index";
 import { LOCALES } from "@/config/locales";
 import { BUSINESS_CATEGORY, lockBusiness, publicationSelect, businessReadiness } from "@/lib/business-publication";
 import { PUBLIC_BUSINESS } from "@/lib/search-where";
+import { ownsBusinessImages } from "@/lib/business-media";
 import { normalizeWhatsapp } from "@/lib/whatsapp";
 
 /** ISO 3166-1 alpha-2 codes offered in the form (plus any country already in the database). */
@@ -115,7 +116,7 @@ async function resolveCity(tx: Prisma.TransactionClient, countryId: string, type
 
 export type SaveResult =
   | { ok: true; id: string; slug: string; created: boolean; published: boolean; submitted: boolean; submittedNow: boolean; missing: string[] }
-  | { ok: false; error: "not_found" | "published_incomplete" | "city_unknown" | "media_invalid" | "category_invalid" };
+  | { ok: false; error: "not_found" | "published_incomplete" | "city_unknown" | "media_invalid" | "category_invalid" | "draft_changed" };
 
 class PublishedIncomplete extends Error {}
 class CityUnknown extends Error {}
@@ -127,10 +128,7 @@ const DUPLICATE_WINDOW_MS = 10 * 60_000;
 
 /** Gallery photos must be files this person uploaded through REGA's upload endpoint (or ones the listing already has). */
 async function assertOwnMedia(tx: Prisma.TransactionClient, urls: string[], uploadedById: string, alreadyOnListing: string[]) {
-  const fresh = urls.filter((u) => !alreadyOnListing.includes(u));
-  if (fresh.length === 0) return;
-  const rows = await tx.media.findMany({ where: { url: { in: fresh }, uploadedById, deletedAt: null }, select: { url: true } });
-  if (new Set(rows.map((r) => r.url)).size !== fresh.length) throw new MediaInvalid();
+  if (!await ownsBusinessImages(tx, urls, uploadedById, alreadyOnListing)) throw new MediaInvalid();
 }
 
 /** What the acting user may do beyond editing: staff publish and add cities, owners only submit for review. */
@@ -157,10 +155,6 @@ async function save(input: BusinessForm, actor: { id: string }, { canPublish, ca
   const result = await prisma.$transaction(async (tx) => {
     // A draft may not have a location yet; every other intent was validated to have one.
     const loc = input.addressLine1 && input.city && input.countryCode ? { addressLine1: input.addressLine1, city: input.city, countryCode: input.countryCode } : null;
-    const country = loc ? await ensureCountry(tx, loc.countryCode) : null;
-    const resolved = loc && country ? await resolveCity(tx, country.id, loc.city, canCreateCity) : null;
-    const city = resolved?.city ?? null;
-    const cityCreated = resolved?.created ?? false;
 
     // Duplicate-submission guard: serialise creates per person, and reuse the draft a repeated create just made.
     let targetId = input.id;
@@ -179,9 +173,14 @@ async function save(input: BusinessForm, actor: { id: string }, { canPublish, ca
       : null;
     if (input.id && !before) return { ok: false as const, error: "not_found" as const };
 
+    if (input.intent === "draft" && before && (before.status !== "draft" || before.archivedAt)) return { ok: false as const, error: "draft_changed" as const };
     if (before && before.status !== "draft" && before.categoryId !== (input.categoryId ?? null) && !canPublish) throw new CategoryInvalid();
     const photos = [...new Set(input.photoUrls)];
-    await assertOwnMedia(tx, photos, actor.id, before?.photos ?? []);
+    await assertOwnMedia(tx, [...photos, input.logoUrl ?? "", input.coverUrl ?? ""], actor.id, [...(before?.photos ?? []), before?.logoUrl ?? "", before?.coverUrl ?? ""]);
+    const country = loc ? await ensureCountry(tx, loc.countryCode) : null;
+    const resolved = loc && country ? await resolveCity(tx, country.id, loc.city, canCreateCity) : null;
+    const city = resolved?.city ?? null;
+    const cityCreated = resolved?.created ?? false;
     const whatsapp = input.whatsapp ? normalizeWhatsapp(input.whatsapp, input.countryCode) : null;
 
     const businessData = {

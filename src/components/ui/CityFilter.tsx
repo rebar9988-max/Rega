@@ -43,6 +43,8 @@ type Props = {
   fieldClass: string;
   /** List pages: a saved place is added to the address when the visitor arrives without choosing one. */
   applySavedToUrl?: boolean;
+  /** Directory country scope; other consumers retain the current default. */
+  countryCode?: string;
   /** Hide the built-in chevron when the parent draws its own. */
   chevron?: boolean;
 };
@@ -53,7 +55,7 @@ type Locating = "busy" | "denied" | "unavailable" | "unsupported" | "none" | nul
 const nameOf = (row: GeoNames, locale: Locale): Localized => localize({ ...row, name: row.nameEn }, "name", locale);
 const pickedFrom = (city: GeoCity, locale: Locale): Picked => ({ id: city.id, name: nameOf(city, locale).text, countryCode: city.countryCode, regionId: city.regionId });
 
-export function CityFilter({ cities, value, allLabel, cityLabel, fieldClass, applySavedToUrl = false, chevron = true }: Props) {
+export function CityFilter({ cities, value, allLabel, cityLabel, fieldClass, applySavedToUrl = false, chevron = true, countryCode }: Props) {
   const t = useTranslations("locationPicker");
   const locale = useLocale() as Locale;
   const router = useRouter();
@@ -153,6 +155,7 @@ export function CityFilter({ cities, value, allLabel, cityLabel, fieldClass, app
 
       {open && (
         <LocationPanel
+          countryCode={countryCode}
           panelId={panelId}
           anchorRef={buttonRef}
           fallback={cities}
@@ -172,6 +175,7 @@ export function CityFilter({ cities, value, allLabel, cityLabel, fieldClass, app
 // ------------------------------------------------------------------ the panel
 
 type PanelProps = {
+  countryCode?: string;
   panelId: string;
   anchorRef: RefObject<HTMLButtonElement | null>;
   fallback: Option[];
@@ -186,7 +190,7 @@ type PanelProps = {
 
 type Row = { id: string; text: string; localized?: Localized; count?: number; picked: Picked | null; names?: (string | null | undefined)[] };
 
-function LocationPanel({ panelId, anchorRef, fallback, selectedId, title, allLabel, cityLabel, locale, onChoose, onClose }: PanelProps) {
+function LocationPanel({ countryCode, panelId, anchorRef, fallback, selectedId, title, allLabel, cityLabel, locale, onChoose, onClose }: PanelProps) {
   const t = useTranslations("locationPicker");
   const tn = useTranslations("nearby");
   const tl = useTranslations("locations");
@@ -194,8 +198,8 @@ function LocationPanel({ panelId, anchorRef, fallback, selectedId, title, allLab
   const panelRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   const [isSheet] = useState(() => window.matchMedia("(max-width: 639px)").matches);
-  const [box, setBox] = useState<{ top: number; start: number; width: number; maxHeight: number } | null>(null);
-  const [country, setCountry] = useState<string | undefined>(undefined);
+  const [box, setBox] = useState<{ top?: number; bottom?: number; start: number; width: number; maxHeight: number } | null>(null);
+  const [country, setCountry] = useState<string | undefined>(countryCode);
   const [region, setRegion] = useState("");
   const [query, setQuery] = useState("");
   const [searched, setSearched] = useState("");
@@ -220,11 +224,15 @@ function LocationPanel({ panelId, anchorRef, fallback, selectedId, title, allLab
       const vw = window.innerWidth;
       const width = Math.min(Math.max(r.width, 340), vw - 16);
       const edge = getComputedStyle(anchor).direction === "rtl" ? vw - r.right : r.left;
+      const below = Math.max(0, window.innerHeight - r.bottom - 16);
+      const above = Math.max(0, r.top - 16);
+      // Category navigation can push the field down: keep options reachable instead of extending below the viewport.
+      const opensAbove = below < 320 && above > below;
       setBox({
-        top: r.bottom + 8,
+        ...(opensAbove ? { bottom: window.innerHeight - r.top + 8 } : { top: r.bottom + 8 }),
         start: Math.max(8, Math.min(edge, vw - width - 8)),
         width,
-        maxHeight: Math.max(260, Math.min(540, window.innerHeight - r.bottom - 16)),
+        maxHeight: Math.min(540, opensAbove ? above : below),
       });
     };
     place();
@@ -374,7 +382,7 @@ function LocationPanel({ panelId, anchorRef, fallback, selectedId, title, allLab
         aria-modal={isSheet}
         aria-label={title}
         onKeyDown={onPanelKey}
-        style={!isSheet && box ? { top: box.top, insetInlineStart: box.start, width: box.width, maxHeight: box.maxHeight } : undefined}
+        style={!isSheet && box ? { top: box.top, bottom: box.bottom, insetInlineStart: box.start, width: box.width, maxHeight: box.maxHeight } : undefined}
         className={`fixed z-[90] flex flex-col gap-3 overflow-y-auto border border-line bg-surface p-3 shadow-xl ${
           isSheet ? "inset-x-0 bottom-0 max-h-[85dvh] rounded-t-2xl pb-[max(0.75rem,env(safe-area-inset-bottom))]" : "rounded-xl"
         }`}

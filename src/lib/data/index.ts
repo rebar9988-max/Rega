@@ -85,21 +85,12 @@ export const getCities = cache(async (scope: CityScope = {}) => {
       nameDe: true,
       nameAr: true,
       nameTr: true,
-      _count: {
-        select: {
-          locations: {
-            where: {
-              status: "active",
-              deletedAt: null,
-              ...(countryCode ? { countryCode } : {}),
-              business: businessWhere,
-            },
-          },
-        },
-      },
+      locations: { where: { status: "active", deletedAt: null,
+        ...(countryCode ? { countryCode } : {}), business: businessWhere },
+        distinct: "businessId", select: { businessId: true } },
     },
   });
-  return rows.map(({ _count, ...c }) => ({ ...c, count: _count.locations }));
+  return rows.map(({ locations, ...c }) => ({ ...c, count: locations.length }));
 });
 
 const cityNameSelect = {
@@ -134,7 +125,7 @@ export const listSelectorCities = cache(async (scope: CityScope = {}) => {
     business: businessWhere,
   };
   const inCountry = { isActive: true, country: { code: countryCode, isActive: true } };
-  const select = { ...cityNameSelect, latitude: true, longitude: true, _count: { select: { locations: { where: locWhere } } } } as const;
+  const select = { ...cityNameSelect, latitude: true, longitude: true, locations: { where: locWhere, distinct: "businessId", select: { businessId: true } } } as const;
 
   const [majors, listed, added] = await Promise.all([
     prisma.city.findMany({
@@ -159,10 +150,10 @@ export const listSelectorCities = cache(async (scope: CityScope = {}) => {
   for (const row of majors) pinned.add(row.id);
   for (const row of added) pinned.add(row.id);
 
-  const byId = new Map<string, Omit<(typeof majors)[number], "_count"> & { count: number; pinned: boolean }>();
+  const byId = new Map<string, Omit<(typeof majors)[number], "locations"> & { count: number; pinned: boolean }>();
   for (const row of [...listed, ...majors, ...added]) {
-    const { _count, ...city } = row;
-    byId.set(city.id, { ...city, count: _count.locations, pinned: pinned.has(city.id) });
+    const { locations, ...city } = row;
+    byId.set(city.id, { ...city, count: locations.length, pinned: pinned.has(city.id) });
   }
   return rankSelectorCities([...byId.values()]);
 });

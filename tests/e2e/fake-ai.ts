@@ -9,7 +9,24 @@ export const FAKE_OPENROUTER_ANSWER = "Antwort von OpenRouter (fake)";
 export const FAKE_ANTHROPIC_ANSWER = "Antwort von Claude (fake)";
 
 export function startFakeAi(port = 3999): Promise<Server> {
+  const objects = new Map<string, { bytes: Buffer; mime: string }>();
   const server = createServer((req, res) => {
+    // Existing test server stores normalized files locally, so public cards load the real saved bytes.
+    if (req.url?.startsWith("/storage/")) {
+      const key = new URL(req.url, "http://localhost").pathname;
+      if (req.method === "GET") {
+        const object = objects.get(key);
+        res.writeHead(object ? 200 : 404, {"content-type":object?.mime ?? "text/plain","cache-control":"no-store"});
+        res.end(object?.bytes); return;
+      }
+      if (req.method === "DELETE") { objects.delete(key);res.writeHead(200);res.end();return; }
+      if (req.method === "PUT") {
+        const chunks: Buffer[] = [];
+        req.on("data", c => chunks.push(c));
+        req.on("end", () => { objects.set(key,{bytes:Buffer.concat(chunks),mime:String(req.headers["content-type"] ?? "application/octet-stream")});res.writeHead(200,{etag:'"test-object"'});res.end(); });
+        return;
+      }
+    }
     let raw = "";
     req.on("data", (c) => { raw += c; });
     req.on("end", () => {

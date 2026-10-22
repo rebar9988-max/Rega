@@ -61,8 +61,10 @@ const publicLocation = { status: "active", deletedAt: null, business: PUBLIC_BUS
 /** Public listing counts for these cities in one grouped query. */
 async function countsFor(ids: string[]): Promise<Map<string, number>> {
   if (ids.length === 0) return new Map();
-  const rows = await prisma.location.groupBy({ by: ["cityId"], where: { ...publicLocation, cityId: { in: ids } }, _count: { _all: true } });
-  return new Map(rows.flatMap((r) => (r.cityId ? [[r.cityId, r._count._all] as const] : [])));
+  const rows = await prisma.location.groupBy({ by: ["cityId", "businessId"], where: { ...publicLocation, cityId: { in: ids } }, _count: { _all: true } });
+  const counts = new Map<string, number>();
+  for (const row of rows) if (row.cityId) counts.set(row.cityId, (counts.get(row.cityId) ?? 0) + 1);
+  return counts;
 }
 
 async function toCities(rows: CityRow[]): Promise<GeoCity[]> {
@@ -71,11 +73,11 @@ async function toCities(rows: CityRow[]): Promise<GeoCity[]> {
 }
 
 /** The public market's country first, then any other active country that already has a public listing. */
-export async function geoCountries(): Promise<GeoCountry[]> {
+export async function geoCountries(selectedCountryCode?: string): Promise<GeoCountry[]> {
   const rows = await prisma.country.findMany({
     where: {
       isActive: true,
-      OR: [{ code: DEFAULT_PUBLIC_COUNTRY_CODE }, { cities: { some: { isActive: true, locations: { some: publicLocation } } } }],
+      OR: [{ code: DEFAULT_PUBLIC_COUNTRY_CODE }, { code: selectedCountryCode ?? DEFAULT_PUBLIC_COUNTRY_CODE }, { cities: { some: { isActive: true, locations: { some: publicLocation } } } }],
     },
     orderBy: [{ sortOrder: "asc" }, { nameEn: "asc" }],
     take: 30,

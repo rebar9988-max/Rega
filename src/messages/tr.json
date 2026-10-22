@@ -634,9 +634,9 @@
     "mediaInvalid": "Bir fotoğraf kabul edilemedi. Yükleme düğmesiyle yeniden yükleyin.",
     "wizard": {
       "steps": "Kayıt adımları",
-      "step1": "İşletme",
-      "step2": "Konum",
-      "step3": "İletişim ve görseller",
+      "step1": "İşletme ve konum",
+      "step2": "Logo ve görseller",
+      "step3": "İncele ve gönder",
       "next": "İleri",
       "back": "Geri",
       "saveDraft": "Taslağı kaydet",
@@ -646,8 +646,11 @@
       "review": "Gözden geçir ve gönder",
       "reviewHint": "Gönderdikten sonra REGA ekibi kaydınızı inceler. Yalnızca onaydan sonra yayımlanır.",
       "pinConfirmed": "Haritada onaylandı",
-      "pinMissing": "Henüz ayarlanmadı"
-    }
+      "pinMissing": "Henüz ayarlanmadı",
+      "draftChanged": "Bu taslak gönderilmiş veya incelenmiş. Düzenlemeden önce sayfayı yenileyin."
+    },
+    "categorySearch": "Kategori ara",
+    "optionalDetails": "İsteğe bağlı ayrıntılar"
   },
   "contact": {
     "title": "İletişim",
@@ -1123,5 +1126,19 @@
     "verification": "Personel doğrulaması",
     "unverified": "Henüz personel tarafından doğrulanmadı",
     "approve": "Doğrula ve yayınla"
+  },
+  "businessImages": {
+    "title": "Görseli konumlandır",
+    "hint": "Konumu değiştirmek için sürükleyin; iki parmakla veya kaydırıcıyla yakınlaştırın. Ok tuşlarıyla da hareket ettirebilirsiniz.",
+    "preview": "Son kırpma önizlemesi",
+    "zoom": "Yakınlaştır",
+    "reset": "Sıfırla",
+    "cancel": "İptal",
+    "confirm": "Görseli onayla",
+    "saving": "Kaydediliyor…",
+    "retry": "Yükleme başarısız. Kırpma korundu; yeniden onaylayın.",
+    "formats": "JPG, PNG, WebP, GIF ve desteklenen HEIC/HEIF. Animasyonlar sabit bir kare olarak kaydedilir.",
+    "unsupported": "Bu tarayıcı görseli okuyamıyor. JPG veya PNG olarak dışa aktarıp tekrar deneyin.",
+    "tooLarge": "20 MB altında bir görsel seçin (64 megapiksele kadar)."
   }
 }

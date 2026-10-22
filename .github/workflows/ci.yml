@@ -14,7 +14,8 @@ concurrency:
 
 jobs:
   verify:
-    runs-on: ubuntu-latest
+    # Playwright 1.56 supports Noble; ubuntu-latest moved to unsupported 26.04 on 2026-10-22.
+    runs-on: ubuntu-24.04
     timeout-minutes: 35
     permissions:
       contents: read
@@ -64,13 +65,15 @@ jobs:
       - name: Build (Node, used by E2E)
         run: npm run build:node
       - name: Install Playwright browser
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install --with-deps chromium webkit
       - name: E2E tests
         run: npm run e2e
       - name: Build for Cloudflare Workers + validate the Worker bundle (no credentials, no deploy)
         run: |
           npm run build
           npx wrangler deploy --dry-run
+      - name: Exercise business image codecs in workerd
+        run: node scripts/health/business-image-worker-smoke.mjs
       - name: Exercise business routes in the built Worker runtime
         run: node scripts/health/worker-smoke.mjs
       - name: Upload Playwright traces on failure

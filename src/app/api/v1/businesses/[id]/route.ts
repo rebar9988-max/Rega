@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { fail, handleError, ok } from "@/lib/api";
 import { currentAccount } from "@/lib/auth-helpers";
 import { PUBLIC_BUSINESS } from "@/lib/search-where";
+import { ownsBusinessImages } from "@/lib/business-media";
 import { BUSINESS_CATEGORY, approvalData, businessReadiness, lockBusiness, publicationSelect } from "@/lib/business-publication";
 import { isStaff } from "@/lib/rbac";
 
@@ -67,7 +68,7 @@ export async function PATCH(request: NextRequest, ctx: { params: Promise<{ id: s
     if (payload.verified !== undefined || payload.featured !== undefined || payload.status === "published") await requirePermission("business.publish");
     const business = await prisma.$transaction(async (tx) => {
       await lockBusiness(tx, id);
-      const before = await tx.business.findFirst({ where: { id, deletedAt: null }, select: publicationSelect });
+      const before = await tx.business.findFirst({ where: { id, deletedAt: null }, select: { ...publicationSelect, logoUrl: true, coverUrl: true, photos: true } });
       if (!before) throw new HttpError(404, "not_found", "Business not found.");
       if (before.verified && before.status === "published" && businessReadiness(before).ok &&
           Object.keys(payload).every((key) => key === "verified" || key === "status") &&
@@ -78,6 +79,7 @@ export async function PATCH(request: NextRequest, ctx: { params: Promise<{ id: s
         if (!can(user.role, "business.publish") && before.status !== "draft") throw new HttpError(403, "forbidden", "Only staff may reclassify submitted listings.");
         if (!await tx.category.findFirst({ where: { id: columns.categoryId, ...BUSINESS_CATEGORY }, select: { id: true } })) throw new HttpError(422, "category_invalid", "Choose an active business category.");
       }
+      if (!await ownsBusinessImages(tx, [payload.logoUrl ?? "", payload.coverUrl ?? ""], user.id, [before.logoUrl ?? "", before.coverUrl ?? "", ...before.photos])) throw new HttpError(422, "media_invalid", "Choose images uploaded through this business form.");
       // Apply the proposed fields inside this transaction; failed approval rolls everything back.
       let updated = await tx.business.update({ where: { id }, data: { ...columns,
         ...(payload.email === "" ? { email: null } : {}), ...(payload.website === "" ? { website: null } : {}),
