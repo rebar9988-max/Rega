@@ -474,8 +474,12 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
   `GET /accounts/{id}/builds/builds/{id}/logs` returned `{"code":12004,"message":"Forbidden"}`. The repository token
   lists secrets, deployments and versions but has no Workers Builds read permission. Root cause of the red
   `Workers Builds: rega-platform` check: UNKNOWN; diagnosis blocked by PERMISSIONS. Nothing was changed in the
-  Workers Builds integration. Owner action: add Workers Builds read to that API token (then re-run the diagnostics
-  with the build id), or read the build log in the dashboard (Workers → rega-platform → Builds).
+  Workers Builds integration. Per Cloudflare's Builds API reference, that API needs a USER-scoped token
+  (account-scoped tokens are not supported) with Account > Workers Builds Configuration (documented level: Edit; it
+  covers logs). Owner action, either: (a) dash.cloudflare.com/profile/api-tokens -> create a user token with Account >
+  Workers Builds Configuration and Workers Scripts Read for account ee07860d..., store it as a separate repository
+  secret, and point only the diagnostics step at it (keep the deploy token unchanged); or (b) open the failed build in
+  the dashboard (Workers & Pages -> rega-platform -> Deployments/Builds -> build f2ee1ece...) and share the error line.
 - Same run, live state via the Cloudflare API: latest deployment 2026-10-22T10:11:10Z serves version
   `506d302e-a9ed-4789-9545-d7d1df72bbec` at 100%, created 10:11:06Z inside deploy run `39760925614` for `1bee9c3`, so
   `1bee9c3` is verified live. All listed versions come from wrangler uploads; none from Workers Builds.
