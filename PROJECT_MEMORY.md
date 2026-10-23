@@ -512,3 +512,23 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
   - Failed codes/passwords were only logged; now audited. `setMessageStatus` was the only dashboard mutation without an audit row.
 - Verified without change: owner-only SUPER_ADMIN on every route (#51), OAuth cannot grant it, codes HMAC-stored, single use, constant-time compare, neutral answers, no codes or secrets in logs, server-action origin checks.
 - Accepted trade-off (reported to owner): the durable limits let an attacker temporarily pause the owner's code or password sign-in (up to a day / an hour); the other method keeps working. Password sign-in for the owner stays (owner access preserved; not changed without an explicit owner decision).
+
+## Admin business hide / show again — 2026-10-23 (PR #55, squash `a155d77`; status: DEPLOYED, public site verified)
+- Owner task: admin full control over every business listing (edit, hide, unhide), non-destructive, clean UI; no rebuild.
+- Audit: editing other users' listings already worked (MANAGER and up = global access via `assertBusinessAccess`); list already had
+  search, status filter, pagination and mobile cards; "archive" already hid a listing and every public surface filters on
+  `PUBLIC_BUSINESS` (`archivedAt: null`) or the same SQL (sitemap). Gaps: an archived listing could never be shown again from /dr
+  (publish/approval reject `archivedAt`); no confirmation before hiding; no hide control on the edit page; no public/hidden indicator.
+- Change: `restore` intent in the existing `updateBusiness` action; `restoreData` + `lastHiding` + `publicVisibility` in
+  `src/lib/business-publication.ts`. Show again = published only if it was published before hiding, is still verified, complete and
+  the actor may publish; pending -> pending; else draft (unverified). Previous status and hider come from the hiding audit entry;
+  non-publishers may only show a listing they hid themselves. Repeated hide = no-op. Confirm dialog before hiding, notices that keep
+  list filters, Public / Not public / Hidden badge, control on the edit page (`VisibilityControl.tsx`), 7 locales. No schema change,
+  no deletion, no public UI change; owners keep their existing ability to hide their own listing.
+- Tests: `tests/business-visibility.test.ts` (7), e2e `tests/e2e/business-visibility.spec.ts` (desktop + mobile). PR CI `verify`
+  success (lint, typecheck, unit, Node/Worker builds, workerd smoke, 311 browser tests). Main CI `39986965968`, Deploy `39989648186`,
+  Beta health and Production browser check `39989956493` success. Cloudflare diagnostics `39989935371` success (log not readable here).
+- Data: production (Neon `rega-platform`) before and after: 3 businesses published + verified (Karwans HairTuning, Sky berlin, taakline),
+  3 locations, 3 users; none hidden or deleted. Live `/api/v1/businesses` lists all three after the deploy.
+- Not verified live: an authenticated hide/show on production (it would change real listings; no test listing on production). The full
+  flow ran against a real database in CI. Next safe continuation: owner tries Hide / Show again on a listing at /dr/businesses.
