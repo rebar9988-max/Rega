@@ -15,7 +15,7 @@ const ROOT = fileURLToPath(new URL("..", import.meta.url));
 test("1. REGA task in the REGA repository is allowed", async () => {
   const { checkProjectIdentity } = await load();
   const r = checkProjectIdentity({ project: "REGA", localProject: "REGA", repos: [REGA_REPO],
-    domains: ["www.regaplatform.com"], workers: ["rega-platform"] });
+    domains: ["www.rega24.com"], workers: ["rega-platform"] });
   assert.equal(r.allow, true);
   assert.equal(r.code, "OK");
 });
@@ -57,7 +57,7 @@ test("5. mixed repository / domain / worker / remote identifiers are blocked", a
     assert.ok(r.conflicts.length > 0);
   }
   // Same from the R&L side: REGA identifiers inside an R&L task.
-  const rl = checkProjectIdentity({ project: "R&L", localProject: "R&L", repos: [RL_REPO], domains: ["www.regaplatform.com"] });
+  const rl = checkProjectIdentity({ project: "R&L", localProject: "R&L", repos: [RL_REPO], domains: ["www.rega24.com"] });
   assert.equal(rl.allow, false);
   assert.equal(rl.code, "MIXED_IDENTIFIERS");
 });
@@ -98,7 +98,7 @@ test("CLI: allows the REGA checkout, blocks R&L and mixed input with the Sorani 
   const cli = (...args: string[]) => spawnSync(process.execPath, ["scripts/project-identity-guard.mjs", ...args], {
     env: { ...process.env, GITHUB_REPOSITORY: REGA_REPO }, encoding: "utf8", timeout: 10000, cwd: ROOT,
   });
-  const ok = cli("--project", "REGA", "--domain", "www.regaplatform.com", "--worker", "rega-platform");
+  const ok = cli("--project", "REGA", "--domain", "www.rega24.com", "--worker", "rega-platform");
   assert.equal(ok.status, 0, ok.stderr);
 
   for (const args of [
@@ -158,6 +158,6 @@ test("REGA's own files agree with the guard's REGA identity", () => {
     const text = read(file);
     assert.match(text, /PERMANENT P0/);
     assert.ok(text.includes("rebar9988-max/Rega") && text.includes("rebar9988-max/rega-cargo"), file);
-    assert.ok(text.includes("https://www.regaplatform.com") && text.includes("https://www.rlgo.net"), file);
+    assert.ok(text.includes("https://www.rega24.com") && text.includes("https://www.rlgo.net"), file);
   }
 });

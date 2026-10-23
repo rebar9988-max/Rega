@@ -48,7 +48,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const { locale } = await params;
   if (!isLocale(locale)) return {};
   const t = await getTranslations({ locale, namespace: "meta" });
-  const base = process.env.CANONICAL_HOST || "www.regaplatform.com";
+  const base = process.env.CANONICAL_HOST || "www.rega24.com";
   return {
     metadataBase: new URL(`https://${base}`),
     title: { default: t("title"), template: `%s · ${BRAND_NAME}` },

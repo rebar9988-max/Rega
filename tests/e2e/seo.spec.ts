@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-const HOST = "https://www.regaplatform.com";
+const HOST = "https://www.rega24.com";
 const LOCALES = ["ckb", "kmr", "de", "en", "ar", "fa", "tr"];
 const PAGES = ["", "/businesses", "/services", "/locations", "/ai", "/about"];
 

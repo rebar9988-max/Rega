@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { CACHE_HEADER, NO_STORE_MARKER, TTL_SECONDS, cacheableCopy, edgeCacheKey, fromCache, inFlightCount, isStale, renderedWithoutData, withEdgeCache } from "../src/lib/edge-cache";
 
-const req = (path: string, init: RequestInit = {}) => new Request(`https://www.regaplatform.com${path}`, init);
+const req = (path: string, init: RequestInit = {}) => new Request(`https://www.rega24.com${path}`, init);
 const html = (headers: Record<string, string> = {}, status = 200) =>
   new Response("<html>ok</html>", { status, headers: { "content-type": "text/html; charset=utf-8", "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate", ...headers } });
 

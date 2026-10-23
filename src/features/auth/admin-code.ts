@@ -120,7 +120,7 @@ export async function requestAdminCode(rawEmail: unknown, ip: string): Promise<S
       `ئەم کۆدە بۆ ${CODE_TTL_MINUTES} خولەک کار دەکات و تەنها یەک جار بەکاردێت.`,
       "ئەگەر تۆ داوات نەکردووە، ئەم ئیمەیڵە پشتگوێ بخە. کۆدەکە بە کەس مەدە.",
       "",
-      "REGA · https://www.regaplatform.com",
+      "REGA · https://www.rega24.com",
     ].join("\n"),
   });
   if (!delivered) {

@@ -62,7 +62,7 @@ New runtime variables of this release (names only; all optional unless noted): `
 | --- | --- |
 | `GET /api/v1/health` | 200, no missing required variables |
 | `GET /` | redirect to `/ckb` (or the visitor's language) |
-| `GET https://regaplatform.com/` | 301 to `https://www.regaplatform.com/` |
+| `GET https://rega24.com/` | 301 to `https://www.rega24.com/` |
 | `/de/impressum`, `/de/privacy`, `/de/terms`, `/de/report`, `/de/contact` | 200; no `[[PLACEHOLDER]]` once `LEGAL_*` is filled |
 | `/de/businesses`, `/de/jobs`, `/de/events`, `/de/guides` | 200 (empty state or cards) |
 | `/sitemap.xml` and one `/sitemaps/*.xml` | valid XML with `hreflang` alternates |

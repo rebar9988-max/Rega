@@ -8,7 +8,7 @@ import { z } from "zod";
 const serverSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   APP_ENV: z.enum(["development", "staging", "production"]).default("development"),
-  CANONICAL_HOST: z.string().default("www.regaplatform.com"),
+  CANONICAL_HOST: z.string().default("www.rega24.com"),
   DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
   DIRECT_DATABASE_URL: z.string().optional(),
   AUTH_SECRET: z.string().min(16, "AUTH_SECRET must be at least 16 chars"),

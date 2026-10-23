@@ -61,7 +61,7 @@ test("a job shown 'until a day' stays visible through that whole day", () => {
 });
 
 test("structured data: JobPosting, Event and Article carry only stored facts", () => {
-  const base = { url: "https://www.regaplatform.com/de/jobs/koch", title: "Koch", inLanguage: "de-DE", city: "Köln", countryCode: "DE" };
+  const base = { url: "https://www.rega24.com/de/jobs/koch", title: "Koch", inLanguage: "de-DE", city: "Köln", countryCode: "DE" };
   const job = listingJsonLd({ ...base, section: "jobs", business: { name: "Zagros" }, datePublished: new Date("2027-01-01T00:00:00Z"), job: { employmentType: "part_time", expiresAt: new Date("2027-02-01T00:00:00Z") } }) as Record<string, unknown>;
   assert.equal(job["@type"], "JobPosting");
   assert.equal(job.employmentType, "PART_TIME");

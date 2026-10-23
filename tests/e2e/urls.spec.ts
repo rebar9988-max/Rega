@@ -6,7 +6,7 @@ test("category pages live at /businesses/<slug>; the title and canonical use the
   expect(res?.status()).toBe(200);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Recht");
   const html = await (await request.get("/de/businesses/legal")).text();
-  expect(html).toContain('<link rel="canonical" href="https://www.regaplatform.com/de/businesses/legal"');
+  expect(html).toContain('<link rel="canonical" href="https://www.rega24.com/de/businesses/legal"');
   // The category's businesses are listed; the category dropdown is not offered on its own page.
   await expect(page.getByRole("main")).toContainText("Kurdistan Rechtsberatung");
   await expect(page.locator('select[name="category"]')).toHaveCount(0);
@@ -32,7 +32,7 @@ test("old business URLs /businesses/<slug> redirect permanently to /business/<sl
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Zagros Restaurant");
   const html = await (await request.get("/de/business/zagros-restaurant")).text();
   expect(html).toContain('"@type":"LocalBusiness"');
-  expect(html).toContain('<link rel="canonical" href="https://www.regaplatform.com/de/business/zagros-restaurant"');
+  expect(html).toContain('<link rel="canonical" href="https://www.rega24.com/de/business/zagros-restaurant"');
   // Listing cards link to the new URL.
   await page.goto("/de/businesses");
   await expect(page.locator('a[href="/de/business/zagros-restaurant"]').first()).toBeAttached();

@@ -2,7 +2,7 @@
   "name": "rega-platform",
   "version": "0.1.0",
   "private": true,
-  "description": "REGA Platform - production web application (www.regaplatform.com)",
+  "description": "REGA Platform - production web application (www.rega24.com)",
   "scripts": {
     "dev": "node scripts/vendor-maplibre.mjs && next dev",
     "build": "node scripts/vendor-maplibre.mjs && prisma generate && REGA_TARGET=workers opennextjs-cloudflare build",

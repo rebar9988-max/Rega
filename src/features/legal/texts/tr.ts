@@ -58,7 +58,7 @@ export const tr: LegalBuilder = (o, ctx) => {
       title: "Kullanım koşulları",
       description: "REGA Platform kullanım koşulları: hiçbir ücret alınmadan ücretsiz kullanım, kayıtlar için kurallar, içerik denetimi, sorumluluk ve hesabın silinmesi.",
       blocks: [
-        { h: "1. Kapsam", p: [`Bu koşullar, ${who}, ${address} tarafından işletilen REGA Platform'un (www.regaplatform.com) kullanımı için geçerlidir.`] },
+        { h: "1. Kapsam", p: [`Bu koşullar, ${who}, ${address} tarafından işletilen REGA Platform'un (www.rega24.com) kullanımı için geçerlidir.`] },
         { h: "2. Ücretsiz", p: ["REGA Platform kullanıcılar ve işletmeler için tamamen ücretsizdir. Ücret, abonelik, ücretli öne çıkarma veya ödeme işlevi yoktur."] },
         { h: "3. Hesap", p: ["İşletme eklemek için hesap gerekir. Doğru bilgi vermeli, erişim bilgilerinizi gizli tutmalı ve hesabınızın kötüye kullanımını bize derhal bildirmelisiniz. Kişi başına bir hesap öngörülmüştür."] },
         { h: "4. Kayıtlar ve katkılar için kurallar", p: ["Yalnızca yayımlamaya yetkili olduğunuz içeriği ekleyebilirsiniz. Özellikle şunlara izin verilmez:"], ul: ["yasa dışı, hakaret içeren, ayrımcı veya nefret içeren içerik;", "yanlış veya yanıltıcı bilgi, uydurma işletmeler veya yorumlar;", "spam, ilgisiz tekliflerin reklamı ve aynı hizmetin yinelenen kayıtları;", "üçüncü kişilerin haklarını (telif, marka, kişilik hakları) ihlal eden içerik;", "üçüncü kişilere ilişkin, onların onayı olmadan verilen bilgiler;", "kendi deneyiminizi yansıtmayan yorumlar, kendi işletmenize yazılan yorumlar ve satın alınmış ya da karşılıklı yazılmış yorumlar."] },

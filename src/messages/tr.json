@@ -851,7 +851,7 @@
     "title": "İçeriği bildir",
     "intro": "Yasa dışı, yanıltıcı veya uygunsuz bir içerik mi buldunuz? Buradan bildirin. Her bildirimi inceler ve sonucu size bildiririz.",
     "url": "İçeriğin adresi (URL)",
-    "urlHint": "Sayfanın tam adresi, örn. https://www.regaplatform.com/…",
+    "urlHint": "Sayfanın tam adresi, örn. https://www.rega24.com/…",
     "reason": "Neden",
     "reasonIllegal": "Yasa dışı içerik",
     "reasonMisleading": "Yanıltıcı veya yanlış bilgi",

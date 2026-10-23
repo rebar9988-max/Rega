@@ -194,12 +194,12 @@ test("DeepSeek: OpenAI-compatible protocol against the DeepSeek endpoint, bearer
 test("OpenRouter: endpoint, bearer auth, public attribution headers sent alongside bearer auth", async () => {
   let url = ""; let init: RequestInit = {};
   const fetchImpl = (async (u: string, i: RequestInit) => { url = u; init = i; return new Response(JSON.stringify({ choices: [{ message: { content: "routed" } }], usage: { prompt_tokens: 2, completion_tokens: 1 } }), { status: 200 }); }) as unknown as typeof fetch;
-  const p = createOpenRouter({ apiKey: "OPENROUTER-TEST", model: "vendor/model-x", siteUrl: "https://www.regaplatform.com", fetchImpl });
+  const p = createOpenRouter({ apiKey: "OPENROUTER-TEST", model: "vendor/model-x", siteUrl: "https://www.rega24.com", fetchImpl });
   assert.equal(p.id, "openrouter");
   const out = await p.generate(req, { signal: AbortSignal.timeout(1000) });
   assert.equal(out.content, "routed"); assert.equal(url, "https://openrouter.ai/api/v1/chat/completions");
   const h = init.headers as Record<string, string>;
-  assert.equal(h.authorization, "Bearer OPENROUTER-TEST"); assert.equal(h["HTTP-Referer"], "https://www.regaplatform.com"); assert.equal(h["X-Title"], "REGA Platform");
+  assert.equal(h.authorization, "Bearer OPENROUTER-TEST"); assert.equal(h["HTTP-Referer"], "https://www.rega24.com"); assert.equal(h["X-Title"], "REGA Platform");
   assert.equal(JSON.parse(init.body as string).model, "vendor/model-x");
 });
 

@@ -1,7 +1,7 @@
 # REGA Platform
 
-Production web application for **https://www.regaplatform.com**.
-Canonical host: `www.regaplatform.com`. Apex (`regaplatform.com`) 301-redirects to it.
+Production web application for **https://www.rega24.com**.
+Canonical host: `www.rega24.com`. Apex (`rega24.com`) 301-redirects to it.
 
 ## Stack
 
@@ -98,7 +98,7 @@ Variables and Secrets; *not* the Build section, which is invisible to the runnin
 
 ## DNS records
 
-The domain is served by Cloudflare: `www.regaplatform.com` is routed to the Worker, and the apex redirects to `www`
+The domain is served by Cloudflare: `www.rega24.com` is routed to the Worker, and the apex redirects to `www`
 (also enforced in `next.config.ts`). Leave MX, TXT and unrelated records untouched. HTTPS is issued by Cloudflare.
 
 ## Backups

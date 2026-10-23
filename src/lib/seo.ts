@@ -1,6 +1,6 @@
 /**
  * SEO helpers: canonical host, per-page alternates (hreflang), Open Graph / X metadata and
- * Organization structured data. Every URL is built on the canonical host (https://www.regaplatform.com),
+ * Organization structured data. Every URL is built on the canonical host (https://www.rega24.com),
  * never on the request host, so apex/preview hosts can never leak into canonicals or social cards.
  */
 import type { Metadata } from "next";
@@ -34,7 +34,7 @@ export const CONTACT = {
 } as const;
 
 export function siteHost(): string {
-  return process.env.CANONICAL_HOST || "www.regaplatform.com";
+  return process.env.CANONICAL_HOST || "www.rega24.com";
 }
 export function siteOrigin(): string {
   return `https://${siteHost()}`;

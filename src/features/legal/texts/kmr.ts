@@ -58,7 +58,7 @@ export const kmr: LegalBuilder = (o, ctx) => {
       title: "Mercên bikaranînê",
       description: "Mercên bikaranînê yên REGA Platform: bikaranîna bêpere bê mesref, rêgezên tomaran, çavdêrî, berpirsiyarî û jêbirina hesabê.",
       blocks: [
-        { h: "1. Qada derbasdariyê", p: [`Ev merc ji bo bikaranîna REGA Platform (www.regaplatform.com) derbasdar in, ku ji aliyê ${who}, ${address} ve tê xebitandin.`] },
+        { h: "1. Qada derbasdariyê", p: [`Ev merc ji bo bikaranîna REGA Platform (www.rega24.com) derbasdar in, ku ji aliyê ${who}, ${address} ve tê xebitandin.`] },
         { h: "2. Bêpere", p: ["REGA Platform ji bo bikarhêner û karsazan bi temamî bêpere ye. Mesref, abonetî, cihên bi pere an taybetmendiyên dayînê tune ne."] },
         { h: "3. Hesab", p: ["Ji bo tomarkirina karsaziyê hesab pêwîst e. Divê tu agahiyên rast bidî, agahiyên têketinê veşartî bihêlî û her xirabkariya hesabê xwe tavilê ji me re bibêjî. Ji bo her kesî yek hesab tê bihesibandin."] },
         { h: "4. Rêgezên tomar û beşdariyan", p: ["Tu tenê dikarî naveroka ku mafê te yê weşandinê heye biweşînî. Bi taybetî ev tişt qedexe ne:"], ul: ["naveroka neqanûnî, heqaretkar, cudakar an nefretê belavker;", "agahiyên derew an xapînok, karsaz an nirxandinên çêkirî;", "spam, reklama pêşniyarên negirêdayî û tomarên dubare yên heman karûbarê;", "naveroka ku mafên aliyên sêyem (mafê çapê, marqe, mafên kesane) binpê dike;", "agahiyên li ser kesên din bê razîbûna wan;", "nirxandinên ku ne ji ezmûna te ne, nirxandinên karsaziya xwe, û nirxandinên kirrîn an guhertî."] },

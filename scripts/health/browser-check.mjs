@@ -1,10 +1,10 @@
 // Read-only production browser check: opens the live site in a real Chromium (desktop + mobile), checks the public
 // journeys and the approved red/white UI, and saves full-page screenshots. Never signs in, never submits a form,
-// never writes data. Usage: BASE_URL=https://www.regaplatform.com node scripts/health/browser-check.mjs
+// never writes data. Usage: BASE_URL=https://www.rega24.com node scripts/health/browser-check.mjs
 import { chromium, devices } from "@playwright/test";
 import { mkdirSync, appendFileSync } from "node:fs";
 
-const BASE = (process.env.BASE_URL || "https://www.regaplatform.com").replace(/\/$/, "");
+const BASE = (process.env.BASE_URL || "https://www.rega24.com").replace(/\/$/, "");
 const OUT = process.env.OUT_DIR || "browser-check";
 const UA_SUFFIX = " rega-ci-browser-check/1.0 (+github-actions)";
 mkdirSync(OUT, { recursive: true });

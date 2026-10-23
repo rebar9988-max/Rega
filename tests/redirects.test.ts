@@ -18,8 +18,8 @@ test("apex→www redirect matches ONLY the apex host (regression: www redirected
     const value = rule.has![0].value;
     for (const make of matchers) {
       const re = make(value);
-      assert.equal(re.test("regaplatform.com"), true, "apex must match");
-      for (const other of ["www.regaplatform.com", "xregaplatform.com", "regaplatform.com.evil.io", "regaplatformXcom", "localhost:3000", "rega-platform.workers.dev"]) {
+      assert.equal(re.test("rega24.com"), true, "apex must match");
+      for (const other of ["www.rega24.com", "xrega24.com", "rega24.com.evil.io", "rega24Xcom", "localhost:3000", "rega-platform.workers.dev"]) {
         assert.equal(re.test(other), false, `${other} must NOT match`);
       }
     }
@@ -28,7 +28,7 @@ test("apex→www redirect matches ONLY the apex host (regression: www redirected
 
 test("apex redirect destinations are absolute, permanent, and never contain an unsubstituted :path*", async () => {
   for (const rule of await apexRules()) {
-    assert.match(rule.destination, /^https:\/\/www\.regaplatform\.com\//);
+    assert.match(rule.destination, /^https:\/\/www\.rega24\.com\//);
     assert.equal(rule.statusCode, 301);
     assert.ok(!rule.destination.includes(":path*"), "':path*' is not substituted for the empty path");
   }

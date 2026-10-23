@@ -58,7 +58,7 @@ export const en: LegalBuilder = (o, ctx) => {
       title: "Terms of use",
       description: "Terms of use of REGA Platform: free use without fees, rules for listings, moderation, liability and deletion of your account.",
       blocks: [
-        { h: "1. Scope", p: [`These terms apply to the use of REGA Platform (www.regaplatform.com), operated by ${who}, ${address}.`] },
+        { h: "1. Scope", p: [`These terms apply to the use of REGA Platform (www.rega24.com), operated by ${who}, ${address}.`] },
         { h: "2. Free of charge", p: ["REGA Platform is completely free for users and for businesses. There are no fees, subscriptions, paid placements or payment features."] },
         { h: "3. Account", p: ["An account is required to list a business. You must give truthful information, keep your credentials secret and tell us promptly about any misuse of your account. One account per person is intended."] },
         { h: "4. Rules for listings and contributions", p: ["You may only post content you are entitled to publish. In particular the following is not allowed:"], ul: ["unlawful, insulting, discriminatory or hateful content;", "false or misleading information, invented businesses or reviews;", "spam, advertising for unrelated offers and duplicate listings of the same service;", "content that infringes third-party rights (copyright, trademark, personality rights);", "information about third parties without their consent;", "reviews that do not reflect your own experience, reviews of your own business, and bought or traded reviews."] },

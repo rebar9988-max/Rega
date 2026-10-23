@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // PROJECT IDENTITY GUARD — REGA != R&L. Fail-closed, read-only, no dependencies, no network.
 //
-// REGA Platform (repo rebar9988-max/Rega, www.regaplatform.com) and R&L (repo rebar9988-max/rega-cargo,
+// REGA Platform (repo rebar9988-max/Rega, www.rega24.com) and R&L (repo rebar9988-max/rega-cargo,
 // www.rlgo.net) are two independent projects. Run this before any destructive or production-changing step
 // (deploy, migration, secret sync, merge, infrastructure change). It exits 0 only when every identifier it can
 // see belongs to the project that was asked for AND to the repository it lives in. Anything else — a project
@@ -30,8 +30,9 @@ export const PROJECTS = {
   REGA: {
     name: "REGA Platform",
     repos: ["rebar9988-max/rega"],
-    domains: ["regaplatform.com", "www.regaplatform.com"],
-    retiredDomains: [],
+    domains: ["rega24.com", "www.rega24.com"],
+    // Former REGA hosts (production moved to www.rega24.com). Still REGA's identifier, never a valid target.
+    retiredDomains: ["regaplatform.com", "www.regaplatform.com"],
     workers: ["rega-platform", "rega-ai-python"],
   },
   "R&L": {

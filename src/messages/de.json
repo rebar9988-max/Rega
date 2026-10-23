@@ -851,7 +851,7 @@
     "title": "Inhalt melden",
     "intro": "Haben Sie Inhalte gefunden, die rechtswidrig, irreführend oder unpassend sind? Melden Sie sie hier. Wir prüfen jede Meldung und informieren Sie über das Ergebnis.",
     "url": "Adresse des Inhalts (URL)",
-    "urlHint": "Vollständige Adresse der Seite, z. B. https://www.regaplatform.com/…",
+    "urlHint": "Vollständige Adresse der Seite, z. B. https://www.rega24.com/…",
     "reason": "Grund der Meldung",
     "reasonIllegal": "Rechtswidriger Inhalt",
     "reasonMisleading": "Irreführende oder falsche Angaben",
