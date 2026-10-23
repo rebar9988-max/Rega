@@ -45,7 +45,7 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
   return (
     <>
       <PageSchema type="ContactPage" name={t("title")} description={t("intro")} path="/contact" crumbs={[{ name: t("title"), path: "/contact" }]} />
-      <PageHeader title={t("heading")} subtitle={t("intro")} />
+      <PageHeader title={t("heading")} />
       <div className="container-page max-w-5xl space-y-6 pb-10 sm:pb-12">
         <ul aria-label={t("channels")} className="grid gap-3 sm:grid-cols-3 sm:gap-4">
           {channels.map((c) => (
