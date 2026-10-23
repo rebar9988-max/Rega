@@ -30,7 +30,7 @@ export const SOCIAL_DISPLAY_NAME = BRAND_NAME;
 /** Official REGA contact details (shown in the footer). */
 export const CONTACT = {
   phone: { display: "+49 178 4228269", href: "tel:+491784228269" },
-  email: { display: "info@regaplatform.com", href: "mailto:info@regaplatform.com" },
+  email: { display: "info@rega24.com", href: "mailto:info@rega24.com" },
 } as const;
 
 export function siteHost(): string {

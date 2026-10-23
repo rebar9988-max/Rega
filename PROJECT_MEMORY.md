@@ -24,6 +24,13 @@ If memory conflicts with verified live state, live state wins and memory must be
 - Cloudflare Worker: `rega-platform`
 - Production branch: `main`
 
+## Current owner constraint — 2026-10-23
+
+The owner corrected the original cleanup brief during execution: keep the name **REGA** and the supplied original
+red/white 3D logo. Do not rename it to Rega24 or redraw the graphics. `www.rega24.com` remains the canonical domain.
+All tentative name, translation, logo and social-image edits were reverted before commit or deployment. Generated
+explorations are outside the repository and are not production assets. Existing seven languages and artwork remain intact.
+
 ## PERMANENT P0 RULE — REGA / R&L project isolation (owner instruction, 2026-10-22)
 **REGA ≠ R&L. Never mix. Never silently switch. Always verify. Stop automatically on mismatch.** Full rule: `CLAUDE.md` section 0.
 - PROJECT A — REGA Platform: repository `rebar9988-max/Rega`, production `https://www.regaplatform.com`, Workers `rega-platform` / `rega-ai-python`. **This repository.**
@@ -544,3 +551,37 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
 - Deploy fix: the first production deploy (run 40004887934) failed at the Worker upload; the only config change was a
   `vars.CANONICAL_HOST` entry in `wrangler.jsonc` (a variable may not share a name with a dashboard secret). Removed; the
   code default is `www.rega24.com`, so the canonical host does not depend on a Worker variable.
+
+## Canonical routing recovery and configuration audit — 2026-10-23
+
+- Verified repository `rebar9988-max/Rega`, main `d1227c9`, identity guard, local and central memory, current Cloudflare
+  Workers, domains, DNS, routes, binding/secret names and build triggers before changing infrastructure. GitHub repository
+  metadata and workflow runs are readable; listing repository secrets/variables returns 403 (values were never requested).
+- Root cause: canonical apex/www belonged to a second Worker `rega`, with no DATABASE_URL or AUTH_SECRET. Its live health
+  returned database/auth/storage/AI/email failures. The existing `rega-platform` had all required bindings and a healthy DB.
+  Both had builds connected to this same repository; the second trigger could publish outside the CI gate.
+- Rebound canonical apex/www to `rega-platform` without copying, reading or rotating credentials. Verified live health:
+  database/migrations/content/auth/storage/AI/email all healthy; missingEnv empty; 4 AI providers; the same 3 published
+  businesses returned. No database migration, user/listing change, session-secret rotation or R&L resource change.
+- Added exact-host zone redirects (IDs and method policy in docs/DEPLOYMENT.md). Verified 16 GET cases: apex, both legacy
+  website hosts and HTTP www; root, nested/query, static manifest and /dr query all return 301 to canonical HTTPS,
+  preserving full path/query. Non-GET policy is 308 so bodies are not converted to GET.
+- Removed only duplicate build trigger `e74a5e4c-cc66-4105-a816-3d8a49f6f877` after verifying matching REGA repo and stopped
+  latest build. Original trigger `b396f1cf-0a07-4019-ad6c-76f0a770747e` stays dry-run. The `rega` Worker has no Custom Domains
+  or secrets; workers.dev and previews disabled. Historical Worker versions retained. No Workers or secrets deleted.
+- Canonical mail aliases info/support now have Cloudflare Email Routing enabled and use the same destinations as the
+  established legacy aliases. Added Resend sending-domain DNS for rega24.com (EU region, tracking disabled); verification
+  pending at this checkpoint. Existing EMAIL_FROM and RESEND_API_KEY unchanged to preserve owner-code delivery.
+- Code scope: contact/legal public email defaults point to the configured canonical info alias. Domain ownership remains
+  managed in Cloudflare. A tentative declaration of retired hosts in wrangler.jsonc was rejected by the identity guard;
+  that local config change was reverted, with the guard unchanged and no deploy from the rejected config. No branding,
+  layout, language, feature, admin or image change.
+- Asset audit: all current responsive formats/sizes and original artwork retained under the owner's latest boundary;
+  none treated as obsolete solely for a historical filename. Existing media domain/bucket and mail DNS remain required.
+- Local verification so far: identity guard, lint, typecheck, 329 unit tests pass / 4 intentionally skipped, OpenNext
+  production build, Wrangler dry-run pass. Read-only production Chromium desktop/mobile verification running; CI/deploy
+  of the configuration/contact changes pending. No authenticated production mutation or test email was sent.
+- Recovery: reattach domains to the recorded prior Worker only if required; keep the existing configured platform and
+  AUTH_SECRET. Disable the new redirect rules to roll those back. Do not delete data or active infrastructure.
+- Next safe continuation: finish browser and mail-verification reads, CI/merge/deploy, verify exact active version and
+  production health, then append final evidence here and in the central memory Doc.
