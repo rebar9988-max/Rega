@@ -585,3 +585,28 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
   AUTH_SECRET. Disable the new redirect rules to roll those back. Do not delete data or active infrastructure.
 - Next safe continuation: finish browser and mail-verification reads, CI/merge/deploy, verify exact active version and
   production health, then append final evidence here and in the central memory Doc.
+
+### Follow-up verification — 2026-10-23 (PR #59)
+
+- Read-only live Chromium run completed: 201 checks passed, exit 0, desktop 1366px and Pixel 5. Public pages, directory,
+  a real published profile, location search/persistence/nearby selection, RTL and anonymous /dr protection exercised;
+  38 screenshots in the execution workspace. The original script's direct API calls hit environment egress refusal;
+  a temporary copy used the configured HTTPS proxy without disabling TLS verification. No product script was changed.
+- All 7 live home pages passed HTTP, canonical URL, configured BCP-47 language tag, RTL/LTR, original logo and REGA
+  metadata checks; no R&L brand or Rega24 display-name substitution. Confirmed no diff in public/, src/messages/,
+  src/components/ or src/app/ against d1227c9. Graphic and translation boundary preserved.
+- Existing mobile diagnostic remains visible: scrollWidth 397 vs clientWidth 393 on the German list (previously recorded
+  in memory). The script's window-width assertions pass; this is not a claim of zero layout-viewport overflow. No layout
+  alteration was made under the owner's explicit graphics/name boundary.
+- Resend now reports rega24.com VERIFIED: DKIM, return-path SPF/MX and CNAME all verified; tracking disabled. Existing
+  sender/key still preserved. Explicit owner permission requested for one delivery test before switching the sender;
+  no message sent and no sign-in requested. Verification alone does not prove the app key's domain permission.
+- Deleted redundant legacy routes 16a1f460cd6c4f6f9692d5b93f356e39 and 5caed800882c4dcca63db0ecf642d1d3 only after
+  confirming same-host Custom Domains on rega-platform and active pre-Worker redirect rules. Both legacy hosts still
+  return correct 301s afterwards. Duplicate Worker's workers.dev URL returns 404. Media root 404 is not an object test;
+  its active R2 domain remains configured and untouched.
+- GitHub PR #59: https://github.com/rebar9988-max/Rega/pull/59. Main verify quality gate in progress; separate optional
+  Neon preview branch provisioning fails HTTP 422, also documented on earlier tasks. No database branch was removed
+  or quota/billing changed to address it. CI uses its own throw-away Postgres and is independent of that preview job.
+- A second local unit run overlapped the rejected tentative domain config and failed only the expected identity guard;
+  after reverting that config, all 12 guard tests and 12 SEO/redirect tests pass. No guard logic/test was changed.

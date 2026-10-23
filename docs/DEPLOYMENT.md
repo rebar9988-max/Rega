@@ -22,7 +22,8 @@ Cloudflare dashboard (Workers & Pages → rega-platform → Settings → Variabl
   and lack of Custom Domains. Its workers.dev and preview access are disabled. The Worker and historical versions
   remain for rollback; no Worker, production data or secret was deleted.
 - Only the original `rega-platform` Workers Builds trigger remains, with `npx wrangler deploy --dry-run`.
-  GitHub Actions remains the single CI-gated publishing path.
+  GitHub Actions remains the single CI-gated publishing path. Redundant legacy `/*` routes were removed only after
+  proving that exact-host Custom Domains and the earlier edge redirects already cover those requests.
 - `info@rega24.com` and `support@rega24.com` forward to the same established destinations as their legacy aliases.
   Keep the legacy forwarding/DKIM/SPF and `media.regaplatform.com`: they remain in use and must not be deleted.
   A sending domain must finish Resend verification before changing `EMAIL_FROM`; domain verification alone does
