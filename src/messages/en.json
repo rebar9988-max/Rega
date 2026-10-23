@@ -1127,6 +1127,20 @@
     "unverified": "Not verified by staff",
     "approve": "Verify & publish"
   },
+  "businessVisibility": {
+    "public": "Public",
+    "notPublic": "Not public",
+    "hidden": "Hidden",
+    "hide": "Hide",
+    "unhide": "Show again",
+    "confirmHide": "Hide this listing from the public site? Nothing is deleted; it can be shown again at any time.",
+    "hiddenNote": "This listing is hidden. It does not appear on the public site, in search, categories, the map or Nearby. All its data is kept and it can still be edited.",
+    "notice_hidden": "Hidden from the public site. Nothing was deleted.",
+    "notice_shown": "Visible on the public site again.",
+    "notice_restoredPending": "Shown again and back in the review queue. It becomes public once it is approved.",
+    "notice_restoredDraft": "Restored as a draft. It becomes public only after it is published again.",
+    "notice_denied": "This listing was hidden by the REGA team. Only the team can show it again."
+  },
   "businessImages": {
     "title": "Position your image",
     "hint": "Drag to position, pinch with two fingers or use the zoom slider. Arrow keys also move the image.",

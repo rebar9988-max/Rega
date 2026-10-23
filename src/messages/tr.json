@@ -1127,6 +1127,20 @@
     "unverified": "Henüz personel tarafından doğrulanmadı",
     "approve": "Doğrula ve yayınla"
   },
+  "businessVisibility": {
+    "public": "Herkese açık",
+    "notPublic": "Herkese açık değil",
+    "hidden": "Gizli",
+    "hide": "Gizle",
+    "unhide": "Yeniden göster",
+    "confirmHide": "Bu kayıt herkese açık siteden gizlensin mi? Hiçbir şey silinmez; istediğiniz zaman yeniden gösterilebilir.",
+    "hiddenNote": "Bu kayıt gizli. Herkese açık sitede, aramada, kategorilerde, haritada ve Yakınımda görünmez. Tüm verileri korunur ve düzenlenmeye devam edilebilir.",
+    "notice_hidden": "Herkese açık siteden gizlendi. Hiçbir şey silinmedi.",
+    "notice_shown": "Herkese açık sitede yeniden görünüyor.",
+    "notice_restoredPending": "Yeniden gösterildi ve incelemeye geri döndü. Onaydan sonra herkese açık olur.",
+    "notice_restoredDraft": "Taslak olarak geri yüklendi. Yalnızca yeniden yayınlandıktan sonra herkese açık olur.",
+    "notice_denied": "Bu kayıt REGA ekibi tarafından gizlendi. Yalnızca ekip yeniden gösterebilir."
+  },
   "businessImages": {
     "title": "Görseli konumlandır",
     "hint": "Konumu değiştirmek için sürükleyin; iki parmakla veya kaydırıcıyla yakınlaştırın. Ok tuşlarıyla da hareket ettirebilirsiniz.",

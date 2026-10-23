@@ -1127,6 +1127,20 @@
     "unverified": "Hê ji aliyê tîmê ve nehatiye piştrastkirin",
     "approve": "Piştrast bike û biweşîne"
   },
+  "businessVisibility": {
+    "public": "Giştî",
+    "notPublic": "Ne giştî",
+    "hidden": "Veşartî",
+    "hide": "Veşêre",
+    "unhide": "Dîsa nîşan bide",
+    "confirmHide": "Ev tomar ji malpera giştî were veşartin? Tiştek nayê jêbirin; her dem dikare dîsa were nîşandan.",
+    "hiddenNote": "Ev tomar veşartî ye. Li ser malpera giştî, di lêgerînê, kategoriyan, nexşeyê û nêzîkan de xuya nabe. Hemû daneyên wê tên parastin û hîn dikare were guhertin.",
+    "notice_hidden": "Ji malpera giştî hate veşartin. Tiştek nehate jêbirin.",
+    "notice_shown": "Dîsa li ser malpera giştî xuya dibe.",
+    "notice_restoredPending": "Dîsa hate nîşandan û vegeriya lêkolînê. Piştî pejirandinê giştî dibe.",
+    "notice_restoredDraft": "Wek reşnivîs hate vegerandin. Tenê piştî weşandina nû giştî dibe.",
+    "notice_denied": "Ev tomar ji aliyê tîma REGA ve hate veşartin. Tenê tîm dikare dîsa nîşan bide."
+  },
   "businessImages": {
     "title": "Wêneyê bi cih bike",
     "hint": "Ji bo guhertina cihê bikişîne, bi du tiliyan an rêkera zoomê mezintir bike. Bi tîran jî dikare were livandin.",
