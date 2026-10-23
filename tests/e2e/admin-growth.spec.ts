@@ -67,7 +67,7 @@ test("content reports reach the dashboard and can be handled", async ({ page }) 
   // A visitor reports content.
   await page.goto("/de/report");
   const report = page.getByTestId("report-form");
-  await report.getByLabel("Adresse des Inhalts (URL)").fill(`https://www.regaplatform.com/de/businesses/e2e-${stamp}`);
+  await report.getByLabel("Adresse des Inhalts (URL)").fill(`https://www.rega24.com/de/businesses/e2e-${stamp}`);
   await report.getByLabel("Begründung: Warum ist dieser Inhalt problematisch?").fill(`E2E Meldung ${stamp}: irreführende Angaben`);
   await report.getByLabel("Ihr Name").fill("E2E Melder");
   await report.getByLabel("Ihre E-Mail-Adresse").fill("melder@example.org");

@@ -12,7 +12,7 @@ These rules come from the project owner and apply to every task in this reposito
 | | PROJECT A — REGA Platform | PROJECT B — R&L |
 |---|---|---|
 | Repository | `rebar9988-max/Rega` | `rebar9988-max/rega-cargo` |
-| Production | https://www.regaplatform.com | https://www.rlgo.net |
+| Production | https://www.rega24.com | https://www.rlgo.net |
 | Identity | REGA Platform | R&L Marketplace & Delivery |
 | Cloudflare Worker | `rega-platform` (+ `rega-ai-python`) | `rega-cargo` (+ `rega-cargo-staging`) |
 
@@ -57,7 +57,7 @@ REGA task in the REGA repository — ALLOW. R&L task in the R&L repository — A
 - Only `rebar9988@gmail.com` may hold SUPER_ADMIN power (`SUPER_ADMIN_EMAILS` in `src/lib/rbac.ts`). `effectiveRole` turns a
   stored SUPER_ADMIN on any other address into USER at sign-in, session revalidation, every session read and in
   `currentAccount` (all privileged guards); SUPER_ADMIN cannot be given to another address in user administration.
-- www.regaplatform.com/dr signs the owner in with a six-digit e-mail code; codes go to that address only. Widening the list
+- www.rega24.com/dr signs the owner in with a six-digit e-mail code; codes go to that address only. Widening the list
   needs a new explicit owner instruction. Details and verification evidence: `PROJECT_MEMORY.md`.
 
 ## 1. Foundation rule (REGA is a finished house)
@@ -136,7 +136,7 @@ the Doc keeps the cross-tool summary and change log, the repository keeps detail
 3. If a source cannot be reached from the current session (no Cloudflare connector, no network access), say so and
    record it as an environment limitation, never as a code failure. Read-only fallbacks: the `Workers Builds:
    rega-platform` check run and the `Deploy to Cloudflare Workers` workflow run on a GitHub commit show build/deploy
-   results; a public fetch of `https://www.regaplatform.com` shows the site is served. Neither proves which version
+   results; a public fetch of `https://www.rega24.com` shows the site is served. Neither proves which version
    is active at 100%; do not claim that without Cloudflare access.
 4. `main` is the only production branch unless the owner explicitly changes this rule. Never bypass GitHub protection,
    required checks or production safeguards; never merge or deploy unverified changes; no speculative fixes.

@@ -851,7 +851,7 @@
     "title": "Report content",
     "intro": "Found content that is illegal, misleading or inappropriate? Report it here. We review every notice and tell you the outcome.",
     "url": "Address of the content (URL)",
-    "urlHint": "Full address of the page, e.g. https://www.regaplatform.com/…",
+    "urlHint": "Full address of the page, e.g. https://www.rega24.com/…",
     "reason": "Reason",
     "reasonIllegal": "Illegal content",
     "reasonMisleading": "Misleading or false information",

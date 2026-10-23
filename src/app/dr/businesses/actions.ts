@@ -114,7 +114,7 @@ async function notifyReturned(businessId: string, listing: string, reason?: stri
   if (!owner) return;
   const locale = isLocale(owner.locale) ? owner.locale : "de";
   const t = await getTranslations({ locale, namespace: "emails" });
-  const origin = process.env.AUTH_URL ? new URL(process.env.AUTH_URL).origin : `https://${process.env.CANONICAL_HOST || "www.regaplatform.com"}`;
+  const origin = process.env.AUTH_URL ? new URL(process.env.AUTH_URL).origin : `https://${process.env.CANONICAL_HOST || "www.rega24.com"}`;
   await sendEmail({ to: owner.email, subject: t("reviewSubject"), text: t("reviewBody", { name: owner.name ?? "", listing, reason: reason ? `\n${reason}\n` : "", link: `${origin}/dr/businesses/${businessId}` }) });
 }
 
@@ -139,7 +139,7 @@ export async function saveBusinessAction(_prev: BusinessFormState, formData: For
   if (!result.ok) return { error: result.error, ...(result.error === "city_unknown" ? { fields: ["city"] } : {}) };
   if (result.created || !input.id) await addCreatorAsMember(user, result.id);
   if (result.submittedNow) {
-    await sendEmail({ to: teamInbox(), subject: `[REGA] New listing to review: ${input.name}`.slice(0, 200), text: `${input.name}\nSubmitted by ${user.email}\nReview: ${process.env.AUTH_URL ? new URL(process.env.AUTH_URL).origin : `https://${process.env.CANONICAL_HOST || "www.regaplatform.com"}`}/dr/businesses?status=pending` });
+    await sendEmail({ to: teamInbox(), subject: `[REGA] New listing to review: ${input.name}`.slice(0, 200), text: `${input.name}\nSubmitted by ${user.email}\nReview: ${process.env.AUTH_URL ? new URL(process.env.AUTH_URL).origin : `https://${process.env.CANONICAL_HOST || "www.rega24.com"}`}/dr/businesses?status=pending` });
   }
 
   await writeAudit({

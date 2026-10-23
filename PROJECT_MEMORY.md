@@ -20,7 +20,7 @@ If memory conflicts with verified live state, live state wins and memory must be
 ## Project identity
 - Project: REGA
 - Repository: `rebar9988-max/Rega`
-- Production: `https://www.regaplatform.com`
+- Production: `https://www.rega24.com` (since 2026-10-23; apex `rega24.com` 301-redirects to it; former host `www.regaplatform.com` is retired)
 - Cloudflare Worker: `rega-platform`
 - Production branch: `main`
 
@@ -532,3 +532,13 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
   3 locations, 3 users; none hidden or deleted. Live `/api/v1/businesses` lists all three after the deploy.
 - Not verified live: an authenticated hide/show on production (it would change real listings; no test listing on production). The full
   flow ran against a real database in CI. Next safe continuation: owner tries Hide / Show again on a listing at /dr/businesses.
+
+## Domain migration to www.rega24.com — 2026-10-23
+- Task (owner): change the production domain only. Old `regaplatform.com`; new primary `www.rega24.com`; `rega24.com` 301-redirects to it.
+- Changed: every host reference (canonical-host defaults, `wrangler.jsonc` var `CANONICAL_HOST`, apex redirect, SEO/robots/sitemap
+  base, legal/help text URLs, security.txt canonical, workflows, health checks, identity guard, tests, docs).
+- Not changed (out of scope): brand, design, content, database, Worker/repo names, R&L. E-mail addresses on `@regaplatform.com`
+  (EMAIL_FROM, CONTACT_INBOX, info@) stay: they belong to the verified mail domain, not the website host.
+- Identity guard: REGA domains are now `rega24.com`/`www.rega24.com`; `regaplatform.com`/`www.regaplatform.com` are REGA retired hosts.
+  The R&L copy of the guard was not touched (owner forbade any R&L change); it treats rega24 hosts as unknown, which fails closed.
+

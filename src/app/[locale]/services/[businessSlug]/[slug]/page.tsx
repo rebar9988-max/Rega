@@ -73,7 +73,7 @@ export default async function ServicePage({ params }: Props) {
           </div>
           {tel && <a href={`tel:${tel}`} className={buttonClass("primary", "w-full")}>{t("businesses.call")}</a>}
           <Link href={`/business/${s.business.slug}`} className={buttonClass("secondary", "w-full")}>{t("common.viewDetails")}</Link>
-          <Link href={{ pathname: "/report", query: { url: `https://${process.env.CANONICAL_HOST || "www.regaplatform.com"}/${locale}/services/${businessSlug}/${slug}` } }} rel="nofollow" className="inline-flex min-h-9 items-center text-xs font-semibold text-muted underline hover:text-ink">{t("report.reportThis")}</Link>
+          <Link href={{ pathname: "/report", query: { url: `https://${process.env.CANONICAL_HOST || "www.rega24.com"}/${locale}/services/${businessSlug}/${slug}` } }} rel="nofollow" className="inline-flex min-h-9 items-center text-xs font-semibold text-muted underline hover:text-ink">{t("report.reportThis")}</Link>
         </aside>
       </div>
     </div>

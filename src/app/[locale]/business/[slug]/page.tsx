@@ -72,7 +72,7 @@ export default async function BusinessPage({ params }: Props) {
     "@type": "LocalBusiness",
     name: name.text,
     description: about.text || undefined,
-    url: `https://${process.env.CANONICAL_HOST || "www.regaplatform.com"}/${locale}/business/${slug}`,
+    url: `https://${process.env.CANONICAL_HOST || "www.rega24.com"}/${locale}/business/${slug}`,
     image: b.logoUrl || b.coverUrl || undefined,
     telephone: b.phone || undefined,
     email: b.email || undefined,

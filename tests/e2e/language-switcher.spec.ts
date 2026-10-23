@@ -33,8 +33,8 @@ test("Persian is a complete locale: rtl, lang, translated UI, no raw keys", asyn
     expect((await page.goto(p))?.status(), p).toBe(200);
   }
   const html = await (await page.request.get("/fa/businesses")).text();
-  expect(html).toContain('rel="canonical" href="https://www.regaplatform.com/fa/businesses"');
-  expect(html).toMatch(/hrefLang="fa-IR" href="https:\/\/www\.regaplatform\.com\/fa\/businesses"/i);
+  expect(html).toContain('rel="canonical" href="https://www.rega24.com/fa/businesses"');
+  expect(html).toMatch(/hrefLang="fa-IR" href="https:\/\/www\.rega24\.com\/fa\/businesses"/i);
   expect(errors, errors.join("\n")).toEqual([]);
 });
 

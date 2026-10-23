@@ -42,7 +42,7 @@ const credentialsSchema = z.object({
 });
 
 /** Absolute site origin for redirects that Auth.js sends from its own callback (AUTH_URL wins, else the canonical host). */
-const siteBase = () => (process.env.AUTH_URL ? new URL(process.env.AUTH_URL).origin : `https://${process.env.CANONICAL_HOST || "www.regaplatform.com"}`);
+const siteBase = () => (process.env.AUTH_URL ? new URL(process.env.AUTH_URL).origin : `https://${process.env.CANONICAL_HOST || "www.rega24.com"}`);
 
 /** Google / Facebook / Apple: only those with BOTH client id and secret in the environment. */
 function socialProviders(): NextAuthConfig["providers"] {

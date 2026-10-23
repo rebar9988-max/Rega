@@ -19,7 +19,7 @@ test("hreflang language tags: Kurmanji is 'kmr' (its audience is not one country
 
 test("page metadata is complete: canonical, Open Graph and X card", () => {
   const m = pageMetadata({ locale: "en", path: "/services", title: "Services", description: "d" });
-  assert.equal((m.openGraph as { url: string }).url, "https://www.regaplatform.com/en/services");
+  assert.equal((m.openGraph as { url: string }).url, "https://www.rega24.com/en/services");
   assert.equal((m.twitter as { card: string }).card, "summary_large_image");
   assert.equal(m.robots, undefined);
   assert.deepEqual(pageMetadata({ locale: "en", title: "t", noindex: true }).robots, { index: false, follow: true });
@@ -39,7 +39,7 @@ test("nothing is invented: no configuration means no profiles and no sameAs", ()
   const [org] = organizationJsonLd("ckb", "d", {}) as Record<string, unknown>[];
   assert.equal(org["@type"], "Organization");
   assert.ok(!("sameAs" in org));
-  assert.equal(org.url, "https://www.regaplatform.com/");
+  assert.equal(org.url, "https://www.rega24.com/");
   assert.equal(org.name, "REGA Platform");
 });
 
@@ -48,24 +48,24 @@ test("configured profiles feed Organization.sameAs on the canonical domain", () 
   assert.deepEqual(socialProfiles(env).map((p) => p.key), ["instagram", "youtube"]);
   const [org, site] = organizationJsonLd("de", "d", env) as Record<string, unknown>[];
   assert.deepEqual(org.sameAs, ["https://www.instagram.com/rega", "https://youtube.com/@rega"]);
-  assert.equal((site.potentialAction as { target: { urlTemplate: string } }).target.urlTemplate, "https://www.regaplatform.com/de/search?q={search_term_string}");
+  assert.equal((site.potentialAction as { target: { urlTemplate: string } }).target.urlTemplate, "https://www.rega24.com/de/search?q={search_term_string}");
 });
 
 test("entity graph: one Organization @id, referenced (not duplicated) by WebSite and WebPage", () => {
   const [org, site] = organizationJsonLd("en", "d", {}) as Record<string, unknown>[];
-  assert.equal(org["@id"], "https://www.regaplatform.com/#organization");
+  assert.equal(org["@id"], "https://www.rega24.com/#organization");
   assert.equal(org.name, "REGA Platform");
   assert.equal(org.alternateName, "ڕێگا");
   assert.equal(site.name, "REGA Platform");
   assert.deepEqual(site.publisher, { "@id": org["@id"] });
   const [page, crumbs] = webPageJsonLd({ locale: "de", path: "/businesses", name: "Unternehmen", crumbs: [{ name: "Start", path: "" }, { name: "Unternehmen", path: "/businesses" }] }) as Record<string, unknown>[];
-  assert.equal(page["@id"], "https://www.regaplatform.com/de/businesses#webpage");
+  assert.equal(page["@id"], "https://www.rega24.com/de/businesses#webpage");
   assert.deepEqual(page.isPartOf, { "@id": site["@id"] });
   assert.deepEqual(page.publisher, { "@id": org["@id"] });
   assert.equal(crumbs["@type"], "BreadcrumbList");
   const items = crumbs.itemListElement as { position: number; item: string }[];
   assert.deepEqual(items.map((i) => i.position), [1, 2]);
-  assert.ok(items.every((i) => i.item.startsWith("https://www.regaplatform.com/de")));
+  assert.ok(items.every((i) => i.item.startsWith("https://www.rega24.com/de")));
 });
 
 test("no schema points at the unrelated Saudi authority", () => {

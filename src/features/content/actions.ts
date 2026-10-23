@@ -21,7 +21,7 @@ export type EntryFormState = { error?: "invalid" | "forbidden" | "unverified" | 
 const nameSel = { nameEn: true, nameCkb: true, nameKmr: true, nameDe: true, nameAr: true, nameFa: true, nameTr: true } as const;
 /** The text values of a row (names in every language), without ids. */
 const texts = (row: Record<string, unknown> | null) => Object.entries(row ?? {}).flatMap(([k, v]) => (k !== "id" && typeof v === "string" ? [v] : []));
-const origin = () => (process.env.AUTH_URL ? new URL(process.env.AUTH_URL).origin : `https://${process.env.CANONICAL_HOST || "www.regaplatform.com"}`);
+const origin = () => (process.env.AUTH_URL ? new URL(process.env.AUTH_URL).origin : `https://${process.env.CANONICAL_HOST || "www.rega24.com"}`);
 
 /** Create / edit an entry of a content section (jobs, events, guides). Validation, scoping and publish rules run here. */
 export async function saveEntryAction(_prev: EntryFormState, formData: FormData): Promise<EntryFormState> {

@@ -58,7 +58,7 @@ export const de: LegalBuilder = (o, ctx) => {
       title: "Nutzungsbedingungen",
       description: "Nutzungsbedingungen von REGA Platform: kostenlose Nutzung ohne Gebühren, Regeln für Einträge, Moderation, Haftung und Löschung des Kontos.",
       blocks: [
-        { h: "1. Geltungsbereich", p: [`Diese Bedingungen gelten für die Nutzung von REGA Platform (www.regaplatform.com), betrieben von ${who}, ${address}.`] },
+        { h: "1. Geltungsbereich", p: [`Diese Bedingungen gelten für die Nutzung von REGA Platform (www.rega24.com), betrieben von ${who}, ${address}.`] },
         { h: "2. Kostenlos", p: ["REGA Platform ist für Nutzer und für Unternehmen vollständig kostenlos. Es gibt keine Gebühren, Abonnements, bezahlten Platzierungen oder Zahlungsfunktionen."] },
         { h: "3. Konto", p: ["Für Inserate ist ein Konto erforderlich. Sie müssen wahrheitsgemäße Angaben machen, Ihre Zugangsdaten geheim halten und uns Missbrauch Ihres Kontos unverzüglich melden. Pro Person ist ein Konto vorgesehen."] },
         { h: "4. Regeln für Einträge und Beiträge", p: ["Sie dürfen nur Inhalte einstellen, zu deren Veröffentlichung Sie berechtigt sind. Nicht erlaubt sind insbesondere:"], ul: ["rechtswidrige, beleidigende, diskriminierende oder volksverhetzende Inhalte;", "falsche oder irreführende Angaben, erfundene Unternehmen oder Bewertungen;", "Spam, Werbung für nicht zugehörige Angebote und Mehrfach-Einträge derselben Leistung;", "Inhalte, die Rechte Dritter (Urheber-, Marken-, Persönlichkeitsrechte) verletzen;", "Angaben zu Dritten ohne deren Einverständnis;", "Bewertungen, die nicht Ihrer eigenen Erfahrung entsprechen, Bewertungen des eigenen Unternehmens sowie gekaufte oder getauschte Bewertungen."] },
