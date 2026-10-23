@@ -15,7 +15,9 @@ export async function Footer() {
   const tf = await getTranslations("footer");
   const tc = await getTranslations("contact");
   const social = socialProfiles();
-  const link = "inline-flex min-h-9 items-center text-muted hover:text-ink md:min-h-8";
+  // max-w-full + hyphens/anywhere: a long single word (de "Nutzungsbedingungen") wraps inside its grid column instead of
+  // pushing the page wider than a 393 px phone. Labels that fit are unchanged.
+  const link = "inline-flex min-h-9 max-w-full items-center text-muted hyphens-auto [overflow-wrap:anywhere] hover:text-ink md:min-h-8";
   // Columns and their links come from the section registry (config/sections.ts): no route is listed here.
   const groups = [
     { title: tf("explore"), items: footerNav("explore") },
