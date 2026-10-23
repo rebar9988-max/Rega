@@ -4,6 +4,31 @@ Production is the Worker `rega-platform` (`wrangler.jsonc`), built with OpenNext
 Cloudflare dashboard (Workers & Pages → rega-platform → Settings → Variables and Secrets) and in GitHub repository secrets;
 **none are ever committed or printed**. The variable names are in `.env.example`.
 
+### Domain ownership (2026-10-23)
+
+- The public name and original red/white artwork remain **REGA**, as explicitly confirmed by the owner during the cleanup.
+  `rega24.com` is the website domain, not permission to rename or redraw the brand.
+- `www.rega24.com`, `rega24.com`, `www.regaplatform.com` and `regaplatform.com` belong to the existing
+  `rega-platform` Worker. These Custom Domains remain managed in Cloudflare. The identity guard intentionally rejects retired
+  domains as deployment targets, so do not add them to `wrangler.jsonc` or weaken the guard. Verify Cloudflare ownership
+  before deployments. Never rename the application Worker or copy its secrets to fix routing.
+- Cloudflare zone redirect rules run before the Worker and its static assets. Apex and legacy website requests
+  redirect to `https://www.rega24.com`, preserving path and query. GET/HEAD use 301; other methods use 308 to preserve
+  request bodies. HTTP on the canonical www host also redirects to HTTPS. Matches are exact hosts; media, mail,
+  and every R&L hostname are excluded. The existing Next.js apex redirect remains a fallback for Node/local hosting.
+- Redirect ruleset IDs: `2942e3a88f8243a2826386082e2dd734` (rega24.com),
+  `79fc46d1df834b8f8f51cf8db35c487a` (regaplatform.com).
+- The duplicate `rega` build trigger was removed after checking its repository, latest stopped build, empty secrets
+  and lack of Custom Domains. Its workers.dev and preview access are disabled. The Worker and historical versions
+  remain for rollback; no Worker, production data or secret was deleted.
+- Only the original `rega-platform` Workers Builds trigger remains, with `npx wrangler deploy --dry-run`.
+  GitHub Actions remains the single CI-gated publishing path. Redundant legacy `/*` routes were removed only after
+  proving that exact-host Custom Domains and the earlier edge redirects already cover those requests.
+- `info@rega24.com` and `support@rega24.com` forward to the same established destinations as their legacy aliases.
+  Keep the legacy forwarding/DKIM/SPF and `media.regaplatform.com`: they remain in use and must not be deleted.
+  A sending domain must finish Resend verification before changing `EMAIL_FROM`; domain verification alone does
+  not prove the existing API key has permission to send from that domain.
+
 ## 1. Pre-deploy checks (all must pass)
 
 ```bash

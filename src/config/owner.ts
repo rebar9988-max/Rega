@@ -31,7 +31,7 @@ export type OwnerField = (typeof FIELDS)[number][0];
 const DEFAULTS: Partial<Record<OwnerField, string>> = {
   country: "Germany",
   phone: "+49 178 4228269",
-  publicEmail: "info@regaplatform.com",
+  publicEmail: "info@rega24.com",
   // Cloudflare is the documented host (README, wrangler.jsonc) and the site sets no analytics cookies of its own.
   hostingProvider: "Cloudflare, Inc. (Cloudflare Workers, R2)",
   analyticsTool: "none",
