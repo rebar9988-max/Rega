@@ -16,8 +16,6 @@
   // Variables and Secrets (DATABASE_URL, AUTH_SECRET, AI keys, ...) stay managed in the Cloudflare dashboard.
   // `keep_vars` stops a deploy from wiping dashboard-defined variables.
   "keep_vars": true,
-  // Production host (domain migration 2026-10-23): rega24.com 301-redirects here; www.regaplatform.com is retired.
-  "vars": { "CANONICAL_HOST": "www.rega24.com" },
 
   // Workers Rate Limiting: counters shared across isolates (the in-memory limiter alone is per isolate).
   // Used by src/lib/rate-limit.ts#allowShared; keys are per account (login) and per client IP (login, AI).

@@ -535,10 +535,12 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
 
 ## Domain migration to www.rega24.com — 2026-10-23
 - Task (owner): change the production domain only. Old `regaplatform.com`; new primary `www.rega24.com`; `rega24.com` 301-redirects to it.
-- Changed: every host reference (canonical-host defaults, `wrangler.jsonc` var `CANONICAL_HOST`, apex redirect, SEO/robots/sitemap
+- Changed: every host reference (canonical-host defaults in code, apex redirect, SEO/robots/sitemap
   base, legal/help text URLs, security.txt canonical, workflows, health checks, identity guard, tests, docs).
 - Not changed (out of scope): brand, design, content, database, Worker/repo names, R&L. E-mail addresses on `@regaplatform.com`
   (EMAIL_FROM, CONTACT_INBOX, info@) stay: they belong to the verified mail domain, not the website host.
 - Identity guard: REGA domains are now `rega24.com`/`www.rega24.com`; `regaplatform.com`/`www.regaplatform.com` are REGA retired hosts.
   The R&L copy of the guard was not touched (owner forbade any R&L change); it treats rega24 hosts as unknown, which fails closed.
-
+- Deploy fix: the first production deploy (run 40004887934) failed at the Worker upload; the only config change was a
+  `vars.CANONICAL_HOST` entry in `wrangler.jsonc` (a variable may not share a name with a dashboard secret). Removed; the
+  code default is `www.rega24.com`, so the canonical host does not depend on a Worker variable.
