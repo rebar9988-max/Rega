@@ -10,7 +10,7 @@ test("fingerprinted Next.js assets are cached for a year as immutable (public/_h
 
 test("security.txt (RFC 9116): contact and an expiry within the next year", () => {
   const txt = readFileSync("public/.well-known/security.txt", "utf8");
-  assert.match(txt, /^Contact: mailto:info@rega24\.com$/m);
+  assert.match(txt, /^Contact: mailto:info@regaplatform\.com$/m);
   const expires = /^Expires: (.+)$/m.exec(txt)?.[1];
   assert.ok(expires, "Expires is required");
   const ms = Date.parse(expires) - Date.now();
