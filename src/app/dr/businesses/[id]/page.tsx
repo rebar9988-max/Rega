@@ -15,8 +15,11 @@ import { BusinessTeam } from "@/components/dr/BusinessTeam";
 import { MAX_PHOTOS } from "@/lib/business-admin";
 import { offerState } from "@/lib/offers";
 import { formOptions } from "../form-options";
+import { VisibilityBadge, VisibilityControl } from "../VisibilityControl";
+import { publicVisibility } from "@/lib/business-publication";
 
-type Sp = { saved?: string; published?: string; blocked?: string; submitted?: string; team?: string };
+type Sp = { saved?: string; published?: string; blocked?: string; submitted?: string; team?: string; visibility?: string };
+const VISIBILITY_NOTICES = ["hidden", "shown", "restoredPending", "restoredDraft", "denied"] as const;
 const TEAM_NOTICES = ["added", "notfound", "invalid"];
 
 export default async function EditBusiness({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<Sp> }) {
@@ -40,6 +43,8 @@ export default async function EditBusiness({ params, searchParams }: { params: P
   const options = await formOptions(locale);
   const readyRecord = await prisma.business.findUniqueOrThrow({ where: { id }, select: publicationSelect });
   const readiness = businessReadiness(readyRecord);
+  const visibilityNotice = VISIBILITY_NOTICES.find((n) => n === sp.visibility);
+  const hidden = b.status === "archived";
   const notice = sp.published ? "published" : sp.submitted ? "submitted" : sp.blocked ? "blocked" : sp.saved ? "saved" : null;
 
   return (
@@ -47,12 +52,22 @@ export default async function EditBusiness({ params, searchParams }: { params: P
       <nav className="mb-2 text-sm"><Link href="/dr/businesses" className="text-muted hover:text-ink">{t("dashboard.businesses")}</Link></nav>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-extrabold">{t("bizForm.editTitle")}: <bdi>{b.name}</bdi></h1>
-        <div className="flex items-center gap-3 text-sm">
-          <span className="rounded-full bg-surface-2 px-3 py-1 font-semibold" data-testid="business-status">{t(`status.${b.status}`)}</span>
+        <div className="flex flex-wrap items-center gap-3 text-sm">
+          <span className="rounded-full bg-surface-2 px-3 py-1 font-semibold" data-testid="business-status">{hidden ? t("businessVisibility.hidden") : t(`status.${b.status}`)}</span>
+          <VisibilityBadge state={publicVisibility(b)} />
           <span data-testid="staff-verification">{b.verified ? t("businesses.verified") : t("businessModeration.unverified")}</span>
           {b.status === "published" && b.verified && <Link href={`/${locale}/business/${b.slug}`} className="font-semibold text-brand hover:underline">{t("bizForm.viewPublic")}</Link>}
+          <VisibilityControl id={b.id} hidden={hidden} back={`/dr/businesses/${b.id}`} className="min-h-11 rounded-lg border border-line px-3 text-xs font-semibold hover:bg-surface-2" />
         </div>
       </div>
+
+      {visibilityNotice && (
+        <p role={visibilityNotice === "denied" ? "alert" : "status"} data-testid="visibility-notice" data-notice={visibilityNotice}
+          className={`mb-6 rounded-xl px-4 py-3 text-sm font-semibold ${visibilityNotice === "denied" ? "bg-brand-soft text-ink" : "bg-[oklch(0.95_0.05_150)] text-[oklch(0.35_0.1_150)]"}`}>
+          {t(`businessVisibility.notice_${visibilityNotice}`)}
+        </p>
+      )}
+      {hidden && !visibilityNotice && <p role="note" data-testid="hidden-note" className="mb-6 rounded-xl bg-brand-soft px-4 py-3 text-sm font-semibold text-ink">{t("businessVisibility.hiddenNote")}</p>}
 
       {notice && (
         <div role="status" data-testid="form-notice" className={`mb-6 rounded-xl px-4 py-3 text-sm font-semibold ${notice === "blocked" ? "bg-brand-soft text-ink" : "bg-[oklch(0.95_0.05_150)] text-[oklch(0.35_0.1_150)]"}`}>

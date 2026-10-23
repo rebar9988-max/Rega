@@ -1127,6 +1127,20 @@
     "unverified": "Noch nicht vom Team geprüft",
     "approve": "Prüfen & veröffentlichen"
   },
+  "businessVisibility": {
+    "public": "Öffentlich",
+    "notPublic": "Nicht öffentlich",
+    "hidden": "Ausgeblendet",
+    "hide": "Ausblenden",
+    "unhide": "Wieder anzeigen",
+    "confirmHide": "Diesen Eintrag auf der öffentlichen Seite ausblenden? Es wird nichts gelöscht; er kann jederzeit wieder angezeigt werden.",
+    "hiddenNote": "Dieser Eintrag ist ausgeblendet. Er erscheint nicht auf der öffentlichen Seite, in der Suche, in Kategorien, auf der Karte oder unter „In der Nähe“. Alle Daten bleiben erhalten und er kann weiter bearbeitet werden.",
+    "notice_hidden": "Auf der öffentlichen Seite ausgeblendet. Es wurde nichts gelöscht.",
+    "notice_shown": "Wieder auf der öffentlichen Seite sichtbar.",
+    "notice_restoredPending": "Wieder angezeigt und zurück in der Prüfung. Öffentlich wird er erst nach der Freigabe.",
+    "notice_restoredDraft": "Als Entwurf wiederhergestellt. Öffentlich wird er erst nach erneuter Veröffentlichung.",
+    "notice_denied": "Dieser Eintrag wurde vom REGA-Team ausgeblendet. Nur das Team kann ihn wieder anzeigen."
+  },
   "businessImages": {
     "title": "Bild positionieren",
     "hint": "Zum Verschieben ziehen, mit zwei Fingern oder dem Regler zoomen. Auch die Pfeiltasten bewegen das Bild.",

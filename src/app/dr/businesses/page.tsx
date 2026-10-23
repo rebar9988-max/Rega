@@ -13,11 +13,14 @@ import { hasGlobalBusinessAccess, managedBusinessWhere } from "@/lib/business-ac
 import { textWhere } from "@/lib/search-where";
 import { BusinessActionButton } from "@/components/dr/BusinessActionButton";
 import { updateBusiness } from "./actions";
+import { VisibilityBadge, VisibilityControl } from "./VisibilityControl";
+import { publicVisibility } from "@/lib/business-publication";
 
 const PER_PAGE = 20;
 const STATUSES = ["pending", "draft", "published", "archived"] as const;
 
-type Sp = { q?: string; status?: string; page?: string; loc?: string; blocked?: string };
+type Sp = { q?: string; status?: string; page?: string; loc?: string; blocked?: string; visibility?: string; item?: string };
+const VISIBILITY_NOTICES = ["hidden", "shown", "restoredPending", "restoredDraft", "denied"] as const;
 
 /** Businesses whose primary location is missing, invalid or not yet confirmed. */
 const NEEDS_LOCATION: Prisma.BusinessWhereInput = {
@@ -47,7 +50,7 @@ export default async function DrBusinesses({ searchParams }: { searchParams: Pro
     prisma.business.findMany({
       where, orderBy: { updatedAt: "desc" }, skip: (page - 1) * PER_PAGE, take: PER_PAGE,
       select: {
-        id: true, slug: true, name: true, nameCkb: true, nameKmr: true, nameAr: true, nameTr: true, status: true, verified: true, featured: true, viewCount: true, category: { select: { nameDe: true, nameCkb: true, nameKmr: true, nameEn: true, nameAr: true, nameFa: true, nameTr: true } },
+        id: true, slug: true, name: true, nameCkb: true, nameKmr: true, nameAr: true, nameTr: true, status: true, verified: true, featured: true, viewCount: true, archivedAt: true, category: { select: { sectionKey: true, isActive: true, deletedAt: true, nameDe: true, nameCkb: true, nameKmr: true, nameEn: true, nameAr: true, nameFa: true, nameTr: true } },
         locations: { where: { isPrimary: true, deletedAt: null }, take: 1, select: { latitude: true, longitude: true, coordsVerifiedAt: true } },
       },
     }),
@@ -61,6 +64,9 @@ export default async function DrBusinesses({ searchParams }: { searchParams: Pro
     !l || l.latitude == null || l.longitude == null ? "locMissing" : !isValidCoordinate(l.latitude, l.longitude) ? "auditInvalid" : l.coordsVerifiedAt ? "locOk" : "locUnverified";
   const btn = "min-h-11 rounded-lg border border-line px-3 text-xs font-semibold hover:bg-surface-2";
   const pageLang = LOCALE_META[locale].htmlLang;
+  const statusLabel = (s: string) => (s === "archived" ? t("businessVisibility.hidden") : t(`status.${s}`));
+  const visibilityNotice = VISIBILITY_NOTICES.find((n) => n === sp.visibility);
+  const noticeItem = visibilityNotice && sp.item ? await prisma.business.findFirst({ where: { id: sp.item.slice(0, 64), deletedAt: null, ...(ownerOnly ? managedBusinessWhere(user) : {}) }, select: { name: true } }) : null;
 
   const act = (id: string, intent: string) => (
     <form key={intent} action={updateBusiness}>
@@ -103,6 +109,12 @@ export default async function DrBusinesses({ searchParams }: { searchParams: Pro
           </ul>
         </nav>
       )}
+      {visibilityNotice && (
+        <p role={visibilityNotice === "denied" ? "alert" : "status"} data-testid="visibility-notice" data-notice={visibilityNotice}
+          className={`mb-6 rounded-xl px-4 py-3 text-sm font-semibold ${visibilityNotice === "denied" ? "bg-brand-soft text-ink" : "bg-[oklch(0.95_0.05_150)] text-[oklch(0.35_0.1_150)]"}`}>
+          {noticeItem && <><bdi>{noticeItem.name}</bdi>: </>}{t(`businessVisibility.notice_${visibilityNotice}`)}
+        </p>
+      )}
       {sp.blocked && <p role="alert" data-testid="publish-blocked" className="mb-6 rounded-xl bg-brand-soft px-4 py-3 text-sm font-semibold">{t("bizForm.blockedNotice")} <Link href={`/dr/businesses/${encodeURIComponent(sp.blocked)}`} className="text-brand underline">{t("bizForm.edit")}</Link></p>}
       {audit && <section aria-labelledby="loc-audit" className="mb-6 rounded-[var(--radius-card)] border border-line bg-surface p-4" data-testid="location-audit">
         <h2 id="loc-audit" className="mb-3 text-sm font-bold">{t("bizForm.auditTitle")}</h2>
@@ -118,7 +130,7 @@ export default async function DrBusinesses({ searchParams }: { searchParams: Pro
         <label htmlFor="status" className="sr-only">{t("common.status")}</label>
         <select id="status" name="status" defaultValue={status ?? ""} className="min-h-11 rounded-xl border border-line bg-surface px-3 text-sm">
           <option value="">{t("common.all")}</option>
-          {STATUSES.map((s) => <option key={s} value={s}>{t(`status.${s}`)}</option>)}
+          {STATUSES.map((s) => <option key={s} value={s}>{statusLabel(s)}</option>)}
         </select>
         <label className="flex min-h-11 items-center gap-2 text-sm font-semibold"><input type="checkbox" name="loc" value="missing" defaultChecked={needsLocation} className="size-5 accent-[var(--brand)]" />{t("bizForm.filterMissing")}</label>
         <button type="submit" className="min-h-11 rounded-xl bg-brand px-5 text-sm font-semibold text-brand-ink hover:bg-brand-hover">{t("list.apply")}</button>
@@ -141,9 +153,9 @@ export default async function DrBusinesses({ searchParams }: { searchParams: Pro
                 <tr key={b.id} role="row" className="grid grid-cols-2 gap-x-3 gap-y-2 p-4 md:table-row md:p-0">
                   <td role="cell" className="col-span-2 min-w-0 break-words md:px-4 md:py-3">
                     <Link href={`/${locale}/business/${b.slug}`} className="font-semibold hover:underline"><Text value={localize(b, "name", locale)} pageLang={pageLang} /></Link>
-                    <div className="mt-1 flex gap-2 text-xs text-muted"><span data-testid="staff-verification">{b.verified ? `✓ ${t("businessModeration.verification")}` : t("businessModeration.unverified")}</span>{b.featured && <span>★ {t("businesses.featured")}</span>}</div>
+                    <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted"><VisibilityBadge state={publicVisibility(b)} /><span data-testid="staff-verification">{b.verified ? `✓ ${t("businessModeration.verification")}` : t("businessModeration.unverified")}</span>{b.featured && <span>★ {t("businesses.featured")}</span>}</div>
                   </td>
-                  <td role="cell" className="min-w-0 md:px-4 md:py-3"><span className="me-2 text-xs text-muted md:hidden">{t("common.status")}:</span><span data-testid="row-status">{t(`status.${b.status}`)}</span></td>
+                  <td role="cell" className="min-w-0 md:px-4 md:py-3"><span className="me-2 text-xs text-muted md:hidden">{t("common.status")}:</span><span data-testid="row-status">{statusLabel(b.status)}</span></td>
                   <td role="cell" className="min-w-0 break-words md:px-4 md:py-3" data-testid="primary-category"><span className="me-2 text-xs text-muted md:hidden">{t("bizForm.category")}:</span>{b.category ? localize({ ...b.category, name: b.category.nameDe }, "name", locale).text : "—"}</td>
                   <td role="cell" className="min-w-0 md:px-4 md:py-3" data-testid="loc-state">{(() => { const st = locState(b.locations[0]); return <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${st === "locOk" ? "bg-[oklch(0.95_0.05_150)] text-[oklch(0.35_0.1_150)]" : "bg-brand-soft text-brand"}`}>{t(`bizForm.${st}`)}</span>; })()}</td>
                   <td role="cell" className="min-w-0 md:px-4 md:py-3"><span className="me-2 text-xs text-muted md:hidden">{t("dashboard.views")}:</span>{formatNumber(b.viewCount, locale)}</td>
@@ -151,9 +163,9 @@ export default async function DrBusinesses({ searchParams }: { searchParams: Pro
                     {canWrite && manages(b.id) && <Link href={`/dr/businesses/${b.id}`} className={`${btn} inline-flex items-center`}>{t("bizForm.edit")}</Link>}
                     {canPublish && b.status === "pending" && moderate(b.id)}
                     {canPublish && b.status !== "pending" && b.status !== "archived" && (b.status === "published" ? act(b.id, "unpublish") : act(b.id, "publish"))}
-                    {canWrite && manages(b.id) && b.status !== "archived" && act(b.id, "archive")}
-                    {canPublish && act(b.id, b.featured ? "unfeature" : "feature")}
-                    {canPublish && b.verified && act(b.id, "unverify")}
+                    {canPublish && b.status !== "archived" && act(b.id, b.featured ? "unfeature" : "feature")}
+                    {canPublish && b.verified && b.status !== "archived" && act(b.id, "unverify")}
+                    {canWrite && manages(b.id) && <VisibilityControl id={b.id} hidden={b.status === "archived"} back={href(page)} className={btn} />}
                   </div></td>
                 </tr>
               ))}
