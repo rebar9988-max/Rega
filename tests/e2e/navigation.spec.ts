@@ -131,7 +131,9 @@ test("contact page: heading once, phone + email + WhatsApp, RTL; contact details
   await expect(phone).toHaveAccessibleName(/\+49 178 4228269/);
   expect(await phone.locator("bdi").evaluate((el) => getComputedStyle(el).direction)).toBe("ltr");
   expect(await main.evaluate((el) => getComputedStyle(el).direction)).toBe("rtl");
-  await expect(page.getByTestId("contact-email")).toHaveAttribute("href", "mailto:info@regaplatform.com");
+  await expect(page.getByTestId("contact-email")).toHaveAttribute("href", "mailto:info@rega24.com");
+  await expect(page.getByTestId("contact-email")).toContainText("info@rega24.com");
+  await expect(main).not.toContainText("info@regaplatform.com");
   await expect(page.getByTestId("contact-whatsapp")).toHaveAttribute("href", "https://wa.me/491784228269");
   await phone.focus();
   await expect(phone).toBeFocused();
