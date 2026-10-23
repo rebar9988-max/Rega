@@ -544,3 +544,10 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
 - Deploy fix: the first production deploy (run 40004887934) failed at the Worker upload; the only config change was a
   `vars.CANONICAL_HOST` entry in `wrangler.jsonc` (a variable may not share a name with a dashboard secret). Removed; the
   code default is `www.rega24.com`, so the canonical host does not depend on a Worker variable.
+
+## Contact section only — 2026-10-24
+- Owner scope: replace the old address with info@rega24.com and polish only /[locale]/contact.
+- Root cause: contact read the legacy public-email default/environment; long values were truncated and a three-channel list used a two-column desktop grid.
+- Change: fixed official contact email and mailto/ARIA, balanced three-column desktop / one-column mobile cards, full wrapping values, visible keyboard focus, existing localized intro. Existing colors, header/footer, phone/WhatsApp links, translations, routing, database and transactional sender untouched. Separate canonical-domain PR #59 is not duplicated or changed.
+- Branch: codex/contact-email-polish-20261024. Identity guard passed (Rega repo, rega-platform Worker, www.rega24.com). Local dependency/build checks unavailable: shell cannot reach GitHub/npm, modern-web-guidance package not cached. Hosted CI is the validation gate; no claim of live deployment until verified.
+- Next: CI -> merge only on green verify -> existing CI-gated production deploy -> verify contact page at narrow and desktop widths, then record release evidence in the central Doc.
