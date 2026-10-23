@@ -512,3 +512,9 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
   - Failed codes/passwords were only logged; now audited. `setMessageStatus` was the only dashboard mutation without an audit row.
 - Verified without change: owner-only SUPER_ADMIN on every route (#51), OAuth cannot grant it, codes HMAC-stored, single use, constant-time compare, neutral answers, no codes or secrets in logs, server-action origin checks.
 - Accepted trade-off (reported to owner): the durable limits let an attacker temporarily pause the owner's code or password sign-in (up to a day / an hour); the other method keeps working. Password sign-in for the owner stays (owner access preserved; not changed without an explicit owner decision).
+
+## Repository clean-up: unused files — 2026-10-23
+- Task: owner asked to remove extra/unused files ("only clearly temporary/empty files").
+- Scan of all 514 tracked files: no backup/temp/log files; two leftovers from the 2026-10-02 initial commit, neither referenced anywhere: root file `rega` (4 bytes, the text "rega") and `tests/e2e/legal.spec.ts` (0 bytes, no tests).
+- Change: both deleted. No application, route, test-logic, design, database or Cloudflare change; `CHANGES_REPORT.md` and docs kept.
+- Tests / PR / Cloudflare: see the PR; production impact none (neither file is part of the build).
