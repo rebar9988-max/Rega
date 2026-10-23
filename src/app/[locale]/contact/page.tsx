@@ -15,6 +15,9 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   return pageMetadata({ locale, path: "/contact", title: t("title"), description: await pageDescription(locale, "contact") });
 }
 
+// Public contact address is fixed by the owner; transactional sender settings are separate.
+const CONTACT_EMAIL = "info@rega24.com";
+
 const SOCIAL_LABEL = { facebook: "Facebook", instagram: "Instagram", tiktok: "TikTok", youtube: "YouTube", linkedin: "LinkedIn", x: "X", telegram: "Telegram", whatsapp: "WhatsApp" } as const;
 
 /** Digits only, as wa.me expects ("+49 178 4228269" -> "491784228269"). */
@@ -31,33 +34,33 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
   // The postal address is shown only once the operator has entered it (it always appears in the Impressum).
   const address = owner.missing.includes("streetAddress") || owner.missing.includes("postalCodeCity") ? null : `${owner.streetAddress}, ${owner.postalCodeCity}`;
 
-  const card = "card-lift group flex min-h-16 items-center gap-4 rounded-[var(--radius-card)] border border-line bg-surface p-5 shadow-card hover:border-brand/40";
-  const icon = "grid size-11 shrink-0 place-items-center rounded-xl bg-brand-soft text-brand group-hover:bg-brand group-hover:text-white";
+  const card = "group flex h-full min-h-28 items-center gap-4 rounded-[var(--radius-card)] border border-line bg-surface p-5 shadow-sm transition-[border-color,box-shadow] hover:border-brand/40 hover:shadow-card focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand sm:min-h-40 sm:flex-col sm:items-start sm:gap-5 sm:p-6";
+  const icon = "grid size-11 shrink-0 place-items-center rounded-xl bg-brand-soft text-brand";
   const channels = [
     { key: "phone", testid: "contact-phone", href: `tel:+${phoneDigits}`, icon: "phone", label: t("phone"), value: owner.phone, aria: t("phoneAria", { value: owner.phone }) },
-    { key: "email", testid: "contact-email", href: `mailto:${owner.publicEmail}`, icon: "mail", label: t("email"), value: owner.publicEmail, aria: t("emailAria", { value: owner.publicEmail }) },
+    { key: "email", testid: "contact-email", href: `mailto:${CONTACT_EMAIL}`, icon: "mail", label: t("email"), value: CONTACT_EMAIL, aria: t("emailAria", { value: CONTACT_EMAIL }) },
     { key: "whatsapp", testid: "contact-whatsapp", href: `https://wa.me/${phoneDigits}`, icon: "phone", label: t("whatsapp"), value: owner.phone, aria: t("whatsappAria", { value: owner.phone }), external: true },
   ];
 
   return (
     <>
       <PageSchema type="ContactPage" name={t("title")} description={t("intro")} path="/contact" crumbs={[{ name: t("title"), path: "/contact" }]} />
-      <PageHeader title={t("heading")} />
-      <div className="container-page max-w-3xl space-y-8 pb-8">
-        <ul aria-label={t("channels")} className="grid gap-3 sm:grid-cols-2">
+      <PageHeader title={t("heading")} subtitle={t("intro")} />
+      <div className="container-page max-w-5xl space-y-6 pb-10 sm:pb-12">
+        <ul aria-label={t("channels")} className="grid gap-3 sm:grid-cols-3 sm:gap-4">
           {channels.map((c) => (
             <li key={c.key}>
               <a href={c.href} aria-label={c.aria} data-testid={c.testid} {...(c.external ? { target: "_blank", rel: "noopener noreferrer" } : {})} className={card}>
                 <span className={icon}><HomeIcon name={c.icon} className="size-5" /></span>
-                <span className="min-w-0">
-                  <span className="block text-sm font-semibold text-muted">{c.label}</span>
-                  <span className="block truncate text-base font-bold text-ink group-hover:text-brand"><bdi dir="ltr">{c.value}</bdi></span>
+                <span className="min-w-0 max-w-full">
+                  <span className="mb-1 block text-sm font-medium text-muted">{c.label}</span>
+                  <span className="block break-words text-base font-semibold leading-7 text-ink [overflow-wrap:anywhere] group-hover:text-brand"><bdi dir="ltr">{c.value}</bdi></span>
                 </span>
               </a>
             </li>
           ))}
           {address && (
-            <li className="sm:col-span-2">
+            <li className="sm:col-span-3">
               <div data-testid="contact-address" className="flex min-h-16 items-center gap-4 rounded-[var(--radius-card)] border border-line bg-surface p-5 shadow-card">
                 <span className={icon}><HomeIcon name="pin" className="size-5" /></span>
                 <span className="min-w-0">
