@@ -109,19 +109,19 @@ export default async function Overview() {
         )}
       </section>
 
-      <dl className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <dl className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4 [&>*]:min-w-0">
         {stats.map((s) => (
           <div key={s.key} className="relative rounded-xl border border-line bg-surface p-4 shadow-card transition hover:border-ink/20">
-            <dt className="flex items-center gap-2 text-xs font-medium text-muted">
+            <dt className="flex min-w-0 items-center gap-2 text-xs font-medium text-muted">
               <span aria-hidden="true" className={`grid size-7 place-items-center rounded-lg ${s.attention ? "bg-brand-soft text-brand" : "bg-surface-2 text-ink/70"}`}><DrIcon name={s.icon} className="size-4" /></span>
-              <Link href={s.href} className="after:absolute after:inset-0 after:rounded-xl">{s.label}</Link>
+              <Link href={s.href} className="min-w-0 break-words hyphens-auto after:absolute after:inset-0 after:rounded-xl">{s.label}</Link>
             </dt>
             <dd className="mt-2 text-2xl font-extrabold tabular-nums text-ink sm:text-3xl">{formatNumber(s.n, locale)}</dd>
           </div>
         ))}
       </dl>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-2 [&>*]:min-w-0">
         {panel("pending", t("drAdmin.pendingTitle"), "clock", "/dr/businesses?status=pending",
           pending.length ? <ul className="divide-y divide-line">{pending.map((b) => row(b, when(b.updatedAt)))}</ul> : empty(t("drAdmin.noPending")))}
         {panel("pinned", t("drAdmin.pinnedTitle"), "pin", "/dr/businesses?pin=1",
