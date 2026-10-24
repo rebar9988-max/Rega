@@ -634,7 +634,7 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
   PR CI `verify` on rebased head `30747ed`: lint, typecheck, unit, builds, Worker smoke, 327 browser tests pass. Visual review with CI
   screenshots at 360/390/430/768/1024/1280/1440 px in ckb (RTL), de and en (temporary branches `preview/admin-shots` and `preview-shots`
   remain on GitHub; this session's proxy cannot delete branches — safe to delete).
-- Deploy: main CI `40092930996`, Deploy to Cloudflare Workers `40093968089` and `40093975508`, Beta health success. Live: `/dr/businesses`
+- Deploy: main CI `40092930996`, Deploy to Cloudflare Workers `40093968089` and `40093975508`, Beta health and Production browser check `40094114547` (live site, desktop + mobile) success. Live: `/dr/businesses`
   anonymous shows the e-mail-code sign-in (no data). Production data unchanged by this task: 3 businesses, none deleted or pinned.
 - Found, not changed: Sky berlin is draft/unverified since 2026-10-24 10:22 UTC — the owner account clicked "Remove verification" in the
   old panel (audit `business.unverify`). Republish = Approve & publish in its ⋯ menu (owner decision).
