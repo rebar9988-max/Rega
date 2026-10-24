@@ -51,6 +51,15 @@ export function BusinessImageEditor({
   );
   const button =
     "min-h-12 rounded-xl border border-line px-4 text-sm font-semibold disabled:opacity-50 hover:border-brand";
+  // Buttons move from the clamped position (like dragging), so a press at the edge never piles up hidden offset.
+  function nudge(dx: number, dy: number) {
+    setCrop((c) => {
+      const g = cropGeometry(source.image.naturalWidth, source.image.naturalHeight, aspect, c);
+      return { zoom: c.zoom, x: g.left + (g.width - 1) / 2 + dx, y: g.top + (g.height - 1 / aspect) / 2 + dy };
+    });
+  }
+  const zoomBy = (factor: number) => setCrop((c) => ({ ...c, zoom: Math.min(5, Math.max(1, c.zoom * factor)) }));
+  const tool = "grid size-11 place-items-center rounded-xl border border-line bg-surface text-lg font-semibold hover:border-brand hover:text-brand disabled:opacity-50";
   async function confirm() {
     setError(false);
     try {
@@ -156,6 +165,16 @@ export function BusinessImageEditor({
           }}
         />
       </div>
+      {logo && (
+        // The logo exactly as the profile shows it (same crop, profile avatar size and corners).
+        <div className="flex items-center justify-center gap-3" data-testid="logo-profile-preview">
+          <div className="relative size-16 overflow-hidden rounded-xl border border-line bg-surface shadow-card" role="img" aria-label={t("preview")}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={source.url} alt="" draggable={false} className="pointer-events-none absolute max-w-none select-none"
+              style={{ width: `${geometry.width * 100}%`, height: `${geometry.height * aspect * 100}%`, left: `${geometry.left * 100}%`, top: `${geometry.top * aspect * 100}%` }} />
+          </div>
+        </div>
+      )}
       <label className="flex flex-col gap-2 text-sm font-semibold">
         {t("zoom")}
         <input
@@ -171,6 +190,16 @@ export function BusinessImageEditor({
           className="min-h-12 w-full accent-[var(--brand)]"
         />
       </label>
+      {/* Image space is physical (left is left), whatever the page direction. */}
+      <div dir="ltr" className="flex flex-wrap items-center justify-center gap-2" data-testid="crop-controls">
+        <button type="button" className={tool} aria-label={t("moveLeft")} onClick={() => nudge(-0.04, 0)}><span aria-hidden="true">←</span></button>
+        <button type="button" className={tool} aria-label={t("moveUp")} onClick={() => nudge(0, -0.04)}><span aria-hidden="true">↑</span></button>
+        <button type="button" className={tool} aria-label={t("moveDown")} onClick={() => nudge(0, 0.04)}><span aria-hidden="true">↓</span></button>
+        <button type="button" className={tool} aria-label={t("moveRight")} onClick={() => nudge(0.04, 0)}><span aria-hidden="true">→</span></button>
+        <span className="mx-1 h-6 w-px bg-line" aria-hidden="true" />
+        <button type="button" className={tool} aria-label={t("zoomOut")} onClick={() => zoomBy(1 / 1.15)} data-testid="crop-zoom-out"><span aria-hidden="true">−</span></button>
+        <button type="button" className={tool} aria-label={t("zoomIn")} onClick={() => zoomBy(1.15)} data-testid="crop-zoom-in"><span aria-hidden="true">+</span></button>
+      </div>
       <div className="flex flex-wrap gap-2">
         <button
           type="button"

@@ -12,7 +12,7 @@ import { isStorageConfigured } from "@/lib/env";
 import { hoursRows } from "@/lib/opening-hours";
 import { assertBusinessAccess } from "@/lib/business-access";
 import { BusinessTeam } from "@/components/dr/BusinessTeam";
-import { MAX_PHOTOS } from "@/lib/business-admin";
+import { GALLERY_PHOTOS } from "@/lib/business-admin";
 import { offerState } from "@/lib/offers";
 import { formOptions } from "../form-options";
 import { BusinessActions } from "../BusinessActions";
@@ -134,7 +134,7 @@ export default async function EditBusiness({ params, searchParams }: { params: P
         {...options}
         canPublish={can(user.role, "business.publish")}
         storageReady={isStorageConfigured()}
-        maxPhotos={MAX_PHOTOS}
+        maxPhotos={GALLERY_PHOTOS}
       />
 
       <section aria-labelledby="biz-services" className="mt-8 rounded-[var(--radius-card)] border border-line bg-surface p-5" data-testid="business-services">

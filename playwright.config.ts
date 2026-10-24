@@ -30,6 +30,6 @@ export default defineConfig({
   projects: [
     { name: "iphone", use: { ...devices["iPhone 13"], baseURL: `https://127.0.0.1:${PORT+1}`, ignoreHTTPSErrors: true }, testMatch: /business-publication\.spec\.ts/ },
     { name: "desktop", use: { ...devices["Desktop Chrome"], launchOptions } },
-    { name: "mobile", use: { ...devices["Pixel 5"], launchOptions }, testMatch: /(navigation|catalog|language-switcher|nearby|business-publication|business-visibility|business-profile)\.spec\.ts/ },
+    { name: "mobile", use: { ...devices["Pixel 5"], launchOptions }, testMatch: /(navigation|catalog|language-switcher|nearby|business-publication|business-visibility|business-profile|business-gallery)\.spec\.ts/ },
   ],
 });

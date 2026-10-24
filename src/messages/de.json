@@ -188,7 +188,9 @@
     "share": "Teilen",
     "linkCopied": "Link kopiert",
     "readMore": "Mehr lesen",
-    "readLess": "Weniger"
+    "readLess": "Weniger",
+    "photoCount": "{count} Bilder",
+    "openPhoto": "Bild {n} öffnen"
   },
   "services": {
     "title": "Dienstleistungen",
@@ -541,7 +543,9 @@
     "gestureMobile": "Karte mit zwei Fingern bewegen",
     "close": "Schließen",
     "directions": "Route",
-    "details": "Details ansehen"
+    "details": "Details ansehen",
+    "openWith": "Öffnen mit",
+    "otherApp": "Andere Karten-App"
   },
   "bizForm": {
     "new": "Neues Unternehmen",
@@ -1203,6 +1207,18 @@
     "retry": "Upload fehlgeschlagen. Der Ausschnitt bleibt erhalten; erneut bestätigen.",
     "formats": "JPG, PNG, WebP, GIF und unterstütztes HEIC/HEIF. Animationen werden als Standbild gespeichert.",
     "unsupported": "Dieser Browser kann das Bild nicht lesen. Als JPG oder PNG exportieren und erneut versuchen.",
-    "tooLarge": "Ein Bild unter 20 MB wählen (bis zu 64 Megapixel)."
+    "tooLarge": "Ein Bild unter 20 MB wählen (bis zu 64 Megapixel).",
+    "moveLeft": "Nach links",
+    "moveRight": "Nach rechts",
+    "moveUp": "Nach oben",
+    "moveDown": "Nach unten",
+    "zoomIn": "Vergrößern",
+    "zoomOut": "Verkleinern",
+    "replace": "Bild ersetzen",
+    "removeConfirm": "Dieses Bild entfernen?",
+    "moveEarlier": "Nach vorn",
+    "moveLater": "Nach hinten",
+    "galleryHint": "Ein Titelbild und bis zu 3 weitere Bilder. Die Reihenfolge gilt auch auf der Profilseite.",
+    "overLimit": "Dieser Eintrag hat bereits mehr als 3 Bilder. Alle bleiben erhalten; neue Bilder lassen sich hinzufügen, sobald weniger als 3 übrig sind."
   }
 }

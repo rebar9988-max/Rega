@@ -22,6 +22,11 @@ export const FORM_COUNTRIES = ["DE", "AT", "CH", "NL", "BE", "LU", "FR", "GB", "
 
 /** Most gallery photos per business. */
 export const MAX_PHOTOS = 10;
+/**
+ * Profile gallery: the cover image plus this many further images. Listings saved before the limit may keep up to
+ * MAX_PHOTOS stored images (nothing is deleted); they can reorder or remove them but add a new one only below the limit.
+ */
+export const GALLERY_PHOTOS = 3;
 
 const httpsUrl = z.union([z.literal(""), z.string().trim().max(500).url().refine((u) => u.startsWith("https://"))]).optional().transform((v) => v || undefined);
 const optionalText = (max: number) => z.string().trim().max(max).optional().transform((v) => (v ? v : undefined));
@@ -176,6 +181,7 @@ async function save(input: BusinessForm, actor: { id: string }, { canPublish, ca
     if (input.intent === "draft" && before && (before.status !== "draft" || before.archivedAt)) return { ok: false as const, error: "draft_changed" as const };
     if (before && before.status !== "draft" && before.categoryId !== (input.categoryId ?? null) && !canPublish) throw new CategoryInvalid();
     const photos = [...new Set(input.photoUrls)];
+    if (photos.length > GALLERY_PHOTOS && photos.some((url) => !(before?.photos ?? []).includes(url))) throw new MediaInvalid();
     await assertOwnMedia(tx, [...photos, input.logoUrl ?? "", input.coverUrl ?? ""], actor.id, [...(before?.photos ?? []), before?.logoUrl ?? "", before?.coverUrl ?? ""]);
     const country = loc ? await ensureCountry(tx, loc.countryCode) : null;
     const resolved = loc && country ? await resolveCity(tx, country.id, loc.city, canCreateCity) : null;

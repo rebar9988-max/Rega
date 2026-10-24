@@ -25,8 +25,9 @@ test("business detail: content, contact actions, structured data", async ({ page
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Kurdistan Rechtsberatung");
   await expect(page.getByRole("link", { name: "Anrufen – Kurdistan Rechtsberatung", exact: true })).toHaveAttribute("href", /^tel:\+?\d+$/);
   // One location button, opening the device's map app; the contact card does not repeat the header's call button.
-  await expect(page.getByTestId("directions-button")).toHaveAttribute("href", /^https:\/\/www\.google\.com\/maps\//);
-  await expect(page.getByTestId("directions-button")).toHaveAttribute("rel", /noopener/);
+  await page.getByTestId("directions-button").click();
+  await expect(page.getByTestId("directions-google")).toHaveAttribute("href", /^https:\/\/www\.google\.com\/maps\//);
+  await expect(page.getByTestId("directions-google")).toHaveAttribute("rel", /noopener/);
   await expect(page.getByRole("complementary").getByRole("link", { name: "Anrufen", exact: true })).toHaveCount(0);
   await expect(page.getByRole("link", { name: "Website besuchen" })).toHaveAttribute("rel", /noopener/);
   const blocks = (await page.locator('script[type="application/ld+json"]').allTextContents()).flatMap((t) => JSON.parse(t));

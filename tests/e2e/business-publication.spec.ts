@@ -408,6 +408,8 @@ test("owner completes registration and real image upload; approval publishes and
   expect(logoUrl).toContain("/business-images/");
   const draftId = await page.locator("input[name=id]").inputValue();
   await expect.poll(async () => (await db.business.findUniqueOrThrow({where:{id:draftId}})).logoUrl).toBe(logoUrl);
+  // Removing asks for confirmation first.
+  page.once("dialog", (dialog) => { expect(dialog.message()).toBe("Dieses Bild entfernen?"); void dialog.accept(); });
   await page.getByTestId("business-image-logoUrl").getByRole("button", {name:"Bild entfernen",exact:true}).click();
   await expect.poll(async () => (await db.business.findUniqueOrThrow({where:{id:draftId}})).logoUrl).toBeNull();
   await page.getByTestId("upload-logoUrl").setInputFiles({name:"replaced.png",mimeType:"image/png",buffer:image});

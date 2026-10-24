@@ -71,9 +71,28 @@ test("share copies the page link where the device has no share sheet", async ({ 
   expect(await page.evaluate(() => navigator.clipboard.readText())).toMatch(/\/de\/business\/zagros-restaurant$/);
 });
 
-test("directions open the map app for the business's location", async ({ page }) => {
+test("directions offer the map apps with the business destination filled in, no location request", async ({ page, context }) => {
+  await context.clearPermissions();
+  for (const locale of ["de", "ckb"]) {
+    await page.goto(`/${locale}/business/kurdistan-rechtsberatung`);
+    await page.getByTestId("directions-button").click();
+    const menu = page.getByTestId("directions-menu");
+    await expect(menu).toBeVisible();
+    await expect(menu.getByTestId("directions-google")).toHaveAttribute("href", "https://www.google.com/maps/dir/?api=1&destination=52.52,13.405");
+    await expect(menu.getByTestId("directions-apple")).toHaveAttribute("href", "https://maps.apple.com/?daddr=52.52,13.405");
+    await expect(menu.getByTestId("directions-waze")).toHaveAttribute("href", "https://waze.com/ul?ll=52.52,13.405&navigate=yes");
+    await expect(menu.getByTestId("directions-google")).toHaveAttribute("target", "_blank");
+    // The menu stays on screen in RTL and LTR.
+    const box = await menu.boundingBox();
+    const width = page.viewportSize()!.width;
+    expect(box && box.x >= 0 && box.x + box.width <= width, locale).toBeTruthy();
+    await page.keyboard.press("Escape");
+    await expect(menu).toHaveCount(0);
+  }
+});
+
+test("the address is shown once, next to the actions", async ({ page }) => {
   await page.goto("/de/business/kurdistan-rechtsberatung");
-  const directions = page.getByTestId("directions-button");
-  await expect(directions).toHaveAttribute("href", /^https:\/\/www\.google\.com\/maps\/(dir|search)\//);
-  await expect(directions).toHaveAttribute("target", "_blank");
+  await expect(page.getByTestId("business-address")).toContainText("Karl-Marx-Allee 12");
+  await expect(page.locator("article").getByText("Karl-Marx-Allee 12")).toHaveCount(1);
 });

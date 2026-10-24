@@ -112,7 +112,8 @@ export function BusinessImageField({
       {url && !source && (
         <button
           type="button"
-          onClick={() => { setUrl(""); onValueChange?.(); }}
+          onClick={() => { if (!window.confirm(t("removeConfirm"))) return; setUrl(""); onValueChange?.(); }}
+          data-testid={`remove-${name}`}
           className="min-h-12 rounded-xl border border-line px-3 text-sm font-semibold"
         >
           {tb("removeImage")}
