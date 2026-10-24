@@ -21,4 +21,7 @@ test("directionsUrl opens the map app at the coordinates, else searches the addr
   assert.equal(directionsUrl(null, null, " Bonner Str. 2a, 53909 Zülpich "), "https://www.google.com/maps/search/?api=1&query=Bonner%20Str.%202a%2C%2053909%20Z%C3%BClpich");
   assert.equal(directionsUrl(0, 0, "x&y"), "https://www.google.com/maps/search/?api=1&query=x%26y");
   assert.equal(directionsUrl(null, null, "  "), null);
+  // The edge of the world (a clamped value) is never a business: search the address instead.
+  assert.equal(directionsUrl(90, 180, "Bonner Str. 2a"), "https://www.google.com/maps/search/?api=1&query=Bonner%20Str.%202a");
+  assert.equal(directionsUrl(-90, 10, null), null);
 });

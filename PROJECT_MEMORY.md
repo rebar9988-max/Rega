@@ -562,3 +562,14 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
   BP96 SEO92; SEO/BP deductions are localhost-only (canonical points to www.rega24.com; map tiles blocked in the sandbox).
 - Not changed, reported: shared footer link overflows 7 px on German mobile pages (pre-existing, global, outside scope).
 - Environment: this session cannot reach www.rega24.com directly (proxy 403); live checks via Firecrawl only.
+- Deployed (PR #61, squash `4f7c90b`): main CI `40072209789`, Deploy to Cloudflare Workers `40073448987`, Beta health `40073449015`,
+  Production browser check `40073612454` all success. Live (Firecrawl, 200): `/ckb/business/karwans-hairtuning` serves the directions
+  button, no aside WhatsApp button, contact card `order-first`, no OpenStreetMap link.
+- Found live: the directions button pointed to `90,180`. Production data (read-only SELECT, Neon `rega-platform`
+  `lucky-glitter-73195208`): `karwans-hairtuning` and `taakline` have primary location latitude 90 / longitude 180, `coordsSource`
+  manual (saved 2026-10-20/21); `sky-berlin` is correct. The live map already showed the North Pole before #61. No row was changed.
+  Follow-up fix: `isMappableCoordinate` (`src/lib/coordinates.ts`) rejects |lat| = 90 / |lng| = 180 for the business-page map and the
+  directions link, which then searches the address (trailing commas trimmed). Publish/validation rules unchanged.
+- Owner action needed: re-place the pin for Karwans HairTuning and taakline at /dr/businesses (Find address or click the map).
+  How 90/180 was saved through the admin form is NOT verified (picker clicks are rounded MapLibre positions, server accepts
+  -90..90 / -180..180); worth a separate investigation.
