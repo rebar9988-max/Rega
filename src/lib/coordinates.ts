@@ -6,6 +6,14 @@ export function isValidCoordinate(lat: unknown, lng: unknown): lat is number {
     && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180 && !(lat === 0 && lng === 0);
 }
 
+/**
+ * A position worth showing on a map or sending to a map app: a valid coordinate that is not on the edge of the world.
+ * |lat| = 90 / |lng| = 180 is where an out-of-range value ends up when it is clamped, never where a business is.
+ */
+export function isMappableCoordinate(lat: unknown, lng: unknown): lat is number {
+  return isValidCoordinate(lat, lng) && Math.abs(lat) < 90 && Math.abs(lng as number) < 180;
+}
+
 export type PublishCheck = { name: boolean; category: boolean; address: boolean; city: boolean; country: boolean; location: boolean; locationVerified: boolean };
 
 /** Everything a business needs before it may be published (and appear on the map and in Nearby). */

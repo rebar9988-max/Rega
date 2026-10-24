@@ -1,4 +1,4 @@
-import { isValidCoordinate } from "./coordinates";
+import { isMappableCoordinate } from "./coordinates";
 
 /** Only http(s) URLs may be rendered as links: blocks javascript:/data: URLs from user-generated content. */
 export function safeHttpUrl(value?: string | null): string | null {
@@ -16,7 +16,7 @@ export function safeHttpUrl(value?: string | null): string | null {
  * back to the browser elsewhere; coordinates win, else the address is searched. Null when there is nothing to find.
  */
 export function directionsUrl(lat?: number | null, lng?: number | null, address?: string | null): string | null {
-  if (isValidCoordinate(lat, lng)) return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+  if (isMappableCoordinate(lat, lng)) return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
   const q = (address ?? "").trim();
   return q ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}` : null;
 }

@@ -24,7 +24,7 @@ import { Rating } from "@/components/ui/Rating";
 import { JsonLd } from "@/components/ui/JsonLd";
 import { ViewPing } from "@/components/ui/ViewPing";
 import { PlacesMap, type PlacePoint } from "@/components/map/PlacesMap";
-import { isValidCoordinate } from "@/lib/coordinates";
+import { isMappableCoordinate } from "@/lib/coordinates";
 import { hasHours, hoursRows } from "@/lib/opening-hours";
 import { OpenState } from "@/components/ui/OpenState";
 import { ReviewSection } from "@/features/reviews/ReviewSection";
@@ -53,7 +53,7 @@ export default async function BusinessPage({ params }: Props) {
   const t = await getTranslations();
   const pageLang = LOCALE_META[l].htmlLang;
   const name = localize(b, "name", l);
-  const mapPoints: PlacePoint[] = b.locations.flatMap((loc) => isValidCoordinate(loc.latitude, loc.longitude) && loc.longitude != null
+  const mapPoints: PlacePoint[] = b.locations.flatMap((loc) => isMappableCoordinate(loc.latitude, loc.longitude) && loc.longitude != null
     ? [{ id: loc.id, lat: loc.latitude, lng: loc.longitude, name: loc.label || name.text, sub: [loc.addressLine1, loc.postalCode].filter(Boolean).join(", ") }]
     : []);
   const about = localize(b, "description", l);
@@ -67,7 +67,8 @@ export default async function BusinessPage({ params }: Props) {
   const primaryCity = b.locations[0]?.city ? localize({ ...b.locations[0].city, name: b.locations[0].city.nameEn }, "name", l) : null;
   const langs = languageNames(b.languages);
   // One location button for the whole page: the primary location (else the first) in the device's map app.
-  const placeAddress = (loc: (typeof b.locations)[number]) => [loc.addressLine1, loc.addressLine2, [loc.postalCode, loc.city?.nameEn].filter(Boolean).join(" ")].filter(Boolean).join(", ");
+  const placeAddress = (loc: (typeof b.locations)[number]) => [loc.addressLine1, loc.addressLine2, [loc.postalCode, loc.city?.nameEn].filter(Boolean).join(" ")]
+    .map((part) => (part ?? "").replace(/[\s,]+$/, "")).filter(Boolean).join(", ");
   const mainLoc = b.locations.find((loc) => loc.isPrimary) ?? b.locations[0];
   const directions = mainLoc ? directionsUrl(mainLoc.latitude, mainLoc.longitude, placeAddress(mainLoc)) : null;
   const tm = await getTranslations("map");
