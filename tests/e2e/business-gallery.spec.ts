@@ -23,7 +23,26 @@ async function login(page: Page) {
   await expect(page).not.toHaveURL(/\/login/);
 }
 
+/**
+ * Confirms the editor until `done` holds. Uploads are limited to 10 a minute per person (this test makes 5, and the
+ * desktop and phone runs share one account); when the limit answers, the editor keeps the crop and shows "retry", as
+ * a person would see it, so wait out the window and confirm again.
+ */
+async function confirmUpload(page: Page, done: () => Promise<boolean>) {
+  await page.getByTestId("image-editor").getByRole("button", { name: "Bild bestätigen" }).click();
+  try {
+    await expect.poll(done, { timeout: 10_000 }).toBe(true);
+  } catch {
+    await expect(page.getByTestId("image-editor").getByRole("alert")).toBeVisible();
+    await page.waitForTimeout(61_000);
+    await page.getByTestId("image-editor").getByRole("button", { name: "Bild bestätigen" }).click();
+    await expect.poll(done, { timeout: 15_000 }).toBe(true);
+  }
+}
+
 const photoUrls = (page: Page) => page.locator("input[name=photoUrls]").evaluateAll((els) => els.map((e) => (e as HTMLInputElement).value));
+
+test.setTimeout(240_000);
 
 test("owner manages one cover and three gallery images; the profile shows them in that order", async ({ page }, info) => {
   const name = `E2E Galerie ${info.project.name} ${stamp}`;
@@ -46,15 +65,11 @@ test("owner manages one cover and three gallery images; the profile shows them i
   await editor.getByTestId("crop-zoom-in").click();
   await editor.getByRole("button", { name: "Nach links" }).click();
   await editor.getByRole("button", { name: "Nach oben" }).click();
-  await editor.getByRole("button", { name: "Bild bestätigen" }).click();
-  await expect(editor).toHaveCount(0);
+  await confirmUpload(page, async () => (await editor.count()) === 0);
 
   // Three gallery images in one go; then adding is closed.
   await page.getByTestId("upload-photos").setInputFiles([png(0, 200, 0), png(0, 0, 200), png(200, 200, 0)]);
-  for (let i = 0; i < 3; i++) {
-    await editor.getByRole("button", { name: "Bild bestätigen" }).click();
-    await expect.poll(async () => (await photoUrls(page)).length).toBe(i + 1);
-  }
+  for (let i = 0; i < 3; i++) await confirmUpload(page, async () => (await photoUrls(page)).length === i + 1);
   await expect(page.getByTestId("image-editor")).toHaveCount(0);
   await expect(page.getByTestId("upload-photos")).toBeDisabled();
 
@@ -66,8 +81,7 @@ test("owner manages one cover and three gallery images; the profile shows them i
   // Replace keeps the slot.
   await page.getByTestId("photo-item").nth(1).getByTestId("photo-replace").click();
   await page.getByTestId("replace-photo-input").setInputFiles(png(120, 0, 120));
-  await editor.getByRole("button", { name: "Bild bestätigen" }).click();
-  await expect(page.getByTestId("image-editor")).toHaveCount(0);
+  await confirmUpload(page, async () => (await editor.count()) === 0);
   const replaced = await photoUrls(page);
   expect(replaced).toHaveLength(3);
   expect(replaced[0]).toBe(b);
@@ -95,4 +109,8 @@ test("owner manages one cover and three gallery images; the profile shows them i
   expect(shown).toEqual([cover, b, replaced[1]]);
   await expect(gallery).toContainText("3 Bilder");
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(0);
+  // Without a phone number Directions is the first action: its menu still stays on screen.
+  await page.getByTestId("directions-button").click();
+  const menu = await page.getByTestId("directions-menu").boundingBox();
+  expect(menu && menu.x >= 0 && menu.x + menu.width <= page.viewportSize()!.width).toBeTruthy();
 });

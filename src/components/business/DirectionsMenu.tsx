@@ -36,13 +36,14 @@ export function DirectionsMenu({ links, address, label, openWith, otherApp, clas
   ];
 
   return (
-    <div ref={box} className="relative">
+    // Not positioned itself: the menu anchors to the action row (its positioned parent), so it never leaves the screen.
+    <div ref={box}>
       <button ref={button} type="button" className={className} aria-label={ariaLabel} aria-expanded={open} aria-controls={menuId}
         onClick={() => setOpen(!open)} data-testid="directions-button">
         <FigmaIcon name="map-pin" className="size-5 shrink-0" /><span>{label}</span>
       </button>
       {open && (
-        <div id={menuId} className="absolute start-1/2 top-full z-30 mt-2 w-72 max-w-[calc(100vw-2rem)] -translate-x-1/2 rounded-2xl border border-line bg-surface p-2 shadow-lift rtl:translate-x-1/2" data-testid="directions-menu">
+        <div id={menuId} className="absolute inset-x-0 top-full z-30 mt-2 rounded-2xl border border-line bg-surface p-2 shadow-lift sm:max-w-sm" data-testid="directions-menu">
           <p className="px-2 pb-1 pt-1 text-xs font-semibold text-muted">{openWith}</p>
           {address && <p className="px-2 pb-2 text-sm leading-snug" dir="auto">{address}</p>}
           <ul>

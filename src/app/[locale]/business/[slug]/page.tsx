@@ -114,7 +114,8 @@ export default async function BusinessPage({ params }: Props) {
         <Breadcrumbs items={[{ label: t("nav.home"), href: "/" }, { label: t("businesses.title"), href: "/businesses" }, { label: <Text value={name} pageLang={pageLang} /> }]} />
 
         {/* One profile for every business: identity, actions and facts; each part only when the business has the data. */}
-        <header className="rega-shell overflow-hidden" data-testid="business-profile">
+        {/* No overflow clipping: the directions menu opens below its button and must stay visible. */}
+        <header className="rega-shell" data-testid="business-profile">
           {gallery.length > 0 && (
             // Same gallery on every screen: one main image and a row of up to three more; sizes reserved, no layout shift.
             <div className="space-y-2 p-2 pb-0 sm:p-3 sm:pb-0" data-testid="business-gallery">
@@ -129,7 +130,7 @@ export default async function BusinessPage({ params }: Props) {
                 )}
               </a>
               {gallery.length > 1 && (
-                <ul className="grid grid-cols-3 gap-2">
+                <ul className="grid grid-cols-3 gap-2 sm:max-w-md">
                   {gallery.slice(1).map((src, i) => (
                     <li key={src}>
                       <a href={src} target="_blank" rel="noopener noreferrer" aria-label={t("businesses.openPhoto", { n: formatNumber(i + 2, l) })} className="block overflow-hidden rounded-lg">
@@ -168,7 +169,7 @@ export default async function BusinessPage({ params }: Props) {
               </div>
             </div>
 
-            <div className={`mt-5 grid gap-2 sm:gap-3 lg:max-w-2xl ${actionCount === 3 ? "grid-cols-3" : actionCount === 2 ? "grid-cols-2" : "grid-cols-1"}`} data-testid="business-actions">
+            <div className={`relative mt-5 grid gap-2 sm:gap-3 lg:max-w-2xl ${actionCount === 3 ? "grid-cols-3" : actionCount === 2 ? "grid-cols-2" : "grid-cols-1"}`} data-testid="business-actions">
               {tel && (
                 <a href={`tel:${tel}`} aria-label={`${t("businesses.call")} – ${name.text}`} className={actionClass("call")}>
                   <FigmaIcon name="phone" className="size-5 shrink-0" /><span>{t("businesses.call")}</span>

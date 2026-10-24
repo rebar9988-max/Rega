@@ -660,3 +660,8 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
   directions menu + address-once in `business-profile.spec.ts`; existing logo-removal test accepts the new confirmation.
 - Local test DB note: repeated local runs leave "E2E …" Berlin listings that push demo rows to page 2 of the Berlin list
   (catalog "locations page" test); CI starts from a fresh DB. Leftovers were soft-deleted in the local throw-away DB only.
+- Review fixes before PR: the directions menu was clipped by the profile card (`overflow-hidden` removed) and, when Directions is
+  the first action (no phone), spilled off-screen on phones → menu now anchors to the action row (full row width on phones,
+  start-aligned `max-w-sm` from `sm`), checked in LTR + RTL; thumbnail strip capped at `max-w-md` from `sm` (same structure on all
+  sizes). The upload route allows 10 uploads/min per person; the gallery e2e (5 uploads) waits out the window and re-confirms
+  if it is hit, like a person would. Local full suite (desktop + mobile): 323 passed before these fixes; affected specs re-run green.
