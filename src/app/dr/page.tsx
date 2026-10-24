@@ -57,9 +57,9 @@ export default async function Overview() {
       <Link href={`/dr/businesses/${b.id}`} className="flex min-h-14 items-center gap-3 px-4 py-2.5 transition-colors hover:bg-surface-2/70">
         <Avatar name={b.name} src={b.logoUrl} size="size-9" />
         <span className="min-w-0 flex-1">
-          <span className="flex items-center gap-1.5">
+          <span className="flex min-w-0 items-center gap-1.5">
             {b.featured && <DrIcon name="pin" className="size-3.5 text-brand" />}
-            <span className="truncate text-sm font-semibold text-ink"><Text value={localize(b, "name", locale)} pageLang={pageLang} /></span>
+            <span className="min-w-0 truncate text-sm font-semibold text-ink"><Text value={localize(b, "name", locale)} pageLang={pageLang} /></span>
           </span>
           <span className="block text-xs text-muted">{meta}</span>
         </span>
@@ -132,7 +132,7 @@ export default async function Overview() {
           <ul className="divide-y divide-line">
             {activity.map((r) => (
               <li key={r.id} className="flex flex-wrap items-center justify-between gap-x-3 gap-y-0.5 px-4 py-2.5 text-sm">
-                <span className="min-w-0"><Ltr className="font-semibold text-ink">{r.action}</Ltr> <span className="text-muted">· <bdi>{r.actorEmail ?? "—"}</bdi></span></span>
+                <span className="min-w-0 max-w-full break-all"><Ltr className="max-w-full font-semibold text-ink">{r.action}</Ltr> <span className="text-muted">· <bdi>{r.actorEmail ?? "—"}</bdi></span></span>
                 <time dateTime={r.createdAt.toISOString()} className="text-xs text-muted">{formatDate(r.createdAt, locale, { dateStyle: "medium", timeStyle: "short" })}</time>
               </li>
             ))}
