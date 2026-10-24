@@ -83,7 +83,7 @@ export default async function Overview() {
     <>
       <header className="mb-5 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-extrabold tracking-tight text-ink">{t("dashboard.overview")}</h1>
+          <h1 className="text-2xl! leading-tight! font-extrabold tracking-tight text-ink sm:text-[1.75rem]!">{t("dashboard.overview")}</h1>
           <p className="mt-1 text-sm text-muted">{t("drAdmin.overviewSubtitle")}</p>
         </div>
         {can(user.role, "business.write") && (

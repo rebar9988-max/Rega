@@ -118,7 +118,7 @@ export default async function DrBusinesses({ searchParams }: { searchParams: Pro
     <>
       <header className="mb-5 flex flex-wrap items-end justify-between gap-3">
         <div className="min-w-0">
-          <h1 className="text-2xl font-extrabold tracking-tight text-ink">{t("dashboard.businesses")}</h1>
+          <h1 className="text-2xl! leading-tight! font-extrabold tracking-tight text-ink sm:text-[1.75rem]!">{t("dashboard.businesses")}</h1>
           <p className="mt-1 text-sm text-muted">{t("drAdmin.listSubtitle")}</p>
         </div>
         {canWrite && (
@@ -143,17 +143,17 @@ export default async function DrBusinesses({ searchParams }: { searchParams: Pro
       )}
       {sp.blocked && <p role="alert" data-testid="publish-blocked" className="mb-5 rounded-xl border border-brand/30 bg-brand-soft px-4 py-3 text-sm font-semibold text-ink">{t("bizForm.blockedNotice")} <Link href={`/dr/businesses/${encodeURIComponent(sp.blocked)}`} className="text-brand underline">{t("bizForm.edit")}</Link></p>}
 
-      <nav aria-label={t("common.status")} className="-mx-4 mb-4 overflow-x-auto px-4 sm:mx-0 sm:px-0" data-testid="status-tiles">
-        <ul className="flex min-w-max gap-2 sm:grid sm:min-w-0 sm:grid-cols-[repeat(auto-fit,minmax(8.5rem,1fr))]">
+      <nav aria-label={t("common.status")} className="mb-4" data-testid="status-tiles">
+        <ul className="grid grid-cols-3 gap-2 sm:grid-cols-[repeat(auto-fit,minmax(8.5rem,1fr))]">
           {tiles.map((tile) => (
             <li key={tile.key}>
               <Link href={tile.href} aria-current={tile.on ? "page" : undefined} data-testid={`tile-${tile.key}`}
-                className={`flex min-h-16 min-w-32 flex-col justify-center gap-0.5 rounded-xl border bg-surface px-4 py-2.5 transition sm:min-w-0 ${tile.on ? "border-brand ring-1 ring-brand" : "border-line hover:border-ink/20"}`}>
-                <span className="flex items-center gap-1.5 text-xs font-medium text-muted">
+                className={`flex min-h-14 min-w-0 flex-col justify-center gap-0.5 rounded-xl border bg-surface px-3 py-2 transition sm:min-h-16 sm:px-4 sm:py-2.5 ${tile.on ? "border-brand ring-1 ring-brand" : "border-line hover:border-ink/20"}`}>
+                <span className="flex min-w-0 items-center gap-1.5 text-xs font-medium text-muted">
                   {tile.key === "pinned" ? <DrIcon name="pin" className="size-3.5 text-brand" /> : tile.key === "deleted" ? <DrIcon name="trash" className="size-3.5" /> : tile.tone && <span aria-hidden="true" className={`size-2 rounded-full ${tile.tone}`} />}
-                  {tile.label}
+                  <span className="truncate">{tile.label}</span>
                 </span>
-                <span className="text-xl font-extrabold tabular-nums text-ink">{formatNumber(tile.n, locale)}</span>
+                <span className="text-lg font-extrabold tabular-nums text-ink sm:text-xl">{formatNumber(tile.n, locale)}</span>
               </Link>
             </li>
           ))}
@@ -220,7 +220,7 @@ export default async function DrBusinesses({ searchParams }: { searchParams: Pro
                 <th scope="col" className="hidden px-3 py-3 text-start lg:table-cell">{t("drAdmin.colCity")}</th>
                 <th scope="col" className="px-3 py-3 text-start">{t("common.status")}</th>
                 <th scope="col" className="hidden px-3 py-3 text-start lg:table-cell">{t("bizForm.location")}</th>
-                <th scope="col" className="hidden px-3 py-3 text-start xl:table-cell">{t("drAdmin.colUpdated")}</th>
+                <th scope="col" className="hidden px-3 py-3 text-start min-[1360px]:table-cell">{t("drAdmin.colUpdated")}</th>
                 <th scope="col" className="hidden px-3 py-3 text-start 2xl:table-cell">{t("dashboard.views")}</th>
                 <th scope="col" className="px-4 py-3 text-end"><span className="sr-only">{t("common.actions")}</span></th>
               </tr>
@@ -268,7 +268,7 @@ export default async function DrBusinesses({ searchParams }: { searchParams: Pro
                     <td role="cell" className="hidden min-w-0 px-3 py-3 text-ink/80 md:table-cell" data-testid="primary-category"><span className="line-clamp-2">{categoryName ?? "—"}</span></td>
                     <td role="cell" className="hidden min-w-0 px-3 py-3 text-ink/80 lg:table-cell"><span className="line-clamp-2">{cityName ?? "—"}</span></td>
                     <td role="cell" className="col-start-1 row-start-2 min-w-0 ps-[3.25rem] md:px-3 md:py-3">
-                      <div className="flex flex-wrap items-center gap-1.5">
+                      <div className="flex flex-wrap items-center gap-1.5 md:flex-nowrap">
                         <span className="sr-only md:hidden">{t("common.status")}: </span>
                         {b.deletedAt ? <StatusPill status="deleted" label={t("drAdmin.deleted")} /> : <StatusPill status={b.status} label={b.status === "archived" ? t("businessVisibility.hidden") : t(`status.${b.status}`)} />}
                         {b.verified && !b.deletedAt && <span title={t("businessModeration.verification")} className="text-[oklch(0.62_0.15_150)]" data-testid="staff-verification"><DrIcon name="check" className="size-4" /><span className="sr-only">{t("businessModeration.verification")}</span></span>}
@@ -276,14 +276,14 @@ export default async function DrBusinesses({ searchParams }: { searchParams: Pro
                       </div>
                     </td>
                     <td role="cell" className="hidden px-3 py-3 lg:table-cell" data-testid="loc-state">
-                      <span className={`inline-flex items-center gap-1.5 text-xs font-semibold ${st === "locOk" ? "text-[oklch(0.35_0.1_150)]" : "text-brand"}`}><DrIcon name={st === "locOk" ? "check" : "alert"} className="size-3.5" />{t(`bizForm.${st}`)}</span>
+                      <span className={`inline-flex items-center gap-1.5 whitespace-nowrap text-xs font-semibold ${st === "locOk" ? "text-[oklch(0.35_0.1_150)]" : "text-brand"}`}><DrIcon name={st === "locOk" ? "check" : "alert"} className="size-3.5" />{t(`bizForm.${st}`)}</span>
                     </td>
-                    <td role="cell" className="hidden whitespace-nowrap px-3 py-3 text-muted xl:table-cell"><time dateTime={b.updatedAt.toISOString()}>{formatDate(b.updatedAt, locale, { dateStyle: "medium" })}</time></td>
+                    <td role="cell" className="hidden whitespace-nowrap px-3 py-3 text-muted min-[1360px]:table-cell"><time dateTime={b.updatedAt.toISOString()}>{formatDate(b.updatedAt, locale, { dateStyle: "medium" })}</time></td>
                     <td role="cell" className="hidden px-3 py-3 tabular-nums text-muted 2xl:table-cell">{formatNumber(b.viewCount, locale)}</td>
                     <td role="cell" className="col-start-2 row-span-2 row-start-1 self-center md:px-4 md:py-3">
                       <div className="flex items-center justify-end gap-1.5">
                         {editable && (
-                          <Link href={`/dr/businesses/${b.id}`} className="hidden min-h-10 items-center gap-1.5 rounded-lg border border-line bg-surface px-3 text-sm font-semibold text-ink transition hover:bg-surface-2 sm:inline-flex">
+                          <Link href={`/dr/businesses/${b.id}`} className="hidden min-h-10 items-center gap-1.5 rounded-lg border border-line bg-surface px-2.5 text-sm font-semibold text-ink transition hover:bg-surface-2 sm:inline-flex">
                             <DrIcon name="edit" className="size-4 text-muted" />{t("bizForm.edit")}
                           </Link>
                         )}
