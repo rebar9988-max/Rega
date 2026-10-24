@@ -213,7 +213,7 @@ export const getBusiness = cache(async (slug: string) =>
       services: {
         where: { status: "published", deletedAt: null },
         orderBy: [{ featured: "desc" }, { sortOrder: "asc" }],
-        select: { id: true, slug: true, name: true, nameCkb: true, nameKmr: true, nameAr: true, nameTr: true, priceFrom: true, priceTo: true, currency: true, durationMin: true },
+        select: { id: true, slug: true, name: true, nameCkb: true, nameKmr: true, nameAr: true, nameTr: true, priceFrom: true, priceTo: true, currency: true, durationMin: true, coverUrl: true },
       },
       locations: {
         where: { status: "active", deletedAt: null },

@@ -47,9 +47,10 @@ export async function Footer() {
         </div>
         <nav aria-label={tf("explore")} className="grid grid-cols-3 gap-x-5 gap-y-3 text-xs sm:gap-x-8">
           {groups.map((g) => (
-            <div key={g.title}>
+            <div key={g.title} className="min-w-0">
               <h2 className="mb-1 text-xs font-bold text-ink">{g.title}</h2>
-              <ul>
+              {/* Long single words (German legal links) wrap instead of pushing the page sideways on narrow phones. */}
+              <ul className="hyphens-auto [overflow-wrap:anywhere]">
                 {g.items.map((i) => <li key={i.href}><Link href={i.href} className={link}>{i.label}</Link></li>)}
               </ul>
             </div>

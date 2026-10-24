@@ -184,7 +184,11 @@
     "servicesN": "{count} خدمات",
     "lead": "تصفّح الأعمال والخدمات في جميع أنحاء ألمانيا.",
     "whatsapp": "واتساب",
-    "photos": "الصور"
+    "photos": "الصور",
+    "share": "مشاركة",
+    "linkCopied": "تم نسخ الرابط",
+    "readMore": "اقرأ المزيد",
+    "readLess": "عرض أقل"
   },
   "services": {
     "title": "الخدمات",

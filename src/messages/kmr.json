@@ -184,7 +184,11 @@
     "servicesN": "{count} xizmet",
     "lead": "Karsaz û xizmetên li seranserê Almanyayê bibîne.",
     "whatsapp": "WhatsApp",
-    "photos": "Wêne"
+    "photos": "Wêne",
+    "share": "Parve bike",
+    "linkCopied": "Girêdan hate kopîkirin",
+    "readMore": "Zêdetir bixwîne",
+    "readLess": "Kêmtir"
   },
   "services": {
     "title": "Xizmet",

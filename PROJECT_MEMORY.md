@@ -580,3 +580,23 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
 - Next safe continuation point: owner re-places the pins for Karwans HairTuning and taakline in /dr/businesses; then the map and
   point-directions return automatically. Optional follow-ups (not started): find how 90/180 was saved by the admin form; footer link
   7 px overflow on German mobile pages.
+
+## Unified premium business profile — 2026-10-24 (owner master task "one business profile system")
+- Audit: every business (all categories, existing and new) is served by ONE route, `src/app/[locale]/business/[slug]/page.tsx`
+  (`/businesses/<slug>` redirects there); no parallel profile system exists, so the task was quality + de-duplication inside it.
+  No video was attached in the session (only two images).
+- Duplications removed: About text (header clamp + section) → section only, with read-more for long text; "no ratings" placeholder
+  in the header next to the reviews empty state → rating shown only when it exists; review count repeated in the contact card;
+  email shown as button and text → one button with the address; open state in the facts row only (other locations keep theirs);
+  WhatsApp only in the contact card; languages section → one fact card; empty "no services" block → section hidden.
+- Profile structure (data-driven, each part only with real data): compact identity (cover only when uploaded, else logo/initial
+  avatar instead of a 17rem empty block), name/category/city/verified, actions Call · Directions · Share (directions red when the place
+  is findable, else call), facts (opening state → #locations, languages), About, offers, services (image cards when any service has a
+  cover, else list), photos, locations (map + address + weekly hours), reviews, contact card (order-first on phones).
+- New: `src/components/business/ShareButton.tsx` (share sheet, else copy link), `ExpandableText.tsx`; `share-2` icon; 4 keys
+  (`businesses.share|linkCopied|readMore|readLess`) in 7 locales; `OpenState` takes a `className`; services select adds `coverUrl`.
+- Shared dependencies fixed (documented, narrow): footer columns `min-w-0` + word wrapping (7 px overflow on German phones);
+  header below 360 px: `px-3` and the search icon hidden (search stays in the bottom bar) — the row overflowed 32 px at 320 px in
+  every language (RTL clipped the logo). No change at 360 px and wider.
+- Tests: `tests/e2e/business-profile.spec.ts` (desktop + mobile): 3 categories × 7 locales, 320/375/430 px overflow + logo + 44 px
+  actions, duplication checks, share copy, directions.
