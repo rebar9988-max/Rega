@@ -1,0 +1,63 @@
+name: Admin preview screenshots (temporary, never merged)
+on:
+  push:
+    branches: ["preview/admin-shots"]
+permissions:
+  contents: write
+jobs:
+  shots:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: rega
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/rega
+      DIRECT_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/rega
+      AUTH_SECRET: preview-only-secret-not-used-anywhere-else
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx prisma generate
+      - run: npx prisma migrate deploy
+      - name: Lint and typecheck (reported, not blocking)
+        run: |
+          mkdir -p preview-shots
+          npm run lint > preview-shots/lint.txt 2>&1 || true
+          npm run typecheck > preview-shots/tsc.txt 2>&1 || true
+      - name: Build
+        id: build
+        continue-on-error: true
+        run: npm run build:node > preview-shots/build.txt 2>&1
+      - if: steps.build.outcome == 'success'
+        run: npx playwright install --with-deps chromium
+      - name: Screenshots
+        if: steps.build.outcome == 'success'
+        continue-on-error: true
+        env:
+          ADMIN_PREVIEW: "1"
+        run: |
+          npx playwright test tests/e2e/onboarding.spec.ts tests/e2e/admin-business.spec.ts tests/e2e/auth.spec.ts tests/e2e/business-visibility.spec.ts --project=desktop --project=mobile --reporter=line > preview-shots/e2e.txt 2>&1 || true
+          npx playwright test tests/e2e/admin-preview.spec.ts --project=desktop --reporter=line 2>&1 | tail -40 | tee preview-log.txt
+      - name: Publish screenshots to branch preview-shots
+        if: always()
+        run: |
+          mkdir -p /tmp/out && cp -r preview-shots/. /tmp/out/ 2>/dev/null || true
+          cp preview-log.txt /tmp/out/ 2>/dev/null || true
+          cd /tmp/out && git init -q && git checkout -q -b preview-shots && git add -A
+          git -c user.name=preview -c user.email=preview@invalid commit -qm "shots ${GITHUB_SHA}"
+          git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" HEAD:refs/heads/preview-shots
