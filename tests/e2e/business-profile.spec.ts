@@ -96,3 +96,8 @@ test("the address is shown once, next to the actions", async ({ page }) => {
   await expect(page.getByTestId("business-address")).toContainText("Karl-Marx-Allee 12");
   await expect(page.locator("article").getByText("Karl-Marx-Allee 12")).toHaveCount(1);
 });
+
+test("the address is one line: street, postcode and city (de-duplication is unit-tested in tests/address.test.ts)", async ({ page }) => {
+  await page.goto("/de/business/zagros-restaurant");
+  await expect(page.getByTestId("business-address")).toHaveText("Citadel Road 5, 44001 Erbil");
+});

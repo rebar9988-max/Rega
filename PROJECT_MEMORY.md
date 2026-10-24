@@ -665,3 +665,12 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
   start-aligned `max-w-sm` from `sm`), checked in LTR + RTL; thumbnail strip capped at `max-w-md` from `sm` (same structure on all
   sizes). The upload route allows 10 uploads/min per person; the gallery e2e (5 uploads) waits out the window and re-confirms
   if it is hit, like a person would. Local full suite (desktop + mobile): 323 passed before these fixes; affected specs re-run green.
+- Deployed (PR #69, squash `e8e2b69`): main CI `40113513521`, Deploy `40115056198`, Beta health `40115056167`, Production browser
+  check `40115200315` all success. Live 17:20 UTC (Firecrawl 200): Karwans (ckb, mobile) and taakline (en, desktop) show the profile,
+  Directions is a button (menu), address once, no Photos section; gallery not shown because no live listing has images yet.
+  Local Lighthouse (localhost, same build, profile page): mobile P 84 / 92 on reruns (first run 59 under sandbox CPU contention,
+  TBT 2.1 s), A 100, BP 100, SEO 92 (cross-host canonical on localhost); desktop P 100, A 100, BP 96, SEO 92; CLS ≤ 0.007.
+- Follow-up found live: the Kurdish address showed as "Zülpich 53909 ,Bonner Str. 2a" (three isolated parts reordered in RTL) and
+  taakline repeated "Erbil" (street line already names the city). Fix: `src/lib/address.ts` `addressLine` (one line, city left out
+  when a street line names it, in any of its names) rendered as one isolated `<bdi>` (ltr for Latin text, auto otherwise);
+  `tests/address.test.ts`.
