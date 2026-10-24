@@ -573,3 +573,10 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
 - Owner action needed: re-place the pin for Karwans HairTuning and taakline at /dr/businesses (Find address or click the map).
   How 90/180 was saved through the admin form is NOT verified (picker clicks are rounded MapLibre positions, server accepts
   -90..90 / -180..180); worth a separate investigation.
+- Deployed (PR #62, squash `158740f`): main CI `40077049706`, Deploy `40078304714`, Beta health `40078304696`, Production browser
+  check `40078473725` all success. Live 2026-10-24 08:40 UTC (Firecrawl, 200, 1366 px and mobile): Karwans HairTuning shows the same
+  header / Call + Directions / contact card order on both; directions href = `maps/search/?api=1&query=Bonner Str. 2a, 53909 Zülpich`;
+  no `90,180`, no North Pole map. Active Cloudflare version not read (no Cloudflare connector).
+- Next safe continuation point: owner re-places the pins for Karwans HairTuning and taakline in /dr/businesses; then the map and
+  point-directions return automatically. Optional follow-ups (not started): find how 90/180 was saved by the admin form; footer link
+  7 px overflow on German mobile pages.
