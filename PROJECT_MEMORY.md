@@ -600,3 +600,6 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
   every language (RTL clipped the logo). No change at 360 px and wider.
 - Tests: `tests/e2e/business-profile.spec.ts` (desktop + mobile): 3 categories × 7 locales, 320/375/430 px overflow + logo + 44 px
   actions, duplication checks, share copy, directions.
+- Local results: lint, typecheck, unit 334/334, Node build; full Playwright suite: every Chromium test passes (desktop + mobile,
+  incl. 10 new profile tests); the 8 `iphone` (WebKit) tests cannot start in this sandbox (WebKit not installed) and run in CI.
+  Local DB note: a row changed for an experiment was restored to its seed value (Erbil 36.191/44.009) before the final run.
