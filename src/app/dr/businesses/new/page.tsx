@@ -4,7 +4,7 @@ import { requireDr } from "@/lib/dr-auth";
 import { can } from "@/lib/rbac";
 import type { Locale } from "@/i18n/locales";
 import { BusinessForm } from "@/components/dr/BusinessForm";
-import { MAX_PHOTOS } from "@/lib/business-admin";
+import { GALLERY_PHOTOS } from "@/lib/business-admin";
 import { isStorageConfigured } from "@/lib/env";
 import { formOptions } from "../form-options";
 
@@ -17,7 +17,7 @@ export default async function NewBusiness() {
     <>
       <nav className="mb-2 text-sm"><Link href="/dr/businesses" className="text-muted hover:text-ink">{t("dashboard.businesses")}</Link></nav>
       <h1 className="mb-6 text-2xl font-extrabold">{t("bizForm.newTitle")}</h1>
-      <BusinessForm initial={{ countryCode: "DE" }} {...options} canPublish={can(user.role, "business.publish")} storageReady={isStorageConfigured()} maxPhotos={MAX_PHOTOS} />
+      <BusinessForm initial={{ countryCode: "DE" }} {...options} canPublish={can(user.role, "business.publish")} storageReady={isStorageConfigured()} maxPhotos={GALLERY_PHOTOS} />
     </>
   );
 }

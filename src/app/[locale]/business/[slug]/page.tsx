@@ -4,18 +4,19 @@ import { descriptionFrom } from "@/lib/seo-server";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getLocale, getTranslations, setRequestLocale } from "next-intl/server";
-import { LOCALE_META, type Locale } from "@/i18n/locales";
+import { LOCALE_META, formatNumber, type Locale } from "@/i18n/locales";
 import { Link } from "@/i18n/routing";
 import { localize, localizeText } from "@/lib/content";
 import { getBusiness, getCategories } from "@/lib/data";
 import { languageNames } from "@/components/cards/BusinessRow";
 import { FigmaIcon } from "@/components/home/FigmaIcon";
-import { directionsUrl, safeHttpUrl, safeTel } from "@/lib/urls";
+import { directionsUrl, mapLinks, safeHttpUrl, safeTel } from "@/lib/urls";
 import { whatsappLink } from "@/lib/whatsapp";
 import { offerTimezone } from "@/lib/offers";
 import { OfferList } from "@/components/business/OfferList";
 import { ExpandableText } from "@/components/business/ExpandableText";
 import { ShareButton } from "@/components/business/ShareButton";
+import { DirectionsMenu } from "@/components/business/DirectionsMenu";
 import { priceLabel } from "@/components/cards/ServiceCard";
 import { Avatar } from "@/components/ui/Avatar";
 import { Chip, VerifiedBadge } from "@/components/ui/Badge";
@@ -72,7 +73,12 @@ export default async function BusinessPage({ params }: Props) {
   const placeAddress = (loc: (typeof b.locations)[number]) => [loc.addressLine1, loc.addressLine2, [loc.postalCode, loc.city?.nameEn].filter(Boolean).join(" ")]
     .map((part) => (part ?? "").replace(/[\s,]+$/, "")).filter(Boolean).join(", ");
   const mainLoc = b.locations.find((loc) => loc.isPrimary) ?? b.locations[0];
-  const directions = mainLoc ? directionsUrl(mainLoc.latitude, mainLoc.longitude, placeAddress(mainLoc)) : null;
+  const mainAddress = mainLoc ? placeAddress(mainLoc) : "";
+  const mainCity = mainLoc?.city ? localize({ ...mainLoc.city, name: mainLoc.city.nameEn }, "name", l) : null;
+  const directions = mainLoc ? mapLinks(mainLoc.latitude, mainLoc.longitude, mainAddress, name.text) : null;
+  // Gallery: the cover plus up to three further images, in the owner's order (older listings may store more; they stay saved).
+  const gallery = [b.coverUrl, ...b.photos.slice(0, 3)].map((u) => safeHttpUrl(u)).filter((u): u is string => Boolean(u));
+  const showLocations = b.locations.length > 1 || mapPoints.length > 0 || b.locations.some((loc) => hasHours(loc.openingHours));
   const tm = await getTranslations("map");
   const pageUrl = `https://${process.env.CANONICAL_HOST || "www.rega24.com"}/${locale}/business/${slug}`;
   const mainHours = mainLoc && hasHours(mainLoc.openingHours) ? mainLoc : null;
@@ -108,16 +114,38 @@ export default async function BusinessPage({ params }: Props) {
         <Breadcrumbs items={[{ label: t("nav.home"), href: "/" }, { label: t("businesses.title"), href: "/businesses" }, { label: <Text value={name} pageLang={pageLang} /> }]} />
 
         {/* One profile for every business: identity, actions and facts; each part only when the business has the data. */}
-        <header className="rega-shell overflow-hidden" data-testid="business-profile">
-          {b.coverUrl && (
-            <div className="relative aspect-[16/9] w-full bg-brand-soft sm:aspect-[21/9] lg:aspect-[3/1]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={b.coverUrl} alt="" width={1200} height={400} decoding="async" fetchPriority="high" className="absolute inset-0 size-full object-cover" />
+        {/* No overflow clipping: the directions menu opens below its button and must stay visible. */}
+        <header className="rega-shell" data-testid="business-profile">
+          {gallery.length > 0 && (
+            // Same gallery on every screen: one main image and a row of up to three more; sizes reserved, no layout shift.
+            <div className="space-y-2 p-2 pb-0 sm:p-3 sm:pb-0" data-testid="business-gallery">
+              <a href={gallery[0]} target="_blank" rel="noopener noreferrer" aria-label={t("businesses.openPhoto", { n: formatNumber(1, l) })}
+                className="relative block aspect-[16/9] overflow-hidden rounded-xl bg-brand-soft sm:aspect-[21/9] lg:aspect-[3/1]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={gallery[0]} alt="" width={1200} height={500} decoding="async" fetchPriority="high" className="absolute inset-0 size-full object-cover" />
+                {gallery.length > 1 && (
+                  <span className="absolute bottom-2 end-2 inline-flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1 text-xs font-semibold text-white">
+                    <FigmaIcon name="grid-3x3" className="size-3.5" />{t("businesses.photoCount", { count: formatNumber(gallery.length, l) })}
+                  </span>
+                )}
+              </a>
+              {gallery.length > 1 && (
+                <ul className="grid grid-cols-3 gap-2 sm:max-w-md">
+                  {gallery.slice(1).map((src, i) => (
+                    <li key={src}>
+                      <a href={src} target="_blank" rel="noopener noreferrer" aria-label={t("businesses.openPhoto", { n: formatNumber(i + 2, l) })} className="block overflow-hidden rounded-lg">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={src} alt="" width={400} height={300} loading="lazy" decoding="async" className="aspect-[4/3] w-full bg-surface-2 object-cover transition-transform motion-safe:hover:scale-[1.03]" />
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           )}
           <div className="p-4 sm:p-6">
             <div className="flex items-start gap-4">
-              {(b.logoUrl || !b.coverUrl) && <Avatar name={name.text} src={b.logoUrl} size="size-14 shrink-0 shadow-card sm:size-16" />}
+              {(b.logoUrl || gallery.length === 0) && <Avatar name={name.text} src={b.logoUrl} size="size-14 shrink-0 shadow-card sm:size-16" />}
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                   <h1 className="rega-display min-w-0 text-2xl! [overflow-wrap:anywhere] sm:text-3xl!"><Text value={name} pageLang={pageLang} /></h1>
@@ -141,22 +169,35 @@ export default async function BusinessPage({ params }: Props) {
               </div>
             </div>
 
-            <div className={`mt-5 grid gap-2 sm:gap-3 lg:max-w-2xl ${actionCount === 3 ? "grid-cols-3" : actionCount === 2 ? "grid-cols-2" : "grid-cols-1"}`} data-testid="business-actions">
+            <div className={`relative mt-5 grid gap-2 sm:gap-3 lg:max-w-2xl ${actionCount === 3 ? "grid-cols-3" : actionCount === 2 ? "grid-cols-2" : "grid-cols-1"}`} data-testid="business-actions">
               {tel && (
                 <a href={`tel:${tel}`} aria-label={`${t("businesses.call")} – ${name.text}`} className={actionClass("call")}>
                   <FigmaIcon name="phone" className="size-5 shrink-0" /><span>{t("businesses.call")}</span>
                 </a>
               )}
               {directions && (
-                <a href={directions} target="_blank" rel="noopener noreferrer" aria-label={`${tm("directions")} – ${name.text}`} className={actionClass("directions")} data-testid="directions-button">
-                  <FigmaIcon name="map-pin" className="size-5 shrink-0" /><span>{tm("directions")}</span>
-                </a>
+                <DirectionsMenu links={directions} address={mainAddress} label={tm("directions")} openWith={tm("openWith")} otherApp={tm("otherApp")}
+                  ariaLabel={`${tm("directions")} – ${name.text}`} className={actionClass("directions")} />
               )}
               <ShareButton url={pageUrl} title={name.text} label={t("businesses.share")} copiedLabel={t("businesses.linkCopied")} className={actionClass("share")} />
             </div>
 
-            {(mainHours || langs.length > 0) && (
+            {(mainAddress || mainHours || langs.length > 0) && (
               <ul className="mt-4 grid grid-cols-1 gap-2 min-[380px]:grid-cols-2 lg:max-w-2xl" data-testid="business-facts">
+                {mainAddress && (
+                  <li className="flex min-h-14 items-center gap-3 rounded-xl border border-line bg-surface px-3 py-2 min-[380px]:col-span-2">
+                    <FigmaIcon name="map-pin" className="size-5 shrink-0 text-brand" />
+                    <span className="min-w-0">
+                      <span className="block text-sm font-semibold">{t("locations.address")}</span>
+                      <address className="block text-xs not-italic text-muted" data-testid="business-address">
+                        {/* Latin street and postcode stay LTR inside RTL pages; the city keeps its own language. */}
+                        <Ltr>{mainLoc!.addressLine1.replace(/[\s,]+$/, "")}</Ltr>{mainLoc!.addressLine2 && <>, <Ltr>{mainLoc!.addressLine2}</Ltr></>}
+                        {(mainLoc!.postalCode || mainCity) && ", "}
+                        {mainLoc!.postalCode && <><Ltr>{mainLoc!.postalCode}</Ltr>{" "}</>}{mainCity && <Text value={mainCity} pageLang={pageLang} />}
+                      </address>
+                    </span>
+                  </li>
+                )}
                 {mainHours && (
                   <li>
                     <a href="#locations" className="flex min-h-14 items-center gap-3 rounded-xl border border-line bg-surface px-3 py-2 hover:border-brand">
@@ -232,21 +273,8 @@ export default async function BusinessPage({ params }: Props) {
               </section>
             )}
 
-            {b.photos.length > 0 && (
-              <section aria-labelledby="photos">
-                <h2 id="photos" className="mb-3 text-xl font-bold">{t("businesses.photos")}</h2>
-                <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                  {b.photos.map((src) => (
-                    <li key={src}>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={src} alt="" width={400} height={300} loading="lazy" decoding="async" className="aspect-[4/3] w-full rounded-xl border border-line bg-surface-2 object-cover" />
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            )}
 
-            {b.locations.length > 0 && (
+            {showLocations && (
               <section aria-labelledby="locations-title" id="locations" className="scroll-mt-24">
                 <h2 className="mb-3 text-xl font-bold" id="locations-title">{t("locations.title")}</h2>
                 {mapPoints.length > 0 && <PlacesMap points={mapPoints} className="mb-4 h-64 sm:h-72" />}
@@ -255,16 +283,21 @@ export default async function BusinessPage({ params }: Props) {
                     const city = loc.city ? localize({ ...loc.city, name: loc.city.nameEn }, "name", l) : null;
                     // Monday first; once any day is set, a day without hours is shown as closed.
                     const hours = hasHours(loc.openingHours) ? hoursRows(loc.openingHours) : [];
+                    const single = b.locations.length === 1;
+                    // One location: its address is already in the facts at the top, so the card holds the opening hours only.
+                    if (single && hours.length === 0) return null;
                     return (
                       <div key={loc.id} className="rounded-[var(--radius-card)] border border-line bg-surface p-4 sm:p-5">
                         <div className="mb-2 flex items-center gap-2">
-                          <h3 className="font-bold">{loc.label || t("locations.singular")}</h3>
+                          <h3 className="font-bold">{single ? t("locations.openingHours") : loc.label || t("locations.singular")}</h3>
                           {loc.isPrimary && b.locations.length > 1 && <Chip>{t("businesses.primary")}</Chip>}
                         </div>
-                        <address className="text-sm not-italic text-muted">
-                          <Ltr>{loc.addressLine1}</Ltr>{loc.addressLine2 && <>, <Ltr>{loc.addressLine2}</Ltr></>}<br />
-                          {loc.postalCode && <><Ltr>{loc.postalCode}</Ltr>{" "}</>}{city && <Text value={city} pageLang={pageLang} />}
-                        </address>
+                        {!single && (
+                          <address className="text-sm not-italic text-muted">
+                            <Ltr>{loc.addressLine1}</Ltr>{loc.addressLine2 && <>, <Ltr>{loc.addressLine2}</Ltr></>}<br />
+                            {loc.postalCode && <><Ltr>{loc.postalCode}</Ltr>{" "}</>}{city && <Text value={city} pageLang={pageLang} />}
+                          </address>
+                        )}
                         {hours.length > 0 && (
                           <>
                             {/* The open state of the main location is shown once, in the facts at the top. */}

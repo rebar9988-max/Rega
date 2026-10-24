@@ -640,3 +640,28 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
   old panel (audit `business.unverify`). Republish = Approve & publish in its ⋯ menu (owner decision).
 - Not verified: authenticated live use of the new panel (no owner session here). Next: owner signs in at /dr and tries pin, hide, delete
   + undo on a listing.
+
+## Business profile: gallery, map-app chooser, editor controls — 2026-10-24 (owner task "premium profile modernization")
+- Audit (reused, not rebuilt): one profile route; existing media pipeline (`/api/v1/media/business-image`, byte/MIME/size checks,
+  `assertOwnMedia` ownership, Media table), `BusinessImageEditor` (crop/drag/pinch/zoom/reset; EXIF orientation applied and
+  metadata stripped by the browser decode + canvas re-encode), `BusinessImageField` (logo, cover), `PhotosField`.
+  Production data before the change: 3 businesses, none with cover, logo or gallery photos — no media to migrate.
+- Gallery: cover + `GALLERY_PHOTOS` = 3 further images (`src/lib/business-admin.ts`). Server rule: a save with more than 3
+  photos is refused (`media_invalid`) unless every photo is already stored on that listing, so older listings keep up to
+  `MAX_PHOTOS` = 10 (nothing deleted) and can reorder/remove but add only below the limit. `PhotosField`: 4:3 crop, reorder
+  (earlier/later), replace in place, remove with confirmation, over-limit note. Cover/logo removal also confirms.
+- Editor: explicit move (←↑↓→) and zoom (−/+) buttons; logo shows a live preview at profile size before confirming.
+- Profile: gallery at the top (main image + up to 3 thumbnails, photo count, sizes reserved), separate Photos section removed;
+  address shown once in the facts row (location card shows the address only for multi-location businesses; a single location
+  card holds opening hours only). Directions: `DirectionsMenu` + `mapLinks` (Google Maps, Apple Maps, Waze; Android also `geo:`
+  for the system chooser); coordinates first, else the URL-encoded address; never the visitor's location.
+- i18n: 15 keys in 7 locales (businessImages.*, map.openWith/otherApp, businesses.photoCount/openPhoto).
+- Tests: unit (mapLinks), e2e `business-gallery.spec.ts` (desktop + mobile, via the local HTTPS proxy like business-publication),
+  directions menu + address-once in `business-profile.spec.ts`; existing logo-removal test accepts the new confirmation.
+- Local test DB note: repeated local runs leave "E2E …" Berlin listings that push demo rows to page 2 of the Berlin list
+  (catalog "locations page" test); CI starts from a fresh DB. Leftovers were soft-deleted in the local throw-away DB only.
+- Review fixes before PR: the directions menu was clipped by the profile card (`overflow-hidden` removed) and, when Directions is
+  the first action (no phone), spilled off-screen on phones → menu now anchors to the action row (full row width on phones,
+  start-aligned `max-w-sm` from `sm`), checked in LTR + RTL; thumbnail strip capped at `max-w-md` from `sm` (same structure on all
+  sizes). The upload route allows 10 uploads/min per person; the gallery e2e (5 uploads) waits out the window and re-confirms
+  if it is hit, like a person would. Local full suite (desktop + mobile): 323 passed before these fixes; affected specs re-run green.

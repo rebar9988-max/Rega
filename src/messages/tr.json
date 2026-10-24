@@ -188,7 +188,9 @@
     "share": "Paylaş",
     "linkCopied": "Bağlantı kopyalandı",
     "readMore": "Devamını oku",
-    "readLess": "Daha az"
+    "readLess": "Daha az",
+    "photoCount": "{count} fotoğraf",
+    "openPhoto": "{n}. fotoğrafı aç"
   },
   "services": {
     "title": "Hizmetler",
@@ -541,7 +543,9 @@
     "gestureMobile": "Haritayı iki parmakla hareket ettirin",
     "close": "Kapat",
     "directions": "Yol tarifi",
-    "details": "Ayrıntıları gör"
+    "details": "Ayrıntıları gör",
+    "openWith": "Şununla aç",
+    "otherApp": "Başka harita uygulaması"
   },
   "bizForm": {
     "new": "Yeni işletme",
@@ -1203,6 +1207,18 @@
     "retry": "Yükleme başarısız. Kırpma korundu; yeniden onaylayın.",
     "formats": "JPG, PNG, WebP, GIF ve desteklenen HEIC/HEIF. Animasyonlar sabit bir kare olarak kaydedilir.",
     "unsupported": "Bu tarayıcı görseli okuyamıyor. JPG veya PNG olarak dışa aktarıp tekrar deneyin.",
-    "tooLarge": "20 MB altında bir görsel seçin (64 megapiksele kadar)."
+    "tooLarge": "20 MB altında bir görsel seçin (64 megapiksele kadar).",
+    "moveLeft": "Sola",
+    "moveRight": "Sağa",
+    "moveUp": "Yukarı",
+    "moveDown": "Aşağı",
+    "zoomIn": "Yakınlaştır",
+    "zoomOut": "Uzaklaştır",
+    "replace": "Görseli değiştir",
+    "removeConfirm": "Bu görsel kaldırılsın mı?",
+    "moveEarlier": "Öne al",
+    "moveLater": "Geriye al",
+    "galleryHint": "Bir kapak görseli ve en fazla 3 ek görsel. Sıra profil sayfasında kullanılır.",
+    "overLimit": "Bu kayıtta zaten 3'ten fazla görsel var. Hepsi korunur; 3'ten az kaldığında yeni görsel eklenebilir."
   }
 }

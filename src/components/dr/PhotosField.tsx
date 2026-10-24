@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   BUSINESS_IMAGE_ACCEPT,
@@ -31,6 +31,9 @@ export function PhotosField({
       ReturnType<typeof imageFromFile>
     > | null>(null);
   const [decoding, setDecoding] = useState(false);
+  // Index of the photo being replaced (its slot and order are kept), or null when adding.
+  const [replacing, setReplacing] = useState<number | null>(null);
+  const replaceInput = useRef<HTMLInputElement>(null);
   const [queue, setQueue] = useState<File[]>([]),
     [busy, setBusy] = useState(false),
     [error, setError] = useState("");
@@ -51,8 +54,17 @@ export function PhotosField({
       setError(e instanceof Error ? e.message : "error");
     } finally { setDecoding(false); onBusyChange?.(-1); }
   }
+  function move(from: number, to: number) {
+    setUrls((v) => { const next = [...v]; const [item] = next.splice(from, 1); next.splice(to, 0, item); return next; });
+    onValueChange?.();
+  }
+  function remove(u: string) {
+    if (!window.confirm(t("removeConfirm"))) return;
+    setUrls((v) => v.filter((x) => x !== u)); onValueChange?.();
+  }
   async function advance() {
     setSource(null);
+    setReplacing(null);
     const [next, ...rest] = queue;
     setQueue(rest);
     if (next) await choose(next);
@@ -65,25 +77,40 @@ export function PhotosField({
       {urls.map((u) => (
         <input key={u} type="hidden" name="photoUrls" value={u} />
       ))}
-      <ul className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {urls.map((u) => (
-          <li key={u} className="min-w-0 space-y-2">
+      <p className="text-xs text-muted">{t("galleryHint")}</p>
+      {urls.length > max && <p role="status" className="rounded-xl bg-surface-2 px-3 py-2 text-xs text-muted" data-testid="photos-over-limit">{t("overLimit")}</p>}
+      <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        {urls.map((u, i) => (
+          <li key={u} className="min-w-0 space-y-2" data-testid="photo-item">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={u}
               alt=""
-              className="aspect-[4/3] w-full rounded-xl border border-line bg-surface-2 object-contain"
+              className="aspect-[4/3] w-full rounded-xl border border-line bg-surface-2 object-cover"
             />
-            <button
-              type="button"
-              className="min-h-12 w-full rounded-xl border border-line px-3 text-sm"
-              onClick={() => { setUrls((v) => v.filter((x) => x !== u)); onValueChange?.(); }}
-            >
-              {tb("removeImage")}
-            </button>
+            <div className="grid grid-cols-2 gap-1.5">
+              <button type="button" className="min-h-11 rounded-xl border border-line px-2 text-xs font-semibold disabled:opacity-40" disabled={i === 0} onClick={() => move(i, i - 1)} data-testid="photo-earlier">{t("moveEarlier")}</button>
+              <button type="button" className="min-h-11 rounded-xl border border-line px-2 text-xs font-semibold disabled:opacity-40" disabled={i === urls.length - 1} onClick={() => move(i, i + 1)} data-testid="photo-later">{t("moveLater")}</button>
+              <button type="button" className="min-h-11 rounded-xl border border-line px-2 text-xs font-semibold disabled:opacity-40" disabled={!storageReady || busy || decoding || !!source} onClick={() => { setReplacing(i); replaceInput.current?.click(); }} data-testid="photo-replace">{t("replace")}</button>
+              <button type="button" className="min-h-11 rounded-xl border border-line px-2 text-xs font-semibold" onClick={() => remove(u)} data-testid="photo-remove">{tb("removeImage")}</button>
+            </div>
           </li>
         ))}
       </ul>
+      <input
+        ref={replaceInput}
+        type="file"
+        accept={BUSINESS_IMAGE_ACCEPT}
+        className="sr-only"
+        tabIndex={-1}
+        aria-hidden="true"
+        data-testid="replace-photo-input"
+        onChange={(e) => {
+          const f = e.target.files?.[0];
+          if (f) void choose(f); else setReplacing(null);
+          e.target.value = "";
+        }}
+      />
       <input
         id={id}
         type="file"
@@ -107,7 +134,7 @@ export function PhotosField({
         <BusinessImageEditor
           key={source.url}
           source={source}
-          aspect={source.image.naturalWidth / source.image.naturalHeight}
+          aspect={4 / 3}
           busy={busy}
           onCancel={() => void advance()}
           onConfirm={async (blob) => {
@@ -115,7 +142,7 @@ export function PhotosField({
             setError("");
             try {
               const u = await uploadBusinessImage(blob, businessId);
-              setUrls((v) => [...v, u]); onValueChange?.();
+              setUrls((v) => (replacing != null && replacing < v.length ? v.map((x, j) => (j === replacing ? u : x)) : [...v, u])); onValueChange?.();
               await advance();
             } catch (e) {
               setError(e instanceof Error ? e.message : "error");

@@ -188,7 +188,9 @@
     "share": "Share",
     "linkCopied": "Link copied",
     "readMore": "Read more",
-    "readLess": "Show less"
+    "readLess": "Show less",
+    "photoCount": "{count} photos",
+    "openPhoto": "Open photo {n}"
   },
   "services": {
     "title": "Services",
@@ -541,7 +543,9 @@
     "gestureMobile": "Use two fingers to move the map",
     "close": "Close",
     "directions": "Directions",
-    "details": "View details"
+    "details": "View details",
+    "openWith": "Open with",
+    "otherApp": "Other map app"
   },
   "bizForm": {
     "new": "New business",
@@ -1203,6 +1207,18 @@
     "retry": "Upload failed. Your crop is kept; try Confirm again.",
     "formats": "JPG, PNG, WebP, GIF and supported HEIC/HEIF. Animated images are saved as a still frame.",
     "unsupported": "This browser cannot decode this image. Export it as JPG or PNG and try again.",
-    "tooLarge": "Choose an image under 20 MB (up to 64 megapixels)."
+    "tooLarge": "Choose an image under 20 MB (up to 64 megapixels).",
+    "moveLeft": "Move left",
+    "moveRight": "Move right",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "replace": "Replace image",
+    "removeConfirm": "Remove this image?",
+    "moveEarlier": "Move earlier",
+    "moveLater": "Move later",
+    "galleryHint": "One cover image and up to 3 more images. The order is used on the profile page.",
+    "overLimit": "This listing already has more than 3 images. All are kept; new images can be added once fewer than 3 remain."
   }
 }

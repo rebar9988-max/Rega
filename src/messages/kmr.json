@@ -188,7 +188,9 @@
     "share": "Parve bike",
     "linkCopied": "Girêdan hate kopîkirin",
     "readMore": "Zêdetir bixwîne",
-    "readLess": "Kêmtir"
+    "readLess": "Kêmtir",
+    "photoCount": "{count} wêne",
+    "openPhoto": "Wêneyê {n} veke"
   },
   "services": {
     "title": "Xizmet",
@@ -541,7 +543,9 @@
     "gestureMobile": "Ji bo livandina nexşeyê du tiliyan bi kar bîne",
     "close": "Bigire",
     "directions": "Rê",
-    "details": "Hûrgilî"
+    "details": "Hûrgilî",
+    "openWith": "Veke bi",
+    "otherApp": "Sepana nexşeyê ya din"
   },
   "bizForm": {
     "new": "Karsaziya nû",
@@ -1203,6 +1207,18 @@
     "retry": "Barkirin bi ser neket. Birîn hatiye parastin; dîsa piştrast bike.",
     "formats": "JPG, PNG, WebP, GIF û HEIC/HEIF ya piştgirîkirî. Wêneyên livbar wek çarçoveyek sabît tên tomarkirin.",
     "unsupported": "Ev gerok nikare vê wêneyê bixwîne. Wê wek JPG an PNG derxe û dîsa biceribîne.",
-    "tooLarge": "Wêneyek ji 20 MB biçûktir hilbijêre (heta 64 megapîksel)."
+    "tooLarge": "Wêneyek ji 20 MB biçûktir hilbijêre (heta 64 megapîksel).",
+    "moveLeft": "Çepê",
+    "moveRight": "Rastê",
+    "moveUp": "Jor",
+    "moveDown": "Jêr",
+    "zoomIn": "Mezin bike",
+    "zoomOut": "Biçûk bike",
+    "replace": "Wêneyê biguherîne",
+    "removeConfirm": "Ev wêne were rakirin?",
+    "moveEarlier": "Berê",
+    "moveLater": "Paşê",
+    "galleryHint": "Wêneyê sereke (berg) û heta 3 wêneyên din. Rêz li ser rûpela karsaziyê tê nîşandan.",
+    "overLimit": "Ev karsazî ji berê ve ji 3 wêneyan zêdetir heye. Hemû hatine parastin; wêneyekî nû dema ku ji 3 kêmtir bimînin tê zêdekirin."
   }
 }
