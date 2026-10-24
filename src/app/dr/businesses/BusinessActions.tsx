@@ -37,7 +37,7 @@ export async function BusinessActions({ b, rights, back, locale, showEdit }: { b
   );
   const general = [
     b.isPublic && <Link key="view" href={`/${locale}/business/${b.slug}`} target="_blank" rel="noopener" className={menuItem} data-testid="view-business"><DrIcon name="view" className="size-4 text-muted" />{t("drAdmin.view")}</Link>,
-    showEdit && rights.manages && <Link key="edit" href={`/dr/businesses/${b.id}`} className={menuItem} data-testid="edit-business"><DrIcon name="edit" className="size-4 text-muted" />{t("bizForm.edit")}</Link>,
+    showEdit && rights.manages && <Link key="edit" href={`/dr/businesses/${b.id}`} className={`${menuItem} sm:hidden`} data-testid="edit-business"><DrIcon name="edit" className="size-4 text-muted" />{t("bizForm.edit")}</Link>,
     rights.canPin && !hidden && <div key="pin">{b.featured ? one("unfeature", t("drAdmin.unpin"), "unpin", "unpin-business") : one("feature", t("drAdmin.pin"), "pin", "pin-business")}</div>,
     rights.canPublish && !hidden && b.status !== "pending" && <div key="publish">{b.status === "published" ? one("unpublish", t("dashboard.unpublish"), "draft") : one("publish", t("businessModeration.approve"), "publish")}</div>,
     rights.canPublish && !hidden && b.verified && <div key="unverify">{one("unverify", t("dashboard.unverify"), "shieldOff")}</div>,

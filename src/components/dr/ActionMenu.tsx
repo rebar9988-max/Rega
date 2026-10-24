@@ -18,7 +18,7 @@ export function ActionMenu({ label, children, testId }: { label: string; childre
 
   useEffect(() => {
     if (!open) return;
-    const items = () => Array.from(panel.current?.querySelectorAll<HTMLElement>("a[href], button:not([disabled])") ?? []);
+    const items = () => Array.from(panel.current?.querySelectorAll<HTMLElement>("a[href], button:not([disabled])") ?? []).filter((el) => el.getClientRects().length > 0);
     const rect = panel.current?.getBoundingClientRect();
     setUp(Boolean(rect && rect.bottom > window.innerHeight - 8 && rect.top - rect.height - 48 > 0));
     items()[0]?.focus({ preventScroll: true });
@@ -42,7 +42,7 @@ export function ActionMenu({ label, children, testId }: { label: string; childre
   return (
     <div ref={root} className="relative">
       <button ref={trigger} type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-controls={id} data-testid={testId}
-        className={`grid size-9 place-items-center rounded-lg border text-ink transition ${open ? "border-ink/20 bg-surface-2" : "border-line bg-surface hover:bg-surface-2"}`}>
+        className={`grid size-10 place-items-center rounded-lg border text-ink transition ${open ? "border-ink/20 bg-surface-2" : "border-line bg-surface hover:bg-surface-2"}`}>
         <DrIcon name="more" className="size-[18px]" />
         <span className="sr-only">{label}</span>
       </button>
