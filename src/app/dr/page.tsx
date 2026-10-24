@@ -45,11 +45,12 @@ export default async function Overview() {
     { key: "total", label: t("dashboard.totalBusinesses"), n: total, href: "/dr/businesses", icon: "businesses" },
     { key: "pinned", label: t("drAdmin.pinned"), n: pinnedCount, href: "/dr/businesses?pin=1", icon: "pin" },
   ];
-  const attention: { label: string; n: number; href: string; icon: DrIconName }[] = [
+  const signals: { label: string; n: number; href: string; icon: DrIconName }[] = [
     { label: t("drAdmin.attPending"), n: count("pending"), href: "/dr/businesses?status=pending", icon: "clock" },
     { label: t("drAdmin.attLocation"), n: noLocation, href: "/dr/businesses?loc=missing", icon: "mapPin" },
     { label: t("drAdmin.attHidden"), n: count("archived"), href: "/dr/businesses?status=archived", icon: "hide" },
-  ].filter((a) => a.n > 0);
+  ];
+  const attention = signals.filter((a) => a.n > 0);
 
   const row = (b: (typeof recent)[number], meta: React.ReactNode) => (
     <li key={b.id}>
