@@ -87,6 +87,8 @@ export async function POST(request: NextRequest) {
     void nameDe;
     // "verified" and "featured" are moderation decisions: only roles that may publish can set them.
     if (!can(user.role, "business.publish")) { columns.verified = false; columns.featured = false; }
+    // Pinning ("featured") is an administrator decision.
+    if (!can(user.role, "business.pin")) columns.featured = false;
     const business = await prisma.business.create({
       data: {
         ...columns,

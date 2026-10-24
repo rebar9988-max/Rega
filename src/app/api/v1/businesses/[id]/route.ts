@@ -66,6 +66,7 @@ export async function PATCH(request: NextRequest, ctx: { params: Promise<{ id: s
     const { can } = await import("@/lib/rbac");
     const { HttpError } = await import("@/lib/auth-helpers");
     if (payload.verified !== undefined || payload.featured !== undefined || payload.status === "published") await requirePermission("business.publish");
+    if (payload.featured !== undefined) await requirePermission("business.pin");
     const business = await prisma.$transaction(async (tx) => {
       await lockBusiness(tx, id);
       const before = await tx.business.findFirst({ where: { id, deletedAt: null }, select: { ...publicationSelect, logoUrl: true, coverUrl: true, photos: true } });
