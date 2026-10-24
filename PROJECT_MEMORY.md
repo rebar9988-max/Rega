@@ -609,3 +609,34 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
   `business-actions` (share + directions; call only where a phone exists), `business-facts`; phone shown once; no aside WhatsApp.
   `sky-berlin` returns 404 because it is `draft` / unverified since 10:22 UTC (changed in /dr before this deploy) — correct behaviour.
 - Still open (owner): re-place the pins for Karwans HairTuning and taakline (both still 90/180); decide on sky-berlin's status.
+
+## Admin panel premium modernization — pin, safe delete, unified mobile/desktop — 2026-10-24 (PR #65, squash `cf214d9`; status: DEPLOYED)
+- Owner task (with a reference screenshot): modernize the existing `/dr` admin only; phone and desktop the same product; Edit, safe
+  Delete, administrator Pin/Unpin. Owner explicitly authorized visual changes inside the admin panel for this task (the standing
+  non-visual rule still applies everywhere else). Public site, schema and R&L untouched.
+- Reused: `featured` = Pin (no schema change), existing soft delete (`deletedAt`) = Delete, existing hide/show-again, `updateBusiness`,
+  `assertBusinessAccess`, RBAC, audit log, BusinessForm, Avatar, colour tokens.
+- Shell: `DrSidebar` (one `<nav>` for every size: sidebar from `lg`, compact top bar + same list below), grouped nav with icons
+  (`src/components/dr/icons.tsx`, Lucide paths, no dependency), active state. Overview: real counts only (attention chips, key stats as
+  links, review queue, pinned, recently updated, activity). Business list: status tiles, compact toolbar (search, category, city, missing
+  location), dense table that collapses to the same row on phones (city/location from xl, updated from 1360 px), status pills, pinned
+  first (`orderBy featured desc, updatedAt desc`), inline review for pending, one action menu (`ActionMenu`, `BusinessActions`).
+  Edit page: compact header with status/visibility/verification/pin and the same menu.
+- Delete: server action `deleteBusiness` (permission `business.delete` = SUPER_ADMIN/ADMIN) sets `deletedAt` (+ archived), audited
+  `business.delete.soft`; `ConfirmAction` dialog names the business and the consequence; undo in the notice; "Deleted" tile/view with
+  `recoverBusiness` (audited `business.recover`), which brings it back hidden. The REST `DELETE ?hard=true` path is unchanged and unused.
+- Pin: new permission `business.pin` (SUPER_ADMIN/ADMIN; managers lost the old feature button), enforced in the server action and REST
+  POST/PATCH; audited `business.feature` / `business.unfeature`.
+- Lesson: never import plain constants from a `"use client"` module into a server component (they arrive as client references);
+  menu row styles live in `src/components/dr/menu-styles.ts`. The global unlayered `[dir=rtl] h1` clamp needs `text-2xl!` on admin h1s.
+- Tests: unit `rbac` (pin/delete roles), e2e `business-visibility.spec.ts` (hide, pin order + reload, delete cancel/confirm/undo/restore,
+  employee gets no controls + REST 403s, no horizontal scroll and menu on screen; desktop + Pixel 5), updated `auth.spec`, `admin-business`.
+  PR CI `verify` on rebased head `30747ed`: lint, typecheck, unit, builds, Worker smoke, 327 browser tests pass. Visual review with CI
+  screenshots at 360/390/430/768/1024/1280/1440 px in ckb (RTL), de and en (temporary branches `preview/admin-shots` and `preview-shots`
+  remain on GitHub; this session's proxy cannot delete branches — safe to delete).
+- Deploy: main CI `40092930996`, Deploy to Cloudflare Workers `40093968089` and `40093975508`, Beta health success. Live: `/dr/businesses`
+  anonymous shows the e-mail-code sign-in (no data). Production data unchanged by this task: 3 businesses, none deleted or pinned.
+- Found, not changed: Sky berlin is draft/unverified since 2026-10-24 10:22 UTC — the owner account clicked "Remove verification" in the
+  old panel (audit `business.unverify`). Republish = Approve & publish in its ⋯ menu (owner decision).
+- Not verified: authenticated live use of the new panel (no owner session here). Next: owner signs in at /dr and tries pin, hide, delete
+  + undo on a listing.
