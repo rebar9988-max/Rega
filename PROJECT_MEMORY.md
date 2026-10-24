@@ -603,3 +603,9 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
 - Local results: lint, typecheck, unit 334/334, Node build; full Playwright suite: every Chromium test passes (desktop + mobile,
   incl. 10 new profile tests); the 8 `iphone` (WebKit) tests cannot start in this sandbox (WebKit not installed) and run in CI.
   Local DB note: a row changed for an experiment was restored to its seed value (Erbil 36.191/44.009) before the final run.
+- Deployed (PR #64, squash `8d81cc0`): main CI `40087646947`, Deploy `40088810271`, Beta health `40088810285`, Production browser check
+  `40088944803` all success; PR CI `verify` (incl. WebKit/iPhone) success. Live 2026-10-24 11:21 UTC (Firecrawl, 200):
+  `/ckb/business/karwans-hairtuning` desktop 1366 + mobile and `/en/business/taakline` mobile render `business-profile`,
+  `business-actions` (share + directions; call only where a phone exists), `business-facts`; phone shown once; no aside WhatsApp.
+  `sky-berlin` returns 404 because it is `draft` / unverified since 10:22 UTC (changed in /dr before this deploy) — correct behaviour.
+- Still open (owner): re-place the pins for Karwans HairTuning and taakline (both still 90/180); decide on sky-berlin's status.
