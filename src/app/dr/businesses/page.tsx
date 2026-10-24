@@ -283,7 +283,7 @@ export default async function DrBusinesses({ searchParams }: { searchParams: Pro
                     <td role="cell" className="col-start-2 row-span-2 row-start-1 self-center md:px-4 md:py-3">
                       <div className="flex items-center justify-end gap-1.5">
                         {editable && (
-                          <Link href={`/dr/businesses/${b.id}`} className="hidden min-h-9 items-center gap-1.5 rounded-lg border border-line bg-surface px-3 text-sm font-semibold text-ink transition hover:bg-surface-2 sm:inline-flex">
+                          <Link href={`/dr/businesses/${b.id}`} className="hidden min-h-10 items-center gap-1.5 rounded-lg border border-line bg-surface px-3 text-sm font-semibold text-ink transition hover:bg-surface-2 sm:inline-flex">
                             <DrIcon name="edit" className="size-4 text-muted" />{t("bizForm.edit")}
                           </Link>
                         )}
