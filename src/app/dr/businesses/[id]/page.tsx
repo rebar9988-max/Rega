@@ -58,11 +58,11 @@ export default async function EditBusiness({ params, searchParams }: { params: P
         <DrIcon name="chevron" className="size-3.5 rtl:rotate-180" />
         <span className="min-w-0 truncate text-ink">{t("bizForm.editTitle")}</span>
       </nav>
-      <header className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-surface p-4 shadow-card">
+      <header className="mb-5 flex flex-col gap-3 rounded-xl border border-line bg-surface p-4 shadow-card sm:flex-row sm:items-center sm:justify-between">
         <div className="flex min-w-0 flex-1 items-center gap-3">
           <Avatar name={b.name} src={b.logoUrl} size="size-12" />
           <div className="min-w-0">
-            <h1 className="truncate text-xl! leading-tight! font-extrabold tracking-tight sm:text-2xl!"><bdi>{b.name}</bdi></h1>
+            <h1 className="line-clamp-2 break-words text-xl! leading-tight! font-extrabold tracking-tight sm:text-2xl!"><bdi>{b.name}</bdi></h1>
             <div className="mt-1.5 flex flex-wrap items-center gap-2 text-xs">
               <StatusPill testId="business-status" status={b.status} label={hidden ? t("businessVisibility.hidden") : t(`status.${b.status}`)} />
               <span data-testid="visibility" data-state={visibility} className={`inline-flex items-center gap-1 font-semibold ${visibility === "public" ? "text-[oklch(0.35_0.1_150)]" : "text-muted"}`}>
@@ -73,7 +73,7 @@ export default async function EditBusiness({ params, searchParams }: { params: P
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-end gap-2">
           {visibility === "public" && (
             <Link href={`/${locale}/business/${b.slug}`} target="_blank" rel="noopener" className="inline-flex min-h-10 items-center gap-1.5 rounded-lg border border-line bg-surface px-3 text-sm font-semibold hover:bg-surface-2">
               <DrIcon name="site" className="size-4 text-muted" />{t("bizForm.viewPublic")}

@@ -144,7 +144,7 @@ export default async function DrBusinesses({ searchParams }: { searchParams: Pro
       {sp.blocked && <p role="alert" data-testid="publish-blocked" className="mb-5 rounded-xl border border-brand/30 bg-brand-soft px-4 py-3 text-sm font-semibold text-ink">{t("bizForm.blockedNotice")} <Link href={`/dr/businesses/${encodeURIComponent(sp.blocked)}`} className="text-brand underline">{t("bizForm.edit")}</Link></p>}
 
       <nav aria-label={t("common.status")} className="mb-4" data-testid="status-tiles">
-        <ul className="grid grid-cols-3 gap-2 sm:grid-cols-[repeat(auto-fit,minmax(8.5rem,1fr))]">
+        <ul className="grid grid-cols-3 gap-2 xl:grid-cols-[repeat(auto-fit,minmax(8.5rem,1fr))]">
           {tiles.map((tile) => (
             <li key={tile.key}>
               <Link href={tile.href} aria-current={tile.on ? "page" : undefined} data-testid={`tile-${tile.key}`}
@@ -283,8 +283,8 @@ export default async function DrBusinesses({ searchParams }: { searchParams: Pro
                     <td role="cell" className="col-start-2 row-span-2 row-start-1 self-center md:px-4 md:py-3">
                       <div className="flex items-center justify-end gap-1.5">
                         {editable && (
-                          <Link href={`/dr/businesses/${b.id}`} className="hidden min-h-10 items-center gap-1.5 rounded-lg border border-line bg-surface px-2.5 text-sm font-semibold text-ink transition hover:bg-surface-2 sm:inline-flex">
-                            <DrIcon name="edit" className="size-4 text-muted" />{t("bizForm.edit")}
+                          <Link href={`/dr/businesses/${b.id}`} title={t("bizForm.edit")} className="hidden min-h-10 min-w-10 items-center justify-center gap-1.5 rounded-lg border border-line bg-surface px-2.5 text-sm font-semibold text-ink transition hover:bg-surface-2 sm:inline-flex">
+                            <DrIcon name="edit" className="size-4 text-muted" /><span className="sr-only min-[1440px]:not-sr-only">{t("bizForm.edit")}</span>
                           </Link>
                         )}
                         <BusinessActions
