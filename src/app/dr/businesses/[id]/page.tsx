@@ -62,7 +62,7 @@ export default async function EditBusiness({ params, searchParams }: { params: P
         <div className="flex min-w-0 flex-1 items-center gap-3">
           <Avatar name={b.name} src={b.logoUrl} size="size-12" />
           <div className="min-w-0">
-            <h1 className="truncate text-xl font-extrabold tracking-tight sm:text-2xl"><bdi>{b.name}</bdi></h1>
+            <h1 className="truncate text-xl! leading-tight! font-extrabold tracking-tight sm:text-2xl!"><bdi>{b.name}</bdi></h1>
             <div className="mt-1.5 flex flex-wrap items-center gap-2 text-xs">
               <StatusPill testId="business-status" status={b.status} label={hidden ? t("businessVisibility.hidden") : t(`status.${b.status}`)} />
               <span data-testid="visibility" data-state={visibility} className={`inline-flex items-center gap-1 font-semibold ${visibility === "public" ? "text-[oklch(0.35_0.1_150)]" : "text-muted"}`}>

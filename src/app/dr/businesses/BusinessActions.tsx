@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { ActionMenu, MenuSeparator, menuItem, menuItemDanger } from "@/components/dr/ActionMenu";
+import { ActionMenu, MenuSeparator } from "@/components/dr/ActionMenu";
+import { menuItem, menuItemDanger } from "@/components/dr/menu-styles";
 import { BusinessActionButton } from "@/components/dr/BusinessActionButton";
 import { ConfirmAction } from "@/components/dr/ConfirmAction";
 import { DrIcon, type DrIconName } from "@/components/dr/icons";
