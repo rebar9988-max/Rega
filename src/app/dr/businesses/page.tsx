@@ -217,9 +217,9 @@ export default async function DrBusinesses({ searchParams }: { searchParams: Pro
               <tr className="border-b border-line text-xs font-semibold uppercase tracking-wide text-muted">
                 <th scope="col" className="px-4 py-3 text-start">{t("businesses.singular")}</th>
                 <th scope="col" className="hidden px-3 py-3 text-start md:table-cell">{t("bizForm.category")}</th>
-                <th scope="col" className="hidden px-3 py-3 text-start lg:table-cell">{t("drAdmin.colCity")}</th>
+                <th scope="col" className="hidden px-3 py-3 text-start xl:table-cell">{t("drAdmin.colCity")}</th>
                 <th scope="col" className="px-3 py-3 text-start">{t("common.status")}</th>
-                <th scope="col" className="hidden px-3 py-3 text-start lg:table-cell">{t("bizForm.location")}</th>
+                <th scope="col" className="hidden px-3 py-3 text-start xl:table-cell">{t("bizForm.location")}</th>
                 <th scope="col" className="hidden px-3 py-3 text-start min-[1360px]:table-cell">{t("drAdmin.colUpdated")}</th>
                 <th scope="col" className="hidden px-3 py-3 text-start 2xl:table-cell">{t("dashboard.views")}</th>
                 <th scope="col" className="px-4 py-3 text-end"><span className="sr-only">{t("common.actions")}</span></th>
@@ -247,7 +247,7 @@ export default async function DrBusinesses({ searchParams }: { searchParams: Pro
                               ? <Link href={`/dr/businesses/${b.id}`} className="min-w-0 truncate font-semibold text-ink hover:text-brand hover:underline"><Text value={name} pageLang={pageLang} /></Link>
                               : <span className="min-w-0 truncate font-semibold text-ink"><Text value={name} pageLang={pageLang} /></span>}
                           </div>
-                          <p className="truncate text-xs text-muted md:hidden">{[categoryName, cityName].filter(Boolean).join(" · ") || "—"}</p>
+                          <p className="truncate text-xs text-muted xl:hidden"><span className="md:hidden">{categoryName ?? "—"}{cityName && " · "}</span>{cityName}</p>
                         </div>
                       </div>
                       {canPublish && b.status === "pending" && !b.deletedAt && (
@@ -266,7 +266,7 @@ export default async function DrBusinesses({ searchParams }: { searchParams: Pro
                       )}
                     </td>
                     <td role="cell" className="hidden min-w-0 px-3 py-3 text-ink/80 md:table-cell" data-testid="primary-category"><span className="line-clamp-2">{categoryName ?? "—"}</span></td>
-                    <td role="cell" className="hidden min-w-0 px-3 py-3 text-ink/80 lg:table-cell"><span className="line-clamp-2">{cityName ?? "—"}</span></td>
+                    <td role="cell" className="hidden min-w-0 px-3 py-3 text-ink/80 xl:table-cell"><span className="line-clamp-2">{cityName ?? "—"}</span></td>
                     <td role="cell" className="col-start-1 row-start-2 min-w-0 ps-[3.25rem] md:px-3 md:py-3">
                       <div className="flex flex-wrap items-center gap-1.5 md:flex-nowrap">
                         <span className="sr-only md:hidden">{t("common.status")}: </span>
@@ -275,7 +275,7 @@ export default async function DrBusinesses({ searchParams }: { searchParams: Pro
                         {!b.deletedAt && b.status === "published" && vis === "notPublic" && <span data-testid="visibility" data-state={vis} className="text-xs font-semibold text-brand">{t("businessVisibility.notPublic")}</span>}
                       </div>
                     </td>
-                    <td role="cell" className="hidden px-3 py-3 lg:table-cell" data-testid="loc-state">
+                    <td role="cell" className="hidden px-3 py-3 xl:table-cell" data-testid="loc-state">
                       <span className={`inline-flex items-center gap-1.5 whitespace-nowrap text-xs font-semibold ${st === "locOk" ? "text-[oklch(0.35_0.1_150)]" : "text-brand"}`}><DrIcon name={st === "locOk" ? "check" : "alert"} className="size-3.5" />{t(`bizForm.${st}`)}</span>
                     </td>
                     <td role="cell" className="hidden whitespace-nowrap px-3 py-3 text-muted min-[1360px]:table-cell"><time dateTime={b.updatedAt.toISOString()}>{formatDate(b.updatedAt, locale, { dateStyle: "medium" })}</time></td>
