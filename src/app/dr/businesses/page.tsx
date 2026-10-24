@@ -238,7 +238,7 @@ export default async function DrBusinesses({ searchParams }: { searchParams: Pro
                   <tr key={b.id} role="row" data-pinned={b.featured || undefined}
                     className={`grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-2 px-4 py-3 transition-colors md:table-row md:p-0 md:hover:bg-surface-2/60 ${b.featured && !b.deletedAt ? "bg-brand-soft/35" : ""}`}>
                     <td role="cell" className="col-start-1 row-start-1 min-w-0 md:px-4 md:py-3">
-                      <div className="flex min-w-0 items-center gap-3">
+                      <div className="flex min-w-0 items-center gap-3 md:max-w-[15rem] lg:max-w-[19rem] 2xl:max-w-[26rem]">
                         <Avatar name={b.name} src={b.logoUrl} size="size-10" />
                         <div className="min-w-0">
                           <div className="flex min-w-0 items-center gap-1.5">
@@ -251,22 +251,22 @@ export default async function DrBusinesses({ searchParams }: { searchParams: Pro
                         </div>
                       </div>
                       {canPublish && b.status === "pending" && !b.deletedAt && (
-                        <div className="mt-2.5 flex flex-wrap items-center gap-1.5 md:ps-[3.25rem]" data-testid="moderation">
+                        <div className="mt-2.5 flex flex-wrap items-center gap-1.5 md:max-w-[19rem] md:ps-[3.25rem] 2xl:max-w-[26rem]" data-testid="moderation">
                           <form action={updateBusiness}>
                             <input type="hidden" name="id" value={b.id} /><input type="hidden" name="intent" value="publish" />
                             <BusinessActionButton className="inline-flex min-h-9 items-center gap-1.5 rounded-lg bg-ink px-3 text-xs font-bold text-surface hover:bg-ink/85"><DrIcon name="check" className="size-3.5" />{t("businessModeration.approve")}</BusinessActionButton>
                           </form>
-                          <form action={updateBusiness} className="flex min-w-0 flex-1 items-center gap-1.5 sm:flex-none">
+                          <form action={updateBusiness} className="flex min-w-0 basis-full items-center gap-1.5">
                             <input type="hidden" name="id" value={b.id} /><input type="hidden" name="intent" value="reject" />
                             <label className="sr-only" htmlFor={`reason-${b.id}`}>{t("dashboard.rejectReason")}</label>
-                            <input id={`reason-${b.id}`} name="reason" maxLength={500} placeholder={t("dashboard.rejectReason")} className="min-h-9 min-w-0 flex-1 rounded-lg border border-line bg-surface px-2.5 text-xs sm:w-44 sm:flex-none" />
+                            <input id={`reason-${b.id}`} name="reason" maxLength={500} placeholder={t("dashboard.rejectReason")} className="min-h-9 min-w-0 flex-1 rounded-lg border border-line bg-surface px-2.5 text-xs" />
                             <BusinessActionButton className="min-h-9 shrink-0 rounded-lg border border-line px-3 text-xs font-semibold hover:bg-surface-2">{t("dashboard.reject")}</BusinessActionButton>
                           </form>
                         </div>
                       )}
                     </td>
-                    <td role="cell" className="hidden min-w-0 px-3 py-3 text-ink/80 md:table-cell" data-testid="primary-category"><span className="line-clamp-2">{categoryName ?? "—"}</span></td>
-                    <td role="cell" className="hidden min-w-0 px-3 py-3 text-ink/80 xl:table-cell"><span className="line-clamp-2">{cityName ?? "—"}</span></td>
+                    <td role="cell" className="hidden min-w-0 px-3 py-3 text-ink/80 md:table-cell" data-testid="primary-category"><span className="line-clamp-2 max-w-[11rem]">{categoryName ?? "—"}</span></td>
+                    <td role="cell" className="hidden min-w-0 px-3 py-3 text-ink/80 xl:table-cell"><span className="line-clamp-2 max-w-[9rem]">{cityName ?? "—"}</span></td>
                     <td role="cell" className="col-start-1 row-start-2 min-w-0 ps-[3.25rem] md:px-3 md:py-3">
                       <div className="flex flex-wrap items-center gap-1.5 md:flex-nowrap">
                         <span className="sr-only md:hidden">{t("common.status")}: </span>
