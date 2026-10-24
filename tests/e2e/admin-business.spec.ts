@@ -155,6 +155,7 @@ test("location audit, filter and list publish guard for existing businesses; API
   expect(Number((await page.getByTestId("audit-auditMissing").textContent())?.replace(/\D/g, ""))).toBeGreaterThan(0);
   const row = page.getByRole("row", { name: new RegExp(name) });
   await expect(row.getByTestId("loc-state")).toHaveText("Fehlt");
+  await row.getByTestId("row-actions").click();
   await row.getByRole("button", { name: "Prüfen & veröffentlichen" }).click();
   await expect(page.getByTestId("publish-blocked")).toBeVisible();
 

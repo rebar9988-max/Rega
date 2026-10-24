@@ -41,3 +41,15 @@ test("business owners are not staff, cannot publish, and manage only their own l
   assert.equal(can("BUSINESS_OWNER", "user.read"), false);
   assert.equal(can("BUSINESS_OWNER", "category.write"), false);
 });
+
+test("pin and delete are administrator decisions; managers can publish but not pin or delete", () => {
+  for (const role of ["SUPER_ADMIN", "ADMIN"] as const) {
+    assert.equal(can(role, "business.pin"), true, role);
+    assert.equal(can(role, "business.delete"), true, role);
+  }
+  for (const role of ["MANAGER", "EMPLOYEE", "BUSINESS_OWNER", "USER"] as const) {
+    assert.equal(can(role, "business.pin"), false, role);
+    assert.equal(can(role, "business.delete"), false, role);
+  }
+  assert.equal(can("MANAGER", "business.publish"), true);
+});

@@ -34,6 +34,8 @@ export const PERMISSIONS = [
   "business.write",
   "business.publish",
   "business.delete",
+  /** Pin / unpin (the "featured" flag): administrators only. */
+  "business.pin",
   "service.read",
   "service.write",
   "service.publish",

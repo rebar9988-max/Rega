@@ -42,9 +42,14 @@ test("admin: full dashboard access, actions are audited, logout works", async ({
   await expect(page).toHaveURL(/\/dr$/);
   await expect(page.getByRole("heading", { name: "Übersicht" })).toBeVisible();
   await page.getByRole("navigation").getByRole("link", { name: "Unternehmen" }).click();
+  // Pin / unpin lives in the row's action menu (the existing "featured" flag).
   const row = page.getByRole("row", { name: /Sulaymaniyah Clinic/ });
-  await row.getByRole("button", { name: "Hervorhebung entfernen" }).click();
-  await expect(page.getByRole("row", { name: /Sulaymaniyah Clinic/ }).getByRole("button", { name: "Hervorheben" })).toBeVisible();
+  await row.getByTestId("row-actions").click();
+  await row.getByRole("button", { name: "Lösen", exact: true }).click();
+  await expect(page.getByTestId("visibility-notice")).toHaveAttribute("data-notice", "unpinned");
+  const again = page.getByRole("row", { name: /Sulaymaniyah Clinic/ });
+  await again.getByTestId("row-actions").click();
+  await expect(again.getByRole("button", { name: "Anheften", exact: true })).toBeVisible();
   await page.getByRole("navigation").getByRole("link", { name: "Audit-Protokolle" }).click();
   await expect(page.getByRole("cell", { name: "business.unfeature" }).first()).toBeVisible();
 
@@ -62,8 +67,9 @@ test("employee: sees the dashboard but only actions their role allows", async ({
   await expect(page).toHaveURL(/\/dr$/);
   await expect(page.getByRole("navigation").getByRole("link", { name: "Audit-Protokolle" })).toHaveCount(0);
   await page.goto("/dr/businesses");
-  await expect(page.getByRole("button", { name: "Veröffentlichen" })).toHaveCount(0);
-  await expect(page.getByRole("button", { name: "Hervorheben" })).toHaveCount(0);
+  // Not even inside the action menus: the controls are not rendered for this role.
+  for (const control of ["pin-business", "unpin-business", "delete-business"]) await expect(page.getByTestId(control)).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Prüfen & veröffentlichen" })).toHaveCount(0);
 });
 
 test("employee is rejected by the server for privileged API calls", async ({ page }) => {
