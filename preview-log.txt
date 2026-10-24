@@ -1,0 +1,15 @@
+[1A[2K[WebServer] [33m[1m⚠[22m[39m "next start" does not work with "output: standalone" configuration. Use "node .next/standalone/server.js" instead.
+
+geography: 7 countries, 22 regions, 2042 cities (idempotent).
+categories: 19 top-level categories (idempotent).
+admin: active SUPER_ADMIN accounts before seed: 1
+admin: account for the configured address already exists (role=SUPER_ADMIN, status=active, deleted=false, hasPassword=true, storedAddressNormalized=true); stored password matches secret: true
+demo business: kurdistan-rechtsberatung
+demo business: zagros-restaurant
+demo business: sulaymaniyah-clinic
+search index: 15 businesses re-indexed.
+
+Running 1 test using 1 worker
+
+[1A[2K[1/1] [desktop] › tests/e2e/admin-preview.spec.ts:30:5 › admin screenshots
+[1A[2K  1 passed (37.6s)

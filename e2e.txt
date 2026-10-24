@@ -1,0 +1,58 @@
+[1A[2K[WebServer] [33m[1m⚠[22m[39m "next start" does not work with "output: standalone" configuration. Use "node .next/standalone/server.js" instead.
+
+geography: 7 countries, 22 regions, 2042 cities (idempotent).
+categories: 19 top-level categories (idempotent).
+admin: active SUPER_ADMIN accounts before seed: 0
+admin: SUPER_ADMIN created for the configured address.
+demo business: kurdistan-rechtsberatung
+demo business: zagros-restaurant
+demo business: sulaymaniyah-clinic
+search index: 3 businesses re-indexed.
+
+Running 29 tests using 1 worker
+
+[1A[2K[1/29] [desktop] › tests/e2e/admin-business.spec.ts:38:5 › admin adds a business: address lookup, confirmed map location, publish; it appears in list, map and Nearby
+[1A[2K[WebServer] (node:4761) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+
+[1A[2K[2/29] [desktop] › tests/e2e/admin-business.spec.ts:97:5 › failed address lookup: clear message, no publish without a location; invalid coordinates rejected; manual placement works
+[1A[2K[3/29] [desktop] › tests/e2e/admin-business.spec.ts:145:5 › location audit, filter and list publish guard for existing businesses; APIs enforce the same rule
+[1A[2K[4/29] [desktop] › tests/e2e/admin-business.spec.ts:172:5 › a new city is created from the form, gets its centre, and becomes selectable in Nearby
+[1A[2K[5/29] [desktop] › tests/e2e/admin-business.spec.ts:187:5 › businesses at the very same position: the map offers them as a list
+[1A[2K[6/29] [desktop] › tests/e2e/auth.spec.ts:12:5 › anonymous visitors get the dashboard sign-in at /dr and login for /account
+[1A[2K[7/29] [desktop] › tests/e2e/auth.spec.ts:24:5 › dashboard API-level protection: mutating endpoints reject anonymous callers
+[1A[2K[8/29] [desktop] › tests/e2e/auth.spec.ts:29:5 › wrong password shows an error and stays on login
+[1A[2K[WebServer] {"ts":"2026-10-24T11:42:43.064Z","level":"warn","app":"rega","env":"production","message":"auth.login.failed","meta":{"email":"r***@gmail.com","reason":"bad_credentials"}}
+
+[1A[2K[WebServer] [auth][error] CredentialsSignin: Read more at https://errors.authjs.dev#credentialssignin
+
+[1A[2K[9/29] [desktop] › tests/e2e/auth.spec.ts:35:5 › login ignores open-redirect targets
+[1A[2K[10/29] [desktop] › tests/e2e/auth.spec.ts:40:5 › admin: full dashboard access, actions are audited, logout works
+[1A[2K[11/29] [desktop] › tests/e2e/auth.spec.ts:65:5 › employee: sees the dashboard but only actions their role allows
+[1A[2K[12/29] [desktop] › tests/e2e/auth.spec.ts:75:5 › employee is rejected by the server for privileged API calls
+[1A[2K[13/29] [desktop] › tests/e2e/business-visibility.spec.ts:55:5 › hide asks first, removes the listing from every public surface, keeps it editable; show again restores it
+[1A[2K[14/29] [desktop] › tests/e2e/business-visibility.spec.ts:111:5 › pin puts a business first and survives a reload; unpin returns it to the normal order
+[1A[2K[15/29] [desktop] › tests/e2e/business-visibility.spec.ts:137:5 › delete names the business, can be cancelled, removes it everywhere, and can be undone or restored
+[1A[2K[16/29] [desktop] › tests/e2e/business-visibility.spec.ts:171:5 › without the right there are no pin, delete or hide controls, and the server refuses the calls
+[1A[2K[17/29] [desktop] › tests/e2e/business-visibility.spec.ts:188:5 › the dashboard has no horizontal scroll and the menu stays on screen
+[1A[2K[18/29] [desktop] › tests/e2e/onboarding.spec.ts:51:5 › for-business page: free statement, steps, verified explanation, register CTA; no pricing
+[1A[2K[19/29] [desktop] › tests/e2e/onboarding.spec.ts:61:5 › header 'add listing' goes to /for-business when logged out
+[1A[2K[20/29] [desktop] › tests/e2e/onboarding.spec.ts:67:5 › registration validates: terms are required, passwords must match and be long enough
+[1A[2K[21/29] [desktop] › tests/e2e/onboarding.spec.ts:85:5 › owner registers, creates a listing, submits it; an admin approves; it is public
+[1A[2K[WebServer] [31m[1m⨯[22m[39m Error: Your role does not allow this action.
+[WebServer]     at l (.next/server/chunks/8192.js:1:3685)
+[WebServer]     at async q (.next/server/app/dr/users/page.js:2:7643) {
+[WebServer]   status: [33m403[39m,
+[WebServer]   code: [32m'forbidden'[39m,
+[WebServer]   digest: [32m'202339989'[39m
+[WebServer] }
+
+[1A[2K[22/29] [desktop] › tests/e2e/onboarding.spec.ts:149:5 › an admin can return a pending listing for changes
+[1A[2K[23/29] [desktop] › tests/e2e/onboarding.spec.ts:169:5 › owner wizard: Next needs a confirmed map pin, Back keeps what was typed, the draft is saved once, WhatsApp is checked
+[1A[2K[24/29] [desktop] › tests/e2e/onboarding.spec.ts:208:5 › an owner sees only their own listings
+[1A[2K[25/29] [mobile] › tests/e2e/business-visibility.spec.ts:55:5 › hide asks first, removes the listing from every public surface, keeps it editable; show again restores it
+[1A[2K[26/29] [mobile] › tests/e2e/business-visibility.spec.ts:111:5 › pin puts a business first and survives a reload; unpin returns it to the normal order
+[1A[2K[27/29] [mobile] › tests/e2e/business-visibility.spec.ts:137:5 › delete names the business, can be cancelled, removes it everywhere, and can be undone or restored
+[1A[2K[28/29] [mobile] › tests/e2e/business-visibility.spec.ts:171:5 › without the right there are no pin, delete or hide controls, and the server refuses the calls
+[1A[2K[29/29] [mobile] › tests/e2e/business-visibility.spec.ts:188:5 › the dashboard has no horizontal scroll and the menu stays on screen
+[1A[2K  29 passed (3.5m)

@@ -1,0 +1,148 @@
+
+> rega-platform@0.1.0 build:node
+> node scripts/vendor-maplibre.mjs && prisma generate && next build --webpack
+
+maplibre worker files copied to public/vendor/maplibre
+warn The configuration property `package.json#prisma` is deprecated and will be removed in Prisma 7. Please migrate to a Prisma config file (e.g., `prisma.config.ts`).
+For more information, see: https://pris.ly/prisma-config
+
+Prisma schema loaded from prisma/schema.prisma
+
+✔ Generated Prisma Client (v6.19.3) to ./node_modules/@prisma/client in 258ms
+
+Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+
+Tip: Want to turn off tips and other hints? https://pris.ly/tip-4-nohints
+
+▲ Next.js 16.4.2 (webpack)
+✓ Running next.config.ts took 52ms
+⚠ No build cache found. Please configure build caching for faster rebuilds. Read more: https://nextjs.org/docs/messages/no-cache
+
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+
+  To migrate automatically, run:
+  npx @next/codemod@canary middleware-to-proxy .
+
+  Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+  Creating an optimized production build ...
+⚠ Compiled with warnings in 18.9s
+
+./node_modules/next/dist/esm/server/app-render/dynamic-rendering.js
+A Node.js API is used (process.cwd at line: 986) which is not supported in the Edge Runtime.
+Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+
+Import trace for requested module:
+./node_modules/next/dist/esm/server/app-render/dynamic-rendering.js
+./node_modules/next/dist/esm/server/request/connection.js
+./node_modules/next/dist/esm/server/web/exports/index.js
+./node_modules/next/dist/esm/api/server.js
+
+./node_modules/next/dist/esm/server/app-render/dynamic-rendering.js
+A Node.js API is used (process.cwd at line: 986) which is not supported in the Edge Runtime.
+Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+
+Import trace for requested module:
+./node_modules/next/dist/esm/server/app-render/dynamic-rendering.js
+./node_modules/next/dist/esm/server/request/connection.js
+./node_modules/next/dist/esm/server/web/exports/index.js
+./node_modules/next/dist/esm/api/server.js
+
+  Running TypeScript ...
+  Finished TypeScript in 15.9s ...
+  Collecting page data using 3 workers ...
+  Generating static pages using 3 workers (0/172) ...
+  Generating static pages using 3 workers (43/172) 
+  Generating static pages using 3 workers (86/172) 
+  Generating static pages using 3 workers (129/172) 
+✓ Generating static pages using 3 workers (172/172) in 400ms
+  Finalizing page optimization ...
+  Collecting build traces ...
+
+Route (app)
+┌ ○ /_not-found
+├ ƒ /[locale]
+├ ƒ /[locale]/[...rest]
+├ ƒ /[locale]/about
+├ ƒ /[locale]/account
+├ ƒ /[locale]/ai
+├ ƒ /[locale]/auth
+├ ƒ /[locale]/business/[slug]
+├ ƒ /[locale]/businesses
+├ ƒ /[locale]/businesses/[slug]
+├ ƒ /[locale]/city/[citySlug]
+├ ƒ /[locale]/city/[citySlug]/[categorySlug]
+├ ƒ /[locale]/contact
+├ ƒ /[locale]/events
+├ ƒ /[locale]/events/[slug]
+├ ƒ /[locale]/for-business
+├ ƒ /[locale]/forgot-password
+├ ƒ /[locale]/guides
+├ ƒ /[locale]/guides/[slug]
+├ ƒ /[locale]/impressum
+├ ƒ /[locale]/jobs
+├ ƒ /[locale]/jobs/[slug]
+├ ƒ /[locale]/locations
+├ ƒ /[locale]/login
+├ ƒ /[locale]/nearby
+├ ƒ /[locale]/p/[slug]
+├ ƒ /[locale]/privacy
+├ ƒ /[locale]/register
+├ ƒ /[locale]/report
+├ ƒ /[locale]/reset-password
+├ ƒ /[locale]/search
+├ ƒ /[locale]/services
+├ ƒ /[locale]/services/[businessSlug]/[slug]
+├ ƒ /[locale]/terms
+├ ƒ /[locale]/verify-email
+├ ƒ /api/auth/[...nextauth]
+├ ƒ /api/health
+├ ƒ /api/v1/ai/chat
+├ ƒ /api/v1/businesses
+├ ƒ /api/v1/businesses/[id]
+├ ƒ /api/v1/businesses/bulk
+├ ƒ /api/v1/categories
+├ ƒ /api/v1/geo
+├ ƒ /api/v1/health
+├ ƒ /api/v1/locations
+├ ƒ /api/v1/media/business-image
+├ ƒ /api/v1/media/upload-url
+├ ƒ /api/v1/nearby
+├ ƒ /api/v1/search
+├ ƒ /api/v1/views
+├ ƒ /dr
+├ ƒ /dr/ai
+├ ƒ /dr/audit
+├ ƒ /dr/businesses
+├ ƒ /dr/businesses/[id]
+├ ƒ /dr/businesses/new
+├ ƒ /dr/categories
+├ ƒ /dr/categories/[id]
+├ ƒ /dr/categories/new
+├ ƒ /dr/content/[section]
+├ ƒ /dr/content/[section]/[id]
+├ ƒ /dr/content/[section]/new
+├ ƒ /dr/geography
+├ ƒ /dr/geography/city/[id]
+├ ƒ /dr/messages
+├ ƒ /dr/offers/[id]
+├ ƒ /dr/offers/new
+├ ƒ /dr/pages
+├ ƒ /dr/pages/[id]
+├ ƒ /dr/pages/new
+├ ƒ /dr/reports
+├ ƒ /dr/reviews
+├ ƒ /dr/services
+├ ƒ /dr/services/[id]
+├ ƒ /dr/services/new
+├ ƒ /dr/users
+├ ƒ /owner-login
+├ ○ /robots.txt
+├ ƒ /sitemap.xml
+└ ƒ /sitemaps/[file]
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
