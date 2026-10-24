@@ -11,6 +11,7 @@ import { getBusiness, getCategories } from "@/lib/data";
 import { languageNames } from "@/components/cards/BusinessRow";
 import { FigmaIcon } from "@/components/home/FigmaIcon";
 import { directionsUrl, mapLinks, safeHttpUrl, safeTel } from "@/lib/urls";
+import { addressLine } from "@/lib/address";
 import { whatsappLink } from "@/lib/whatsapp";
 import { offerTimezone } from "@/lib/offers";
 import { OfferList } from "@/components/business/OfferList";
@@ -70,11 +71,11 @@ export default async function BusinessPage({ params }: Props) {
   const primaryCity = b.locations[0]?.city ? localize({ ...b.locations[0].city, name: b.locations[0].city.nameEn }, "name", l) : null;
   const langs = languageNames(b.languages);
   // One location button for the whole page: the primary location (else the first) in the device's map app.
-  const placeAddress = (loc: (typeof b.locations)[number]) => [loc.addressLine1, loc.addressLine2, [loc.postalCode, loc.city?.nameEn].filter(Boolean).join(" ")]
-    .map((part) => (part ?? "").replace(/[\s,]+$/, "")).filter(Boolean).join(", ");
+  const placeAddress = (loc: (typeof b.locations)[number]) => addressLine(loc, loc.city?.nameEn);
   const mainLoc = b.locations.find((loc) => loc.isPrimary) ?? b.locations[0];
   const mainAddress = mainLoc ? placeAddress(mainLoc) : "";
   const mainCity = mainLoc?.city ? localize({ ...mainLoc.city, name: mainLoc.city.nameEn }, "name", l) : null;
+  const shownAddress = mainLoc ? addressLine(mainLoc, mainCity?.text, [mainLoc.city?.nameEn]) : "";
   const directions = mainLoc ? mapLinks(mainLoc.latitude, mainLoc.longitude, mainAddress, name.text) : null;
   // Gallery: the cover plus up to three further images, in the owner's order (older listings may store more; they stay saved).
   const gallery = [b.coverUrl, ...b.photos.slice(0, 3)].map((u) => safeHttpUrl(u)).filter((u): u is string => Boolean(u));
@@ -190,10 +191,8 @@ export default async function BusinessPage({ params }: Props) {
                     <span className="min-w-0">
                       <span className="block text-sm font-semibold">{t("locations.address")}</span>
                       <address className="block text-xs not-italic text-muted" data-testid="business-address">
-                        {/* Latin street and postcode stay LTR inside RTL pages; the city keeps its own language. */}
-                        <Ltr>{mainLoc!.addressLine1.replace(/[\s,]+$/, "")}</Ltr>{mainLoc!.addressLine2 && <>, <Ltr>{mainLoc!.addressLine2}</Ltr></>}
-                        {(mainLoc!.postalCode || mainCity) && ", "}
-                        {mainLoc!.postalCode && <><Ltr>{mainLoc!.postalCode}</Ltr>{" "}</>}{mainCity && <Text value={mainCity} pageLang={pageLang} />}
+                        {/* One isolated line, so RTL pages do not reorder its parts: LTR for Latin text, else by its first letter. */}
+                        <bdi dir={/[\u0590-\u08FF]/.test(shownAddress) ? "auto" : "ltr"} className="inline-block text-start">{shownAddress}</bdi>
                       </address>
                     </span>
                   </li>

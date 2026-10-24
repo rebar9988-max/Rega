@@ -40,8 +40,10 @@ test("business detail: content, contact actions, structured data", async ({ page
 test("Kurdish business name keeps its own direction on a German page", async ({ page }) => {
   await page.goto("/ckb/businesses/kurdistan-rechtsberatung");
   await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
-  // Address is Latin: it must be isolated as LTR inside the RTL page.
-  await expect(page.locator('address bdi[dir="ltr"]').first()).toContainText("Karl-Marx-Allee");
+  // The address is one isolated line that starts with its Latin street, so it reads left-to-right inside the RTL page.
+  const address = page.getByTestId("business-address").locator("bdi");
+  await expect(address).toContainText("Karl-Marx-Allee 12, 10178");
+  expect(await address.evaluate((el) => getComputedStyle(el).direction)).toBe("ltr");
 });
 
 test("service list → service detail → provider", async ({ page }) => {
