@@ -27,13 +27,19 @@ const schema = z.object({
   back: z.string().max(400).optional(),
 });
 
-/** Only `/dr/businesses` (with its own filters) or this business's edit page; anything else falls back to the list. */
-function visibilityReturn(back: string | undefined, id: string, done: string): string {
+/** List filters that survive an action (see the list page). */
+const LIST_PARAMS = ["q", "status", "loc", "page", "cat", "city", "pin"];
+
+/**
+ * Only `/dr/businesses` (with its own filters) or this business's edit page; anything else falls back to the list.
+ * `listOnly`: the record is no longer editable (deleted), so the edit page is never the target.
+ */
+function visibilityReturn(back: string | undefined, id: string, done: string, listOnly = false): string {
   let url: URL;
   try { url = new URL(back || "/dr/businesses", "https://rega.invalid"); } catch { url = new URL("/dr/businesses", "https://rega.invalid"); }
-  if (url.origin !== "https://rega.invalid" || (url.pathname !== "/dr/businesses" && url.pathname !== `/dr/businesses/${id}`)) url = new URL("/dr/businesses", "https://rega.invalid");
+  if (url.origin !== "https://rega.invalid" || (url.pathname !== "/dr/businesses" && url.pathname !== `/dr/businesses/${id}`) || (listOnly && url.pathname !== "/dr/businesses")) url = new URL("/dr/businesses", "https://rega.invalid");
   const params = url.pathname === "/dr/businesses"
-    ? new URLSearchParams([...url.searchParams].filter(([k]) => ["q", "status", "loc", "page"].includes(k)))
+    ? new URLSearchParams([...url.searchParams].filter(([k]) => LIST_PARAMS.includes(k)))
     : new URLSearchParams();
   params.set("visibility", done);
   if (url.pathname === "/dr/businesses") params.set("item", id);
@@ -47,8 +53,9 @@ const EFFECT = {
   archive: { permission: "business.write", data: () => ({ status: "archived", archivedAt: new Date() }) },
   // Show again: the target status is decided by restoreData (moderation rules), never a fixed value.
   restore: { permission: "business.write", data: () => ({}) },
-  feature: { permission: "business.publish", data: () => ({ featured: true }) },
-  unfeature: { permission: "business.publish", data: () => ({ featured: false }) },
+  // Pin / unpin: the existing "featured" flag. Pinned listings lead the dashboard list (and the home page's featured block).
+  feature: { permission: "business.pin", data: () => ({ featured: true }) },
+  unfeature: { permission: "business.pin", data: () => ({ featured: false }) },
   // Moderation: a pending listing goes back to draft so its owner can fix it and submit again.
   reject: { permission: "business.publish", data: () => ({ status: "draft", verified: false }) },
   verify: { permission: "business.publish", data: () => ({ verified: true }) },
@@ -100,11 +107,58 @@ export async function updateBusiness(formData: FormData): Promise<void> {
   if (intent === "reject" && result) await notifyReturned(id, result.name, reason);
   revalidatePath("/dr", "layout");
   revalidatePath("/", "layout");
-  // Clear confirmation after hide / show again (the list keeps its search and filters).
+  // Clear confirmation after hide / show again / pin / unpin (the list keeps its search and filters).
   if (result && (intent === "archive" || intent === "restore")) {
     const done = intent === "archive" ? "hidden" : result.status === "published" ? "shown" : result.status === "pending" ? "restoredPending" : "restoredDraft";
     redirect(visibilityReturn(back, id, done));
   }
+  if (back && (intent === "feature" || intent === "unfeature")) redirect(visibilityReturn(back, id, result ? (intent === "feature" ? "pinned" : "unpinned") : "unchanged"));
+}
+
+const recordSchema = z.object({ id: z.string().min(1).max(64), back: z.string().max(400).optional() });
+
+/**
+ * Delete (administrators only): the existing soft delete — the listing leaves the public site and the business list,
+ * nothing is erased (record, owner, locations, images and history stay) and it can be restored from "Deleted".
+ */
+export async function deleteBusiness(formData: FormData): Promise<void> {
+  const { id, back } = recordSchema.parse({ id: formData.get("id"), back: formData.get("back") || undefined });
+  const user = await requirePermission("business.delete");
+  await assertBusinessAccess(user, id);
+  const done = await prisma.$transaction(async (tx) => {
+    await lockBusiness(tx, id);
+    const before = await tx.business.findFirst({ where: { id, deletedAt: null }, select: { status: true, verified: true, featured: true, categoryId: true, archivedAt: true } });
+    if (!before) return false; // already deleted or unknown: a repeated request changes nothing
+    const now = new Date();
+    await tx.business.update({ where: { id }, data: { status: "archived", archivedAt: before.archivedAt ?? now, deletedAt: now } });
+    await reindexBusinessTree(tx, id);
+    await tx.auditLog.create({ data: { actorId: user.id, actorEmail: user.email, action: "business.delete.soft", entity: "Business", entityId: id,
+      before: { status: before.status, verified: before.verified, featured: before.featured, categoryId: before.categoryId }, after: { status: "archived", deleted: true } } });
+    return true;
+  });
+  revalidatePath("/dr", "layout");
+  revalidatePath("/", "layout");
+  redirect(visibilityReturn(back, id, done ? "deleted" : "unchanged", true));
+}
+
+/** Undo a delete: the listing comes back hidden; "Show again" then applies the normal publication rules. */
+export async function recoverBusiness(formData: FormData): Promise<void> {
+  const { id, back } = recordSchema.parse({ id: formData.get("id"), back: formData.get("back") || undefined });
+  const user = await requirePermission("business.delete");
+  await assertBusinessAccess(user, id);
+  const done = await prisma.$transaction(async (tx) => {
+    await lockBusiness(tx, id);
+    const before = await tx.business.findFirst({ where: { id, deletedAt: { not: null } }, select: { status: true, archivedAt: true } });
+    if (!before) return false;
+    await tx.business.update({ where: { id }, data: { deletedAt: null, status: "archived", archivedAt: before.archivedAt ?? new Date() } });
+    await reindexBusinessTree(tx, id);
+    await tx.auditLog.create({ data: { actorId: user.id, actorEmail: user.email, action: "business.recover", entity: "Business", entityId: id,
+      before: { status: before.status, deleted: true }, after: { status: "archived", deleted: false } } });
+    return true;
+  });
+  revalidatePath("/dr", "layout");
+  revalidatePath("/", "layout");
+  redirect(visibilityReturn(back, id, done ? "recovered" : "unchanged", true));
 }
 
 /** Tells the creator of a returned listing (in their own language) what to fix. Best effort: the status change already happened. */
