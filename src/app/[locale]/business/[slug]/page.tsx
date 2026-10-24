@@ -4,7 +4,7 @@ import { descriptionFrom } from "@/lib/seo-server";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getLocale, getTranslations, setRequestLocale } from "next-intl/server";
-import { LOCALE_META, formatNumber, type Locale } from "@/i18n/locales";
+import { LOCALE_META, type Locale } from "@/i18n/locales";
 import { Link } from "@/i18n/routing";
 import { localize, localizeText } from "@/lib/content";
 import { getBusiness, getCategories } from "@/lib/data";
@@ -14,6 +14,8 @@ import { directionsUrl, safeHttpUrl, safeTel } from "@/lib/urls";
 import { whatsappLink } from "@/lib/whatsapp";
 import { offerTimezone } from "@/lib/offers";
 import { OfferList } from "@/components/business/OfferList";
+import { ExpandableText } from "@/components/business/ExpandableText";
+import { ShareButton } from "@/components/business/ShareButton";
 import { priceLabel } from "@/components/cards/ServiceCard";
 import { Avatar } from "@/components/ui/Avatar";
 import { Chip, VerifiedBadge } from "@/components/ui/Badge";
@@ -72,13 +74,23 @@ export default async function BusinessPage({ params }: Props) {
   const mainLoc = b.locations.find((loc) => loc.isPrimary) ?? b.locations[0];
   const directions = mainLoc ? directionsUrl(mainLoc.latitude, mainLoc.longitude, placeAddress(mainLoc)) : null;
   const tm = await getTranslations("map");
+  const pageUrl = `https://${process.env.CANONICAL_HOST || "www.rega24.com"}/${locale}/business/${slug}`;
+  const mainHours = mainLoc && hasHours(mainLoc.openingHours) ? mainLoc : null;
+  const services = b.services.map((s) => ({ ...s, cover: safeHttpUrl(s.coverUrl) }));
+  const serviceCovers = services.some((s) => s.cover);
+  const hasContact = Boolean(tel || whatsapp || b.email || website);
+  // Primary (red) action: directions when the place can be found, else the call; share is always possible.
+  const primaryAction = directions ? "directions" : "call";
+  const actionCount = (tel ? 1 : 0) + (directions ? 1 : 0) + 1;
+  const actionClass = (kind: "call" | "directions" | "share") =>
+    buttonClass(kind === primaryAction ? "primary" : "secondary", "min-h-12 w-full gap-2 px-3 text-center leading-tight shadow-sm motion-safe:active:scale-[.98]");
 
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
     name: name.text,
     description: about.text || undefined,
-    url: `https://${process.env.CANONICAL_HOST || "www.rega24.com"}/${locale}/business/${slug}`,
+    url: pageUrl,
     image: b.logoUrl || b.coverUrl || undefined,
     telephone: b.phone || undefined,
     email: b.email || undefined,
@@ -92,65 +104,133 @@ export default async function BusinessPage({ params }: Props) {
       <JsonLd data={jsonLd} />
       <PageSchema name={name.text} path={`/business/${slug}`} crumbs={[{ name: t("businesses.title"), path: "/businesses" }, { name: name.text, path: `/business/${slug}` }]} />
       <ViewPing slug={b.slug} />
-      <div className="container-page pt-8">
+      <div className="container-page pt-6">
         <Breadcrumbs items={[{ label: t("nav.home"), href: "/" }, { label: t("businesses.title"), href: "/businesses" }, { label: <Text value={name} pageLang={pageLang} /> }]} />
 
-        <header className="rega-shell overflow-hidden">
-          <div className="grid lg:grid-cols-[minmax(18rem,.95fr)_minmax(0,1.3fr)]">
-            <div className="relative h-44 bg-brand-soft sm:h-56 lg:h-auto lg:min-h-[17rem]">
-              {b.coverUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={b.coverUrl} alt="" width={900} height={650} decoding="async" fetchPriority="high" className="absolute inset-0 size-full object-cover" />
-              ) : (
-                <div className="grid size-full place-items-center bg-[radial-gradient(circle_at_30%_20%,var(--surface),var(--brand-soft))]">
-                  <Avatar name={name.text} src={b.logoUrl} size="size-20 shadow-card lg:size-28" />
-                </div>
-              )}
+        {/* One profile for every business: identity, actions and facts; each part only when the business has the data. */}
+        <header className="rega-shell overflow-hidden" data-testid="business-profile">
+          {b.coverUrl && (
+            <div className="relative aspect-[16/9] w-full bg-brand-soft sm:aspect-[21/9] lg:aspect-[3/1]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={b.coverUrl} alt="" width={1200} height={400} decoding="async" fetchPriority="high" className="absolute inset-0 size-full object-cover" />
             </div>
-            <div className="flex min-w-0 flex-col justify-center p-5 sm:p-6 lg:p-7">
-              <div className="flex flex-wrap items-center gap-2">
-                <h1 className="rega-display min-w-0 text-2xl! sm:text-3xl!"><Text value={name} pageLang={pageLang} /></h1>
-                {b.verified && <VerifiedBadge />}
+          )}
+          <div className="p-4 sm:p-6">
+            <div className="flex items-start gap-4">
+              {(b.logoUrl || !b.coverUrl) && <Avatar name={name.text} src={b.logoUrl} size="size-14 shrink-0 shadow-card sm:size-16" />}
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                  <h1 className="rega-display min-w-0 text-2xl! [overflow-wrap:anywhere] sm:text-3xl!"><Text value={name} pageLang={pageLang} /></h1>
+                  {b.verified && <VerifiedBadge />}
+                </div>
+                {(categoryName || primaryCity) && (
+                  <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted">
+                    {categoryName && <span><Text value={categoryName} pageLang={pageLang} /></span>}
+                    {categoryName && primaryCity && <span aria-hidden="true">·</span>}
+                    {primaryCity && (
+                      <span className="inline-flex items-center gap-1"><FigmaIcon name="map-pin" className="size-4 shrink-0 text-brand" /><Text value={primaryCity} pageLang={pageLang} /></span>
+                    )}
+                  </p>
+                )}
+                {(b.ratingCount > 0 || b.featured) && (
+                  <div className="mt-2 flex flex-wrap items-center gap-3">
+                    {b.ratingCount > 0 && <Rating value={b.ratingAvg} count={b.ratingCount} />}
+                    {b.featured && <Chip>{t("businesses.featured")}</Chip>}
+                  </div>
+                )}
               </div>
-              {(categoryName || primaryCity) && (
-                <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[15px] text-muted">
-                  {categoryName && <span><Text value={categoryName} pageLang={pageLang} /></span>}
-                  {categoryName && primaryCity && <span aria-hidden="true">·</span>}
-                  {primaryCity && (
-                    <span className="inline-flex items-center gap-1"><FigmaIcon name="map-pin" className="size-4 shrink-0 text-brand" /><Text value={primaryCity} pageLang={pageLang} /></span>
-                  )}
-                </p>
+            </div>
+
+            <div className={`mt-5 grid gap-2 sm:gap-3 lg:max-w-2xl ${actionCount === 3 ? "grid-cols-3" : actionCount === 2 ? "grid-cols-2" : "grid-cols-1"}`} data-testid="business-actions">
+              {tel && (
+                <a href={`tel:${tel}`} aria-label={`${t("businesses.call")} – ${name.text}`} className={actionClass("call")}>
+                  <FigmaIcon name="phone" className="size-5 shrink-0" /><span>{t("businesses.call")}</span>
+                </a>
               )}
-              <div className="mt-3 flex flex-wrap items-center gap-3">
-                <Rating value={b.ratingAvg} count={b.ratingCount} />
-                {b.featured && <Chip>{t("businesses.featured")}</Chip>}
-              </div>
-              {about.text && <p className="mt-4 line-clamp-3 max-w-2xl text-sm leading-7 text-muted"><Text value={about} pageLang={pageLang} /></p>}
-              {(tel || directions || whatsapp) && (
-                <div className="mt-5 flex flex-wrap gap-2 [&>a]:flex-1 sm:[&>a]:flex-none">
-                  {tel && <a href={`tel:${tel}`} aria-label={`${t("businesses.call")} – ${name.text}`} className={buttonClass("primary")}>{t("businesses.call")}</a>}
-                  {directions && (
-                    <a href={directions} target="_blank" rel="noopener noreferrer" aria-label={`${tm("directions")} – ${name.text}`} className={buttonClass("secondary", "gap-1.5")} data-testid="directions-button">
-                      <FigmaIcon name="map-pin" className="size-4 shrink-0 text-brand" />{tm("directions")}
+              {directions && (
+                <a href={directions} target="_blank" rel="noopener noreferrer" aria-label={`${tm("directions")} – ${name.text}`} className={actionClass("directions")} data-testid="directions-button">
+                  <FigmaIcon name="map-pin" className="size-5 shrink-0" /><span>{tm("directions")}</span>
+                </a>
+              )}
+              <ShareButton url={pageUrl} title={name.text} label={t("businesses.share")} copiedLabel={t("businesses.linkCopied")} className={actionClass("share")} />
+            </div>
+
+            {(mainHours || langs.length > 0) && (
+              <ul className="mt-4 grid grid-cols-1 gap-2 min-[380px]:grid-cols-2 lg:max-w-2xl" data-testid="business-facts">
+                {mainHours && (
+                  <li>
+                    <a href="#locations" className="flex min-h-14 items-center gap-3 rounded-xl border border-line bg-surface px-3 py-2 hover:border-brand">
+                      <FigmaIcon name="clock" className="size-5 shrink-0 text-brand" />
+                      <span className="min-w-0">
+                        <span className="block text-sm font-semibold">{t("locations.openingHours")}</span>
+                        <OpenState hours={mainHours.openingHours} countryCode={mainHours.countryCode} className="mt-0.5" />
+                      </span>
                     </a>
-                  )}
-                  {whatsapp && <a href={whatsapp} target="_blank" rel="noopener noreferrer" aria-label={`${t("businesses.whatsapp")} – ${name.text}`} className={buttonClass("secondary")} data-testid="whatsapp-button">{t("businesses.whatsapp")}</a>}
-                </div>
-              )}
-            </div>
+                  </li>
+                )}
+                {langs.length > 0 && (
+                  <li className="flex min-h-14 items-center gap-3 rounded-xl border border-line bg-surface px-3 py-2">
+                    <FigmaIcon name="languages" className="size-5 shrink-0 text-brand" />
+                    <span className="min-w-0">
+                      <span className="block text-sm font-semibold">{t("bizForm.languagesSpoken")}</span>
+                      <span className="block text-xs text-muted" data-testid="business-languages">{langs.join(" · ")}</span>
+                    </span>
+                  </li>
+                )}
+              </ul>
+            )}
           </div>
         </header>
 
         <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_18rem]">
-          <div className="space-y-10">
+          <div className="min-w-0 space-y-8">
             {about.text && (
               <section aria-labelledby="about">
                 <h2 id="about" className="mb-3 text-xl font-bold">{t("businesses.about")}</h2>
-                <p className="whitespace-pre-line text-pretty leading-relaxed"><Text value={about} pageLang={pageLang} /></p>
+                <ExpandableText long={about.text.length > 320} more={t("businesses.readMore")} less={t("businesses.readLess")}>
+                  <Text value={about} pageLang={pageLang} />
+                </ExpandableText>
               </section>
             )}
 
             <OfferList offers={offers} serverNow={new Date().toISOString()} timeZone={offerTimezone(b.locations[0]?.countryCode)} />
+
+            {services.length > 0 && (
+              <section aria-labelledby="services">
+                <h2 id="services" className="mb-3 text-xl font-bold">{t("businesses.servicesCount")}</h2>
+                {serviceCovers ? (
+                  <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                    {await Promise.all(services.map(async (s) => (
+                      <li key={s.id}>
+                        <Link href={`/services/${b.slug}/${s.slug}`} className="group flex h-full flex-col overflow-hidden rounded-[var(--radius-card)] border border-line bg-surface shadow-card hover:border-brand/40">
+                          {s.cover ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={s.cover} alt="" width={400} height={300} loading="lazy" decoding="async" className="aspect-[4/3] w-full bg-surface-2 object-cover" />
+                          ) : (
+                            <span aria-hidden="true" className="grid aspect-[4/3] w-full place-items-center bg-brand-soft"><FigmaIcon name="sparkles" className="size-8 text-brand" /></span>
+                          )}
+                          <span className="flex flex-1 flex-col gap-1 p-3">
+                            <span className="text-sm font-semibold leading-snug"><Text value={localize(s, "name", l)} pageLang={pageLang} /></span>
+                            <span className="mt-auto text-xs text-muted">{(await priceLabel(s, l)) ?? t("services.priceOnRequest")}</span>
+                          </span>
+                        </Link>
+                      </li>
+                    )))}
+                  </ul>
+                ) : (
+                  <ul className="divide-y divide-line overflow-hidden rounded-[var(--radius-card)] border border-line bg-surface shadow-card">
+                    {await Promise.all(services.map(async (s) => (
+                      <li key={s.id}>
+                        <Link href={`/services/${b.slug}/${s.slug}`} className="flex min-h-14 items-center justify-between gap-4 px-4 py-3 hover:bg-surface-2">
+                          <span className="font-semibold"><Text value={localize(s, "name", l)} pageLang={pageLang} /></span>
+                          <span className="shrink-0 text-sm text-muted">{(await priceLabel(s, l)) ?? t("services.priceOnRequest")}</span>
+                        </Link>
+                      </li>
+                    )))}
+                  </ul>
+                )}
+              </section>
+            )}
 
             {b.photos.length > 0 && (
               <section aria-labelledby="photos">
@@ -159,91 +239,78 @@ export default async function BusinessPage({ params }: Props) {
                   {b.photos.map((src) => (
                     <li key={src}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={src} alt="" loading="lazy" decoding="async" className="aspect-[4/3] w-full rounded-xl border border-line bg-surface-2 object-cover" />
+                      <img src={src} alt="" width={400} height={300} loading="lazy" decoding="async" className="aspect-[4/3] w-full rounded-xl border border-line bg-surface-2 object-cover" />
                     </li>
                   ))}
                 </ul>
               </section>
             )}
 
-            {langs.length > 0 && (
-              <section aria-labelledby="languages">
-                <h2 id="languages" className="mb-3 text-xl font-bold">{t("bizForm.languagesSpoken")}</h2>
-                <ul className="flex flex-wrap gap-2">
-                  {langs.map((lang) => <li key={lang} className="rounded-lg border border-line bg-surface-2 px-3 py-1.5 text-sm font-medium">{lang}</li>)}
-                </ul>
+            {b.locations.length > 0 && (
+              <section aria-labelledby="locations-title" id="locations" className="scroll-mt-24">
+                <h2 className="mb-3 text-xl font-bold" id="locations-title">{t("locations.title")}</h2>
+                {mapPoints.length > 0 && <PlacesMap points={mapPoints} className="mb-4 h-64 sm:h-72" />}
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  {b.locations.map((loc) => {
+                    const city = loc.city ? localize({ ...loc.city, name: loc.city.nameEn }, "name", l) : null;
+                    // Monday first; once any day is set, a day without hours is shown as closed.
+                    const hours = hasHours(loc.openingHours) ? hoursRows(loc.openingHours) : [];
+                    return (
+                      <div key={loc.id} className="rounded-[var(--radius-card)] border border-line bg-surface p-4 sm:p-5">
+                        <div className="mb-2 flex items-center gap-2">
+                          <h3 className="font-bold">{loc.label || t("locations.singular")}</h3>
+                          {loc.isPrimary && b.locations.length > 1 && <Chip>{t("businesses.primary")}</Chip>}
+                        </div>
+                        <address className="text-sm not-italic text-muted">
+                          <Ltr>{loc.addressLine1}</Ltr>{loc.addressLine2 && <>, <Ltr>{loc.addressLine2}</Ltr></>}<br />
+                          {loc.postalCode && <><Ltr>{loc.postalCode}</Ltr>{" "}</>}{city && <Text value={city} pageLang={pageLang} />}
+                        </address>
+                        {hours.length > 0 && (
+                          <>
+                            {/* The open state of the main location is shown once, in the facts at the top. */}
+                            {loc.id !== mainHours?.id && <OpenState hours={loc.openingHours} countryCode={loc.countryCode} />}
+                            <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm" data-testid="opening-hours">
+                              {hours.map(({ day, value }) => (
+                                <div key={day} className="contents"><dt className="text-muted">{t(`days.${day}`)}</dt><dd>{!value || value === "closed" ? t("nearby.closed") : <Ltr>{value}</Ltr>}</dd></div>
+                              ))}
+                            </dl>
+                          </>
+                        )}
+                        {b.locations.length > 1 && directionsUrl(loc.latitude, loc.longitude, placeAddress(loc)) && (
+                          <a href={directionsUrl(loc.latitude, loc.longitude, placeAddress(loc))!} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex min-h-9 items-center text-sm font-semibold text-brand hover:underline">
+                            {tm("directions")} <span aria-hidden="true" className="rtl-flip ms-1">↗</span>
+                          </a>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
               </section>
             )}
 
-            <section aria-labelledby="services">
-              <h2 id="services" className="mb-3 text-xl font-bold">{t("businesses.servicesCount")}</h2>
-              {b.services.length === 0 ? <p className="text-muted">{t("businesses.noServices")}</p> : (
-                <ul className="divide-y divide-line overflow-hidden rounded-[var(--radius-card)] border border-line bg-surface shadow-card">
-                  {await Promise.all(b.services.map(async (s) => (
-                    <li key={s.id}>
-                      <Link href={`/services/${b.slug}/${s.slug}`} className="flex min-h-14 items-center justify-between gap-4 px-4 py-3 hover:bg-surface-2">
-                        <span className="font-semibold"><Text value={localize(s, "name", l)} pageLang={pageLang} /></span>
-                        <span className="shrink-0 text-sm text-muted">{(await priceLabel(s, l)) ?? t("services.priceOnRequest")}</span>
-                      </Link>
-                    </li>
-                  )))}
-                </ul>
-              )}
-            </section>
-
-            <section aria-labelledby="locations">
-              <h2 id="locations" className="mb-3 text-xl font-bold">{t("locations.title")}</h2>
-              {mapPoints.length > 0 && <PlacesMap points={mapPoints} className="mb-4 h-72" />}
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                {b.locations.map((loc) => {
-                  const city = loc.city ? localize({ ...loc.city, name: loc.city.nameEn }, "name", l) : null;
-                  // Monday first; once any day is set, a day without hours is shown as closed.
-                  const hours = hasHours(loc.openingHours) ? hoursRows(loc.openingHours) : [];
-                  return (
-                    <div key={loc.id} className="rounded-[var(--radius-card)] border border-line bg-surface p-5">
-                      <div className="mb-2 flex items-center gap-2">
-                        <h3 className="font-bold">{loc.label || t("locations.singular")}</h3>
-                        {loc.isPrimary && <Chip>{t("businesses.primary")}</Chip>}
-                      </div>
-                      <address className="text-sm not-italic text-muted">
-                        <Ltr>{loc.addressLine1}</Ltr>{loc.addressLine2 && <>, <Ltr>{loc.addressLine2}</Ltr></>}<br />
-                        {loc.postalCode && <><Ltr>{loc.postalCode}</Ltr>{" "}</>}{city && <Text value={city} pageLang={pageLang} />}
-                      </address>
-                      {hours.length > 0 && (
-                        <>
-                          <OpenState hours={loc.openingHours} countryCode={loc.countryCode} />
-                          <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm" data-testid="opening-hours">
-                            {hours.map(({ day, value }) => (
-                              <div key={day} className="contents"><dt className="text-muted">{t(`days.${day}`)}</dt><dd>{!value || value === "closed" ? t("nearby.closed") : <Ltr>{value}</Ltr>}</dd></div>
-                            ))}
-                          </dl>
-                        </>
-                      )}
-                      {b.locations.length > 1 && directionsUrl(loc.latitude, loc.longitude, placeAddress(loc)) && (
-                        <a href={directionsUrl(loc.latitude, loc.longitude, placeAddress(loc))!} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex min-h-9 items-center text-sm font-semibold text-brand hover:underline">
-                          {tm("directions")} <span aria-hidden="true" className="rtl-flip ms-1">↗</span>
-                        </a>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </section>
-
             <ReviewSection businessId={b.id} businessSlug={b.slug} />
+
+            {!hasContact && (
+              <Link href={{ pathname: "/report", query: { url: pageUrl } }} rel="nofollow" className="inline-flex min-h-9 items-center text-xs font-semibold text-muted underline hover:text-ink">{t("report.reportThis")}</Link>
+            )}
           </div>
 
-          <aside aria-label={t("businesses.contact")} className="rega-shell order-first h-fit space-y-3 p-5 lg:order-none lg:sticky lg:top-24">
-            <h2 className="text-lg font-bold">{t("businesses.contact")}</h2>
-            {b.email && <a href={`mailto:${b.email}`} className={buttonClass("secondary", "w-full")}>{t("businesses.sendEmail")}</a>}
-            {website && <a href={website} target="_blank" rel="noopener noreferrer nofollow" className={buttonClass("secondary", "w-full")}>{t("businesses.visitWebsite")}</a>}
-            <dl className="space-y-1 pt-2 text-sm text-muted">
-              {b.phone && <div><dt className="sr-only">{t("businesses.phone")}</dt><dd>{tel ? <a href={`tel:${tel}`} className="hover:text-brand"><Ltr>{b.phone}</Ltr></a> : <Ltr>{b.phone}</Ltr>}</dd></div>}
-              {b.email && <div><dt className="sr-only">{t("businesses.email")}</dt><dd className="break-all"><Ltr>{b.email}</Ltr></dd></div>}
-            </dl>
-            {b.ratingCount > 0 && <p className="text-xs text-muted">{t("businesses.reviewsCount", { count: formatNumber(b.ratingCount, l) })}</p>}
-            <Link href={{ pathname: "/report", query: { url: jsonLd.url } }} rel="nofollow" className="inline-flex min-h-9 items-center text-xs font-semibold text-muted underline hover:text-ink">{t("report.reportThis")}</Link>
-          </aside>
+          {hasContact && (
+            <aside aria-label={t("businesses.contact")} className="rega-shell order-first h-fit space-y-3 p-4 sm:p-5 lg:order-none lg:sticky lg:top-24">
+              <h2 className="text-lg font-bold">{t("businesses.contact")}</h2>
+              {b.phone && (
+                <p className="flex items-center gap-2 text-sm">
+                  <FigmaIcon name="phone" className="size-4 shrink-0 text-brand" />
+                  <span className="sr-only">{t("businesses.phone")}</span>
+                  {tel ? <a href={`tel:${tel}`} className="font-semibold hover:text-brand"><Ltr>{b.phone}</Ltr></a> : <Ltr>{b.phone}</Ltr>}
+                </p>
+              )}
+              {whatsapp && <a href={whatsapp} target="_blank" rel="noopener noreferrer" aria-label={`${t("businesses.whatsapp")} – ${name.text}`} className={buttonClass("secondary", "w-full")} data-testid="whatsapp-button">{t("businesses.whatsapp")}</a>}
+              {b.email && <a href={`mailto:${b.email}`} title={t("businesses.sendEmail")} className={buttonClass("secondary", "w-full")}><span className="sr-only">{t("businesses.sendEmail")}: </span><span className="min-w-0 truncate"><Ltr>{b.email}</Ltr></span></a>}
+              {website && <a href={website} target="_blank" rel="noopener noreferrer nofollow" className={buttonClass("secondary", "w-full")}>{t("businesses.visitWebsite")}</a>}
+              <Link href={{ pathname: "/report", query: { url: pageUrl } }} rel="nofollow" className="inline-flex min-h-9 items-center text-xs font-semibold text-muted underline hover:text-ink">{t("report.reportThis")}</Link>
+            </aside>
+          )}
         </div>
       </div>
     </article>

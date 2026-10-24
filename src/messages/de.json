@@ -184,7 +184,11 @@
     "servicesN": "{count} Dienstleistungen",
     "lead": "Unternehmen und Dienstleistungen in ganz Deutschland entdecken.",
     "whatsapp": "WhatsApp",
-    "photos": "Fotos"
+    "photos": "Fotos",
+    "share": "Teilen",
+    "linkCopied": "Link kopiert",
+    "readMore": "Mehr lesen",
+    "readLess": "Weniger"
   },
   "services": {
     "title": "Dienstleistungen",

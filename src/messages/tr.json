@@ -184,7 +184,11 @@
     "servicesN": "{count} hizmet",
     "lead": "Almanya genelindeki işletmelere ve hizmetlere göz atın.",
     "whatsapp": "WhatsApp",
-    "photos": "Fotoğraflar"
+    "photos": "Fotoğraflar",
+    "share": "Paylaş",
+    "linkCopied": "Bağlantı kopyalandı",
+    "readMore": "Devamını oku",
+    "readLess": "Daha az"
   },
   "services": {
     "title": "Hizmetler",

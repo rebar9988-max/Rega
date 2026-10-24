@@ -184,7 +184,11 @@
     "servicesN": "{count} services",
     "lead": "Browse businesses and services across Germany.",
     "whatsapp": "WhatsApp",
-    "photos": "Photos"
+    "photos": "Photos",
+    "share": "Share",
+    "linkCopied": "Link copied",
+    "readMore": "Read more",
+    "readLess": "Show less"
   },
   "services": {
     "title": "Services",
