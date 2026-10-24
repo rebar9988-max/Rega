@@ -52,12 +52,12 @@ test("a valid public WhatsApp number is stored in international form and shown a
 
   slug = (await (await page.request.get(`/api/v1/businesses?q=${encodeURIComponent(name)}`)).json()).data[0].slug;
   await page.goto(`/de/businesses/${slug}`);
-  for (const id of ["whatsapp-button", "whatsapp-button-aside"]) {
-    const link = page.getByTestId(id);
-    await expect(link).toHaveAttribute("href", "https://wa.me/491784228269");
-    await expect(link).toHaveAttribute("target", "_blank");
-    await expect(link).toHaveAttribute("rel", /noopener/);
-  }
+  // One WhatsApp button, in the header (the contact card does not repeat it).
+  const link = page.getByTestId("whatsapp-button");
+  await expect(link).toHaveAttribute("href", "https://wa.me/491784228269");
+  await expect(link).toHaveAttribute("target", "_blank");
+  await expect(link).toHaveAttribute("rel", /noopener/);
+  await expect(page.getByTestId("whatsapp-button-aside")).toHaveCount(0);
 });
 
 test("without a WhatsApp number there is no WhatsApp button", async ({ page }) => {

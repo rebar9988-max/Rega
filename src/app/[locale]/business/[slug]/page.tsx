@@ -10,7 +10,7 @@ import { localize, localizeText } from "@/lib/content";
 import { getBusiness, getCategories } from "@/lib/data";
 import { languageNames } from "@/components/cards/BusinessRow";
 import { FigmaIcon } from "@/components/home/FigmaIcon";
-import { safeHttpUrl, safeTel } from "@/lib/urls";
+import { directionsUrl, safeHttpUrl, safeTel } from "@/lib/urls";
 import { whatsappLink } from "@/lib/whatsapp";
 import { offerTimezone } from "@/lib/offers";
 import { OfferList } from "@/components/business/OfferList";
@@ -66,6 +66,11 @@ export default async function BusinessPage({ params }: Props) {
   const categoryName = category ? localize({ ...category, name: category.nameDe }, "name", l) : null;
   const primaryCity = b.locations[0]?.city ? localize({ ...b.locations[0].city, name: b.locations[0].city.nameEn }, "name", l) : null;
   const langs = languageNames(b.languages);
+  // One location button for the whole page: the primary location (else the first) in the device's map app.
+  const placeAddress = (loc: (typeof b.locations)[number]) => [loc.addressLine1, loc.addressLine2, [loc.postalCode, loc.city?.nameEn].filter(Boolean).join(" ")].filter(Boolean).join(", ");
+  const mainLoc = b.locations.find((loc) => loc.isPrimary) ?? b.locations[0];
+  const directions = mainLoc ? directionsUrl(mainLoc.latitude, mainLoc.longitude, placeAddress(mainLoc)) : null;
+  const tm = await getTranslations("map");
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -91,19 +96,19 @@ export default async function BusinessPage({ params }: Props) {
 
         <header className="rega-shell overflow-hidden">
           <div className="grid lg:grid-cols-[minmax(18rem,.95fr)_minmax(0,1.3fr)]">
-            <div className="relative min-h-[17rem] bg-brand-soft">
+            <div className="relative h-44 bg-brand-soft sm:h-56 lg:h-auto lg:min-h-[17rem]">
               {b.coverUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={b.coverUrl} alt="" width={900} height={650} decoding="async" fetchPriority="high" className="absolute inset-0 size-full object-cover" />
               ) : (
-                <div className="grid size-full min-h-[17rem] place-items-center bg-[radial-gradient(circle_at_30%_20%,var(--surface),var(--brand-soft))]">
-                  <Avatar name={name.text} src={b.logoUrl} size="size-28 shadow-card" />
+                <div className="grid size-full place-items-center bg-[radial-gradient(circle_at_30%_20%,var(--surface),var(--brand-soft))]">
+                  <Avatar name={name.text} src={b.logoUrl} size="size-20 shadow-card lg:size-28" />
                 </div>
               )}
             </div>
-            <div className="flex min-w-0 flex-col justify-center p-5 sm:p-7 lg:p-8">
+            <div className="flex min-w-0 flex-col justify-center p-5 sm:p-6 lg:p-7">
               <div className="flex flex-wrap items-center gap-2">
-                <h1 className="rega-display min-w-0 text-3xl sm:text-4xl"><Text value={name} pageLang={pageLang} /></h1>
+                <h1 className="rega-display min-w-0 text-2xl! sm:text-3xl!"><Text value={name} pageLang={pageLang} /></h1>
                 {b.verified && <VerifiedBadge />}
               </div>
               {(categoryName || primaryCity) && (
@@ -120,15 +125,22 @@ export default async function BusinessPage({ params }: Props) {
                 {b.featured && <Chip>{t("businesses.featured")}</Chip>}
               </div>
               {about.text && <p className="mt-4 line-clamp-3 max-w-2xl text-sm leading-7 text-muted"><Text value={about} pageLang={pageLang} /></p>}
-              <div className="mt-5 flex flex-wrap gap-2">
-                {tel && <a href={`tel:${tel}`} aria-label={`${t("businesses.call")} – ${name.text}`} className={buttonClass("primary")}>{t("businesses.call")}</a>}
-                {whatsapp && <a href={whatsapp} target="_blank" rel="noopener noreferrer" aria-label={`${t("businesses.whatsapp")} – ${name.text}`} className={buttonClass("secondary")} data-testid="whatsapp-button">{t("businesses.whatsapp")}</a>}
-              </div>
+              {(tel || directions || whatsapp) && (
+                <div className="mt-5 flex flex-wrap gap-2 [&>a]:flex-1 sm:[&>a]:flex-none">
+                  {tel && <a href={`tel:${tel}`} aria-label={`${t("businesses.call")} – ${name.text}`} className={buttonClass("primary")}>{t("businesses.call")}</a>}
+                  {directions && (
+                    <a href={directions} target="_blank" rel="noopener noreferrer" aria-label={`${tm("directions")} – ${name.text}`} className={buttonClass("secondary", "gap-1.5")} data-testid="directions-button">
+                      <FigmaIcon name="map-pin" className="size-4 shrink-0 text-brand" />{tm("directions")}
+                    </a>
+                  )}
+                  {whatsapp && <a href={whatsapp} target="_blank" rel="noopener noreferrer" aria-label={`${t("businesses.whatsapp")} – ${name.text}`} className={buttonClass("secondary")} data-testid="whatsapp-button">{t("businesses.whatsapp")}</a>}
+                </div>
+              )}
             </div>
           </div>
         </header>
 
-        <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_20rem]">
+        <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_18rem]">
           <div className="space-y-10">
             {about.text && (
               <section aria-labelledby="about">
@@ -206,9 +218,9 @@ export default async function BusinessPage({ params }: Props) {
                           </dl>
                         </>
                       )}
-                      {loc.latitude != null && loc.longitude != null && (
-                        <a href={`https://www.openstreetmap.org/?mlat=${loc.latitude}&mlon=${loc.longitude}#map=16/${loc.latitude}/${loc.longitude}`} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex min-h-9 items-center text-sm font-semibold text-brand hover:underline">
-                          {t("locations.viewOnMap")} <span aria-hidden="true" className="rtl-flip ms-1">↗</span>
+                      {b.locations.length > 1 && directionsUrl(loc.latitude, loc.longitude, placeAddress(loc)) && (
+                        <a href={directionsUrl(loc.latitude, loc.longitude, placeAddress(loc))!} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex min-h-9 items-center text-sm font-semibold text-brand hover:underline">
+                          {tm("directions")} <span aria-hidden="true" className="rtl-flip ms-1">↗</span>
                         </a>
                       )}
                     </div>
@@ -220,14 +232,12 @@ export default async function BusinessPage({ params }: Props) {
             <ReviewSection businessId={b.id} businessSlug={b.slug} />
           </div>
 
-          <aside aria-label={t("businesses.contact")} className="rega-shell h-fit space-y-3 p-5 lg:sticky lg:top-24">
+          <aside aria-label={t("businesses.contact")} className="rega-shell order-first h-fit space-y-3 p-5 lg:order-none lg:sticky lg:top-24">
             <h2 className="text-lg font-bold">{t("businesses.contact")}</h2>
-            {tel && <a href={`tel:${tel}`} className={buttonClass("primary", "w-full")}>{t("businesses.call")}</a>}
-            {whatsapp && <a href={whatsapp} target="_blank" rel="noopener noreferrer" className={buttonClass("secondary", "w-full")} data-testid="whatsapp-button-aside">{t("businesses.whatsapp")}</a>}
             {b.email && <a href={`mailto:${b.email}`} className={buttonClass("secondary", "w-full")}>{t("businesses.sendEmail")}</a>}
             {website && <a href={website} target="_blank" rel="noopener noreferrer nofollow" className={buttonClass("secondary", "w-full")}>{t("businesses.visitWebsite")}</a>}
             <dl className="space-y-1 pt-2 text-sm text-muted">
-              {b.phone && <div><dt className="sr-only">{t("businesses.phone")}</dt><dd><Ltr>{b.phone}</Ltr></dd></div>}
+              {b.phone && <div><dt className="sr-only">{t("businesses.phone")}</dt><dd>{tel ? <a href={`tel:${tel}`} className="hover:text-brand"><Ltr>{b.phone}</Ltr></a> : <Ltr>{b.phone}</Ltr>}</dd></div>}
               {b.email && <div><dt className="sr-only">{t("businesses.email")}</dt><dd className="break-all"><Ltr>{b.email}</Ltr></dd></div>}
             </dl>
             {b.ratingCount > 0 && <p className="text-xs text-muted">{t("businesses.reviewsCount", { count: formatNumber(b.ratingCount, l) })}</p>}

@@ -544,3 +544,21 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
 - Deploy fix: the first production deploy (run 40004887934) failed at the Worker upload; the only config change was a
   `vars.CANONICAL_HOST` entry in `wrangler.jsonc` (a variable may not share a name with a dashboard secret). Removed; the
   code default is `www.rega24.com`, so the canonical host does not depend on a Worker variable.
+
+## Business details page: one design on mobile and desktop — 2026-10-24
+- Owner task: business page must look the same on mobile and desktop (desktop = reference), compact, one clear location button.
+  Owner confirmed production is `www.rega24.com` (the prompt named the retired `www.regaplatform.com`; guard blocked it, owner answered).
+- Audit (live Firecrawl screenshots 1366 px / 360 px of `/ckb/business/karwans-hairtuning`, code): the contact card sat beside the
+  content on desktop but at the very bottom on mobile (after reviews); Call and WhatsApp were repeated in header and card; no location
+  button (only a small OpenStreetMap link in the location card); 17rem empty cover block on phones; the RTL business name stayed 52 px
+  because the unlayered `[dir="rtl"] h1` clamp in `globals.css` beats Tailwind sizes.
+- Change (`src/app/[locale]/business/[slug]/page.tsx` only, plus `directionsUrl` in `src/lib/urls.ts`): header actions Call + Directions
+  (existing `map.directions` label; Google Maps URL opens the device's map app, coordinates else address) + WhatsApp; contact card right
+  after the header on phones (`order-first`, desktop unchanged column) without the repeated Call/WhatsApp buttons, phone number is a tel
+  link; cover 11rem/14rem on phone/tablet, 17rem from lg; page-scoped `text-2xl! sm:text-3xl!` on this h1 (global RTL rule untouched);
+  per-location directions link only when there is more than one location. No schema, route, i18n, colour or global CSS change.
+- Tests: unit 334/334 (new `directionsUrl` test), lint, typecheck, Node build, local e2e (catalog, offers-whatsapp, a11y, urls,
+  reviews; desktop + mobile) all pass. Local Lighthouse (localhost, not production): mobile P88 A100 BP100 SEO92, desktop P97 A100
+  BP96 SEO92; SEO/BP deductions are localhost-only (canonical points to www.rega24.com; map tiles blocked in the sandbox).
+- Not changed, reported: shared footer link overflows 7 px on German mobile pages (pre-existing, global, outside scope).
+- Environment: this session cannot reach www.rega24.com directly (proxy 403); live checks via Firecrawl only.
