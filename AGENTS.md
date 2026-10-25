@@ -15,3 +15,14 @@ Before any substantial task read, in order:
    (https://docs.google.com/open?id=1pp6GW-UM9AQ9TuUJHumziaujxB6ZOza5S3xwA6dmxu4)
 
 Then verify current GitHub and Cloudflare state before acting. Do not duplicate rules here; change them in CLAUDE.md.
+
+
+## REGA24 system map and failure diagnosis
+
+Read [REGA24_SYSTEM_MAP.md](REGA24_SYSTEM_MAP.md) before architectural changes and consult
+[REGA24_TROUBLESHOOTING.md](REGA24_TROUBLESHOOTING.md) when diagnosing failures.
+The maintenance requirements are in [CLAUDE.md](CLAUDE.md), section 6 (REGA24 technical documentation).
+Update both files after verified infrastructure changes; record dependencies and known issues, reuse completed
+investigations, never invent system information, and never store credentials or secret values in documentation.
+Before committing run `node scripts/rega24-docs.mjs --check`; after reviewed source changes regenerate with
+`node scripts/rega24-docs.mjs --write` (stage new source files first). Keep the existing memory workflow above.

@@ -142,3 +142,23 @@ the Doc keeps the cross-tool summary and change log, the repository keeps detail
    required checks or production safeguards; never merge or deploy unverified changes; no speculative fixes.
 5. Proceed autonomously with safe read, diagnosis, documentation and verified repair work. Ask the owner only for an
    unavoidable billing, permission, authentication, destructive or security approval.
+
+
+### REGA24 technical documentation (2026-10-25)
+
+The repository technical reference is [REGA24_SYSTEM_MAP.md](REGA24_SYSTEM_MAP.md); the operational runbook is
+[REGA24_TROUBLESHOOTING.md](REGA24_TROUBLESHOOTING.md). They extend the existing documentation layer in section 6;
+they do not replace the central memory hub or past decisions.
+
+- Every coding agent reads the system map before architectural changes and consults the runbook for failures.
+- After verified infrastructure changes, update BOTH documents with dated evidence, new dependencies, affected
+  source/config locations and known issues. Keep VERIFIED repository, VERIFIED live, REPORTED and UNKNOWN distinct.
+- Reuse prior completed investigations; repeat only when new evidence or changed assumptions require it.
+- Never invent system information or claim external verification without actual access. Never store credentials,
+  secret values, connection strings, cookies, signed URLs or OTPs in documentation or generated inventories.
+- The generated [inventory](docs/REGA24_INVENTORY.md) is derived from tracked source/configuration; review changes,
+  stage new source files, regenerate with `node scripts/rega24-docs.mjs --write`, then run
+  `node scripts/rega24-docs.mjs --check`. This checks source drift, local links/anchors and required structure offline;
+  external links/live freshness need separate evidence. PR validation has no secrets, deployment or new services.
+- A documentation commit does not justify production deployment. Main CI can trigger deployment even for docs;
+  use a documentation branch and do not push/merge main merely to publish the technical reference.

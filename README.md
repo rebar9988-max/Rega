@@ -162,3 +162,12 @@ routing entry that is not a registered provider, `AI_PROVIDER` pinned to a provi
 
 Safety: keys are sent only in request headers, never logged (`scrub()` also strips echoed keys from provider errors),
 prompts are never logged, requests are rate limited per session and IP, and there is a daily request budget.
+
+
+## Central technical reference
+
+Start with [REGA24_SYSTEM_MAP.md](REGA24_SYSTEM_MAP.md) for architecture, service ownership, source locations and
+verification evidence; use [REGA24_TROUBLESHOOTING.md](REGA24_TROUBLESHOOTING.md) for incident procedures.
+[Generated inventory](docs/REGA24_INVENTORY.md) lists dependency ranges, API routes, environment names and source
+fingerprints. Validate offline with `node scripts/rega24-docs.mjs --check`; regenerate after reviewing source changes
+with `node scripts/rega24-docs.mjs --write`. Existing [project memory](PROJECT_MEMORY.md) retains decisions/history.

@@ -665,3 +665,31 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
   start-aligned `max-w-sm` from `sm`), checked in LTR + RTL; thumbnail strip capped at `max-w-md` from `sm` (same structure on all
   sizes). The upload route allows 10 uploads/min per person; the gallery e2e (5 uploads) waits out the window and re-confirms
   if it is hit, like a person would. Local full suite (desktop + mobile): 323 passed before these fixes; affected specs re-run green.
+
+
+## REGA24 centralized technical reference — 2026-10-25
+
+- Task: infrastructure/source audit, root system map/runbook, agent integration and offline documentation validation.
+- Baseline: e8e2b69b0d3da1e88cf75e904cf6ff4a4e8b90a8; isolated branch docs/rega24-system-map-20261025.
+  Identity guard passed; GitHub repo metadata/default main and main Wrangler excerpt read through connector.
+- Changes: [system map](REGA24_SYSTEM_MAP.md), [troubleshooting](REGA24_TROUBLESHOOTING.md),
+  [generated inventory](docs/REGA24_INVENTORY.md), script/PR-only docs validation workflow, AGENTS/CLAUDE entry points.
+  Source/config remains authoritative; central Doc stays summary/history. No application or deployment config changed.
+- Live read-only Cloudflare: web and Python Worker settings/deployments, custom domains, REGA zone DNS/TLS,
+  R2 bucket/domain/CORS. Web version 79627fce-fc09-4df7-9094-3e8c401f2b6a at 100%; Python
+  ce53715f-a13a-459c-a7b0-ecd6130e74e2 at 100%. No public HTTP functional check claimed.
+- Live Neon metadata: Rega24 / lucky-glitter-73195208, PG18 eu-central-1; 10 branches including primary/default
+  production br-floral-hall-b22rpgrw (ready, not protected). No SQL/connection strings or database writes.
+- Verified risks: OPENAI_API_KEY/XAI_API_KEY still plain_text (values not documented); R2 CORS only allows old
+  regaplatform.com origins; legacy website domains remain enabled despite historical retired wording. No repair
+  attempted: documentation scope. Existing central-memory release/security/backup holds remain uncleared.
+- Unknown: exact runtime DB branch match, applied production ledger/backup restore, billing/provider quotas,
+  mail/OAuth end-to-end, current Builds config/CI conclusions. Executor restricted/no injected credentials.
+- Validation: offline checker PASS (7 documents, 377 source fingerprints, 102 env names, 10 procedures);
+  controlled negative cases reject source drift, broken links/anchors and missing rollback field. Node syntax,
+  ESLint for validator and git diff whitespace checks PASS. No application/build tests needed for documentation
+  and isolated offline tooling; no hosted CI triggered.
+- Production impact: no deploy, migration, domain/Worker/secret change, deletions, object writes or paid service.
+  No R&L changes. No push/merge requested or performed; local commit will contain only documentation/tooling.
+- Next: use the map/runbook for future work; re-read latest hub and reverify live state before any release;
+  address security/CORS only as separately scoped changes, preserving zero-cost and existing release gates.
