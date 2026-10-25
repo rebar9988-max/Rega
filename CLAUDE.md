@@ -172,3 +172,8 @@ owner-only SUPER_ADMIN and existing role/membership restrictions. Non-secret pro
 from `src/config/project.json`; secrets remain protected provider configuration. Both release paths must verify
 successful main CI for their exact SHA, including manual fallback. Never publish test-only mocked-font artifacts.
 Read [consolidation acceptance](docs/REGA24_CONSOLIDATION.md) and latest central-memory release holds before release.
+
+The main-branch infrastructure-index instructions from 7011eb5 are preserved: docs are an index/runbook, not a
+second narrative memory; generated JSON at `docs/generated/system-inventory.json` and Markdown are views produced
+by the same canonical generator. Legacy generate/validate commands remain wrappers; CI checks links, structure,
+freshness and common accidental-secret patterns. Documentation-only commits skip Worker deployment.

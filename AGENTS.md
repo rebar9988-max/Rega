@@ -26,3 +26,8 @@ Update both files after verified infrastructure changes; record dependencies and
 investigations, never invent system information, and never store credentials or secret values in documentation.
 Before committing run `node scripts/rega24-docs.mjs --check`; after reviewed source changes regenerate with
 `node scripts/rega24-docs.mjs --write` (stage new source files first). Keep the existing memory workflow above.
+
+Documentation-only main commits must not replace production Workers (`DOCS_ONLY_SKIP`). Existing commands
+`node scripts/generate-system-inventory.mjs` and `node scripts/validate-system-docs.mjs` remain compatible wrappers
+around the single canonical generator/checker. CI performs this validation; no separate duplicate docs workflow.
+The JSON and Markdown inventories are generated views of the same tracked facts, never separate manual authorities.

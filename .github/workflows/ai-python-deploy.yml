@@ -25,63 +25,76 @@ jobs:
       # Cloudflare account IDs are public identifiers, not credentials; repository variable/secret may override this known production account.
       CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID || secrets.CLOUDFLARE_ACCOUNT_ID || 'ee07860dbb8e61ff6915758785baf89a' }}
     steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+          fetch-depth: 2
+      # DOCS_ONLY_SKIP: same scope rules as the web Worker; manual dispatch never skips.
+      - name: Detect documentation-only commit
+        id: scope
+        run: node scripts/deploy-scope.mjs
       - name: Cloudflare credentials present?
         id: creds
+        if: steps.scope.outputs.skip != 'true'
         run: |
           if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
             echo "present=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::Cloudflare deploy credentials are not configured. Python AI tests will run, but deployment will be skipped safely."
+            echo "::notice::Python deployment credentials unavailable; no production mutation."
           else
             echo "present=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
       # P0 isolation: REGA != R&L. Read-only; fails closed before any production-changing step below.
       - name: Project identity guard (REGA only)
+        if: steps.scope.outputs.skip != 'true'
         run: node scripts/project-identity-guard.mjs --project REGA --worker rega-ai-python
       - name: Verify successful CI for the exact production commit
+        if: steps.scope.outputs.skip != 'true'
         run: node scripts/verified-release.mjs
         env:
           GITHUB_TOKEN: ${{ github.token }}
       - uses: actions/setup-node@v4
+        if: steps.scope.outputs.skip != 'true'
         with:
           node-version: 22
           cache: npm
       - uses: actions/setup-python@v5
+        if: steps.scope.outputs.skip != 'true'
         with:
           python-version: "3.13"
       - uses: astral-sh/setup-uv@v6
+        if: steps.scope.outputs.skip != 'true'
 
       - name: Python AI engine tests
+        if: steps.scope.outputs.skip != 'true'
         working-directory: services/ai-python
         run: uv run pytest
 
       - name: Recheck current main immediately before deployment
+        if: steps.scope.outputs.skip != 'true'
         run: node scripts/verified-release.mjs
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
       - name: Deploy isolated Python Worker
-        if: steps.creds.outputs.present == 'true'
+        if: steps.scope.outputs.skip != 'true' && steps.creds.outputs.present == 'true'
         working-directory: services/ai-python
         run: uv run pywrangler deploy
 
       - name: Create server-to-server token
-        if: steps.creds.outputs.present == 'true'
+        if: steps.scope.outputs.skip != 'true' && steps.creds.outputs.present == 'true'
         run: |
           token="$(openssl rand -hex 32)"
           echo "::add-mask::$token"
           echo "AI_SERVICE_TOKEN=$token" >> "$GITHUB_ENV"
 
       - name: Protect Python Worker
-        if: steps.creds.outputs.present == 'true'
+        if: steps.scope.outputs.skip != 'true' && steps.creds.outputs.present == 'true'
         working-directory: services/ai-python
         run: printf '%s' "$AI_SERVICE_TOKEN" | uv run pywrangler secret put AI_SERVICE_TOKEN
 
       - name: Resolve deployed service URL
-        if: steps.creds.outputs.present == 'true'
+        if: steps.scope.outputs.skip != 'true' && steps.creds.outputs.present == 'true'
         id: endpoint
         run: |
           json="$(curl -fsS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN"             "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/subdomain")"
@@ -95,7 +108,7 @@ jobs:
           echo "url=$url" >> "$GITHUB_OUTPUT"
 
       - name: Smoke test Python service before enabling REGA integration
-        if: steps.creds.outputs.present == 'true'
+        if: steps.scope.outputs.skip != 'true' && steps.creds.outputs.present == 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -119,21 +132,21 @@ jobs:
           curl -fsS --max-time 30             -H "authorization: Bearer $AI_SERVICE_TOKEN" -H 'content-type: application/json'             --data '{"query":"restaurant","items":[{"id":"a","text":"restaurant"},{"id":"b","text":"lawyer"}],"top_k":2}'             "$AI_SERVICE_URL/v1/rerank" | jq -e '.ok == true and (.items | length) > 0' >/dev/null
 
       - name: Install main Worker tooling
-        if: steps.creds.outputs.present == 'true'
+        if: steps.scope.outputs.skip != 'true' && steps.creds.outputs.present == 'true'
         run: npm ci --ignore-scripts
 
       - name: Enable Python AI engine for REGA only after smoke tests pass
-        if: steps.creds.outputs.present == 'true'
+        if: steps.scope.outputs.skip != 'true' && steps.creds.outputs.present == 'true'
         run: |
           printf '%s' "$AI_SERVICE_URL" | npx wrangler secret put AI_SERVICE_URL --name rega-platform --config wrangler.jsonc
           printf '%s' "$AI_SERVICE_TOKEN" | npx wrangler secret put AI_SERVICE_TOKEN --name rega-platform --config wrangler.jsonc
 
       - name: Deployment skipped
-        if: steps.creds.outputs.present != 'true'
+        if: steps.scope.outputs.skip != 'true' && steps.creds.outputs.present != 'true'
         run: echo "Python AI engine code is verified; deployment remains disabled until CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID are configured."
 
       - name: Deployment summary
-        if: steps.creds.outputs.present == 'true'
+        if: steps.scope.outputs.skip != 'true' && steps.creds.outputs.present == 'true'
         run: |
           echo "Python AI engine deployed and smoke-tested."
           echo "Service: $AI_SERVICE_URL"

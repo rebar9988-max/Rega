@@ -26,7 +26,7 @@ If memory conflicts with verified live state, live state wins and memory must be
 
 ## PERMANENT P0 RULE — REGA / R&L project isolation (owner instruction, 2026-10-22)
 **REGA ≠ R&L. Never mix. Never silently switch. Always verify. Stop automatically on mismatch.** Full rule: `CLAUDE.md` section 0.
-- PROJECT A — REGA Platform: repository `rebar9988-max/Rega`, production `https://www.regaplatform.com`, Workers `rega-platform` / `rega-ai-python`. **This repository.**
+- PROJECT A — REGA Platform: repository `rebar9988-max/Rega`, production `https://www.rega24.com` (retired hosts `regaplatform.com` and `www.regaplatform.com` still 301 to it), Workers `rega-platform` / `rega-ai-python`. **This repository.**
 - PROJECT B — R&L Marketplace & Delivery: repository `rebar9988-max/rega-cargo`, production `https://www.rlgo.net`, Workers `rega-cargo` / `rega-cargo-staging`. A separate repository, database, Worker and domain set.
 - Before any edit, migration, commit, PR, merge or deployment verify repository owner/name, git remote, branch, production domain and deployment configuration, and that every referenced PR, commit, CI run and Cloudflare resource belongs to this repository. A PR number or CI run ID alone never identifies a project.
 - On any mismatch: STOP (fail closed), change nothing, show the Sorani error from `CLAUDE.md` 0.3, report expected vs detected project, conflicting identifiers and operations already performed, and resume only after explicit owner confirmation.
@@ -666,6 +666,18 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
   sizes). The upload route allows 10 uploads/min per person; the gallery e2e (5 uploads) waits out the window and re-confirms
   if it is hit, like a person would. Local full suite (desktop + mobile): 323 passed before these fixes; affected specs re-run green.
 
+## Infrastructure index — 2026-10-25
+
+- Task: add a permanent system map and troubleshooting runbook. No application code, no migration, no domain change, no Worker publish intended.
+- Added: `REGA24_SYSTEM_MAP.md`, `REGA24_TROUBLESHOOTING.md`, `docs/generated/system-inventory.json`, `scripts/generate-system-inventory.mjs`, `scripts/validate-system-docs.mjs`.
+- Agents: `AGENTS.md` and `CLAUDE.md` section 6 now require those files. They do not replace this file or the Google Doc.
+- Corrected in this file only: the P0 identity line that still called production `www.regaplatform.com`. Live production is `https://www.rega24.com`. Historical notes below that date were left as history.
+- Deploy guard: `DOCS_ONLY_SKIP` in `.github/workflows/deploy.yml`. A documentation-only commit on `main` must not call `wrangler deploy`. `workflow_dispatch` still deploys. CI runs `node scripts/validate-system-docs.mjs`.
+- Verified this session: public HTTP (health `ok: true` at 2026-10-25T18:02:00Z, redirects, jobs/events 404, `/dr` code form), DNS NS `autumn`/`max`.ns.cloudflare.com, TLS Google Trust Services WE1 through 2026-01-21, GitHub Beta health run `40217513295` success on `e8e2b69`.
+- Not verified: Cloudflare dashboard, Worker version, Neon console, secret values. Google Doc was read and not updated (no write tool).
+- Production impact intended: none. CI on `main` will still run. The Worker must not be replaced by this commit.
+
+
 
 ## REGA24 centralized technical reference — 2026-10-25
 
@@ -730,9 +742,20 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
   builds fail at blocked Google Fonts. Dry-run PASS (16009.65 KiB raw/3659.66 KiB gzip; 283 assets); built workerd runtime
   smoke PASS (DB, auth/privacy, legacy redirect, public query and validation). No mocked artifact is deployable; the
   shared release gate explicitly rejects NEXT_FONT_GOOGLE_MOCKED_RESPONSES and mismatched/superseded SHA/account.
-- Offline docs check: 8 docs, 383 source fingerprints, 105 env names, 10 procedures, links/anchors PASS; manifest-drift
+- Offline docs check: 8 docs, 387 source fingerprints, 107 env names, 10 procedures, links/anchors PASS; manifest-drift
   negative test PASS. Local artifact summary/screenshots in /workspace/artifacts/rega24-unified/. Config-only active
   versions re-read unchanged at 100%, data count readback remains 3 businesses/3 memberships/14 finished/0 unfinished.
 
 - Additional real workerd media codec/local S3 test PASS; final typecheck/lint/whitespace and docs checks PASS.
   No normal production build, source merge or new admin application deployment is claimed.
+
+- Integration checkpoint: remote main advanced to 7011eb5 (documentation/tooling only). It is merged locally without
+  app-source changes. Preserve docs-only deploy skipping, CI validation and existing command compatibility; consolidate
+  inventories/checkers to one implementation with generated JSON/Markdown views. No remote main update or deploy.
+- Latest central hub also contains a separate proposed replacement-Worker/internal-AI migration checkpoint. It remains
+  blocked and is not adopted by this branch: preserve required Python module/technical Worker IDs and no unnecessary
+  replacement. Its reported external curl success does not override this executor's actual default-proxy CONNECT403.
+
+- Post-merge checks PASS: 17 scope/release/identity/workflow cases, TypeScript/ESLint, both legacy CLI wrappers,
+  manifest-drift rejection and redacted secret-pattern rejection. One canonical generator/checker; two generated
+  views, no duplicate CI docs workflow. Current inventory 8 docs/387 sources/107 env names/10 procedures.

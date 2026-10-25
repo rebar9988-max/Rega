@@ -26,7 +26,22 @@ jobs:
       NEXT_TELEMETRY_DISABLED: "1"
 
     steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+          fetch-depth: 2
+
+      # DOCS_ONLY_SKIP: shared with the Python workflow; manual dispatch never skips.
+      - name: Detect documentation-only commit
+        id: scope
+        run: node scripts/deploy-scope.mjs
+
+      - name: Documentation-only commit — Worker not replaced
+        if: steps.scope.outputs.skip == 'true'
+        run: echo "Skipping npx wrangler deploy. Use workflow_dispatch to publish this SHA deliberately."
+
       - name: Check Cloudflare credentials
+        if: steps.scope.outputs.skip != 'true'
         run: |
           if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
             echo "::error::CLOUDFLARE_API_TOKEN is not set in GitHub Secrets."
@@ -34,40 +49,45 @@ jobs:
           fi
           echo "Cloudflare credentials are present."
 
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
-
       # P0 isolation: REGA != R&L. Read-only; fails closed before any production-changing step below.
       - name: Project identity guard (REGA only)
+        if: steps.scope.outputs.skip != 'true'
         run: node scripts/project-identity-guard.mjs --project REGA --domain www.rega24.com --worker rega-platform
 
       - name: Verify successful CI for the exact production commit
+        if: steps.scope.outputs.skip != 'true'
         run: node scripts/verified-release.mjs
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
       - uses: actions/setup-node@v4
+        if: steps.scope.outputs.skip != 'true'
         with:
           node-version: 22
           cache: npm
 
       - name: Install dependencies
+        if: steps.scope.outputs.skip != 'true'
         run: npm ci
 
       - name: Generate Prisma Client
+        if: steps.scope.outputs.skip != 'true'
         run: npx prisma generate
 
       - name: Build for Cloudflare Workers (OpenNext)
+        if: steps.scope.outputs.skip != 'true'
         run: npm run build
 
       - name: Recheck current main immediately before deployment
+        if: steps.scope.outputs.skip != 'true'
         run: node scripts/verified-release.mjs
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
       - name: Deploy to Cloudflare Workers
+        if: steps.scope.outputs.skip != 'true'
         run: npx wrangler deploy
 
       - name: Deployment successful
+        if: steps.scope.outputs.skip != 'true'
         run: echo "✅ Production deploy completed successfully after CI."

@@ -1,13 +1,13 @@
 // Offline, dependency-free documentation inventory. Never reads ignored env/secret files or emits values.
 import { execFileSync } from 'node:child_process';
-import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { dirname, resolve, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 process.chdir(fileURLToPath(new URL('../', import.meta.url)));
 const tracked = execFileSync('git', ['ls-files', '-z'], { encoding: 'utf8' }).split('\0').filter(Boolean).sort();
 const sources = tracked.filter(p => /^(src\/|prisma\/|services\/ai-python\/|scripts\/|\.github\/workflows\/)/.test(p) || /^(package(-lock)?\.json|wrangler\.jsonc|next\.config\.ts|open-next\.config\.ts|worker\.mjs|\.env\.example|Dockerfile|playwright\.config\.ts)$/.test(p))
-  .filter(p => p !== 'scripts/rega24-docs.mjs' && p !== '.github/workflows/docs-check.yml' && !p.endsWith('.md'));
+  .filter(p => !p.endsWith('.md'));
 const contents = new Map(sources.map(p => [p, readFileSync(p, 'utf8')]));
 const env = new Map();
 for (const [p, s] of contents) {
@@ -33,9 +33,21 @@ for (const [name, paths] of [...env].sort()) generated += `| \`${name}\` | ${pat
 generated += '\n## Source fingerprints\n\nAny change here requires regeneration and review of the map and runbook. SHA-256 detects stale tracked configuration, routes, migrations and implementation references; it does not verify deployment.\n\n| Source | SHA-256 |\n| --- | --- |\n';
 for (const [p, s] of contents) generated += `| ${link(p)} | ${createHash('sha256').update(s).digest('hex')} |\n`;
 const output = 'docs/REGA24_INVENTORY.md';
-if (process.argv.includes('--write')) writeFileSync(output, generated);
-const errors = [];
 const project = JSON.parse(readFileSync('src/config/project.json', 'utf8'));
+const jsonOutput = 'docs/generated/system-inventory.json';
+const jsonInventory = JSON.stringify({ schemaVersion: 1, generator: 'scripts/rega24-docs.mjs', project,
+  dependencies: pkg.dependencies, apiRoutes: sources.filter(p => /^src\/app\/api\/.*\/route\.ts$/.test(p)),
+  prismaModels: [...contents.get('prisma/schema.prisma').matchAll(/^model (\w+)/gm)].map(m => m[1]),
+  workflows: sources.filter(p => p.startsWith('.github/workflows/')),
+  environmentNamesAndSources: Object.fromEntries([...env].sort()),
+  sourceFingerprints: Object.fromEntries([...contents].map(([p, s]) => [p, createHash('sha256').update(s).digest('hex')])) }, null, 2) + '\n';
+if (process.argv.includes('--write')) {
+  writeFileSync(output, generated);
+  mkdirSync(dirname(jsonOutput), { recursive: true });
+  writeFileSync(jsonOutput, jsonInventory);
+}
+const errors = [];
+
 for (const [path, expected] of [['wrangler.jsonc', project.webWorker], ['services/ai-python/wrangler.jsonc', project.aiWorker]]) {
   const actual = /"name"\s*:\s*"([^"]+)"/.exec(readFileSync(path, 'utf8'))?.[1];
   if (actual !== expected) errors.push(`Production manifest drift: ${path} worker name`);
@@ -43,7 +55,8 @@ for (const [path, expected] of [['wrangler.jsonc', project.webWorker], ['service
 if (project.repository !== 'rebar9988-max/Rega' || project.canonicalHost !== `www.${project.apexHost}` || project.adminPath !== '/admin') errors.push('Production manifest identity/routing mismatch');
 if (!existsSync('src/app/admin/page.tsx') || existsSync('src/app/dr/page.tsx')) errors.push('Expected one dashboard implementation at src/app/admin');
 
-if (!existsSync(output) || readFileSync(output, 'utf8') !== generated) errors.push('Inventory stale: node scripts/rega24-docs.mjs --write, then review both root documents.');
+
+if (!existsSync(output) || readFileSync(output, 'utf8') !== generated || !existsSync(jsonOutput) || readFileSync(jsonOutput, 'utf8') !== jsonInventory) errors.push('Inventory stale: node scripts/rega24-docs.mjs --write, then review both root documents.');
 const docs = ['REGA24_SYSTEM_MAP.md', 'REGA24_TROUBLESHOOTING.md', 'AGENTS.md', 'CLAUDE.md', 'PROJECT_MEMORY.md', 'README.md', 'docs/REGA24_CONSOLIDATION.md', output];
 const anchor = h => h.toLowerCase().replace(/[^\p{L}\p{N}_\s-]/gu, '').trim().replace(/\s/g, '-');
 for (const p of docs) {
@@ -64,5 +77,20 @@ const runbook = readFileSync(docs[1], 'utf8');
 const issues = runbook.split(/^## Incident: /m).slice(1);
 if (issues.length !== 10) errors.push('Expected ten incident procedures');
 for (const issue of issues) for (const field of ['SYMPTOM', 'LOCATION', 'DIAGNOSTIC STEPS', 'SAFE FIX', 'VERIFICATION', 'ROLLBACK']) if (!issue.includes(`**${field}**`)) errors.push(`Incomplete procedure: ${issue.split('\n')[0]} (${field})`);
+// Bounded common-pattern check; report only pattern names, never matched credential text.
+const protectedDocs = ['REGA24_SYSTEM_MAP.md', 'REGA24_TROUBLESHOOTING.md', output, jsonOutput];
+for (const path of protectedDocs) {
+  const content = readFileSync(path, 'utf8');
+  for (const [pattern, label] of [
+    [/AKIA[0-9A-Z]{16}/, 'AWS access key'], [/sk-[A-Za-z0-9_-]{20,}/, 'API key'],
+    [/postgres(?:ql)?:\/\/[^:\s]+:(?!password(?:@|$))[^\s@]+@/i, 'credential-bearing database URL'],
+    [/-----BEGIN [A-Z ]*PRIVATE KEY-----/, 'private key'],
+  ]) if (pattern.test(content)) errors.push(`${path}: possible ${label}; remove securely (value never printed).`);
+}
+if (!readFileSync('.github/workflows/ci.yml', 'utf8').includes('scripts/validate-system-docs.mjs')) errors.push('CI must validate the shared technical reference');
+for (const workflow of ['.github/workflows/deploy.yml', '.github/workflows/ai-python-deploy.yml']) {
+  const definition = readFileSync(workflow, 'utf8');
+  if (!definition.includes('DOCS_ONLY_SKIP') || !definition.includes('scripts/deploy-scope.mjs')) errors.push(`${workflow}: shared docs-only deployment guard required`);
+}
 if (errors.length) { console.error(errors.join('\n')); process.exitCode = 1; }
 else console.log(`REGA24 docs OK: ${docs.length} documents, ${sources.length} source fingerprints, ${env.size} environment names, ${issues.length} procedures; local links/anchors valid. External links and live infrastructure not tested.`);

@@ -43,7 +43,7 @@ Local verification results (with isolated synthetic databases, without remote ma
 - Python engine suite: **7 passed** (mocked inference).
 - Browser checks: **42 distinct selected scenarios passed**: auth/security/control-center (21), geography/CMS/content/session (16), business address/map/publication flows (5). Business tests initially rejected the new identity in an old mock and inherited non-deterministic geocoding configuration; mock identity and explicit test provider were corrected, then all five passed. No assertion was weakened.
 - Accessibility: **8 axe analyses**, zero violations; en/ckb, 360px/1366px, system/media; no horizontal overflow. Screenshots visually inspected; artifacts `/workspace/artifacts/rega24-unified/`. This is not a full-platform or production audit.
-- TypeScript and ESLint passed; offline validation: **8 documents, 383 source fingerprints, 105 environment names, 10 complete procedures**, local links/anchors valid. Negative control confirms manifest/Worker drift is rejected.
+- TypeScript and ESLint passed; offline validation: **8 documents, 387 source fingerprints, 107 environment names, 10 complete procedures**, local links/anchors valid. Negative control confirms manifest/Worker drift is rejected.
 - Ordinary Workers build also **BLOCKED** at Google Fonts under enforced executor policy (after invalidating test webpack cache); no normal artifact claimed.
 - Test-only functional OpenNext Workers build and Wrangler dry-run **PASS**; bundle **16009.65 KiB uncompressed / 3659.66 KiB gzip**, 283 assets. Current 64MiB uncompressed limit is respected; compressed size is not a plan detector.
 - Built application in local workerd **PASS**: database/schema health, /dr → /admin redirect, anonymous sign-in privacy, protected API rejection, public business query and validation. No remote deployment occurred.
@@ -98,3 +98,16 @@ require actual runtime measurement; a local successful render is not proof of pr
 Mail metadata continuation: connected Resend lists both canonical rega24.com and legacy regaplatform.com as verified,
 sending enabled, region eu-west-1, open/click tracking off. No message sent and no domain changed; actual OTP/mail
 receipt and Resend plan/billing remain unverified. Do not remove the legacy sender before dependent workflows migrate.
+
+
+Integration of concurrently updated main: fetched 7011eb5 (documentation/tooling only) after local implementation
+commit ce441c4. The local merge preserves its docs-only deployment guard, CI validation, agent rules and historic
+memory. Compatibility generate/validate commands now delegate to one canonical checker/generator with JSON and
+Markdown projections; one shared docs-only scope helper protects both services. The redundant separate docs check
+workflow was removed. No application source changed in this merge, and no remote main update was performed.
+
+
+Post-merge verification: no application/package/Worker configuration diff against ce441c4; the previously successful
+application/Worker/browser checks therefore remain applicable. Shared-scope/release/identity/workflow checks:
+17/17 PASS. TypeScript, ESLint, legacy CLI wrappers, manifest-drift and redacted secret-pattern controls PASS. Current
+inventory: 8 documents, 387 tracked source fingerprints, 107 environment names, 10 complete incident procedures.
