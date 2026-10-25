@@ -2,6 +2,25 @@
 
 Last repository/control-plane verification: **2026-10-25 UTC**; scope and evidence in [system map](REGA24_SYSTEM_MAP.md). Read [AGENTS.md](AGENTS.md), [CLAUDE.md](CLAUDE.md), [PROJECT_MEMORY.md](PROJECT_MEMORY.md) and the existing central hub before diagnosis. Older incident notes are history, not current live evidence.
 
+
+## Continued admin and security checkpoint — 2026-10-25
+
+Prepared canonical office is `/admin`; old `/dr` is compatibility redirect only, with one source tree at
+[src/app/admin](src/app/admin). Diagnose redirect destination/query and authentication before touching RBAC. Do not
+reintroduce an admin-to-dr rewrite: keep one actual route tree. Private navigation/API prefetching also needed
+correction in browser QA; sidebar links now disable prefetch and health uses a plain anchor. Both route
+prefixes bypass public edge cache. System settings require fresh `settings.write` permission and an atomic audit.
+
+Live R2 CORS now includes official www/apex origins plus legacy origins. OpenAI/xAI storage is now secret_text and
+both Workers redact query strings. Historical exposed-key revocation remains a release blocker; changing storage
+is not key rotation. Never roll back to a pre-hardening config version or restore plaintext credentials.
+
+Both prepared deployment workflows use [exact commit verification](scripts/verified-release.mjs), including manual
+fallbacks on main. Missing/failed/wrong-SHA CI or API errors block release. Ordinary builds are blocked by executor
+Google Font policy; test-only font mocks support isolated QA and must never be released. See
+[acceptance and blockers](docs/REGA24_CONSOLIDATION.md) before deployment. Infrastructure consoles are linked from the
+system page; their account permissions/billing are independently authoritative.
+
 ## Before any investigation
 
 1. Run `node scripts/project-identity-guard.mjs --project REGA`; verify remote, branch and domain. Stop on mismatch. Never touch the separate R&L project.
@@ -96,7 +115,7 @@ Expected configuration: canonical `/en` 200; apex 301 to same path/query on www.
 
 **SYMPTOM** → Password login fails, `/dr` email code absent/expired, confirmation/reset link fails, social callback error, repeated logout.
 
-**LOCATION** → [auth config](src/auth.config.ts), [session policy](src/features/auth/session-policy.ts), [admin code](src/features/auth/admin-code.ts), [admin code rules](src/features/auth/admin-code-core.ts), [token links](src/features/auth/tokens.ts), [OAuth diagnostics](src/features/auth/oauth-diagnostics.ts), [email adapter](src/lib/email/index.ts), [dashboard sign-in](src/app/dr/sign-in-actions.ts).
+**LOCATION** → [auth config](src/auth.config.ts), [session policy](src/features/auth/session-policy.ts), [admin code](src/features/auth/admin-code.ts), [admin code rules](src/features/auth/admin-code-core.ts), [token links](src/features/auth/tokens.ts), [OAuth diagnostics](src/features/auth/oauth-diagnostics.ts), [email adapter](src/lib/email/index.ts), [dashboard sign-in](src/app/admin/sign-in-actions.ts).
 
 **DIAGNOSTIC STEPS** → Identify distinct flow: public password/social vs allowlisted super-admin six-digit `/dr` code vs public verification/reset link. Old “no OTP” memory is superseded by source. For code: verify active/verified super-admin allowlist, email configuration/delivery status, expiry (5 minutes), resend cooldown (30 seconds), durable fail/send caps; never log/retrieve codes or brute-force. Link tokens are single-use and expire. Check canonical AUTH_URL, actual provider callback registration and id+secret pairing. Inspect current session role/status/password marker and business membership, cookie scope/Secure/SameSite, and sanitized diagnostic error codes. Do not treat Google key presence as tested OAuth.
 
@@ -112,9 +131,9 @@ Expected configuration: canonical `/en` 200; apex 301 to same path/query on www.
 
 **LOCATION** → [storage](src/lib/storage.ts), [upload URL API](src/app/api/v1/media/upload-url/route.ts), [business-image API](src/app/api/v1/media/business-image/route.ts), [media ownership](src/lib/business-media.ts), Media rows/Business URLs, R2 `rega-media`, custom domain `media.regaplatform.com`.
 
-**DIAGNOSTIC STEPS** → Distinguish server-side normalized business upload from browser direct signed PUT. Inspect safe public URL/object key, Media association/deletedAt and actual object existence using metadata only. Compare bucket/public domain to configured names and S3 endpoint. Signed URL lifetime is 300 seconds; do not paste it or its query. Browser direct PUT requires canonical-origin CORS: audit found only old regaplatform.com origins, so inspect preflight before diagnosing credentials. Inspect CSP/storage build origin, MIME/size checks and credential scope. Public media domain active in control plane does not prove every object exists.
+**DIAGNOSTIC STEPS** → Distinguish server-side normalized business upload from browser direct signed PUT. Inspect safe public URL/object key, Media association/deletedAt and actual object existence using metadata only. Compare bucket/public domain to configured names and S3 endpoint. Signed URL lifetime is 300 seconds; do not paste it or its query. Browser direct PUT requires canonical-origin CORS: original audit found only old origins; continuation added canonical origins with readback, so inspect current preflight before diagnosing credentials. Inspect CSP/storage build origin, MIME/size checks and credential scope. Public media domain active in control plane does not prove every object exists.
 
-**SAFE FIX** → Regenerate expired upload URL through normal authorized flow; fix proven URL association/normalization code without bulk rewrites. For confirmed CORS defect, prepare narrowly scoped canonical-origin addition, preserving old origins and methods. Correct credential provisioning securely if proven wrong. Do not make bucket public indiscriminately, rename bucket, delete “orphan” objects or replace domains.
+**SAFE FIX** → Regenerate expired upload URL through normal authorized flow; fix proven URL association/normalization code without bulk rewrites. For a new confirmed CORS defect, prepare a narrowly scoped correction, preserving verified origins and methods. Correct credential provisioning securely if proven wrong. Do not make bucket public indiscriminately, rename bucket, delete “orphan” objects or replace domains.
 
 **VERIFICATION** → Existing [media tests](tests/business-images.test.ts) and isolated runtime smoke pass; authorized disposable upload can be retrieved on intended public domain, MIME/size and ownership checks still enforced. Check canonical browser preflight for generic uploads. No production test uploads in this documentation task.
 

@@ -53,11 +53,11 @@ At the start of every new session recover the project identity from this reposit
 ### 0.7 Verification matrix
 REGA task in the REGA repository — ALLOW. R&L task in the R&L repository — ALLOW. REGA task in the R&L repository — BLOCK. R&L task in the REGA repository — BLOCK. Mixed repository/domain identifiers — BLOCK. Unknown or ambiguous project identity — BLOCK. A blocked run makes no production or database change: the guard runs first and edits nothing.
 
-### 0.8 Owner-only SUPER_ADMIN and /dr sign-in (owner instructions, 2026-10-22)
+### 0.8 Owner-only SUPER_ADMIN and /admin sign-in (owner instructions, 2026-10-22)
 - Only `rebar9988@gmail.com` may hold SUPER_ADMIN power (`SUPER_ADMIN_EMAILS` in `src/lib/rbac.ts`). `effectiveRole` turns a
   stored SUPER_ADMIN on any other address into USER at sign-in, session revalidation, every session read and in
   `currentAccount` (all privileged guards); SUPER_ADMIN cannot be given to another address in user administration.
-- www.rega24.com/dr signs the owner in with a six-digit e-mail code; codes go to that address only. Widening the list
+- www.rega24.com/admin signs the owner in with a six-digit e-mail code; codes go to that address only. Widening the list
   needs a new explicit owner instruction. Details and verification evidence: `PROJECT_MEMORY.md`.
 
 ## 1. Foundation rule (REGA is a finished house)
@@ -162,3 +162,13 @@ they do not replace the central memory hub or past decisions.
   external links/live freshness need separate evidence. PR validation has no secrets, deployment or new services.
 - A documentation commit does not justify production deployment. Main CI can trigger deployment even for docs;
   use a documentation branch and do not push/merge main merely to publish the technical reference.
+
+
+### Rega24 unified office continuation (2026-10-25)
+
+Official product identity is Rega24; technical REGA/rega-platform identifiers continue to identify this same project.
+Canonical office is `/admin`, with one implementation in `src/app/admin`; `/dr` is legacy redirect only. Preserve
+owner-only SUPER_ADMIN and existing role/membership restrictions. Non-secret production identity/ownership comes
+from `src/config/project.json`; secrets remain protected provider configuration. Both release paths must verify
+successful main CI for their exact SHA, including manual fallback. Never publish test-only mocked-font artifacts.
+Read [consolidation acceptance](docs/REGA24_CONSOLIDATION.md) and latest central-memory release holds before release.

@@ -1,7 +1,7 @@
 {
   "meta": {
-    "title": "REGA Platform — ڕێگا | İşletmeler, Hizmetler ve Konumlar",
-    "description": "REGA Platform: Almanya ve Avrupa için Kürt portalı. Yakınınızdaki işletmeleri, hizmetleri ve yerleri bulun; yedi dilde yapay zekâ asistanıyla."
+    "title": "Rega24 — ڕێگا | İşletmeler, Hizmetler ve Konumlar",
+    "description": "Rega24: Almanya ve Avrupa için Kürt portalı. Yakınınızdaki işletmeleri, hizmetleri ve yerleri bulun; yedi dilde yapay zekâ asistanıyla."
   },
   "common": {
     "loading": "Yükleniyor...",
@@ -429,10 +429,10 @@
   },
   "footer": {
     "tagline": "Almanya ve Avrupa için Kürt portalı",
-    "rights": "© {year} REGA Platform. Tüm hakları saklıdır.",
+    "rights": "© {year} Rega24. Tüm hakları saklıdır.",
     "explore": "Keşfet",
-    "follow": "REGA Platform'u takip edin",
-    "about": "REGA Platform hakkında",
+    "follow": "Rega24'u takip edin",
+    "about": "Rega24 hakkında",
     "contact": "İletişim",
     "legal": "Yasal"
   },
@@ -879,11 +879,11 @@
   },
   "emails": {
     "verifySubject": "REGA: Lütfen e-posta adresinizi doğrulayın",
-    "verifyBody": "Merhaba {name},\n\nREGA hesabınızı etkinleştirmek için lütfen e-posta adresinizi doğrulayın:\n{link}\n\nBağlantı {hours} saat geçerlidir. Hesap oluşturmadıysanız bu iletiyi yok sayın.\n\nREGA Platform",
+    "verifyBody": "Merhaba {name},\n\nREGA hesabınızı etkinleştirmek için lütfen e-posta adresinizi doğrulayın:\n{link}\n\nBağlantı {hours} saat geçerlidir. Hesap oluşturmadıysanız bu iletiyi yok sayın.\n\nRega24",
     "resetSubject": "REGA: Şifre sıfırlama",
-    "resetBody": "Merhaba {name},\n\nhesabınız için şifre sıfırlama istendi. Yeni şifre belirlemek için bu bağlantıyı açın:\n{link}\n\nBağlantı {minutes} dakika geçerlidir. Bunu siz istemediyseniz bu iletiyi yok sayın; şifreniz değişmez.\n\nREGA Platform",
+    "resetBody": "Merhaba {name},\n\nhesabınız için şifre sıfırlama istendi. Yeni şifre belirlemek için bu bağlantıyı açın:\n{link}\n\nBağlantı {minutes} dakika geçerlidir. Bunu siz istemediyseniz bu iletiyi yok sayın; şifreniz değişmez.\n\nRega24",
     "reviewSubject": "REGA: Kaydınızın düzeltilmesi gerekiyor",
-    "reviewBody": "Merhaba {name},\n\n\"{listing}\" kaydınız henüz yayımlanmadı ve düzeltme için geri gönderildi.\n{reason}\n\nPanelinizden düzeltip yeniden gönderebilirsiniz:\n{link}\n\nREGA Platform"
+    "reviewBody": "Merhaba {name},\n\n\"{listing}\" kaydınız henüz yayımlanmadı ve düzeltme için geri gönderildi.\n{reason}\n\nPanelinizden düzeltip yeniden gönderebilirsiniz:\n{link}\n\nRega24"
   },
   "forBusiness": {
     "title": "İşletmeler için",
@@ -989,32 +989,32 @@
     "setStatus": "Durumu değiştir ..."
   },
   "pageMeta": {
-    "businesses": "REGA Platform'da Almanya ve Avrupa'daki Kürt işletmeleri: her kayıt için adres, telefon, çalışma saatleri ve Rega Verified rozeti.",
+    "businesses": "Rega24'da Almanya ve Avrupa'daki Kürt işletmeleri: her kayıt için adres, telefon, çalışma saatleri ve Rega Verified rozeti.",
     "services": "Almanya ve Avrupa'daki Kürt hizmet sağlayıcıları: teklifleri karşılaştırın, işletmelerin belirlediği fiyatları görün, doğrudan iletişime geçin.",
     "locations": "Almanya ve Avrupa'daki Kürt işletmelerinin konumları: şehre göre göz atın, adres ve çalışma saatlerini görün, haritada yolu bulun.",
     "nearby": "Yakınınızdaki Kürt işletmelerini ve hizmetlerini bulun: konumunuzu kullanın veya şehir seçin, sonuçlara harita ya da liste olarak bakın.",
-    "ai": "REGA Asistanı, REGA Platform'daki gerçek kayıtlara dayanarak sorularınızı yanıtlar: Almanya ve Avrupa'daki Kürt işletmelerini bulun.",
-    "about": "REGA Platform hakkında: Almanya ve Avrupa'daki Kürtler için çok dilli bir portal; amacı, sunduğu hizmetler ve arkasındaki kişiler.",
-    "search": "REGA Platform'daki tüm Kürt işletmelerinde, hizmetlerde ve konumlarda arama yapın, sonuçları türe göre süzün.",
-    "register": "REGA Platform'da ücretsiz hesap oluşturun, işletmenizi ekleyin ve Almanya ile Avrupa'daki Kürtlere ulaşın.",
-    "login": "REGA Platform hesabınıza giriş yapın: kayıtlarınızı yönetin, incelemeye gönderin ve ayarlarınızı değiştirin.",
-    "account": "REGA Platform hesabınız: profilinizi, e-posta doğrulamanızı ve kayıtlarınızı tek yerden yönetin.",
-    "forgotPassword": "REGA Platform şifrenizi sıfırlayın: e-posta adresinizi girin ve hesabınız için yeni şifre belirleme bağlantısını alın.",
-    "resetPassword": "REGA Platform hesabınız için yeni şifre belirleyin: en az on karakterlik güçlü bir şifre seçin ve kaydedin.",
-    "verifyEmail": "REGA Platform e-posta adresinizi doğrulayın: hesabınızı etkinleştirmek ve işletmenizi eklemeye başlamak için düğmeye tıklayın.",
-    "categoryPage": "{name}: REGA Platform'da Almanya ve Avrupa'daki Kürt işletmeleri; her kayıt için adres, telefon ve çalışma saatleri.",
-    "cityPage": "{name}: REGA Platform'da Kürt işletmeleri, hizmetleri ve yerleri; adresler, telefonlar ve çalışma saatleri tek yerde.",
-    "cityCategoryPage": "{city} şehrinde {category}: REGA Platform'da Kürt işletmeleri; her kayıt için adres, telefon ve çalışma saatleri.",
-    "businessFallback": "{place} konumunda {name}: bu Kürt işletmesinin adresi, telefonu ve çalışma saatleri REGA Platform'da.",
-    "businessFallbackNoPlace": "{name}: bu Kürt işletmesinin adresi, telefonu ve çalışma saatleri REGA Platform'da.",
-    "serviceFallback": "{provider} tarafından {name}: bu Kürt hizmetinin ayrıntıları, fiyatı ve doğrudan iletişim REGA Platform'da.",
-    "contact": "REGA Platform ile telefon, e-posta, WhatsApp veya iletişim formu üzerinden iletişime geçin: Almanya ve Avrupa için Kürt portalı hakkında soru, öneri ve iş birliği.",
-    "report": "REGA Platform'daki yasa dışı, yanıltıcı veya uygunsuz içeriği bildirin. Bildiriminiz incelenir ve Dijital Hizmetler Yasası (DSA) uyarınca ele alınır.",
-    "forBusiness": "İşletmenizi REGA Platform'a ücretsiz ekleyin ve Almanya ile Avrupa'daki Kürtlere ulaşın. Ücret ve abonelik yok; inceleme ve Rega Verified rozetiyle.",
+    "ai": "REGA Asistanı, Rega24'daki gerçek kayıtlara dayanarak sorularınızı yanıtlar: Almanya ve Avrupa'daki Kürt işletmelerini bulun.",
+    "about": "Rega24 hakkında: Almanya ve Avrupa'daki Kürtler için çok dilli bir portal; amacı, sunduğu hizmetler ve arkasındaki kişiler.",
+    "search": "Rega24'daki tüm Kürt işletmelerinde, hizmetlerde ve konumlarda arama yapın, sonuçları türe göre süzün.",
+    "register": "Rega24'da ücretsiz hesap oluşturun, işletmenizi ekleyin ve Almanya ile Avrupa'daki Kürtlere ulaşın.",
+    "login": "Rega24 hesabınıza giriş yapın: kayıtlarınızı yönetin, incelemeye gönderin ve ayarlarınızı değiştirin.",
+    "account": "Rega24 hesabınız: profilinizi, e-posta doğrulamanızı ve kayıtlarınızı tek yerden yönetin.",
+    "forgotPassword": "Rega24 şifrenizi sıfırlayın: e-posta adresinizi girin ve hesabınız için yeni şifre belirleme bağlantısını alın.",
+    "resetPassword": "Rega24 hesabınız için yeni şifre belirleyin: en az on karakterlik güçlü bir şifre seçin ve kaydedin.",
+    "verifyEmail": "Rega24 e-posta adresinizi doğrulayın: hesabınızı etkinleştirmek ve işletmenizi eklemeye başlamak için düğmeye tıklayın.",
+    "categoryPage": "{name}: Rega24'da Almanya ve Avrupa'daki Kürt işletmeleri; her kayıt için adres, telefon ve çalışma saatleri.",
+    "cityPage": "{name}: Rega24'da Kürt işletmeleri, hizmetleri ve yerleri; adresler, telefonlar ve çalışma saatleri tek yerde.",
+    "cityCategoryPage": "{city} şehrinde {category}: Rega24'da Kürt işletmeleri; her kayıt için adres, telefon ve çalışma saatleri.",
+    "businessFallback": "{place} konumunda {name}: bu Kürt işletmesinin adresi, telefonu ve çalışma saatleri Rega24'da.",
+    "businessFallbackNoPlace": "{name}: bu Kürt işletmesinin adresi, telefonu ve çalışma saatleri Rega24'da.",
+    "serviceFallback": "{provider} tarafından {name}: bu Kürt hizmetinin ayrıntıları, fiyatı ve doğrudan iletişim Rega24'da.",
+    "contact": "Rega24 ile telefon, e-posta, WhatsApp veya iletişim formu üzerinden iletişime geçin: Almanya ve Avrupa için Kürt portalı hakkında soru, öneri ve iş birliği.",
+    "report": "Rega24'daki yasa dışı, yanıltıcı veya uygunsuz içeriği bildirin. Bildiriminiz incelenir ve Dijital Hizmetler Yasası (DSA) uyarınca ele alınır.",
+    "forBusiness": "İşletmenizi Rega24'a ücretsiz ekleyin ve Almanya ile Avrupa'daki Kürtlere ulaşın. Ücret ve abonelik yok; inceleme ve Rega Verified rozetiyle.",
     "jobs": "Almanya ve Avrupa'daki Kürtler için iş ilanları: şehre ve kategoriye göre fırsatları bulun, işverene doğrudan başvurun.",
     "events": "Almanya ve Avrupa'daki Kürt etkinlikleri: Newroz kutlamaları, konserler ve topluluk toplantılarını şehre ve tarihe göre bulun.",
     "guides": "Almanya ve Avrupa'da yaşam için REGA rehberleri: birkaç dilde anlaşılır yazıları tek yerde okuyun.",
-    "entryFallback": "{title}: REGA Platform'da {kind}, Almanya ve Avrupa için Kürt portalı."
+    "entryFallback": "{title}: Rega24'da {kind}, Almanya ve Avrupa için Kürt portalı."
   },
   "seoPages": {
     "inCity": "{city} şehrindeki işletmeler",
@@ -1220,5 +1220,37 @@
     "moveLater": "Geriye al",
     "galleryHint": "Bir kapak görseli ve en fazla 3 ek görsel. Sıra profil sayfasında kullanılır.",
     "overLimit": "Bu kayıtta zaten 3'ten fazla görsel var. Hepsi korunur; 3'ten az kaldığında yeni görsel eklenebilir."
+  },
+  "controlCenter": {
+    "title": "REGA24 yönetim merkezi",
+    "description": "Platformu ortak izinler ve denetim kaydıyla tek bir ofisten yönetin.",
+    "configuration": "Hizmet yapılandırması",
+    "configurationHint": "Bu kontroller yalnızca yapılandırmayı doğrular. Çalışmayı sağlık raporu ve sağlayıcı kanıtlarıyla doğrulayın.",
+    "database": "Veritabanı",
+    "authentication": "Kimlik doğrulama",
+    "media": "Medya",
+    "email": "E-posta teslimi",
+    "python": "Python AI motoru",
+    "configured": "Yapılandırıldı",
+    "missing": "Eksik yapılandırma",
+    "health": "Sağlık raporunu aç",
+    "settings": "Sistem ayarları",
+    "reviews": "Herkese açık yorumlar",
+    "enabled": "Etkin",
+    "disabled": "Devre dışı",
+    "disableReviews": "Yorumları devre dışı bırak",
+    "enableReviews": "Yorumları etkinleştir",
+    "ai": "AI özelliklerini yönet",
+    "recentChanges": "Son ayar değişiklikleri",
+    "noChanges": "Kayıtlı ayar değişikliği yok.",
+    "audit": "Denetim kaydını aç",
+    "mediaHint": "Mevcut medyayı inceleyin ve görselleri yönetmek için işletmeyi açın. Dosyalar ve veriler korunur.",
+    "total": "Toplam",
+    "emptyMedia": "Medya bulunamadı.",
+    "unassigned": "İşletme atanmamış",
+    "pagination": "Medya sayfaları",
+    "previous": "Önceki",
+    "next": "Sonraki",
+    "services": "Hizmetler"
   }
 }

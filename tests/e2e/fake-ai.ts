@@ -47,7 +47,7 @@ export function startFakeAi(port = 3999): Promise<Server> {
         return json(200, { choices: [{ message: { content: FAKE_DEEPSEEK_ANSWER } }], usage: { prompt_tokens: 2, completion_tokens: 2 } });
       }
       // OpenRouter: the public attribution headers must be present, as in production.
-      if (req.url === "/openrouter/chat/completions" && req.headers.authorization === "Bearer e2e-fake-openrouter-key" && req.headers["x-title"] === "REGA Platform" && req.headers["http-referer"]) {
+      if (req.url === "/openrouter/chat/completions" && req.headers.authorization === "Bearer e2e-fake-openrouter-key" && req.headers["x-title"] === "Rega24" && req.headers["http-referer"]) {
         return json(200, { choices: [{ message: { content: FAKE_OPENROUTER_ANSWER } }], usage: { prompt_tokens: 2, completion_tokens: 2 } });
       }
       if (req.url?.startsWith("/gemini/") && raw.includes("ping")) return json(200, { candidates: [{ content: { parts: [{ text: "ok" }] } }] }); // health probe only
@@ -86,7 +86,7 @@ export function startFakeAi(port = 3999): Promise<Server> {
       // Fake Nominatim (GEOCODING_URL=http://127.0.0.1:3999/geocode): a few known addresses, nothing else.
       if (req.url?.startsWith("/geocode/search")) {
         const q = new URL(req.url, "http://x").searchParams;
-        if (!/python|node|REGA Platform/i.test(String(req.headers["user-agent"]))) return json(403, { error: "user agent required" });
+        if (!/python|node|Rega24/i.test(String(req.headers["user-agent"]))) return json(403, { error: "user agent required" });
         const street = q.get("street") ?? "";
         const city = (q.get("city") ?? "").toLowerCase();
         if (!street) {

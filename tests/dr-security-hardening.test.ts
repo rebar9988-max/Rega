@@ -62,7 +62,7 @@ test("password: the owner's account has a durable wrong-password limit and every
 });
 
 test("audit: every dashboard mutation writes an audit row, contact message status included", () => {
-  const src = read("src/app/dr/messages/actions.ts");
+  const src = read("src/app/admin/messages/actions.ts");
   assert.match(src, /action: "message\.status"/);
   assert.match(src, /const user = await requirePermission\("review\.moderate"\)/);
 });

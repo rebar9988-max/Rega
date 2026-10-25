@@ -1,6 +1,6 @@
 # REGA24 system map
 
-Last verification: **2026-10-25 UTC**. Repository baseline: `e8e2b69b0d3da1e88cf75e904cf6ff4a4e8b90a8`.
+Last verification: **2026-10-25 UTC** (continued consolidation checkpoint below). Repository baseline: `e8e2b69b0d3da1e88cf75e904cf6ff4a4e8b90a8`.
 
 Read [troubleshooting](REGA24_TROUBLESHOOTING.md) for incidents and [generated inventory](docs/REGA24_INVENTORY.md) for exact dependency ranges, API files, environment names, models and source fingerprints. Existing decisions/history remain in [PROJECT_MEMORY.md](PROJECT_MEMORY.md), [CLAUDE.md](CLAUDE.md) and the [central memory hub](https://docs.google.com/document/d/1pp6GW-UM9AQ9TuUJHumziaujxB6ZOza5S3xwA6dmxu4/edit). This map indexes that documentation layer; it does not create another decision log.
 
@@ -8,8 +8,8 @@ Read [troubleshooting](REGA24_TROUBLESHOOTING.md) for incidents and [generated i
 
 ## 1. Official project identity
 
-- **VERIFIED (repository + GitHub):** REGA Platform / Rega24; repository [rebar9988-max/Rega](https://github.com/rebar9988-max/Rega), package `rega-platform`, default/production branch `main`. GitHub metadata and remote agree; local identity guard passed. Audit authoring branch: `docs/rega24-system-map-20261025`.
-- Canonical website: `https://www.rega24.com`, defined in [site configuration](src/config/site.ts), [Next configuration](next.config.ts) and [environment schema](src/lib/env.ts).
+- **VERIFIED (repository + GitHub):** REGA Platform / Rega24; repository [rebar9988-max/Rega](https://github.com/rebar9988-max/Rega), package `rega-platform`, default/production branch `main`. GitHub metadata and remote agree; local identity guard passed. Initial audit branch: `docs/rega24-system-map-20261025`; prepared consolidation branch: `feat/rega24-central-admin-20261025`.
+- Canonical website: `https://www.rega24.com`; reviewed non-secret identity/service ownership now comes from [project manifest](src/config/project.json), consumed by [site configuration](src/config/site.ts), [Next configuration](next.config.ts) and [environment schema](src/lib/env.ts).
 - REGA and the separate R&L project are isolated. Never operate on R&L resources. Run `node scripts/project-identity-guard.mjs --project REGA` before edits, checks and commits; follow [AGENTS.md](AGENTS.md).
 - **UNKNOWN:** legal operator identity and individual operational/on-call assignments. Do not infer legal ownership from a GitHub username or an account display name.
 
@@ -56,10 +56,11 @@ Operational control plane identifiers are locators, not credentials. Named human
 | Neon | VERIFIED live project `Rega24`, ID `lucky-glitter-73195208`, AWS `eu-central-1`, PostgreSQL 18 | Relational data; project ID matches [preview workflow](.github/workflows/neon-branch.yml) |
 | Neon production branch | VERIFIED live `production`, `br-floral-hall-b22rpgrw`, default/primary, ready, `protected:false` | Runtime URL-to-branch match UNKNOWN; no connection strings read |
 | Media | VERIFIED live R2 `rega-media`; enabled custom domain `media.regaplatform.com` | Object bytes; S3 endpoint/public URL/bucket agree with selected non-secret Worker configuration |
-| Mail | VERIFIED repository Resend integration; VERIFIED live `EMAIL_PROVIDER=resend` and key binding exists | Resend dashboard delivery, domain verification and account owner UNKNOWN this audit |
+| Mail | VERIFIED repository Resend integration; VERIFIED live `EMAIL_PROVIDER=resend` and key binding exists | VERIFIED live canonical rega24.com and legacy regaplatform.com sending domains verified/enabled; actual delivery and billing UNKNOWN |
 | LLM providers | VERIFIED source Gemini, xAI, OpenAI, Groq, DeepSeek, OpenRouter, Anthropic adapters/config | Live Gemini/Groq/OpenAI/xAI key names present; validity/quotas/accounts UNKNOWN |
 | Social login | VERIFIED repository three optional providers; live Google ID/secret names present | Facebook/Apple bindings absent in inspected settings; actual login/callback registration UNKNOWN |
 | Maps/geocoding | VERIFIED repository MapLibre, configurable basemap and Nominatim | External availability/usage constraints UNKNOWN; [map config](src/lib/map-config.ts), [geocoder](src/lib/geocoder.ts) |
+| Legacy Worker candidate | VERIFIED live `rega`, no custom domains, no Builds triggers, workers.dev/previews enabled | Not disabled: callers/dependencies and rollback proof remain UNKNOWN |
 | Monitoring | VERIFIED repository existing Actions checks and structured logs; live Worker logs enabled | No new monitoring subscription created; billing/subscription status UNKNOWN |
 
 ## 4. Source-code folder mapping
@@ -67,7 +68,7 @@ Operational control plane identifiers are locators, not credentials. Named human
 | Component / problem | Start here |
 | --- | --- |
 | Localized public pages, directory, business profiles | [src/app](src/app), especially `[locale]`; API handlers in [src/app/api](src/app/api) |
-| Admin/dashboard, staff actions, sign-in code UI | [src/app/dr](src/app/dr); owner entry [src/app/owner-login](src/app/owner-login) |
+| Canonical `/admin` office, staff actions, sign-in code UI | [src/app/admin](src/app/admin); owner entry [src/app/owner-login](src/app/owner-login) |
 | Business, auth, content, review and contact features | [src/features](src/features) |
 | Reusable components and styling | [src/components](src/components), [globals.css](src/app/globals.css), [public](public) |
 | Shared server services | [src/lib](src/lib), [API error mapping](src/lib/api.ts), [environment schema](src/lib/env.ts) |
@@ -114,7 +115,7 @@ Other models (accounts, sessions, codes, audit, settings, flags, pages, geograph
 
 [Media model](prisma/schema.prisma) stores storageKey/public URL/type/size/dimensions and optional business/service association. R2 stores bytes, not relational data. Business holds logoUrl, coverUrl and photos array. [Business-image endpoint](src/app/api/v1/media/business-image/route.ts) checks permission/ownership, normalizes images, uploads server-side then creates metadata (best-effort object cleanup if metadata creation fails). [Generic upload URL endpoint](src/app/api/v1/media/upload-url/route.ts) issues short-lived signed S3 PUT URLs (300 seconds in storage code), requiring browser CORS. SQL FK cascades do not themselves prove object deletion in R2.
 
-**VERIFIED live:** 10 Neon branches listed (ready + archived); production not protected. **UNKNOWN:** exact runtime endpoint/branch match, current migration ledger, database records, object integrity, restorable backup and retention effectiveness. No SQL, dump, restore, object write/delete or new branch was performed. Prior successful migrations/backup claims are REPORTED in memory only.
+**VERIFIED live:** 10 Neon branches listed (ready + archived); production not protected. **UNKNOWN:** exact runtime endpoint/branch match, full record/object integrity, restorable backup and retention effectiveness. Continuation used read-only aggregate SQL only; no dump, restore, object write/delete or new provider branch was performed. Verified neondb/neondb_owner, PG18.6, 14 finished/0 unfinished migrations, 3 businesses/3 memberships. Two stored active SUPER_ADMIN rows include one allowlisted owner and one non-allowlisted row; existing effectiveRole demotes the latter to USER. No roles were changed. Prior successful migrations/backup claims are REPORTED in memory only.
 
 ## 7. Production domains and routing
 
@@ -122,7 +123,7 @@ Other models (accounts, sessions, codes, audit, settings, flags, pages, geograph
 | --- | --- |
 | `www.rega24.com`, `rega24.com` | VERIFIED live enabled custom domains → `rega-platform`, production; zone `8428220bdbf9049138d0607d0e3bcb9d`, active/full |
 | Apex → www, preserving path/query | VERIFIED repository 301 in Next config; root locale handling in middleware (default ckb). HTTP chain not fetched this audit |
-| `regaplatform.com`, `www.regaplatform.com` | VERIFIED live still enabled custom domains on same Worker; historical docs call the old host retired. Do not delete; redirect behavior UNKNOWN |
+| `regaplatform.com`, `www.regaplatform.com` | VERIFIED live still enabled custom domains on same Worker; historical docs call the old host retired. Do not delete; live redirect behavior UNKNOWN; prepared code adds canonical-preserving legacy host redirects |
 | `media.regaplatform.com` | VERIFIED live enabled on `rega-media`, SSL/ownership active; Worker MEDIA_PUBLIC_URL agrees; managed r2.dev endpoint disabled |
 | DNS | VERIFIED live apex/www proxied AAAA `100::`, provider-managed origin Worker records; no classic Worker routes for rega24 zone (custom domains handle routing) |
 | Nameservers | VERIFIED live `autumn.ns.cloudflare.com`, `max.ns.cloudflare.com` |
@@ -146,24 +147,24 @@ Full **names-only** table and source locations: [generated inventory](docs/REGA2
 | Content/legal/maps | `SECTIONS_ENABLED`, `SECTIONS_DISABLED`, `LEGAL_*`, `GEOCODING_PROVIDER`, `GEOCODING_URL`, `GEOCODING_TIMEOUT_MS`, `NEXT_PUBLIC_MAP_STYLE_URL` | Exact consumed names/locations in inventory; public-prefixed values may be bundled into browser |
 | CI/seed | `NEON_API_KEY`, `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD`, test-only environment controls | Protected GitHub configuration or isolated CI; never use tests/seed to repair production blindly |
 
-**VERIFIED live web secret_text names:** `AI_SERVICE_TOKEN`, `AI_SERVICE_URL`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `AUTH_SECRET`, `DATABASE_URL`, `GEMINI_API_KEY`, `GROQ_API_KEY`, `Regaplatform`, `RESEND_API_KEY`, `STORAGE_ACCESS_KEY_ID`, `STORAGE_SECRET_ACCESS_KEY`. `Regaplatform` purpose UNKNOWN; do not remove it. **Credential names incorrectly typed plain_text:** `OPENAI_API_KEY`, `XAI_API_KEY`; no values retrieved into documentation. Other plain configuration: contact/mail/media/storage fields and NODE_ENV. Python has secret_text `AI_SERVICE_TOKEN`, plus AI/models. These are observations, not a recommended configuration template.
+**VERIFIED live web secret_text names:** `AI_SERVICE_TOKEN`, `AI_SERVICE_URL`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `AUTH_SECRET`, `DATABASE_URL`, `GEMINI_API_KEY`, `GROQ_API_KEY`, `Regaplatform`, `RESEND_API_KEY`, `STORAGE_ACCESS_KEY_ID`, `STORAGE_SECRET_ACCESS_KEY`. `Regaplatform` purpose UNKNOWN; do not remove it. **VERIFIED live corrected in continuation:** `OPENAI_API_KEY`, `XAI_API_KEY` are now `secret_text`. Atomic settings patch retained all 28 bindings; no values entered documentation. Provider revocation/rotation is still unverified. Other plain configuration: contact/mail/media/storage fields and NODE_ENV. Python has secret_text `AI_SERVICE_TOKEN`, plus AI/models. These are observations, not a recommended configuration template.
 
 Structural live web bindings: `ASSETS`, `CF_VERSION_METADATA`, `LOGIN_LIMITER`, `AI_LIMITER`, `SEARCH_LIMITER`, `FORM_LIMITER`. Runtime secrets differ from Workers Builds environment and GitHub Secrets; changing one does not propagate everywhere. [Manual sync workflow](.github/workflows/worker-secrets-sync.yml) copies only listed nonempty values; it is not a complete runtime inventory. Root `keep_vars:true` preserves dashboard variables on deploy. GitHub secret presence/permissions and build-variable settings were not enumerated.
 
 ## 9. Deployment pipeline
 
-**VERIFIED (repository):** [CI](.github/workflows/ci.yml) runs on PR/main/manual, uses disposable Postgres, Python tests, Prisma generation/migrations/preflight, lint/typecheck/unit, Node build/E2E, Workers build/dry-run and runtime smoke tests. [Deploy](.github/workflows/deploy.yml) listens for successful main CI via workflow_run and checks out its exact SHA; manual workflow_dispatch fallback bypasses that automatic CI condition. Do not dispatch during this documentation task. Main pushes can deploy even if they only change docs.
+**VERIFIED (repository):** [CI](.github/workflows/ci.yml) runs on PR/main/manual, uses disposable Postgres, Python tests, Prisma generation/migrations/preflight, lint/typecheck/unit, Node build/E2E, Workers build/dry-run and runtime smoke tests. [Deploy](.github/workflows/deploy.yml) listens for successful main CI via workflow_run and checks out its exact SHA; manual fallback is now prepared with the shared exact-main-CI verification gate; not published yet. Do not dispatch before documented release blockers are cleared. Main pushes can deploy even if they only change docs.
 
-[Python deploy](.github/workflows/ai-python-deploy.yml) separately triggers on selected main paths/manual; tests then pywrangler deploy/secrets/smoke/configuration. It is not behind the web CI completion gate. [Database migrate](.github/workflows/db-migrate.yml) is manual main-only with `migrate` and `backup-verified` confirmations; includes seed. [Secrets sync](.github/workflows/worker-secrets-sync.yml) is manual main-only with `sync`. These actions mutate production; not incident probes.
+[Python deploy](.github/workflows/ai-python-deploy.yml) in the production baseline used an independent selected-main-path push trigger. Prepared continuation changes it to the shared successful-main-CI trigger, exact SHA checkout and main-only manual fallback, protected by [verified release](scripts/verified-release.mjs). Both gates also reject a superseded main SHA or wrong Cloudflare account. This workflow repair is not published yet. [Database migrate](.github/workflows/db-migrate.yml) is manual main-only with `migrate` and `backup-verified` confirmations; includes seed. [Secrets sync](.github/workflows/worker-secrets-sync.yml) is manual main-only with `sync`. These actions mutate production; not incident probes.
 
-[Neon PR integration](.github/workflows/neon-branch.yml) creates expiring preview branches and has close cleanup; do not trigger it for this task or delete branches to resolve quota. Core CI uses disposable local Postgres independently. **REPORTED:** Workers Builds production dry-run, preview commands, historical branch failures and release holds in central memory. **UNKNOWN this audit:** live Builds configuration, current branch protection/check requirements and latest CI conclusions. Do not promote these reports to verified facts.
+[Neon PR integration](.github/workflows/neon-branch.yml) creates expiring preview branches and has close cleanup; do not trigger it for this task or delete branches to resolve quota. Core CI uses disposable local Postgres independently. **REPORTED:** Workers Builds production dry-run, preview commands, historical branch failures and release holds in central memory. **VERIFIED live continuation:** web Builds repository is rebar9988-max/Rega, deploy_command is `npx wrangler deploy --dry-run`, branch includes main. **UNKNOWN:** current branch protection/check requirements and latest CI conclusions. Do not promote these reports to verified facts.
 
 **VERIFIED live deployment readback:** web deployment `5d6f039c-01b9-4384-8bde-6a6da9daaf54`, version `79627fce-fc09-4df7-9094-3e8c401f2b6a`, 100%, created `2026-10-24T17:14:30.208477Z`; Python deployment `1175d188-3fac-4cfd-992b-47dd500fa763`, version `ce53715f-a13a-459c-a7b0-ecd6130e74e2`, 100%, created `2026-10-23T18:24:17.685703Z`. Source reports Wrangler; no build SHA mapping or functional health is inferred.
 
 ## 10. Monitoring and debugging entry points
 
 - [Health API](src/app/api/v1/health/route.ts): `/api/v1/health`, alias [api/health](src/app/api/health/route.ts). No-store; 200/503 reflects DB reachability, migration-history sanity and required content columns. Auth/storage/email/AI fields are configuration checks, not end-to-end tests. “Migrations true” does not prove every committed migration is applied.
-- **VERIFIED live:** both Workers observability/logs enabled, persisted invocation logs, traces off, logpush false; query-string redaction false. Restrict log access and redact before sharing.
+- **VERIFIED live:** both Workers observability/logs enabled, persisted invocation logs, traces off, logpush false; query-string redaction true (both Workers; continuation readback). Restrict log access and redact before sharing.
 - [Logger](src/lib/logger.ts) emits JSON; optional error webhook is best-effort and not guaranteed durable. [API errors](src/lib/api.ts), [DB errors](src/lib/api-types.ts), [instrumentation](src/instrumentation.ts), route error boundaries and [audit](src/lib/audit.ts) are diagnostic entry points.
 - [Database preflight](scripts/database-preflight.mjs) / [workflow](.github/workflows/database-preflight.yml): read-only schema/history diagnosis, not backup proof. Requires protected DB configuration; do not print it.
 - Existing [Beta health](.github/workflows/production-health.yml) hourly at minute 17 and after CI/manual; [production browser checks](.github/workflows/production-browser.yml), [Cloudflare diagnostics](.github/workflows/cloudflare-diagnostics.yml) and [health scripts](scripts/health). Read prior results first; do not start paid tooling or new remote runs unnecessarily.
@@ -173,14 +174,27 @@ Structural live web bindings: `ASSETS`, `CF_VERSION_METADATA`, `LOGIN_LIMITER`, 
 
 | Priority | Finding and evidence | Safe next step |
 | --- | --- | --- |
-| High | VERIFIED live OpenAI/xAI credential bindings are plain_text; central memory also reports prior exposure, remediation unverified | Owner-controlled secure rotation/revocation and secret_text storage; inspect names/types only; do not dump settings values |
-| High | VERIFIED live R2 CORS permits only old www/apex regaplatform.com origins; generic browser PUT on rega24.com may fail | Reproduce generic preflight from canonical host, then narrowly add canonical origins under separate change; server-side business-image uploads do not use browser R2 CORS |
+| High | Storage types repaired to secret_text; historical provider-key exposure still requires revocation/rotation | Owner-controlled provider rotation/revocation and protected GitHub secret replacement; never output values |
+| Resolved config | VERIFIED live R2 CORS now includes canonical www/apex rega24.com plus preserved legacy origins | Control-plane readback passed; actual browser signed-upload test remains unverified live |
 | High | REPORTED central-memory release hold for other feature work: backup/isolated restore, key containment, Neon CI/quota and billing proof unresolved | Read latest central log before release; this audit does not clear gates or merge/deploy unrelated work |
 | Medium | VERIFIED live 10 Neon branches, production `protected:false`; quota ceiling/free-plan status not reverified | Check quota read-only before any creation; never delete backup/branches to make room |
 | Medium | VERIFIED live legacy website custom domains still enabled; old “retired” wording incomplete | Preserve domains; separately verify redirect/canonical behavior |
-| Medium | VERIFIED repository optional manual deploy bypass and separate Python push-deploy path | Review exact source/current CI before any release; do not dispatch as a fix for docs |
+| Mitigated locally | Baseline manual bypass/separate Python push-deploy path replaced by shared CI/current-main/account gate in prepared workflows | Publish only after release holds clear; no hosted run or bypass during this task |
 | Medium | VERIFIED source separate edge cache (300-second TTL + SWR), CPU/1102 history documented in code; plain logs may contain unredacted strings | Diagnose cache headers, version and DB pooling before increasing resources or purging globally |
 | Unknown | Current backup restoration, provider billing/quotas, actual OTP/social login delivery, current applied ledger, public HTTP performance, external service health | Targeted read-only evidence or authorized isolated validation; never claim confirmed from configured names |
+
+### Continued consolidation checkpoint — 2026-10-25 (not an application release)
+
+- Local work continues from documentation commit `7301bc6`, branch `feat/rega24-central-admin-20261025`.
+- **VERIFIED local implementation:** one actual dashboard tree [src/app/admin](src/app/admin), canonical `/admin` and `/admin/*`; `/dr` and descendants permanently redirect with query/method preservation. The rewrite trial was removed for one real route tree. Further browser evidence identified repeated authenticated navigation/API prefetching; private sidebar prefetch is disabled and the JSON health report uses a plain anchor. Owners/staff retain existing scoped permissions. Fresh Super Admin guard protects `/admin/system`; media page scopes non-staff metadata to uploader. Native business/user/geography/category/content/AI/audit workflows are reused.
+- [System settings](src/app/admin/system/actions.ts) accept only consumed public-review flag, persist change+audit atomically, reject arbitrary names and secrets. `/admin/system` shows configuration booleans, not a false live-health certification; cloud resource operations use existing linked provider consoles, not broad management credentials in the app.
+- [Production manifest](src/config/project.json) centralizes official name Rega24, canonical/apex/admin routing and declared service ownership. Technical Worker/package names remain stable to avoid replacement. Environment-specific credentials stay in protected provider settings; validator detects manifest/Worker drift.
+- **VERIFIED live config changes:** canonical R2 CORS origins added without removing legacy origins; OpenAI/xAI bindings converted atomically to secret_text (all 28 bindings preserved). Both Workers now redact query strings in logs, with observability/tracing settings otherwise preserved.
+- **VERIFIED live latest config deployments:** web `66929254-3e9d-4b43-b70f-34f89389f60f` / version `93023599-8b90-48a2-9449-33ea286fa34e` at 100%; Python `57283b99-066e-4dbe-a1f1-a4010a88ca27` / version `b3e29ec6-d74c-4843-8b87-c110939d1987` at 100%. These are configuration-only versions of existing application code, not the new `/admin` application release.
+- **VERIFIED live:** no matching REGA Pages project in returned account project list; extra Worker `rega` has no custom domains or Builds triggers, workers.dev/previews enabled. Preserve it until actual caller/dependency/rollback verification establishes safe retirement. Python is a required module, not duplicate web hosting. Legacy media domain still serves declared storage and must remain.
+- **VERIFIED local security remediation:** patched dependency overrides/Zod upgrade yield npm audit zero findings; explicit update schemas prevent Zod4 creation defaults from changing omitted PATCH fields. Auth logging now omits arbitrary provider messages/stacks in prepared code.
+- **BLOCKED application deployment/100 score:** provider-key revocation/rotation unresolved; central release hold/verified production backup remains uncleared; Cloudflare Billing Read unavailable (403, no OAuth scope); current browser connector requires reauthentication; executor excludes production/font hosts and has no protected deploy/DB credentials. Neon metadata confirms free_v3 and 10-branch limit; no inference calls, paid service activation, upgrades or new provider resources were made. Test-only mocked-font artifacts must never be deployed.
+- Verification results and precise continuation conditions: [consolidation acceptance report](docs/REGA24_CONSOLIDATION.md). No full-platform 100/100 claim.
 
 ## 12. Last verification date and evidence
 

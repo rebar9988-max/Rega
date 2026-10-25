@@ -5,7 +5,7 @@
   "compatibility_date": "2026-10-06",
   "compatibility_flags": ["python_workers"],
   "workers_dev": true,
-  "observability": { "enabled": true },
+  "observability": { "enabled": true, "redact_query_string": true },
   "ai": { "binding": "AI", "remote": true },
   "vars": {
     "AI_EMBEDDING_MODEL": "@cf/baai/bge-m3",

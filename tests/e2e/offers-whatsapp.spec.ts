@@ -13,7 +13,7 @@ let businessId = "";
 let slug = "";
 let offerId = "";
 
-async function login(page: Page, who: { email: string; password: string }, next = "%2Fdr") {
+async function login(page: Page, who: { email: string; password: string }, next = "%2Fadmin") {
   await page.goto(`/de/login?next=${next}`);
   await page.getByLabel("E-Mail", { exact: true }).fill(who.email);
   await page.getByLabel("Passwort", { exact: true }).fill(who.password);
@@ -27,7 +27,7 @@ test.describe.configure({ mode: "serial" });
 
 test("a valid public WhatsApp number is stored in international form and shown as a wa.me button", async ({ page }) => {
   await login(page, ADMIN);
-  await page.goto("/dr/businesses/new");
+  await page.goto("/admin/businesses/new");
   await page.getByLabel("Name", { exact: true }).fill(name);
   await page.getByRole("combobox", { name: "Kategorie", exact: true }).selectOption({ label: "Recht" });
   await page.getByLabel("Straße und Hausnummer").fill("Jungfernstieg 7");
@@ -61,8 +61,8 @@ test("a valid public WhatsApp number is stored in international form and shown a
 });
 
 test("without a WhatsApp number there is no WhatsApp button", async ({ page }) => {
-  await login(page, ADMIN, `%2Fdr%2Fbusinesses%2F${businessId}`);
-  await page.goto(`/dr/businesses/${businessId}`);
+  await login(page, ADMIN, `%2Fadmin%2Fbusinesses%2F${businessId}`);
+  await page.goto(`/admin/businesses/${businessId}`);
   await page.getByTestId("whatsapp").fill("");
   await page.getByRole("button", { name: "Speichern", exact: true }).click();
   await expect(page.getByTestId("form-notice")).toBeVisible();
@@ -73,7 +73,7 @@ test("without a WhatsApp number there is no WhatsApp button", async ({ page }) =
 
 test("offers: misleading or impossible offers are refused; a genuine one is shown while it runs", async ({ page }) => {
   await login(page, ADMIN);
-  await page.goto(`/dr/offers/new?business=${businessId}`);
+  await page.goto(`/admin/offers/new?business=${businessId}`);
   await page.getByTestId("offer-title").fill("30 % Rabatt auf alles");
   // The text claims a percentage but no percentage discount is declared.
   await page.getByTestId("offer-save").click();
@@ -105,7 +105,7 @@ test("offers: misleading or impossible offers are refused; a genuine one is show
   await page.getByTestId("offer-start").fill(ymd(-1));
   await page.getByTestId("offer-end").fill(ymd(20));
   await page.getByTestId("offer-save").click();
-  await expect(page).toHaveURL(/\/dr\/offers\/[^/?]+\?saved=1$/);
+  await expect(page).toHaveURL(/\/admin\/offers\/[^/?]+\?saved=1$/);
   offerId = page.url().split("?")[0].split("/").pop()!;
   await expect(page.getByTestId("offer-state")).toHaveText("Läuft");
 
@@ -117,7 +117,7 @@ test("offers: misleading or impossible offers are refused; a genuine one is show
 
 test("a future offer is not shown yet; switching an offer off hides it and keeps the record", async ({ page }) => {
   await login(page, ADMIN);
-  await page.goto(`/dr/offers/new?business=${businessId}`);
+  await page.goto(`/admin/offers/new?business=${businessId}`);
   await page.getByTestId("offer-title").fill("Frühjahrsaktion");
   await page.getByTestId("offer-start").fill(ymd(10));
   await page.getByTestId("offer-end").fill(ymd(20));
@@ -126,14 +126,14 @@ test("a future offer is not shown yet; switching an offer off hides it and keeps
   await page.goto(`/de/businesses/${slug}`);
   await expect(page.getByTestId("business-offers")).not.toContainText("Frühjahrsaktion");
 
-  await page.goto(`/dr/offers/${offerId}`);
+  await page.goto(`/admin/offers/${offerId}`);
   await page.getByTestId("offer-switch").click();
   await expect(page.getByTestId("form-notice")).toContainText("ausgeschaltet");
   await expect(page.getByTestId("offer-state")).toHaveText("Ausgeschaltet");
   await page.goto(`/de/businesses/${slug}`);
   await expect(page.getByTestId("business-offers")).toHaveCount(0);
   // Still in the dashboard, and it can be switched on again while its dates apply.
-  await page.goto(`/dr/offers/${offerId}`);
+  await page.goto(`/admin/offers/${offerId}`);
   await page.getByTestId("offer-switch").click();
   await expect(page.getByTestId("offer-state")).toHaveText("Läuft");
 });
@@ -142,7 +142,7 @@ test("someone who does not manage the business cannot see or open its offers", a
   const ctx = await browser.newContext();
   const page = await ctx.newPage();
   await login(page, EMPLOYEE);
-  expect((await ctx.request.get(`/dr/offers/${offerId}`)).status()).not.toBe(200);
-  expect((await ctx.request.get(`/dr/offers/new?business=${businessId}`)).status()).not.toBe(200);
+  expect((await ctx.request.get(`/admin/offers/${offerId}`)).status()).not.toBe(200);
+  expect((await ctx.request.get(`/admin/offers/new?business=${businessId}`)).status()).not.toBe(200);
   await ctx.close();
 });

@@ -27,7 +27,7 @@ test("service worker: precaches the offline page that exists, never stores navig
   assert.ok(/mode === "navigate"[\s\S]*caches\.match\(OFFLINE\)/.test(sw));
   assert.equal((sw.match(/cache\.put/g) ?? []).length, 1);
   assert.ok(/request\.method !== "GET"/.test(sw));
-  assert.ok(!/\/api\/|\/dr\b/.test(sw.replace(/\/\*[\s\S]*?\*\//, "")), "no personal or dashboard routes are touched");
+  assert.ok(!/\/api\/|\/admin\b/.test(sw.replace(/\/\*[\s\S]*?\*\//, "")), "no personal or dashboard routes are touched");
 });
 
 test("offline page: all seven languages with a direction, no external resources", () => {
@@ -73,7 +73,7 @@ test("service worker behaviour: offline navigation gets the offline page; nothin
   await respond({ method: "GET", mode: "no-cors", url: "https://x.test/_next/static/chunks/a.js" });
   const stored = [...store.values()].flatMap((m) => [...m.keys()]);
   assert.ok(stored.some((u) => u.includes("/_next/static/chunks/a.js")));
-  assert.ok(!stored.some((u) => /\/(de|ckb)\/|\/dr\/|\/api\//.test(u)), `stored: ${stored.join(", ")}`);
+  assert.ok(!stored.some((u) => /\/(de|ckb)\/|\/admin\/|\/api\//.test(u)), `stored: ${stored.join(", ")}`);
 });
 
 test("offline page script: language and direction follow the first path segment, unknown falls back to English", () => {

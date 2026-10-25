@@ -66,7 +66,7 @@ const PERSONAL_COOKIE = /(?:^|;\s*)(?:__Secure-|__Host-)?(?:authjs|next-auth)\.[
 /** Set-Cookie headers that may be replayed from the cache: locale preference only. */
 const REPLAYABLE_COOKIE = /^(?:NEXT_LOCALE|REGA_LOCALE)=/;
 // Pages with one-time tokens in the URL or per-user content are never stored.
-const BYPASS_PATH = /^\/(?:api|dr|_next)(?:\/|$)|^\/[a-z]{2,3}\/(?:login|account|register|verify-email|forgot-password|reset-password)(?:\/|$)/;
+const BYPASS_PATH = /^\/(?:api|admin|dr|_next)(?:\/|$)|^\/[a-z]{2,3}\/(?:login|account|register|verify-email|forgot-password|reset-password)(?:\/|$)/;
 const MAX_KEY_LENGTH = 6000;
 
 const REPLAY_HEADER = "x-rega-replay-set-cookie";

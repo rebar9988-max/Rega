@@ -109,5 +109,5 @@ export const createDeepSeek = (c: { apiKey: string; model: string; baseUrl?: str
 export const createOpenRouter = (c: { apiKey: string; model: string; baseUrl?: string; siteUrl?: string; fetchImpl?: typeof fetch }) =>
   createOpenAiCompatible({
     id: "openrouter", label: "OpenRouter", baseUrl: c.baseUrl ?? "https://openrouter.ai/api/v1", apiKey: c.apiKey, model: c.model,
-    headers: { "HTTP-Referer": c.siteUrl ?? "https://www.rega24.com", "X-Title": "REGA Platform" }, fetchImpl: c.fetchImpl,
+    headers: { "HTTP-Referer": c.siteUrl ?? "https://www.rega24.com", "X-Title": "Rega24" }, fetchImpl: c.fetchImpl,
   });

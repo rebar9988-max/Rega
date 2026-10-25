@@ -11,6 +11,6 @@ import type { Permission } from "@/lib/rbac";
  */
 export async function requireDr(permission: Permission): Promise<SessionUser> {
   const user = await currentUser().catch(() => null);
-  if (!user) redirect(`/${await getLocale()}/login?next=${encodeURIComponent("/dr")}`);
+  if (!user) redirect(`/${await getLocale()}/login?next=${encodeURIComponent("/admin")}`);
   return requirePermission(permission);
 }

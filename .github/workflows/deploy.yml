@@ -13,10 +13,11 @@ concurrency:
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
   deploy:
-    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    if: (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
@@ -41,6 +42,11 @@ jobs:
       - name: Project identity guard (REGA only)
         run: node scripts/project-identity-guard.mjs --project REGA --domain www.rega24.com --worker rega-platform
 
+      - name: Verify successful CI for the exact production commit
+        run: node scripts/verified-release.mjs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -54,6 +60,11 @@ jobs:
 
       - name: Build for Cloudflare Workers (OpenNext)
         run: npm run build
+
+      - name: Recheck current main immediately before deployment
+        run: node scripts/verified-release.mjs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
 
       - name: Deploy to Cloudflare Workers
         run: npx wrangler deploy

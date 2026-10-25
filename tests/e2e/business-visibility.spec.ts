@@ -13,7 +13,7 @@ const NAME = `E2E Sichtbarkeit ${stamp}`;
 const OTHER = `E2E Zweiter ${stamp}`;
 
 async function login(page: Page, who: { email: string; password: string }) {
-  await page.goto("/de/login?next=%2Fdr");
+  await page.goto("/de/login?next=%2Fadmin");
   await page.getByLabel("E-Mail", { exact: true }).fill(who.email);
   await page.getByLabel("Passwort", { exact: true }).fill(who.password);
   await page.getByRole("button", { name: "Anmelden" }).click();
@@ -22,7 +22,7 @@ async function login(page: Page, who: { email: string; password: string }) {
 
 /** A complete, published listing created through the admin form; returns its id. */
 async function createPublished(page: Page, name: string): Promise<string> {
-  await page.goto("/dr/businesses/new");
+  await page.goto("/admin/businesses/new");
   await page.getByLabel("Name", { exact: true }).fill(name);
   await page.getByRole("combobox", { name: "Kategorie", exact: true }).selectOption({ label: "Recht" });
   await page.getByLabel("Telefon").fill("+49 30 111111");
@@ -60,7 +60,7 @@ test("hide asks first, removes the listing from every public surface, keeps it e
   expect((await request.get(`/de/business/${slug}`)).status()).toBe(200);
 
   // Cancelling the confirmation changes nothing.
-  await page.goto(`/dr/businesses?q=${encodeURIComponent(NAME)}`);
+  await page.goto(`/admin/businesses?q=${encodeURIComponent(NAME)}`);
   await expect(rowOf(page, NAME).getByTestId("row-status")).toHaveText("Veröffentlicht");
   const row = await openMenu(page, NAME);
   await row.getByTestId("hide-business").click();
@@ -87,7 +87,7 @@ test("hide asks first, removes the listing from every public surface, keeps it e
   expect(near.data.some((i: { business: { name: string } }) => i.business.name === NAME)).toBe(false);
 
   // Still available to the admin, editable, and it stays hidden after an edit.
-  await page.goto(`/dr/businesses/${id}`);
+  await page.goto(`/admin/businesses/${id}`);
   await expect(page.getByTestId("hidden-note")).toBeVisible();
   await expect(page.getByTestId("business-status")).toHaveText("Ausgeblendet");
   await page.getByLabel("Telefon").fill("+49 30 222222");
@@ -111,7 +111,7 @@ test("hide asks first, removes the listing from every public surface, keeps it e
 test("pin puts a business first and survives a reload; unpin returns it to the normal order", async ({ page }) => {
   await login(page, ADMIN);
   otherId = await createPublished(page, OTHER); // updated last, so it leads the unpinned order
-  const search = `/dr/businesses?q=${encodeURIComponent(`E2E`)}+${encodeURIComponent(stamp)}`;
+  const search = `/admin/businesses?q=${encodeURIComponent(`E2E`)}+${encodeURIComponent(stamp)}`;
   await page.goto(search);
   await expect(page.locator("tbody tr").first()).toContainText(OTHER);
 
@@ -121,7 +121,7 @@ test("pin puts a business first and survives a reload; unpin returns it to the n
   await expect(rowOf(page, NAME).getByTestId("pinned-mark")).toBeVisible();
   await page.reload();
   await expect(page.locator("tbody tr").first()).toContainText(NAME);
-  await page.goto("/dr/businesses?pin=1");
+  await page.goto("/admin/businesses?pin=1");
   await expect(rowOf(page, NAME)).toHaveCount(1);
   await expect(rowOf(page, OTHER)).toHaveCount(0);
 
@@ -130,13 +130,13 @@ test("pin puts a business first and survives a reload; unpin returns it to the n
   await expect(page.getByTestId("visibility-notice")).toHaveAttribute("data-notice", "unpinned");
   await expect(rowOf(page, NAME).getByTestId("pinned-mark")).toHaveCount(0);
   // The audit trail names who did it.
-  await page.goto("/dr/audit");
+  await page.goto("/admin/audit");
   await expect(page.getByRole("cell", { name: "business.unfeature" }).first()).toBeVisible();
 });
 
 test("delete names the business, can be cancelled, removes it everywhere, and can be undone or restored", async ({ page, request }) => {
   await login(page, ADMIN);
-  await page.goto(`/dr/businesses?q=${encodeURIComponent(OTHER)}`);
+  await page.goto(`/admin/businesses?q=${encodeURIComponent(OTHER)}`);
   await (await openMenu(page, OTHER)).getByTestId("delete-business").click();
   await expect(openDialog(page)).toHaveAttribute("data-tone", "danger");
   await expect(openDialog(page)).toContainText(OTHER);
@@ -157,20 +157,20 @@ test("delete names the business, can be cancelled, removes it everywhere, and ca
   await (await openMenu(page, OTHER)).getByTestId("delete-business").click();
   await openDialog(page).getByTestId("confirm-submit").click();
   await expect(page.getByTestId("visibility-notice")).toHaveAttribute("data-notice", "deleted");
-  await page.goto(`/dr/businesses?status=deleted&q=${encodeURIComponent(OTHER)}`);
+  await page.goto(`/admin/businesses?status=deleted&q=${encodeURIComponent(OTHER)}`);
   await expect(rowOf(page, OTHER).getByTestId("row-status")).toHaveText("Gelöscht");
   await rowOf(page, OTHER).getByTestId("recover-business").click();
   await expect(page.getByTestId("visibility-notice")).toHaveAttribute("data-notice", "recovered");
-  await page.goto(`/dr/businesses?q=${encodeURIComponent(OTHER)}`);
+  await page.goto(`/admin/businesses?q=${encodeURIComponent(OTHER)}`);
   await expect(rowOf(page, OTHER).getByTestId("row-status")).toHaveText("Ausgeblendet");
   // Its data survived: the edit page still has it.
-  await page.goto(`/dr/businesses/${otherId}`);
+  await page.goto(`/admin/businesses/${otherId}`);
   await expect(page.getByLabel("Telefon")).toHaveValue("+49 30 111111");
 });
 
 test("without the right there are no pin, delete or hide controls, and the server refuses the calls", async ({ page }) => {
   await login(page, EMPLOYEE);
-  await page.goto(`/dr/businesses?q=${encodeURIComponent(NAME)}`);
+  await page.goto(`/admin/businesses?q=${encodeURIComponent(NAME)}`);
   const row = rowOf(page, NAME);
   await expect(row).toBeVisible();
   if (await row.getByTestId("row-actions").count()) await row.getByTestId("row-actions").click();
@@ -187,11 +187,11 @@ test("without the right there are no pin, delete or hide controls, and the serve
 
 test("the dashboard has no horizontal scroll and the menu stays on screen", async ({ page }) => {
   await login(page, ADMIN);
-  for (const path of ["/dr", "/dr/businesses", `/dr/businesses/${id}`]) {
+  for (const path of ["/admin", "/admin/businesses", `/admin/businesses/${id}`]) {
     await page.goto(path);
     expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth), path).toBeLessThanOrEqual(0);
   }
-  await page.goto(`/dr/businesses?q=${encodeURIComponent(NAME)}`);
+  await page.goto(`/admin/businesses?q=${encodeURIComponent(NAME)}`);
   const row = await openMenu(page, NAME);
   const box = await row.locator("[id]").filter({ has: page.getByTestId("hide-business") }).boundingBox();
   const width = page.viewportSize()!.width;

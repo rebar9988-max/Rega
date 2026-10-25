@@ -39,7 +39,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
   const tl = await getTranslations("nav");
   const offers = t.raw("offer") as { label: string; text: string }[];
   // "Who we are": the operator from the owner details (shown once they are entered), the founding story from the CMS
-  // page /dr/pages "about-story" (written by the owner; nothing is invented here), and the official social profiles.
+  // page /admin/pages "about-story" (written by the owner; nothing is invented here), and the official social profiles.
   const owner = ownerDetails();
   const showOperator = !owner.missing.includes("legalName");
   const story = await getCmsPage("about-story", locale);

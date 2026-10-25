@@ -1,7 +1,7 @@
 {
-  "name": "REGA Platform",
-  "short_name": "REGA",
-  "description": "REGA Platform (ڕێگا): businesses, services and locations.",
+  "name": "Rega24",
+  "short_name": "Rega24",
+  "description": "Rega24 (ڕێگا): businesses, services and locations.",
   "id": "/",
   "start_url": "/",
   "scope": "/",

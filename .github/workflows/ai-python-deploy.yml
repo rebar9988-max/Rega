@@ -2,17 +2,14 @@ name: Deploy Python AI engine
 
 on:
   workflow_dispatch:
-  push:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
     branches: [main]
-    paths:
-      - "services/ai-python/**"
-      - "src/lib/ai/python-*.ts"
-      - "src/lib/ai/chat.ts"
-      - "src/lib/env.ts"
-      - ".github/workflows/ai-python-deploy.yml"
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: deploy-rega-ai-python
@@ -20,6 +17,7 @@ concurrency:
 
 jobs:
   deploy:
+    if: (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
@@ -38,9 +36,15 @@ jobs:
           fi
 
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
       # P0 isolation: REGA != R&L. Read-only; fails closed before any production-changing step below.
       - name: Project identity guard (REGA only)
         run: node scripts/project-identity-guard.mjs --project REGA --worker rega-ai-python
+      - name: Verify successful CI for the exact production commit
+        run: node scripts/verified-release.mjs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -53,6 +57,11 @@ jobs:
       - name: Python AI engine tests
         working-directory: services/ai-python
         run: uv run pytest
+
+      - name: Recheck current main immediately before deployment
+        run: node scripts/verified-release.mjs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
 
       - name: Deploy isolated Python Worker
         if: steps.creds.outputs.present == 'true'

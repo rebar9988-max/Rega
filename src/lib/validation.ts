@@ -47,7 +47,12 @@ export const businessCreateSchema = z.object({
   tags: z.array(z.string().trim().max(50)).max(30).default([]),
 });
 
-export const businessUpdateSchema = businessCreateSchema.partial();
+export const businessUpdateSchema = businessCreateSchema.partial().extend({
+  status: businessCreateSchema.shape.status.removeDefault().optional(),
+  verified: businessCreateSchema.shape.verified.removeDefault().optional(),
+  featured: businessCreateSchema.shape.featured.removeDefault().optional(),
+  tags: businessCreateSchema.shape.tags.removeDefault().optional(),
+});
 
 export const locationCreateSchema = z.object({
   businessId: idSchema,
@@ -66,7 +71,10 @@ export const locationCreateSchema = z.object({
   status: z.enum(["active", "archived"]).default("active"),
 });
 
-export const locationUpdateSchema = locationCreateSchema.partial().omit({ businessId: true });
+export const locationUpdateSchema = locationCreateSchema.partial().omit({ businessId: true }).extend({
+  isPrimary: locationCreateSchema.shape.isPrimary.removeDefault().optional(),
+  status: locationCreateSchema.shape.status.removeDefault().optional(),
+});
 
 export const serviceCreateSchema = z.object({
   businessId: idSchema,
@@ -85,7 +93,12 @@ export const serviceCreateSchema = z.object({
   sortOrder: z.coerce.number().int().min(0).max(100_000).default(0),
 });
 
-export const serviceUpdateSchema = serviceCreateSchema.partial().omit({ businessId: true });
+export const serviceUpdateSchema = serviceCreateSchema.partial().omit({ businessId: true }).extend({
+  currency: serviceCreateSchema.shape.currency.removeDefault().optional(),
+  status: serviceCreateSchema.shape.status.removeDefault().optional(),
+  featured: serviceCreateSchema.shape.featured.removeDefault().optional(),
+  sortOrder: serviceCreateSchema.shape.sortOrder.removeDefault().optional(),
+});
 
 export const categoryCreateSchema = z.object({
   key: z.string().trim().min(2).max(60).regex(/^[a-z0-9_.-]+$/, "lowercase letters, digits, dot, dash, underscore"),
@@ -106,7 +119,10 @@ export const categoryCreateSchema = z.object({
   isActive: z.boolean().default(true),
 });
 
-export const categoryUpdateSchema = categoryCreateSchema.partial();
+export const categoryUpdateSchema = categoryCreateSchema.partial().extend({
+  sortOrder: categoryCreateSchema.shape.sortOrder.removeDefault().optional(),
+  isActive: categoryCreateSchema.shape.isActive.removeDefault().optional(),
+});
 
 export const userCreateSchema = z.object({
   email: z.string().email().max(200),

@@ -693,3 +693,46 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
   No R&L changes. No push/merge requested or performed; local commit will contain only documentation/tooling.
 - Next: use the map/runbook for future work; re-read latest hub and reverify live state before any release;
   address security/CORS only as separately scoped changes, preserving zero-cost and existing release gates.
+
+
+## Unified Rega24 office — 2026-10-25 continuation
+
+- Continued from documentation commit 7301bc6; isolated branch feat/rega24-central-admin-20261025. Official identity
+  Rega24; existing Worker/package identifiers retained. No R&L modifications.
+- Audit found extra Worker rega (no custom domains/Builds triggers; workers.dev/previews enabled), no matching REGA
+  Pages project, web Builds dry-run. Preserved candidate resources until dependency/rollback verification.
+- Live changes verified: canonical R2 CORS origins added (legacy rule preserved); OpenAI/xAI storage converted
+  atomically to secret_text with all 28 binding names/types otherwise preserved; both Workers redact query strings.
+  Configuration-only web version 93023599-8b90-48a2-9449-33ea286fa34e and Python b3e29ec6-d74c-4843-8b87-c110939d1987
+  each active 100%. These do not contain prepared admin application code. Provider key rotation remains unverified.
+- Read-only production SQL: neondb/neondb_owner, PG18.6, 14 finished/0 unfinished migrations, 3 businesses/3 memberships;
+  one allowlisted owner and one non-allowlisted stored SUPER_ADMIN (existing effectiveRole demotes latter to USER).
+  No data/role/migration/object writes. Neon metadata free_v3 and 10-branch ceiling verified; no provider branch created.
+- Prepared app: actual /admin route tree with legacy /dr redirects, fresh RBAC, existing modules, Super Admin system
+  page, atomic audited public-review setting, scoped media browser and provider console entry points. The rewrite trial
+  was removed for a single actual route tree; repeated private navigation/API prefetches were subsequently corrected
+  using no-prefetch sidebar links and a plain health-report anchor.
+- Central manifest drives canonical identity; static validation checks Worker names/routing. Dependency patches
+  remove npm audit findings (0); Zod4 PATCH omission regressions prevent creation defaults from mutating saved data.
+  Prepared auth logs omit raw provider messages/stacks. Both prepared deploy workflows share exact-main-CI gate.
+- Ordinary build blocked by enforced Google Font network policy; functional builds use real-font test-only mocks,
+  never for deploy. Browser/QA outcomes and exact deployment blockers in docs/REGA24_CONSOLIDATION.md.
+- Remaining: provider-side revoke/rotate + protected GitHub replacement; existing backup/restore release hold;
+  Cloudflare Billing Read 403 (OAuth lacks scope); production browser connector UNAUTHORIZED; restricted executor
+  without protected deployment credentials. No inference, paid activation/upgrade, resource/domain removal, remote
+  merge/application deploy or production migration. No 100/100 claim. Continue safe work from acceptance report.
+
+- Final QA: full unit/integration 344 PASS/0 fail/0 skip on separate local DB; targeted redirect/release gates PASS;
+  Python 7 PASS; 42 distinct selected browser scenarios PASS (21 auth/security/office + 16 geography/CMS/content/session
+  + 5 business/map/publication). Eight axe analyses en/ckb at 360/1366px: zero violations/overflow; screenshots inspected.
+  Updated mocked provider identity and explicit test geocoder/mail mode prevent inherited local config/test drift.
+- Functional Node and OpenNext Workers builds PASS with test-only actual-font response mock; ordinary Node/Worker
+  builds fail at blocked Google Fonts. Dry-run PASS (16009.65 KiB raw/3659.66 KiB gzip; 283 assets); built workerd runtime
+  smoke PASS (DB, auth/privacy, legacy redirect, public query and validation). No mocked artifact is deployable; the
+  shared release gate explicitly rejects NEXT_FONT_GOOGLE_MOCKED_RESPONSES and mismatched/superseded SHA/account.
+- Offline docs check: 8 docs, 383 source fingerprints, 105 env names, 10 procedures, links/anchors PASS; manifest-drift
+  negative test PASS. Local artifact summary/screenshots in /workspace/artifacts/rega24-unified/. Config-only active
+  versions re-read unchanged at 100%, data count readback remains 3 businesses/3 memberships/14 finished/0 unfinished.
+
+- Additional real workerd media codec/local S3 test PASS; final typecheck/lint/whitespace and docs checks PASS.
+  No normal production build, source merge or new admin application deployment is claimed.

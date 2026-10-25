@@ -65,7 +65,7 @@ test("auth config: persistent 90-day JWT session from the shared policy, marker 
 test("session renewal: rendered for signed-in visitors only, never stores anything in the browser", () => {
   const header = read("src/components/shell/Header.tsx");
   assert.match(header, /\{signedIn && <SessionRenewal \/>\}/);
-  assert.match(read("src/app/dr/layout.tsx"), /<SessionRenewal \/>/);
+  assert.match(read("src/app/admin/layout.tsx"), /<SessionRenewal \/>/);
   for (const file of ["src/features/auth/SessionRenewal.tsx", "src/features/auth/session-policy.ts", "src/auth.config.ts"]) {
     const src = read(file);
     assert.ok(!/localStorage|sessionStorage|document\.cookie/.test(src), `${file} must not keep session data in browser storage`);

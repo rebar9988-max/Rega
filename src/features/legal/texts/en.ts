@@ -14,7 +14,7 @@ export const en: LegalBuilder = (o, ctx) => {
 
     impressum: {
       title: "Impressum (legal notice)",
-      description: "Legal notice of REGA Platform under § 5 DDG: provider, postal address, contact and the person responsible for the content of this free Kurdish portal.",
+      description: "Legal notice of Rega24 under § 5 DDG: provider, postal address, contact and the person responsible for the content of this free Kurdish portal.",
       blocks: [
         { h: "Information pursuant to § 5 DDG", p: [who, o.responsiblePerson ? `Authorised representative / responsible person: ${o.responsiblePerson}` : "", address].filter(Boolean) },
         { h: "Contact", p: [`Phone: ${o.phone}`, `Email: ${o.publicEmail}`] },
@@ -23,7 +23,7 @@ export const en: LegalBuilder = (o, ctx) => {
           : []),
         { h: "Responsible for content (§ 18 (2) MStV)", p: [`${o.responsiblePerson || o.legalName}, ${address}`] },
         { h: "Point of contact under the Digital Services Act (Art. 11, 12 DSA)", p: [`Authorities, the Commission and users can reach us electronically at ${o.publicEmail}. We communicate in German and English.`, "You can report illegal content with the form under “Report content”."] },
-        { h: "Free of charge", p: ["REGA Platform is free of charge. No fees arise for users or for businesses."] },
+        { h: "Free of charge", p: ["Rega24 is free of charge. No fees arise for users or for businesses."] },
         { h: "Consumer dispute resolution", p: ["We are neither willing nor obliged to take part in dispute resolution proceedings before a consumer arbitration board."] },
         { h: "Liability for content", p: ["Entries for businesses, services and locations are created by their owners or by us on the basis of their information. As a service provider we are responsible for our own content under the general laws. For third-party content we are responsible only from the moment we learn of a specific infringement; when we do, we remove such content promptly.", "Statements in AI-generated answers of the REGA Assistant may be wrong and are not a substitute for advice."] },
         { h: "Liability for links", p: ["Our service contains links to external third-party websites whose content we cannot influence. We accept no liability for such content; the respective provider is always responsible. We remove such links promptly when we learn of infringements."] },
@@ -33,10 +33,10 @@ export const en: LegalBuilder = (o, ctx) => {
 
     privacy: {
       title: "Privacy policy",
-      description: "Privacy policy of REGA Platform: controller, hosting, account, contact form, AI assistant, cookies, your GDPR rights and the right to lodge a complaint.",
+      description: "Privacy policy of Rega24: controller, hosting, account, contact form, AI assistant, cookies, your GDPR rights and the right to lodge a complaint.",
       blocks: [
         { h: "1. Controller", p: ["The controller for data processing on this website within the meaning of the General Data Protection Regulation (GDPR) is:", `${who}, ${address}`, `Email: ${o.publicEmail} · Phone: ${o.phone}`] },
-        { h: "2. Overview", p: ["REGA Platform is a free directory for the Kurdish community in Germany and Europe. We process personal data only as far as necessary to run the website, your user account, to communicate with you and to protect the service. We do not sell data and do not run advertising or tracking networks."] },
+        { h: "2. Overview", p: ["Rega24 is a free directory for the Kurdish community in Germany and Europe. We process personal data only as far as necessary to run the website, your user account, to communicate with you and to protect the service. We do not sell data and do not run advertising or tracking networks."] },
         { h: "3. Hosting and server log files", p: [`The website is operated by ${o.hostingProvider}. When you open it, the hosting provider processes technically necessary data, in particular IP address, date and time, page requested, browser type and operating system, to deliver the site, keep it stable and fend off attacks.`, "Legal basis: Art. 6(1)(f) GDPR (legitimate interest in secure and stable operation). Data may be transferred to third countries on the basis of appropriate safeguards (EU standard contractual clauses or the EU-US Data Privacy Framework). A data processing agreement is in place."] },
         { h: "4. Cookies and local storage", p: ["We use only technically necessary storage that is required for the service you request (§ 25(2) no. 2 TDDDG). For that reason we show no cookie banner."], ul: ["Session cookie (Auth.js): only after sign-in, keeps your session (90 days, renewed each time you use the site).", "Language cookie (REGA_LOCALE / NEXT_LOCALE): remembers your language (1 year).", "Browser storage “rega-theme” (localStorage): remembers light/dark mode.", "Browser storage “rega-location” (localStorage): remembers the place you chose in the location selector (a city with its country and region), only in your browser, so the home page, the business lists and the map can use it. The browser does not send this value to us; choosing “All cities” or clearing the site data deletes it.", "Browser session storage: a random identifier for the running REGA Assistant chat; it is deleted when you close the tab."] },
         { h: "5. Reach measurement and analytics", p: [ctx.analytics ? `We use the following analytics tool: ${o.analyticsTool}. Where it uses non-essential cookies or similar technologies, we obtain your consent beforehand (§ 25(1) TDDDG, Art. 6(1)(a) GDPR).` : "We use no analytics or tracking tools and show no advertising."] },
@@ -56,14 +56,14 @@ export const en: LegalBuilder = (o, ctx) => {
 
     terms: {
       title: "Terms of use",
-      description: "Terms of use of REGA Platform: free use without fees, rules for listings, moderation, liability and deletion of your account.",
+      description: "Terms of use of Rega24: free use without fees, rules for listings, moderation, liability and deletion of your account. Read the terms.",
       blocks: [
-        { h: "1. Scope", p: [`These terms apply to the use of REGA Platform (www.rega24.com), operated by ${who}, ${address}.`] },
-        { h: "2. Free of charge", p: ["REGA Platform is completely free for users and for businesses. There are no fees, subscriptions, paid placements or payment features."] },
+        { h: "1. Scope", p: [`These terms apply to the use of Rega24 (www.rega24.com), operated by ${who}, ${address}.`] },
+        { h: "2. Free of charge", p: ["Rega24 is completely free for users and for businesses. There are no fees, subscriptions, paid placements or payment features."] },
         { h: "3. Account", p: ["An account is required to list a business. You must give truthful information, keep your credentials secret and tell us promptly about any misuse of your account. One account per person is intended."] },
         { h: "4. Rules for listings and contributions", p: ["You may only post content you are entitled to publish. In particular the following is not allowed:"], ul: ["unlawful, insulting, discriminatory or hateful content;", "false or misleading information, invented businesses or reviews;", "spam, advertising for unrelated offers and duplicate listings of the same service;", "content that infringes third-party rights (copyright, trademark, personality rights);", "information about third parties without their consent;", "reviews that do not reflect your own experience, reviews of your own business, and bought or traded reviews."] },
         { h: "5. Review and “Rega Verified”", p: ["New listings are reviewed by us before publication and may be rejected or sent back for changes. The “Rega Verified” label means that we have checked certain information of the listing. It is not a recommendation and not a guarantee of the quality of the offer.", "Reviews and entries for jobs, events and guides are also published only after review. We may reject or remove contributions that break these rules."] },
-        { h: "6. Grant of rights", p: ["You grant us the simple, non-exclusive right to display your listings and images on REGA Platform in all language versions and to reproduce them technically for that purpose. The rights remain with you."] },
+        { h: "6. Grant of rights", p: ["You grant us the simple, non-exclusive right to display your listings and images on Rega24 in all language versions and to reproduce them technically for that purpose. The rights remain with you."] },
         { h: "7. Reporting and removal", p: ["Unlawful or rule-breaking content can be reported via “Report content”. We may remove content and block accounts if laws or these terms are violated; we inform those affected and state the reason where the law provides."] },
         { h: "8. Liability", p: ["We are fully liable for intent and gross negligence, for injury to life, body and health and under the Product Liability Act. For slight negligence we are liable only for breach of essential contractual obligations and limited to foreseeable, typical damage. We give no warranty for information in listings, for third-party offers or for the accuracy of AI-generated answers. We do not owe permanent availability."] },
         { h: "9. Deleting your account", p: [`You can have your account deleted at any time by writing to us at ${o.publicEmail}. We delete your account data; listings are removed or anonymised unless statutory retention duties apply.`] },

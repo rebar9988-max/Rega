@@ -2,7 +2,7 @@
   "name": "rega-platform",
   "version": "0.1.0",
   "private": true,
-  "description": "REGA Platform - production web application (www.rega24.com)",
+  "description": "Rega24 production web application (www.rega24.com)",
   "scripts": {
     "dev": "node scripts/vendor-maplibre.mjs && next dev",
     "build": "node scripts/vendor-maplibre.mjs && prisma generate && REGA_TARGET=workers opennextjs-cloudflare build",
@@ -45,7 +45,7 @@
     "react-dom": "^19.1.0",
     "server-only": "^0.0.1",
     "simple-icons": "^16.33.0",
-    "zod": "^3.24.0"
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
@@ -68,6 +68,14 @@
   },
   "overrides": {
     "postcss": "^8.5.28",
-    "deepmerge-ts": "^8.0.2"
+    "deepmerge-ts": "^8.0.2",
+    "@node-minify/core": {
+      "glob": "^10.5.0"
+    },
+    "body-parser": "^2.4.0",
+    "source-map-js": "^1.2.2",
+    "miniflare@5.20261019.1-beta": {
+      "undici": "^7.30.1"
+    }
   }
 }

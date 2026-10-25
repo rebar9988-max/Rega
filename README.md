@@ -1,4 +1,4 @@
-# REGA Platform
+# Rega24
 
 Production web application for **https://www.rega24.com**.
 Canonical host: `www.rega24.com`. Apex (`rega24.com`) 301-redirects to it.
@@ -171,3 +171,8 @@ verification evidence; use [REGA24_TROUBLESHOOTING.md](REGA24_TROUBLESHOOTING.md
 [Generated inventory](docs/REGA24_INVENTORY.md) lists dependency ranges, API routes, environment names and source
 fingerprints. Validate offline with `node scripts/rega24-docs.mjs --check`; regenerate after reviewing source changes
 with `node scripts/rega24-docs.mjs --write`. Existing [project memory](PROJECT_MEMORY.md) retains decisions/history.
+
+The canonical management office is `/admin`; legacy `/dr` links redirect there. Non-secret production identity and
+service ownership are declared in [src/config/project.json](src/config/project.json); the documentation validator
+checks Worker names and routing identity against this manifest. Super Admin settings and media browsing share the
+existing permission model; infrastructure changes remain controlled in the linked provider consoles.

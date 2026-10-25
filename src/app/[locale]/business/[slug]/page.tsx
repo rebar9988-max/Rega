@@ -1,3 +1,4 @@
+import project from "@/config/project.json";
 import { PageSchema } from "@/components/ui/PageSchema";
 import { pageMetadata } from "@/lib/seo";
 import { descriptionFrom } from "@/lib/seo-server";
@@ -80,7 +81,7 @@ export default async function BusinessPage({ params }: Props) {
   const gallery = [b.coverUrl, ...b.photos.slice(0, 3)].map((u) => safeHttpUrl(u)).filter((u): u is string => Boolean(u));
   const showLocations = b.locations.length > 1 || mapPoints.length > 0 || b.locations.some((loc) => hasHours(loc.openingHours));
   const tm = await getTranslations("map");
-  const pageUrl = `https://${process.env.CANONICAL_HOST || "www.rega24.com"}/${locale}/business/${slug}`;
+  const pageUrl = `https://${process.env.CANONICAL_HOST || project.canonicalHost}/${locale}/business/${slug}`;
   const mainHours = mainLoc && hasHours(mainLoc.openingHours) ? mainLoc : null;
   const services = b.services.map((s) => ({ ...s, cover: safeHttpUrl(s.coverUrl) }));
   const serviceCovers = services.some((s) => s.cover);

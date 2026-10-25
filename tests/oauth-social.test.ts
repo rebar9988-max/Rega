@@ -91,7 +91,7 @@ test("only Google and Apple can vouch for an e-mail address; Facebook never does
 // ---- the context cookie ---------------------------------------------------------------------------------------------
 
 test("the context cookie round-trips", () => {
-  const ctx: SocialContext = { intent: "register", locale: "de", next: "/dr/businesses/new", role: "BUSINESS_OWNER" };
+  const ctx: SocialContext = { intent: "register", locale: "de", next: "/admin/businesses/new", role: "BUSINESS_OWNER" };
   assert.deepEqual(parseSocialContext(serializeSocialContext(ctx), LOCALES, "ckb"), ctx);
 });
 
@@ -110,7 +110,7 @@ test("only the two public roles can ever come out of the cookie", () => {
 });
 
 test("redirect targets must be same-site relative paths", () => {
-  assert.equal(safeRelativePath("/dr/businesses/new"), "/dr/businesses/new");
+  assert.equal(safeRelativePath("/admin/businesses/new"), "/admin/businesses/new");
   for (const bad of ["//evil.example", "https://evil.example", "/\\evil", "evil", "/a\nb", "/" + "a".repeat(300), 5, undefined]) assert.equal(safeRelativePath(bad), undefined, String(bad));
 });
 

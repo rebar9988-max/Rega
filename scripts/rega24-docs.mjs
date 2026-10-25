@@ -35,8 +35,16 @@ for (const [p, s] of contents) generated += `| ${link(p)} | ${createHash('sha256
 const output = 'docs/REGA24_INVENTORY.md';
 if (process.argv.includes('--write')) writeFileSync(output, generated);
 const errors = [];
+const project = JSON.parse(readFileSync('src/config/project.json', 'utf8'));
+for (const [path, expected] of [['wrangler.jsonc', project.webWorker], ['services/ai-python/wrangler.jsonc', project.aiWorker]]) {
+  const actual = /"name"\s*:\s*"([^"]+)"/.exec(readFileSync(path, 'utf8'))?.[1];
+  if (actual !== expected) errors.push(`Production manifest drift: ${path} worker name`);
+}
+if (project.repository !== 'rebar9988-max/Rega' || project.canonicalHost !== `www.${project.apexHost}` || project.adminPath !== '/admin') errors.push('Production manifest identity/routing mismatch');
+if (!existsSync('src/app/admin/page.tsx') || existsSync('src/app/dr/page.tsx')) errors.push('Expected one dashboard implementation at src/app/admin');
+
 if (!existsSync(output) || readFileSync(output, 'utf8') !== generated) errors.push('Inventory stale: node scripts/rega24-docs.mjs --write, then review both root documents.');
-const docs = ['REGA24_SYSTEM_MAP.md', 'REGA24_TROUBLESHOOTING.md', 'AGENTS.md', 'CLAUDE.md', 'PROJECT_MEMORY.md', 'README.md', output];
+const docs = ['REGA24_SYSTEM_MAP.md', 'REGA24_TROUBLESHOOTING.md', 'AGENTS.md', 'CLAUDE.md', 'PROJECT_MEMORY.md', 'README.md', 'docs/REGA24_CONSOLIDATION.md', output];
 const anchor = h => h.toLowerCase().replace(/[^\p{L}\p{N}_\s-]/gu, '').trim().replace(/\s/g, '-');
 for (const p of docs) {
   if (!existsSync(p)) { errors.push(`Missing ${p}`); continue; }

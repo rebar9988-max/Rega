@@ -68,11 +68,11 @@ test("AI is rate limited per session", async ({ request }) => {
 });
 
 test("dashboard lists all seven providers and every connection test succeeds", async ({ page }) => {
-  await page.goto("/de/login?next=%2Fdr%2Fai");
+  await page.goto("/de/login?next=%2Fadmin%2Fai");
   await page.getByLabel("E-Mail", { exact: true }).fill(ADMIN.email);
   await page.getByLabel("Passwort", { exact: true }).fill(ADMIN.password);
   await page.getByRole("button", { name: "Anmelden" }).click();
-  await expect(page).toHaveURL(/\/dr\/ai$/);
+  await expect(page).toHaveURL(/\/admin\/ai$/);
   for (const id of ["gemini", "grok", "openai", "groq", "deepseek", "openrouter", "anthropic"]) {
     const row = page.getByRole("row").filter({ has: page.getByText(id, { exact: true }) });
     await expect(row.getByText("Konfiguriert")).toBeVisible();

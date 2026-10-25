@@ -1,0 +1,18 @@
+{
+  "name": "Rega24",
+  "repository": "rebar9988-max/Rega",
+  "canonicalHost": "www.rega24.com",
+  "apexHost": "rega24.com",
+  "adminPath": "/admin",
+  "cloudflareAccountId": "ee07860dbb8e61ff6915758785baf89a",
+  "webWorker": "rega-platform",
+  "aiWorker": "rega-ai-python",
+  "neonProjectId": "lucky-glitter-73195208",
+  "neonProductionBranchId": "br-floral-hall-b22rpgrw",
+  "mediaBucket": "rega-media",
+  "mediaHost": "media.regaplatform.com",
+  "legacyWebsiteHosts": [
+    "regaplatform.com",
+    "www.regaplatform.com"
+  ]
+}

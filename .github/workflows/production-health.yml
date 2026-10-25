@@ -369,7 +369,7 @@ jobs:
             sleep 0.3
           done
           # Anonymous /dr pages answer with the /dr sign-in form only (e-mail code, #49), never dashboard content.
-          if probe 200 https://www.rega24.com/dr/ai && grep -q 'data-dr-sign-in' "$PROBE_BODY" && ! grep -q '<aside' "$PROBE_BODY"; then echo "ok   /dr/ai (anonymous) -> sign-in form only"; else echo "::error::FAIL /dr/ai (anonymous) must show only the sign-in form (HTTP $PROBE_CODE)"; fail=1; fi
+          if probe 200 https://www.rega24.com/admin/ai && grep -q 'data-dr-sign-in' "$PROBE_BODY" && ! grep -q '<aside' "$PROBE_BODY"; then echo "ok   /dr/ai (anonymous) -> sign-in form only"; else echo "::error::FAIL /dr/ai (anonymous) must show only the sign-in form (HTTP $PROBE_CODE)"; fail=1; fi
           exit $fail
 
       - name: Retry record (transient failures that recovered or exhausted their retries)

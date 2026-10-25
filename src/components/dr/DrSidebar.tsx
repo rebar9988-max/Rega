@@ -25,12 +25,12 @@ export function DrSidebar({ items, groups, email, labels, siteHref }: {
   const navId = useId();
   // A tap on a link navigates; the phone menu closes with it.
   useEffect(() => setOpen(false), [pathname]);
-  const active = (href: string) => pathname === href || (href !== "/dr" && pathname.startsWith(`${href}/`));
+  const active = (href: string) => pathname === href || (href !== "/admin" && pathname.startsWith(`${href}/`));
 
   return (
     <aside className="sticky top-0 z-40 border-b border-line bg-surface lg:flex lg:h-dvh lg:flex-col lg:border-b-0 lg:border-e">
       <div className="flex h-16 items-center justify-between gap-3 px-4 lg:h-[4.5rem] lg:px-5">
-        <Link href="/dr" className="rounded-xl"><Logo /></Link>
+        <Link prefetch={false} href="/admin" className="rounded-xl"><Logo /></Link>
         <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-controls={navId} data-testid="dr-menu-toggle"
           className="grid size-11 place-items-center rounded-xl border border-line text-ink transition hover:bg-surface-2 lg:hidden">
           <DrIcon name={open ? "close" : "menu"} className="size-5" />
@@ -50,7 +50,7 @@ export function DrSidebar({ items, groups, email, labels, siteHref }: {
                     const on = active(i.href);
                     return (
                       <li key={i.href}>
-                        <Link href={i.href} aria-current={on ? "page" : undefined}
+                        <Link prefetch={false} href={i.href} aria-current={on ? "page" : undefined}
                           className={`flex min-h-10 items-center gap-3 rounded-lg px-3 text-sm transition-colors ${on ? "bg-brand-soft font-semibold text-brand" : "font-medium text-ink/80 hover:bg-surface-2 hover:text-ink"}`}>
                           <DrIcon name={i.icon} className={`size-[18px] ${on ? "text-brand" : "text-muted"}`} />
                           <span className="min-w-0 truncate">{i.label}</span>
@@ -68,7 +68,7 @@ export function DrSidebar({ items, groups, email, labels, siteHref }: {
             <span aria-hidden="true" className="grid size-8 shrink-0 place-items-center rounded-full bg-brand text-sm font-bold text-brand-ink">{email.slice(0, 1).toUpperCase()}</span>
             <p className="min-w-0 text-xs leading-tight text-muted">{labels.signedIn}<bdi dir="ltr" className="block truncate font-semibold text-ink">{email}</bdi></p>
           </div>
-          <Link href={siteHref} className="mt-1 flex min-h-10 items-center gap-3 rounded-lg px-3 text-sm font-medium text-muted transition-colors hover:bg-surface-2 hover:text-ink">
+          <Link prefetch={false} href={siteHref} className="mt-1 flex min-h-10 items-center gap-3 rounded-lg px-3 text-sm font-medium text-muted transition-colors hover:bg-surface-2 hover:text-ink">
             <DrIcon name="site" className="size-[18px]" />{labels.site}
           </Link>
         </div>

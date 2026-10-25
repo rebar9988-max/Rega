@@ -32,7 +32,7 @@ export async function sendContact(_prev: FormState, formData: FormData): Promise
     log.error("contact.store_failed", { error: error instanceof Error ? error.message : String(error) });
     return { status: "error", error: "failed" };
   }
-  // The message is safely stored; the notification is best effort (no provider configured = the team reads /dr/messages).
+  // The message is safely stored; the notification is best effort (no provider configured = the team reads /admin/messages).
   await sendEmail({
     to: teamInbox(),
     subject: `[REGA contact] ${singleLine(subject)}`.slice(0, 200),

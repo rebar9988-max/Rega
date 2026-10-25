@@ -1,4 +1,5 @@
 "use server";
+import project from "@/config/project.json";
 
 import bcrypt from "bcryptjs";
 import { z } from "zod";
@@ -21,7 +22,7 @@ export type AuthFormState = FormState & { detail?: "verify" | "ready" | "sent" |
 const email = z.string().trim().toLowerCase().email().max(200);
 const password = z.string().min(10).max(200);
 const localeField = z.string().refine(isLocale);
-const origin = () => (process.env.AUTH_URL ? new URL(process.env.AUTH_URL).origin : `https://${process.env.CANONICAL_HOST || "www.rega24.com"}`);
+const origin = () => (process.env.AUTH_URL ? new URL(process.env.AUTH_URL).origin : `https://${process.env.CANONICAL_HOST || project.canonicalHost}`);
 
 const safeNext = (value: unknown): string | undefined => {
   const path = typeof value === "string" ? value : "";

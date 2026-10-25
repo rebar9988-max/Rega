@@ -34,7 +34,7 @@ test("approved beta keeps jobs and events unavailable on public routes", async (
 
 test("a guide publishes and falls back from German to Sorani with language metadata", async ({ page }) => {
   await login(page, ADMIN.email, ADMIN.password);
-  await page.goto("/dr/content/guides/new");
+  await page.goto("/admin/content/guides/new");
   await page.getByLabel("Lesezeit (Minuten)").fill("4");
   await fillGerman(page, GUIDE, { summary: "So melden Sie sich an.", body: "Schritt eins.\n\nSchritt zwei." });
   await page.getByRole("button", { name: "Speichern und veröffentlichen" }).click();
@@ -62,13 +62,13 @@ test("a guide publishes and falls back from German to Sorani with language metad
 
 test("content dashboard remains protected and invalid guide routes are 404", async ({ page, request }) => {
   // A guest gets the /dr sign-in form only: no dashboard navigation, no guide list.
-  const guest = await request.get("/dr/content/guides", { maxRedirects: 0 });
+  const guest = await request.get("/admin/content/guides", { maxRedirects: 0 });
   const html = await guest.text();
   expect(html).toContain("data-dr-sign-in");
   expect(html).not.toContain("<aside");
   await login(page, ADMIN.email, ADMIN.password);
-  expect((await page.goto("/dr/content/unknown"))?.status()).toBe(404);
-  expect((await page.goto("/dr/content/guides/does-not-exist"))?.status()).toBe(404);
+  expect((await page.goto("/admin/content/unknown"))?.status()).toBe(404);
+  expect((await page.goto("/admin/content/guides/does-not-exist"))?.status()).toBe(404);
   expect((await page.goto("/de/guides/does-not-exist"))?.status()).toBe(404);
 });
 
