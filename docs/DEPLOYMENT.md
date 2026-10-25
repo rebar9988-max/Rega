@@ -28,6 +28,17 @@ npx wrangler deploy --dry-run # validates the bundle, deploys nothing
    seed (base categories, geography, first admin when `SEED_ADMIN_*` secrets exist; no demo data in production).
 3. Merge/deploy the code **after** the migration: new code may read new columns, old code ignores them.
 
+For PR #71, the additive SQL must be staged on `main` independently of the application/ORM-model change:
+the approved migration workflow reads only `main`. A migration-only commit containing **only**
+`prisma/migrations/20261024220000_business_social_links/migration.sql` is prepared locally on
+`ops/pr71-migration-only` (based on verified `e8e2b69`; not pushed or merged at the recovery checkpoint).
+Keep the existing Prisma model/application code unchanged in that stage: regenerating the new model can
+make existing implicit queries select new columns too. After verified backup/restore, pass the required
+checks for that stage, apply the migration using the existing production workflow, verify its ledger and
+four nullable TEXT columns, then merge the feature only after its final checks pass. Do not race an
+application rollout against the database job. Rollback uses the prior verified Worker version; retain
+the additive nullable columns, and verify both the actual active version and database state after rollback.
+
 Migrations of this release, all additive: `growth_foundation`, `business_languages`, `reviews_one_per_user` (detaches
 orphans/duplicates before adding constraints; deletes nothing), `content_sections_core`.
 

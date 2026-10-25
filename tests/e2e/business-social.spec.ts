@@ -110,19 +110,19 @@ test("public saved links have authentic icons, safe exact destinations, correct 
   const template = await db.business.findUniqueOrThrow({ where: { slug: "kurdistan-rechtsberatung" }, include: { locations: { where: { isPrimary: true }, take: 1 } } });
   const location = template.locations[0];
   const business = await db.business.create({ data: { name: `E2E Social public ${stamp}`, slug: `e2e-social-public-${stamp}`, categoryId: template.categoryId, description: "E2E social test business description.", status: "published", verified: true, ...accounts, locations: { create: { addressLine1: location.addressLine1, cityId: location.cityId, countryCode: location.countryCode, latitude: location.latitude, longitude: location.longitude, coordsVerifiedAt: new Date(), isPrimary: true } } } });
-  // Genuine test uploads exercise the existing media system; nothing reaches production.
-  await page.goto(`/dr/businesses/${business.id}`);
-  for (const [field, color] of [["coverUrl", [190, 195, 205]], ["logoUrl", [160, 20, 35]]] as const) {
-    const buffer = Buffer.from(encode({ width: 4, height: 3, data: new Uint8Array(Array.from({ length: 12 }, () => [...color, 255]).flat()) }));
-    await page.getByTestId(`upload-${field}`).setInputFiles({ name: `${field}.png`, mimeType: "image/png", buffer });
-    await page.getByTestId("image-editor").getByRole("button", { name: "Bild bestätigen" }).click();
-    await expect(page.getByTestId("image-editor")).toHaveCount(0);
-  }
-  await page.getByTestId("save").click();
-  await expect.poll(async () => Boolean((await read(business.id)).coverUrl && (await read(business.id)).logoUrl)).toBe(true);
   const publicContext = await browser.newContext();
   const publicPage = await publicContext.newPage();
   try {
+    // Genuine test uploads exercise the existing media system; nothing reaches production.
+    await page.goto(`/dr/businesses/${business.id}`);
+    for (const [field, color] of [["coverUrl", [190, 195, 205]], ["logoUrl", [160, 20, 35]]] as const) {
+      const buffer = Buffer.from(encode({ width: 4, height: 3, data: new Uint8Array(Array.from({ length: 12 }, () => [...color, 255]).flat()) }));
+      await page.getByTestId(`upload-${field}`).setInputFiles({ name: `${field}.png`, mimeType: "image/png", buffer });
+      await page.getByTestId("image-editor").getByRole("button", { name: "Bild bestätigen" }).click();
+      await expect(page.getByTestId("image-editor")).toHaveCount(0);
+    }
+    await page.getByTestId("save").click();
+    await expect.poll(async () => Boolean((await read(business.id)).coverUrl && (await read(business.id)).logoUrl)).toBe(true);
     for (const width of [320, 360, 375, 390, 430, 768, 1024, 1440, 1920]) {
       await publicPage.setViewportSize({ width, height: 900 });
       for (const locale of ["ckb", "en"]) {
@@ -168,5 +168,10 @@ test("public saved links have authentic icons, safe exact destinations, correct 
     await expect(publicPage.getByTestId("business-social-links")).toHaveCount(0);
     const body = await (await publicPage.request.get(`/api/v1/businesses/${business.slug}`)).json();
     for (const field of Object.keys(accounts)) expect(body.data[field]).toBeNull();
-  } finally { await publicContext.close(); }
+  } finally {
+    await publicContext.close();
+    // This published fixture shares the reference business's coordinates. Keep it out of
+    // later directory/map tests, including when an assertion fails, without deleting rows.
+    await db.business.update({ where: { id: business.id }, data: { status: "archived", deletedAt: new Date() } });
+  }
 });

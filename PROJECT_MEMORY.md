@@ -717,3 +717,54 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
   checked the social fieldset in all18 states and public social in en/ckb at390/1440:22 checks, zero violations and zero
   incomplete results, including contrast. Actual Tab navigation through all four public links passes. Temporary LOCAL
   fixture social values restored in finally. Evidence:extra-qa.log/extra-qa-results.json. Existing Node/proxy stopped.
+
+## PR #71 production recovery — 2026-10-25 (release held)
+
+- Resumed clean `2f02a44`; identity guard PASS, repo `rebar9988-max/Rega`, www.rega24.com → rega-platform.
+  Production readback remains deployment5d6f039c-01b9-4384-8bde-6a6da9daaf54 / version79627fce-fc09-4df7-9094-3e8c401f2b6a at100%.
+- Actual Neon production metadata: lucky-glitter-73195208 / br-floral-hall-b22rpgrw / neondb / PostgreSQL18.6.
+  Read-only SQL:3 Business,3 BusinessMember,14 applied migrations,0 unfinished,0 social columns, social migration not applied,
+  0 orphan memberships. Pre-migration business digest f7c15ac83f54d776dff7ed31d4e685d2; membership digest
+  3d3620e17398f5ee18d8b8cfa1269af5 (no customer rows/content retained). All14 applied migrations match the baseline.
+- Backup creation actually attempted through Neon create_snapshot for production: HTTP422 `snapshots limit exceeded`.
+  Snapshot listing still only snap-muddy-mountain-b2f40zxu (2026-10-02). Fresh backup/isolated restore NOT VERIFIED;
+  production migration/merge/deploy BLOCKED. No snapshot deleted and no plan upgraded.
+- Neon Create Branch run40166824571/job121089502786: Axios HTTP422. Project free tier branch limit10, actual branches10,
+  PR71 preview absent. Three existing preview PRs29/35/47 are still OPEN, so they were not treated as stale or deleted.
+  Exact owner cleanup approval requested for archived temporary branches br-young-sea-b2xt4g94 (seed-validation) and
+  br-aged-fog-b2e43gus (old restore rehearsal), retaining production/backups/the existing snapshot. Await reply; no deletion.
+- CI40166823984 failed with332 browser passes and2 map failures (desktop/mobile nearby.spec.ts:64, selected marker vanished).
+  Reproduced locally by running the original social fixture before nearby. The public social fixture remained published
+  at the reference listing's coordinates; it polluted later map clustering. Fixed ONLY its test lifecycle: public-context
+  work is inside try/finally; after closing it, archive/soft-delete this newly created local fixture. No map/search code,
+  application behavior, assertion or timeout weakened. Diagnostic narrow run also lacked the full suite's Hamburg fixture;
+  the properly composed profile/gallery/social/nearby run includes that prerequisite and passes unchanged RTL assertions.
+- Fresh verification:349/349 unit/integration,0 skips; lint/typecheck PASS;37/37 composed desktop/touch browser tests PASS
+  (includes the13 scoped tests plus nearby regressions). Fresh extra QA:22 scoped WCAG2/2.1A/AA axe analyses,0 violations,
+  0 incomplete, including contrast; Add fields all9widths×en/ckb, public social keyboard/layout checks. No production writes.
+  Local functional Node build uses the existing test-only genuine-font response due network restrictions; this is NOT proof
+  of production typography. Earlier remote normal Node/OpenNext build logs on2f02a44 prove ordinary builds completed;
+  final-head hosted CI and real production typography still require verification. Evidence:/workspace/artifacts/rega-social/recovery/.
+- Cloudflare non-production build3dbc5197-2529-4a1c-8ada-3dceddc9a9fe: normal OpenNext build succeeded, then `npx wrangler preview`
+  failed because its preview config block was missing. Identified the exact Rega repo1402276782 feature-only trigger
+  9d825d1a-494d-4a62-b51c-93478f9aa285 (tag4affdd6cf1ad4d7b88690352ccea6be3, includes only this feature branch).
+  Changed ONLY its deploy command through the documented trigger PATCH API to `npx wrangler deploy --dry-run` (HTTP200).
+  Readback confirms it; main trigger b396f1cf-0a07-4019-ad6c-76f0a770747e stays dry-run; GitHub CI-gated production deployment
+  remains unchanged. This fixes the responsible validation configuration without publishing a second production path.
+  The next feature push must actually pass the rebuilt Cloudflare check; configuration readback alone is not build success.
+- Security incident: the existing Cloudflare preview error log contained provider key values and the initial diagnostic
+  tool output forwarded that raw log before redaction. Values are never repeated or stored here. Later diagnostics emit
+  only whitelisted metadata. Runtime binding metadata confirms OPENAI_API_KEY/XAI_API_KEY are plain_text, unlike other secrets.
+  Owner must rotate those two provider keys via secure provider management and update them as secret_text; no values in chat.
+  Rotation NOT VERIFIED and no production key/config mutation performed. Deployment stays held pending containment.
+- Live paths: executor www.rega24.com requests remain policy-blocked CONNECT403; approved connected Opera navigation was
+  attempted but returned UNAUTHORIZED/requires reauthentication. Environment allow-list/TCP5432 access requested for the
+  verified Neon host and HTTPS site/font/API hosts. No proxy/TLS bypass or paid browser used. Live verification NOT VERIFIED.
+- Prepared a SQL-only migration stage locally, ops/pr71-migration-only commit a7d241a on verified main e8e2b69. One7-line
+  migration file only; no schema/model/application changes, no push/merge/apply. Initially stale local origin/main was
+  refreshed and the new staging commit rebased before this proof; the guard now passes in that worktree. docs/DEPLOYMENT.md
+  describes the approved main-only workflow order; docs/BACKUP-RESTORE.md records PG18 and full quota constraints.
+- Two helper-agent turns hit the session usage limit; no role approvals or reviews invented. Root completed the checks.
+  PR71 remains draft. Next safe steps: obtain exact cleanup/network permissions and secure key rotation; verify a fresh
+  complete backup + isolated restore, then migration-only stage/approved production migration, final green feature checks,
+  merge, existing CI-gated deployment, active-version readback and real live verification. No R&L resources modified.
