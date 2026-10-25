@@ -243,3 +243,12 @@ Latest observed Beta health before this documentation change: run `40217513295`,
 | Cloudflare dashboard, Neon console, Worker version, secret values | not accessed | — |
 
 Re-run the public checks before claiming they are still true. Update this section when they are re-checked.
+
+## Centralization checkpoint — 2026-10-25
+
+See [REGA24_CENTRAL_ARCHITECTURE.md](REGA24_CENTRAL_ARCHITECTURE.md) for the authenticated inventory and required target.
+No architecture change has been deployed. `rega24` is absent; canonical domains still use `rega-platform`.
+The latest verified production version is `93023599-8b90-48a2-9449-33ea286fa34e` at 100%.
+The earlier map's no-console limitations are historical: this audit read Cloudflare and Neon.
+No Pages/KV/D1/Queues or Rega24 Hyperdrive were found. Python still supplies semantic AI; do not delete it.
+Secret typing and canonical R2 CORS repairs are already present. Public media still uses a legacy hostname.

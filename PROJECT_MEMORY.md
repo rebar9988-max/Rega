@@ -677,3 +677,16 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
 - Not verified: Cloudflare dashboard, Worker version, Neon console, secret values. Google Doc was read and not updated (no write tool).
 - Production impact intended: none. CI on `main` will still run. The Worker must not be replaced by this commit.
 
+
+## Centralization audit — 2026-10-25 (not deployed)
+
+- Owner requires one production Worker `rega24`, one repository/pipeline/config, canonical www.rega24.com. R&L excluded.
+- Read GitHub rules/memory, system map, central Google Doc and authenticated Cloudflare/Neon metadata.
+- Verified: rega24 absent; rega-platform, rega-ai-python and rega exist. All three have empty cron schedules; account Pages/KV/D1/Queues empty. R2 rega-media preserved.
+- Production version 93023599-8b90-48a2-9449-33ea286fa34e at 100%; canonical custom domains still on rega-platform.
+- Earlier Doc risks partly stale: OPENAI_API_KEY/XAI_API_KEY now secret_text; R2 CORS already includes both rega24 hosts. No repeat repair needed.
+- Neon project lucky-glitter-73195208 is named Rega24; ten branches, default br-floral-hall-b22rpgrw. Read-only SELECT: neondb, 37 public tables. Runtime credential-to-branch match and restore not proven.
+- Added REGA24_CENTRAL_ARCHITECTURE.md with inventory, dependencies, secret names only, module migration, gates, rollback and future extension rules.
+- Blockers: same runtime secrets unavailable to a new Worker via names-only API; internal Python port/parity not implemented; verified current restore and free execution conditions missing. No deploy/disable/delete or data/secret mutation.
+- Public curl health 2026-10-25T19:52:15.257Z ok=true, DB/migrations/content true, four configured AI providers. Auth/storage/AI/email configuration flags are not functional tests. urllib 403 is transport-dependent; curl succeeds.
+- Next: secure existing-secret population path, internal AI parity tests, complete backup/rollback and cost checks, deploy replacement before domains, then cutover/monitor/retire. Status BLOCKED, not 100/100.

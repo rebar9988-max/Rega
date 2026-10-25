@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-25T18:09:05.070Z",
+  "generatedAt": "2026-10-25T19:54:41.795Z",
   "package": {
     "name": "rega-platform",
     "version": "0.1.0",
@@ -225,6 +225,7 @@
     "Dockerfile",
     "PROJECT_MEMORY.md",
     "README.md",
+    "REGA24_CENTRAL_ARCHITECTURE.md",
     "REGA24_SYSTEM_MAP.md",
     "REGA24_TROUBLESHOOTING.md",
     "docs",

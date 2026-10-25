@@ -382,3 +382,12 @@ CI `verify` is green on the SHA. If the commit is not documentation-only, Deploy
 **ROLLBACK**
 
 Revert the commit on `main`. If a non-docs commit already deployed, roll the Worker back as well. Reverting a docs-only commit does not require a Worker rollback.
+
+## Centralization cannot safely cut over
+
+Read [REGA24_CENTRAL_ARCHITECTURE.md](REGA24_CENTRAL_ARCHITECTURE.md).
+If the replacement Worker lacks the SAME secrets, assets, DB identity or semantic AI behavior, preserve the current Worker and domains.
+A names-only secret listing cannot populate a new Worker; never extract keys through a debug endpoint or logs.
+Use an authorized deployment secret source, test module parity and backup/rollback, then verify replacement health before attaching domains.
+Do not disable/delete legacy Workers or durable resources to force the inventory count to one.
+A health storage/AI flag proves configured values only; verify actual operations separately within the free-usage budget.
