@@ -665,3 +665,55 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
   start-aligned `max-w-sm` from `sm`), checked in LTR + RTL; thumbnail strip capped at `max-w-md` from `sm` (same structure on all
   sizes). The upload route allows 10 uploads/min per person; the gallery e2e (5 uploads) waits out the window and re-confirms
   if it is hit, like a person would. Local full suite (desktop + mobile): 323 passed before these fixes; affected specs re-run green.
+
+## Business profile + owner social accounts — 2026-10-25 (PR #71, not deployed)
+
+- Identity verified: `rebar9988-max/Rega`, canonical `www.rega24.com`, Worker `rega-platform`; guard passes.
+  Base `e8e2b69`; source commit `7a9da31`, branch `feat/business-social-profile-20261025`.
+  Cloudflare readback confirmed canonical domains on this Worker; deployment `5d6f039c-01b9-4384-8bde-6a6da9daaf54`
+  used version `79627fce-fc09-4df7-9094-3e8c401f2b6a` at 100%. This task has NOT deployed a version.
+- Figma session read frames `22:104` (desktop detail), `22:116` (mobile detail), `22:160` (Add Business).
+  Adapted to existing tokens/primitives: same profile route, one BusinessForm for Add/Edit, existing gallery/media,
+  owner guards, Call/Directions/Share, About and services. With real gallery media the desktop hero uses two columns;
+  mobile wraps the same content. Social precedes About/Services; offers follow services. No homepage/admin/nav redesign.
+- Schema audit found no equivalent social fields. Model/table `Business`, primary key `id` (cuid); owner access is
+  active `BusinessMember(userId,businessId,isActive)` (staff keep existing global access), creator marker `createdById`.
+  Frontend -> form action/REST -> DB use the SAME four names: `facebookUrl`, `instagramUrl`, `tiktokUrl`, `snapchatUrl`.
+  Additive migration `20261024220000_business_social_links` adds four nullable TEXT columns using existing camelCase
+  conventions. Empty/null removes; omitted PATCH/form fields preserve existing accounts. No production migration run.
+- Shared pure `business-social.ts` validator + shared Zod schemas: HTTPS, exact approved hosts, bounded 500 characters,
+  no userinfo/lookalike/redirect/content-only paths, account identity retained; tracking query/hash removed (Facebook
+  profile.php keeps numeric id). Four authentic icons reuse existing simple-icons. Optional compact fields preserve
+  failed submitted input; public server-rendered section hides missing platforms and disappears entirely when empty.
+  Safe external attributes, localized accessible names, seven locales; same valid URLs in JSON-LD sameAs.
+- Local final validation: lint/typecheck pass; 349/349 unit/integration tests pass, zero skipped. Integration applies all
+  14 baseline migrations to an isolated local DB, inserts existing business/owner/membership, applies the new migration,
+  proves every old column and owner relationship unchanged, then CREATE zero/one/four, READ/reload, replace/partial
+  UPDATE and REMOVE one/all. Separate browser API tests prove owner access, stranger403 and anonymous401.
+- Final focused browser run: 13/13 PASS, zero failures/skips/retries (desktop profile/gallery/social + touch social).
+  All nine requested widths (320/360/375/390/430/768/1024/1440/1920) in Sorani RTL and English LTR; real LOCAL test
+  cover/logo uploaded through the existing editor; exact links, icons, tap dimensions, focus, empty hiding and input
+  retention verified. Earlier runs exposed a removed phone display (restored before final build) and a test that typed
+  during an unfinished save response (now waits for Save enabled, retaining exact persistence assertions).
+- Normal local build is blocked fetching Google Fonts (proxy403). Local Node/OpenNext builds use a TEST-ONLY
+  NEXT_FONT_GOOGLE_MOCKED_RESPONSES backed by genuine npm Noto Sans Arabic files; no source/dependency/font change.
+  Both builds PASS, Wrangler dry-run PASS (3593.25 KiB gzip), actual local Worker DB/auth/routes/validation smoke PASS.
+  Pinned Chromium download locally returns403; local browser checks use system Chromium151.0.7922.173, not pinned141.
+  Hosted CI on initial source `7a9da31` (run40166399806) already passed ordinary Node build, lint/typecheck/unit/migration
+  and pinned browser installation; full E2E/Worker checks were still running at this checkpoint. Final-head CI must pass.
+- PR: https://github.com/rebar9988-max/Rega/pull/71 (draft). Existing separate Create Neon Branch workflow
+  run40166399832 failed at Create Neon Branch; not disabled/bypassed. No migration/production workflow dispatched.
+- Release blockers: no current restorable production backup verified (Neon snapshot listing returned only manual
+  snap-muddy-mountain-b2f40zxu dated2026-10-02). Owner asked only for backup identifier/time, never credentials.
+  Follow docs/DEPLOYMENT.md: verify backup, make migration available to the main-only DB workflow WITHOUT deploying
+  code that reads new columns, apply migration first, then release application through existing CI-gated main process.
+  Do not merge this feature first and race the auto-deploy against a migration. No production rows/settings/secrets,
+  paid services/plans or R&L resources changed. Current official platform-documentation lookup and executor public
+  www.rega24.com fetch are proxy403; live feature behavior/performance and authenticated production CRUD unverified.
+- Evidence (outside repository): `/workspace/artifacts/rega-social/` (349-test log, final13 browser log/traces,
+  migration proof, build/dry-run/runtime logs, eight desktop/touch Sorani/English screenshots). No 100/100 claim.
+- Additional bounded QA after the clean final13: existing Add form checked at all nine widths in en/ckb (18 states),
+  with no page overflow, all four URL inputs LTR, >=44px and contained in the viewport. Scoped axe WCAG2A/AA+2.1A/AA
+  checked the social fieldset in all18 states and public social in en/ckb at390/1440:22 checks, zero violations and zero
+  incomplete results, including contrast. Actual Tab navigation through all four public links passes. Temporary LOCAL
+  fixture social values restored in finally. Evidence:extra-qa.log/extra-qa-results.json. Existing Node/proxy stopped.

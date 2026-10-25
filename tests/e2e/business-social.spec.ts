@@ -62,6 +62,8 @@ test("existing Add and Edit forms persist all platforms, preserve failed input, 
   await page.getByTestId("save").click();
   await expect(page.getByTestId("form-notice")).toBeVisible();
   await expect.poll(async () => ({ name: (await read(id)).name, facebookUrl: (await read(id)).facebookUrl, instagramUrl: (await read(id)).instagramUrl, tiktokUrl: (await read(id)).tiktokUrl, snapchatUrl: (await read(id)).snapchatUrl })).toEqual({ name, facebookUrl: null, instagramUrl: "https://www.instagram.com/replaced_account/", tiktokUrl: accounts.tiktokUrl, snapchatUrl: accounts.snapchatUrl });
+  // Persistence can precede the server-action response. Wait until the form finishes saving before editing again.
+  await expect(page.getByTestId("save")).toBeEnabled();
   for (const field of Object.keys(accounts)) await page.locator(`input[name=${field}]`).fill("");
   await page.getByTestId("save").click();
   await expect.poll(async () => (await read(id)).instagramUrl).toBeNull();
