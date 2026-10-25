@@ -142,3 +142,16 @@ the Doc keeps the cross-tool summary and change log, the repository keeps detail
    required checks or production safeguards; never merge or deploy unverified changes; no speculative fixes.
 5. Proceed autonomously with safe read, diagnosis, documentation and verified repair work. Ask the owner only for an
    unavoidable billing, permission, authentication, destructive or security approval.
+
+### Infrastructure index (owner instruction, 2026-10-25)
+
+`REGA24_SYSTEM_MAP.md` and `REGA24_TROUBLESHOOTING.md` are the infrastructure index and the failure runbook. They do
+not replace this file, `PROJECT_MEMORY.md`, or the central Google Doc, and they are not a second narrative memory.
+`docs/generated/system-inventory.json` is regenerated from the repository (`node scripts/generate-system-inventory.mjs`).
+`node scripts/validate-system-docs.mjs` checks headings, relative links, inventory freshness, and accidental secrets.
+
+Before architectural changes, read the system map. When diagnosing a failure, use the troubleshooting runbook and do
+not repeat an investigation already recorded in PROJECT_MEMORY.md or the Google Doc. After a verified infrastructure
+change, update the map and the runbook, record new dependencies and known issues, and label unverified statements as
+REPORTED or UNKNOWN. Never invent system information. Never store credentials or secret values in any of these files.
+

@@ -25,7 +25,58 @@ jobs:
       NEXT_TELEMETRY_DISABLED: "1"
 
     steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+          fetch-depth: 2
+
+      # DOCS_ONLY_SKIP: a successful CI run on main normally publishes the Worker.
+      # Documentation-only commits must not replace the production Worker.
+      # workflow_dispatch still deploys. An empty diff or a commit with no parent
+      # fails open and deploys, so a merge of application code is never skipped.
+      # Allowlist (keep identical to scripts/validate-system-docs.mjs):
+      #   *.md
+      #   docs/*
+      #   scripts/generate-system-inventory.mjs
+      #   scripts/validate-system-docs.mjs
+      #   .github/workflows/deploy.yml
+      #   .github/workflows/ci.yml
+      - name: Detect documentation-only commit
+        id: scope
+        if: github.event_name == 'workflow_run'
+        run: |
+          set -euo pipefail
+          if ! git rev-parse --verify HEAD^ >/dev/null 2>&1; then
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+            echo "No parent commit; Worker deploy will continue."
+            exit 0
+          fi
+          mapfile -t files < <(git diff-tree --no-commit-id --name-only -r HEAD)
+          if [ "${#files[@]}" -eq 0 ]; then
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+            echo "Empty diff; Worker deploy will continue."
+            exit 0
+          fi
+          skip=true
+          for f in "${files[@]}"; do
+            case "$f" in
+              *.md|docs/*|scripts/generate-system-inventory.mjs|scripts/validate-system-docs.mjs|.github/workflows/deploy.yml|.github/workflows/ci.yml)
+                echo "docs-only path: $f"
+                ;;
+              *)
+                echo "deploy required: $f"
+                skip=false
+                ;;
+            esac
+          done
+          echo "skip=$skip" >> "$GITHUB_OUTPUT"
+
+      - name: Documentation-only commit — Worker not replaced
+        if: steps.scope.outputs.skip == 'true'
+        run: echo "Skipping npx wrangler deploy. Use workflow_dispatch to publish this SHA deliberately."
+
       - name: Check Cloudflare credentials
+        if: steps.scope.outputs.skip != 'true'
         run: |
           if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
             echo "::error::CLOUDFLARE_API_TOKEN is not set in GitHub Secrets."
@@ -33,30 +84,33 @@ jobs:
           fi
           echo "Cloudflare credentials are present."
 
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
-
       # P0 isolation: REGA != R&L. Read-only; fails closed before any production-changing step below.
       - name: Project identity guard (REGA only)
+        if: steps.scope.outputs.skip != 'true'
         run: node scripts/project-identity-guard.mjs --project REGA --domain www.rega24.com --worker rega-platform
 
       - uses: actions/setup-node@v4
+        if: steps.scope.outputs.skip != 'true'
         with:
           node-version: 22
           cache: npm
 
       - name: Install dependencies
+        if: steps.scope.outputs.skip != 'true'
         run: npm ci
 
       - name: Generate Prisma Client
+        if: steps.scope.outputs.skip != 'true'
         run: npx prisma generate
 
       - name: Build for Cloudflare Workers (OpenNext)
+        if: steps.scope.outputs.skip != 'true'
         run: npm run build
 
       - name: Deploy to Cloudflare Workers
+        if: steps.scope.outputs.skip != 'true'
         run: npx wrangler deploy
 
       - name: Deployment successful
+        if: steps.scope.outputs.skip != 'true'
         run: echo "✅ Production deploy completed successfully after CI."
