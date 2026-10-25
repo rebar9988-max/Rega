@@ -857,3 +857,10 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
   overrides and regenerated lock with npm10.9.9. Its bundled optional-package metadata is now represented as required.
   Actual clean npm10.9.9 ci --ignore-scripts PASS; installed Zod4.6.7/Undici7.30.1 read back; audit remains0vulnerabilities.
   Original npm-ci gate unchanged. Hosted final-head/browser/Lighthouse/Worker checks must pass after the repair push.
+
+-6e58508 hosted CI40212877693 passed clean install,migrations/preflight,lint,typecheck,unit and ordinary Node build;
+  E2E was running. Production-browser40212877717 was externally cancelled before Lighthouse (log:operation canceled).
+  Its existing global concurrency group was shared between main production checks and the newly enabled PR audit.
+  Isolated PR audit concurrency by PR number while retaining one production group and cancellation of older runs
+  within each group. No checks disabled. Updated overly broad read-only comment:ordinary public visits can trigger
+  existing page-view telemetry; no explicit business-content writes/sign-in/deployment are made by the audit.

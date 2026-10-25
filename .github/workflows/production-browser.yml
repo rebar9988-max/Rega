@@ -2,7 +2,8 @@ name: Production browser check
 
 # Read-only. Opens https://www.rega24.com in a real Chromium (desktop + mobile), checks the public journeys,
 # RTL/LTR, horizontal overflow, Germany-only city discovery and the approved UI, and uploads full-page screenshots.
-# Never signs in, never submits forms, never deploys or writes. Also runs on PR changes to this audit itself.
+# No sign-in, explicit business mutations or deployment. Public visits may trigger the site's normal view telemetry.
+# Also runs on PR changes to this audit itself.
 on:
   workflow_dispatch:
   pull_request:
@@ -18,7 +19,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: production-browser-check
+  group: production-browser-check-${{ github.event_name == 'pull_request' && github.event.pull_request.number || 'production' }}
   cancel-in-progress: true
 
 jobs:
