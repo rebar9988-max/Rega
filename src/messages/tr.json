@@ -1220,5 +1220,13 @@
     "moveLater": "Geriye al",
     "galleryHint": "Bir kapak görseli ve en fazla 3 ek görsel. Sıra profil sayfasında kullanılır.",
     "overLimit": "Bu kayıtta zaten 3'ten fazla görsel var. Hepsi korunur; 3'ten az kaldığında yeni görsel eklenebilir."
-  }
+  },
+  "businessSocial": {
+  "title": "Sosyal medya",
+  "helper": "Müşterilerin size kolayca ulaşabilmesi için işletme hesap bağlantılarınızı ekleyin.",
+  "optional": "İsteğe bağlı",
+  "invalid": "Geçerli bir HTTPS {platform} hesap bağlantısı girin.",
+  "valid": "Hesap bağlantısı hazır",
+  "open": "{name} hesabını {platform} üzerinde aç"
+}
 }

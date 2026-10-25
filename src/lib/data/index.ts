@@ -202,7 +202,8 @@ export const getBusiness = cache(async (slug: string) =>
   prisma.business.findFirst({
     where: { slug, ...PUBLIC_BUSINESS },
     select: {
-      ...businessCard, email: true, phone: true, whatsapp: true, photos: true, website: true, coverUrl: true, tags: true, updatedAt: true,
+      ...businessCard, email: true, phone: true, whatsapp: true, photos: true, website: true,
+      facebookUrl: true, instagramUrl: true, tiktokUrl: true, snapchatUrl: true, coverUrl: true, tags: true, updatedAt: true,
       // Only offers that are running right now (switch on, started, not ended); the page also re-checks the clock in the browser.
       offers: {
         where: activeOfferWhere(new Date()),

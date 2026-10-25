@@ -1220,5 +1220,13 @@
     "moveLater": "Nach hinten",
     "galleryHint": "Ein Titelbild und bis zu 3 weitere Bilder. Die Reihenfolge gilt auch auf der Profilseite.",
     "overLimit": "Dieser Eintrag hat bereits mehr als 3 Bilder. Alle bleiben erhalten; neue Bilder lassen sich hinzufügen, sobald weniger als 3 übrig sind."
-  }
+  },
+  "businessSocial": {
+  "title": "Soziale Medien",
+  "helper": "Füge die Kontolinks deines Unternehmens hinzu, damit Kunden dich einfach erreichen.",
+  "optional": "Optional",
+  "invalid": "Gib einen gültigen HTTPS-Kontolink für {platform} ein.",
+  "valid": "Kontolink bereit",
+  "open": "{name} auf {platform} öffnen"
+}
 }

@@ -1220,5 +1220,13 @@
     "moveLater": "Move later",
     "galleryHint": "One cover image and up to 3 more images. The order is used on the profile page.",
     "overLimit": "This listing already has more than 3 images. All are kept; new images can be added once fewer than 3 remain."
-  }
+  },
+  "businessSocial": {
+  "title": "Social media",
+  "helper": "Add your business account links so customers can easily get in touch.",
+  "optional": "Optional",
+  "invalid": "Enter a valid HTTPS {platform} account link.",
+  "valid": "Account link ready",
+  "open": "Open {name} on {platform}"
+}
 }

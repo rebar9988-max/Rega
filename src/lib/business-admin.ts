@@ -15,6 +15,7 @@ import { LOCALES } from "@/config/locales";
 import { BUSINESS_CATEGORY, lockBusiness, publicationSelect, businessReadiness } from "@/lib/business-publication";
 import { PUBLIC_BUSINESS } from "@/lib/search-where";
 import { ownsBusinessImages } from "@/lib/business-media";
+import { businessSocialSchemas } from "./business-social-schema";
 import { normalizeWhatsapp } from "@/lib/whatsapp";
 
 /** ISO 3166-1 alpha-2 codes offered in the form (plus any country already in the database). */
@@ -35,6 +36,7 @@ const loose = (max: number) => z.string().trim().max(max).optional().transform((
 const coordinate = (min: number, max: number) => z.union([z.literal(""), z.coerce.number().min(min).max(max)]).optional().transform((v) => (v === "" || v === undefined ? undefined : v));
 
 export const businessFormSchema = z.object({
+  ...businessSocialSchemas,
   id: optionalText(64),
   name: z.string().trim().min(2).max(200),
   nameCkb: optionalText(200),
@@ -196,6 +198,7 @@ async function save(input: BusinessForm, actor: { id: string }, { canPublish, ca
       languages: input.languages,
       phone: input.phone ?? null, whatsapp: whatsapp?.ok ? whatsapp.value : null, email: input.email ?? null, website: input.website ?? null,
       logoUrl: input.logoUrl ?? null, coverUrl: input.coverUrl ?? null, photos,
+      facebookUrl: input.facebookUrl, instagramUrl: input.instagramUrl, tiktokUrl: input.tiktokUrl, snapchatUrl: input.snapchatUrl,
     };
     let business;
     if (before) {

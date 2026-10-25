@@ -1220,5 +1220,13 @@
     "moveLater": "Paşê",
     "galleryHint": "Wêneyê sereke (berg) û heta 3 wêneyên din. Rêz li ser rûpela karsaziyê tê nîşandan.",
     "overLimit": "Ev karsazî ji berê ve ji 3 wêneyan zêdetir heye. Hemû hatine parastin; wêneyekî nû dema ku ji 3 kêmtir bimînin tê zêdekirin."
-  }
+  },
+  "businessSocial": {
+  "title": "Torên civakî",
+  "helper": "Girêdanên hesabên karsaziya xwe zêde bike da ku xerîdar bi hêsanî bi te re têkilî deynin.",
+  "optional": "Bijartî",
+  "invalid": "Girêdaneke hesabê HTTPS ya derbasdar ji bo {platform} binivîse.",
+  "valid": "Girêdana hesabê amade ye",
+  "open": "{name} li ser {platform} veke"
+}
 }

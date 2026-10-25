@@ -1,6 +1,7 @@
 /** Zod schemas shared by API routes and forms. One source of truth per entity. */
 import { z } from "zod";
 import { LOCALES } from "@/config/locales";
+import { businessSocialSchemas } from "./business-social-schema";
 import { ROLES } from "@/lib/rbac";
 
 export const idSchema = z.string().min(1).max(64);
@@ -31,6 +32,7 @@ export const localisedTextSchema = {
 };
 
 export const businessCreateSchema = z.object({
+  ...businessSocialSchemas,
   categoryId: idSchema.optional(),
   name: z.string().trim().min(2).max(200),
   ...translationFields,

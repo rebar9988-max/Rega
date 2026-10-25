@@ -18,6 +18,8 @@ import { WEEK, type WeekDay } from "@/lib/opening-hours";
 import { normalizeWhatsapp } from "@/lib/whatsapp";
 import { BusinessImageField } from "./BusinessImageField";
 import { PhotosField } from "./PhotosField";
+import { BusinessSocialFields } from "./BusinessSocialFields";
+import { BUSINESS_SOCIAL_PLATFORMS, BUSINESS_SOCIAL_FIELDS, normalizeBusinessSocialUrl } from "@/lib/business-social";
 
 const LocationPicker = dynamic(() => import("./LocationPicker").then((m) => m.LocationPicker), {
   ssr: false,
@@ -29,6 +31,7 @@ export type FormInitial = {
   id?: string; name?: string; nameCkb?: string; categoryId?: string; description?: string; descriptionCkb?: string;
   phone?: string; whatsapp?: string; email?: string; website?: string; addressLine1?: string; postalCode?: string; city?: string; countryCode?: string;
   latitude?: number | null; longitude?: number | null; coordsSource?: string | null; coordsVerified?: boolean;
+  facebookUrl?: string | null; instagramUrl?: string | null; tiktokUrl?: string | null; snapchatUrl?: string | null;
   status?: string;
   hours?: Partial<Record<WeekDay, string>>; logoUrl?: string | null; coverUrl?: string | null; photos?: string[];
   /** Description per language (key = locale code; field name is description<Suffix>). */
@@ -107,6 +110,7 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
       const address = text("addressLine1"), city = text("city");
       if ((address || city) && (address.length < 3 || !city)) return;
       if (Boolean(text("latitude")) !== Boolean(text("longitude"))) return;
+      if (BUSINESS_SOCIAL_PLATFORMS.some((p) => !normalizeBusinessSocialUrl(p, text(BUSINESS_SOCIAL_FIELDS[p])).ok)) return;
       if (text("whatsapp") && !normalizeWhatsapp(text("whatsapp"), text("countryCode")).ok) return;
       if ([...formRef.current.elements].some((el) => el instanceof HTMLInputElement && el.value && !el.validity.valid)) return;
       attemptedRevision.current = dirtyAt;
@@ -133,6 +137,7 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
       ...(name.trim().length < 2 ? ["name"] : []), ...(categoryId ? [] : ["categoryId"]),
       ...(address.trim().length < 3 ? ["addressLine1"] : []), ...(cityMatch ? [] : ["city"]), ...(country ? [] : ["countryCode"]),
       ...(coordsOk && confirmed ? [] : ["latitude"]), ...(waResult && !waResult.ok ? ["whatsapp"] : []),
+      ...BUSINESS_SOCIAL_PLATFORMS.filter((p) => !normalizeBusinessSocialUrl(p, String(formRef.current ? new FormData(formRef.current).get(BUSINESS_SOCIAL_FIELDS[p]) ?? "" : "")).ok).map((p) => BUSINESS_SOCIAL_FIELDS[p]),
     ];
     return [];
   }
@@ -193,6 +198,8 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
         if (mediaBusy > 0) return;
         const data = new FormData(e.currentTarget, (e.nativeEvent as SubmitEvent).submitter);
         data.set("draftRevision", String(dirtyAt));
+        const socialErrors = BUSINESS_SOCIAL_PLATFORMS.filter((p) => !normalizeBusinessSocialUrl(p, String(data.get(BUSINESS_SOCIAL_FIELDS[p]) ?? "")).ok).map((p) => BUSINESS_SOCIAL_FIELDS[p]);
+        if (socialErrors.length) { goTo(1); setStepErrors(socialErrors); requestAnimationFrame(() => formRef.current?.querySelector<HTMLInputElement>(`[name="${socialErrors[0]}"]`)?.focus()); return; }
         if (wizard && data.get("intent") === "submit") {
           const missing = missingOn(1);
           if (missing.length) { goTo(1); setStepErrors(missing); return; }
@@ -300,6 +307,7 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
           <input name="website" type="url" dir="ltr" maxLength={300} placeholder="https://" defaultValue={initial.website} className={input} aria-invalid={bad("website")} />
         </label>
       </fieldset>
+      <BusinessSocialFields initial={initial} errors={[...(state?.fields ?? []), ...stepErrors]} />
 
       </div>
 
