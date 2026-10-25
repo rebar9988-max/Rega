@@ -846,3 +846,14 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
 - Updated CLAUDE.md at owner's explicit request. Next:verify final hosted security/build/browser gates and actual Lighthouse
   results; independently obtain approved DB network+fresh encrypted backup/isolated restore and provider-key revocation.
   Only then reassess migration-first release. PR71 remains unmerged; no production schema/data/deployment mutation.
+
+### Security lockfile parity repair
+
+- Security commit7832b1d pushed to existing PR71. CI40212603423 and production-browser40212603417 failed at npm ci,
+  before any tests/measurements. Cloudflare build953cd2a4-aeca-475f-9ee8-070af9a61542 failed at the same install step.
+  Sanitized evidence identifies undici7.30.1 lock vs7.29.1 expected. No raw Cloudflare log/value emitted.
+- Root cause: local npm11.9 accepts unversioned miniflare override for its5.20261019.1-beta prerelease; hosted npm10.9.9
+  does not apply that selector identically. Reproduced with npm10; selected exact installed miniflare prerelease in
+  overrides and regenerated lock with npm10.9.9. Its bundled optional-package metadata is now represented as required.
+  Actual clean npm10.9.9 ci --ignore-scripts PASS; installed Zod4.6.7/Undici7.30.1 read back; audit remains0vulnerabilities.
+  Original npm-ci gate unchanged. Hosted final-head/browser/Lighthouse/Worker checks must pass after the repair push.

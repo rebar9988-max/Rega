@@ -74,7 +74,7 @@
     },
     "body-parser": "^2.4.0",
     "source-map-js": "^1.2.2",
-    "miniflare": {
+    "miniflare@5.20261019.1-beta": {
       "undici": "^7.30.1"
     }
   }
