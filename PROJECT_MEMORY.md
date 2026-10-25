@@ -768,3 +768,81 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
   PR71 remains draft. Next safe steps: obtain exact cleanup/network permissions and secure key rotation; verify a fresh
   complete backup + isolated restore, then migration-only stage/approved production migration, final green feature checks,
   merge, existing CI-gated deployment, active-version readback and real live verification. No R&L resources modified.
+
+## PR #71 final hosted verification checkpoint — 2026-10-25 (release still blocked)
+
+- Tested/pushed feature head remains `5e59cf044ae70b95860cbe66917523a7068b325b`; PR71 readback: open, draft, unmerged.
+- Final-head CI run40178054976/job121122940002 completed SUCCESS: Python7 PASS; unit/integration349 PASS,0FAIL/skip;
+  Playwright334 PASS; migration/preflight,lint,typecheck,ordinary Node build,OpenNext Worker build/dry-run,workerd image
+  codecs and Worker DB/private routing/auth/public query/validation all PASS. Expected auth rejections in security tests
+  are not test failures. Feature Cloudflare validation build b6aa3bdb-e5df-4f30-bd4c-0bcd6407bff9 also succeeded.
+- Neon run40178054918 still FAILURE at branch creation (HTTP422,10/10 branches). No required check bypassed.
+- Re-ran existing read-only Production browser job on run40094114547; new job121124212664 SUCCESS on2026-10-25.
+  Live www.rega24.com:201 PASS lines,0FAIL; desktop/mobile public profile /de/business/karwans-hairtuning HTTP200,
+  public home/list/auth-entry pages and RTL/LTR/overflow/location checks passed. This tests CURRENT production only,
+  not the undeployed social feature. Script does not establish font loading, console cleanliness, accessibility or
+  authenticated Add/Edit/production CRUD; these remain NOT VERIFIED for the feature.
+- New production-screenshots artifact12593540407 exists (17,577,611bytes; expires2026-11-08).
+  Archive SHA256 e79e885627804478b5adef7da04eeed6005684e1c7711505d7b74b96e073518c.
+  Artifact download through the executor was denied CONNECT403; screenshots NOT visually inspected, no typography claim.
+- Latest Cloudflare active-deployment read returned UNAUTHORIZED/connection requires reauthentication; no new deployment
+  state inferred. Last verified active deployment/version remains the earlier checkpoint, not proof of a new release.
+- Backup/isolated restore and provider-key rotation remain NOT VERIFIED. Owner cleanup/network answers not received;
+  generic continue is not treated as permission to permanently delete the two archived branches. No deletion,
+  production migration,merge,deploy,secret change,paid service or R&L operation performed.
+- Local evidence remains /workspace/artifacts/rega-social/recovery/. This documentation-only working-tree checkpoint
+  intentionally does not change the remotely tested head. Central Google Doc updated separately with final results.
+- Next safe continuation: owner-authorized cleanup or securely enabled independent PG18 backup path; verified complete
+  backup+isolated restore and key rotation; resolve Neon check and reconnect Cloudflare; then approved migration-only
+  staging/main DB workflow, final green feature gates,merge/existing deploy and actual feature live verification.
+
+### Cloudflare reconnection verified — 2026-10-25
+
+- After owner reported reconnection, authenticated deployment/settings/domain/build API reads all returned HTTP200.
+  www.rega24.com and rega24.com both map to rega-platform/production. Active deployment remains
+  5d6f039c-01b9-4384-8bde-6a6da9daaf54,version79627fce-fc09-4df7-9094-3e8c401f2b6a at100%.
+- Build b6aa3bdb-e5df-4f30-bd4c-0bcd6407bff9 readback outcome success. Cloudflare reauthentication blocker resolved.
+  Only binding names/types were emitted: OPENAI_API_KEY and XAI_API_KEY still plain_text; rotation/containment unverified.
+- Fresh Neon inventory remains10branches and sole2026-10-02 snapshot. Backup/restore/migration/merge/deploy gates remain
+  blocked. No production mutation,branch/snapshot deletion,secret value output or paid resource created.
+
+## PR #71 security dependency repair and read-only metrics — 2026-10-25
+
+- Latest request authorizes security/dependency repair, backup audit and verified release, while forbidding destructive
+  cleanup and production migration before restore. Rega identity guard PASS; no R&L operation.
+- Fresh npm registry audit found8high/2moderate dependency entries (some transitive chains). Patched zod3.25.76→4.6.7,
+  glob10.3.3→10.5.0 under node-minify,body-parser2.3→2.4,source-map-js1.2.1→1.2.2,miniflare's undici7.29.1→7.30.1.
+  Same-major transitive overrides; existing OpenNext/Wrangler versions kept. No force audit fix or downgrade.
+  Fresh npm audit:0info/low/moderate/high/critical. Evidence:recovery/npm-audit-current.json and npm-audit-after.json.
+- Official Zod4 migration guide inspected from colinhacks/zod. Zod4 applies inner defaults through partial/optional:
+  initial existing business PATCH test caught the regression. Four update schemas explicitly remove creation defaults
+  before optional(),preserving omitted stored values. Added4 regression tests for empty/single-field/explicit updates,
+  false/zero/empty-array replacements and currency normalization.353/353 local unit/integration,0skip/fail;
+  typecheck and lint PASS. No auth/UI/business behavior redesigned. Source scan's potential refine type concern did
+  not produce TypeScript errors,so no cosmetic changes made. Hosted final-head validation still required after push.
+- Independent bounded credential scan:537tracked files+1201reachable Git blobs,142pattern occurrences reviewed;
+  matches were synthetic/example/test fixtures,no confirmed real Git credential within that scan. Does not establish
+  universal absence. Metadata-only report:recovery/credential-pattern-audit.json. Existing owner/stranger/anonymous,
+  active BusinessMember,staff/suspension/owner-only SUPER_ADMIN coverage reviewed; live authenticated checks unverified.
+  No explicit inactive-membership E2E regression found; this gap is documented,not represented as verified coverage.
+- Current production read-only SQL:neondb PG18.6,3Business,3BusinessMember,14finished migrations,0unfinished,0social columns,
+  0orphan memberships. Current audit digest formula is ordered string_agg(to_jsonb(row)::text,'') with four social keys
+  removed for Business:3511237a6c2b4d7aa06c266b8886fdb7; membership:be2d12216285ebf5a9454124b9bfd21a.
+  These are a fresh baseline; do not compare with older digests without first proving identical serialization/formula.
+- Neon project lucky-glitter-73195208 now reports name Rega24,free_v3,branch limit10. Same verified production branch;
+  full10branch inventory+soleOct2snapshot retained. Backups and active/open-PR branches remain protected by task policy;
+  archived test copies lack unique-data/backup proof. No deletion,plan change or unsupported quota workaround attempted.
+- Environment spec29 remains restricted:only custom binaries.prisma.sh+package hosts,no injected secrets or direct DB
+  network permission. Backup/isolated restore BLOCKED. Existing Cloudflare key metadata still plain_text for the two
+  exposed provider keys. Tool inventory has no OpenAI/xAI admin-key management capability; owner asked to revoke/rotate
+  securely at providers and save replacements in GitHub Secrets,never chat. Existing main-only secret-sync can upload
+  verified replacements once owner confirms. No production secret changed and no exposed value fetched or emitted.
+- Extended EXISTING read-only production-browser workflow to run when its own audit changes on a PR; no deploy workflow,
+  production credential or write scope added. Added pinned Lighthouse13.5.0 script for real current public profile in
+  en/ckb×mobile/desktop,using pinned Playwright Chromium and no font substitution. Records actual four category scores,
+  URL/version/time; runtime/missing-report/wrong-profile errors fail. Scores are measurements,not assumed100 thresholds.
+  Script syntax and lint checked; actual remote execution/metrics still pending. It measures current production baseline,
+  not an unmerged feature. Existing public browser assertions remain intact; reports join existing screenshot artifacts.
+- Updated CLAUDE.md at owner's explicit request. Next:verify final hosted security/build/browser gates and actual Lighthouse
+  results; independently obtain approved DB network+fresh encrypted backup/isolated restore and provider-key revocation.
+  Only then reassess migration-first release. PR71 remains unmerged; no production schema/data/deployment mutation.

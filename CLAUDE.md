@@ -142,3 +142,12 @@ the Doc keeps the cross-tool summary and change log, the repository keeps detail
    required checks or production safeguards; never merge or deploy unverified changes; no speculative fixes.
 5. Proceed autonomously with safe read, diagnosis, documentation and verified repair work. Ask the owner only for an
    unavoidable billing, permission, authentication, destructive or security approval.
+
+### Verified PR #71 release checkpoint — 2026-10-25
+
+The recovery checkpoint and evidence live in `PROJECT_MEMORY.md`. Hosted head `5e59cf0` passed349 unit tests,
+334 browser tests and both production builds/runtime checks. The subsequent security repair passed353 local tests,
+TypeScript and lint; its final hosted checks must be verified separately. Current `npm audit` reports0 vulnerabilities
+after patched dependencies and Zod4 PATCH-omission compatibility fixes; this does not prove provider-key revocation.
+Cloudflare connectivity is restored. Production release remains blocked on fresh complete backup+isolated restore,
+active exposed-provider-key containment and the Neon branch-quota check. Never infer these gates from green local tests.
