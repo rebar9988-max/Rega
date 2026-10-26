@@ -713,3 +713,8 @@ Web release `40390749927` failed before upload: OpenNext forwards CLI arguments 
 
 
 Concurrent integration: PR78 independently passed full CI40391309551 and merged About copy/metadata changes as8edc1ed. Preserve its complete content and memory entry. PR79 had only an append conflict in this file; resolved by retaining both notes, without altering application files. Production health now reads the approved Kurdish About title from the catalogue rather than a stale hardcoded title.
+
+
+## Python dependency security completion — 2026-10-26
+
+The first pip-audit scan found pytest8.4.2 affected by PYSEC-2026-1845 / CVE-2025-71176 (insecure Unix temporary-directory handling). This is a development/test dependency, not an application provider or production-data migration. Official pytest changelog confirms the temporary-directory fix: https://docs.pytest.org/en/stable/changelog.html . Raise the supported range to >=9.0.3,<10; actual resolved9.1.1 passed all8 Python tests. Strict pip-audit then scanned50 environment entries with0 vulnerabilities and0 skipped packages. CI now runs the same strict Python audit after Python tests, alongside the existing all-severity npm audit. No runtime application dependency, schema, branding, credential or external-resource change. Historical npm-only audit results did not cover Python; this closes that coverage gap. Final hosted release evidence remains in the linked release PRs and central Doc.
