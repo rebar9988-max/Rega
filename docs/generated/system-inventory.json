@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-25T18:09:05.070Z",
+  "generatedAt": "2026-10-26T14:36:16.056Z",
   "package": {
     "name": "rega-platform",
     "version": "0.1.0",
@@ -13,7 +13,7 @@
   "workers": [
     {
       "file": "wrangler.jsonc",
-      "name": "rega-platform",
+      "name": "rega24",
       "main": "worker.mjs",
       "bindings": [
         "AI_LIMITER",
@@ -439,7 +439,6 @@
     "GEMINI_API_KEY",
     "GROQ_API_KEY",
     "MEDIA_PUBLIC_URL",
-    "NEON_API_KEY",
     "OPENAI_API_KEY",
     "OPENROUTER_API_KEY",
     "RESEND_API_KEY",

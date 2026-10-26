@@ -2,7 +2,7 @@
   // Cloudflare Worker for REGA (Next.js via OpenNext). `npm run build` produces .open-next/.
   // Production: `npx wrangler deploy` (main). Branch previews: `wrangler versions upload`.
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "rega-platform",
+  "name": "rega24",
   // worker.mjs wraps the OpenNext output (.open-next/worker.js) with the edge cache for anonymous pages.
   "main": "worker.mjs",
   "compatibility_date": "2026-09-01",
@@ -16,6 +16,13 @@
   // Variables and Secrets (DATABASE_URL, AUTH_SECRET, AI keys, ...) stay managed in the Cloudflare dashboard.
   // `keep_vars` stops a deploy from wiping dashboard-defined variables.
   "keep_vars": true,
+
+  // Branch previews never contact production data or paid providers. The entry guard
+  // answers before Next.js/cache execution; /__preview-health reports isolation only.
+  "previews": {
+    "vars": { "REGA_ISOLATED_PREVIEW": "1", "APP_ENV": "staging", "AI_PROVIDER": "disabled", "EMAIL_PROVIDER": "none" },
+    "version_metadata": { "binding": "CF_VERSION_METADATA" }
+  },
 
   // Workers Rate Limiting: counters shared across isolates (the in-memory limiter alone is per isolate).
   // Used by src/lib/rate-limit.ts#allowShared; keys are per account (login) and per client IP (login, AI).

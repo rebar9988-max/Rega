@@ -155,3 +155,7 @@ not repeat an investigation already recorded in PROJECT_MEMORY.md or the Google 
 change, update the map and the runbook, record new dependencies and known issues, and label unverified statements as
 REPORTED or UNKNOWN. Never invent system information. Never store credentials or secret values in any of these files.
 
+
+### Canonical target and isolated previews — 2026-10-26
+
+The verified existing Rega24 web Worker is `rega24` (stable tag `7b845cda2ee749c89c4f9b83490609b4`), not retired `rega-platform`. This supersedes older REGA Worker labels above; R&L identifiers are unchanged. Candidate release configuration reconciles the guard, deployment, diagnostics and runtime secret targets and adds the read-only `scripts/production-target.mjs` gate. Web releases tag their exact GitHub SHA. Branch previews are deliberately non-ready and block all application/provider/data handlers; `/__preview-health` proves isolation only. Real application/database/browser validation stays in CI with disposable PostgreSQL. Never mistake a green preview upload for a production-ready app. No automatic Neon resource creation/deletion is needed for these PR tests.
