@@ -30,7 +30,7 @@ flowchart LR
   APP --> RL[Rate limiter binding<br/>FORM_LIMITER etc.]
 ```
 
-* **Hosting:** Cloudflare Worker `rega-platform` (`wrangler.jsonc`, built by `npm run build`). `npm run build:node` builds
+* **Hosting:** Cloudflare Worker `rega24` (`wrangler.jsonc`, built by `npm run build`). `npm run build:node` builds
   the same app for Node (used by Playwright and Docker).
 * **Auth:** Auth.js v5, credentials, bcrypt (cost 12), JWT sessions. Roles: `SUPER_ADMIN`, `ADMIN`, `MANAGER`
   (moderator), `EMPLOYEE`, `BUSINESS_OWNER`, `USER` (matrix in `src/lib/rbac.ts`).

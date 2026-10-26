@@ -7,7 +7,7 @@ Canonical host: `www.rega24.com`. Apex (`rega24.com`) 301-redirects to it.
 
 | Layer | Choice |
 | --- | --- |
-| Web + API | Next.js 15 (App Router, TypeScript, React 19), Tailwind 4 |
+| Web + API | Next.js 16 (App Router, TypeScript, React 19), Tailwind 4 |
 | Hosting | Cloudflare Workers via OpenNext (`@opennextjs/cloudflare`, Worker `rega24`) |
 | Database | PostgreSQL via Prisma |
 | Auth | Auth.js v5, credentials + bcrypt, JWT sessions |
