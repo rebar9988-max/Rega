@@ -1236,6 +1236,11 @@
     "aiQuestion": "Do AI answers always match reality?",
     "aiAnswer": "AI can make mistakes. Check details with the business.",
     "findServices": "Find services",
-    "categories": "Explore categories"
+    "categories": "Explore categories",
+    "aiExample1": "Find services in Bonn",
+    "aiExample2": "Show me restaurants",
+    "aiExample3": "How do I browse Rega24?",
+    "aiHeroQuestion1": "How can I find services in Köln?",
+    "aiHeroQuestion2": "Where are the barbershops?"
   }
 }

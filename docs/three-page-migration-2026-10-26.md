@@ -74,3 +74,12 @@ The temporary font response and system-Chromium test configuration are local tes
 - Final focused run: **2 passed**, 21.4s. Prior expanded run: **55 passed**, including inline public registration end-to-end; the one fixture-dependent sitemap failure is resolved above. Earlier AI/catalog/security selection: all tests in those files passed. These combined selections are not a full-suite or WebKit certification.
 - Final TypeScript/ESLint/diff checks: PASS. Both test-fixture builds and dry-run: PASS. Normal production build, hosted full CI and deployed new-page verification remain incomplete.
 - Latest Cloudflare active version re-read and unchanged; no production release performed.
+
+## Source-content fidelity follow-up
+
+Restored the approved AI introduction questions themselves in seven languages: Köln services/barbers in the hero; Bonn services/restaurants/browsing Rega24 in the example cards. The existing live chat's own suggestions and API behavior remain unchanged. Repeated the test-fixture Workers build, dry-run and Node build successfully for this final copy change. Final browser results recorded below.
+
+PR #74: https://github.com/rebar9988-max/Rega/pull/74. Initial implementation commit `a17abcbeb801dcbd22ca712b66bd253db9fd9c21`. Hosted CI run `40282626146` verified ordinary (non-fixture) Node build, unit tests, lint/typecheck, Python tests and documentation validation; at last inspection it was still installing browsers. This is not a full hosted CI pass. The separate existing Neon preview workflow `40282625904` failed creating its branch with HTTP422; its log does not state the detailed provider reason. No quota changes/deletion/retry were performed.
+
+A separate local audit checked 46 navigation links/anchors across the three pages: zero broken. A repeated local business-page Lighthouse run scored82/100/100/92, LCP3.24s, CLS0; variation reinforces that the initial72–91 performance measurements are not production certification.
+- Final source-aligned head: all3 new browser tests PASS (50.1s), covering21page-locales×4widths,metadata/logo,city/categoryfilter,and light+darkaxe/reducedmotion. TypeScript/ESLint PASS. FixtureWorkers/Nodebuilds+dryrun PASS. Hosted fullCI andproductionrelease remain pending/blocked as above.

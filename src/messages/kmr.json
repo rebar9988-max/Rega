@@ -1236,6 +1236,11 @@
     "aiQuestion": "Bersivên AI her dem rast in?",
     "aiAnswer": "AI dikare şaş bibe. Agahiyan bi karsaziyê re piştrast bike.",
     "findServices": "Xizmetan bibîne",
-    "categories": "Kategoriyan bibîne"
+    "categories": "Kategoriyan bibîne",
+    "aiExample1": "Li Bonn xizmetan bibîne",
+    "aiExample2": "Restoranên nîşanî min bide",
+    "aiExample3": "Ez çawa li Rega24 bigerim?",
+    "aiHeroQuestion1": "Ez çawa dikarim li Köln xizmetan bibînim?",
+    "aiHeroQuestion2": "Berber li ku ne?"
   }
 }

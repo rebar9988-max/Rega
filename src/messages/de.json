@@ -1236,6 +1236,11 @@
     "aiQuestion": "Sind KI-Antworten immer richtig?",
     "aiAnswer": "KI kann Fehler machen. Prüfe Angaben beim Unternehmen.",
     "findServices": "Dienstleistungen finden",
-    "categories": "Kategorien entdecken"
+    "categories": "Kategorien entdecken",
+    "aiExample1": "Dienstleistungen in Bonn finden",
+    "aiExample2": "Zeige mir Restaurants",
+    "aiExample3": "Wie suche ich auf Rega24?",
+    "aiHeroQuestion1": "Wie finde ich Dienstleistungen in Köln?",
+    "aiHeroQuestion2": "Wo sind die Friseursalons?"
   }
 }

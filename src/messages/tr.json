@@ -1236,6 +1236,11 @@
     "aiQuestion": "Yapay zekâ yanıtları her zaman doğru mu?",
     "aiAnswer": "Yapay zekâ hata yapabilir. Bilgileri işletmeyle doğrulayın.",
     "findServices": "Hizmet bulun",
-    "categories": "Kategorileri keşfedin"
+    "categories": "Kategorileri keşfedin",
+    "aiExample1": "Bonn’da hizmet bul",
+    "aiExample2": "Restoranları göster",
+    "aiExample3": "Rega24’te nasıl arama yaparım?",
+    "aiHeroQuestion1": "Köln’de nasıl hizmet bulabilirim?",
+    "aiHeroQuestion2": "Berberler nerede?"
   }
 }
