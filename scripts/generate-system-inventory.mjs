@@ -7,9 +7,13 @@
 import { readFileSync, writeFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
+import { execFileSync } from "node:child_process";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const outPath = join(root, "docs/generated/system-inventory.json");
+// Build outputs and local QA artifacts must not make the clean-checkout CI inventory stale.
+const trackedPaths = execFileSync("git", ["ls-files", "-z"], { cwd: root, encoding: "utf8" })
+  .split("\0").filter(Boolean);
 
 function read(path) {
   return readFileSync(join(root, path), "utf8");
@@ -100,9 +104,7 @@ const inventory = {
   locales: localeCodes,
   sections: sectionInventory,
   apiRoutes,
-  topLevel: readdirSync(root)
-    .filter((n) => n !== ".git" && n !== "node_modules")
-    .sort(),
+  topLevel: uniq(trackedPaths.map((path) => path.split("/")[0])),
   envSchemaKeys,
   envExampleKeys,
   envExampleOnly: envExampleKeys.filter((k) => !envSchemaKeys.includes(k)),

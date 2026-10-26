@@ -677,3 +677,9 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
 - Not verified: Cloudflare dashboard, Worker version, Neon console, secret values. Google Doc was read and not updated (no write tool).
 - Production impact intended: none. CI on `main` will still run. The Worker must not be replaced by this commit.
 
+
+## Repository cleanup — 2026-10-26 — PR #76 (not deployed)
+
+Baseline main `7011eb5`; remote recovery checkpoint `checkpoint/rega24-before-cleanup-20261026` and local full-history bundle created first. Isolated cleanup branch removes two unreachable UI components and consolidates directory/search business cards without changing their rendered output (448 comparisons pass). Reuses PR #71's tracked-path inventory fix/test; ignores Python caches. Two compatible transitive lockfile updates reduce npm audit findings 10→8. No direct dependency/workflow/asset/migration/data/infrastructure deletion. Active PRs retained; #68/#72/#75 own existing no-op/Neon/target work. Details: `docs/repository-cleanup-2026-10-26.md`.
+
+Local lint/typecheck, Node/Worker builds, dry-run, Python 7 and inventory regression pass. Full Node suite 331 pass/1 pre-existing tsx IPC EPERM failure/4 DB skips; hosted final-head checks required. Canonical live rega24 deployment cf37b341/version f7a118cd observed read-only. Main's retired target, deployed-source provenance and credential-release holds still block merge/deploy. No 100/100 claim; next: review PR #76 checks and reconcile #75 release gates.
