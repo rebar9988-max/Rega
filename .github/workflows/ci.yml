@@ -47,6 +47,8 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Audit dependencies (all severities)
+        run: npm audit --audit-level=low
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
