@@ -24,8 +24,8 @@ async function login(page: Page, email: string, password: string, next = "%2Fdr"
  * The owner's three-step form. Step 1 (basics) and step 2 (location) are filled here; the caller continues on step 3.
  * Next stores the progress as a draft on the server.
  */
-async function fillOwnerSteps(page: Page, name: string, opts: { german?: boolean } = {}) {
-  await page.goto("/dr/businesses/new");
+async function fillOwnerSteps(page: Page, name: string, opts: { german?: boolean; path?: string } = {}) {
+  await page.goto(opts.path ?? "/dr/businesses/new");
   await expect(page.getByTestId("wizard-step-1")).toHaveAttribute("aria-current", "step");
   await page.getByLabel("Name", { exact: true }).fill(name);
   await page.getByRole("combobox", { name: "Kategorie", exact: true }).selectOption({ label: "Recht" });
@@ -50,7 +50,7 @@ test.describe.configure({ mode: "serial" });
 
 test("for-business page: free statement, steps, verified explanation, register CTA; no pricing", async ({ page }) => {
   await page.goto("/de/for-business");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Für Unternehmen");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Präsentiere dein Unternehmen auf Rega24");
   await expect(page.getByTestId("free-statement")).toContainText("komplett kostenlos");
   await expect(page.getByRole("main")).toContainText("Rega Verified");
   await expect(page.getByRole("main")).not.toContainText(/€|\bEUR\b|Preis|Premium/);
@@ -100,7 +100,7 @@ test("owner registers, creates a listing, submits it; an admin approves; it is p
   await expect(page).toHaveURL(/\/dr\/businesses$/); // owners land on their listings, not on platform totals
   const name = `E2E Inserat ${stamp}`;
   // Owners cannot publish: only "submit for review" exists.
-  await fillOwnerSteps(page, name, { german: true });
+  await fillOwnerSteps(page, name, { german: true, path: "/de/for-business#registration" });
   await expect(page.getByRole("button", { name: "Speichern und veröffentlichen" })).toHaveCount(0);
   await expect(page.getByTestId("wizard-review")).toContainText(name);
   // Unconfirmed address: submitting for review is refused.

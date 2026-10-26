@@ -1,0 +1,50 @@
+[
+  {
+    "page": "business",
+    "measuredAt": "2026-10-26T06:41:29.758Z",
+    "url": "http://localhost:3111/en/for-business",
+    "lighthouseVersion": "13.5.0",
+    "environment": "local Node build; test-only font fixture; system Chromium; concurrent browser tests; not production",
+    "scores": {
+      "performance": 91,
+      "accessibility": 100,
+      "best-practices": 100,
+      "seo": 92
+    },
+    "LCPms": 3329.3251999999993,
+    "CLS": 0.002928066808163826,
+    "seoLimitation": "canonical deliberately points to production, not localhost"
+  },
+  {
+    "page": "ai",
+    "measuredAt": "2026-10-26T06:44:19.324Z",
+    "url": "http://localhost:3111/en/ai",
+    "lighthouseVersion": "13.5.0",
+    "environment": "local Node build; test-only font fixture; system Chromium; concurrent browser tests; not production",
+    "scores": {
+      "performance": 72,
+      "accessibility": 100,
+      "best-practices": 100,
+      "seo": 92
+    },
+    "LCPms": 2334.5603999999994,
+    "CLS": 0,
+    "seoLimitation": "canonical deliberately points to production, not localhost"
+  },
+  {
+    "page": "locations",
+    "measuredAt": "2026-10-26T06:44:59.029Z",
+    "url": "http://localhost:3111/en/locations",
+    "lighthouseVersion": "13.5.0",
+    "environment": "local Node build; test-only font fixture; system Chromium; concurrent browser tests; not production",
+    "scores": {
+      "performance": 72,
+      "accessibility": 100,
+      "best-practices": 100,
+      "seo": 92
+    },
+    "LCPms": 3327.1529,
+    "CLS": 0,
+    "seoLimitation": "canonical deliberately points to production, not localhost"
+  }
+]

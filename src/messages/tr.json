@@ -1220,5 +1220,22 @@
     "moveLater": "Geriye al",
     "galleryHint": "Bir kapak görseli ve en fazla 3 ek görsel. Sıra profil sayfasında kullanılır.",
     "overLimit": "Bu kayıtta zaten 3'ten fazla görsel var. Hepsi korunur; 3'ten az kaldığında yeni görsel eklenebilir."
+  },
+  "premiumPages": {
+    "businessHero": "İşletmenizi Rega24’te tanıtın",
+    "aiHero": "Basit bir soruyla hizmet bulun",
+    "cityHero": "Şehrinizi seçin. Hizmet bulun.",
+    "cityLead": "Köln, Bonn ve Düsseldorf’ta gerçek ve onaylanmış hizmetleri keşfedin.",
+    "startAi": "REGA AI başlat",
+    "examples": "Örnek sorular",
+    "exampleNote": "Bu soruları deneyin — yanıtlar mevcut asistandan gelir.",
+    "faq": "Sık sorulan sorular",
+    "freeQuestion": "Kayıt ücretsiz mi?",
+    "approvalQuestion": "İşletmem ne zaman görünür?",
+    "approvalAnswer": "Ekibimiz başvurunuzu inceleyip onayladıktan sonra.",
+    "aiQuestion": "Yapay zekâ yanıtları her zaman doğru mu?",
+    "aiAnswer": "Yapay zekâ hata yapabilir. Bilgileri işletmeyle doğrulayın.",
+    "findServices": "Hizmet bulun",
+    "categories": "Kategorileri keşfedin"
   }
 }
