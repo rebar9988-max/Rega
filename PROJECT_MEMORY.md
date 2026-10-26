@@ -759,3 +759,30 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
 - Post-merge checks PASS: 17 scope/release/identity/workflow cases, TypeScript/ESLint, both legacy CLI wrappers,
   manifest-drift rejection and redacted secret-pattern rejection. One canonical generator/checker; two generated
   views, no duplicate CI docs workflow. Current inventory 8 docs/387 sources/107 env names/10 procedures.
+
+
+## Rega24 October26 continuation — hosted CI and live target reconciliation
+
+- Feature branch9276ed2 pushed; draft PR73 opened. Core CI40256084164 running; normal Node build already passed.
+  Cloudflare build f39a26b1-ee9d-4034-aaaf-042df45445f7 at9276ed2 completed normal npm build, then failed preview for
+  missing previews block. GitHub CLI manual dispatch Forbidden; used supported connector PR flow. No main update.
+- Only own feature preview fcdb7c667f24407bae4c85b3c29423eb now auto_build=false and dry-run deploy, HTTP200/readback.
+  Stored failed-build diagnostic contained a key-shaped OpenAI value; value never returned/copied. Original source
+  UNKNOWN; revocation and secure replacement remain required. Do not export raw logs.
+- PR73 old Neon workflow created br-sparkling-thunder-b22kukdq, expiresNovember9, no production SQL. Prepared workflow
+  now opt-in neon-preview label; disposable core CI requires no provider branch. No branches deleted by this session.
+- CRITICAL newer live state: web Worker is rega24, same stable tag7b845cda2ee749c89c4f9b83490609b4 and deployment history;
+  rega-platform endpoint404. Both official/legacy website custom domains now rega24. Discovered version1a2c3a34 at100%.
+  Rename/upload not performed by this session; exact deployed SHA unknown. Main7011eb5 still has stale target.
+- Reconciled prepared manifest/Wrangler/guard/workflows to existing rega24, retained package health identifier and all
+  R&L rules/resources. New read-only production-target gate verifies protected account, existing stable tag, Python
+  presence and both domains; missing permission/ownership drift blocks release and secret sync, never recreates Worker.
+- Current Worker redaction had regressed false. Reapplied settings-only privacy on verified existing target:
+  HTTP200/readback true, all28 binding names/types unchanged. Deployment cf37b341-5e5c-4703-915b-731aeefa6bfd,
+  version f7a118cd-6f64-4206-a19e-ec5b434a5bc9 at100%. Initial malformed multipart400/nochange, then corrected.
+- Neon list now includes concurrent fresh backup br-broad-queen-b2f9p1p0 and restore-verify br-proud-cloud-b2d38n80;
+  metadata does not certify actual restoration. Read hub’s latest checkpoint, no stale no-fresh-copy claim.
+- Application release/100 blocked by verified restoration, provider revocation/replacement, billing entitlement,
+  protected access and final-head CI/production QA. Continue exact evidence in docs/REGA24_CONSOLIDATION.md.
+
+Target reconciliation validation: 18 pipeline/identity/target tests PASS, including wrong/missing tag/service/domain, duplicate ownership, forbidden API, missing token, retired name and wrong account. TypeScript/ESLint PASS; all10 workflow YAML files parsed; docs validation PASS (8docs/388source fingerprints/107env names/10procedures). Executor policy re-read revision28: restricted/enforced, package-manager hosts plus binaries.prisma.sh only; no injected secrets/outbound identities. No policy bypass.

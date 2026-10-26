@@ -5,7 +5,7 @@
   "apexHost": "rega24.com",
   "adminPath": "/admin",
   "cloudflareAccountId": "ee07860dbb8e61ff6915758785baf89a",
-  "webWorker": "rega-platform",
+  "webWorker": "rega24",
   "aiWorker": "rega-ai-python",
   "neonProjectId": "lucky-glitter-73195208",
   "neonProductionBranchId": "br-floral-hall-b22rpgrw",
@@ -14,5 +14,6 @@
   "legacyWebsiteHosts": [
     "regaplatform.com",
     "www.regaplatform.com"
-  ]
+  ],
+  "webWorkerTag": "7b845cda2ee749c89c4f9b83490609b4"
 }

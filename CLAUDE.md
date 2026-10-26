@@ -14,7 +14,7 @@ These rules come from the project owner and apply to every task in this reposito
 | Repository | `rebar9988-max/Rega` | `rebar9988-max/rega-cargo` |
 | Production | https://www.rega24.com | https://www.rlgo.net |
 | Identity | REGA Platform | R&L Marketplace & Delivery |
-| Cloudflare Worker | `rega-platform` (+ `rega-ai-python`) | `rega-cargo` (+ `rega-cargo-staging`) |
+| Cloudflare Worker | `rega24` (+ `rega-ai-python`) | `rega-cargo` (+ `rega-cargo-staging`) |
 
 **This repository is PROJECT A — REGA Platform.** The two are separate projects; never treat them as one system. Shared technologies do not imply shared project ownership.
 
@@ -44,7 +44,7 @@ Never mix or reuse between the two projects: source code and project folders; da
 - `scripts/project-identity-guard.mjs` is a read-only, dependency-free, fail-closed check: `node scripts/project-identity-guard.mjs --project REGA [--domain …] [--worker …]`. It reads `GITHUB_REPOSITORY`, every `git remote` URL and the local `wrangler.jsonc`, exits 1 with the Sorani error above on a project mismatch, mixed repository/domain/worker identifiers, an unknown identifier, or no repository evidence, and never changes anything.
 - It runs before the first production-changing step of `deploy.yml`, `db-migrate.yml`, `worker-secrets-sync.yml` and `ai-python-deploy.yml`. Run it by hand before any manual deploy, migration, secret change or merge done outside those workflows.
 - `tests/project-identity-guard.test.ts` (part of `npm test`) proves the six cases in 0.7 and that each workflow runs the guard before its production step. Never weaken, skip or remove the guard, its test or these workflow steps to make another task pass.
-- The same guard file lives in the R&L repository; the two copies differ only in the `LOCAL_PROJECT` line. Change the identity table only on explicit owner instruction, in both repositories.
+- The guard also exists in the separate R&L repository. This REGA copy now recognizes the verified `rega24` production name under the owner’s consolidation instruction; the R&L repository and its resources must not be edited. Preserve the R&L identity entries and all isolation cases.
 - Not covered (environment limit): Cloudflare Workers Builds has no Actions/git context, so verify its repository connection and target Worker in Cloudflare instead.
 
 ### 0.6 Session and context safety
@@ -166,7 +166,7 @@ they do not replace the central memory hub or past decisions.
 
 ### Rega24 unified office continuation (2026-10-25)
 
-Official product identity is Rega24; technical REGA/rega-platform identifiers continue to identify this same project.
+Official product identity is Rega24; the package remains rega-platform. Live web Worker is rega24 (verified 2026-10-26); the old rega-platform endpoint is absent. Its stable resource tag is declared in the manifest.
 Canonical office is `/admin`, with one implementation in `src/app/admin`; `/dr` is legacy redirect only. Preserve
 owner-only SUPER_ADMIN and existing role/membership restrictions. Non-secret production identity/ownership comes
 from `src/config/project.json`; secrets remain protected provider configuration. Both release paths must verify
@@ -177,3 +177,5 @@ The main-branch infrastructure-index instructions from 7011eb5 are preserved: do
 second narrative memory; generated JSON at `docs/generated/system-inventory.json` and Markdown are views produced
 by the same canonical generator. Legacy generate/validate commands remain wrappers; CI checks links, structure,
 freshness and common accidental-secret patterns. Documentation-only commits skip Worker deployment.
+
+Before any release or runtime secret sync, `scripts/production-target.mjs` must read back the existing Worker tag and both official custom domains. Missing resources, permission failures or ownership drift block all mutations; never recreate a retired Worker. Neon previews require the `neon-preview` PR label and verified Free quota; ordinary CI uses disposable Postgres.

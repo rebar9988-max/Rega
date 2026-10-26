@@ -78,11 +78,11 @@ const issues = runbook.split(/^## Incident: /m).slice(1);
 if (issues.length !== 10) errors.push('Expected ten incident procedures');
 for (const issue of issues) for (const field of ['SYMPTOM', 'LOCATION', 'DIAGNOSTIC STEPS', 'SAFE FIX', 'VERIFICATION', 'ROLLBACK']) if (!issue.includes(`**${field}**`)) errors.push(`Incomplete procedure: ${issue.split('\n')[0]} (${field})`);
 // Bounded common-pattern check; report only pattern names, never matched credential text.
-const protectedDocs = ['REGA24_SYSTEM_MAP.md', 'REGA24_TROUBLESHOOTING.md', output, jsonOutput];
+const protectedDocs = [...docs, jsonOutput];
 for (const path of protectedDocs) {
   const content = readFileSync(path, 'utf8');
   for (const [pattern, label] of [
-    [/AKIA[0-9A-Z]{16}/, 'AWS access key'], [/sk-[A-Za-z0-9_-]{20,}/, 'API key'],
+    [/AKIA[0-9A-Z]{16}/, 'AWS access key'], [/(?:sk-|xai-)[A-Za-z0-9_-]{20,}/, 'API key'],
     [/postgres(?:ql)?:\/\/[^:\s]+:(?!password(?:@|$))[^\s@]+@/i, 'credential-bearing database URL'],
     [/-----BEGIN [A-Z ]*PRIVATE KEY-----/, 'private key'],
   ]) if (pattern.test(content)) errors.push(`${path}: possible ${label}; remove securely (value never printed).`);
@@ -90,6 +90,7 @@ for (const path of protectedDocs) {
 if (!readFileSync('.github/workflows/ci.yml', 'utf8').includes('scripts/validate-system-docs.mjs')) errors.push('CI must validate the shared technical reference');
 for (const workflow of ['.github/workflows/deploy.yml', '.github/workflows/ai-python-deploy.yml']) {
   const definition = readFileSync(workflow, 'utf8');
+  if (/--(?:name|worker) rega-platform\b/.test(definition)) errors.push(`${workflow}: retired production target`);
   if (!definition.includes('DOCS_ONLY_SKIP') || !definition.includes('scripts/deploy-scope.mjs')) errors.push(`${workflow}: shared docs-only deployment guard required`);
 }
 if (errors.length) { console.error(errors.join('\n')); process.exitCode = 1; }

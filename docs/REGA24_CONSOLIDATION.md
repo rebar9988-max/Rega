@@ -1,6 +1,6 @@
 # Rega24 consolidation acceptance and continuation
 
-Date: 2026-10-25 UTC. Continued from `7301bc6`; branch `feat/rega24-central-admin-20261025`.
+Date: 2026-10-26 UTC (includes October25 historical checks). Continued from `7301bc6`; branch `feat/rega24-central-admin-20261025`.
 This report distinguishes **prepared/local implementation** from **live configuration**. It does not certify 100/100.
 Authoritative locators: [project manifest](../src/config/project.json), [system map](../REGA24_SYSTEM_MAP.md),
 [runbook](../REGA24_TROUBLESHOOTING.md). No R&L resources were changed.
@@ -14,7 +14,7 @@ Authoritative locators: [project manifest](../src/config/project.json), [system 
 | System operations | PASS locally within app; provider operations delegated | Super Admin-only system page: configuration booleans, public-review control with atomic audit, existing AI panel and provider-console links. Cloudflare/Neon credentials never enter a browser form. Arbitrary secret/system editing is intentionally rejected |
 | Media operations | PASS locally within existing workflows | Permission-scoped metadata browser, bounded pagination, links to existing business image management. No bulk deletion or object migration |
 | One production ownership declaration | PASS declaration; runtime target match BLOCKED | Manifest declares existing Workers/R2/Neon production project and branch; static validator checks Worker identity. Exact DATABASE_URL target cannot be read from protected binding metadata |
-| Both official domains / DNS / TLS | PASS control plane; functional production BLOCKED | Enabled apex+www custom domains → rega-platform, proxied provider-managed AAAA; active certificates, SSL full, Always HTTPS on. Independent browser/HTTP check unavailable in executor; browser connector UNAUTHORIZED |
+| Both official domains / DNS / TLS | PASS control plane; functional production BLOCKED | Enabled apex+www custom domains → rega-platform, proxied provider-managed AAAA; active certificates, SSL full, Always HTTPS on. Latest control-plane target is rega24; independent browser/HTTP check unavailable in executor; browser connector UNAUTHORIZED |
 | Secrets storage | PASS live | OpenAI/xAI converted atomically to secret_text, names/types of all 28 bindings preserved; no value output. Individual secret PUT rejected the existing plain-text name (400 binding conflict); atomic settings update succeeded (200) |
 | Provider-key incident containment | BLOCKED | Storage conversion is not revocation. Provider admin credentials/secure rotation and GitHub protected replacement are unavailable; historical release hold remains |
 | R2 canonical-origin configuration | PASS live | Added www/apex rega24.com to existing rule; preserved legacy origins, GET/HEAD/PUT, headers/ETag and max-age. GET readback matches intended policy. No upload or file modification performed |
@@ -25,7 +25,7 @@ Authoritative locators: [project manifest](../src/config/project.json), [system 
 | One release quality gate | PASS prepared code; publication BLOCKED | Web/Python workflows check out same CI-verified SHA, main-only manual fallback, shared verified-release script checks successful current-main CI for exact SHA and account before building and again before deployment; rejects test-font mock environment and fails closed. Live web Builds command reverified dry-run; no duplicate production publish there |
 | Dependency vulnerabilities | PASS local scan | npm audit after scoped patching: 0 info/low/moderate/high/critical. Zod4 omitted-field regressions protect PATCH semantics; no unsupported adapter downgrade, no audit fix --force. Not a proof that all security vulnerabilities are absent |
 | Functionality / accessibility / SEO / performance | QA results below; production score BLOCKED | Synthetic local account/DB only, no provider inference or real email sends. No global 100/100 claim or current production Lighthouse measurement |
-| Free-only and €0 additional infrastructure | PASS no additions; full billing attestation BLOCKED | Neon free_v3 / branch ceiling 10 verified. No paid activation, upgrades, new provider projects/branches/buckets, inference calls or hosted browser jobs. Cloudflare subscriptions API 403 requires Billing Read API-token connection; current subscription/spend cap cannot be certified |
+| Free-only and €0 additional infrastructure | PASS no additions; full billing attestation BLOCKED | Neon free_v3 / branch ceiling 10 verified. No paid activation, upgrades, new provider projects/buckets, inference calls or hosted production-browser jobs. PR73 triggered the old Neon workflow and created one two-week preview; creation is now prepared as opt-in. Cloudflare subscriptions API 403 requires Billing Read API-token connection; current subscription/spend cap cannot be certified |
 | Production deployment | PASS config hardening; application BLOCKED | Existing-code config versions read back at 100%, below. New admin application was not merged/deployed; required security/release/access gates remain |
 | Production data preservation | PASS no explicit writes | Only aggregate read-only production SQL; no migration, seeding, role change, object write/delete, resource/domain removal. Local disposable PostgreSQL contains synthetic fixtures only. This is not a byte-for-byte production backup certificate |
 
@@ -111,3 +111,39 @@ Post-merge verification: no application/package/Worker configuration diff agains
 application/Worker/browser checks therefore remain applicable. Shared-scope/release/identity/workflow checks:
 17/17 PASS. TypeScript, ESLint, legacy CLI wrappers, manifest-drift and redacted secret-pattern controls PASS. Current
 inventory: 8 documents, 387 tracked source fingerprints, 107 environment names, 10 complete incident procedures.
+
+
+## October26 hosted verification and production-target reconciliation
+
+- Published branch at 9276ed2; draft [PR73](https://github.com/rebar9988-max/Rega/pull/73), main still7011eb5.
+  GitHub manual CLI dispatch failed Forbidden; PR CI40256084164 is running. No required check was bypassed.
+- Cloudflare build f39a26b1-ee9d-4034-aaaf-042df45445f7 at exact9276ed2 **normal npm build PASS** (Node24.22.1,
+  npm10.9.2). Then **preview FAIL**, missing previews block in Wrangler. This resolves normal hosted-build
+  uncertainty for that head; it does not prove deployment, final-head CI or a working production office.
+- The same build log contains a key-shaped OpenAI value in a diagnostic config suggestion. Only name/type and
+  boolean pattern detection reached the model; no value was returned/copied. Original diagnostic-value source is
+  UNKNOWN. Provider revoke/rotation and restricted historical-log handling remain required.
+- Existing branch preview fcdb7c667f24407bae4c85b3c29423eb: scoped repair **PASS** HTTP200/readback,
+  auto_build=false and deploy command `npx wrangler deploy --dry-run`. No new preview infrastructure added.
+- PR opening triggered the old Neon workflow successfully, creating br-sparkling-thunder-b22kukdq with two-week TTL,
+  expires November9, zero compute on readback. This is an automatic provider branch creation caused by this PR,
+  superseding earlier no-provider-branch claims. No production SQL writes or branch deletion. Prepared creation now
+  requires `neon-preview` label; existing close cleanup remains. Ordinary CI uses disposable Postgres.
+- **New live evidence supersedes older target/version assertions:** rega-platform endpoint404; current rega24
+  has same stable resource tag7b845cda2ee749c89c4f9b83490609b4/history and both official/legacy website domains.
+  Version1a2c3a34-38d0-45fe-88d2-cd9144b0e02e/deployment3010f7a1-f41d-4938-917a-7bc666e89917 was discovered at100%.
+  This session did not perform that rename/upload; exact deployed application SHA UNKNOWN.
+- Prepared source now reconciles manifest/Wrangler/isolation guard/workflows with existing rega24. Shared read-only
+  production preflight blocks missing/wrong-tag/permission/domain drift before release or secret sync, rather than
+  recreating a retired target. R&L entries/resources untouched; package/service health identifier remains rega-platform.
+- New active Worker had redaction=false. After ownership/tag verification, settings-only privacy repair **PASS**:
+  HTTP200/readback true, all28 binding names/types unchanged, traces off/no destinations added. Current config
+  deployment cf37b341-5e5c-4703-915b-731aeefa6bfd/version f7a118cd-6f64-4206-a19e-ec5b434a5bc9 at100%.
+  No admin app upload or domain change. Initial malformed multipart rejected400, then corrected without value exposure.
+- Latest Neon list still ten, but includes concurrent fresh backup br-broad-queen-b2f9p1p0 and child restore-verify
+  br-proud-cloud-b2d38n80. Created by other work, not this session. Ready metadata alone does not certify restoration;
+  do not repeat obsolete no-fresh-copy claim. No historical branches deleted by this session.
+- Existing provider rotation, verified restoration, billing/protected-access and actual production QA holds remain.
+  No100/100, no current free entitlement/invoice attestation, no application release from this branch.
+
+Target reconciliation validation: 18 pipeline/identity/target tests PASS, including wrong/missing tag/service/domain, duplicate ownership, forbidden API, missing token, retired name and wrong account. TypeScript/ESLint PASS; all10 workflow YAML files parsed; docs validation PASS (8docs/388source fingerprints/107env names/10procedures). Executor policy re-read revision28: restricted/enforced, package-manager hosts plus binaries.prisma.sh only; no injected secrets/outbound identities. No policy bypass.

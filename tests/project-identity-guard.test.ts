@@ -15,7 +15,7 @@ const ROOT = fileURLToPath(new URL("..", import.meta.url));
 test("1. REGA task in the REGA repository is allowed", async () => {
   const { checkProjectIdentity } = await load();
   const r = checkProjectIdentity({ project: "REGA", localProject: "REGA", repos: [REGA_REPO],
-    domains: ["www.rega24.com"], workers: ["rega-platform"] });
+    domains: ["www.rega24.com"], workers: ["rega24"] });
   assert.equal(r.allow, true);
   assert.equal(r.code, "OK");
 });
@@ -72,6 +72,7 @@ test("6. unknown or ambiguous identity is blocked (fail closed)", async () => {
     { project: "REGA", repos: ["someone-else/rega"] },
     { project: "REGA", repos: [REGA_REPO], domains: ["example.com"] },
     { project: "REGA", repos: [REGA_REPO], workers: ["some-other-worker"] },
+    { project: "REGA", repos: [REGA_REPO], workers: ["rega-platform"] }, // retired production target must not be recreated
     { project: "REGA", repos: ["not a repository"] },
   ];
   for (const c of cases) {
@@ -98,7 +99,7 @@ test("CLI: allows the REGA checkout, blocks R&L and mixed input with the Sorani 
   const cli = (...args: string[]) => spawnSync(process.execPath, ["scripts/project-identity-guard.mjs", ...args], {
     env: { ...process.env, GITHUB_REPOSITORY: REGA_REPO }, encoding: "utf8", timeout: 10000, cwd: ROOT,
   });
-  const ok = cli("--project", "REGA", "--domain", "www.rega24.com", "--worker", "rega-platform");
+  const ok = cli("--project", "REGA", "--domain", "www.rega24.com", "--worker", "rega24");
   assert.equal(ok.status, 0, ok.stderr);
 
   for (const args of [
@@ -153,7 +154,7 @@ test("every production-changing workflow runs the guard BEFORE its first product
 
 test("REGA's own files agree with the guard's REGA identity", () => {
   const read = (p: string) => readFileSync(new URL(`../${p}`, import.meta.url), "utf8");
-  assert.match(read("wrangler.jsonc"), /^\s*"name":\s*"rega-platform"/m);
+  assert.match(read("wrangler.jsonc"), /^\s*"name":\s*"rega24"/m);
   for (const file of ["CLAUDE.md", "PROJECT_MEMORY.md"]) {
     const text = read(file);
     assert.match(text, /PERMANENT P0/);

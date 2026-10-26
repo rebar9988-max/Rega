@@ -1,6 +1,6 @@
 # REGA24 system map
 
-Last verification: **2026-10-25 UTC** (continued consolidation checkpoint below). Repository baseline: `e8e2b69b0d3da1e88cf75e904cf6ff4a4e8b90a8`.
+Last verification: **2026-10-26 UTC** (continued consolidation checkpoint below). Repository baseline: `e8e2b69b0d3da1e88cf75e904cf6ff4a4e8b90a8`.
 
 Read [troubleshooting](REGA24_TROUBLESHOOTING.md) for incidents and [generated inventory](docs/REGA24_INVENTORY.md) for exact dependency ranges, API files, environment names, models and source fingerprints. Existing decisions/history remain in [PROJECT_MEMORY.md](PROJECT_MEMORY.md), [CLAUDE.md](CLAUDE.md) and the [central memory hub](https://docs.google.com/document/d/1pp6GW-UM9AQ9TuUJHumziaujxB6ZOza5S3xwA6dmxu4/edit). This map indexes that documentation layer; it does not create another decision log.
 
@@ -15,12 +15,12 @@ Read [troubleshooting](REGA24_TROUBLESHOOTING.md) for incidents and [generated i
 
 ## 2. Architecture diagram
 
-Solid arrows describe verified source/configuration; dashed arrows require endpoint/functional confirmation. Cloudflare custom-domain, Worker and R2 resources themselves were read live.
+Solid arrows describe prepared branch source/configuration; dashed arrows require endpoint/functional confirmation. Main still targets retired rega-platform until reviewed reconciliation is merged; never deploy it unchanged. Cloudflare custom-domain, Worker and R2 resources themselves were read live.
 
 ```mermaid
 flowchart TD
   Browser[Browser: seven locales / PWA] --> Edge[Cloudflare DNS and TLS: rega24.com]
-  Edge --> Web[rega-platform: worker.mjs / OpenNext / Next.js]
+  Edge --> Web[rega24: worker.mjs / OpenNext / Next.js]
   Web --> Cache[Anonymous HTML edge cache / version key]
   Web --> Assets[ASSETS: .open-next/assets]
   Web --> Auth[Auth.js / RBAC / owner memberships / admin codes]
@@ -51,7 +51,7 @@ Operational control plane identifiers are locators, not credentials. Named human
 | --- | --- | --- |
 | GitHub | VERIFIED live `rebar9988-max/Rega`, public, default `main` | Source, workflows and review; repository owner `rebar9988-max` |
 | Cloudflare account | VERIFIED live `ee07860dbb8e61ff6915758785baf89a` | REGA resources below only; account also contains unrelated projects |
-| Web Worker | VERIFIED live `rega-platform`, compatibility `2026-09-01`, Node compatibility | Next.js web/API, auth, DB, media client, gateway; Cloudflare Workers |
+| Web Worker | VERIFIED live `rega24` (same stable tag `7b845cda2ee749c89c4f9b83490609b4`; old rega-platform endpoint 404), compatibility `2026-09-01`, Node compatibility | Next.js web/API, auth, DB, media client, gateway; Cloudflare Workers |
 | Python Worker | VERIFIED live `rega-ai-python`, compatibility `2026-10-06`, `python_workers`, `AI` binding | Optional rerank/embedding/text processing; Cloudflare Workers AI |
 | Neon | VERIFIED live project `Rega24`, ID `lucky-glitter-73195208`, AWS `eu-central-1`, PostgreSQL 18 | Relational data; project ID matches [preview workflow](.github/workflows/neon-branch.yml) |
 | Neon production branch | VERIFIED live `production`, `br-floral-hall-b22rpgrw`, default/primary, ready, `protected:false` | Runtime URL-to-branch match UNKNOWN; no connection strings read |
@@ -149,7 +149,7 @@ Full **names-only** table and source locations: [generated inventory](docs/REGA2
 
 **VERIFIED live web secret_text names:** `AI_SERVICE_TOKEN`, `AI_SERVICE_URL`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `AUTH_SECRET`, `DATABASE_URL`, `GEMINI_API_KEY`, `GROQ_API_KEY`, `Regaplatform`, `RESEND_API_KEY`, `STORAGE_ACCESS_KEY_ID`, `STORAGE_SECRET_ACCESS_KEY`. `Regaplatform` purpose UNKNOWN; do not remove it. **VERIFIED live corrected in continuation:** `OPENAI_API_KEY`, `XAI_API_KEY` are now `secret_text`. Atomic settings patch retained all 28 bindings; no values entered documentation. Provider revocation/rotation is still unverified. Other plain configuration: contact/mail/media/storage fields and NODE_ENV. Python has secret_text `AI_SERVICE_TOKEN`, plus AI/models. These are observations, not a recommended configuration template.
 
-Structural live web bindings: `ASSETS`, `CF_VERSION_METADATA`, `LOGIN_LIMITER`, `AI_LIMITER`, `SEARCH_LIMITER`, `FORM_LIMITER`. Runtime secrets differ from Workers Builds environment and GitHub Secrets; changing one does not propagate everywhere. [Manual sync workflow](.github/workflows/worker-secrets-sync.yml) copies only listed nonempty values; it is not a complete runtime inventory. Root `keep_vars:true` preserves dashboard variables on deploy. GitHub secret presence/permissions and build-variable settings were not enumerated.
+Structural live web bindings: `ASSETS`, `CF_VERSION_METADATA`, `LOGIN_LIMITER`, `AI_LIMITER`, `SEARCH_LIMITER`, `FORM_LIMITER`. Runtime secrets differ from Workers Builds environment and GitHub Secrets; changing one does not propagate everywhere. [Manual sync workflow](.github/workflows/worker-secrets-sync.yml) copies only listed nonempty values; it is not a complete runtime inventory. Root `keep_vars:true` preserves dashboard variables on deploy. GitHub secret presence/permissions remain UNKNOWN. The failed branch build metadata returned no build-variable entries; runtime and inherited preview configuration are separate.
 
 ## 9. Deployment pipeline
 
@@ -157,7 +157,7 @@ Structural live web bindings: `ASSETS`, `CF_VERSION_METADATA`, `LOGIN_LIMITER`, 
 
 [Python deploy](.github/workflows/ai-python-deploy.yml) in the production baseline used an independent selected-main-path push trigger. Prepared continuation changes it to the shared successful-main-CI trigger, exact SHA checkout and main-only manual fallback, protected by [verified release](scripts/verified-release.mjs). Both gates also reject a superseded main SHA or wrong Cloudflare account. This workflow repair is not published yet. [Database migrate](.github/workflows/db-migrate.yml) is manual main-only with `migrate` and `backup-verified` confirmations; includes seed. [Secrets sync](.github/workflows/worker-secrets-sync.yml) is manual main-only with `sync`. These actions mutate production; not incident probes.
 
-[Neon PR integration](.github/workflows/neon-branch.yml) creates expiring preview branches and has close cleanup; do not trigger it for this task or delete branches to resolve quota. Core CI uses disposable local Postgres independently. **REPORTED:** Workers Builds production dry-run, preview commands, historical branch failures and release holds in central memory. **VERIFIED live continuation:** web Builds repository is rebar9988-max/Rega, deploy_command is `npx wrangler deploy --dry-run`, branch includes main. **UNKNOWN:** current branch protection/check requirements and latest CI conclusions. Do not promote these reports to verified facts.
+[Neon PR integration](.github/workflows/neon-branch.yml) now prepares opt-in expiring previews (`neon-preview` label); existing close cleanup is preserved. Core CI uses disposable local Postgres independently. The old automatic workflow created PR73 preview br-sparkling-thunder-b22kukdq on 2026-10-26, ready, expires November 9; no production SQL writes/deletions by this session. Do not delete branches to resolve quota. **VERIFIED live:** main Builds uses dry-run. Branch build f39a26b1-ee9d-4034-aaaf-042df45445f7 at 9276ed2 completed normal npm build, then failed wrangler preview for missing previews block. Only this branch preview now has auto_build=false and dry-run deploy command (200/readback); production unchanged by that repair. PR73 CI is running; protection requirements remain UNKNOWN. See acceptance ledger for final results.
 
 **VERIFIED live deployment readback:** web deployment `5d6f039c-01b9-4384-8bde-6a6da9daaf54`, version `79627fce-fc09-4df7-9094-3e8c401f2b6a`, 100%, created `2026-10-24T17:14:30.208477Z`; Python deployment `1175d188-3fac-4cfd-992b-47dd500fa763`, version `ce53715f-a13a-459c-a7b0-ecd6130e74e2`, 100%, created `2026-10-23T18:24:17.685703Z`. Source reports Wrangler; no build SHA mapping or functional health is inferred.
 
@@ -177,7 +177,7 @@ Structural live web bindings: `ASSETS`, `CF_VERSION_METADATA`, `LOGIN_LIMITER`, 
 | High | Storage types repaired to secret_text; historical provider-key exposure still requires revocation/rotation | Owner-controlled provider rotation/revocation and protected GitHub secret replacement; never output values |
 | Resolved config | VERIFIED live R2 CORS now includes canonical www/apex rega24.com plus preserved legacy origins | Control-plane readback passed; actual browser signed-upload test remains unverified live |
 | High | REPORTED central-memory release hold for other feature work: backup/isolated restore, key containment, Neon CI/quota and billing proof unresolved | Read latest central log before release; this audit does not clear gates or merge/deploy unrelated work |
-| Medium | VERIFIED live 10 Neon branches, production `protected:false`; quota ceiling/free-plan status not reverified | Check quota read-only before any creation; never delete backup/branches to make room |
+| Medium | VERIFIED live 10 Neon branches, production `protected:false`; free_v3/10-branch limit verified; current list changed concurrently | Check quota read-only before any creation; never delete backup/branches to make room |
 | Medium | VERIFIED live legacy website custom domains still enabled; old “retired” wording incomplete | Preserve domains; separately verify redirect/canonical behavior |
 | Mitigated locally | Baseline manual bypass/separate Python push-deploy path replaced by shared CI/current-main/account gate in prepared workflows | Publish only after release holds clear; no hosted run or bypass during this task |
 | Medium | VERIFIED source separate edge cache (300-second TTL + SWR), CPU/1102 history documented in code; plain logs may contain unredacted strings | Diagnose cache headers, version and DB pooling before increasing resources or purging globally |
@@ -212,3 +212,26 @@ Audit date **2026-10-25 UTC**. Evidence is bounded to reads performed this sessi
 | Executor | Cloud Environment status: current/enforced restricted network, no injected secrets/runtime identities; policy inspected | Website not allowed by current executor policy; no direct public fetch claimed |
 
 Maintenance: `node scripts/rega24-docs.mjs --write` regenerates inventory from tracked source; `node scripts/rega24-docs.mjs --check` validates drift, document structure and local links/anchors offline. Stage new source files first so git ls-files includes them. [CI](.github/workflows/ci.yml) runs the same dependency-free check through the existing `validate-system-docs.mjs` wrapper before installation. The redundant separate docs workflow was removed. `generate-system-inventory.mjs` remains a compatible command; JSON and Markdown are generated views of the same source facts. Both deployment workflows share `deploy-scope.mjs` to skip documentation-only commits. External links, Mermaid rendering, secrets validity and live service freshness require separate verification. Update this map and the runbook after verified infrastructure/dependency changes; retain dated evidence and unresolved issues. Do not fabricate a new live verification date when only regenerating inventory.
+
+
+## Current live reconciliation — 2026-10-26
+
+- **VERIFIED live superseding prior web version:** official www/apex and legacy website custom domains attach to
+  `rega24`, stable tag `7b845cda2ee749c89c4f9b83490609b4`. Old `rega-platform` deployment endpoint returns 404.
+  Active deployment `3010f7a1-f41d-4938-917a-7bc666e89917`, version `1a2c3a34-38d0-45fe-88d2-cd9144b0e02e`, 100%,
+  created October 25 20:17:14Z. This session did not perform that rename/deployment. Exact application commit UNKNOWN.
+- **VERIFIED repository, prepared:** manifest/Wrangler/identity guard/workflows now target existing `rega24`.
+  [Read-only production preflight](scripts/production-target.mjs) verifies account, stable tag, required AI Worker,
+  and unique production ownership of both official domains. Release gates and secret sync fail closed on drift;
+  they must never recreate the retired target. Package name remains rega-platform. R&L untouched.
+- **VERIFIED live:** all 28 binding names/types retained, OpenAI/xAI secret_text. The replacement active config has
+  query-string redaction false on discovery; earlier privacy PASS applied to the prior version only. Never treat
+  historical settings-only hardening as current proof. Provider revocation remains UNKNOWN/BLOCKED.
+- **VERIFIED live:** current ten Neon branches include fresh backup br-broad-queen-b2f9p1p0, a child restore-verify
+  br-proud-cloud-b2d38n80 (created by another session), and the PR73 workflow preview. Presence/ready status alone
+  does not certify isolated restoration. Earlier ten-branch inventory is historical, not an unchanged resource list.
+- **VERIFIED GitHub:** branch pushed; draft [PR73](https://github.com/rebar9988-max/Rega/pull/73). Main remains 7011eb5;
+  its old target and unresolved security/backup/billing holds prohibit production release. See
+  [acceptance evidence](docs/REGA24_CONSOLIDATION.md) for exact CI checkpoints.
+
+2026-10-26 privacy repair after target reconciliation: settings-only update on existing rega24 succeeded HTTP200; readback redact_query_string=true and all 28 binding names/types unchanged. Active deployment cf37b341-5e5c-4703-915b-731aeefa6bfd / version f7a118cd-6f64-4206-a19e-ec5b434a5bc9 at100%. No application upload, route change or secret-value update; no new logging destination. An initial malformed multipart request was rejected400 with no change, then corrected. Rollback must preserve redaction rather than returning to a pre-hardening version.

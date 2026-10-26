@@ -1,6 +1,7 @@
 // Same exact-commit CI gate for both production services, including manual fallbacks. No secrets in output.
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
+import { verifyProductionTarget } from './production-target.mjs';
 const project = JSON.parse(readFileSync(new URL('../src/config/project.json', import.meta.url), 'utf8'));
 const repo = project.repository;
 const sha = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
@@ -26,6 +27,7 @@ try {
     if (verified || runs.length < 100) break;
   }
   if (!verified) throw new Error('No successful main CI for this commit');
+  await verifyProductionTarget(project);
   console.log(`Release gate passed: ${repo} main CI verified ${sha}.`);
 } catch {
   console.error('Release blocked: successful CI for this exact main commit could not be verified. No deployment authorized.');

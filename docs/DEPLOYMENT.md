@@ -1,7 +1,7 @@
 # Deployment (Cloudflare Workers)
 
-Production is the Worker `rega-platform` (`wrangler.jsonc`), built with OpenNext. Secrets and variables live in the
-Cloudflare dashboard (Workers & Pages → rega-platform → Settings → Variables and Secrets) and in GitHub repository secrets;
+Production is the Worker `rega24` (`wrangler.jsonc`), built with OpenNext. Secrets and variables live in the
+Cloudflare dashboard (Workers & Pages → rega24 → Settings → Variables and Secrets) and in GitHub repository secrets;
 **none are ever committed or printed**. The variable names are in `.env.example`.
 
 ## 1. Pre-deploy checks (all must pass)
@@ -73,3 +73,6 @@ New runtime variables of this release (names only; all optional unless noted): `
 | Assistant: a question with no match | deterministic "nothing found" answer, no model call |
 
 Then check Cloudflare Web Analytics / logs for errors and watch `production-health.yml`.
+
+
+Production target reconciliation (2026-10-26): provider readback shows existing Worker rega24 with stable tag 7b845cda2ee749c89c4f9b83490609b4 and both official custom domains. The retired rega-platform endpoint is absent. This branch reconciles source only; main must not deploy its stale configuration. The shared [production preflight](../scripts/production-target.mjs) verifies account/tag/domains before releases and secret sync and never creates resources. Neon PR branches are opt-in using the neon-preview label and require verified Free quota; ordinary CI needs no hosted database. Read the latest [acceptance blockers](REGA24_CONSOLIDATION.md) before release.

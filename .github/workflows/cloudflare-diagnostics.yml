@@ -36,10 +36,10 @@ jobs:
         run: npm ci --ignore-scripts
       - if: steps.creds.outputs.present == 'true'
         name: Worker secrets (names only)
-        run: npx wrangler secret list --name rega-platform
+        run: npx wrangler secret list --name rega24
       - if: steps.creds.outputs.present == 'true'
         name: Deployments
-        run: npx wrangler deployments list --name rega-platform 2>&1 | tail -40
+        run: npx wrangler deployments list --name rega24 2>&1 | tail -40
       - if: steps.creds.outputs.present == 'true'
         name: Versions
-        run: npx wrangler versions list --name rega-platform 2>&1 | tail -40
+        run: npx wrangler versions list --name rega24 2>&1 | tail -40

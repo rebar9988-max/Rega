@@ -1,6 +1,6 @@
 # REGA24 troubleshooting
 
-Last repository/control-plane verification: **2026-10-25 UTC**; scope and evidence in [system map](REGA24_SYSTEM_MAP.md). Read [AGENTS.md](AGENTS.md), [CLAUDE.md](CLAUDE.md), [PROJECT_MEMORY.md](PROJECT_MEMORY.md) and the existing central hub before diagnosis. Older incident notes are history, not current live evidence.
+Last repository/control-plane verification: **2026-10-26 UTC**; scope and evidence in [system map](REGA24_SYSTEM_MAP.md). Read [AGENTS.md](AGENTS.md), [CLAUDE.md](CLAUDE.md), [PROJECT_MEMORY.md](PROJECT_MEMORY.md) and the existing central hub before diagnosis. Older incident notes are history, not current live evidence.
 
 
 ## Continued admin and security checkpoint — 2026-10-25
@@ -75,7 +75,7 @@ Expected configuration: canonical `/en` 200; apex 301 to same path/query on www.
 
 **LOCATION** → [web deploy](.github/workflows/deploy.yml), [CI](.github/workflows/ci.yml), [wrangler.jsonc](wrangler.jsonc), [Next config](next.config.ts), [OpenNext config](open-next.config.ts), [build preparation](scripts/prepare-worker-build.mjs), Cloudflare Builds/Deployments.
 
-**DIAGNOSTIC STEPS** → Identify correct repo/SHA/trigger and first failed step. Distinguish Node build, Worker bundle, upload permission and runtime failure. Read credential **presence/types**, never values. Check package-lock/adapter/Next compatibility, entry `worker.mjs`, generated `.open-next/worker.js` and assets. Do not commit generated output. Read separate Workers Builds configuration before assuming it deploys: dry-run is reported history, not current audit verification. Check active allocation: successful upload alone does not prove traffic switched.
+**DIAGNOSTIC STEPS** → Identify correct repo/SHA/trigger and first failed step. Distinguish Node build, Worker bundle, upload permission and runtime failure. Read credential **presence/types**, never values. Check package-lock/adapter/Next compatibility, entry `worker.mjs`, generated `.open-next/worker.js` and assets. Do not commit generated output. Read separate Workers Builds configuration before assuming it deploys: main dry-run is verified, but inherited branch previews had a different command. Check active allocation: successful upload alone does not prove traffic switched.
 
 **SAFE FIX** → Repair only the identified build/config defect on a branch. Use local dependency install and required checks where network allows; `npm run build` followed by `npm run cf:dry-run` validates without publishing. Do not use unsupported-version overrides, replace Workers or blindly dispatch deployment. For failed auth, restore approved account-scoped credential provisioning rather than login with another account.
 
@@ -184,3 +184,28 @@ Expected configuration: canonical `/en` 200; apex 301 to same path/query on www.
 ## Recording a resolved incident
 
 Append dated evidence and root cause to existing project memory, link exact source/commit/check result, describe scoped fix, verification, production impact and rollback checkpoint. Update the [system map](REGA24_SYSTEM_MAP.md) and this runbook after verified changes. Leave unresolved access/billing/functional facts explicit. Regenerate inventory, validate links/structure and do not repeat a completed investigation without evidence that its assumptions changed.
+
+
+## Verified continuation — 2026-10-26: target drift and hosted preview failure
+
+- Current live web target is `rega24`, same stable tag as earlier rega-platform; official custom domains agree.
+  Retired endpoint returns 404. This session did not rename or redeploy it. Main’s stale target must be reconciled
+  through reviewed source/CI; never fix this by recreating a missing Worker or moving domains again.
+- Before mutation use [production-target preflight](scripts/production-target.mjs) with protected credentials. It
+  reads only scripts/domain ownership. Missing permission/service, changed tag or mismatched domain means BLOCKED.
+  Verification: both hostnames must uniquely point to manifest webWorker in production. Rollback: preserve current
+  routing and review the manifest/source commit; never deploy a config with a retired name.
+- Hosted build f39a26b1-ee9d-4034-aaaf-042df45445f7 at 9276ed2: normal npm build succeeded; deploy command
+  `wrangler preview` failed because config lacks previews. Do not add new preview infrastructure merely to silence it.
+  This branch’s preview fcdb7c667f24407bae4c85b3c29423eb is now auto_build=false and dry-run only, API200/readback.
+  Rollback only after entitlement/config review: restore that preview’s setting explicitly, never production routing.
+- A key-shaped OpenAI value appeared in the stored build log’s diagnostic config suggestion. Do not fetch/export raw
+  logs or reproduce it. Limit access and use provider-side revoke/rotation; secret_text storage is insufficient.
+  No key value was returned to the model or documentation. Original source of the diagnostic value is UNKNOWN.
+- PR73’s old Neon workflow created a two-week preview successfully. Prepared workflow now requires neon-preview label
+  before creation; core CI needs no provider branch. Existing preview/data/backup branches are preserved. A ready
+  fresh backup/restore-verify branch is not proof of completed restoration; check actual isolated verification evidence.
+- On live rega24 discovery redact_query_string=false: the older privacy checkpoint is superseded. Read current settings
+  before declaring remediation; no previous version is safe merely because it once had a passing privacy setting.
+
+2026-10-26 privacy repair after target reconciliation: settings-only update on existing rega24 succeeded HTTP200; readback redact_query_string=true and all 28 binding names/types unchanged. Active deployment cf37b341-5e5c-4703-915b-731aeefa6bfd / version f7a118cd-6f64-4206-a19e-ec5b434a5bc9 at100%. No application upload, route change or secret-value update; no new logging destination. An initial malformed multipart request was rejected400 with no change, then corrected. Rollback must preserve redaction rather than returning to a pre-hardening version.

@@ -7,6 +7,7 @@ on:
       - reopened
       - synchronize
       - closed
+      - labeled
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -22,6 +23,7 @@ jobs:
         id: branch_name
         uses: tj-actions/branch-names@v8
 
+  # Core CI uses disposable local Postgres. A provider preview is opt-in, within verified Free quota.
   create_neon_branch:
     name: Create Neon Branch
     outputs:
@@ -29,10 +31,12 @@ jobs:
       db_url_with_pooler: ${{ steps.create_neon_branch.outputs.db_url_with_pooler }}
     needs: setup
     if: |
+      contains(github.event.pull_request.labels.*.name, 'neon-preview') &&
       github.event_name == 'pull_request' && (
       github.event.action == 'synchronize'
       || github.event.action == 'opened'
-      || github.event.action == 'reopened')
+      || github.event.action == 'reopened'
+      || (github.event.action == 'labeled' && github.event.label.name == 'neon-preview'))
     runs-on: ubuntu-latest
     steps:
       - name: Get branch expiration date as an env variable (2 weeks from now)

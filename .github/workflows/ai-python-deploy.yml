@@ -137,9 +137,12 @@ jobs:
 
       - name: Enable Python AI engine for REGA only after smoke tests pass
         if: steps.scope.outputs.skip != 'true' && steps.creds.outputs.present == 'true'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
-          printf '%s' "$AI_SERVICE_URL" | npx wrangler secret put AI_SERVICE_URL --name rega-platform --config wrangler.jsonc
-          printf '%s' "$AI_SERVICE_TOKEN" | npx wrangler secret put AI_SERVICE_TOKEN --name rega-platform --config wrangler.jsonc
+          node scripts/verified-release.mjs
+          printf '%s' "$AI_SERVICE_URL" | npx wrangler secret put AI_SERVICE_URL --name rega24 --config wrangler.jsonc
+          printf '%s' "$AI_SERVICE_TOKEN" | npx wrangler secret put AI_SERVICE_TOKEN --name rega24 --config wrangler.jsonc
 
       - name: Deployment skipped
         if: steps.scope.outputs.skip != 'true' && steps.creds.outputs.present != 'true'

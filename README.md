@@ -8,7 +8,7 @@ Canonical host: `www.rega24.com`. Apex (`rega24.com`) 301-redirects to it.
 | Layer | Choice |
 | --- | --- |
 | Web + API | Next.js 15 (App Router, TypeScript, React 19), Tailwind 4 |
-| Hosting | Cloudflare Workers via OpenNext (`@opennextjs/cloudflare`, Worker `rega-platform`) |
+| Hosting | Cloudflare Workers via OpenNext (`@opennextjs/cloudflare`, Worker `rega24`) |
 | Database | PostgreSQL via Prisma |
 | Auth | Auth.js v5, credentials + bcrypt, JWT sessions |
 | Storage | any S3-compatible bucket (Cloudflare R2, AWS S3, MinIO) |
@@ -70,7 +70,7 @@ Generate a secret with `openssl rand -base64 32`.
 
 ## Deploy (Cloudflare Workers)
 
-Production runs as the Cloudflare Worker `rega-platform` (see `wrangler.jsonc`), built with OpenNext:
+Production runs as the Cloudflare Worker `rega24` (see `wrangler.jsonc`), built with OpenNext:
 
 1. Changes land on `main` through a pull request; CI (`.github/workflows/ci.yml`) runs lint, typecheck, unit tests,
    E2E on a throw-away Postgres, and a Workers build with `wrangler deploy --dry-run`.
@@ -82,7 +82,7 @@ Production runs as the Cloudflare Worker `rega-platform` (see `wrangler.jsonc`),
 
 ## Production runtime configuration (Cloudflare Worker)
 
-The running Worker `rega-platform` needs these **runtime** secrets (Workers & Pages → rega-platform → Settings →
+The running Worker `rega24` needs these **runtime** secrets (Workers & Pages → rega24 → Settings →
 Variables and Secrets; *not* the Build section, which is invisible to the running Worker):
 
 | Name | Required | Purpose |

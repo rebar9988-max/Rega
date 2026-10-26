@@ -31,3 +31,5 @@ Documentation-only main commits must not replace production Workers (`DOCS_ONLY_
 `node scripts/generate-system-inventory.mjs` and `node scripts/validate-system-docs.mjs` remain compatible wrappers
 around the single canonical generator/checker. CI performs this validation; no separate duplicate docs workflow.
 The JSON and Markdown inventories are generated views of the same tracked facts, never separate manual authorities.
+
+Production Worker reconciliation (2026-10-26): `rega24` is the existing live web Worker; `rega-platform` is a retired endpoint, not a deployment target. Run the shared read-only target preflight through release/secret-sync workflows. Do not recreate it or modify the separate R&L guard. See the system map for live drift and current evidence.
