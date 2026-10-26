@@ -75,7 +75,7 @@ jobs:
       - name: Build for Cloudflare Workers + validate the Worker bundle (no credentials, no deploy)
         run: |
           npm run build
-          npx wrangler deploy --dry-run
+          npm run cf:dry-run
       - name: Exercise business image codecs in workerd
         run: node scripts/health/business-image-worker-smoke.mjs
       - name: Exercise business routes in the built Worker runtime
