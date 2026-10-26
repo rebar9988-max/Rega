@@ -466,25 +466,25 @@
     "sun": "Sunday"
   },
   "about": {
-    "title": "About REGA",
-    "intro": "REGA (ڕێگا) is a modern, trusted digital platform, founded as a multilingual guide for the Kurdish diaspora in Germany and Europe.",
-    "goal": "Our aim is to bring all the main everyday needs and searches together in one place, so you can easily reach services that suit you culturally and linguistically, while giving business owners and professionals an official, trusted way to present their work and skills.",
-    "offerH": "What do we offer?",
+    "title": "About Rega24",
+    "intro": "Rega24 is a multilingual digital platform for discovering businesses, professionals and services. We bring people and businesses together in one place, with a vision that reaches across languages and borders.",
+    "goal": "Our aim is to make searching and comparing easier, so people can find suitable options through clear information. Rega24 is not limited to one community or country. Our vision is global, while coverage grows with real local information and needs.",
+    "offerH": "What Rega24 offers",
     "offer": [
       {
-        "label": "Service guide",
-        "text": "Easily find services and professionals near where you live, on a map."
+        "label": "Easy discovery",
+        "text": "Search by category, city and location, and explore listed businesses and services on the map."
       },
       {
-        "label": "Trust and assurance",
-        "text": "Verified information (Rega Verified) and a transparent rating system."
+        "label": "Clear information",
+        "text": "Find addresses, opening hours and contact options on business profiles, based on the information available."
       },
       {
-        "label": "Smart support",
-        "text": "Artificial intelligence (REGA AI) to make searching easier and answer your needs."
+        "label": "Connect in your language",
+        "text": "Rega24 is available in seven languages, making discovery easier for users and helping business owners introduce their work."
       }
     ],
-    "quote": "REGA is the bridge between you and the trusted services around you."
+    "quote": "Rega24 — discover services, connect locally, think globally."
   },
   "nearby": {
     "title": "Nearby",
@@ -994,7 +994,7 @@
     "locations": "Locations of Kurdish businesses in Germany and Europe: browse by city, see addresses and opening hours, and find the way on the map.",
     "nearby": "Find Kurdish businesses and services near you: use your location or choose a city, then browse the results on the map or as a list.",
     "ai": "The REGA Assistant answers your questions from the real listings on REGA Platform: find Kurdish businesses in Germany and Europe.",
-    "about": "About REGA Platform: a multilingual portal for Kurds in Germany and Europe, with its goal, what it offers and who is behind it.",
+    "about": "Discover Rega24, a multilingual platform for finding businesses and services by category, city and map, with clear information and a global vision.",
     "search": "Search all Kurdish businesses, services and locations on REGA Platform and filter the results by type.",
     "register": "Create a free account on REGA Platform to list your business and reach Kurds in Germany and Europe.",
     "login": "Sign in to your REGA Platform account: manage your listings, submit them for review and change your settings.",
