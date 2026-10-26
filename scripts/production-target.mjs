@@ -31,7 +31,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   try {
     const config = readFileSync(new URL('../wrangler.jsonc', import.meta.url), 'utf8').split('\n').filter(line => !/^\s*\/\//.test(line)).join('\n');
     const project = { repository: 'rebar9988-max/Rega', cloudflareAccountId: 'ee07860dbb8e61ff6915758785baf89a',
-      webWorker: /\"name\"\s*:\s*\"([^\"]+)\"/.exec(config)?.[1],
+      webWorker: /"name"\s*:\s*"([^"]+)"/.exec(config)?.[1],
       webWorkerTag: '7b845cda2ee749c89c4f9b83490609b4', aiWorker: 'rega-ai-python', canonicalHost: 'www.rega24.com', apexHost: 'rega24.com' };
     if (project.webWorker !== 'rega24') throw new Error('Retired production target');
     await verifyProductionTarget(project);
