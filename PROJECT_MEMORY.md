@@ -26,7 +26,7 @@ If memory conflicts with verified live state, live state wins and memory must be
 
 ## PERMANENT P0 RULE — REGA / R&L project isolation (owner instruction, 2026-10-22)
 **REGA ≠ R&L. Never mix. Never silently switch. Always verify. Stop automatically on mismatch.** Full rule: `CLAUDE.md` section 0.
-- PROJECT A — REGA Platform: repository `rebar9988-max/Rega`, production `https://www.regaplatform.com`, Workers `rega-platform` / `rega-ai-python`. **This repository.**
+- PROJECT A — REGA Platform: repository `rebar9988-max/Rega`, production `https://www.rega24.com` (retired hosts `regaplatform.com` and `www.regaplatform.com` still 301 to it), Workers `rega-platform` / `rega-ai-python`. **This repository.**
 - PROJECT B — R&L Marketplace & Delivery: repository `rebar9988-max/rega-cargo`, production `https://www.rlgo.net`, Workers `rega-cargo` / `rega-cargo-staging`. A separate repository, database, Worker and domain set.
 - Before any edit, migration, commit, PR, merge or deployment verify repository owner/name, git remote, branch, production domain and deployment configuration, and that every referenced PR, commit, CI run and Cloudflare resource belongs to this repository. A PR number or CI run ID alone never identifies a project.
 - On any mismatch: STOP (fail closed), change nothing, show the Sorani error from `CLAUDE.md` 0.3, report expected vs detected project, conflicting identifiers and operations already performed, and resume only after explicit owner confirmation.
@@ -864,3 +864,61 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
   Isolated PR audit concurrency by PR number while retaining one production group and cancellation of older runs
   within each group. No checks disabled. Updated overly broad read-only comment:ordinary public visits can trigger
   existing page-view telemetry; no explicit business-content writes/sign-in/deployment are made by the audit.
+
+## Infrastructure index — 2026-10-25
+
+- Task: add a permanent system map and troubleshooting runbook. No application code, no migration, no domain change, no Worker publish intended.
+- Added: `REGA24_SYSTEM_MAP.md`, `REGA24_TROUBLESHOOTING.md`, `docs/generated/system-inventory.json`, `scripts/generate-system-inventory.mjs`, `scripts/validate-system-docs.mjs`.
+- Agents: `AGENTS.md` and `CLAUDE.md` section 6 now require those files. They do not replace this file or the Google Doc.
+- Corrected in this file only: the P0 identity line that still called production `www.regaplatform.com`. Live production is `https://www.rega24.com`. Historical notes below that date were left as history.
+- Deploy guard: `DOCS_ONLY_SKIP` in `.github/workflows/deploy.yml`. A documentation-only commit on `main` must not call `wrangler deploy`. `workflow_dispatch` still deploys. CI runs `node scripts/validate-system-docs.mjs`.
+- Verified this session: public HTTP (health `ok: true` at 2026-10-25T18:02:00Z, redirects, jobs/events 404, `/dr` code form), DNS NS `autumn`/`max`.ns.cloudflare.com, TLS Google Trust Services WE1 through 2026-01-21, GitHub Beta health run `40217513295` success on `e8e2b69`.
+- Not verified: Cloudflare dashboard, Worker version, Neon console, secret values. Google Doc was read and not updated (no write tool).
+- Production impact intended: none. CI on `main` will still run. The Worker must not be replaced by this commit.
+
+## PR #71 verified continuation — 2026-10-26 (production release held)
+
+- Resumed clean ccbb9eb,PR71 open/draft/unmerged. Final hosted CI40213427844/job121229595241 SUCCESS:353unit/integration,
+  0fail/skip;334browser;7Python;ordinary Node/Worker builds,workerd codecs and business DB/auth/query/runtime PASS.
+  Cloudflare validation111c03f5-78f2-4680-8964-354fcca4e2d8 succeeded;dry-run only. Prior Lighthouse baseline remains
+  Oct25 evidence for the old deployment,not a current-new-Worker or unmerged-feature score.
+- Verified live state has changed outside this task:canonical www+apex now target rega24/production. Deployment
+  3010f7a1-f41d-4938-917a-7bc666e89917/version1a2c3a34-38d0-45fe-88d2-cd9144b0e02e at100%,created Oct25T20:17:10Z;
+  sourceWrangler,no commit annotation. Old rega-platform returns404. All credential bindings now secret_text,including
+  OpenAI/xAI;do not repeat the completed storage-type fix. Provider revoke/rotation still NOT VERIFIED.
+- Fetched main7011eb5 (system docs,CI validator,docs-only deployment skip). Source still targets old Worker in Wrangler,
+  guard allow-list,deploy/secret sync/diagnostics/Python sync. Do not recreate retired Worker or deploy old architecture
+  over active service. PR73 is separately open/draft/unmerged;its docs say new admin app is not deployed. No PR73
+  application code imported. Active cutover source/commit requested; no production configuration mutation performed.
+- Neon same verified project lucky-glitter-73195208/Rega24/free_v3,PG18.6,limit10. Initial branch read showed7;later read
+  includes new external backup/recovery/PR73 branches and count10. Attempt to create named PR71 backup returned422
+  branches limit exceeded;no branch/endpoint created. No existing resource deleted and no plan changed.
+- Reused existing backup br-broad-queen-b2f9p1p0 (backup-rega24-20261026-pre-release),created01:46:03Z,parent production
+  br-floral-hall-b22rpgrw at01:45:30Z/LSN0/14AC2248. Existing recovery br-proud-cloud-b2d38n80 was created01:46:57Z from
+  that backup. Both have managed0.25CU endpoints. Root performed SELECT-only validation,not resource creation/restoration.
+- Independently verified ALL37non-system base tables:every row count and SHA256 digest matches backup→recovery,
+  normalizing only the four added Business keys. Original schema fingerprint (columns/defaults/constraints/indexes/
+  enums/sequences/views/function definitions) matches:b0207d522565e101c18727f638005698310cddc6d1df9db959c497ca92ea4c03.
+  Both have3businesses/3memberships,0orphan memberships,14finished/0unfinished migrations. Recovery has4newnullableTEXT
+  fields,allNULL;backup has0social columns. This validates existing native recovery+additive SQL rehearsal without
+  overwriting original rows. Recovery ledger still14:do not claim Prisma recorded the social migration there.
+  Production readback still14migrations/0social columns. No production migration run and no duplicate schema created.
+- Backup proof is a native Neon checkpoint/recovery copy,NOT an independent exported pg_dump backup. Existing soleOct2
+  snapshot retained. No current independent dump/pg_restore claim. Local PG18.6 clients were prepared previously;
+  enforced environment still lacks approved direct DB path/injected credentials. Preserve both current recovery copies.
+  Evidence:recovery/neon-branch-manifest-sha256.sql,neon-backup-manifest.json,neon-restore-manifest.json;only hashes/counts,
+  no customer rows/credentials. Full existing old backup inventory retained;no destructive cleanup.
+- Integrating only current main documentation/release-safety changes into PR71. Preserve both memory histories,main's
+  canonical-domain correction,docs-only deploy skip and validator. Tightened scoped runbook wording:complete backup
+  plus isolated recovery,never skip required preview. System map now explicitly records verified live/source drift.
+  Regenerate inventory and verify merged tree;earlier green ccbb9eb does not certify the new tree.
+- Next safe steps:finish source-only integration/tests;obtain cutover provenance and reconcile approved deploy target,
+  independently establish provider-key revocation/protected replacement;resolve required Neon check without deleting
+  preserved copies. Reassess backup freshness/appropriate recovery evidence before migration-first approved workflow.
+  PR71 remains unmerged,no production deployment/migration/secret change,paid resource or R&L operation by this task.
+
+- Main integration found inventory nondeterminism:topLevel scanned ignored local .next/.env.local/.wrangler/etc,
+  making clean-checkout CI differ from a built workspace. Generator now derives top-level names from tracked paths;
+  a regression creates an untracked QA directory and proves --check remains valid. Regenerated inventory;doc validator,
+  whitespace,TypeScript,ESLint and354/354 local unit/integration PASS,0skip/fail. Main-only deployment skip remains intact.
+  This commit integrates main's infrastructure documentation and scoped release safety only,not PR73 admin/architecture.

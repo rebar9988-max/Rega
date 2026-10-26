@@ -151,3 +151,26 @@ TypeScript and lint; its final hosted checks must be verified separately. Curren
 after patched dependencies and Zod4 PATCH-omission compatibility fixes; this does not prove provider-key revocation.
 Cloudflare connectivity is restored. Production release remains blocked on fresh complete backup+isolated restore,
 active exposed-provider-key containment and the Neon branch-quota check. Never infer these gates from green local tests.
+
+### Infrastructure index (owner instruction, 2026-10-25)
+
+`REGA24_SYSTEM_MAP.md` and `REGA24_TROUBLESHOOTING.md` are the infrastructure index and the failure runbook. They do
+not replace this file, `PROJECT_MEMORY.md`, or the central Google Doc, and they are not a second narrative memory.
+`docs/generated/system-inventory.json` is regenerated from the repository (`node scripts/generate-system-inventory.mjs`).
+`node scripts/validate-system-docs.mjs` checks headings, relative links, inventory freshness, and accidental secrets.
+
+Before architectural changes, read the system map. When diagnosing a failure, use the troubleshooting runbook and do
+not repeat an investigation already recorded in PROJECT_MEMORY.md or the Google Doc. After a verified infrastructure
+change, update the map and the runbook, record new dependencies and known issues, and label unverified statements as
+REPORTED or UNKNOWN. Never invent system information. Never store credentials or secret values in any of these files.
+
+### PR #71 continuation — verified 2026-10-26
+
+Hosted `ccbb9eb` CI40213427844 passed353 unit/integration and334 browser tests, ordinary Node/Worker builds and runtime
+checks. Native Neon checkpoint/recovery copies were independently compared:all37 table counts/SHA256 digests and
+the original schema match; recovery additionally has4nullable TEXT social columns. Production remains unmigrated.
+This is native Neon recovery evidence,not an independent pg_dump/pg_restore certificate. Keep both copies.
+Both canonical domains now serve Worker `rega24`; repository/main still targets retired `rega-platform`. This is
+verified source/live drift within Rega24,not evidence of R&L. Block production migration staging/merge/deploy and
+old-target secret sync pending cutover provenance and source reconciliation. Provider-side revoke/rotation remains
+unverified despite secret_text storage. The newly integrated main docs/CI tree needs its own final checks.
