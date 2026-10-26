@@ -33,7 +33,7 @@ export const PROJECTS = {
     domains: ["rega24.com", "www.rega24.com"],
     // Former REGA hosts (production moved to www.rega24.com). Still REGA's identifier, never a valid target.
     retiredDomains: ["regaplatform.com", "www.regaplatform.com"],
-    workers: ["rega-platform", "rega-ai-python"],
+    workers: ["rega24", "rega-ai-python"],
   },
   "R&L": {
     name: "R&L Marketplace & Delivery",

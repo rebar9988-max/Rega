@@ -87,7 +87,7 @@ jobs:
       # P0 isolation: REGA != R&L. Read-only; fails closed before any production-changing step below.
       - name: Project identity guard (REGA only)
         if: steps.scope.outputs.skip != 'true'
-        run: node scripts/project-identity-guard.mjs --project REGA --domain www.rega24.com --worker rega-platform
+        run: node scripts/project-identity-guard.mjs --project REGA --domain www.rega24.com --worker rega24
 
       - uses: actions/setup-node@v4
         if: steps.scope.outputs.skip != 'true'
@@ -107,9 +107,13 @@ jobs:
         if: steps.scope.outputs.skip != 'true'
         run: npm run build
 
+      - name: Verify existing production Worker and domains
+        if: steps.scope.outputs.skip != 'true'
+        run: node scripts/production-target.mjs
+
       - name: Deploy to Cloudflare Workers
         if: steps.scope.outputs.skip != 'true'
-        run: npx wrangler deploy
+        run: npx wrangler deploy --tag "$GITHUB_SHA" --message "Verified GitHub CI release"
 
       - name: Deployment successful
         if: steps.scope.outputs.skip != 'true'

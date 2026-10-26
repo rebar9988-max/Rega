@@ -95,3 +95,14 @@ def test_workers_ai_failure_is_safe_and_does_not_expose_provider_error():
     assert response.status_code == 503
     assert response.json() == {"ok": False, "error": {"code": "embedding_unavailable"}}
     assert "secret-ish" not in response.text
+
+
+def test_branch_preview_never_calls_ai_even_with_a_valid_inherited_token(monkeypatch):
+    monkeypatch.setenv("REGA_ISOLATED_PREVIEW", "1")
+    with client(FailingAI()) as preview:
+        response = preview.post("/embed", headers=auth(), json={"texts": ["test"]})
+        assert response.status_code == 503
+        assert response.json()["applicationReady"] is False
+        health = preview.get("/__preview-health")
+        assert health.status_code == 200
+        assert health.headers["cache-control"] == "no-store"
