@@ -28,7 +28,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          sparse-checkout: scripts/health
+          sparse-checkout: |
+            scripts/health
+            src/messages/ckb.json
           sparse-checkout-cone-mode: false
 
       - name: Detect Cloudflare Access protection
@@ -304,7 +306,7 @@ jobs:
           done
           if probe 200 https://www.rega24.com/ckb && grep -qF '/brand/rega-mark-256.webp' "$PROBE_BODY"; then echo "ok   header uses the official logo"; else echo "::error::FAIL header logo (HTTP $PROBE_CODE)"; fail=1; fi
           if ! probe 200 https://www.rega24.com/ckb/about; then probe_fail /ckb/about 200; fail=1
-          elif grep -qF 'دەربارەی ڕێگا (REGA)' "$PROBE_BODY"; then echo "ok   /ckb/about approved text"
+          elif grep -qF "$(jq -r '.about.title' src/messages/ckb.json)" "$PROBE_BODY"; then echo "ok   /ckb/about approved text"
           else echo "::error::FAIL /ckb/about -> approved text missing"; fail=1; fi
           exit $fail
 
