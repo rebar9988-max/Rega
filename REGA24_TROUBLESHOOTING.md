@@ -382,3 +382,11 @@ CI `verify` is green on the SHA. If the commit is not documentation-only, Deploy
 **ROLLBACK**
 
 Revert the commit on `main`. If a non-docs commit already deployed, roll the Worker back as well. Reverting a docs-only commit does not require a Worker rollback.
+
+## Cleanup release checks — 2026-10-26
+
+- `missing previews block`: both candidate Wrangler files define isolated previews. `__preview-health` checks isolation; other preview requests return non-ready 503 before application/data/provider handlers. Do not copy production bindings to make previews appear functional. Full QA uses CI's disposable database.
+- Neon preview HTTP 422: the old workflow created unused branches without consuming its outputs. PR #72's manual policy is reused; no branch, backup or production data is deleted. CI still runs migration/preflight/integration/browser tests on PostgreSQL. Future genuine Neon preview work needs audited capacity and an actual consumer.
+- After Zod 4 upgrades, partial PATCH schemas must remove create defaults before making fields optional. `tests/validation-upgrade.test.ts` covers omitted-field preservation and bounded oversized collections.
+- Target drift: `scripts/production-target.mjs` rejects wrong account, stable Worker tag, services or official domain bindings. Never recreate retired `rega-platform`. New deployed version tags must match the verified GitHub SHA. Retain the preceding version for rollback and verify all production readiness checks after publishing.
+- Previews Base provider values are now secret_text. This storage conversion preserves values and does not prove provider-side rotation/revocation. Do not log or export secrets while checking them.

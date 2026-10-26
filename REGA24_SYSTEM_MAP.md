@@ -243,3 +243,7 @@ Latest observed Beta health before this documentation change: run `40217513295`,
 | Cloudflare dashboard, Neon console, Worker version, secret values | not accessed | — |
 
 Re-run the public checks before claiming they are still true. Update this section when they are re-checked.
+
+## Cleanup release candidate — 2026-10-26
+
+PR #76 reuses #75's existing-target reconciliation: web `rega24`, stable tag `7b845cda2ee749c89c4f9b83490609b4`; Python stays `rega-ai-python`. No resource recreated. Deployment and secret-sync gates validate live ownership before writes. The web release records its GitHub SHA in the version tag. CI now audits every npm severity. Neon provisioning is manual-only; disposable PostgreSQL still validates migrations and application behaviour. Preview configs exist for both Workers; entry guards block production data/provider execution and honestly report `applicationReady: false`. These are candidate source changes until the final release is verified. The two formerly plaintext Previews Base provider bindings were changed to secret_text using their existing values; production version/references remained unchanged. Provider-side rotation remains unverified.
