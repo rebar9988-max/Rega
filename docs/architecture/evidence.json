@@ -1,0 +1,2848 @@
+{
+  "sourceCommit": "8edc1ed873ed9c382400a935d77f44966ee64992",
+  "reviewDate": "2026-10-26",
+  "records": [
+    {
+      "id": "overview-browser",
+      "page": "overview",
+      "kind": "node",
+      "label": "Public visitor / business owner / staff\nLocalized UI and /dr",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/app/dr/layout.tsx",
+          "line": 1,
+          "symbol": "(file)"
+        }
+      ]
+    },
+    {
+      "id": "overview-worker",
+      "page": "overview",
+      "kind": "node",
+      "label": "Cloudflare Worker: rega24\nwww.rega24.com + apex domain",
+      "status": "LIVE",
+      "evidence": [
+        {
+          "live": "/workers/scripts/rega24/deployments",
+          "observed": "2026-10-26",
+          "method": "GET"
+        },
+        {
+          "live": "/workers/domains?service=rega24",
+          "observed": "2026-10-26",
+          "method": "GET"
+        }
+      ]
+    },
+    {
+      "id": "overview-app",
+      "page": "overview",
+      "kind": "node",
+      "label": "Next.js 16.4.2 / React 19\nOpenNext request handlers",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "package.json",
+          "line": 40,
+          "symbol": "\"next\""
+        },
+        {
+          "path": "worker.mjs",
+          "line": 8,
+          "symbol": "openNext.fetch"
+        }
+      ]
+    },
+    {
+      "id": "overview-db",
+      "page": "overview",
+      "kind": "node",
+      "label": "Prisma + pg → PostgreSQL\nWorkers request-scoped connection pools",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/lib/db.workers.ts",
+          "line": 40,
+          "symbol": "function requestPool"
+        },
+        {
+          "path": "prisma/schema.prisma",
+          "line": 11,
+          "symbol": "datasource db"
+        }
+      ]
+    },
+    {
+      "id": "overview-storage",
+      "page": "overview",
+      "kind": "node",
+      "label": "S3-compatible media service\nProvider and bucket runtime-dependent",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/lib/storage.ts",
+          "line": 14,
+          "symbol": "function s3"
+        }
+      ]
+    },
+    {
+      "id": "overview-external",
+      "page": "overview",
+      "kind": "node",
+      "label": "Optional AI + Resend + geocoding\nBrowser MapLibre basemap",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/lib/ai/runtime.ts",
+          "line": 23,
+          "symbol": "function catalog"
+        },
+        {
+          "path": "src/lib/email/index.ts",
+          "line": 1,
+          "symbol": "(file)"
+        },
+        {
+          "path": "src/lib/geocoder.ts",
+          "line": 1,
+          "symbol": "(file)"
+        },
+        {
+          "path": "src/lib/map-config.ts",
+          "line": 1,
+          "symbol": "(file)"
+        }
+      ]
+    },
+    {
+      "id": "overview-edge-1",
+      "page": "overview",
+      "kind": "edge",
+      "label": "HTTPS",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "next.config.ts",
+          "line": 9,
+          "symbol": "CANONICAL_HOST"
+        }
+      ]
+    },
+    {
+      "id": "overview-edge-2",
+      "page": "overview",
+      "kind": "edge",
+      "label": "preview guard → edge cache → OpenNext",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "worker.mjs",
+          "line": 8,
+          "symbol": "withPreviewIsolation(withEdgeCache"
+        }
+      ]
+    },
+    {
+      "id": "overview-edge-3",
+      "page": "overview",
+      "kind": "edge",
+      "label": "Prisma query / transaction",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/lib/db.workers.ts",
+          "line": 78,
+          "symbol": "new PrismaClient"
+        }
+      ]
+    },
+    {
+      "id": "overview-edge-4",
+      "page": "overview",
+      "kind": "edge",
+      "label": "S3 API / image storage",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/lib/storage.ts",
+          "line": 79,
+          "symbol": "storeBusinessImage"
+        }
+      ]
+    },
+    {
+      "id": "overview-edge-5",
+      "page": "overview",
+      "kind": "edge",
+      "label": "Configured server integration calls",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/lib/ai/runtime.ts",
+          "line": 1,
+          "symbol": "(file)"
+        },
+        {
+          "path": "src/lib/email/index.ts",
+          "line": 1,
+          "symbol": "(file)"
+        },
+        {
+          "path": "src/lib/geocoder.ts",
+          "line": 1,
+          "symbol": "(file)"
+        }
+      ]
+    },
+    {
+      "id": "routes-locale",
+      "page": "routes",
+      "kind": "node",
+      "label": "next-intl locale middleware\nckb / kmr / de / en / ar / fa / tr",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/middleware.ts",
+          "line": 1,
+          "symbol": "(file)"
+        },
+        {
+          "path": "src/config/locales.ts",
+          "line": 6,
+          "symbol": "LOCALES"
+        }
+      ]
+    },
+    {
+      "id": "routes-public",
+      "page": "routes",
+      "kind": "node",
+      "label": "/[locale] public pages\nDirectory, services, search, cities, Nearby",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/config/sections.ts",
+          "line": 44,
+          "symbol": "export const SECTIONS"
+        }
+      ]
+    },
+    {
+      "id": "routes-profile",
+      "page": "routes",
+      "kind": "node",
+      "label": "/[locale]/business/[slug]\nShared profile for every business category",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/app/[locale]/business/[slug]/page.tsx",
+          "line": 1,
+          "symbol": "(file)"
+        }
+      ]
+    },
+    {
+      "id": "routes-registry",
+      "page": "routes",
+      "kind": "node",
+      "label": "Section registry\nJobs/events disabled in source; guides enabled",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/config/sections.ts",
+          "line": 52,
+          "symbol": "key: \"jobs\""
+        },
+        {
+          "path": "src/config/sections.ts",
+          "line": 53,
+          "symbol": "key: \"events\""
+        },
+        {
+          "path": "src/config/sections.ts",
+          "line": 54,
+          "symbol": "key: \"guides\""
+        }
+      ]
+    },
+    {
+      "id": "routes-admin",
+      "page": "routes",
+      "kind": "node",
+      "label": "/dr — non-localized dashboard\nServer permission and membership checks",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/app/dr/layout.tsx",
+          "line": 11,
+          "symbol": "canEnterDashboard"
+        },
+        {
+          "path": "src/lib/business-access.ts",
+          "line": 1,
+          "symbol": "(file)"
+        }
+      ]
+    },
+    {
+      "id": "routes-api",
+      "page": "routes",
+      "kind": "node",
+      "label": "/api/v1/* and /api/auth/*\nPublic reads + protected mutations",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/middleware.ts",
+          "line": 53,
+          "symbol": "pathname.startsWith(\"/api/\")"
+        },
+        {
+          "path": "src/app/api/v1/businesses/route.ts",
+          "line": 1,
+          "symbol": "(file)"
+        }
+      ]
+    },
+    {
+      "id": "routes-auth",
+      "page": "routes",
+      "kind": "node",
+      "label": "Localized account/auth pages\n/owner-login fallback; Auth.js handlers",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/app/owner-login/page.tsx",
+          "line": 1,
+          "symbol": "(file)"
+        },
+        {
+          "path": "src/auth.config.ts",
+          "line": 1,
+          "symbol": "(file)"
+        }
+      ]
+    },
+    {
+      "id": "routes-edge-1",
+      "page": "routes",
+      "kind": "edge",
+      "label": "locale prefix + cookie",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/middleware.ts",
+          "line": 69,
+          "symbol": "intlMiddleware(request)"
+        }
+      ]
+    },
+    {
+      "id": "routes-edge-2",
+      "page": "routes",
+      "kind": "edge",
+      "label": "business profile link",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/features/listings/BusinessIndex.tsx",
+          "line": 1,
+          "symbol": "(file)"
+        }
+      ]
+    },
+    {
+      "id": "routes-edge-3",
+      "page": "routes",
+      "kind": "edge",
+      "label": "navigation + route enablement",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/config/sections.ts",
+          "line": 7,
+          "symbol": "sectionEnabled"
+        }
+      ]
+    },
+    {
+      "id": "routes-edge-4",
+      "page": "routes",
+      "kind": "edge",
+      "label": "Auth.js session endpoints",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/app/api/auth/[...nextauth]/route.ts",
+          "line": 1,
+          "symbol": "(file)"
+        }
+      ]
+    },
+    {
+      "id": "business-form",
+      "page": "business",
+      "kind": "node",
+      "label": "BusinessForm / server action\nDraft → submit or authorized publish",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/app/dr/businesses/actions.ts",
+          "line": 183,
+          "symbol": "saveBusinessAction"
+        }
+      ]
+    },
+    {
+      "id": "business-validate",
+      "page": "business",
+      "kind": "node",
+      "label": "Server validation + ownership\nPermissions / confirmed email for submit",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/app/dr/businesses/actions.ts",
+          "line": 185,
+          "symbol": "businessFormSchema.safeParse"
+        },
+        {
+          "path": "src/lib/business-access.ts",
+          "line": 26,
+          "symbol": "assertBusinessAccess"
+        }
+      ]
+    },
+    {
+      "id": "business-save",
+      "page": "business",
+      "kind": "node",
+      "label": "saveBusiness transaction\nBusiness + primary Location + translations",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/lib/business-admin.ts",
+          "line": 159,
+          "symbol": "async function save("
+        }
+      ]
+    },
+    {
+      "id": "business-moderation",
+      "page": "business",
+      "kind": "node",
+      "label": "Staff approvalData + readiness\nCategory, address, city, confirmed coordinates",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/lib/business-publication.ts",
+          "line": 52,
+          "symbol": "approvalData"
+        },
+        {
+          "path": "src/lib/business-publication.ts",
+          "line": 38,
+          "symbol": "businessReadiness"
+        }
+      ]
+    },
+    {
+      "id": "business-publish",
+      "page": "business",
+      "kind": "node",
+      "label": "PUBLIC_BUSINESS predicate\nPublished + verified + eligible category\nNot deleted / not archived",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/lib/search-where.ts",
+          "line": 24,
+          "symbol": "PUBLIC_BUSINESS"
+        }
+      ]
+    },
+    {
+      "id": "business-view",
+      "page": "business",
+      "kind": "node",
+      "label": "Directory / profile / Nearby / search\nPhoto gallery + hours + public details",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/app/[locale]/business/[slug]/page.tsx",
+          "line": 1,
+          "symbol": "(file)"
+        },
+        {
+          "path": "src/lib/geo.ts",
+          "line": 87,
+          "symbol": "isOpenNow"
+        },
+        {
+          "path": "src/lib/opening-hours.ts",
+          "line": 1,
+          "symbol": "(file)"
+        }
+      ]
+    },
+    {
+      "id": "business-effects",
+      "page": "business",
+      "kind": "node",
+      "label": "Audit + search reindex + revalidation\nBest-effort review notification",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/app/dr/businesses/actions.ts",
+          "line": 195,
+          "symbol": "result.submittedNow"
+        },
+        {
+          "path": "src/lib/business-admin.ts",
+          "line": 13,
+          "symbol": "reindexBusinessTree"
+        }
+      ]
+    },
+    {
+      "id": "business-edge-1",
+      "page": "business",
+      "kind": "edge",
+      "label": "submitted input",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/app/dr/businesses/actions.ts",
+          "line": 183,
+          "symbol": "saveBusinessAction"
+        }
+      ]
+    },
+    {
+      "id": "business-edge-2",
+      "page": "business",
+      "kind": "edge",
+      "label": "validated save",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/app/dr/businesses/actions.ts",
+          "line": 192,
+          "symbol": "await saveBusiness"
+        }
+      ]
+    },
+    {
+      "id": "business-edge-3",
+      "page": "business",
+      "kind": "edge",
+      "label": "draft/pending enters moderation",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/lib/business-admin.ts",
+          "line": 246,
+          "symbol": "input.intent === \"submit\""
+        }
+      ]
+    },
+    {
+      "id": "business-edge-4",
+      "page": "business",
+      "kind": "edge",
+      "label": "approve and publish",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/app/dr/businesses/actions.ts",
+          "line": 91,
+          "symbol": "approvalData(before)"
+        }
+      ]
+    },
+    {
+      "id": "business-edge-5",
+      "page": "business",
+      "kind": "edge",
+      "label": "shared public visibility filter",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/lib/search-where.ts",
+          "line": 24,
+          "symbol": "PUBLIC_BUSINESS"
+        },
+        {
+          "path": "src/lib/data/index.ts",
+          "line": 203,
+          "symbol": "where: { slug, ...PUBLIC_BUSINESS }"
+        }
+      ]
+    },
+    {
+      "id": "business-edge-6",
+      "page": "business",
+      "kind": "edge",
+      "label": "write effects (timing varies)",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/lib/business-admin.ts",
+          "line": 13,
+          "symbol": "reindexBusinessTree"
+        },
+        {
+          "path": "src/app/dr/businesses/actions.ts",
+          "line": 9,
+          "symbol": "writeAudit"
+        }
+      ]
+    },
+    {
+      "id": "ai-request",
+      "page": "ai",
+      "kind": "node",
+      "label": "GET/POST /api/v1/ai/chat\nFeature flag + schema + session/IP limits",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/app/api/v1/ai/chat/route.ts",
+          "line": 1,
+          "symbol": "(file)"
+        }
+      ]
+    },
+    {
+      "id": "ai-retrieval",
+      "page": "ai",
+      "kind": "node",
+      "label": "PostgreSQL searchService\nGrounded public directory candidates",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/lib/ai/chat.ts",
+          "line": 81,
+          "symbol": "searchService.search"
+        }
+      ]
+    },
+    {
+      "id": "ai-python",
+      "page": "ai",
+      "kind": "node",
+      "label": "Optional Python reranker\nrega-ai-python + Workers AI",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/lib/ai/python-runtime.ts",
+          "line": 7,
+          "symbol": "function config"
+        },
+        {
+          "path": "services/ai-python/wrangler.jsonc",
+          "line": 1,
+          "symbol": "(file)"
+        }
+      ]
+    },
+    {
+      "id": "ai-gateway",
+      "page": "ai",
+      "kind": "node",
+      "label": "AI Gateway (application module)\nBudget, timeouts, circuit breaker, fallback",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/lib/ai/chat.ts",
+          "line": 60,
+          "symbol": "budgetAllows"
+        },
+        {
+          "path": "src/lib/ai/gateway.ts",
+          "line": 29,
+          "symbol": "createGateway"
+        }
+      ]
+    },
+    {
+      "id": "ai-providers",
+      "page": "ai",
+      "kind": "node",
+      "label": "7 implemented provider adapters\nGemini, Grok, OpenAI, Groq, DeepSeek,\nOpenRouter, Anthropic; runtime-gated",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/lib/ai/runtime.ts",
+          "line": 23,
+          "symbol": "function catalog"
+        }
+      ]
+    },
+    {
+      "id": "ai-persist",
+      "page": "ai",
+      "kind": "node",
+      "label": "Conversation / message persistence\nDaily usage + request-time retention purge",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/lib/ai/chat.ts",
+          "line": 131,
+          "symbol": "async function persist"
+        },
+        {
+          "path": "src/lib/ai/retention.ts",
+          "line": 1,
+          "symbol": "(file)"
+        }
+      ]
+    },
+    {
+      "id": "ai-nomatch",
+      "page": "ai",
+      "kind": "node",
+      "label": "No matching candidates\nLocalized answer; no model invoked",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/lib/ai/chat.ts",
+          "line": 88,
+          "symbol": "hits.length === 0"
+        }
+      ]
+    },
+    {
+      "id": "ai-edge-1",
+      "page": "ai",
+      "kind": "edge",
+      "label": "retrieve last user query",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/lib/ai/chat.ts",
+          "line": 80,
+          "symbol": "lastUser"
+        }
+      ]
+    },
+    {
+      "id": "ai-edge-2",
+      "page": "ai",
+      "kind": "edge",
+      "label": "optional semantic pass;\nfailure preserves candidates",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/lib/ai/python-runtime.ts",
+          "line": 5,
+          "symbol": "rerankWithService"
+        }
+      ]
+    },
+    {
+      "id": "ai-edge-3",
+      "page": "ai",
+      "kind": "edge",
+      "label": "matching hits → prompt context",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/lib/ai/chat.ts",
+          "line": 101,
+          "symbol": "const context = contextOf"
+        }
+      ]
+    },
+    {
+      "id": "ai-edge-4",
+      "page": "ai",
+      "kind": "edge",
+      "label": "empty candidates",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/lib/ai/chat.ts",
+          "line": 88,
+          "symbol": "hits.length === 0"
+        }
+      ]
+    },
+    {
+      "id": "ai-edge-5",
+      "page": "ai",
+      "kind": "edge",
+      "label": "configured adapters only",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/lib/ai/runtime.ts",
+          "line": 46,
+          "symbol": "activeProviders"
+        }
+      ]
+    },
+    {
+      "id": "ai-edge-6",
+      "page": "ai",
+      "kind": "edge",
+      "label": "persist returned result",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/lib/ai/chat.ts",
+          "line": 92,
+          "symbol": "await persist(params, lastUser, out)"
+        }
+      ]
+    },
+    {
+      "id": "ai-edge-7",
+      "page": "ai",
+      "kind": "edge",
+      "label": "persist no-match exchange",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/lib/ai/chat.ts",
+          "line": 92,
+          "symbol": "await persist(params, lastUser, out)"
+        }
+      ]
+    },
+    {
+      "id": "integrations-upload",
+      "page": "integrations",
+      "kind": "node",
+      "label": "POST /api/v1/media/business-image\nPermission + size/MIME + safe re-encode",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/app/api/v1/media/business-image/route.ts",
+          "line": 1,
+          "symbol": "(file)"
+        }
+      ]
+    },
+    {
+      "id": "integrations-s3",
+      "page": "integrations",
+      "kind": "node",
+      "label": "Server stores normalized image\nS3-compatible object storage",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/lib/storage.ts",
+          "line": 79,
+          "symbol": "storeBusinessImage"
+        }
+      ]
+    },
+    {
+      "id": "integrations-media",
+      "page": "integrations",
+      "kind": "node",
+      "label": "Media metadata in PostgreSQL\nUpload ownership checked on business save",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/app/api/v1/media/business-image/route.ts",
+          "line": 68,
+          "symbol": "prisma.media.create"
+        },
+        {
+          "path": "src/lib/business-admin.ts",
+          "line": 135,
+          "symbol": "assertOwnMedia"
+        }
+      ]
+    },
+    {
+      "id": "integrations-map",
+      "page": "integrations",
+      "kind": "node",
+      "label": "Browser MapLibre maps\nOpenFreeMap default / configurable style",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/lib/map-config.ts",
+          "line": 7,
+          "symbol": "DEFAULT_MAP_STYLE_URL"
+        },
+        {
+          "path": "src/components/map/PlacesMap.tsx",
+          "line": 1,
+          "symbol": "(file)"
+        }
+      ]
+    },
+    {
+      "id": "integrations-geocoder",
+      "page": "integrations",
+      "kind": "node",
+      "label": "Server Nominatim-compatible lookup\nSuggestions require explicit confirmation",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/lib/geocoder.ts",
+          "line": 26,
+          "symbol": "geocodeAddress"
+        }
+      ]
+    },
+    {
+      "id": "integrations-email",
+      "page": "integrations",
+      "kind": "node",
+      "label": "sendEmail → Resend or disabled\nAuth, contact, review notifications",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/lib/email/index.ts",
+          "line": 32,
+          "symbol": "function provider"
+        }
+      ]
+    },
+    {
+      "id": "integrations-presigned",
+      "page": "integrations",
+      "kind": "node",
+      "label": "Separate upload-url API\nShort-lived pre-signed PUT (300 seconds)",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/app/api/v1/media/upload-url/route.ts",
+          "line": 1,
+          "symbol": "(file)"
+        },
+        {
+          "path": "src/lib/storage.ts",
+          "line": 39,
+          "symbol": "createUploadUrl"
+        }
+      ]
+    },
+    {
+      "id": "integrations-edge-1",
+      "page": "integrations",
+      "kind": "edge",
+      "label": "validated image bytes",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/app/api/v1/media/business-image/route.ts",
+          "line": 66,
+          "symbol": "await storeBusinessImage"
+        }
+      ]
+    },
+    {
+      "id": "integrations-edge-2",
+      "page": "integrations",
+      "kind": "edge",
+      "label": "record URL; cleanup object on DB failure",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/app/api/v1/media/business-image/route.ts",
+          "line": 68,
+          "symbol": "prisma.media.create"
+        }
+      ]
+    },
+    {
+      "id": "integrations-edge-3",
+      "page": "integrations",
+      "kind": "edge",
+      "label": "browser direct PUT with signed URL",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/lib/storage.ts",
+          "line": 7,
+          "symbol": "getSignedUrl"
+        }
+      ]
+    },
+    {
+      "id": "delivery-repo",
+      "page": "delivery",
+      "kind": "node",
+      "label": "GitHub main / feature branches\nRega repository only",
+      "status": "CONFIG",
+      "evidence": [
+        {
+          "path": ".github/workflows/ci.yml",
+          "line": 1,
+          "symbol": "(file)"
+        }
+      ]
+    },
+    {
+      "id": "delivery-ci",
+      "page": "delivery",
+      "kind": "node",
+      "label": "CI: disposable PostgreSQL\nLint / types / unit / browser / Worker build",
+      "status": "CONFIG",
+      "evidence": [
+        {
+          "path": ".github/workflows/ci.yml",
+          "line": 1,
+          "symbol": "(file)"
+        }
+      ]
+    },
+    {
+      "id": "delivery-deploy",
+      "page": "delivery",
+      "kind": "node",
+      "label": "Successful main CI → deploy.yml\nDocs-only skip + identity/target checks",
+      "status": "CONFIG",
+      "evidence": [
+        {
+          "path": ".github/workflows/deploy.yml",
+          "line": 33,
+          "symbol": "DOCS_ONLY_SKIP"
+        }
+      ]
+    },
+    {
+      "id": "delivery-open",
+      "page": "delivery",
+      "kind": "node",
+      "label": "Build: Next → OpenNext → worker.mjs\nPreview isolation → edge cache → fetch",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "open-next.config.ts",
+          "line": 1,
+          "symbol": "(file)"
+        },
+        {
+          "path": "worker.mjs",
+          "line": 1,
+          "symbol": "(file)"
+        }
+      ]
+    },
+    {
+      "id": "delivery-live",
+      "page": "delivery",
+      "kind": "node",
+      "label": "rega24 active allocation: 100%\nVersion df20f6a1-ad1d-4967-\nab52-1df65c46196c",
+      "status": "LIVE",
+      "evidence": [
+        {
+          "live": "/workers/scripts/rega24/deployments",
+          "observed": "2026-10-26",
+          "method": "GET"
+        }
+      ]
+    },
+    {
+      "id": "delivery-builds",
+      "page": "delivery",
+      "kind": "node",
+      "label": "Cloudflare Builds trigger\nmain only; deploy command is dry-run",
+      "status": "LIVE",
+      "evidence": [
+        {
+          "live": "/builds/workers/7b845cda2ee749c89c4f9b83490609b4/triggers",
+          "observed": "2026-10-26",
+          "method": "GET"
+        }
+      ]
+    },
+    {
+      "id": "delivery-manual",
+      "page": "delivery",
+      "kind": "node",
+      "label": "Manual-only migrations / secret sync\nPython deploy: selected main paths or manual",
+      "status": "CONFIG",
+      "evidence": [
+        {
+          "path": ".github/workflows/db-migrate.yml",
+          "line": 1,
+          "symbol": "(file)"
+        },
+        {
+          "path": ".github/workflows/worker-secrets-sync.yml",
+          "line": 1,
+          "symbol": "(file)"
+        },
+        {
+          "path": ".github/workflows/ai-python-deploy.yml",
+          "line": 1,
+          "symbol": "(file)"
+        }
+      ]
+    },
+    {
+      "id": "delivery-edge-1",
+      "page": "delivery",
+      "kind": "edge",
+      "label": "pull_request or push main",
+      "status": "CONFIG",
+      "evidence": [
+        {
+          "path": ".github/workflows/ci.yml",
+          "line": 1,
+          "symbol": "(file)"
+        }
+      ]
+    },
+    {
+      "id": "delivery-edge-2",
+      "page": "delivery",
+      "kind": "edge",
+      "label": "workflow_run success on main",
+      "status": "CONFIG",
+      "evidence": [
+        {
+          "path": ".github/workflows/deploy.yml",
+          "line": 1,
+          "symbol": "(file)"
+        }
+      ]
+    },
+    {
+      "id": "delivery-edge-3",
+      "page": "delivery",
+      "kind": "edge",
+      "label": "build checked-out CI SHA",
+      "status": "CONFIG",
+      "evidence": [
+        {
+          "path": ".github/workflows/deploy.yml",
+          "line": 1,
+          "symbol": "(file)"
+        },
+        {
+          "path": "package.json",
+          "line": 8,
+          "symbol": "\"build\""
+        }
+      ]
+    },
+    {
+      "id": "delivery-edge-4",
+      "page": "delivery",
+      "kind": "edge",
+      "label": "declared production publish path;\nactive source SHA not established",
+      "status": "CONFIG",
+      "evidence": [
+        {
+          "path": ".github/workflows/deploy.yml",
+          "line": 1,
+          "symbol": "(file)"
+        }
+      ]
+    },
+    {
+      "id": "delivery-edge-5",
+      "page": "delivery",
+      "kind": "edge",
+      "label": "independent main build only",
+      "status": "LIVE",
+      "evidence": [
+        {
+          "live": "/builds/workers/7b845cda2ee749c89c4f9b83490609b4/triggers",
+          "observed": "2026-10-26",
+          "method": "GET"
+        }
+      ]
+    },
+    {
+      "id": "security-input",
+      "page": "security",
+      "kind": "node",
+      "label": "Untrusted browser input\nForms / JSON / image bytes",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/lib/validation.ts",
+          "line": 1,
+          "symbol": "(file)"
+        },
+        {
+          "path": "src/app/api/v1/media/business-image/route.ts",
+          "line": 1,
+          "symbol": "(file)"
+        }
+      ]
+    },
+    {
+      "id": "security-session",
+      "page": "security",
+      "kind": "node",
+      "label": "Auth.js JWT + account revalidation\nPassword or admin email-code provider",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/auth.config.ts",
+          "line": 80,
+          "symbol": "buildAuthConfig"
+        },
+        {
+          "path": "src/features/auth/admin-code.ts",
+          "line": 1,
+          "symbol": "(file)"
+        }
+      ]
+    },
+    {
+      "id": "security-access",
+      "page": "security",
+      "kind": "node",
+      "label": "Server permission + business membership\nOwner-restricted SUPER_ADMIN rule",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/lib/auth-helpers.ts",
+          "line": 1,
+          "symbol": "(file)"
+        },
+        {
+          "path": "src/lib/business-access.ts",
+          "line": 1,
+          "symbol": "(file)"
+        },
+        {
+          "path": "src/lib/rbac.ts",
+          "line": 15,
+          "symbol": "effectiveRole"
+        }
+      ]
+    },
+    {
+      "id": "security-db",
+      "page": "security",
+      "kind": "node",
+      "label": "Server-only data boundary\nPrisma + validated write policies",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/lib/db.ts",
+          "line": 1,
+          "symbol": "(file)"
+        },
+        {
+          "path": "src/lib/business-publication.ts",
+          "line": 1,
+          "symbol": "(file)"
+        }
+      ]
+    },
+    {
+      "id": "security-outbound",
+      "page": "security",
+      "kind": "node",
+      "label": "External services boundary\nServer-held credentials; user content as data",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/lib/ai/chat.ts",
+          "line": 105,
+          "symbol": "SECURITY:"
+        },
+        {
+          "path": "src/lib/storage.ts",
+          "line": 1,
+          "symbol": "(file)"
+        }
+      ]
+    },
+    {
+      "id": "security-limits",
+      "page": "security",
+      "kind": "node",
+      "label": "Rate limits + AI budget + preview isolation\nShared limiter has local fallback on error",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/lib/rate-limit.ts",
+          "line": 28,
+          "symbol": "allowShared"
+        },
+        {
+          "path": "src/lib/ai/chat.ts",
+          "line": 60,
+          "symbol": "budgetAllows"
+        },
+        {
+          "path": "src/lib/preview-isolation.ts",
+          "line": 1,
+          "symbol": "(file)"
+        }
+      ]
+    },
+    {
+      "id": "security-headers",
+      "page": "security",
+      "kind": "node",
+      "label": "CSP / HTTPS / cache bypass rules\nCSP includes inline script allowance",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "next.config.ts",
+          "line": 24,
+          "symbol": "const csp"
+        },
+        {
+          "path": "src/lib/edge-cache.ts",
+          "line": 69,
+          "symbol": "BYPASS_PATH"
+        }
+      ]
+    },
+    {
+      "id": "security-edge-1",
+      "page": "security",
+      "kind": "edge",
+      "label": "authenticate protected requests",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/lib/auth-helpers.ts",
+          "line": 1,
+          "symbol": "(file)"
+        }
+      ]
+    },
+    {
+      "id": "security-edge-2",
+      "page": "security",
+      "kind": "edge",
+      "label": "re-read active account + role",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/lib/auth-helpers.ts",
+          "line": 37,
+          "symbol": "currentAccount"
+        }
+      ]
+    },
+    {
+      "id": "security-edge-3",
+      "page": "security",
+      "kind": "edge",
+      "label": "authorized data access",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/lib/business-access.ts",
+          "line": 26,
+          "symbol": "assertBusinessAccess"
+        },
+        {
+          "path": "src/app/dr/businesses/actions.ts",
+          "line": 1,
+          "symbol": "(file)"
+        }
+      ]
+    },
+    {
+      "id": "security-edge-4",
+      "page": "security",
+      "kind": "edge",
+      "label": "rate / payload guards",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/app/api/v1/ai/chat/route.ts",
+          "line": 1,
+          "symbol": "(file)"
+        },
+        {
+          "path": "src/app/api/v1/media/business-image/route.ts",
+          "line": 1,
+          "symbol": "(file)"
+        }
+      ]
+    },
+    {
+      "id": "security-edge-5",
+      "page": "security",
+      "kind": "edge",
+      "label": "outbound requests from server",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "src/lib/storage.ts",
+          "line": 1,
+          "symbol": "(file)"
+        },
+        {
+          "path": "src/lib/ai/runtime.ts",
+          "line": 1,
+          "symbol": "(file)"
+        }
+      ]
+    },
+    {
+      "id": "database1-User",
+      "page": "database1",
+      "kind": "node",
+      "label": "User\nPK id              String    @id @default(cuid())",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 29,
+          "symbol": "model User {"
+        }
+      ]
+    },
+    {
+      "id": "database1-Account",
+      "page": "database1",
+      "kind": "node",
+      "label": "Account\nPK @@id([provider, providerAccountId])\nFK userId → User",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 57,
+          "symbol": "model Account {"
+        }
+      ]
+    },
+    {
+      "id": "database1-Session",
+      "page": "database1",
+      "kind": "node",
+      "label": "Session\nPK sessionToken String   @id\nFK userId → User",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 76,
+          "symbol": "model Session {"
+        }
+      ]
+    },
+    {
+      "id": "database1-AdminSignInCode",
+      "page": "database1",
+      "kind": "node",
+      "label": "AdminSignInCode\nPK email     String   @id",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 89,
+          "symbol": "model AdminSignInCode {"
+        }
+      ]
+    },
+    {
+      "id": "database1-VerificationToken",
+      "page": "database1",
+      "kind": "node",
+      "label": "VerificationToken\nPK @@id([identifier, token])",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 98,
+          "symbol": "model VerificationToken {"
+        }
+      ]
+    },
+    {
+      "id": "database1-BusinessMember",
+      "page": "database1",
+      "kind": "node",
+      "label": "BusinessMember\nPK id         String   @id @default(cuid())\nFK businessId → Business\nFK userId → User",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 443,
+          "symbol": "model BusinessMember {"
+        }
+      ]
+    },
+    {
+      "id": "database1-AuditLog",
+      "page": "database1",
+      "kind": "node",
+      "label": "AuditLog\nPK id         String   @id @default(cuid())\nFK actorId → User",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 511,
+          "symbol": "model AuditLog {"
+        }
+      ]
+    },
+    {
+      "id": "database1-Review",
+      "page": "database1",
+      "kind": "node",
+      "label": "Review\nPK id            String    @id @default(cuid())\nFK businessId → Business\nFK userId → User",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 486,
+          "symbol": "model Review {"
+        }
+      ]
+    },
+    {
+      "id": "database1-edge-1",
+      "page": "database1",
+      "kind": "edge",
+      "label": "userId → id",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 70,
+          "symbol": "user User @relation(fields: [userId], references: [id], onDelete: Cascade)"
+        }
+      ]
+    },
+    {
+      "id": "database1-edge-2",
+      "page": "database1",
+      "kind": "edge",
+      "label": "userId → id",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 81,
+          "symbol": "user User @relation(fields: [userId], references: [id], onDelete: Cascade)"
+        }
+      ]
+    },
+    {
+      "id": "database1-edge-3",
+      "page": "database1",
+      "kind": "edge",
+      "label": "userId → id",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 453,
+          "symbol": "user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)"
+        }
+      ]
+    },
+    {
+      "id": "database1-edge-4",
+      "page": "database1",
+      "kind": "edge",
+      "label": "userId → id (nullable)",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 501,
+          "symbol": "user     User?    @relation(fields: [userId], references: [id], onDelete: SetNull)"
+        }
+      ]
+    },
+    {
+      "id": "database1-edge-5",
+      "page": "database1",
+      "kind": "edge",
+      "label": "actorId → id (nullable)",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 524,
+          "symbol": "actor User? @relation(fields: [actorId], references: [id], onDelete: SetNull)"
+        }
+      ]
+    },
+    {
+      "id": "database2-Country",
+      "page": "database2",
+      "kind": "node",
+      "label": "Country\nPK id        String   @id @default(cuid())",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 108,
+          "symbol": "model Country {"
+        }
+      ]
+    },
+    {
+      "id": "database2-Region",
+      "page": "database2",
+      "kind": "node",
+      "label": "Region\nPK id        String   @id @default(cuid())\nFK countryId → Country",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 130,
+          "symbol": "model Region {"
+        }
+      ]
+    },
+    {
+      "id": "database2-City",
+      "page": "database2",
+      "kind": "node",
+      "label": "City\nPK id        String   @id @default(cuid())\nFK countryId → Country\nFK regionId → Region",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 182,
+          "symbol": "model City {"
+        }
+      ]
+    },
+    {
+      "id": "database2-CountryTranslation",
+      "page": "database2",
+      "kind": "node",
+      "label": "CountryTranslation\nPK id        String  @id @default(cuid())\nFK countryId → Country",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 152,
+          "symbol": "model CountryTranslation {"
+        }
+      ]
+    },
+    {
+      "id": "database2-RegionTranslation",
+      "page": "database2",
+      "kind": "node",
+      "label": "RegionTranslation\nPK id       String @id @default(cuid())\nFK regionId → Region",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 162,
+          "symbol": "model RegionTranslation {"
+        }
+      ]
+    },
+    {
+      "id": "database2-CityTranslation",
+      "page": "database2",
+      "kind": "node",
+      "label": "CityTranslation\nPK id     String @id @default(cuid())\nFK cityId → City",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 172,
+          "symbol": "model CityTranslation {"
+        }
+      ]
+    },
+    {
+      "id": "database2-Location",
+      "page": "database2",
+      "kind": "node",
+      "label": "Location\nPK id               String    @id @default(cuid())\nFK businessId → Business\nFK cityId → City",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 342,
+          "symbol": "model Location {"
+        }
+      ]
+    },
+    {
+      "id": "database2-edge-1",
+      "page": "database2",
+      "kind": "edge",
+      "label": "countryId → id",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 142,
+          "symbol": "country      Country             @relation(fields: [countryId], references: [id], onDelete: Restrict)"
+        }
+      ]
+    },
+    {
+      "id": "database2-edge-2",
+      "page": "database2",
+      "kind": "edge",
+      "label": "countryId → id",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 157,
+          "symbol": "country   Country @relation(fields: [countryId], references: [id], onDelete: Cascade)"
+        }
+      ]
+    },
+    {
+      "id": "database2-edge-3",
+      "page": "database2",
+      "kind": "edge",
+      "label": "regionId → id",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 167,
+          "symbol": "region   Region @relation(fields: [regionId], references: [id], onDelete: Cascade)"
+        }
+      ]
+    },
+    {
+      "id": "database2-edge-4",
+      "page": "database2",
+      "kind": "edge",
+      "label": "cityId → id",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 177,
+          "symbol": "city   City   @relation(fields: [cityId], references: [id], onDelete: Cascade)"
+        }
+      ]
+    },
+    {
+      "id": "database2-edge-5",
+      "page": "database2",
+      "kind": "edge",
+      "label": "countryId → id",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 202,
+          "symbol": "country      Country           @relation(fields: [countryId], references: [id], onDelete: Restrict)"
+        }
+      ]
+    },
+    {
+      "id": "database2-edge-6",
+      "page": "database2",
+      "kind": "edge",
+      "label": "regionId → id (nullable)",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 203,
+          "symbol": "region       Region?           @relation(fields: [regionId], references: [id], onDelete: SetNull)"
+        }
+      ]
+    },
+    {
+      "id": "database2-edge-7",
+      "page": "database2",
+      "kind": "edge",
+      "label": "cityId → id (nullable)",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 368,
+          "symbol": "city     City?    @relation(fields: [cityId], references: [id], onDelete: SetNull)"
+        }
+      ]
+    },
+    {
+      "id": "database3-Business",
+      "page": "database3",
+      "kind": "node",
+      "label": "Business\nPK id             String    @id @default(cuid())\nFK categoryId → Category",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 269,
+          "symbol": "model Business {"
+        }
+      ]
+    },
+    {
+      "id": "database3-Category",
+      "page": "database3",
+      "kind": "node",
+      "label": "Category\nPK id             String    @id @default(cuid())\nFK parentId → Category",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 216,
+          "symbol": "model Category {"
+        }
+      ]
+    },
+    {
+      "id": "database3-Service",
+      "page": "database3",
+      "kind": "node",
+      "label": "Service\nPK id             String    @id @default(cuid())\nFK businessId → Business\nFK categoryId → Category",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 377,
+          "symbol": "model Service {"
+        }
+      ]
+    },
+    {
+      "id": "database3-Location",
+      "page": "database3",
+      "kind": "node",
+      "label": "Location\nPK id               String    @id @default(cuid())\nFK businessId → Business\nFK cityId → City",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 342,
+          "symbol": "model Location {"
+        }
+      ]
+    },
+    {
+      "id": "database3-BusinessMember",
+      "page": "database3",
+      "kind": "node",
+      "label": "BusinessMember\nPK id         String   @id @default(cuid())\nFK businessId → Business\nFK userId → User",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 443,
+          "symbol": "model BusinessMember {"
+        }
+      ]
+    },
+    {
+      "id": "database3-Media",
+      "page": "database3",
+      "kind": "node",
+      "label": "Media\nPK id           String    @id @default(cuid())\nFK businessId → Business\nFK serviceId → Service",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 459,
+          "symbol": "model Media {"
+        }
+      ]
+    },
+    {
+      "id": "database3-Review",
+      "page": "database3",
+      "kind": "node",
+      "label": "Review\nPK id            String    @id @default(cuid())\nFK businessId → Business\nFK userId → User",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 486,
+          "symbol": "model Review {"
+        }
+      ]
+    },
+    {
+      "id": "database3-Offer",
+      "page": "database3",
+      "kind": "node",
+      "label": "Offer\nPK id            String    @id @default(cuid())\nFK businessId → Business",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 420,
+          "symbol": "model Offer {"
+        }
+      ]
+    },
+    {
+      "id": "database3-BusinessTranslation",
+      "page": "database3",
+      "kind": "node",
+      "label": "BusinessTranslation\nPK id          String   @id @default(cuid())\nFK businessId → Business",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 331,
+          "symbol": "model BusinessTranslation {"
+        }
+      ]
+    },
+    {
+      "id": "database3-CategoryTranslation",
+      "page": "database3",
+      "kind": "node",
+      "label": "CategoryTranslation\nPK id          String   @id @default(cuid())\nFK categoryId → Category",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 255,
+          "symbol": "model CategoryTranslation {"
+        }
+      ]
+    },
+    {
+      "id": "database3-edge-1",
+      "page": "database3",
+      "kind": "edge",
+      "label": "parentId → id (nullable)",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 243,
+          "symbol": "parent       Category?             @relation(\"CategoryTree\", fields: [parentId], references: [id], onDelete: SetNull)"
+        }
+      ]
+    },
+    {
+      "id": "database3-edge-2",
+      "page": "database3",
+      "kind": "edge",
+      "label": "categoryId → id",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 261,
+          "symbol": "category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)"
+        }
+      ]
+    },
+    {
+      "id": "database3-edge-3",
+      "page": "database3",
+      "kind": "edge",
+      "label": "categoryId → id (nullable)",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 311,
+          "symbol": "category     Category?             @relation(fields: [categoryId], references: [id], onDelete: SetNull)"
+        }
+      ]
+    },
+    {
+      "id": "database3-edge-4",
+      "page": "database3",
+      "kind": "edge",
+      "label": "businessId → id",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 337,
+          "symbol": "business    Business @relation(fields: [businessId], references: [id], onDelete: Cascade)"
+        }
+      ]
+    },
+    {
+      "id": "database3-edge-5",
+      "page": "database3",
+      "kind": "edge",
+      "label": "businessId → id",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 367,
+          "symbol": "business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)"
+        }
+      ]
+    },
+    {
+      "id": "database3-edge-6",
+      "page": "database3",
+      "kind": "edge",
+      "label": "businessId → id",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 405,
+          "symbol": "business Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)"
+        }
+      ]
+    },
+    {
+      "id": "database3-edge-7",
+      "page": "database3",
+      "kind": "edge",
+      "label": "categoryId → id (nullable)",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 406,
+          "symbol": "category Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)"
+        }
+      ]
+    },
+    {
+      "id": "database3-edge-8",
+      "page": "database3",
+      "kind": "edge",
+      "label": "businessId → id",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 438,
+          "symbol": "business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)"
+        }
+      ]
+    },
+    {
+      "id": "database3-edge-9",
+      "page": "database3",
+      "kind": "edge",
+      "label": "businessId → id",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 452,
+          "symbol": "business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)"
+        }
+      ]
+    },
+    {
+      "id": "database3-edge-10",
+      "page": "database3",
+      "kind": "edge",
+      "label": "businessId → id (nullable)",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 479,
+          "symbol": "business Business? @relation(fields: [businessId], references: [id], onDelete: Cascade)"
+        }
+      ]
+    },
+    {
+      "id": "database3-edge-11",
+      "page": "database3",
+      "kind": "edge",
+      "label": "serviceId → id (nullable)",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 480,
+          "symbol": "service  Service?  @relation(fields: [serviceId], references: [id], onDelete: Cascade)"
+        }
+      ]
+    },
+    {
+      "id": "database3-edge-12",
+      "page": "database3",
+      "kind": "edge",
+      "label": "businessId → id",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 500,
+          "symbol": "business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)"
+        }
+      ]
+    },
+    {
+      "id": "database4-Listing",
+      "page": "database4",
+      "kind": "node",
+      "label": "Listing\nPK id          String    @id @default(cuid())\nFK businessId → Business\nFK cityId → City\nFK categoryId → Category",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 659,
+          "symbol": "model Listing {"
+        }
+      ]
+    },
+    {
+      "id": "database4-ListingTranslation",
+      "page": "database4",
+      "kind": "node",
+      "label": "ListingTranslation\nPK id        String  @id @default(cuid())\nFK listingId → Listing",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 695,
+          "symbol": "model ListingTranslation {"
+        }
+      ]
+    },
+    {
+      "id": "database4-JobDetails",
+      "page": "database4",
+      "kind": "node",
+      "label": "JobDetails\nPK listingId      String   @id\nFK listingId → Listing",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 707,
+          "symbol": "model JobDetails {"
+        }
+      ]
+    },
+    {
+      "id": "database4-EventDetails",
+      "page": "database4",
+      "kind": "node",
+      "label": "EventDetails\nPK listingId String    @id\nFK listingId → Listing",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 718,
+          "symbol": "model EventDetails {"
+        }
+      ]
+    },
+    {
+      "id": "database4-GuideDetails",
+      "page": "database4",
+      "kind": "node",
+      "label": "GuideDetails\nPK listingId   String  @id\nFK listingId → Listing",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 729,
+          "symbol": "model GuideDetails {"
+        }
+      ]
+    },
+    {
+      "id": "database4-Page",
+      "page": "database4",
+      "kind": "node",
+      "label": "Page\nPK id        String   @id @default(cuid())",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 629,
+          "symbol": "model Page {"
+        }
+      ]
+    },
+    {
+      "id": "database4-PageTranslation",
+      "page": "database4",
+      "kind": "node",
+      "label": "PageTranslation\nPK id              String  @id @default(cuid())\nFK pageId → Page",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 642,
+          "symbol": "model PageTranslation {"
+        }
+      ]
+    },
+    {
+      "id": "database4-Business",
+      "page": "database4",
+      "kind": "node",
+      "label": "Business\nPK id             String    @id @default(cuid())\nFK categoryId → Category",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 269,
+          "symbol": "model Business {"
+        }
+      ]
+    },
+    {
+      "id": "database4-City",
+      "page": "database4",
+      "kind": "node",
+      "label": "City\nPK id        String   @id @default(cuid())\nFK countryId → Country\nFK regionId → Region",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 182,
+          "symbol": "model City {"
+        }
+      ]
+    },
+    {
+      "id": "database4-Category",
+      "page": "database4",
+      "kind": "node",
+      "label": "Category\nPK id             String    @id @default(cuid())\nFK parentId → Category",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 216,
+          "symbol": "model Category {"
+        }
+      ]
+    },
+    {
+      "id": "database4-edge-1",
+      "page": "database4",
+      "kind": "edge",
+      "label": "parentId → id (nullable)",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 243,
+          "symbol": "parent       Category?             @relation(\"CategoryTree\", fields: [parentId], references: [id], onDelete: SetNull)"
+        }
+      ]
+    },
+    {
+      "id": "database4-edge-2",
+      "page": "database4",
+      "kind": "edge",
+      "label": "categoryId → id (nullable)",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 311,
+          "symbol": "category     Category?             @relation(fields: [categoryId], references: [id], onDelete: SetNull)"
+        }
+      ]
+    },
+    {
+      "id": "database4-edge-3",
+      "page": "database4",
+      "kind": "edge",
+      "label": "pageId → id",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 649,
+          "symbol": "page            Page    @relation(fields: [pageId], references: [id], onDelete: Cascade)"
+        }
+      ]
+    },
+    {
+      "id": "database4-edge-4",
+      "page": "database4",
+      "kind": "edge",
+      "label": "businessId → id (nullable)",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 678,
+          "symbol": "business     Business?            @relation(fields: [businessId], references: [id], onDelete: SetNull)"
+        }
+      ]
+    },
+    {
+      "id": "database4-edge-5",
+      "page": "database4",
+      "kind": "edge",
+      "label": "cityId → id (nullable)",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 679,
+          "symbol": "city         City?                @relation(fields: [cityId], references: [id], onDelete: SetNull)"
+        }
+      ]
+    },
+    {
+      "id": "database4-edge-6",
+      "page": "database4",
+      "kind": "edge",
+      "label": "categoryId → id (nullable)",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 680,
+          "symbol": "category     Category?            @relation(fields: [categoryId], references: [id], onDelete: SetNull)"
+        }
+      ]
+    },
+    {
+      "id": "database4-edge-7",
+      "page": "database4",
+      "kind": "edge",
+      "label": "listingId → id",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 702,
+          "symbol": "listing   Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)"
+        }
+      ]
+    },
+    {
+      "id": "database4-edge-8",
+      "page": "database4",
+      "kind": "edge",
+      "label": "listingId → id",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 715,
+          "symbol": "listing        Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)"
+        }
+      ]
+    },
+    {
+      "id": "database4-edge-9",
+      "page": "database4",
+      "kind": "edge",
+      "label": "listingId → id",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 724,
+          "symbol": "listing   Listing   @relation(fields: [listingId], references: [id], onDelete: Cascade)"
+        }
+      ]
+    },
+    {
+      "id": "database4-edge-10",
+      "page": "database4",
+      "kind": "edge",
+      "label": "listingId → id",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 732,
+          "symbol": "listing     Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)"
+        }
+      ]
+    },
+    {
+      "id": "database5-AiConversation",
+      "page": "database5",
+      "kind": "node",
+      "label": "AiConversation\nPK id        String   @id @default(cuid())",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 549,
+          "symbol": "model AiConversation {"
+        }
+      ]
+    },
+    {
+      "id": "database5-AiMessage",
+      "page": "database5",
+      "kind": "node",
+      "label": "AiMessage\nPK id             String   @id @default(cuid())\nFK conversationId → AiConversation",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 561,
+          "symbol": "model AiMessage {"
+        }
+      ]
+    },
+    {
+      "id": "database5-AiUsageDaily",
+      "page": "database5",
+      "kind": "node",
+      "label": "AiUsageDaily\nPK id        String   @id @default(cuid())",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 578,
+          "symbol": "model AiUsageDaily {"
+        }
+      ]
+    },
+    {
+      "id": "database5-FeatureFlag",
+      "page": "database5",
+      "kind": "node",
+      "label": "FeatureFlag\nPK id          String   @id @default(cuid())",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 531,
+          "symbol": "model FeatureFlag {"
+        }
+      ]
+    },
+    {
+      "id": "database5-Setting",
+      "page": "database5",
+      "kind": "node",
+      "label": "Setting\nPK key       String   @id",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 542,
+          "symbol": "model Setting {"
+        }
+      ]
+    },
+    {
+      "id": "database5-Report",
+      "page": "database5",
+      "kind": "node",
+      "label": "Report\nPK id            String    @id @default(cuid())",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 593,
+          "symbol": "model Report {"
+        }
+      ]
+    },
+    {
+      "id": "database5-ContactMessage",
+      "page": "database5",
+      "kind": "node",
+      "label": "ContactMessage\nPK id        String   @id @default(cuid())",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 615,
+          "symbol": "model ContactMessage {"
+        }
+      ]
+    },
+    {
+      "id": "database5-edge-1",
+      "page": "database5",
+      "kind": "edge",
+      "label": "conversationId → id",
+      "status": "CODE",
+      "evidence": [
+        {
+          "path": "prisma/schema.prisma",
+          "line": 573,
+          "symbol": "conversation AiConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)"
+        }
+      ]
+    }
+  ],
+  "models": [
+    "User",
+    "Account",
+    "Session",
+    "AdminSignInCode",
+    "VerificationToken",
+    "Country",
+    "Region",
+    "CountryTranslation",
+    "RegionTranslation",
+    "CityTranslation",
+    "City",
+    "Category",
+    "CategoryTranslation",
+    "Business",
+    "BusinessTranslation",
+    "Location",
+    "Service",
+    "Offer",
+    "BusinessMember",
+    "Media",
+    "Review",
+    "AuditLog",
+    "FeatureFlag",
+    "Setting",
+    "AiConversation",
+    "AiMessage",
+    "AiUsageDaily",
+    "Report",
+    "ContactMessage",
+    "Page",
+    "PageTranslation",
+    "Listing",
+    "ListingTranslation",
+    "JobDetails",
+    "EventDetails",
+    "GuideDetails"
+  ],
+  "relations": [
+    {
+      "source": "Account",
+      "target": "User",
+      "field": "user",
+      "fk": "userId",
+      "references": "id",
+      "optional": false,
+      "declaration": "user User @relation(fields: [userId], references: [id], onDelete: Cascade)"
+    },
+    {
+      "source": "Session",
+      "target": "User",
+      "field": "user",
+      "fk": "userId",
+      "references": "id",
+      "optional": false,
+      "declaration": "user User @relation(fields: [userId], references: [id], onDelete: Cascade)"
+    },
+    {
+      "source": "Region",
+      "target": "Country",
+      "field": "country",
+      "fk": "countryId",
+      "references": "id",
+      "optional": false,
+      "declaration": "country      Country             @relation(fields: [countryId], references: [id], onDelete: Restrict)"
+    },
+    {
+      "source": "CountryTranslation",
+      "target": "Country",
+      "field": "country",
+      "fk": "countryId",
+      "references": "id",
+      "optional": false,
+      "declaration": "country   Country @relation(fields: [countryId], references: [id], onDelete: Cascade)"
+    },
+    {
+      "source": "RegionTranslation",
+      "target": "Region",
+      "field": "region",
+      "fk": "regionId",
+      "references": "id",
+      "optional": false,
+      "declaration": "region   Region @relation(fields: [regionId], references: [id], onDelete: Cascade)"
+    },
+    {
+      "source": "CityTranslation",
+      "target": "City",
+      "field": "city",
+      "fk": "cityId",
+      "references": "id",
+      "optional": false,
+      "declaration": "city   City   @relation(fields: [cityId], references: [id], onDelete: Cascade)"
+    },
+    {
+      "source": "City",
+      "target": "Country",
+      "field": "country",
+      "fk": "countryId",
+      "references": "id",
+      "optional": false,
+      "declaration": "country      Country           @relation(fields: [countryId], references: [id], onDelete: Restrict)"
+    },
+    {
+      "source": "City",
+      "target": "Region",
+      "field": "region",
+      "fk": "regionId",
+      "references": "id",
+      "optional": true,
+      "declaration": "region       Region?           @relation(fields: [regionId], references: [id], onDelete: SetNull)"
+    },
+    {
+      "source": "Category",
+      "target": "Category",
+      "field": "parent",
+      "fk": "parentId",
+      "references": "id",
+      "optional": true,
+      "declaration": "parent       Category?             @relation(\"CategoryTree\", fields: [parentId], references: [id], onDelete: SetNull)"
+    },
+    {
+      "source": "CategoryTranslation",
+      "target": "Category",
+      "field": "category",
+      "fk": "categoryId",
+      "references": "id",
+      "optional": false,
+      "declaration": "category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)"
+    },
+    {
+      "source": "Business",
+      "target": "Category",
+      "field": "category",
+      "fk": "categoryId",
+      "references": "id",
+      "optional": true,
+      "declaration": "category     Category?             @relation(fields: [categoryId], references: [id], onDelete: SetNull)"
+    },
+    {
+      "source": "BusinessTranslation",
+      "target": "Business",
+      "field": "business",
+      "fk": "businessId",
+      "references": "id",
+      "optional": false,
+      "declaration": "business    Business @relation(fields: [businessId], references: [id], onDelete: Cascade)"
+    },
+    {
+      "source": "Location",
+      "target": "Business",
+      "field": "business",
+      "fk": "businessId",
+      "references": "id",
+      "optional": false,
+      "declaration": "business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)"
+    },
+    {
+      "source": "Location",
+      "target": "City",
+      "field": "city",
+      "fk": "cityId",
+      "references": "id",
+      "optional": true,
+      "declaration": "city     City?    @relation(fields: [cityId], references: [id], onDelete: SetNull)"
+    },
+    {
+      "source": "Service",
+      "target": "Business",
+      "field": "business",
+      "fk": "businessId",
+      "references": "id",
+      "optional": false,
+      "declaration": "business Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)"
+    },
+    {
+      "source": "Service",
+      "target": "Category",
+      "field": "category",
+      "fk": "categoryId",
+      "references": "id",
+      "optional": true,
+      "declaration": "category Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)"
+    },
+    {
+      "source": "Offer",
+      "target": "Business",
+      "field": "business",
+      "fk": "businessId",
+      "references": "id",
+      "optional": false,
+      "declaration": "business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)"
+    },
+    {
+      "source": "BusinessMember",
+      "target": "Business",
+      "field": "business",
+      "fk": "businessId",
+      "references": "id",
+      "optional": false,
+      "declaration": "business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)"
+    },
+    {
+      "source": "BusinessMember",
+      "target": "User",
+      "field": "user",
+      "fk": "userId",
+      "references": "id",
+      "optional": false,
+      "declaration": "user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)"
+    },
+    {
+      "source": "Media",
+      "target": "Business",
+      "field": "business",
+      "fk": "businessId",
+      "references": "id",
+      "optional": true,
+      "declaration": "business Business? @relation(fields: [businessId], references: [id], onDelete: Cascade)"
+    },
+    {
+      "source": "Media",
+      "target": "Service",
+      "field": "service",
+      "fk": "serviceId",
+      "references": "id",
+      "optional": true,
+      "declaration": "service  Service?  @relation(fields: [serviceId], references: [id], onDelete: Cascade)"
+    },
+    {
+      "source": "Review",
+      "target": "Business",
+      "field": "business",
+      "fk": "businessId",
+      "references": "id",
+      "optional": false,
+      "declaration": "business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)"
+    },
+    {
+      "source": "Review",
+      "target": "User",
+      "field": "user",
+      "fk": "userId",
+      "references": "id",
+      "optional": true,
+      "declaration": "user     User?    @relation(fields: [userId], references: [id], onDelete: SetNull)"
+    },
+    {
+      "source": "AuditLog",
+      "target": "User",
+      "field": "actor",
+      "fk": "actorId",
+      "references": "id",
+      "optional": true,
+      "declaration": "actor User? @relation(fields: [actorId], references: [id], onDelete: SetNull)"
+    },
+    {
+      "source": "AiMessage",
+      "target": "AiConversation",
+      "field": "conversation",
+      "fk": "conversationId",
+      "references": "id",
+      "optional": false,
+      "declaration": "conversation AiConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)"
+    },
+    {
+      "source": "PageTranslation",
+      "target": "Page",
+      "field": "page",
+      "fk": "pageId",
+      "references": "id",
+      "optional": false,
+      "declaration": "page            Page    @relation(fields: [pageId], references: [id], onDelete: Cascade)"
+    },
+    {
+      "source": "Listing",
+      "target": "Business",
+      "field": "business",
+      "fk": "businessId",
+      "references": "id",
+      "optional": true,
+      "declaration": "business     Business?            @relation(fields: [businessId], references: [id], onDelete: SetNull)"
+    },
+    {
+      "source": "Listing",
+      "target": "City",
+      "field": "city",
+      "fk": "cityId",
+      "references": "id",
+      "optional": true,
+      "declaration": "city         City?                @relation(fields: [cityId], references: [id], onDelete: SetNull)"
+    },
+    {
+      "source": "Listing",
+      "target": "Category",
+      "field": "category",
+      "fk": "categoryId",
+      "references": "id",
+      "optional": true,
+      "declaration": "category     Category?            @relation(fields: [categoryId], references: [id], onDelete: SetNull)"
+    },
+    {
+      "source": "ListingTranslation",
+      "target": "Listing",
+      "field": "listing",
+      "fk": "listingId",
+      "references": "id",
+      "optional": false,
+      "declaration": "listing   Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)"
+    },
+    {
+      "source": "JobDetails",
+      "target": "Listing",
+      "field": "listing",
+      "fk": "listingId",
+      "references": "id",
+      "optional": false,
+      "declaration": "listing        Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)"
+    },
+    {
+      "source": "EventDetails",
+      "target": "Listing",
+      "field": "listing",
+      "fk": "listingId",
+      "references": "id",
+      "optional": false,
+      "declaration": "listing   Listing   @relation(fields: [listingId], references: [id], onDelete: Cascade)"
+    },
+    {
+      "source": "GuideDetails",
+      "target": "Listing",
+      "field": "listing",
+      "fk": "listingId",
+      "references": "id",
+      "optional": false,
+      "declaration": "listing     Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)"
+    }
+  ],
+  "pages": [
+    {
+      "id": "overview",
+      "title": "A — System Overview"
+    },
+    {
+      "id": "routes",
+      "title": "B — Application and Routes"
+    },
+    {
+      "id": "business",
+      "title": "C — Business Data Flow"
+    },
+    {
+      "id": "ai",
+      "title": "E — AI Request Pipeline"
+    },
+    {
+      "id": "integrations",
+      "title": "E2 — Media, Maps and Communication"
+    },
+    {
+      "id": "delivery",
+      "title": "F — Cloudflare and Delivery"
+    },
+    {
+      "id": "security",
+      "title": "G — Security and Trust Boundaries"
+    },
+    {
+      "id": "database1",
+      "title": "D1 — Database: Identity"
+    },
+    {
+      "id": "database2",
+      "title": "D2 — Database: Geography"
+    },
+    {
+      "id": "database3",
+      "title": "D3 — Database: Business"
+    },
+    {
+      "id": "database4",
+      "title": "D4 — Database: Content"
+    },
+    {
+      "id": "database5",
+      "title": "D5 — Database: Operations and AI"
+    }
+  ]
+}
