@@ -83,3 +83,9 @@ PR #74: https://github.com/rebar9988-max/Rega/pull/74. Initial implementation co
 
 A separate local audit checked 46 navigation links/anchors across the three pages: zero broken. A repeated local business-page Lighthouse run scored82/100/100/92, LCP3.24s, CLS0; variation reinforces that the initial72–91 performance measurements are not production certification.
 - Final source-aligned head: all3 new browser tests PASS (50.1s), covering21page-locales×4widths,metadata/logo,city/categoryfilter,and light+darkaxe/reducedmotion. TypeScript/ESLint PASS. FixtureWorkers/Nodebuilds+dryrun PASS. Hosted fullCI andproductionrelease remain pending/blocked as above.
+
+## Deployment continuation
+
+Full hosted CI40284031390 on7bc6d53 completed SUCCESS, including Node/Workers builds, full E2E/WebKit and workerd smokes. Reused separately verified focused PR75 canonical-target repair and preserved latest main5a9a95c. No unrelated PR71 schema/PR73 admin application included. The combined head is submitted to fresh CI before main release. Existing query-string redaction is explicitly retained in Wrangler, preserving the live privacy setting.
+
+Source investigation ties manual main deploy40229901441 to7011eb5 and version1a2c3a34; currentf7a118cd is the recorded privacy/settings follow-up. Runtime Next async-storage/tracing identifies16.4.2; a separate16.5.0 package string must not be mistaken for the Next runtime. Existing provider-revocation proof remains unverified; no credentials are rotated, synchronized or exposed by this feature release. Previous versionf7a118cd is the rollback target, with no schema migration needed.
