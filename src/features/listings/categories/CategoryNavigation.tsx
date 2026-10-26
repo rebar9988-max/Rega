@@ -32,7 +32,7 @@ export async function CategoryNavigation({
       <ul className="flex gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible">
         <li className="shrink-0">
           <Link
-            href="/businesses?city="
+            href="/businesses"
             aria-current={!current ? "page" : undefined}
             className={`inline-flex min-h-12 items-center rounded-xl border px-3 text-sm font-semibold ${!current ? "border-brand bg-brand-soft text-brand" : "border-line hover:border-brand"}`}
           >
