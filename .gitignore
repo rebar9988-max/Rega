@@ -14,3 +14,9 @@ node_modules
 
 # Copied from node_modules at build time (scripts/vendor-maplibre.mjs)
 /public/vendor/maplibre/
+
+# Python test/runtime caches (source and migrations stay tracked)
+__pycache__/
+*.py[cod]
+.pytest_cache/
+/services/ai-python/.venv/
