@@ -2,7 +2,7 @@
   // Cloudflare Worker for REGA (Next.js via OpenNext). `npm run build` produces .open-next/.
   // Production: `npx wrangler deploy` (main). Branch previews: `wrangler versions upload`.
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "rega-platform",
+  "name": "rega24",
   // worker.mjs wraps the OpenNext output (.open-next/worker.js) with the edge cache for anonymous pages.
   "main": "worker.mjs",
   "compatibility_date": "2026-09-01",
