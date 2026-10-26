@@ -56,6 +56,9 @@ jobs:
       - name: Python AI engine tests
         working-directory: services/ai-python
         run: uv run pytest
+      - name: Audit Python dependencies
+        working-directory: services/ai-python
+        run: uv run --python 3.13 --with pip-audit pip-audit --strict
       - run: npx prisma generate
       - run: npx prisma migrate deploy
       - name: Exercise read-only preflight against the throw-away database
