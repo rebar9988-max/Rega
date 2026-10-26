@@ -117,7 +117,7 @@ jobs:
           RELEASE_SHA: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
         run: |
           test "$RELEASE_SHA" = "$(git rev-parse HEAD)"
-          npx wrangler deploy --tag "$RELEASE_SHA" --message "Verified GitHub CI release"
+          npx wrangler deploy --tag "$RELEASE_SHA" --message Verified-GitHub-CI-release
 
       - name: Deployment successful
         if: steps.scope.outputs.skip != 'true'

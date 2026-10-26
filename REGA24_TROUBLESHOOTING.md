@@ -390,3 +390,8 @@ Revert the commit on `main`. If a non-docs commit already deployed, roll the Wor
 - After Zod 4 upgrades, partial PATCH schemas must remove create defaults before making fields optional. `tests/validation-upgrade.test.ts` covers omitted-field preservation and bounded oversized collections.
 - Target drift: `scripts/production-target.mjs` rejects wrong account, stable Worker tag, services or official domain bindings. Never recreate retired `rega-platform`. New deployed version tags must match the verified GitHub SHA. Retain the preceding version for rollback and verify all production readiness checks after publishing.
 - Previews Base provider values are now secret_text. This storage conversion preserves values and does not prove provider-side rotation/revocation. Do not log or export secrets while checking them.
+
+
+## Deployment annotation forwarding — 2026-10-26
+
+If release output says `Unknown arguments: CI, release` before upload, the OpenNext deployment wrapper split a message containing spaces. Keep the deployment message a single shell-safe token, retain the verified SHA tag and identity/ownership guards, and run `npm run cf:dry-run` through the OpenNext forwarding path before publishing. Plain Wrangler dry-run alone did not exercise that path. Failed run40390749927 uploaded no new application. See PR77 and the central Doc for the subsequent verified release.

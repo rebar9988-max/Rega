@@ -699,3 +699,17 @@ Pre-release live health/browser: canonical site serves normally; DB/migrations/c
 ## About page global positioning — 2026-10-26
 
 Owner scope: About page only; replace community/Germany-only positioning with Rega24's global vision. Updated only `about` and `pageMeta.about` in all seven catalogues. Describe existing directory, map, profiles and language support; distinguish global ambition from actual local coverage and avoid unverified trust/AI/native-app claims. About-only metadata uses Rega24 and an absolute title, leaving shared branding/navigation untouched. Existing layout, CMS story, operator/legal identity and social links preserved. Baseline main 7e16349; canonical Worker rega24 verified read-only (deployment e3747e03/version df20f6a1, 100%). Local and exact-head CI/release verification pending; no deployment claimed yet. No database, infrastructure, dependencies or unrelated page changes.
+
+
+## Hosted validation and deployment-command repair — 2026-10-26
+
+PR #77 merged as `7e16349e2314255a25987b1497c66d0dd927cdea`; its tree exactly matches the verified candidate. Main CI `40387716820` passed: 351 unit/integration tests, 331 E2E tests, 8 Python tests, zero Node skips/failures, lint/typecheck, disposable PostgreSQL migration/preflight, both production builds and workerd codec/route smokes. npm 10 clean install and audit pass with zero findings at every severity. Overrides are version-specific (`glob@10.3.3`, `undici@7.29.1`) and retain their major versions. Focused release tests: 26/26.
+
+The #77 source checkpoint is 4,592,343 tracked bytes / 538 files versus baseline 4,568,729 / 533. Exactly 3 removed, 8 added, 26 modified; added safety code, tests and documentation explain the net increase. Dependencies removed: 0. Workflows modified: 7; deleted: 0. No schema/migration or brand-asset changes. Git history is preserved; no Git-storage reduction is claimed.
+
+Python production workflow `40387716870` passed live health, anonymous rejection and authenticated process/embed/rerank smokes before enabling web integration. Cloudflare's Python build trigger incorrectly used the web root/commands. Its production trigger is now validation-only in `/services/ai-python`; the existing branch Preview settings were repaired separately. Correct preview build `cf311921-fc31-4eed-9e48-942728b73464` passed; readback shows `main.py` and only `REGA_ISOLATED_PREVIEW=1`, without production/provider bindings. Public preview probes returned Cloudflare 403/1010; live preview application QA is unverified.
+
+Web release `40390749927` failed before upload: OpenNext forwards CLI arguments through a shell without preserving spaces in the deployment message (`Unknown arguments: CI, release`). The message now uses one shell-safe token. CI's dry-run invokes the actual OpenNext forwarding path with the same message and a synthetic tag; this passed locally alongside 19 release/identity/ownership tests and documentation validation. No application or dependency version change is needed. Final hosted/deployment/readback evidence belongs in PR #77 and the central Doc; never treat a dry-run as a production deployment.
+
+
+Concurrent integration: PR78 independently passed full CI40391309551 and merged About copy/metadata changes as8edc1ed. Preserve its complete content and memory entry. PR79 had only an append conflict in this file; resolved by retaining both notes, without altering application files. Production health now reads the approved Kurdish About title from the catalogue rather than a stale hardcoded title.

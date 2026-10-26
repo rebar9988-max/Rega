@@ -19,7 +19,7 @@
     "e2e": "playwright test",
     "build:node": "node scripts/vendor-maplibre.mjs && prisma generate && next build --webpack",
     "cf:preview": "npm run build && opennextjs-cloudflare preview",
-    "cf:dry-run": "wrangler deploy --dry-run",
+    "cf:dry-run": "opennextjs-cloudflare deploy --dry-run --tag dry-run-verification --message Verified-GitHub-CI-release",
     "guard:identity": "node scripts/project-identity-guard.mjs --project REGA"
   },
   "prisma": {
