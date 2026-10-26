@@ -8,7 +8,7 @@ export async function verifyProductionTarget(project, env = process.env, request
   }
   const get = async path => {
     const response = await request(`https://api.cloudflare.com/client/v4/accounts/${project.cloudflareAccountId}${path}`, {
-      headers: { authorization: `Bearer ${env.CLOUDFLARE_API_TOKEN}` }, signal: AbortSignal.timeout(15_000),
+      headers: { authorization: `Bearer ${env.CLOUDFLARE_API_TOKEN}` }, redirect: 'error', signal: AbortSignal.timeout(15_000),
     });
     if (!response.ok) throw new Error('Production target verification unavailable');
     const body = await response.json();

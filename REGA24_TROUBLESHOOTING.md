@@ -220,3 +220,33 @@ R2 TLS final readback PASS: enabled=true, minTLS=1.2, SSLactive/ownershipactive 
 
 
 October26 analytics diagnosis (01:55–02:25UTC window): Cloudflare GraphQL reported337 HTTP504, all requestSource=edgeWorkerCacheAPI under the synthetic /__rega-edge-cache key namespace. Source edge-cache.ts uses cache.match; official Cloudflare Cache API documentation confirms an absent/expired item logs internal504 while returning undefined to the Worker. These were NOT evidence of client-visible outage. Excluding synthetic cache paths, returned groups contained no5xx (including1532 www200 and14apex301); these are bounded adaptive analytics, not an end-to-end journey test. Worker analytics reported1364requests/0exceptions; schema confirms CPU p50/p99 units microseconds, observed19483/650432µs (19.483/650.432ms). This is not billing/Free capacity proof or a universal latency score. Never infer plan entitlement or site downtime from unfiltered counters. Root-cause documentation: https://developers.cloudflare.com/workers/runtime-apis/cache/ and request-source filtering in Cloudflare analytics.
+
+
+October26 deployment continuation after explicit owner request “Deploy100/100”: main advanced to5a9a95c (cleanup#76).
+Integration preserves its verified consolidated business cards/deletions, tracked-inventory regression and dependency
+updates without importing PR71 schema or PR74 page changes. Shared inventory wrapper remains canonical; the existing
+untracked-artifact regression exercises it. Main's old target is still rega-platform; prepared branch targets the
+verified existing rega24. Final deployment must use reviewed main, exact successful CI and live-target preflight.
+CI40257680473 ended cancelled at its35-minute job limit; logs show slow Ubuntu browser-dependency installation and
+E2E still running at cancellation, with no completed full-suite result. CI budget now60minutes, preserving every
+check. No timeout/test assertion was weakened. Python deployment is now explicit main-only manual dispatch with the
+same exact-CI/target gates: a web release must not redeploy an unchanged backend, rotate its token or start inference.
+Existing Python integration is preserved. Protected API checks now reject redirects, matching focused PR75's safety
+requirement. Old provider revocation, runtime DB ownership, billing and independent backup/media evidence remain
+unverified; explicit deployment intent does not certify those facts or permit a false100 score.
+
+
+Prepared release-proof improvements (not live until deployment): public health emits sourceSha only for a validated
+40-hex commit value, never arbitrary environment text. Deploy tags/messages and non-secret REGA_COMMIT_SHA identify
+reviewed source while --keep-vars preserves configuration. Post-deploy script scripts/health/release-proof.mjs checks
+100% active-version tag, health/database, canonical200, apex301, legacy admin308/query preservation and anonymous
+admin sign-in without an exposed sidebar. Protected provider authorization never goes to public endpoints. Existing
+Beta health now runs after successful deployment, followed by the existing production browser check; no new paid
+monitor. Browser verification budget45minutes accounts for the same measured slow dependency download.
+Neon metadata read explicitly for lucky-glitter-73195208 maps production br-floral-hall-b22rpgrw to endpoint
+ ep-autumn-glitter-b2jxzis9 and its public direct/pooled hostnames, now declared in the manifest (not credentials).
+Database identity helper compares the runtime URL server-side with these hosts/database, rejecting alternate-host
+query overrides and returning only a boolean. Existing health liveness semantics stay unchanged for local QA;
+production release proof requires databaseTargetMatchesManifest=true. The actual runtime relationship remains
+unverified until a real protected deployment serves that check. No connection string/password is retrieved or
+returned to the model, documentation or public health. No database target, record, role or schema is changed.

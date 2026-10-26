@@ -1,11 +1,9 @@
 name: Deploy Python AI engine
 
 on:
+  # Optional backend stays operational without replacement/token rotation on a web-only release.
+  # Explicit main dispatch still requires exact-main CI and existing-target verification.
   workflow_dispatch:
-  workflow_run:
-    workflows: ["CI"]
-    types: [completed]
-    branches: [main]
 
 permissions:
   contents: read
@@ -17,7 +15,7 @@ concurrency:
 
 jobs:
   deploy:
-    if: (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') || github.event.workflow_run.conclusion == 'success'
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
@@ -27,7 +25,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+          ref: ${{ github.sha }}
           fetch-depth: 2
       # DOCS_ONLY_SKIP: same scope rules as the web Worker; manual dispatch never skips.
       - name: Detect documentation-only commit

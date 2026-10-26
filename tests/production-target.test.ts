@@ -11,6 +11,7 @@ test("production ownership preflight blocks drift, missing services, permissions
     const request: typeof fetch = async (input, options) => {
       const url = String(input);
       methods.push(options?.method ?? "GET");
+      assert.equal(options?.redirect, "error", "protected authorization never follows a redirect");
       const workers = [{ id: mode === "missing-worker" ? "missing" : project.webWorker, tag: mode === "wrong-tag" ? "wrong" : project.webWorkerTag },
         { id: mode === "missing-ai" ? "missing" : project.aiWorker }];
       const domains = [project.canonicalHost, project.apexHost].map(hostname => ({ hostname,

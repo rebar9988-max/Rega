@@ -86,7 +86,11 @@ jobs:
 
       - name: Deploy to Cloudflare Workers
         if: steps.scope.outputs.skip != 'true'
-        run: npx wrangler deploy
+        run: npx wrangler deploy --tag "$(git rev-parse HEAD)" --message "Rega24 source $(git rev-parse HEAD)" --var "REGA_COMMIT_SHA:$(git rev-parse HEAD)" --keep-vars
+
+      - name: Verify active production version, domains, database and anonymous admin protection
+        if: steps.scope.outputs.skip != 'true'
+        run: node scripts/health/release-proof.mjs
 
       - name: Deployment successful
         if: steps.scope.outputs.skip != 'true'

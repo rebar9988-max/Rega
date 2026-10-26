@@ -15,5 +15,11 @@
     "regaplatform.com",
     "www.regaplatform.com"
   ],
-  "webWorkerTag": "7b845cda2ee749c89c4f9b83490609b4"
+  "webWorkerTag": "7b845cda2ee749c89c4f9b83490609b4",
+  "neonProductionEndpointId": "ep-autumn-glitter-b2jxzis9",
+  "neonProductionDatabase": "neondb",
+  "neonProductionHosts": [
+    "ep-autumn-glitter-b2jxzis9.c-6.eu-central-1.aws.neon.tech",
+    "ep-autumn-glitter-b2jxzis9-pooler.c-6.eu-central-1.aws.neon.tech"
+  ]
 }

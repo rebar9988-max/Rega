@@ -152,6 +152,7 @@ Static coverage: schema keys, direct process.env access, Prisma env(), Python _e
 | `OPENROUTER_BASE_URL` | [src/lib/env.ts](../src/lib/env.ts) |
 | `OPENROUTER_MODEL` | [.env.example](../.env.example), [src/lib/env.ts](../src/lib/env.ts) |
 | `OUT_DIR` | [scripts/health/browser-check.mjs](../scripts/health/browser-check.mjs) |
+| `REGA_COMMIT_SHA` | [src/app/api/v1/health/route.ts](../src/app/api/v1/health/route.ts) |
 | `REGA_PRIVATE_BETA` | [src/lib/private-beta.ts](../src/lib/private-beta.ts) |
 | `REGA_TARGET` | [next.config.ts](../next.config.ts) |
 | `RESEND_API_KEY` | [.env.example](../.env.example), [.github/workflows/worker-secrets-sync.yml](../.github/workflows/worker-secrets-sync.yml), [src/app/admin/system/page.tsx](../src/app/admin/system/page.tsx), [src/lib/env.ts](../src/lib/env.ts) |
@@ -183,15 +184,15 @@ Any change here requires regeneration and review of the map and runbook. SHA-256
 | Source | SHA-256 |
 | --- | --- |
 | [.env.example](../.env.example) | e5772ae0c40782f7bb4e4b9bcc3398aa308089058657602f0ee049dc4c77f0a6 |
-| [.github/workflows/ai-python-deploy.yml](../.github/workflows/ai-python-deploy.yml) | 1135220511750820a0e48b87c16941dd8dd7439e7a526d1b5e92b50ae9ed0c51 |
-| [.github/workflows/ci.yml](../.github/workflows/ci.yml) | 3a03dafb991e7a830f9388453dbd8100589404e36b8767e330aa61f261b5b54e |
+| [.github/workflows/ai-python-deploy.yml](../.github/workflows/ai-python-deploy.yml) | a061e3ee85348ec15787d6b5d7b978426da5462b2e2a46566cad0a975e15140b |
+| [.github/workflows/ci.yml](../.github/workflows/ci.yml) | 3a44df935e642b30032fbd4c8538b928ab0c6a91f3435f3e4d0fbc08f5221380 |
 | [.github/workflows/cloudflare-diagnostics.yml](../.github/workflows/cloudflare-diagnostics.yml) | d3d260561da1220b2d7b4162c84476f0421c484a07906648d8bb82e75ace988b |
 | [.github/workflows/database-preflight.yml](../.github/workflows/database-preflight.yml) | af8b77c22e1c73c528889dacde7191c73c6234e591655fdc594558bb8aca46de |
 | [.github/workflows/db-migrate.yml](../.github/workflows/db-migrate.yml) | 9195fe7a53016c8db7f55f12856e955bad75a11c7c9689afbfb1d766654428cb |
-| [.github/workflows/deploy.yml](../.github/workflows/deploy.yml) | 0027c5bbaddb394222904f4d238ec317ed51b9d3c429ae76e817d293173e4e82 |
+| [.github/workflows/deploy.yml](../.github/workflows/deploy.yml) | 07c97f412a6293a7b66bd7161e2258e471e98795eea4b28b536cd5ae3906b420 |
 | [.github/workflows/neon-branch.yml](../.github/workflows/neon-branch.yml) | 1dffb63eccfc27bb1c86921c5e466ead421b51da3ee540031d9b39c8f0e53908 |
-| [.github/workflows/production-browser.yml](../.github/workflows/production-browser.yml) | 296cc06595181200ffc37a46173d3bdb386ace769e4b97a57369ee2ed7b0f61d |
-| [.github/workflows/production-health.yml](../.github/workflows/production-health.yml) | b5aa9aabe4c102e6ab5fc76c542a7ec43fa56f18e499bc253134cd19ba6e090f |
+| [.github/workflows/production-browser.yml](../.github/workflows/production-browser.yml) | ff94dafb04f555f34bf03b399e34b0330637a9b1c225faf13d939b6e8fe08fda |
+| [.github/workflows/production-health.yml](../.github/workflows/production-health.yml) | ada4e705e702176c7ceb7e539dbb3b6c7fd5cb05c634592396e3597d76dacd2f |
 | [.github/workflows/worker-secrets-sync.yml](../.github/workflows/worker-secrets-sync.yml) | d6e4e3624a86702193f23a06c4f127b0cae0ffb7ebafbfe1fc014530ebb93e40 |
 | [Dockerfile](../Dockerfile) | 6d0e29d71f1b226c4d4c3804c023352cb0b62c952f9e114f93d750631dce2750 |
 | [next.config.ts](../next.config.ts) | da6b8201091a7123240e7b37069979eaba5901d2a5e40a77d055e0d1ef1b485c |
@@ -227,14 +228,15 @@ Any change here requires regeneration and review of the map and runbook. SHA-256
 | [scripts/health/browser-check.mjs](../scripts/health/browser-check.mjs) | 13a980fa1875720fa371672ae8720f24278e59c278d1af7327f0debf14099cbf |
 | [scripts/health/business-image-worker-smoke.mjs](../scripts/health/business-image-worker-smoke.mjs) | 6001c8616f3668f81a43fe49b648f51de809a662972bd47d0d3e1a682495bdf1 |
 | [scripts/health/probe.sh](../scripts/health/probe.sh) | 4e6b13740bf72fc9ba458a668d112ba972afbdedfa8ec14974b0b30c81009ed6 |
+| [scripts/health/release-proof.mjs](../scripts/health/release-proof.mjs) | b670fecfb6dde636ecf9d53f80929718a490ef47035774de1bb5fd293731fef3 |
 | [scripts/health/worker-smoke.mjs](../scripts/health/worker-smoke.mjs) | 6facfe47f98eec2e345eeb5e1c9546be4317880cdaefd65f3c55cb78fcc1b307 |
 | [scripts/prepare-worker-build.mjs](../scripts/prepare-worker-build.mjs) | 47f23d39cd9714f45a1890554264b77d25094065f4f0219fe144af19893b0c8c |
-| [scripts/production-target.mjs](../scripts/production-target.mjs) | f505612e9b8c2186118478f69111674255d771bbaeca6b3ad450c4272cf1521e |
+| [scripts/production-target.mjs](../scripts/production-target.mjs) | be65210efc5e4a79c800b74db643931696a16ae63a180e3df37cfdb6d8db9e8a |
 | [scripts/project-identity-guard.mjs](../scripts/project-identity-guard.mjs) | 2f09d9fce64007ceafa1bd9beccae3af4cb79e6dc0fc9e6bdee02cb1833c5b5c |
 | [scripts/rega24-docs.mjs](../scripts/rega24-docs.mjs) | 76152acd5d05f227fad500e6f7d23ce79069486ba5e1b9bd134a4e53c85690cb |
 | [scripts/validate-system-docs.mjs](../scripts/validate-system-docs.mjs) | 028a312342a240a4f261b5473238701f2bac3e883ee9b3fc8e72d5130d3312f4 |
 | [scripts/vendor-maplibre.mjs](../scripts/vendor-maplibre.mjs) | b4b9f3a106e5440025d6e48285de9a114ce57b138d3264761f7a69341e6d3b15 |
-| [scripts/verified-release.mjs](../scripts/verified-release.mjs) | 769b14e6df8dacf91172179b7ab0ea62fa3d293c7dfc41a4497a8d0a7eef84a0 |
+| [scripts/verified-release.mjs](../scripts/verified-release.mjs) | 6eb8f5c56b7c668ab2d93d59cc7eb1a760c89911810a6aeb77723623f330bb19 |
 | [services/ai-python/pyproject.toml](../services/ai-python/pyproject.toml) | 88a43d6679406216cc00ac4de8a1d510fb5687c272b0346dcbc7de82cc11d4f6 |
 | [services/ai-python/src/app.py](../services/ai-python/src/app.py) | 49c5acd287cb95ca96ffba944fdad53251a06016d3640abdd9bc357d2fe9a504 |
 | [services/ai-python/src/main.py](../services/ai-python/src/main.py) | 01014b066a0c27069537c115b490681a377149326ff2f05c37a9b99a344925ad |
@@ -338,7 +340,7 @@ Any change here requires regeneration and review of the map and runbook. SHA-256
 | [src/app/api/v1/businesses/route.ts](../src/app/api/v1/businesses/route.ts) | 5c522f8b801fa3740989f5a7e1680d832b3a3e6b5cb088fa6bf053a7152c87a2 |
 | [src/app/api/v1/categories/route.ts](../src/app/api/v1/categories/route.ts) | 4ae6cdb58c5eda0132e8d64905a46860e5be912697930357da81077f79121514 |
 | [src/app/api/v1/geo/route.ts](../src/app/api/v1/geo/route.ts) | 4f879f71e9dddcd5cb70f02222f931234ccdc32fd625f1ad79e7d53f105c9c56 |
-| [src/app/api/v1/health/route.ts](../src/app/api/v1/health/route.ts) | 4082251c56be94745a67588672452e427581ee97c1658c20a853ee75afa0920d |
+| [src/app/api/v1/health/route.ts](../src/app/api/v1/health/route.ts) | 3c2f3a7a642477a6ed4224efc75590ce85c45421cbab0d3dc3430671ca300f86 |
 | [src/app/api/v1/locations/route.ts](../src/app/api/v1/locations/route.ts) | dde49b6fd2520af06a8e1d9c76c7a0c10f53d1cb8a2636821f511a6f5734c7dc |
 | [src/app/api/v1/media/business-image/route.ts](../src/app/api/v1/media/business-image/route.ts) | 37a39adb88e6240fc285bbb364b6ac536cb36485d416a4af50196f085f5f6ff4 |
 | [src/app/api/v1/media/upload-url/route.ts](../src/app/api/v1/media/upload-url/route.ts) | af088d013885894e5fde397010fa84e82a595665112a1363b61016fe3a7e059b |
@@ -358,9 +360,8 @@ Any change here requires regeneration and review of the map and runbook. SHA-256
 | [src/components/business/ExpandableText.tsx](../src/components/business/ExpandableText.tsx) | a93880c1630bf0de40dbbce95aa7482e01a0ef0c183a72c6fb36dbf8b1a64dda |
 | [src/components/business/OfferList.tsx](../src/components/business/OfferList.tsx) | ebf88fe3ff50c22ad5a832a23d010cf0ee79ef95d12b3baa34ce4ccdc741bf45 |
 | [src/components/business/ShareButton.tsx](../src/components/business/ShareButton.tsx) | f34d01fa0645958d794f6349c6bf336b7bae89ac85df860794ec18d68577e179 |
-| [src/components/cards/BusinessCard.tsx](../src/components/cards/BusinessCard.tsx) | f981ace6f1bf45988d787f4741fd558bbc60f23497db23d8db2081442c846530 |
+| [src/components/cards/BusinessCard.tsx](../src/components/cards/BusinessCard.tsx) | b59ae040e654cf3e6ba07b3d8bd04258b3d506dd3e0041733f4bf89bc2dc4840 |
 | [src/components/cards/BusinessRow.tsx](../src/components/cards/BusinessRow.tsx) | 15efa830a11639f88369f8b6f40d425d7d731fed53e14efa415653210d457b7c |
-| [src/components/cards/DirectoryBusinessCard.tsx](../src/components/cards/DirectoryBusinessCard.tsx) | 5748abb14cb0858bb942e3d38deae598b9252ed5f323d261ca910a6fb51d6317 |
 | [src/components/cards/LocationCard.tsx](../src/components/cards/LocationCard.tsx) | f22fa7f51264200e8655f4ab8c275f91a6f1948355030dfd21c6af097c007cae |
 | [src/components/cards/ServiceCard.tsx](../src/components/cards/ServiceCard.tsx) | 5208f888251afc8b74829dd95b6dd821003f3931899ef983c4f0b5e4ed5ee3fb |
 | [src/components/dr/ActionMenu.tsx](../src/components/dr/ActionMenu.tsx) | 97e91a39d16e8cfa7040887c30831968c723713fc95352fa0199ca0d6241dc76 |
@@ -396,7 +397,6 @@ Any change here requires regeneration and review of the map and runbook. SHA-256
 | [src/components/shell/NavLinks.tsx](../src/components/shell/NavLinks.tsx) | 8e55c54089bf30700e2239e33cf7fa3ea8f3009bdd7a1afc99069204f7d145ab |
 | [src/components/shell/ServiceWorker.tsx](../src/components/shell/ServiceWorker.tsx) | 83fec8bbd14ba56166cff8bf9a4d7256f5f98a67a03e8bf96fbad15445b326f8 |
 | [src/components/shell/ThemeScript.tsx](../src/components/shell/ThemeScript.tsx) | a8041a5ff5470d2192319e321871e04f9c6d227c14e5291e42c0e61d930b3ab3 |
-| [src/components/shell/ThemeToggle.tsx](../src/components/shell/ThemeToggle.tsx) | 026f09ccc824246ffa1e4d20645e88db503d63c253a565798f8fa3d44de1f577 |
 | [src/components/shell/nav.ts](../src/components/shell/nav.ts) | 85a5bab98116253bcbda8e8c157a6dfe3524f322102f795226927dd0159c8e59 |
 | [src/components/ui/AutoSubmitSelect.tsx](../src/components/ui/AutoSubmitSelect.tsx) | 7a9e3f15f490b91e73f008a8ed003ee4d35ca60f1ba41da17e843e955166fde8 |
 | [src/components/ui/Avatar.tsx](../src/components/ui/Avatar.tsx) | d5058fc09a1ec533e301b986bf01dee2f62c53a31df830c0de4900d2b25c5292 |
@@ -422,7 +422,7 @@ Any change here requires regeneration and review of the map and runbook. SHA-256
 | [src/config/glossary.ts](../src/config/glossary.ts) | eed06d458009e5fad27c7658b6ecaa7365dcfaa05b3022e56fd5da7a9314b15d |
 | [src/config/locales.ts](../src/config/locales.ts) | 4c88b98e2e5ba87e75321af79ff8a872a37945667866f23637d25e444038fb2a |
 | [src/config/owner.ts](../src/config/owner.ts) | 76f2721eaf7624be017318b7531752c7e4ed35bf5027920cb4af855dbebed654 |
-| [src/config/project.json](../src/config/project.json) | 270625eaa31ee205739d0bd1f3c9257700e55b3733f4299ca530682517f97f64 |
+| [src/config/project.json](../src/config/project.json) | 678aabe0c2f98edde36f9044786d36f8250b1d6fd02d61cdf63c856e706a4ccc |
 | [src/config/sections.ts](../src/config/sections.ts) | 327e967b2b039838d29a54063b4ca40c12fd045e82b4f902ff2396789b83e893 |
 | [src/config/site.ts](../src/config/site.ts) | 021ed13e6567a96617feae99ffc6b0da8ae484076432551d91e6be6b6465009a |
 | [src/features/auth/AuthDivider.tsx](../src/features/auth/AuthDivider.tsx) | 5afcb55a5baf6facc4a118496458cacdd9da1859e3f496b0023bc789b9ab52c4 |
@@ -443,7 +443,6 @@ Any change here requires regeneration and review of the map and runbook. SHA-256
 | [src/features/business-images/client.ts](../src/features/business-images/client.ts) | 3228a1f39868805bc83526e8f533b493d4e9ffcb5d3fee0697d3ca1431090d06 |
 | [src/features/business-images/crop.ts](../src/features/business-images/crop.ts) | 5ae26c14ee9914bf6ddb81ab98aa60efa7fb394413860d866c0d10b986d5ccd0 |
 | [src/features/business-images/process.ts](../src/features/business-images/process.ts) | d4909a6ff09063f15db4750b7b2cf6b99a0cca42b3b3dd3877fca19aefbd35ce |
-| [src/features/contact/ContactForm.tsx](../src/features/contact/ContactForm.tsx) | 42052a2995693aeba47b838910615117be2c75d0132c9e57125182f6cfe73970 |
 | [src/features/contact/actions.ts](../src/features/contact/actions.ts) | af62baff96525d618526ac3b1134c6a5e5e28253392429f4b875f584fe3f67de |
 | [src/features/content/ContentDetail.tsx](../src/features/content/ContentDetail.tsx) | 86aec7796708908ea79f7752e74b71bd6f8818b6505a6ee81694064db561e7ef |
 | [src/features/content/ContentIndex.tsx](../src/features/content/ContentIndex.tsx) | f439669c4a5b1466ef63d441f0a5bded87eb9f3e92c943d06b6dfd25bb3ae1b6 |
@@ -468,7 +467,7 @@ Any change here requires regeneration and review of the map and runbook. SHA-256
 | [src/features/legal/texts/kmr.ts](../src/features/legal/texts/kmr.ts) | 21d27963b2a4f041cf1ee9678418731a0bd8c7e51dd5066891a5b3de7e8456d0 |
 | [src/features/legal/texts/tr.ts](../src/features/legal/texts/tr.ts) | c383c00d3dd3ef4a93be1c6d6f8df44370fc5dfdaee5432574f9116e431ef1c9 |
 | [src/features/legal/types.ts](../src/features/legal/types.ts) | 73cbe52b9d36c8423a16a04b3aa3f136d3aa6d5fbe3fbece148214a19a2aa0f4 |
-| [src/features/listings/BusinessIndex.tsx](../src/features/listings/BusinessIndex.tsx) | 49e49100d54c7f5311a8c2823da4d87b9a43ec24b24a2c80e1d631739b52b332 |
+| [src/features/listings/BusinessIndex.tsx](../src/features/listings/BusinessIndex.tsx) | 8d1cae4f7db4fc7fc16af7c3cfdb8b71f9a429d4382641f0e88f64ae8b577a13 |
 | [src/features/listings/categories/CategoryNavigation.tsx](../src/features/listings/categories/CategoryNavigation.tsx) | 1f2ddbf3d012147b23f9f842e42bd828185a5ba5b8c758322f73f9c535dea7b1 |
 | [src/features/reports/ReportForm.tsx](../src/features/reports/ReportForm.tsx) | ddbf6fa9af968f5f447a8aebccb49aa4eb16d5da946a9e235f1d3645e3156208 |
 | [src/features/reports/actions.ts](../src/features/reports/actions.ts) | 095b8ee85ccb3db8f4a1667a3b31a92945db8867c66b49967f41d5d2cfa4d7f7 |
@@ -516,6 +515,7 @@ Any change here requires regeneration and review of the map and runbook. SHA-256
 | [src/lib/data/geo.ts](../src/lib/data/geo.ts) | 2b7ad33c05b73cd0c713a546ecc5a8db11c4c1ff96cf7a92abf3b8ee36472776 |
 | [src/lib/data/index.ts](../src/lib/data/index.ts) | f2f3ec439c2c65b9d2cb1f8851adb0b18498b3f2982b70aede8a2521ebb554b3 |
 | [src/lib/data/params.ts](../src/lib/data/params.ts) | 4c346e82d0bfd115823fbe3072cf88e7f461dfda416384c51c1070e3d14aae7e |
+| [src/lib/database-identity.ts](../src/lib/database-identity.ts) | a73b5a4ab2fcf556e7f3c34c5990ab524b1eeb4e7e632015c715daddb2fca191 |
 | [src/lib/db.ts](../src/lib/db.ts) | 91ad498803c8fd4e1da39b36be0f339c229ef740cc64829a7ec4026376f0dd54 |
 | [src/lib/db.workers.ts](../src/lib/db.workers.ts) | bbcc9d635dad163d000d475fea6ddf2ca32faad41d14a1e2a979d3d0b0ee2ec1 |
 | [src/lib/dr-auth.ts](../src/lib/dr-auth.ts) | f5f3f61942dad5235386da96bd212e79c1a1a67475b6fc5317ee6c7667d37234 |

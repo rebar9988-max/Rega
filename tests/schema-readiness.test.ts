@@ -8,6 +8,7 @@ import { runInNewContext } from "node:vm";
 import ts from "typescript";
 import { contentColumnsReady, REQUIRED_CONTENT_COLUMNS } from "../src/lib/schema-readiness";
 import { schemaRecoveryReport } from "../src/lib/schema-recovery-report";
+import { databaseTargetMatchesManifest } from "../src/lib/database-identity";
 
 const columns = Object.entries(REQUIRED_CONTENT_COLUMNS).flatMap(([table_name, names]) => names.map((column_name) => ({ table_name, column_name })));
 
@@ -20,7 +21,7 @@ test("content readiness detects the observed missing tables and City column", ()
   assert.equal(contentColumnsReady([]), false);
 });
 
-function loadHealth(prisma: unknown) {
+function loadHealth(prisma: unknown, releaseSha?: string) {
   const compiled = ts.transpileModule(readFileSync(new URL("../src/app/api/v1/health/route.ts", import.meta.url), "utf8"), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
   }).outputText;
@@ -32,14 +33,25 @@ function loadHealth(prisma: unknown) {
       "@/lib/email": { emailEnabled: () => false },
       "@/lib/schema-readiness": { contentColumnsReady },
       "@/lib/schema-recovery-report": { schemaRecoveryReport },
+      "@/lib/database-identity": { databaseTargetMatchesManifest },
     };
-    const exports: { GET?: () => Promise<{ body: { ok: boolean; checks: { database: string; contentColumns: boolean } }; options: { status: number; headers: Record<string, string> } }> } = {};
-    runInNewContext(compiled, { exports, Date, console: { info: () => undefined, warn: () => undefined }, process: { env: { DATABASE_URL: "configured", AUTH_SECRET: "configured" } }, require: (name: string) => {
+    const exports: { GET?: () => Promise<{ body: { ok: boolean; sourceSha: string | null; checks: { database: string; contentColumns: boolean; databaseTargetMatchesManifest: boolean } }; options: { status: number; headers: Record<string, string> } }> } = {};
+    runInNewContext(compiled, { exports, Date, console: { info: () => undefined, warn: () => undefined }, process: { env: { DATABASE_URL: "configured", AUTH_SECRET: "configured", REGA_COMMIT_SHA: releaseSha } }, require: (name: string) => {
       if (!(name in modules)) throw new Error(`Unexpected import ${name}`);
       return modules[name];
     } });
     return exports.GET!;
 }
+
+test("public health exposes only a valid release hash, never arbitrary configured text", async () => {
+  for (const source of ["a".repeat(40), "never-public-arbitrary-configured-text"]) {
+    let queries = 0;
+    const result = await loadHealth({ $queryRaw: async () => (++queries === 1 ? [{ value: 1 }] : queries === 2 ? [{ count: 1n }] : columns) }, source)();
+    assert.equal(result.body.sourceSha, source.length === 40 ? source : null);
+    assert.equal(result.body.checks.databaseTargetMatchesManifest, false);
+    if (source.length !== 40) assert.ok(!JSON.stringify(result.body).includes(source));
+  }
+});
 
 test("health returns 503 for schema drift despite a working connection and migration history", async () => {
   for (const schema of [columns, columns.filter((r) => r.table_name !== "Listing"), []]) {

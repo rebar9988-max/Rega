@@ -16,7 +16,7 @@ jobs:
   verify:
     # Playwright 1.56 supports Noble; ubuntu-latest moved to unsupported 26.04 on 2026-10-22.
     runs-on: ubuntu-24.04
-    timeout-minutes: 35
+    timeout-minutes: 60
     permissions:
       contents: read
     services:

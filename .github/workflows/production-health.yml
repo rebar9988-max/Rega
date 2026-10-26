@@ -6,7 +6,7 @@ name: Beta health
 on:
   workflow_dispatch:
   workflow_run:
-    workflows: ["CI"]
+    workflows: ["Deploy to Cloudflare Workers"]
     types: [completed]
     branches: [main]
   schedule:
@@ -17,8 +17,8 @@ permissions:
 
 jobs:
   health:
-    # A failed required check fails this workflow. (It never blocks deploys: Cloudflare builds and deploys main
-    # independently.) Earlier, job-level continue-on-error turned failed smoke checks into a green run.
+    # Post-deployment and scheduled read-only checks. A failed required check fails this workflow.
+    # Earlier, job-level continue-on-error incorrectly turned failed smoke checks into a green run.
     if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 10

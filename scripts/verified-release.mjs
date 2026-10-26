@@ -12,14 +12,14 @@ if (process.env.NEXT_FONT_GOOGLE_MOCKED_RESPONSES || repo !== 'rebar9988-max/Reg
 try {
   const head = await fetch(`https://api.github.com/repos/${repo}/git/ref/heads/main`, {
     headers: { authorization: `Bearer ${process.env.GITHUB_TOKEN}`, accept: 'application/vnd.github+json' },
-    signal: AbortSignal.timeout(15_000),
+    redirect: 'error', signal: AbortSignal.timeout(15_000),
   });
   if (!head.ok || (await head.json()).object?.sha !== sha) throw new Error('Commit is no longer current main');
   let verified = false;
   for (let page = 1; page <= 5; page++) {
     const url = new URL(`https://api.github.com/repos/${repo}/actions/workflows/ci.yml/runs`);
     url.search = new URLSearchParams({ head_sha: sha, branch: 'main', status: 'completed', per_page: '100', page: String(page) }).toString();
-    const response = await fetch(url, { headers: { authorization: `Bearer ${process.env.GITHUB_TOKEN}`, accept: 'application/vnd.github+json' }, signal: AbortSignal.timeout(15_000) });
+    const response = await fetch(url, { headers: { authorization: `Bearer ${process.env.GITHUB_TOKEN}`, accept: 'application/vnd.github+json' }, redirect: 'error', signal: AbortSignal.timeout(15_000) });
     if (!response.ok) throw new Error('CI verification unavailable');
     const runs = (await response.json()).workflow_runs;
     if (!Array.isArray(runs)) throw new Error('Invalid CI response');
