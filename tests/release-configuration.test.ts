@@ -29,3 +29,11 @@ test("unconsumed Neon provisioner cannot create or delete external resources aut
   assert.match(policy, /workflow_dispatch:/);
   assert.doesNotMatch(policy, /pull_request:|create-branch-action|delete-branch-action|NEON_API_KEY/);
 });
+
+
+test("release tag records the checked-out verified SHA even if main advances", () => {
+  const deploy = read(".github/workflows/deploy.yml");
+  assert.match(deploy, /RELEASE_SHA:.*github.event.workflow_run.head_sha/);
+  assert.ok(deploy.includes('test "$RELEASE_SHA" = "$(git rev-parse HEAD)"'));
+  assert.ok(deploy.includes('wrangler deploy --tag "$RELEASE_SHA"'));
+});

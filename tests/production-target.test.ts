@@ -30,7 +30,7 @@ test("production ownership preflight blocks drift, missing services, permissions
 });
 
  test("web release and secret writes require live ownership preflight", () => {
-  for (const [file, write] of [["deploy.yml", "run: npx wrangler deploy"], ["worker-secrets-sync.yml", "wrangler secret bulk"], ["ai-python-deploy.yml", "run: uv run pywrangler deploy"]]) {
+  for (const [file, write] of [["deploy.yml", "npx wrangler deploy --tag"], ["worker-secrets-sync.yml", "wrangler secret bulk"], ["ai-python-deploy.yml", "run: uv run pywrangler deploy"]]) {
     const text = readFileSync(new URL(`../.github/workflows/${file}`, import.meta.url), "utf8");
     assert.ok(text.indexOf("run: node scripts/production-target.mjs") > 0);
     assert.ok(text.indexOf("run: node scripts/production-target.mjs") < text.indexOf(write));
