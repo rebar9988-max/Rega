@@ -148,6 +148,7 @@ Health `checks.database` is `error`, pages 503, Prisma cannot connect, or the Ne
 **SAFE FIX**
 
 - Missing secret: set `DATABASE_URL` through the Worker dashboard or the manual sync workflow. Do not commit it.
+- Before any production secret sync or deployment, verify its target is the active canonical Worker. Source/live drift is currently VERIFIED: `rega-platform` in source versus `rega24` live. Do not recreate the retired Worker or point a database recovery at an unverified application version. The web deploy workflow's [read-only target gate](scripts/verify-worker-target.mjs) blocks mismatched canonical routing.
 - Pending additive migration: verify a fresh complete backup and an isolated recovery test before running Database migrate with both confirmation strings. Existing PITR alone does not establish this gate. Use `prisma migrate deploy` only, after verifying the active deployment target and pending migrations.
 - Bad new migration: add a forward migration. Do not edit a migration that already ran in production.
 - Preview branch failure: fix its responsible layer without skipping a required check or changing the plan. Preserve production, backups and active work; do not delete branches without verified safety and necessary owner authorization. Production does not read preview branches.

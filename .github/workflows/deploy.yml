@@ -95,6 +95,10 @@ jobs:
           node-version: 22
           cache: npm
 
+      - name: Verify canonical live Worker target (read-only)
+        if: steps.scope.outputs.skip != 'true'
+        run: node scripts/verify-worker-target.mjs
+
       - name: Install dependencies
         if: steps.scope.outputs.skip != 'true'
         run: npm ci

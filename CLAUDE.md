@@ -174,3 +174,7 @@ Both canonical domains now serve Worker `rega24`; repository/main still targets 
 verified source/live drift within Rega24,not evidence of R&L. Block production migration staging/merge/deploy and
 old-target secret sync pending cutover provenance and source reconciliation. Provider-side revoke/rotation remains
 unverified despite secret_text storage. The newly integrated main docs/CI tree needs its own final checks.
+Current local source checks:360/360 unit/integration,TypeScript,lint and documentation validator PASS. Six target-gate
+tests cover both canonical mappings and rejection paths. Web deploy and dedicated runtime-secret sync verify the live
+target before mutating it;the bulk command reads the same Wrangler config. No target rename/allow-list edit was made.
+The separate Python workflow's legacy web-secret destination remains held for source reconciliation;do not run it.

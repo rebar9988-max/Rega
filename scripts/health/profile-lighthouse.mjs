@@ -24,7 +24,14 @@ for (const locale of ["en", "ckb"]) {
       if (typeof score !== "number") throw new Error(`Missing ${key} score: ${locale}/${device}`);
       return [key, Math.round(score * 100)];
     }));
-    const result = { url, locale, device, lighthouseVersion: report.lighthouseVersion, fetchTime: report.fetchTime, scores };
+    const metrics = Object.fromEntries(["first-contentful-paint", "largest-contentful-paint", "total-blocking-time", "cumulative-layout-shift", "speed-index"]
+      .map((id) => [id, report.audits[id]?.numericValue]));
+    // Numeric diagnostics only: never forward request URLs, DOM snippets or response bodies into CI logs.
+    const issues = Object.entries(report.audits).filter(([, audit]) => Number.isFinite(audit.score) && audit.score < 1)
+      .map(([id, audit]) => ({ id, title: audit.title, score: audit.score, value: audit.numericValue, unit: audit.numericUnit,
+        savingsMs: audit.details?.overallSavingsMs, savingsBytes: audit.details?.overallSavingsBytes,
+        metricSavings: Object.fromEntries(Object.entries(audit.metricSavings ?? {}).filter(([key, value]) => ["LCP", "FCP", "TBT", "CLS", "INP", "SI"].includes(key) && Number.isFinite(value))) }));
+    const result = { url, locale, device, lighthouseVersion: report.lighthouseVersion, fetchTime: report.fetchTime, scores, metrics, issues };
     reports.push(result);
     console.log(`Production baseline (current deployment): ${JSON.stringify(result)}`);
   }

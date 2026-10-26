@@ -922,3 +922,32 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
   a regression creates an untracked QA directory and proves --check remains valid. Regenerated inventory;doc validator,
   whitespace,TypeScript,ESLint and354/354 local unit/integration PASS,0skip/fail. Main-only deployment skip remains intact.
   This commit integrates main's infrastructure documentation and scoped release safety only,not PR73 admin/architecture.
+
+- Added a read-only canonical-target verification before web deployment and dedicated runtime-secret bulk sync.
+  It compares Wrangler's name with both exact canonical hostname bindings on the fixed Cloudflare API origin;
+  rejects redirects,missing credentials,API/malformed/missing/disabled/preview/mismatched targets. Errors are sanitized,
+  no provider response/token logged. Actual API readback confirms current source would FAIL (oldname vsrega24).
+  No target rename/guard allow-list change or Cloudflare mutation. Secret bulk now reads that same Wrangler config,
+  preserving current source behavior while avoiding a future hardcoded-name divergence.
+  Separate AI deployment workflow remains outside these two guards and must stay held for the same drift;do not claim
+  every secret-writing workflow is covered. No AI code/workflow changes or inference/deployment triggered by this task.
+- Six target-gate regressions PASS;full local360/360 unit/integration,0fail/skip,typecheck/lint PASS. Initial new test
+  import caught top-level-await incompatibility with repo CJS tsx;CLI now uses a caught async main (no TLA). Gate
+  source review found no blocking issue for current configuration. Future approved reconciliation must update all
+  old hardcoded target references and prove active source/bundle identity;new gate does not waive that requirement.
+- Fresh current-Worker browser baseline40257587004/job121362665071 PASS:201checks/0FAIL;Lighthouse13.5.0 (Oct26)
+  P/A/BP/SEO:en mobile73/100/100/100,desktop89/100/100/100;ckb mobile69/100/100/100,desktop89/100/100/100.
+  Artifact12623545097 SHA256f7430ca38fd73933aeb587f59e926f2f79f123dbe7beb3b14f477948d0a6b1b5. Not proof of PR71 live;
+  feature still unmerged/unmigrated. Enhanced existing Lighthouse output with scalar timing/savings diagnostics only,
+  no URLs/DOM/bodies,so performance shortfall can be investigated despite artifact download policy restrictions.
+- Asked exact cutover source/commit and explicit permission for any deletion of the fully compared recovery copy
+  if needed to free a preview slot;no answer yet,no deletion. neon_delete_branch tool requires explicit prior ask.
+  Native backup retained;independent exported dump remains unverified. Environment still restricts site/DB access
+  (normal curl /api/health CONNECT403) and injects no secrets. Production source drift and provider revocation remain
+  independent release blockers. No production migration/main merge/deploy performed.
+
+- GitHub repository visibility independently read as public;standard Ubuntu Actions runners reused,no paid runner
+  or new service activated. Existing Neon free_v3 limits unchanged. Native backup/recovery copied data by other work
+  are retained;root validation is SELECT-only. Full360 local checks and6focused target tests pass;TypeScript/lint and
+  docs validate. Secret bulk follows the same Wrangler config as the read-only gate;covered policy regression rejects
+  a separate --name override. No source Worker rename or guard allow-list change made without provenance.

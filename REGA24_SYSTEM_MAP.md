@@ -43,6 +43,9 @@ workflows and identity allow-list still target the retired name. Do not deploy o
 the approved cutover source and runtime dependencies are reconciled; do not recreate the retired Worker.
 All current credential binding types are `secret_text`; this does not prove provider-side key revocation.
 The diagram and source inventories below describe the audited source architecture, not proof of live bundle identity.
+The existing web deploy and runtime-secret-sync workflows now check both canonical domain bindings with
+[verify-worker-target.mjs](scripts/verify-worker-target.mjs) before dependency install/build/deploy. This read-only gate
+fails closed on missing credentials, API errors or target drift; it does not rename a Worker or authorize cutover.
 
 ## Architecture
 
