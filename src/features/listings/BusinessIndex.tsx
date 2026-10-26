@@ -4,7 +4,7 @@ import { CategoryNavigation } from "./categories/CategoryNavigation";
 import { Suspense } from "react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { PageSchema } from "@/components/ui/PageSchema";
-import { DirectoryBusinessCard } from "@/components/cards/DirectoryBusinessCard";
+import { BusinessCard } from "@/components/cards/BusinessCard";
 import { categoryOptions, cityOptions } from "@/components/ui/FilterBar";
 import { NoResults } from "@/components/ui/Grid";
 import { AutoSubmitSelect } from "@/components/ui/AutoSubmitSelect";
@@ -160,7 +160,7 @@ async function Results({ query, pathname, fixed, heading, formId }: { query: Bus
         </div>
       </div>
       {empty ? <NoResults bare filtered={filtered || Boolean(fixed?.category || fixed?.city)} /> : (
-        <div className="grid grid-cols-1 gap-3">{result.items.map((b) => <DirectoryBusinessCard key={b.id} b={b} />)}</div>
+        <div className="grid grid-cols-1 gap-3">{result.items.map((b) => <BusinessCard key={b.id} b={b} variant="directory" />)}</div>
       )}
       <Pagination page={result.page} pages={result.pages} pathname={pathname}
         params={{ q: query.q, country: query.country, category: fixed?.category ? undefined : query.category, city: fixed?.city ? undefined : query.city, verified: query.verified, sort: query.sort === "featured" ? undefined : query.sort }} />
