@@ -42,6 +42,7 @@ def verify(folder, runtime=False):
     if runtime:
         # Rehearse the exact production runtime migration on the restored data before any remote change.
         db.executescript("BEGIN;\n" + (root / "prisma/d1/migrations/0002_runtime.sql").read_text() + "\nCOMMIT;")
+        db.executescript((root / "prisma/d1/migrations/0003_city_slug_fold.sql").read_text())
         assert db.execute("PRAGMA foreign_key_check").fetchall() == [], "Runtime migration foreign-key mismatch"
     total = 0
     for table in manifest["tables"]:

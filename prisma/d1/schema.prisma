@@ -179,6 +179,7 @@ model CityTranslation {
 }
 
 model City {
+  foldedSlug String?
   foldedNameTr String?
   foldedNameAr String?
   foldedNameFa String?

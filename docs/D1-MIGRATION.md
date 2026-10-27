@@ -18,9 +18,9 @@ The initial import used41 journaled atomic batches. Exact hashing caught one new
 - Case-insensitive PostgreSQL searches use Unicode lowercase mirror columns, maintained on writes and backfilled on the imported data. These internal fields are omitted from client responses.
 - PrismaD1's default non-atomic transaction emulation is explicitly rejected. Existing domain transactions plan parameterized writes and commit one native D1 atomic batch. A revision guard plus108 triggers detect concurrent changes and retry pure planning callbacks. Late failures commit nothing. Existing business publication rules, owner-only SUPER_ADMIN policy and auth/session secrets are preserved.
 - Node development/tests use an owned local SQLite file through the same PrismaD1 adapter. Cloudflare uses the actual D1 binding with request-scoped primary sessions; no request's I/O objects are reused by another request.
-- D1 health checks query real SQLite columns and the two real D1 migration records. No fabricated PostgreSQL migration history is used. The original PostgreSQL readiness path is retained.
+- D1 health checks query real SQLite columns and the three real D1 migration records. No fabricated PostgreSQL migration history is used. The original PostgreSQL readiness path is retained.
 
-Both D1 migrations were rehearsed on the real backup locally before remote application. Remote readback after0002 and Unicode backfill still matches all2329 original records, with two D1 migrations,108 revision triggers and zero FK violations.
+All three D1 migrations were rehearsed on the real backup locally before remote application. Remote readback after runtime migrations and Unicode backfill still matches all2329 original records, with three D1 migrations,108 revision triggers and zero FK violations.
 
 ## Development and verification
 
@@ -63,3 +63,5 @@ After D1 accepts writes, rollback requires reconciling those writes before resto
 D1 migrations: `npm run db:d1:migrate` applies committed SQL to the named existing target through Wrangler. `db:migrate` and the clearly named legacy PostgreSQL workflow remain PostgreSQL-only; they must not be used as a D1 migration command. Never use reset/push against production.
 
 A D1 SQL backup can be taken with `npx wrangler d1 export rega24-migration --remote --output backups/rega24-d1-<UTC-stamp>.sql`. Keep it private and verify restoration into disposable local D1 before relying on it. PostgreSQL `scripts/backup.sh` backs up the retained legacy source only. Media needs its separate existing object-storage backup.
+
+City slug search uses its own Unicode mirror in migration0003; existing URL values are unchanged. This was caught by the complete browser geography tests and is covered by an actual client integration query. Migration0002 was kept byte-for-byte unchanged.

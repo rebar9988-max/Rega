@@ -1,6 +1,6 @@
 // Initializes a local SQLite/D1 development database; never opens a remote database.
 import { DatabaseSync } from "node:sqlite";
-import { mkdirSync, mkdtempSync, readFileSync, chmodSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, chmodSync, readdirSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { tmpdir } from "node:os";
 import { randomUUID } from "node:crypto";
@@ -16,7 +16,7 @@ db.exec("PRAGMA foreign_keys=ON;");
 const tables = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'").all();
 if (tables.length && !tables.some(t => t.name === "d1_migrations")) throw new Error("Local initialization refused: existing untracked database contents");
 db.exec("CREATE TABLE IF NOT EXISTS d1_migrations(id INTEGER PRIMARY KEY AUTOINCREMENT,name TEXT UNIQUE NOT NULL,applied_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP);");
-for (const name of ["0001_initial.sql", "0002_runtime.sql"]) {
+for (const name of readdirSync("prisma/d1/migrations").filter(name => /^\d{4}_[\w-]+\.sql$/.test(name)).sort()) {
   if (db.prepare("SELECT 1 FROM d1_migrations WHERE name=?").get(name)) continue;
   db.exec("BEGIN IMMEDIATE;");
   try {

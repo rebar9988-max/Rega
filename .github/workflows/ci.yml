@@ -74,14 +74,14 @@ jobs:
         run: npm run build:node
       - name: Install Playwright browser
         run: npx playwright install --with-deps chromium webkit
-      - name: E2E tests
-        run: npm run e2e
       - name: E2E tests against disposable D1 SQLite (same browser assertions)
         run: |
           export D1_SQLITE_PATH="$(node scripts/init-local-d1.mjs --test | tail -1)"
           export REGA_DATABASE_PROVIDER=d1
           export E2E_PORT=3211
           npm run e2e
+      - name: E2E tests (PostgreSQL rollback provider)
+        run: npm run e2e
       - name: Build for Cloudflare Workers + validate the Worker bundle (no credentials, no deploy)
         run: |
           npm run build

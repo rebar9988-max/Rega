@@ -10,7 +10,8 @@ const path = join(folder, "test.sqlite");
 const setup = new DatabaseSync(path);
 setup.exec(readFileSync("prisma/d1/migrations/0001_initial.sql", "utf8"));
 setup.exec(readFileSync("prisma/d1/migrations/0002_runtime.sql", "utf8"));
-setup.exec("CREATE TABLE d1_migrations(name TEXT PRIMARY KEY); INSERT INTO d1_migrations VALUES('0001_initial.sql'),('0002_runtime.sql');");
+setup.exec(readFileSync("prisma/d1/migrations/0003_city_slug_fold.sql", "utf8"));
+setup.exec("CREATE TABLE d1_migrations(name TEXT PRIMARY KEY); INSERT INTO d1_migrations VALUES('0001_initial.sql'),('0002_runtime.sql'),('0003_city_slug_fold.sql');");
 setup.close();
 process.env.REGA_DATABASE_PROVIDER = "d1";
 process.env.D1_SQLITE_PATH = path;
@@ -110,7 +111,8 @@ test("D1 runtime preserves atomicity and existing domain behavior", async t => {
   await t.test("real business save publishes only complete locations and rolls back invalid edits", async () => {
     const { saveBusiness, businessFormSchema } = await import("../../src/lib/business-admin");
     const country = await prisma.country.create({ data: { code: "DE", nameEn: "Germany" } });
-    const city = await prisma.city.create({ data: { countryId: country.id, nameEn: "Berlin" } });
+    const city = await prisma.city.create({ data: { countryId: country.id, nameEn: "Berlin", slug: "berlin" } });
+    assert.equal((await prisma.city.findFirst({ where: { OR: [{ slug: { contains: "BER", mode: "insensitive" } }, { translations: { some: { name: { contains: "BER", mode: "insensitive" } } } }] } }))?.id, city.id);
     const category = await prisma.category.create({ data: { key: "test", slug: "test", nameCkb: "تاقیکردنەوە", nameDe: "Test" } });
     const raw = { name: "Real domain save", categoryId: category.id, addressLine1: "Test address 1", countryCode: "DE", city: city.nameEn, latitude: 52.52, longitude: 13.405, coordsConfirmed: "1", coordsSource: "manual", intent: "publish", languages: ["de"] };
     const input = businessFormSchema.parse(raw);

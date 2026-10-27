@@ -3,7 +3,7 @@
   "Business": { "name": "foldedName" },
   "City": {
     "nameEn": "foldedNameEn", "nameCkb": "foldedNameCkb", "nameKmr": "foldedNameKmr",
-    "nameDe": "foldedNameDe", "nameFa": "foldedNameFa", "nameAr": "foldedNameAr", "nameTr": "foldedNameTr"
+    "nameDe": "foldedNameDe", "nameFa": "foldedNameFa", "nameAr": "foldedNameAr", "nameTr": "foldedNameTr", "slug": "foldedSlug"
   },
   "CityTranslation": { "name": "foldedName" }
 }

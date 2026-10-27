@@ -38,13 +38,16 @@ writeFileSync(`${root}prisma/d1/migrations/0001_initial.sql`, "-- Candidate sche
 // Keep 0001 immutable in shape; runtime additions are a separate migration.
 const folds = JSON.parse(readFileSync(`${root}src/lib/d1-fold-fields.json`, "utf8"));
 let runtime = '-- D1 runtime support. Apply atomically before enabling the D1 application client.\nPRAGMA defer_foreign_keys=ON;\n';
+let citySlug = '-- Unicode-insensitive city slug search; existing URL values are preserved.\n';
 for (const [table, fields] of Object.entries(folds)) {
   for (const [field, folded] of Object.entries(fields)) {
     const body = source.match(new RegExp(`model ${table} \\{([\\s\\S]*?)\\n\\}`))[1];
     const nullable = new RegExp(`^\\s+${field}\\s+String\\?`, 'm').test(body);
     const declaration = `  ${folded} String${nullable ? '?' : ''}${nullable ? '' : ' @default("")'}`;
     schema = schema.replace(new RegExp(`(model ${table} \\{)`), `$1\n${declaration}`);
-    runtime += `ALTER TABLE "${table}" ADD COLUMN "${folded}" TEXT${nullable ? '' : " NOT NULL DEFAULT ''"};\n`;
+    const addition = `ALTER TABLE "${table}" ADD COLUMN "${folded}" TEXT${nullable ? '' : " NOT NULL DEFAULT ''"};\n`;
+    if (table === "City" && field === "slug") citySlug += addition;
+    else runtime += addition;
   }
 }
 // SQLite JSONB has NUMERIC affinity: scalar JSON numbers need TEXT columns for exact preservation.
@@ -63,4 +66,5 @@ for (const [, table] of source.matchAll(/^model (\w+)/gm)) {
 }
 writeFileSync(`${root}prisma/d1/schema.prisma`, schema);
 writeFileSync(`${root}prisma/d1/migrations/0002_runtime.sql`, runtime);
+writeFileSync(`${root}prisma/d1/migrations/0003_city_slug_fold.sql`, citySlug);
 console.log("D1 candidate generated. Runtime conversion and data verification are still required.");
