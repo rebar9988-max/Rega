@@ -1,5 +1,8 @@
 "use server";
 
+import { databaseTransaction } from "@/lib/database-transaction";
+
+
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
@@ -70,7 +73,7 @@ export async function updateBusiness(formData: FormData): Promise<void> {
   const canPublish = can(user.role, "business.publish");
 
   await assertBusinessAccess(user, id);
-  const result = await prisma.$transaction(async (tx) => {
+  const result = await databaseTransaction(async (tx) => {
     await lockBusiness(tx, id);
     const before = await tx.business.findFirst({ where: { id, deletedAt: null }, select: { ...publicationSelect, featured: true } });
     if (!before || (intent === "reject" && before.status !== "pending")) return null;
@@ -125,7 +128,7 @@ export async function deleteBusiness(formData: FormData): Promise<void> {
   const { id, back } = recordSchema.parse({ id: formData.get("id"), back: formData.get("back") || undefined });
   const user = await requirePermission("business.delete");
   await assertBusinessAccess(user, id);
-  const done = await prisma.$transaction(async (tx) => {
+  const done = await databaseTransaction(async (tx) => {
     await lockBusiness(tx, id);
     const before = await tx.business.findFirst({ where: { id, deletedAt: null }, select: { status: true, verified: true, featured: true, categoryId: true, archivedAt: true } });
     if (!before) return false; // already deleted or unknown: a repeated request changes nothing
@@ -146,7 +149,7 @@ export async function recoverBusiness(formData: FormData): Promise<void> {
   const { id, back } = recordSchema.parse({ id: formData.get("id"), back: formData.get("back") || undefined });
   const user = await requirePermission("business.delete");
   await assertBusinessAccess(user, id);
-  const done = await prisma.$transaction(async (tx) => {
+  const done = await databaseTransaction(async (tx) => {
     await lockBusiness(tx, id);
     const before = await tx.business.findFirst({ where: { id, deletedAt: { not: null } }, select: { status: true, archivedAt: true } });
     if (!before) return false;

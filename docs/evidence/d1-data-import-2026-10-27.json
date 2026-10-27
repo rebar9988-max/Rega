@@ -1,0 +1,237 @@
+{
+  "project": "REGA",
+  "date": "2026-10-27",
+  "backupDriveFileId": "1iErWFvGechN4V1ZIkB6OFwa2ZUgkoaxt",
+  "backupSha256": "4bfeb4beaab6f4655f7cac61c7e6b73fea121a6e194e902857b37fd1151116fb",
+  "restore": {
+    "engine": "PostgreSQL 17.11",
+    "archiveSourceVersion": "PostgreSQL 18.6",
+    "success": true,
+    "unfinishedMigrations": 0
+  },
+  "snapshotMatchesLiveAll36Tables": true,
+  "targetDatabaseId": "728f792d-37b6-49f8-abc1-e81512219f7d",
+  "allTablesMatch": true,
+  "totalRows": 2329,
+  "foreignKeyViolations": 0,
+  "importedBatches": 41,
+  "proofs": [
+    {
+      "table": "User",
+      "count": 3,
+      "expectedCount": 3,
+      "allValuesMatch": true
+    },
+    {
+      "table": "Account",
+      "count": 0,
+      "expectedCount": 0,
+      "allValuesMatch": true
+    },
+    {
+      "table": "Session",
+      "count": 0,
+      "expectedCount": 0,
+      "allValuesMatch": true
+    },
+    {
+      "table": "AdminSignInCode",
+      "count": 1,
+      "expectedCount": 1,
+      "allValuesMatch": true
+    },
+    {
+      "table": "VerificationToken",
+      "count": 0,
+      "expectedCount": 0,
+      "allValuesMatch": true
+    },
+    {
+      "table": "Country",
+      "count": 7,
+      "expectedCount": 7,
+      "allValuesMatch": true
+    },
+    {
+      "table": "Region",
+      "count": 22,
+      "expectedCount": 22,
+      "allValuesMatch": true
+    },
+    {
+      "table": "CountryTranslation",
+      "count": 0,
+      "expectedCount": 0,
+      "allValuesMatch": true
+    },
+    {
+      "table": "RegionTranslation",
+      "count": 44,
+      "expectedCount": 44,
+      "allValuesMatch": true
+    },
+    {
+      "table": "CityTranslation",
+      "count": 0,
+      "expectedCount": 0,
+      "allValuesMatch": true
+    },
+    {
+      "table": "City",
+      "count": 2039,
+      "expectedCount": 2039,
+      "allValuesMatch": true
+    },
+    {
+      "table": "Category",
+      "count": 19,
+      "expectedCount": 19,
+      "allValuesMatch": true
+    },
+    {
+      "table": "CategoryTranslation",
+      "count": 0,
+      "expectedCount": 0,
+      "allValuesMatch": true
+    },
+    {
+      "table": "Business",
+      "count": 3,
+      "expectedCount": 3,
+      "allValuesMatch": true
+    },
+    {
+      "table": "BusinessTranslation",
+      "count": 0,
+      "expectedCount": 0,
+      "allValuesMatch": true
+    },
+    {
+      "table": "Location",
+      "count": 3,
+      "expectedCount": 3,
+      "allValuesMatch": true
+    },
+    {
+      "table": "Service",
+      "count": 0,
+      "expectedCount": 0,
+      "allValuesMatch": true
+    },
+    {
+      "table": "Offer",
+      "count": 0,
+      "expectedCount": 0,
+      "allValuesMatch": true
+    },
+    {
+      "table": "BusinessMember",
+      "count": 3,
+      "expectedCount": 3,
+      "allValuesMatch": true
+    },
+    {
+      "table": "Media",
+      "count": 13,
+      "expectedCount": 13,
+      "allValuesMatch": true
+    },
+    {
+      "table": "Review",
+      "count": 0,
+      "expectedCount": 0,
+      "allValuesMatch": true
+    },
+    {
+      "table": "AuditLog",
+      "count": 78,
+      "expectedCount": 78,
+      "allValuesMatch": true
+    },
+    {
+      "table": "FeatureFlag",
+      "count": 1,
+      "expectedCount": 1,
+      "allValuesMatch": true
+    },
+    {
+      "table": "Setting",
+      "count": 0,
+      "expectedCount": 0,
+      "allValuesMatch": true
+    },
+    {
+      "table": "AiConversation",
+      "count": 30,
+      "expectedCount": 30,
+      "allValuesMatch": true
+    },
+    {
+      "table": "AiMessage",
+      "count": 60,
+      "expectedCount": 60,
+      "allValuesMatch": true
+    },
+    {
+      "table": "AiUsageDaily",
+      "count": 3,
+      "expectedCount": 3,
+      "allValuesMatch": true
+    },
+    {
+      "table": "Report",
+      "count": 0,
+      "expectedCount": 0,
+      "allValuesMatch": true
+    },
+    {
+      "table": "ContactMessage",
+      "count": 0,
+      "expectedCount": 0,
+      "allValuesMatch": true
+    },
+    {
+      "table": "Page",
+      "count": 0,
+      "expectedCount": 0,
+      "allValuesMatch": true
+    },
+    {
+      "table": "PageTranslation",
+      "count": 0,
+      "expectedCount": 0,
+      "allValuesMatch": true
+    },
+    {
+      "table": "Listing",
+      "count": 0,
+      "expectedCount": 0,
+      "allValuesMatch": true
+    },
+    {
+      "table": "ListingTranslation",
+      "count": 0,
+      "expectedCount": 0,
+      "allValuesMatch": true
+    },
+    {
+      "table": "JobDetails",
+      "count": 0,
+      "expectedCount": 0,
+      "allValuesMatch": true
+    },
+    {
+      "table": "EventDetails",
+      "count": 0,
+      "expectedCount": 0,
+      "allValuesMatch": true
+    },
+    {
+      "table": "GuideDetails",
+      "count": 0,
+      "expectedCount": 0,
+      "allValuesMatch": true
+    }
+  ],
+  "productionUsesD1": false
+}

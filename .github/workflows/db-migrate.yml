@@ -1,4 +1,4 @@
-name: Database migrate (production)
+name: Legacy PostgreSQL migrate (rollback only)
 
 # Manual, production-safe migration: `prisma migrate deploy` only applies committed, reviewed migrations
 # (additive: it never resets, drops or seeds). Needs the repository secret DIRECT_DATABASE_URL (or DATABASE_URL).
@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       confirm:
-        description: 'Type "migrate" to apply pending migrations to the production database'
+        description: 'LEGACY PostgreSQL only (D1 uses npm run db:d1:migrate). Type "migrate" deliberately.'
         required: true
       backup_confirmed:
         description: 'Type "backup-verified" once a restorable backup / point-in-time snapshot of the production database exists (docs/BACKUP-RESTORE.md)'

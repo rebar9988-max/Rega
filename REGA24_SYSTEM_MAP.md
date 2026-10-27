@@ -257,3 +257,7 @@ VERIFIED read-only: existing EU D1 `rega24-migration` reports zero tables; produ
 ## D1 target schema applied — 2026-10-27
 
 Supersedes the earlier empty-target observation: the existing disconnected `rega24-migration` now contains the candidate36-table schema (105statements accepted). Remote readback verifies every scalar column, zero application records and zero FK violations. Production `rega24` has noD1binding; query redaction remains enabled. New offline export/rehearsal scripts and remaining runtime/data/source blockers are documented in [D1 migration status](docs/D1-MIGRATION.md). Neon production and existing backup-branch SELECT1 both return402; no quota bypass/paid activation/source change performed. Do not bind the live app to this empty candidate.
+
+## D1 migration target and candidate runtime — 2026-10-27
+
+Verified existing EU D1 `rega24-migration`/`728f792d-37b6-49f8-abc1-e81512219f7d`: all36 application tables and2329 restored source rows; exact typed values and FK integrity checked remotely after both runtime migrations. Candidate Worker binds it as `DB` and selects `REGA_DATABASE_PROVIDER=d1`; production activation is still pending final CI/cutover. Neon remains intact. See [migration evidence and procedure](docs/D1-MIGRATION.md). New runtime dependency: `@prisma/adapter-d1@6.19.3`; local development requires Node22.16+. The original PostgreSQL schema, tests and recovery provider remain available.

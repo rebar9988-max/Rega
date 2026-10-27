@@ -1,15 +1,12 @@
+import { testDatabaseClient } from "./database-client";
 import { encode, decode } from "fast-png";
 import bcrypt from "bcryptjs";
-import { PrismaClient } from "@prisma/client";
-import { PrismaPg } from "@prisma/adapter-pg";
 import type { Page } from "@playwright/test";
 import { test, expect } from "./fixtures";
 import { ADMIN, EMPLOYEE } from "./global-setup";
 import { reindexBusinessTree } from "../../src/lib/search-index";
 
-const db = new PrismaClient({
-  adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL! }),
-});
+const db = testDatabaseClient();
 const stamp = Date.now().toString(36);
 const uploadedBusinessIds: string[] = [];
 async function login(page: Page, who = ADMIN) {

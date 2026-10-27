@@ -405,3 +405,14 @@ VERIFIED read-only: existing EU D1 `rega24-migration` reports zero tables; produ
 ## D1 target schema applied — 2026-10-27
 
 Supersedes the earlier empty-target observation: the existing disconnected `rega24-migration` now contains the candidate36-table schema (105statements accepted). Remote readback verifies every scalar column, zero application records and zero FK violations. Production `rega24` has noD1binding; query redaction remains enabled. New offline export/rehearsal scripts and remaining runtime/data/source blockers are documented in [D1 migration status](docs/D1-MIGRATION.md). Neon production and existing backup-branch SELECT1 both return402; no quota bypass/paid activation/source change performed. Do not bind the live app to this empty candidate.
+
+## D1 candidate and cutover checks — 2026-10-27
+
+Earlier Neon402/source-export blocker is resolved. The real archive restores and matches all36 live source tables; the disconnected D1 copy has2329 exact records and no FK errors. Production activation remains pending hosted release checks. See [D1 migration](docs/D1-MIGRATION.md).
+
+- Date filters missing numeric timestamps: the PrismaD1 default emits ISO filter arguments. REGA normalizes typed datetime arguments to UTC epoch milliseconds; do not change imported dates to text or silently reimport data.
+- Non-atomic Prisma transactions: REGA refuses the SDK's emulation and uses one guarded native batch. A P2034 conflict means retry the request; never bypass the revision guard or remove its triggers.
+- Unicode case matching: verify mirror backfill and current write adapter, not SQLite's ASCII lower(). Internal mirror fields must remain omitted from DTOs.
+- Release blocked by final-snapshot readiness: verify exact release SHA, source freeze, all-table hashes and zero FK violations before marking `_RegaCutover` ready. Waiting/failing the gate makes no deployment.
+- Local browser tests: override machine-local AUTH_URL for the E2E port and GEOCODING_PROVIDER=nominatim for the local fake. Never use production or a restored customer database as a fixture. The D1 initializer's --test marker is mandatory.
+- Browser download/Google Fonts downloads can be blocked by executor egress policy. Local Chromium and the same actual font from its package allow bounded local verification; hosted CI still runs the normal Chromium/WebKit and production font build. Do not weaken assertions or change product typography to bypass tooling.

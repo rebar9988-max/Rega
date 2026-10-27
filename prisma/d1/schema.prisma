@@ -23,6 +23,8 @@ enum Role {
 }
 
 model User {
+  foldedName String?
+  foldedEmail String @default("")
   id              String    @id @default(cuid())
   email           String    @unique
   emailVerified   DateTime?
@@ -166,6 +168,7 @@ model RegionTranslation {
 }
 
 model CityTranslation {
+  foldedName String @default("")
   id     String @id @default(cuid())
   cityId String
   locale String
@@ -176,6 +179,13 @@ model CityTranslation {
 }
 
 model City {
+  foldedNameTr String?
+  foldedNameAr String?
+  foldedNameFa String?
+  foldedNameDe String?
+  foldedNameKmr String?
+  foldedNameCkb String?
+  foldedNameEn String @default("")
   id        String   @id @default(cuid())
   countryId String
   regionId  String?
@@ -263,6 +273,7 @@ model CategoryTranslation {
 // ----------------------------------------------------------------- Core entities
 
 model Business {
+  foldedName String @default("")
   id             String    @id @default(cuid())
   slug           String    @unique
   name           String

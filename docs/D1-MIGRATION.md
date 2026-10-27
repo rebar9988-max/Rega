@@ -1,74 +1,65 @@
-# Rega24: Neon to D1 migration preparation
+# Rega24: Neon to Cloudflare D1
 
-Status: **TARGET SCHEMA APPLIED — data import and application cutover incomplete; production still uses PostgreSQL.**
+Status on 2026-10-27: **BACKUP RESTORED AND ALL DATA IMPORTED/VERIFIED. Application release verification is in progress; production has not switched.**
 
-## Verified starting point — 2026-10-27
+## Verified data
 
-- Repository and local baseline: `rebar9988-max/Rega`, `c8f0cf2ac859414f48fd8dd080484f587b661679` (also GitHub main when checked).
-- Canonical Worker: `rega24`; active deployment `5b341ca4-f063-4358-af07-427bac5c8d3e`, version `5ab5e7d5-2c4d-4f98-aaad-6074dfeb69f5`, 100%, source tag matching the baseline. Query-string redaction enabled.
-- Neon project `lucky-glitter-73195208`, named `Rega24`: bounded `SELECT 1` failed with HTTP 402, quota exceeded. Source data cannot currently be exported through this connection.
-- Existing D1 `rega24-migration`, ID `728f792d-37b6-49f8-abc1-e81512219f7d`, EU jurisdiction: list response reports zero tables. No D1 binding on the production Worker. This task created neither resource nor binding.
-- Owner confirms an existing backup/export is available; file not yet supplied or validated. No assumption about its freshness, contents or recoverability.
+The supplied custom-format PostgreSQL archive `rega24-2026-10-27-212653.dump` was downloaded from the owner's private Drive backup folder. SHA-256: `4bfeb4beaab6f4655f7cac61c7e6b73fea121a6e194e902857b37fd1151116fb`. The archive was restored successfully into an isolated local PostgreSQL 17.11 server. It contains all36 application models and completed PostgreSQL migration history. All36 restored table fingerprints matched the live Neon production source when checked. Earlier HTTP402/source-unavailable notes are superseded: source reads now work.
 
-## Offline preparation
+Existing EU D1 `rega24-migration` (`728f792d-37b6-49f8-abc1-e81512219f7d`) contains all2329 source records. [Import evidence](evidence/d1-data-import-2026-10-27.json) records counts and verification results without customer data. Remote verification compares every original scalar value using typed SHA-256 row hashes, including Unicode, line endings, arrays, dates, money and NULL. All36 tables match; foreign-key violations0. No production seed, demo user or password reset was performed. R2 media objects remain in their existing bucket; original references are preserved.
 
-The separate [candidate schema](../prisma/d1/schema.prisma) and [initial SQL](../prisma/d1/migrations/0001_initial.sql) do not replace the active [PostgreSQL schema](../prisma/schema.prisma). They are not referenced by application builds or migration workflows. The initial schema was applied to the existing, disconnected migration D1 after verifying it contained no application tables; production was not switched.
+The initial import used41 journaled atomic batches. Exact hashing caught one newline-normalization error in an intermediate batching utility; a guarded parameterized correction restored that one description, and every table then matched. `prepare-d1-batches.py` now preserves bytes/line endings, with a CRLF/LF/CR/Unicode regression check.
 
-Regenerate and verify from the repository root with installed project dependencies:
+## Runtime mapping
+
+- PostgreSQL remains available through `REGA_DATABASE_PROVIDER=postgres` for baseline tests and recovery. Production candidate configuration selects `d1` and the existing `DB` binding. PostgreSQL source resources and credentials are retained.
+- `prisma/schema.prisma` remains the source for application types and legacy PostgreSQL migrations. `prisma/d1/schema.prisma` generates a separate ignored SQLite client. `npm run db:generate` generates both clients and checks in static model metadata generated from the source schema (the client-engine DMMF omits essential defaults/cardinality information).
+- String arrays use JSON but keep their JavaScript array API. Money is rounded to two decimal places before storage. Dates use UTC epoch milliseconds; adapter filter arguments are normalized to the same representation. SQL NULL and JSON null remain distinct in storage. Runtime migration0002 changes leaf JSON columns to TEXT to prevent SQLite numeric affinity changing scalar JSON values.
+- Case-insensitive PostgreSQL searches use Unicode lowercase mirror columns, maintained on writes and backfilled on the imported data. These internal fields are omitted from client responses.
+- PrismaD1's default non-atomic transaction emulation is explicitly rejected. Existing domain transactions plan parameterized writes and commit one native D1 atomic batch. A revision guard plus108 triggers detect concurrent changes and retry pure planning callbacks. Late failures commit nothing. Existing business publication rules, owner-only SUPER_ADMIN policy and auth/session secrets are preserved.
+- Node development/tests use an owned local SQLite file through the same PrismaD1 adapter. Cloudflare uses the actual D1 binding with request-scoped primary sessions; no request's I/O objects are reused by another request.
+- D1 health checks query real SQLite columns and the two real D1 migration records. No fabricated PostgreSQL migration history is used. The original PostgreSQL readiness path is retained.
+
+Both D1 migrations were rehearsed on the real backup locally before remote application. Remote readback after0002 and Unicode backfill still matches all2329 original records, with two D1 migrations,108 revision triggers and zero FK violations.
+
+## Development and verification
+
+Node22.16+ is required. For local D1 development:
 
 ```sh
+npm ci
+npm run db:generate
+npm run db:d1:local
+# Set REGA_DATABASE_PROVIDER=d1 and D1_SQLITE_PATH to the printed local file path.
+npm run db:seed
+npm run dev
+```
+
+The development initializer never opens a remote database. Browser fixtures require a randomly marked disposable directory created by `node scripts/init-local-d1.mjs --test`; neither production nor a restored customer backup passes that guard. Browser assertions run against both PostgreSQL and D1. CI retains the PostgreSQL service, all existing checks, and adds D1 native tests, a real local workerd/D1 binding test, and D1 Worker route readiness.
+
+```sh
+npm run test:d1
+node scripts/health/d1-worker-smoke.mjs
 node scripts/prepare-d1.mjs
 python3 scripts/verify-d1-schema.py
+D1_RESTORE_DATABASE_URL=<private-loopback-restore-url> node scripts/export-d1.mjs
+python3 scripts/verify-d1-export.py <private-export-directory> --runtime
 ```
 
-The generator runs the project identity guard and Prisma 6.19.3 validation/diff locally. It gives the candidate a separate client output, converts four scalar arrays (`Business.tags`, `languages`, `photos`, `JobDetails.languages`) to JSON, removes four PostgreSQL GIN indexes and native database type annotations, quotes JSON defaults, and preserves existing Offer CHECK constraints and allowed role values in SQL. It performs no remote operation. Review regenerated SQL before use.
+Source exports stay in private temporary directories with restrictive permissions. Do not commit dumps, manifests containing records, database files, credentials or signed download links.
 
-The verification uses in-memory SQLite, checks every model's scalar column names, JSON defaults, Kurdish text, Offer date/discount rules, role rejection, foreign-key rejection and cascade. It does not prove D1 runtime or Prisma driver behavior. `DECIMAL` in SQLite does not provide PostgreSQL fixed-scale guarantees; final money representation and exact round-trip tests remain required.
+## First production cutover
 
-## Required implementation before cutover
+1. Require all hosted CI/browser/build/runtime checks on the exact reviewed release. The production workflow also checks successful push CI for the exact current main SHA, including manual releases, and verifies existing Worker/domain ownership.
+2. Before activation, briefly freeze production requests using the existing early isolation guard. Verify that source writes have stopped; compare a final consistent Neon fingerprint with the restored/imported snapshot. If anything changed, reconcile those records and reverify every original value before proceeding.
+3. Record exact release SHA, all-table verification and zero FK violations in the private target's `_RegaCutover` readiness row. `d1-release-readiness.mjs` blocks first deployment until that row matches. A workflow waiting for readiness makes no deployment or database changes.
+4. Release through the existing CI-gated `rega24` deployment path. Preserve existing secrets, domain routes, stable Worker identity, query redaction and service bindings. Candidate configuration sets the provider to D1 and clears temporary isolation. No new Neon/paid resources or deletion is required.
+5. Read back active version/binding/settings and verify live health, public multilingual pages/search, private auth guards and existing media. Record the exact release and deployment evidence in shared memory and the central Google Doc.
 
-| Area | Current dependency | Required work |
-| --- | --- | --- |
-| Runtime | `src/lib/db.ts`, `src/lib/db.workers.ts`: PrismaPg/pg | D1 adapter/binding; correct request-scoped runtime context; local development parity. Preserve isolated preview guards. |
-| Writes/concurrency | Callback `$transaction` in content/business/location/moderation APIs; `pg_advisory_xact_lock` | Redesign as D1 atomic batches/conditional writes with race tests for approve/edit/archive, duplicate submission and primary locations. Never substitute a no-op transaction wrapper. |
-| Arrays | Four string arrays become JSON | Typed input/output conversion and validation at all callers, without changing public API shape. |
-| Search | `mode: "insensitive"`, PostgreSQL GIN/trigram indexes | Explicit case/Unicode semantics and suitable SQLite queries/indexes. Test all seven locales. |
-| SQL | Health uses Postgres catalogs/casts; sitemap uses raw SQL | SQLite/D1 queries and migration/readiness checks. Do not fabricate old `_prisma_migrations` history. |
-| Types | Decimal, DateTime, JSON, booleans, role enum | Preserve precision, UTC instant/day semantics, SQL NULL versus JSON null, and existing auth/RBAC behavior. |
-| Delivery | CI, seeds, backup, migration workflow, inventory and environment validation require PostgreSQL | Add D1 migration/runtime/integration checks; update operational docs and recovery. Keep hosted CI and identity/ownership gates. |
+After D1 accepts writes, rollback requires reconciling those writes before restoring a PostgreSQL Worker. Keep Neon and the original archive; never blindly flip back to an older snapshot.
 
-## Data and release sequence
+## Operations after activation
 
-1. Obtain the owner's backup through file attachment or an accessible private file location. Keep backup contents outside tracked paths; no credential values in chat or documentation.
-2. Inspect format and timestamp without dumping records; restore into a disposable local PostgreSQL instance, never execute an unreviewed dump against production. Compare backup schema with current models/migrations. State the backup's recovery cutoff and any data lost since it was made.
-3. Produce a private manifest of row counts and stable hashes from a consistent snapshot. Preserve primary IDs, relationships, password hashes, settings, translations and media references. R2 objects stay separate from the SQL migration. Do not seed demo users/content into the target.
-4. Finalize runtime/schema mapping above, rehearse export/conversion/import locally, verify per-table counts/hashes, foreign keys and representative auth/content operations. Plain Postgres SQL is not valid D1 input; use a typed conversion, not search-and-replace of a dump.
-5. Recheck the exact account/database identity and target emptiness, import schema/data into the existing migration D1, and verify remotely. Do not overwrite a populated target or provision a replacement silently.
-6. Run full hosted checks and D1/workerd integration/browser checks on the final revision. Freeze writes during the final snapshot/cutover or use a verified delta strategy. Release through the existing main CI-gated deployment path with the correct version annotation and retained query redaction.
-7. Verify live health, sign-in, owner-only dashboard access, search, content, money/dates and media, then update shared memory/map/runbook with actual evidence. Keep Neon and the private backup for recovery. Once D1 accepts writes, rollback requires reconciliation of those writes, not merely restoring the old Worker.
+D1 migrations: `npm run db:d1:migrate` applies committed SQL to the named existing target through Wrangler. `db:migrate` and the clearly named legacy PostgreSQL workflow remain PostgreSQL-only; they must not be used as a D1 migration command. Never use reset/push against production.
 
-The disconnected D1 target schema was created. No production binding, production schema/data, secrets, routes, application deployment or paid plan was changed. Backup validation, runtime conversion, data import and cutover remain outstanding.
-
-
-## Continuation evidence — 2026-10-27
-
-- Existing Neon backup branch `backup-rega24-20261026-pre-release` (`br-broad-queen-b2f9p1p0`) and restore-verification branch exist. A bounded SELECT1 against the backup branch also returns402. The old native snapshot is dated2026-10-02, not a fresh downloadable export. No branch/snapshot was restored, deleted or newly created.
-- Local `/workspace` and `/tmp` searches found migration SQL but no source data dump. Drive keyword/metadata searches returned no export; the Rega24 folder contains Branding. Drive search is not proof that no archive exists because the connector filters supported file types. Owner-provided backup location/file remains necessary.
-- After exact account/target-name/UUID checks and a fresh empty-target read, D1 accepted all105 schema statements (HTTP200). Readback confirms all36 model tables and every scalar column match the local candidate; all application row counts are0; `PRAGMA foreign_key_check` returns no violations. Worker readback still has noD1binding and query redaction remains true.
-- One read-only verification query exceeded D1's compound-SELECT term limit. Separate count statements succeeded; no data/schema correction was needed. Do not use the large UNION approach in the final verifier.
-
-## Private data export and rehearsal tools
-
-After restoring the supplied backup into a disposable LOCAL PostgreSQL database, configure `D1_RESTORE_DATABASE_URL` through the private execution environment and run:
-
-```sh
-node scripts/export-d1.mjs
-python3 scripts/verify-d1-export.py /tmp/rega24-d1-export-<generated-directory>
-node --test scripts/d1-values.test.mjs
-```
-
-The exporter accepts only a loopback Postgres URL without query overrides. It opens a repeatable-read, read-only transaction, checks exact scalar-column coverage, requires completed source migration history, and writes private SQL/manifest files under a mode0700 temporary directory (mode0600 files). It never contacts D1 or changes source records. Source errors are redacted. UTC timestamp/date parsing is independent of the execution host's timezone. SQL NULL and JSON null are retained separately; arrays remain typed string arrays encoded as JSON. Unexpected NULLs/types/ranges abort the export rather than silently coercing data. It intentionally does not recreate Postgres migration history in D1.
-
-The separate verifier restores only into in-memory SQLite, checks the source-schema fingerprint and file checksum, then compares every table's row count and hash over every typed value. Float hashes use IEEE754 bytes; Decimal values are compared at the source's two-decimal scale. The data SQL cannot attach files or alter/drop/update/delete schemas or records in the verifier. Unit/rehearsal fixtures cover multilingual and apostrophe/injection text, NULL versus JSON null, four string-array fields in schema, UTC/day values, numeric boundaries, file tampering and changed-row detection even after recalculating the file checksum. Fixtures are local test data only.
-
-These tools are not a completed backup validation, remote data import, application runtime conversion, end-to-end test or production certification. No real source export was possible in this session.
+A D1 SQL backup can be taken with `npx wrangler d1 export rega24-migration --remote --output backups/rega24-d1-<UTC-stamp>.sql`. Keep it private and verify restoration into disposable local D1 before relying on it. PostgreSQL `scripts/backup.sh` backs up the retained legacy source only. Media needs its separate existing object-storage backup.

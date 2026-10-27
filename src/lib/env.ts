@@ -9,7 +9,9 @@ const serverSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   APP_ENV: z.enum(["development", "staging", "production"]).default("development"),
   CANONICAL_HOST: z.string().default("www.rega24.com"),
-  DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
+  DATABASE_URL: z.string().optional(),
+  REGA_DATABASE_PROVIDER: z.enum(["postgres", "d1"]).default("postgres"),
+  D1_SQLITE_PATH: z.string().optional(),
   DIRECT_DATABASE_URL: z.string().optional(),
   AUTH_SECRET: z.string().min(16, "AUTH_SECRET must be at least 16 chars"),
   AUTH_URL: z.string().url().optional(),
@@ -95,6 +97,8 @@ const serverSchema = z.object({
   GEOCODING_PROVIDER: z.enum(["nominatim", "none"]).default("nominatim"),
   GEOCODING_URL: z.string().url().default("https://nominatim.openstreetmap.org"),
   GEOCODING_TIMEOUT_MS: z.coerce.number().int().min(1_000).max(20_000).default(6_000),
+}).superRefine((env, ctx) => {
+  if (env.REGA_DATABASE_PROVIDER === "postgres" && !env.DATABASE_URL) ctx.addIssue({ code: "custom", path: ["DATABASE_URL"], message: "DATABASE_URL is required" });
 });
 
 export type ServerEnv = z.infer<typeof serverSchema>;

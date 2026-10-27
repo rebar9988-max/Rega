@@ -13,6 +13,7 @@ concurrency:
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
   deploy:
@@ -89,6 +90,18 @@ jobs:
         if: steps.scope.outputs.skip != 'true'
         run: node scripts/project-identity-guard.mjs --project REGA --domain www.rega24.com --worker rega24
 
+      - name: Require successful CI for this exact current main SHA (including manual releases)
+        if: steps.scope.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          release_sha="$(git rev-parse HEAD)"
+          main_sha="$(git ls-remote origin refs/heads/main | cut -f1)"
+          test "$release_sha" = "$main_sha"
+          count="$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/ci.yml/runs?head_sha=$release_sha&status=completed" --jq '[.workflow_runs[] | select(.head_sha == "'"$release_sha"'" and .event == "push" and .conclusion == "success")] | length')"
+          test "$count" -ge 1
+
       - uses: actions/setup-node@v4
         if: steps.scope.outputs.skip != 'true'
         with:
@@ -101,7 +114,7 @@ jobs:
 
       - name: Generate Prisma Client
         if: steps.scope.outputs.skip != 'true'
-        run: npx prisma generate
+        run: npm run db:generate
 
       - name: Build for Cloudflare Workers (OpenNext)
         if: steps.scope.outputs.skip != 'true'
@@ -110,6 +123,13 @@ jobs:
       - name: Verify existing production Worker and domains
         if: steps.scope.outputs.skip != 'true'
         run: node scripts/production-target.mjs
+
+      - name: Require verified D1 final snapshot before first cutover
+        if: steps.scope.outputs.skip != 'true'
+        env:
+          RELEASE_SHA: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+          D1_CUTOVER_WAIT_MS: "600000"
+        run: node scripts/d1-release-readiness.mjs
 
       - name: Deploy to Cloudflare Workers
         if: steps.scope.outputs.skip != 'true'

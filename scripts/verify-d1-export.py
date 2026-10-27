@@ -9,7 +9,7 @@ from decimal import Decimal
 from pathlib import Path
 
 
-def verify(folder):
+def verify(folder, runtime=False):
     root = Path(__file__).resolve().parent.parent
     manifest = json.loads((folder / "manifest.json").read_text())
     sql = (folder / "data.sql").read_bytes()
@@ -39,6 +39,10 @@ def verify(folder):
     db.set_authorizer(None)
     assert db.execute("PRAGMA foreign_key_check").fetchall() == [], "Foreign-key mismatch"
     db.commit()
+    if runtime:
+        # Rehearse the exact production runtime migration on the restored data before any remote change.
+        db.executescript("BEGIN;\n" + (root / "prisma/d1/migrations/0002_runtime.sql").read_text() + "\nCOMMIT;")
+        assert db.execute("PRAGMA foreign_key_check").fetchall() == [], "Runtime migration foreign-key mismatch"
     total = 0
     for table in manifest["tables"]:
         names = [table["name"]] + [f["name"] for f in table["fields"]]
@@ -62,14 +66,14 @@ def verify(folder):
         assert len(hashes) == table["count"], f'Row-count mismatch: {table["name"]}'
         assert hashlib.sha256("\n".join(sorted(hashes)).encode()).hexdigest() == table["sha256"], f'Typed row-hash mismatch: {table["name"]}'
         total += len(hashes)
-    print(f"PASS: {len(tables)} tables, {total} rows, every typed row hash, export checksum and foreign keys. Local rehearsal only.")
+    print(f"PASS: {len(tables)} tables, {total} rows, every typed row hash, export checksum and foreign keys. {'Runtime migration' if runtime else 'Initial import'} local rehearsal only.")
 
 
 if __name__ == "__main__":
     try:
-        if len(sys.argv) != 2:
+        if len(sys.argv) not in {2, 3} or (len(sys.argv) == 3 and sys.argv[2] != "--runtime"):
             raise ValueError("private export directory required")
-        verify(Path(sys.argv[1]))
+        verify(Path(sys.argv[1]), runtime=len(sys.argv) == 3)
     except Exception:
         # Never echo database exceptions, SQL or data values into logs.
         print("Export verification FAILED; inspect the private source and manifest locally. No remote changes.", file=sys.stderr)

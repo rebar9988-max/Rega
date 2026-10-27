@@ -3,7 +3,7 @@ import { existsSync, statSync } from "node:fs";
 
 const PORT = Number(process.env.E2E_PORT ?? 3111);
 // In sandboxes the browser is pre-installed; on a normal machine `npx playwright install chromium` is enough.
-const SANDBOX_CHROMIUM = "/opt/pw-browsers/chromium";
+const SANDBOX_CHROMIUM = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH || "/opt/pw-browsers/chromium";
 const executablePath = existsSync(SANDBOX_CHROMIUM) && statSync(SANDBOX_CHROMIUM).isFile() ? SANDBOX_CHROMIUM : undefined;
 
 // The map needs WebGL: headless Chromium provides it in software (SwiftShader).

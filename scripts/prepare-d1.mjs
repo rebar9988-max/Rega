@@ -35,4 +35,32 @@ sql = sql.replace(/(CREATE TABLE "Offer" \([^]*?)(\n\);)/, (_, body, end) => `${
 const roles = source.match(/enum Role \{([^]*?)\n\}/)[1].split("\n").map(l => l.trim()).filter(l => l && !l.startsWith("//"));
 sql = sql.replace(/("role" TEXT NOT NULL DEFAULT '[A-Z_]+')/g, `$1 CHECK ("role" IN (${roles.map(r => `'${r}'`).join(", ")}))`);
 writeFileSync(`${root}prisma/d1/migrations/0001_initial.sql`, "-- Candidate schema for the migration target; production has not switched to D1.\n" + sql);
+// Keep 0001 immutable in shape; runtime additions are a separate migration.
+const folds = JSON.parse(readFileSync(`${root}src/lib/d1-fold-fields.json`, "utf8"));
+let runtime = '-- D1 runtime support. Apply atomically before enabling the D1 application client.\nPRAGMA defer_foreign_keys=ON;\n';
+for (const [table, fields] of Object.entries(folds)) {
+  for (const [field, folded] of Object.entries(fields)) {
+    const body = source.match(new RegExp(`model ${table} \\{([\\s\\S]*?)\\n\\}`))[1];
+    const nullable = new RegExp(`^\\s+${field}\\s+String\\?`, 'm').test(body);
+    const declaration = `  ${folded} String${nullable ? '?' : ''}${nullable ? '' : ' @default("")'}`;
+    schema = schema.replace(new RegExp(`(model ${table} \\{)`), `$1\n${declaration}`);
+    runtime += `ALTER TABLE "${table}" ADD COLUMN "${folded}" TEXT${nullable ? '' : " NOT NULL DEFAULT ''"};\n`;
+  }
+}
+// SQLite JSONB has NUMERIC affinity: scalar JSON numbers need TEXT columns for exact preservation.
+// These are leaf tables: rebuilding them cannot cascade into another application table.
+for (const table of ['Location', 'AuditLog', 'Setting']) {
+  if (sql.includes(`REFERENCES "${table}"`)) throw new Error(`Unsafe leaf-table assumption: ${table}`);
+  const definition = sql.match(new RegExp(`CREATE TABLE "${table}" \\([\\s\\S]*?\\n\\);`))[0];
+  const temporary = `__rega_new_${table}`;
+  runtime += definition.replace(`CREATE TABLE "${table}"`, `CREATE TABLE "${temporary}"`).replace(/ JSONB/g, ' TEXT') + '\n';
+  runtime += `INSERT INTO "${temporary}" SELECT * FROM "${table}";\nDROP TABLE "${table}";\nALTER TABLE "${temporary}" RENAME TO "${table}";\n`;
+  for (const index of sql.matchAll(new RegExp(`CREATE (?:UNIQUE )?INDEX [^;]+ ON "${table}"[^;]+;`, 'g'))) runtime += index[0] + '\n';
+}
+runtime += 'CREATE TABLE "_RegaRevision" (id INTEGER PRIMARY KEY CHECK(id=1),revision INTEGER NOT NULL CONSTRAINT RegaRevision_nonnegative CHECK(revision>=0));\nINSERT INTO "_RegaRevision" VALUES(1,0);\n';
+for (const [, table] of source.matchAll(/^model (\w+)/gm)) {
+  for (const event of ['INSERT', 'UPDATE', 'DELETE']) runtime += `CREATE TRIGGER "_rega_revision_${table}_${event}" AFTER ${event} ON "${table}" BEGIN UPDATE "_RegaRevision" SET revision=revision+1 WHERE id=1; END;\n`;
+}
+writeFileSync(`${root}prisma/d1/schema.prisma`, schema);
+writeFileSync(`${root}prisma/d1/migrations/0002_runtime.sql`, runtime);
 console.log("D1 candidate generated. Runtime conversion and data verification are still required.");

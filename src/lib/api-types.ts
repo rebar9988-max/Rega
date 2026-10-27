@@ -13,5 +13,6 @@ export function knownDbError(error: unknown): { status: number; code: string; me
   if (name !== "PrismaClientKnownRequestError") return null;
   if (code === "P2002") return { status: 409, code: "conflict", message: "A record with this value already exists." };
   if (code === "P2025") return { status: 404, code: "not_found", message: "The record was not found." };
+  if (code === "P2034") return { status: 409, code: "conflict", message: "The record changed concurrently. Retry the request." };
   return null;
 }
