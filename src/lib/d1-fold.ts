@@ -4,11 +4,17 @@ import fields from "./d1-fold-fields.json";
 import { d1Models as models } from "./d1-models";
 export const D1_FOLDS: Record<string, Record<string, string>> = fields;
 type Record_ = Record<string, unknown>;
-function record(value: unknown): value is Record_ { return value !== null && typeof value === "object" && !Array.isArray(value) && !(value instanceof Date); }
+function record(value: unknown): value is Record_ { return value !== null && typeof value === "object" && !Array.isArray(value) && !(value instanceof Date) && !Prisma.Decimal.isDecimal(value); }
 function lower(value: unknown): unknown {
   if (typeof value === "string") return value.toLowerCase();
   if (Array.isArray(value)) return value.map(lower);
   if (record(value)) return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, lower(v)]));
+  return value;
+}
+function dayOnly(value: unknown): unknown {
+  if (value instanceof Date) return new Date(Math.floor(value.getTime() / 86_400_000) * 86_400_000);
+  if (Array.isArray(value)) return value.map(dayOnly);
+  if (record(value)) return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, dayOnly(v)]));
   return value;
 }
 export function foldedData(model: string, value: Record_): Record_ {
@@ -26,7 +32,7 @@ export function foldedData(model: string, value: Record_): Record_ {
   }
   for (const key of ["priceFrom", "priceTo", "discountValue"]) {
     const v = out[key];
-    if (typeof v === "number" || typeof v === "string" || v instanceof Prisma.Decimal) out[key] = new Prisma.Decimal(v).toDecimalPlaces(2, Prisma.Decimal.ROUND_HALF_UP);
+    if (typeof v === "number" || typeof v === "string" || Prisma.Decimal.isDecimal(v)) out[key] = new Prisma.Decimal(v).toDecimalPlaces(2, Prisma.Decimal.ROUND_HALF_UP);
   }
   return out;
 }
@@ -48,6 +54,7 @@ export function foldedWhere(model: string, value: unknown): unknown {
   for (const [key, v] of Object.entries(value)) {
     if (["AND", "OR", "NOT", "some", "none", "every", "is", "isNot"].includes(key)) { out[key] = foldedWhere(model, v); continue; }
     const field = models.get(model)?.fields.find(f => f.name === key);
+    if (field?.isDateOnly) { out[key] = dayOnly(v); continue; }
     if (field?.kind === "object") { out[key] = foldedWhere(field.type, v); continue; }
     if (field?.type === "Json" && record(v) && Array.isArray(v.path)) {
       out[key] = { ...v, path: "$" + v.path.map(part => "." + JSON.stringify(String(part))).join("") };
@@ -58,7 +65,7 @@ export function foldedWhere(model: string, value: unknown): unknown {
       if (!folded) throw new Error(`Unmapped D1 case-insensitive field ${model}.${key}`);
       const { mode: _, ...filter } = v; void _;
       out[folded] = lower(filter);
-    } else out[key] = v;
+    } else out[key] = !field && record(v) ? foldedWhere(model, v) : v;
   }
   return out;
 }

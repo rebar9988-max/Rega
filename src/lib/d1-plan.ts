@@ -25,7 +25,11 @@ export class D1Plan {
       else if (v instanceof Date) { if (!Number.isFinite(v.getTime())) throw new Error("Invalid D1 date"); value = v.getTime(); }
       else if (typeof v === "boolean") value = v ? 1 : 0;
       else if (field.isList || field.type === "Json") value = JSON.stringify(v);
-      else if (field.type === "Decimal") value = new Prisma.Decimal(v as string | number).toDecimalPlaces(2).toString();
+      else if (field.type === "Decimal") {
+        const decimal = new Prisma.Decimal(v as string | number).toDecimalPlaces(2, Prisma.Decimal.ROUND_HALF_UP);
+        if (!decimal.isFinite() || decimal.abs().gt("9999999999.99")) throw new Error("D1 money exceeds PostgreSQL Decimal(12,2) range");
+        value = decimal.toString();
+      }
       else if (typeof v === "string" || typeof v === "number") value = v;
       else throw new Error(`Invalid D1 scalar ${table}.${name}`);
       return { name, value };

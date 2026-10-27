@@ -20,6 +20,7 @@ const models = [...source.matchAll(/model (\w+) \{([\s\S]*?)\n\}/g)].map(([, nam
     const list = pattern => { const m = attrs.match(pattern); return m ? m[1].split(",").map(s => s.trim()) : []; };
     return { name, type, kind: field.kind, isList: suffix === "[]", isRequired: suffix !== "?", isId: /@id\b/.test(attrs),
       isUpdatedAt: /@updatedAt\b/.test(attrs), hasDefaultValue: Boolean(match), ...(match ? { default: value } : {}),
+      ...(attrs.includes("@db.Date") ? { isDateOnly: true } : {}),
       ...(field.relationName ? { relationName: field.relationName } : {}),
       relationFromFields: list(/fields:\s*\[([^\]]+)\]/), relationToFields: list(/references:\s*\[([^\]]+)\]/) };
   });

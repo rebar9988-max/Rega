@@ -1,5 +1,5 @@
 /** Actual workerd + D1 binding smoke, disposable local storage only. */
-import { PrismaClient } from "../../.generated/d1-client/wasm";
+import { PrismaClient } from "@rega/d1-client/wasm.js";
 import { createD1Client } from "../../src/lib/d1-client";
 import { registerD1Provider, type D1Connection } from "../../src/lib/d1-connection";
 import { d1Transaction } from "../../src/lib/d1-transaction";

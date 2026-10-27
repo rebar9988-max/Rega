@@ -1,10 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-// @ts-expect-error Repository operational JavaScript module.
 import { d1ReleaseReady, D1_ID } from "../scripts/d1-release-readiness.mjs";
 const sha = "a".repeat(40);
-const env = { CLOUDFLARE_ACCOUNT_ID: "ee07860dbb8e61ff6915758785baf89a", CLOUDFLARE_API_TOKEN: "local-test-only" };
-const fake = (bindings: unknown[], row: unknown) => async (url: string) => Response.json({ success: true, result: url.endsWith("/settings") ? { bindings } : [{ success: true, results: row ? [row] : [] }] });
+const env = { ...process.env, CLOUDFLARE_ACCOUNT_ID: "ee07860dbb8e61ff6915758785baf89a", CLOUDFLARE_API_TOKEN: "local-test-only" };
+const fake = (bindings: unknown[], row: unknown): typeof fetch => async url => Response.json({ success: true, result: String(url).endsWith("/settings") ? { bindings } : [{ success: true, results: row ? [row] : [] }] });
 test("first D1 release is blocked until the verified final snapshot matches this exact SHA", async () => {
   const row = { releaseSha: sha, ready: 1, allTablesMatch: 1, foreignKeyViolations: 0 };
   assert.equal(await d1ReleaseReady(sha, env, fake([], row)), true);

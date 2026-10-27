@@ -1,7 +1,7 @@
 // STAGED D1 candidate; see docs/D1-MIGRATION.md. Not the active application schema.
 generator client {
   provider   = "prisma-client-js"
-  output     = "../../.generated/d1-client"
+  output     = "../../node_modules/@rega/d1-client"
   engineType = "client"
 }
 

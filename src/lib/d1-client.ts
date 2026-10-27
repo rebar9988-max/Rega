@@ -1,6 +1,6 @@
 /** Shared WASM client for D1. Explicit/implicit non-atomic Prisma transactions fail closed. */
 import { PrismaD1 } from "@prisma/adapter-d1";
-import type { PrismaClient as SqliteClient } from "../../.generated/d1-client";
+import type { PrismaClient as SqliteClient } from "@rega/d1-client";
 import type { PrismaClient } from "@prisma/client";
 import { D1_FOLDS, d1Arguments } from "./d1-fold";
 import { d1Connection } from "./d1-connection";

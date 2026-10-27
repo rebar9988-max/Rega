@@ -9,7 +9,7 @@ const source = readFileSync(`${root}prisma/schema.prisma`, "utf8");
 if (!source.includes('provider  = "postgresql"')) throw new Error("Expected REGA PostgreSQL source schema");
 let schema = source
   .replace(/^\/\/ Prisma schema[^]*?\ngenerator client/, '// STAGED D1 candidate; see docs/D1-MIGRATION.md. Not the active application schema.\ngenerator client')
-  .replace('provider   = "prisma-client-js"', 'provider   = "prisma-client-js"\n  output     = "../../.generated/d1-client"')
+  .replace('provider   = "prisma-client-js"', 'provider   = "prisma-client-js"\n  output     = "../../node_modules/@rega/d1-client"')
   .replace(/  \/\/ Rust-free[^\n]*\n/, "")
   .replace('provider  = "postgresql"', 'provider  = "sqlite"')
   .replace('url       = env("DATABASE_URL")', 'url       = "file:./rehearsal.db"')

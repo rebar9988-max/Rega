@@ -9,9 +9,9 @@ import { d1Models as models, type D1Model as Model } from "./d1-models";
 
 type Row = Record<string, unknown>;
 type Args = { where?: Row; data?: Row; create?: Row; update?: Row; select?: Row; include?: Row; orderBy?: Row | Row[]; take?: number; skip?: number };
-const object = (v: unknown): v is Row => v !== null && typeof v === "object" && !Array.isArray(v) && !(v instanceof Date) && !(v instanceof Prisma.Decimal);
+const object = (v: unknown): v is Row => v !== null && typeof v === "object" && !Array.isArray(v) && !(v instanceof Date) && !Prisma.Decimal.isDecimal(v);
 const delegate = (m: string) => m[0].toLowerCase() + m.slice(1);
-const comparable = (v: unknown): string | number | null | undefined => v instanceof Date ? v.getTime() : v instanceof Prisma.Decimal ? v.toNumber() : v as string | number | null | undefined;
+const comparable = (v: unknown): string | number | null | undefined => v instanceof Date ? v.getTime() : Prisma.Decimal.isDecimal(v) ? v.toNumber() : v as string | number | null | undefined;
 function missing(): never { throw new Prisma.PrismaClientKnownRequestError("Record not found", { code: "P2025", clientVersion: Prisma.prismaVersion.client }); }
 function key(model: Model, row: Row): string {
   const fields = model.primaryKey?.fields ?? model.fields.filter(f => f.isId).map(f => f.name);
@@ -69,7 +69,8 @@ function scalarData(model: Model, input: Row, previous?: Row): Row {
       if (op === "set") result[name] = operand;
       else if (op === "increment" || op === "decrement") result[name] = Number(previous?.[name] ?? 0) + Number(operand) * (op === "increment" ? 1 : -1);
       else throw new Error(`Unsupported D1 scalar operation ${op}`);
-    } else result[name] = field.type === "Decimal" && value != null ? new Prisma.Decimal(value as string | number).toDecimalPlaces(2, Prisma.Decimal.ROUND_HALF_UP) : value;
+    } else result[name] = field.type === "Decimal" && value != null ? new Prisma.Decimal(value as string | number).toDecimalPlaces(2, Prisma.Decimal.ROUND_HALF_UP)
+      : field.isDateOnly && value instanceof Date ? new Date(Math.floor(value.getTime() / 86_400_000) * 86_400_000) : value;
   }
   for (const field of model.fields) {
     if (field.isUpdatedAt) result[field.name] = new Date();

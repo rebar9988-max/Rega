@@ -20,7 +20,7 @@ import { getCloudflareContext } from "@opennextjs/cloudflare";
 import pg from "pg";
 import { usesD1, registerD1Provider, type D1Connection } from "./d1-connection";
 import { createD1Client } from "./d1-client";
-import { PrismaClient as SqliteClient } from "../../.generated/d1-client/wasm";
+import { PrismaClient as SqliteClient } from "@rega/d1-client/wasm.js";
 
 type WorkerEnv = { HYPERDRIVE?: { connectionString: string }; DB?: D1Connection & { withSession?: (mode: string) => D1Connection } };
 type Ctx = { waitUntil?: (promise: Promise<unknown>) => void };

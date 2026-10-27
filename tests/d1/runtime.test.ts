@@ -47,6 +47,8 @@ test("D1 runtime preserves atomicity and existing domain behavior", async t => {
     for (let i = 0; i < 2; i++) await prisma.aiUsageDaily.upsert({ where: { day_provider_model: { day, provider: "test", model: "test" } }, create: { day, provider: "test", model: "test", requests: 1 }, update: { requests: { increment: 1 } } });
     assert.equal((await prisma.aiUsageDaily.findUniqueOrThrow({ where: { day_provider_model: { day, provider: "test", model: "test" } } })).requests, 2);
     assert.equal(await prisma.user.count({ where: { id: userId, createdAt: { gt: new Date(Date.now() - 60_000) } } }), 1);
+    await prisma.aiUsageDaily.upsert({ where: { day_provider_model: { day: new Date("2026-10-27T18:35:10Z"), provider: "test", model: "test" } }, create: { day, provider: "test", model: "test" }, update: { requests: { increment: 1 } } });
+    assert.equal((await prisma.aiUsageDaily.findUniqueOrThrow({ where: { day_provider_model: { day, provider: "test", model: "test" } } })).requests, 3);
   });
   await t.test("read-your-writes, reverse relations and compound upserts", async () => {
     await databaseTransaction(async tx => {
@@ -76,6 +78,15 @@ test("D1 runtime preserves atomicity and existing domain behavior", async t => {
     await Promise.all([increment(), increment()]);
     assert.equal((await prisma.business.findUniqueOrThrow({ where: { id: business.id } })).viewCount, business.viewCount + 2);
     assert.ok(arrivals >= 3);
+  });
+  await t.test("money keeps PostgreSQL scale and rejects Decimal(12,2) overflow", async () => {
+    const business = await prisma.business.findUniqueOrThrow({ where: { slug: "atomic" } });
+    const service = await prisma.service.create({ data: { businessId: business.id, slug: "money", name: "Money", priceFrom: new Prisma.Decimal("2.355") } });
+    assert.equal(service.priceFrom?.toString(), "2.36");
+    assert.equal((await prisma.service.findUniqueOrThrow({ where: { id: service.id } })).priceFrom?.toString(), "2.36");
+    const count = await prisma.service.count();
+    await assert.rejects(prisma.service.create({ data: { businessId: business.id, slug: "overflow", name: "Overflow", priceFrom: new Prisma.Decimal("10000000000.00") } }));
+    assert.equal(await prisma.service.count(), count);
   });
   await t.test("unconverted Prisma transactions fail closed", async () => {
     await assert.rejects(async () => prisma.$transaction(async tx => tx.user.count()), /atomic batch|does not support interactive transactions/);

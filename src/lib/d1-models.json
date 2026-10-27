@@ -4706,6 +4706,7 @@
           "isId": false,
           "isUpdatedAt": false,
           "hasDefaultValue": false,
+          "isDateOnly": true,
           "relationFromFields": [],
           "relationToFields": []
         },

@@ -1,7 +1,7 @@
 /** Node-only constructor shared by local app, seed, and disposable database verification. */
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient as SqliteClient } from "../../.generated/d1-client";
+import { PrismaClient as SqliteClient } from "@rega/d1-client";
 import { usesD1, registerD1Provider } from "./d1-connection";
 import { createD1Client } from "./d1-client";
 import { localD1 } from "./d1-local";
