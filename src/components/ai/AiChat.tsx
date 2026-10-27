@@ -55,7 +55,10 @@ export function AiChat() {
   const end = useRef<HTMLDivElement>(null);
   const suggestions = [t("suggestion1"), t("suggestion2"), t("suggestion3")];
 
-  useEffect(() => { end.current?.scrollIntoView({ block: "end", behavior: "smooth" }); }, [messages, busy]);
+  useEffect(() => {
+    if (!messages.length && !busy) return;
+    end.current?.scrollIntoView({ block: "end", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  }, [messages, busy]);
 
   // Continue this browser session's conversation after a reload (stored on the server, nothing in localStorage).
   useEffect(() => {

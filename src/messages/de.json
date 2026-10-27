@@ -1220,5 +1220,27 @@
     "moveLater": "Nach hinten",
     "galleryHint": "Ein Titelbild und bis zu 3 weitere Bilder. Die Reihenfolge gilt auch auf der Profilseite.",
     "overLimit": "Dieser Eintrag hat bereits mehr als 3 Bilder. Alle bleiben erhalten; neue Bilder lassen sich hinzufügen, sobald weniger als 3 übrig sind."
+  },
+  "premiumPages": {
+    "businessHero": "Präsentiere dein Unternehmen auf Rega24",
+    "aiHero": "Finde Dienstleistungen mit einer einfachen Frage",
+    "cityHero": "Wähle deine Stadt. Finde Dienstleistungen.",
+    "cityLead": "Entdecke echte, freigegebene Angebote in Köln, Bonn und Düsseldorf.",
+    "startAi": "REGA AI starten",
+    "examples": "Beispielfragen",
+    "exampleNote": "Fragen zum Ausprobieren – Antworten liefert der bestehende Assistent.",
+    "faq": "Häufige Fragen",
+    "freeQuestion": "Ist die Registrierung kostenlos?",
+    "approvalQuestion": "Wann erscheint mein Unternehmen?",
+    "approvalAnswer": "Erst nachdem unser Team deine Angaben geprüft und freigegeben hat.",
+    "aiQuestion": "Sind KI-Antworten immer richtig?",
+    "aiAnswer": "KI kann Fehler machen. Prüfe Angaben beim Unternehmen.",
+    "findServices": "Dienstleistungen finden",
+    "categories": "Kategorien entdecken",
+    "aiExample1": "Dienstleistungen in Bonn finden",
+    "aiExample2": "Zeige mir Restaurants",
+    "aiExample3": "Wie suche ich auf Rega24?",
+    "aiHeroQuestion1": "Wie finde ich Dienstleistungen in Köln?",
+    "aiHeroQuestion2": "Wo sind die Friseursalons?"
   }
 }

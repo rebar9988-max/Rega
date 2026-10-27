@@ -395,3 +395,17 @@ Revert the commit on `main`. If a non-docs commit already deployed, roll the Wor
 ## Deployment annotation forwarding — 2026-10-26
 
 If release output says `Unknown arguments: CI, release` before upload, the OpenNext deployment wrapper split a message containing spaces. Keep the deployment message a single shell-safe token, retain the verified SHA tag and identity/ownership guards, and run `npm run cf:dry-run` through the OpenNext forwarding path before publishing. Plain Wrangler dry-run alone did not exercise that path. Failed run40390749927 uploaded no new application. See PR77 and the central Doc for the subsequent verified release.
+
+## Rega24 production target reconciliation — 2026-10-26
+
+Canonical production Worker: `rega24`, stable Cloudflare ID `7b845cda2ee749c89c4f9b83490609b4`, account `ee07860dbb8e61ff6915758785baf89a`. Both official web domains are attached to it (verified via Cloudflare). Older names below describe historical configuration, not a valid deployment target. `rega-ai-python` remains a required separate AI service; R&L is untouched.
+
+This focused source repair aligns Wrangler, web deploy, migration guard, runtime-secret sync, Python integration sync and diagnostics. `scripts/production-target.mjs` verifies the existing stable Worker and both domain bindings before web release or secret writes, fails closed on API/identity drift, and never prints credentials. The identity guard rejects retired web Worker names. No app/UI/schema changes or provider key rotation are part of this repair.
+
+Release status: not deployed. Do not overwrite the current application until its source provenance and existing security release holds are resolved. PR73 admin changes and PR71 schema changes remain separate; this repair must not import them. No live health success claimed from the restricted executor.
+
+Current continuation 2026-10-27: the reconciliation/release-hold paragraph above is historical. Official main c8f0cf2 already includes independently verified target, preview, dependency and deployment-forwarding fixes from PR77/79. Preserve these; no Python workflow change is part of PR74. Current pre-release canonical web deployment11e9b60c/version9e96a7f3 at100%. Fresh combined CI, then existing guarded web pipeline and live three-page evidence remain required.
+
+## Neon quota blocks production reads — 2026-10-27
+
+VERIFIED: read-only SELECT1 on Rega24 production returns HTTP402 account/project exceeded quota. Public health503 and existing Beta health/data-route failures match. Do not change DATABASE_URL, delete branches/backups/data, activate paid services or substitute a database to bypass the account restriction. The existing owner account must restore quota. Recheck public health200/ok/database/migrations/content readiness before activating a new web version, because per-version cache invalidation can expose failures currently hidden by cached public pages. Preserve the known current Worker version until then; no schema rollback is needed for the three-page source migration.

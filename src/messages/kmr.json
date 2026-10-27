@@ -1220,5 +1220,27 @@
     "moveLater": "Paşê",
     "galleryHint": "Wêneyê sereke (berg) û heta 3 wêneyên din. Rêz li ser rûpela karsaziyê tê nîşandan.",
     "overLimit": "Ev karsazî ji berê ve ji 3 wêneyan zêdetir heye. Hemû hatine parastin; wêneyekî nû dema ku ji 3 kêmtir bimînin tê zêdekirin."
+  },
+  "premiumPages": {
+    "businessHero": "Karsaziya xwe li Rega24 bide nasîn",
+    "aiHero": "Bi pirseke hêsan xizmetan bibîne",
+    "cityHero": "Bajarê xwe hilbijêre. Xizmetan bibîne.",
+    "cityLead": "Li Köln, Bonn û Düsseldorf xizmetên rastîn û pejirandî bibîne.",
+    "startAi": "REGA AI dest pê bike",
+    "examples": "Mînakên pirsan",
+    "exampleNote": "Pirsan biceribîne — bersiv ji alîkarê zindî tên.",
+    "faq": "Pirsên pir tên kirin",
+    "freeQuestion": "Tomarkirin belaş e?",
+    "approvalQuestion": "Karsaziya min kengî xuya dibe?",
+    "approvalAnswer": "Tenê piştî ku tîma me daxwaza te kontrol û qebûl bike.",
+    "aiQuestion": "Bersivên AI her dem rast in?",
+    "aiAnswer": "AI dikare şaş bibe. Agahiyan bi karsaziyê re piştrast bike.",
+    "findServices": "Xizmetan bibîne",
+    "categories": "Kategoriyan bibîne",
+    "aiExample1": "Li Bonn xizmetan bibîne",
+    "aiExample2": "Restoranên nîşanî min bide",
+    "aiExample3": "Ez çawa li Rega24 bigerim?",
+    "aiHeroQuestion1": "Ez çawa dikarim li Köln xizmetan bibînim?",
+    "aiHeroQuestion2": "Berber li ku ne?"
   }
 }

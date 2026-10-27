@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-26T14:36:16.056Z",
+  "generatedAt": "2026-10-27T07:39:24.934Z",
   "package": {
     "name": "rega-platform",
     "version": "0.1.0",
@@ -43,6 +43,7 @@
     "neon-branch.yml",
     "production-browser.yml",
     "production-health.yml",
+    "three-page-live.yml",
     "worker-secrets-sync.yml"
   ],
   "prismaModels": [

@@ -1220,5 +1220,27 @@
     "moveLater": "Move later",
     "galleryHint": "One cover image and up to 3 more images. The order is used on the profile page.",
     "overLimit": "This listing already has more than 3 images. All are kept; new images can be added once fewer than 3 remain."
+  },
+  "premiumPages": {
+    "businessHero": "Introduce your business on Rega24",
+    "aiHero": "Find services with a simple question",
+    "cityHero": "Choose your city. Find services.",
+    "cityLead": "Browse genuine approved services in Köln, Bonn and Düsseldorf.",
+    "startAi": "Start REGA AI",
+    "examples": "Example questions",
+    "exampleNote": "Questions to try — answers come from the live assistant.",
+    "faq": "Frequently asked questions",
+    "freeQuestion": "Is registration free?",
+    "approvalQuestion": "When will my business appear?",
+    "approvalAnswer": "Only after our team has reviewed and approved your submission.",
+    "aiQuestion": "Do AI answers always match reality?",
+    "aiAnswer": "AI can make mistakes. Check details with the business.",
+    "findServices": "Find services",
+    "categories": "Explore categories",
+    "aiExample1": "Find services in Bonn",
+    "aiExample2": "Show me restaurants",
+    "aiExample3": "How do I browse Rega24?",
+    "aiHeroQuestion1": "How can I find services in Köln?",
+    "aiHeroQuestion2": "Where are the barbershops?"
   }
 }
