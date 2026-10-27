@@ -869,14 +869,13 @@ Concurrent integration: PR78 independently passed full CI40391309551 and merged 
 ## Unified office integration continuation — 2026-10-27 UTC
 
 This checkpoint supersedes older live assertions below. **VERIFIED live:** canonical `rega24` deployment
-`11e9b60c-b4b1-48a8-a700-d9eed3e38fc8`, version `9e96a7f3-ece0-4c6b-8a87-5f2b9463c450`, 100% allocation;
+`5b341ca4-f063-4358-af07-427bac5c8d3e`, version `5ab5e7d5-2c4d-4f98-aaad-6074dfeb69f5`, 100% allocation;
 its version tag equals official main `c8f0cf2ac859414f48fd8dd080484f587b661679`. Both official custom domains remain
 attached to this existing Worker. This is a release from another continuation, not proof the prepared `/admin`
 changes are live. Existing main includes approved About copy, canonical listing links, isolated web/Python preview
 guards and the shell-safe deployment-message repair; this branch preserves them all. No schema changes needed.
 
-**VERIFIED live drift:** canonical Worker query redaction is false again after an outside release; prepared Wrangler
-sets true for both Workers. The original rega-platform was renamed, but a different unconfigured `rega-platform`
+**VERIFIED live drift:** canonical Worker query redaction regressed false after an outside release; scoped settings repair restored true and preserved source/bindings. Prepared Wrangler sets true for both Workers. The original rega-platform was renamed, but a different unconfigured `rega-platform`
 was later recreated with stable tag `5a9fdd620f164660ab00487ce5cb6970`, six structural bindings and no official domains
 or application secrets at the last read. It is not the canonical deployment target. Preserve duplicate candidates
 until callers/migration/rollback are verified; no deletion is authorized by mere name similarity.
@@ -892,3 +891,55 @@ backup/media recovery, billing entitlement and a measured universal100 score rem
 service, production SQL/object mutation, duplicate deletion or R&L modification performed by this continuation.
 
 Integrated October27 verification: clean npm ci and audit0 all severities; full363/363 unit/integration PASS with0fail/skip on fresh isolated local PostgreSQL, lint/typecheck and10YAML parses PASS;28focused release/preview/identity checks and4retained main release-configuration checks PASS. Inventory check initially caught source edits made during the first suite; regenerated after all edits, then entire363suite passed. No assertion relaxed. Current offline reference8docs/388source fingerprints/108env names/10complete procedures. Fresh provider metadata confirms same production Neon endpoint (idle/scale-to-zero is not outage), R2TLS1.2/SSLactive and official domain ownership. Billing API still403/noOAuthscope. Hosted final integrated CI is required before merge/deploy.
+
+
+## Verified production blocker — 2026-10-27: Neon quota (HTTP402)
+
+**FAIL live:** existing [Beta health run40456968000](https://github.com/rebar9988-max/Rega/actions/runs/40456968000),
+job122032445102, reports uncached health503 (`database:error`, migrations/contentColumns false), directory/services/
+About500; cached homepage/static files and redirects still respond. These are client-visible failures, unlike the
+historical synthetic CacheAPI504 misses. Read-only Cloudflare telemetry05:43–05:52UTC for exact `rega24` contains
+“Your account or project has exceeded the quota.” An independent read-only `SELECT 1` on explicitly selected Neon
+project/production branch/database returned **HTTP402 with the same quota error**. No SQL write or migration.
+Project record reports `free_v3`, `compute_time_seconds=396259`, consumption period October1→November1; this does
+not establish which specific allowance applies or guarantee restoration at period end. Endpoint idle alone was
+not outage evidence; provider402 now proves database access is blocked.
+
+**SAFE CONTINUATION:** retain existing project/data/URLs, manual-only Neon provisioning and disposable CI. Confirm
+restoration of the existing Free allowance with the provider; then repeat one bounded SELECT1, health/database
+ownership, data routes and owner operations before guarded deployment. No upgrade, quota bypass, replacement
+project, branch/data deletion, seeding, DB reset or speculative version rollback. A new app version cannot clear
+provider quota; PR73 admin rollout remains BLOCKED while the database cannot pass release proof. No100/100 claim.
+
+**Config-only privacy repair:** fresh ownership/active-version checks preceded scoped settings updates restoring
+query redaction on both existing Workers; HTTP200/readbacktrue, all28web/4Python binding names/types preserved.
+No secret value/token rotation/inference/code upload. Web source tag `c8f0cf2` retained explicitly because settings
+annotations are not inherited automatically. Prepared source retains redaction to prevent future regressions.
+Exact new deployment/version readback is recorded in the final checkpoint below. Do not restore the insecure
+redaction flag to address quota; these are independent layers.
+
+Final config-only readback 2026-10-27 around07:19UTC: web deployment `5b341ca4-f063-4358-af07-427bac5c8d3e`,
+version `5ab5e7d5-2c4d-4f98-aaad-6074dfeb69f5` at100%, source tag `c8f0cf2ac859414f48fd8dd080484f587b661679`.
+Python deployment `88b3856b-9c55-49c5-8558-fa09f6ba344b`, version `ba9b4d0c-61c7-4dba-b3cb-1c0eb819a226`
+at100%; its source tag remains absent/UNKNOWN, never invented. Both query-redaction flags true; logs enabled and
+all binding names/types retained. Scoped settings revisions preserve code, tokens and data; not a new admin release.
+
+## Final verified application checkpoint — 2026-10-27 07:32UTC
+
+Application commit `5711ea64d395adf1970366ae9a8cd19b92baf2a4` passed
+[hosted CI40465533832](https://github.com/rebar9988-max/Rega/actions/runs/40465533832), job122059885004:
+**363/363 unit/integration, 338/338 browser E2E (15.9minutes), 8/8 Python**, zero Node fail/skip; clean install/audit0,
+lint/typecheck, disposable PostgreSQL migration/preflight, ordinary Node + OpenNext Worker builds, actual forwarding
+dry-run and both workerd media/business smokes PASS. Bundle16066.85KiB uncompressed/3653.07KiB gzip.
+Approved About/catalogue content preserved in all7locales; schema/migrations unchanged. Local synthetic PG stopped.
+
+This follow-up changes documentation only: no app/source/workflow/dependency or generated-fingerprint change since
+that tested commit. Offline validation PASS:8docs/388fingerprints/108environment names/10complete procedures;
+links/anchors/whitespace valid. Any newly triggered full CI on the documentation SHA is distinct from the proven
+application checkpoint; do not claim an uncompleted run passed or bypass required current-head checks.
+
+**Release BLOCKED, not completed:** Neon production SELECT1 still has verified402/quota; public health503/data
+routes500. No merge/application upload or production migration merely to generate a failing release. Existing
+mainc8f0cf2 source remains, with the separately verified privacy settings revisions above. Confirm existing Free
+quota restoration first, then bounded DB/health/data/owner checks and guarded exact-main CI/release proof. No paid
+upgrade, data/resource/domain deletion, database replacement/reset, R&L operation or100/100 certification.
