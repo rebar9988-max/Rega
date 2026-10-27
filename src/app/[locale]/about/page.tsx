@@ -20,7 +20,15 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const { locale } = await params;
   if (!isLocale(locale)) return {};
   const t = await getTranslations({ locale, namespace: "about" });
-  return pageMetadata({ locale, path: "/about", title: t("title"), description: await pageDescription(locale, "about") });
+  const metadata = pageMetadata({ locale, path: "/about", title: t("title"), description: await pageDescription(locale, "about") });
+  // Keep the current About identity local: the inherited site title still uses the legacy brand.
+  const images = [{ url: "https://www.rega24.com/opengraph-image.png", width: 1200, height: 630, alt: "Rega24" }];
+  return {
+    ...metadata,
+    title: { absolute: t("title") },
+    openGraph: { ...metadata.openGraph, siteName: "Rega24", images },
+    twitter: { ...metadata.twitter, images },
+  };
 }
 
 const ICONS = [

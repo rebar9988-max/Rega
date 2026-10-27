@@ -383,6 +383,19 @@ CI `verify` is green on the SHA. If the commit is not documentation-only, Deploy
 
 Revert the commit on `main`. If a non-docs commit already deployed, roll the Worker back as well. Reverting a docs-only commit does not require a Worker rollback.
 
+## Cleanup release checks — 2026-10-26
+
+- `missing previews block`: both candidate Wrangler files define isolated previews. `__preview-health` checks isolation; other preview requests return non-ready 503 before application/data/provider handlers. Do not copy production bindings to make previews appear functional. Full QA uses CI's disposable database.
+- Neon preview HTTP 422: the old workflow created unused branches without consuming its outputs. PR #72's manual policy is reused; no branch, backup or production data is deleted. CI still runs migration/preflight/integration/browser tests on PostgreSQL. Future genuine Neon preview work needs audited capacity and an actual consumer.
+- After Zod 4 upgrades, partial PATCH schemas must remove create defaults before making fields optional. `tests/validation-upgrade.test.ts` covers omitted-field preservation and bounded oversized collections.
+- Target drift: `scripts/production-target.mjs` rejects wrong account, stable Worker tag, services or official domain bindings. Never recreate retired `rega-platform`. New deployed version tags must match the verified GitHub SHA. Retain the preceding version for rollback and verify all production readiness checks after publishing.
+- Previews Base provider values are now secret_text. This storage conversion preserves values and does not prove provider-side rotation/revocation. Do not log or export secrets while checking them.
+
+
+## Deployment annotation forwarding — 2026-10-26
+
+If release output says `Unknown arguments: CI, release` before upload, the OpenNext deployment wrapper split a message containing spaces. Keep the deployment message a single shell-safe token, retain the verified SHA tag and identity/ownership guards, and run `npm run cf:dry-run` through the OpenNext forwarding path before publishing. Plain Wrangler dry-run alone did not exercise that path. Failed run40390749927 uploaded no new application. See PR77 and the central Doc for the subsequent verified release.
+
 ## Rega24 production target reconciliation — 2026-10-26
 
 Canonical production Worker: `rega24`, stable Cloudflare ID `7b845cda2ee749c89c4f9b83490609b4`, account `ee07860dbb8e61ff6915758785baf89a`. Both official web domains are attached to it (verified via Cloudflare). Older names below describe historical configuration, not a valid deployment target. `rega-ai-python` remains a required separate AI service; R&L is untouched.
@@ -390,3 +403,5 @@ Canonical production Worker: `rega24`, stable Cloudflare ID `7b845cda2ee749c89c4
 This focused source repair aligns Wrangler, web deploy, migration guard, runtime-secret sync, Python integration sync and diagnostics. `scripts/production-target.mjs` verifies the existing stable Worker and both domain bindings before web release or secret writes, fails closed on API/identity drift, and never prints credentials. The identity guard rejects retired web Worker names. No app/UI/schema changes or provider key rotation are part of this repair.
 
 Release status: not deployed. Do not overwrite the current application until its source provenance and existing security release holds are resolved. PR73 admin changes and PR71 schema changes remain separate; this repair must not import them. No live health success claimed from the restricted executor.
+
+Current continuation 2026-10-27: the reconciliation/release-hold paragraph above is historical. Official main c8f0cf2 already includes independently verified target, preview, dependency and deployment-forwarding fixes from PR77/79. Preserve these; no Python workflow change is part of PR74. Current pre-release canonical web deployment11e9b60c/version9e96a7f3 at100%. Fresh combined CI, then existing guarded web pipeline and live three-page evidence remain required.

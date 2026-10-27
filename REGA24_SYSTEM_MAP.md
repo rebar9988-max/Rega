@@ -244,6 +244,10 @@ Latest observed Beta health before this documentation change: run `40217513295`,
 
 Re-run the public checks before claiming they are still true. Update this section when they are re-checked.
 
+## Cleanup release candidate — 2026-10-26
+
+PR #76 reuses #75's existing-target reconciliation: web `rega24`, stable tag `7b845cda2ee749c89c4f9b83490609b4`; Python stays `rega-ai-python`. No resource recreated. Deployment and secret-sync gates validate live ownership before writes. The web release records its GitHub SHA in the version tag. CI now audits every npm severity. Neon provisioning is manual-only; disposable PostgreSQL still validates migrations and application behaviour. Preview configs exist for both Workers; entry guards block production data/provider execution and honestly report `applicationReady: false`. These are candidate source changes until the final release is verified. The two formerly plaintext Previews Base provider bindings were changed to secret_text using their existing values; production version/references remained unchanged. Provider-side rotation remains unverified.
+
 ## Rega24 production target reconciliation — 2026-10-26
 
 Canonical production Worker: `rega24`, stable Cloudflare ID `7b845cda2ee749c89c4f9b83490609b4`, account `ee07860dbb8e61ff6915758785baf89a`. Both official web domains are attached to it (verified via Cloudflare). Older names below describe historical configuration, not a valid deployment target. `rega-ai-python` remains a required separate AI service; R&L is untouched.
@@ -251,3 +255,5 @@ Canonical production Worker: `rega24`, stable Cloudflare ID `7b845cda2ee749c89c4
 This focused source repair aligns Wrangler, web deploy, migration guard, runtime-secret sync, Python integration sync and diagnostics. `scripts/production-target.mjs` verifies the existing stable Worker and both domain bindings before web release or secret writes, fails closed on API/identity drift, and never prints credentials. The identity guard rejects retired web Worker names. No app/UI/schema changes or provider key rotation are part of this repair.
 
 Release status: not deployed. Do not overwrite the current application until its source provenance and existing security release holds are resolved. PR73 admin changes and PR71 schema changes remain separate; this repair must not import them. No live health success claimed from the restricted executor.
+
+Current continuation 2026-10-27: the reconciliation/release-hold paragraph above is historical. Official main c8f0cf2 already includes independently verified target, preview, dependency and deployment-forwarding fixes from PR77/79. Preserve these; no Python workflow change is part of PR74. Current pre-release canonical web deployment11e9b60c/version9e96a7f3 at100%. Fresh combined CI, then existing guarded web pipeline and live three-page evidence remain required.

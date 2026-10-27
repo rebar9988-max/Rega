@@ -38,7 +38,7 @@ export default async function ForBusinessPage({ params }: { params: Promise<{ lo
   return <div className={s.page} data-testid="premium-business">
     <PageSchema name={t("forBusiness.title")} description={t("pageMeta.forBusiness")} path="/for-business" crumbs={[{ name: t("forBusiness.title"), path: "/for-business" }]} />
     <FeatureNav business={t("forBusiness.title")} ai={t("ai.title")} cities={t("locations.title")} />
-    <PremiumHero eyebrow="100% FREE · Rega24" title={t("premiumPages.businessHero")} lead={t("forBusiness.lead")}
+    <PremiumHero eyebrow={`${t("home.factFree")} · Rega24`} title={t("premiumPages.businessHero")} lead={t("forBusiness.lead")}
       art={<>{categories.filter(c => !c.parentId).slice(0,3).map(c=><div className={s.mini} key={c.id}><span className={s.symbol} aria-hidden="true"><HomeIcon name="all" className="size-6" /></span><div><strong>{localizeText({...c,name:c.nameDe},"name",locale)}</strong><p>{t("services.category")}</p></div></div>)}</>}>
       <a className={s.button} href="#registration">{t("forBusiness.ctaRegister")}</a><a className={s.secondary} href="#benefits">{t("forBusiness.benefitsTitle")}</a>
     </PremiumHero>

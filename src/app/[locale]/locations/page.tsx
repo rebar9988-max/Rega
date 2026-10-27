@@ -52,7 +52,7 @@ export default async function LocationsPage({ params, searchParams }: { params: 
         <a href="#citylist" className={s.button}>{t("locations.browseByCity")}</a><Link href="/nearby" className={s.secondary}>{t("locations.viewOnMap")}</Link>
       </PremiumHero>
       <section id="citylist" className={s.section}><div className={s.inner}><h2>{t("locations.browseByCity")}</h2><div className={s.grid3}>{featuredCities.map(city=><Link className={`${s.tile} ${s.city}`} href={`/locations?city=${encodeURIComponent(city.id)}`} key={city.id}>
-        <div><span className={s.eyebrow}>Deutschland</span><h3><strong>{localizeText({...city,name:city.nameEn},"name",active)}</strong></h3></div>
+        <div><span className={s.eyebrow}>{t("home.factGermany")}</span><h3><strong>{localizeText({...city,name:city.nameEn},"name",active)}</strong></h3></div>
         <div className={s.scape} aria-hidden="true">{[29,43,65,32,45].map((height,i)=><i key={i} style={{height}} />)}</div>
       </Link>)}</div></div></section>
 

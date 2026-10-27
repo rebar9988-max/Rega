@@ -19,7 +19,7 @@
     "e2e": "playwright test",
     "build:node": "node scripts/vendor-maplibre.mjs && prisma generate && next build --webpack",
     "cf:preview": "npm run build && opennextjs-cloudflare preview",
-    "cf:dry-run": "wrangler deploy --dry-run",
+    "cf:dry-run": "opennextjs-cloudflare deploy --dry-run --tag dry-run-verification --message Verified-GitHub-CI-release",
     "guard:identity": "node scripts/project-identity-guard.mjs --project REGA"
   },
   "prisma": {
@@ -45,7 +45,7 @@
     "react-dom": "^19.1.0",
     "server-only": "^0.0.1",
     "simple-icons": "^16.33.0",
-    "zod": "^3.24.0"
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
@@ -68,6 +68,8 @@
   },
   "overrides": {
     "postcss": "^8.5.28",
-    "deepmerge-ts": "^8.0.2"
+    "deepmerge-ts": "^8.0.2",
+    "glob@10.3.3": "^10.5.0",
+    "undici@7.29.1": "^7.30.1"
   }
 }

@@ -156,10 +156,6 @@ change, update the map and the runbook, record new dependencies and known issues
 REPORTED or UNKNOWN. Never invent system information. Never store credentials or secret values in any of these files.
 
 
-## Rega24 production target reconciliation — 2026-10-26
+### Canonical target and isolated previews — 2026-10-26
 
-Canonical production Worker: `rega24`, stable Cloudflare ID `7b845cda2ee749c89c4f9b83490609b4`, account `ee07860dbb8e61ff6915758785baf89a`. Both official web domains are attached to it (verified via Cloudflare). Older names below describe historical configuration, not a valid deployment target. `rega-ai-python` remains a required separate AI service; R&L is untouched.
-
-This focused source repair aligns Wrangler, web deploy, migration guard, runtime-secret sync, Python integration sync and diagnostics. `scripts/production-target.mjs` verifies the existing stable Worker and both domain bindings before web release or secret writes, fails closed on API/identity drift, and never prints credentials. The identity guard rejects retired web Worker names. No app/UI/schema changes or provider key rotation are part of this repair.
-
-Release status: not deployed. Do not overwrite the current application until its source provenance and existing security release holds are resolved. PR73 admin changes and PR71 schema changes remain separate; this repair must not import them. No live health success claimed from the restricted executor.
+The verified existing Rega24 web Worker is `rega24` (stable tag `7b845cda2ee749c89c4f9b83490609b4`), not retired `rega-platform`. This supersedes older REGA Worker labels above; R&L identifiers are unchanged. Candidate release configuration reconciles the guard, deployment, diagnostics and runtime secret targets and adds the read-only `scripts/production-target.mjs` gate. Web releases tag their exact GitHub SHA. Branch previews are deliberately non-ready and block all application/provider/data handlers; `/__preview-health` proves isolation only. Real application/database/browser validation stays in CI with disposable PostgreSQL. Never mistake a green preview upload for a production-ready app. No automatic Neon resource creation/deletion is needed for these PR tests.

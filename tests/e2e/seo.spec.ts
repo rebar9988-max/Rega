@@ -19,8 +19,8 @@ for (const locale of LOCALES) {
       expect(html).toContain(`property="og:url" content="${HOST}/${locale}${path}"`);
       expect(html).toContain('name="twitter:card" content="summary_large_image"');
       expect(html).toContain('"@type":"Organization"');
-      expect(html).toContain('property="og:site_name" content="REGA Platform"');
-      expect(html).toMatch(/<title>[^<]*REGA Platform[^<]*<\/title>/);
+      expect(html).toContain(`property="og:site_name" content="${path === "/about" ? "Rega24" : "REGA Platform"}"`);
+      expect(html).toMatch(path === "/about" ? /<title>[^<]*Rega24[^<]*<\/title>/ : /<title>[^<]*REGA Platform[^<]*<\/title>/);
       // every JSON-LD block parses; all @id references resolve to an entity defined on the same page
       const blocks = [...html.matchAll(/<script type="application\/ld\+json">([^<]*)<\/script>/g)].map((m) => JSON.parse(m[1]));
       const nodes = blocks.flat();
@@ -66,16 +66,16 @@ test("search is noindex; sitemap lists every locale with hreflang alternates", a
   expect(robots).toContain("Disallow: /api/");
 });
 
-test("manifest and About page (REGA Platform identity, approved About text)", async ({ request, page }) => {
+test("manifest identity is preserved; About uses approved global Rega24 copy", async ({ request, page }) => {
   const m = await (await request.get("/manifest.webmanifest")).json();
   expect(m.name).toBe("REGA Platform");
   await page.goto("/en/about");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("About REGA");
-  await expect(page.locator("#about-offer")).toHaveText("What do we offer?");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("About Rega24");
+  await expect(page.locator("#about-offer")).toHaveText("What Rega24 offers");
   await expect(page.locator("#about-offer + ul li")).toHaveCount(3);
   await page.goto("/ckb/about");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("دەربارەی ڕێگا (REGA)");
-  await expect(page.locator("main")).toContainText("ڕێگا، پردی پەیوەندیی تۆ و خزمەتگوزارییە باوەڕپێکراوەکانی دەوروبەرتە.");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("دەربارەی Rega24");
+  await expect(page.locator("main")).toContainText("Rega24 — دۆزینەوەی خزمەتگوزاری، پەیوەندیی نزیکتر، دیدێکی جیهانی.");
 });
 
 test("crawlable internal links: home footer reaches About; header reaches all sections", async ({ page }) => {

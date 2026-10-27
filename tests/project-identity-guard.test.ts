@@ -136,7 +136,7 @@ test("the guard is read-only: no file writes, no network, no child processes exc
 test("every production-changing workflow runs the guard BEFORE its first production step", () => {
   const read = (p: string) => readFileSync(new URL(`../${p}`, import.meta.url), "utf8");
   const targets: [string, RegExp][] = [
-    [".github/workflows/deploy.yml", /run: npx wrangler deploy/],
+    [".github/workflows/deploy.yml", /^\s*(?:run:\s*)?npx wrangler deploy\b/m],
     [".github/workflows/db-migrate.yml", /run: npx prisma migrate deploy/],
     [".github/workflows/worker-secrets-sync.yml", /wrangler secret bulk/],
     [".github/workflows/ai-python-deploy.yml", /run: uv run pywrangler deploy/],
