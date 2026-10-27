@@ -1,5 +1,5 @@
 /** Actual workerd + D1 binding smoke, disposable local storage only. */
-import { PrismaClient } from "@rega/d1-client/wasm.js";
+import { PrismaClient, Prisma } from "@rega/d1-client/wasm.js";
 import { createD1Client } from "../../src/lib/d1-client";
 import { registerD1Provider, type D1Connection } from "../../src/lib/d1-connection";
 import { d1Transaction } from "../../src/lib/d1-transaction";
@@ -8,7 +8,7 @@ const worker = {
   async fetch(request: Request, env: { DB: D1Connection }) {
     if (request.method === "GET") return new Response("ready");
     registerD1Provider(() => env.DB);
-    const db = createD1Client(PrismaClient);
+    const db = createD1Client(PrismaClient, Prisma);
     const stamp = crypto.randomUUID();
     const user = await db.user.create({ data: { email: `${stamp}@example.invalid`, name: "ÖMER", accounts: { create: { provider: "test", providerAccountId: stamp, type: "oauth" } } } });
     check((await db.user.findFirst({ where: { name: { equals: "ömer", mode: "insensitive" }, id: user.id }, include: { accounts: true } }))?.accounts.length === 1, "nested write and Unicode read");

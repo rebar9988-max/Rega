@@ -6,6 +6,7 @@
 import { Prisma, type PrismaClient } from "@prisma/client";
 import { d1Atomic, type D1Plan, newId } from "./d1-plan";
 import { d1Models as models, type D1Model as Model } from "./d1-models";
+import { d1Null } from "./d1-null";
 
 type Row = Record<string, unknown>;
 type Args = { where?: Row; data?: Row; create?: Row; update?: Row; select?: Row; include?: Row; orderBy?: Row | Row[]; take?: number; skip?: number };
@@ -137,7 +138,7 @@ class Transaction {
     return field.isList ? projected : projected[0] ?? null;
   }
   async project(model: Model, row: Row, args: Args): Promise<Row> {
-    const out: Row = args.select ? {} : Object.fromEntries(model.fields.filter(f => f.kind !== "object").map(f => [f.name, row[f.name] === Prisma.DbNull || row[f.name] === Prisma.JsonNull ? null : row[f.name]]));
+    const out: Row = args.select ? {} : Object.fromEntries(model.fields.filter(f => f.kind !== "object").map(f => [f.name, d1Null(row[f.name]) ? null : row[f.name]]));
     for (const [name, selection] of Object.entries(args.select ?? args.include ?? {})) {
       if (!selection) continue;
       if (name === "_count") {
@@ -146,7 +147,7 @@ class Transaction {
         for (const field of wanted) { const related = await this.relation(model, row, field, {}); counts[field] = Array.isArray(related) ? related.length : related ? 1 : 0; }
         out[name] = counts;
       } else if (model.fields.some(f => f.name === name && f.kind === "object")) out[name] = await this.relation(model, row, name, object(selection) ? selection as Args : {});
-      else out[name] = row[name] === Prisma.DbNull || row[name] === Prisma.JsonNull ? null : row[name];
+      else out[name] = d1Null(row[name]) ? null : row[name];
     }
     return out;
   }

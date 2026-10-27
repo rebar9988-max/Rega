@@ -32,6 +32,12 @@ test("D1 runtime preserves atomicity and existing domain behavior", async t => {
     assert.equal((await prisma.setting.findUniqueOrThrow({ where: { key: "scalar" } })).value, 123);
     const log = await prisma.auditLog.create({ data: { action: "test", entity: "test", after: { status: "archived" }, before: Prisma.DbNull } });
     assert.equal((await prisma.auditLog.findFirst({ where: { after: { path: ["status"], equals: "archived" } } }))?.id, log.id);
+    const nulls = await prisma.auditLog.create({ data: { action: "null", entity: "test", before: Prisma.DbNull, after: Prisma.JsonNull } });
+    const [stored] = await prisma.$queryRaw<{ sqlNull: number; jsonNull: number }[]>`SELECT "before" IS NULL AS sqlNull,"after" = 'null' AS jsonNull FROM "AuditLog" WHERE id=${nulls.id}`;
+    assert.equal(Number(stored.sqlNull), 1);
+    assert.equal(Number(stored.jsonNull), 1);
+    assert.equal(await prisma.auditLog.count({ where: { id: nulls.id, before: { equals: Prisma.DbNull } } }), 1);
+    assert.equal(await prisma.auditLog.count({ where: { id: nulls.id, after: { equals: Prisma.JsonNull } } }), 1);
   });
   await t.test("late failures leave neither parent nor child writes", async () => {
     const old = await prisma.user.count();
@@ -90,6 +96,16 @@ test("D1 runtime preserves atomicity and existing domain behavior", async t => {
   });
   await t.test("unconverted Prisma transactions fail closed", async () => {
     await assert.rejects(async () => prisma.$transaction(async tx => tx.user.count()), /atomic batch|does not support interactive transactions/);
+    const count = await prisma.user.count();
+    await assert.rejects(async () => prisma.$transaction([prisma.user.create({ data: { email: "array-must-not-write@example.invalid" } })]), /atomic batch/);
+    assert.equal(await prisma.user.count(), count);
+  });
+  await t.test("verification tokens are replaced atomically and consumed once under concurrency", async () => {
+    const { issueToken, consumeToken } = await import("../../src/features/auth/tokens");
+    const first = await issueToken("verify", "token@example.invalid", 60_000);
+    const last = await issueToken("verify", "token@example.invalid", 60_000);
+    assert.equal(await consumeToken("verify", "token@example.invalid", first), false);
+    assert.deepEqual((await Promise.all([consumeToken("verify", "token@example.invalid", last), consumeToken("verify", "token@example.invalid", last)])).sort(), [false, true]);
   });
   await t.test("real business save publishes only complete locations and rolls back invalid edits", async () => {
     const { saveBusiness, businessFormSchema } = await import("../../src/lib/business-admin");

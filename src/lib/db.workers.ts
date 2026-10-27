@@ -20,7 +20,7 @@ import { getCloudflareContext } from "@opennextjs/cloudflare";
 import pg from "pg";
 import { usesD1, registerD1Provider, type D1Connection } from "./d1-connection";
 import { createD1Client } from "./d1-client";
-import { PrismaClient as SqliteClient } from "@rega/d1-client/wasm.js";
+import { PrismaClient as SqliteClient, Prisma as SqlitePrisma } from "@rega/d1-client/wasm.js";
 
 type WorkerEnv = { HYPERDRIVE?: { connectionString: string }; DB?: D1Connection & { withSession?: (mode: string) => D1Connection } };
 type Ctx = { waitUntil?: (promise: Promise<unknown>) => void };
@@ -86,7 +86,7 @@ class RequestScopedPool extends pg.Pool {
 let shared: { key: string | undefined; client: PrismaClient } | null = null;
 
 function client(): PrismaClient {
-  if (usesD1()) return sharedD1 ??= createD1Client(SqliteClient) as unknown as PrismaClient;
+  if (usesD1()) return sharedD1 ??= createD1Client(SqliteClient, SqlitePrisma) as unknown as PrismaClient;
   const key = connectionString();
   if (!shared || shared.key !== key) {
     shared = { key, client: new PrismaClient({ adapter: new PrismaPg(new RequestScopedPool({ max: 1 })), log: ["error"] }) };

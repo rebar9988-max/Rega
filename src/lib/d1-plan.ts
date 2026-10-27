@@ -3,6 +3,7 @@ import { d1Connection, type D1Value } from "./d1-connection";
 import { Prisma } from "@prisma/client";
 import { D1_FOLDS, foldedData } from "./d1-fold";
 import { d1Models as models } from "./d1-models";
+import { d1Null } from "./d1-null";
 
 const quote = (name: string) => `"${name.replaceAll('"', '""')}"`;
 export const newId = () => crypto.randomUUID();
@@ -20,8 +21,9 @@ export class D1Plan {
       if (field.type === "Int" && v != null && (!Number.isInteger(v) || Number(v) < -2147483648 || Number(v) > 2147483647)) throw new Error(`D1 integer outside PostgreSQL Int range ${table}.${name}`);
       if (field.type === "Float" && v != null && (typeof v !== "number" || !Number.isFinite(v))) throw new Error(`Invalid D1 float ${table}.${name}`);
       let value: D1Value;
-      if (v === null || v === Prisma.DbNull) value = null;
-      else if (v === Prisma.JsonNull) value = "null";
+      if (v === null || d1Null(v) === "db") value = null;
+      else if (d1Null(v) === "json") value = "null";
+      else if (d1Null(v) === "any") throw new Error("AnyNull is a filter sentinel, not a stored JSON value");
       else if (v instanceof Date) { if (!Number.isFinite(v.getTime())) throw new Error("Invalid D1 date"); value = v.getTime(); }
       else if (typeof v === "boolean") value = v ? 1 : 0;
       else if (field.isList || field.type === "Json") value = JSON.stringify(v);
