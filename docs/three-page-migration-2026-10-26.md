@@ -1,3 +1,56 @@
+# Rega24 three-page migration — current release checkpoint
+
+**2026-10-27: implemented; production activation blocked by existing Neon quota exhaustion. No 100/100 claim.**
+
+The canonical production Worker remains on the independently published main commit `c8f0cf2ac859414f48fd8dd080484f587b661679`. PR74 is not merged and the new page designs are not live. The entries below retain earlier investigation history; this current-status section supersedes their historical blocker and deployment snapshots.
+
+## Current release evidence
+
+- Application candidate: `c6feeddca51c39e017ec3675b9e0427168ba0247`, [PR74](https://github.com/rebar9988-max/Rega/pull/74). It includes all current main changes without altering About, homepage, Python service/workflow, auth/providers, deployment forwarding, dependency fixes or production schema/data.
+- Latest full candidate [CI40465523259](https://github.com/rebar9988-max/Rega/actions/runs/40465523259): still running at this checkpoint; all gates through ordinary Node build passed. Browser installation/E2E and final workerd gates remain pending. Both Cloudflare candidate check runs have succeeded.
+- Prior candidate `e6f3318` [full CI40342014013](https://github.com/rebar9988-max/Rega/actions/runs/40342014013) passed ordinary Node/Worker builds, full browser E2E and workerd codec/route smokes. This is prior-head evidence, not a substitute for current-head checks.
+- Current local clean install, Prisma client generation, TypeScript, ESLint,24 focused release/identity/i18n tests and documentation validation pass. `npm audit --omit=optional`: zero vulnerabilities.
+- Latest published WebsitePublisher source versions were rechecked2026-10-27 and remain v3/hash1650477e (registration),67308bfe (AI),3215436a (cities).
+- Current existing production deployment: `11e9b60c-b4b1-48a8-a700-d9eed3e38fc8`; version `9e96a7f3-ece0-4c6b-8a87-5f2b9463c450`,100% allocation, SHA tag `c8f0cf2ac859414f48fd8dd080484f587b661679`. This is **not** a three-page migration deployment.
+- Read-only Cloudflare verification: both official domains remain on existing `rega24` production;28 binding names/types retained. No secret values retrieved, no deployment/DNS/database/credential/provider change in this continuation.
+- Browser baseline: original logo present; the existing three English URLs return cached HTTP200 with no new premium markers. Health returns503/databaseerror; existing hosted Beta health40456968000 independently reports data-route500 failures.
+- Read-only Neon `SELECT 1` against existing production project/branch/database returns HTTP402: account or project exceeded quota. No paid upgrade, new database, resource/data deletion or quota bypass was attempted.
+
+## Remaining release gate
+
+The existing owner account must restore Neon quota before activating this release. A new Worker version changes version-specific cache keys and can expose database failures currently hidden by cached public pages. Preserve the current Worker version. After quota restoration: verify public health200/ok/database/migrations/content readiness; reconcile any newer main changes; require exact-head CI; use the existing main CI-gated production pipeline; then run the added read-only three-page live workflow and inspect its screenshots,21locale/page×4width checks and12Lighthouse reports. No live registration/admin approval or paid AI inference has been submitted.
+
+Actual Lighthouse scores for the migrated **production** pages are unavailable because rollout is blocked. Historical local measurements below are not production certification and did not meet every target. There is no migration deployment ID or live regression certification yet. Unrelated main source is preserved; exhaustive live regression proof awaits database recovery and release.
+
+## Current changed paths versus main
+
+- `.github/workflows/three-page-live.yml`
+- `PROJECT_MEMORY.md`
+- `REGA24_SYSTEM_MAP.md`
+- `REGA24_TROUBLESHOOTING.md`
+- `docs/generated/system-inventory.json`
+- `docs/three-page-migration-2026-10-26.md`
+- `docs/verification/three-page-lighthouse-2026-10-26.json`
+- `scripts/health/three-page-live.mjs`
+- `src/app/[locale]/ai/page.tsx`
+- `src/app/[locale]/for-business/page.tsx`
+- `src/app/[locale]/locations/page.tsx`
+- `src/components/ai/AiChat.tsx`
+- `src/components/migration/Premium.tsx`
+- `src/components/migration/premium.module.css`
+- `src/messages/ar.json`
+- `src/messages/ckb.json`
+- `src/messages/de.json`
+- `src/messages/en.json`
+- `src/messages/fa.json`
+- `src/messages/kmr.json`
+- `src/messages/tr.json`
+- `tests/e2e/onboarding.spec.ts`
+- `tests/e2e/premium-pages.spec.ts`
+- `wrangler.jsonc`
+
+## Historical evidence (2026-10-26 onward)
+
 # Rega24 three-page migration checkpoint — 2026-10-26
 
 Status: implementation on an isolated branch; **not deployed, not production-complete**.
@@ -98,6 +151,10 @@ Verified current production rollback checkpoint: deployment11e9b60c-b4b1-48a8-a7
 
 ## Verified external release blocker — 2026-10-27
 
-Before any PR74 production release, public health returned HTTP503 with database=error, migrations=false and contentColumns=false; required environment names were present. Existing hosted Beta health40456968000 independently failed health and database-backed routes. Authoritative read-only Neon SELECT1 against existing project lucky-glitter-73195208, production branch br-floral-hall-b22rpgrw/neondb returned HTTP402: account or project exceeded quota; upgrade plan to increase limits. Existing endpoint ep-autumn-glitter-b2jxzis9 is idle and has been suspended since00:16Z. No secret retrieval, database/schema/data change, resource deletion, replacement database, paid activation or quota bypass was performed.
+Before any PR74 production release, public health returned HTTP503 with database=error, migrations=false and contentColumns=false; required environment names were present. Existing hosted Beta health40456968000 independently failed health and database-backed routes. Authoritative read-only Neon SELECT 1 against existing project lucky-glitter-73195208, production branch br-floral-hall-b22rpgrw/neondb returned HTTP402: account or project exceeded quota; upgrade plan to increase limits. Existing endpoint ep-autumn-glitter-b2jxzis9 is idle and has been suspended since00:16Z. No secret retrieval, database/schema/data change, resource deletion, replacement database, paid activation or quota bypass was performed.
 
 Production release activation is blocked until the existing database quota is restored. A new Worker version invalidates the old version's edge cache, which could expose additional uncached database failures; do not merge-trigger or manually deploy into this known outage. Keep current production version9e96a7f3-ece0-4c6b-8a87-5f2b9463c450. Continue full candidate CI and preserve its exact verified source. Actual migrated live workflows and Lighthouse scores cannot be certified before rollout. When quota is restored, recheck health/database/migrations/content readiness, refresh official main without losing independent work, require exact-head CI, then use the existing main production pipeline and read-only three-page evidence workflow. Never weaken these gates or mark the external failure passed.
+
+## CI runner recovery — 2026-10-27
+
+CI40465523259 passed all gates through Node build, but browser installation stayed in progress for over20minutes; the prior successful identical command took34seconds. No E2E or final workerd result is claimed for this attempt. Running-job logs returned404 until completion, so the exact download/runner cause is not assumed. Publishing the already prepared quota-blocker documentation checkpoint to PR74 triggers its ordinary fresh full CI and automatically supersedes the stalled run. Application source remains byte-identical to c6feedd; no test, timeout, required gate or deployment safeguard changed. Inspect cancelled-run logs, require fresh exact-head checks and retain the quota release hold.
