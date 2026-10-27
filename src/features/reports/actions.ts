@@ -41,7 +41,7 @@ export async function submitReport(_prev: FormState, formData: FormData): Promis
   await sendEmail({
     to: teamInbox(),
     subject: `[REGA report] ${reason}: ${target.host === siteHost() ? target.pathname : target.host}`.slice(0, 200),
-    text: `URL: ${url}\nReason: ${reason}\n\n${details}\n\n— ${singleLine(name)} <${email}> (${locale})\nReview in the dashboard: https://${siteHost()}/dr/reports`,
+    text: `URL: ${url}\nReason: ${reason}\n\n${details}\n\n— ${singleLine(name)} <${email}> (${locale})\nReview in the dashboard: https://${siteHost()}/admin/reports`,
     replyTo: email,
   });
   return { status: "ok" };

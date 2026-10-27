@@ -16,7 +16,7 @@ const png = (r: number, g: number, b: number) =>
   ({ name: `p${r}${g}${b}.png`, mimeType: "image/png", buffer: Buffer.from(encode({ width: 4, height: 3, data: new Uint8Array(Array.from({ length: 12 }, () => [r, g, b, 255]).flat()) })) });
 
 async function login(page: Page) {
-  await page.goto("/de/login?next=%2Fdr");
+  await page.goto("/de/login?next=%2Fadmin");
   await page.getByLabel("E-Mail", { exact: true }).fill(ADMIN.email);
   await page.getByLabel("Passwort", { exact: true }).fill(ADMIN.password);
   await page.getByRole("button", { name: "Anmelden" }).click();
@@ -47,7 +47,7 @@ test.setTimeout(240_000);
 test("owner manages one cover and three gallery images; the profile shows them in that order", async ({ page }, info) => {
   const name = `E2E Galerie ${info.project.name} ${stamp}`;
   await login(page);
-  await page.goto("/dr/businesses/new");
+  await page.goto("/admin/businesses/new");
   await page.getByLabel("Name", { exact: true }).fill(name);
   await page.getByRole("combobox", { name: "Kategorie", exact: true }).selectOption({ label: "Recht" });
   // Hamburg, away from the Berlin demo listings that other tests count.

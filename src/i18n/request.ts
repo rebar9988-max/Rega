@@ -3,7 +3,7 @@ import { getRequestConfig } from "next-intl/server";
 import { DEFAULT_LOCALE, isLocale, type Locale } from "./locales";
 
 export default getRequestConfig(async ({ requestLocale }) => {
-  // Non-localized areas (the /dr staff dashboard) have no locale segment: use the visitor's saved choice.
+  // Non-localized areas (the /admin staff dashboard) have no locale segment: use the visitor's saved choice.
   const requested = (await requestLocale) ?? (await cookies()).get("REGA_LOCALE")?.value;
   const locale: Locale = requested && isLocale(requested) ? requested : DEFAULT_LOCALE;
 

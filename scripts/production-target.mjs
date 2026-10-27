@@ -8,7 +8,7 @@ export async function verifyProductionTarget(project, env = process.env, request
   }
   const get = async path => {
     const response = await request(`https://api.cloudflare.com/client/v4/accounts/${project.cloudflareAccountId}${path}`, {
-      redirect: 'error', headers: { authorization: `Bearer ${env.CLOUDFLARE_API_TOKEN}` }, signal: AbortSignal.timeout(15_000),
+      headers: { authorization: `Bearer ${env.CLOUDFLARE_API_TOKEN}` }, redirect: 'error', signal: AbortSignal.timeout(15_000),
     });
     if (!response.ok) throw new Error('Production target verification unavailable');
     const body = await response.json();
@@ -29,11 +29,7 @@ export async function verifyProductionTarget(project, env = process.env, request
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   try {
-    const config = readFileSync(new URL('../wrangler.jsonc', import.meta.url), 'utf8').split('\n').filter(line => !/^\s*\/\//.test(line)).join('\n');
-    const project = { repository: 'rebar9988-max/Rega', cloudflareAccountId: 'ee07860dbb8e61ff6915758785baf89a',
-      webWorker: /"name"\s*:\s*"([^"]+)"/.exec(config)?.[1],
-      webWorkerTag: '7b845cda2ee749c89c4f9b83490609b4', aiWorker: 'rega-ai-python', canonicalHost: 'www.rega24.com', apexHost: 'rega24.com' };
-    if (project.webWorker !== 'rega24') throw new Error('Retired production target');
+    const project = JSON.parse(readFileSync(new URL('../src/config/project.json', import.meta.url), 'utf8'));
     await verifyProductionTarget(project);
     console.log('Production target verified: existing REGA Worker tag and both official domains match manifest.');
   } catch {

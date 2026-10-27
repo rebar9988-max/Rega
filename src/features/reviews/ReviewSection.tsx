@@ -1,3 +1,4 @@
+import project from "@/config/project.json";
 import { getLocale, getTranslations } from "next-intl/server";
 import { auth } from "@/auth";
 import { Link } from "@/i18n/routing";
@@ -14,7 +15,7 @@ export async function ReviewSection({ businessId, businessSlug }: { businessId: 
   const locale = (await getLocale()) as Locale;
   const session = await auth().catch(() => null);
   const [reviews, own] = await Promise.all([approvedReviews(businessId), session?.user?.id ? ownReview(businessId, session.user.id) : Promise.resolve(null)]);
-  const base = `https://${process.env.CANONICAL_HOST || "www.rega24.com"}/${locale}/business/${businessSlug}`;
+  const base = `https://${process.env.CANONICAL_HOST || project.canonicalHost}/${locale}/business/${businessSlug}`;
   return (
     <section aria-labelledby="reviews" data-testid="reviews">
       <h2 id="reviews" className="mb-3 text-xl font-bold">{t("title")}</h2>

@@ -6,6 +6,7 @@ import { isAiConfigured, providerCatalog } from "@/lib/ai";
 import { emailEnabled } from "@/lib/email";
 import { contentColumnsReady } from "@/lib/schema-readiness";
 import { schemaRecoveryReport } from "@/lib/schema-recovery-report";
+import { databaseTargetMatchesManifest } from "@/lib/database-identity";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -53,11 +54,14 @@ export async function GET() {
   const body = {
     ok: database === "ok" && migrations && contentColumns,
     service: "rega-platform",
+    // Public release provenance only. Invalid/misconfigured values must never leak through health output.
+    sourceSha: /^[a-f0-9]{40}$/.test(process.env.REGA_COMMIT_SHA ?? "") ? process.env.REGA_COMMIT_SHA : null,
     env: process.env.APP_ENV ?? process.env.NODE_ENV ?? "unknown",
     time: new Date().toISOString(),
     latencyMs: Date.now() - started,
     checks: {
       database,
+      databaseTargetMatchesManifest: databaseTargetMatchesManifest(process.env.DATABASE_URL),
       migrations,
       contentColumns,
       auth: Boolean(process.env.AUTH_SECRET),

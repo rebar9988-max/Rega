@@ -6,7 +6,7 @@ name: Beta health
 on:
   workflow_dispatch:
   workflow_run:
-    workflows: ["CI"]
+    workflows: ["Deploy to Cloudflare Workers"]
     types: [completed]
     branches: [main]
   schedule:
@@ -17,8 +17,8 @@ permissions:
 
 jobs:
   health:
-    # A failed required check fails this workflow. (It never blocks deploys: Cloudflare builds and deploys main
-    # independently.) Earlier, job-level continue-on-error turned failed smoke checks into a green run.
+    # Post-deployment and scheduled read-only checks. A failed required check fails this workflow.
+    # Earlier, job-level continue-on-error incorrectly turned failed smoke checks into a green run.
     if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -182,8 +182,8 @@ jobs:
           check '/api/v1/nearby?lat=999&lng=0' 422
           # protected endpoints must reject anonymous callers
           if probe 401 "$base/api/v1/businesses" -X POST -H 'content-type: application/json' -d '{}'; then echo "ok   POST /api/v1/businesses (anonymous) -> 401"; else probe_fail "anonymous POST /api/v1/businesses" 401; fail=1; fi
-          code=$(curl -sS -m 25 -A "$UA" -o /dev/null -w '%{http_code}' "$base/dr" || echo 000)
-          echo "info /dr (anonymous) -> $code (expected 200 with the /dr sign-in form)"
+          code=$(curl -sS -m 25 -A "$UA" -o /dev/null -w '%{http_code}' "$base/admin" || echo 000)
+          echo "info /admin (anonymous) -> $code (expected 200 with the /admin sign-in form)"
           exit $fail
 
       - name: Canonical host redirects and SEO (read-only)
@@ -371,8 +371,8 @@ jobs:
             if probe 401 "https://www.rega24.com$p" -X POST -H 'content-type: application/json' -d '{}'; then echo "ok   anonymous POST $p -> 401"; else probe_fail "anonymous POST $p" 401; fail=1; fi
             sleep 0.3
           done
-          # Anonymous /dr pages answer with the /dr sign-in form only (e-mail code, #49), never dashboard content.
-          if probe 200 https://www.rega24.com/dr/ai && grep -q 'data-dr-sign-in' "$PROBE_BODY" && ! grep -q '<aside' "$PROBE_BODY"; then echo "ok   /dr/ai (anonymous) -> sign-in form only"; else echo "::error::FAIL /dr/ai (anonymous) must show only the sign-in form (HTTP $PROBE_CODE)"; fail=1; fi
+          # Anonymous /admin pages answer with the /admin sign-in form only (e-mail code, #49), never dashboard content.
+          if probe 200 https://www.rega24.com/admin/ai && grep -q 'data-dr-sign-in' "$PROBE_BODY" && ! grep -q '<aside' "$PROBE_BODY"; then echo "ok   /admin/ai (anonymous) -> sign-in form only"; else echo "::error::FAIL /admin/ai (anonymous) must show only the sign-in form (HTTP $PROBE_CODE)"; fail=1; fi
           exit $fail
 
       - name: Retry record (transient failures that recovered or exhausted their retries)

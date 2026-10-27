@@ -2,7 +2,7 @@
 
 import { useActionState, useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { saveCategoryAction, type CategoryFormState } from "@/app/dr/categories/actions";
+import { saveCategoryAction, type CategoryFormState } from "@/app/admin/categories/actions";
 
 export type CategoryInitial = {
   id?: string; nameCkb?: string; nameKmr?: string | null; nameDe?: string; nameEn?: string | null; nameAr?: string | null; nameFa?: string | null; nameTr?: string | null;

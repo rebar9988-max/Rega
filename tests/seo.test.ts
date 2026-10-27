@@ -40,7 +40,7 @@ test("nothing is invented: no configuration means no profiles and no sameAs", ()
   assert.equal(org["@type"], "Organization");
   assert.ok(!("sameAs" in org));
   assert.equal(org.url, "https://www.rega24.com/");
-  assert.equal(org.name, "REGA Platform");
+  assert.equal(org.name, "Rega24");
 });
 
 test("configured profiles feed Organization.sameAs on the canonical domain", () => {
@@ -54,9 +54,9 @@ test("configured profiles feed Organization.sameAs on the canonical domain", () 
 test("entity graph: one Organization @id, referenced (not duplicated) by WebSite and WebPage", () => {
   const [org, site] = organizationJsonLd("en", "d", {}) as Record<string, unknown>[];
   assert.equal(org["@id"], "https://www.rega24.com/#organization");
-  assert.equal(org.name, "REGA Platform");
+  assert.equal(org.name, "Rega24");
   assert.equal(org.alternateName, "ڕێگا");
-  assert.equal(site.name, "REGA Platform");
+  assert.equal(site.name, "Rega24");
   assert.deepEqual(site.publisher, { "@id": org["@id"] });
   const [page, crumbs] = webPageJsonLd({ locale: "de", path: "/businesses", name: "Unternehmen", crumbs: [{ name: "Start", path: "" }, { name: "Unternehmen", path: "/businesses" }] }) as Record<string, unknown>[];
   assert.equal(page["@id"], "https://www.rega24.com/de/businesses#webpage");

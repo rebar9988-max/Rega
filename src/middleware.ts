@@ -2,7 +2,7 @@
  * Locale routing middleware.
  * - /            -> /{defaultLocale}      (Kurdish Sorani)
  * - /x, /y/...   -> locale-prefixed paths are passed through, with the locale cookie refreshed
- * - /dr/… , /api/… -> untouched (management dashboard, auth endpoints, REST API)
+ * - /admin/… , /api/… -> untouched (management dashboard, auth endpoints, REST API)
  */
 import createMiddleware from "next-intl/middleware";
 import { NextResponse, type NextRequest } from "next/server";
@@ -51,7 +51,7 @@ export default async function middleware(request: NextRequest) {
   // Staff dashboard, API and auth routes are not localized.
   if (
     pathname.startsWith("/api/") ||
-    pathname.startsWith("/dr") ||
+    pathname.startsWith("/admin") ||
     pathname.startsWith("/owner-login") ||
     pathname.startsWith("/_next") ||
     pathname.startsWith("/fonts") ||
@@ -82,5 +82,5 @@ export default async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!api|dr|_next|_vercel|.*\\..*).*)"],
+  matcher: ["/((?!api|admin|dr|_next|_vercel|.*\\..*).*)"],
 };

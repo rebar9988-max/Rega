@@ -17,11 +17,11 @@ const FRESH = { baseURL: `http://localhost:${process.env.E2E_PORT ?? 3111}`, sto
 test.beforeAll(async ({ browser }) => {
   const context = await browser.newContext(FRESH);
   const page = await context.newPage();
-  await page.goto("/de/login?next=%2Fdr");
+  await page.goto("/de/login?next=%2Fadmin");
   await page.getByLabel("E-Mail", { exact: true }).fill(ADMIN.email);
   await page.getByLabel("Passwort", { exact: true }).fill(ADMIN.password);
   await page.getByRole("button", { name: "Anmelden" }).click();
-  await expect(page).toHaveURL(/\/dr$/);
+  await expect(page).toHaveURL(/\/admin$/);
   await context.storageState({ path: ADMIN_STATE });
   await context.close();
 });
@@ -43,7 +43,7 @@ test.describe.configure({ mode: "serial" });
 
 test("services: create, validate, publish, show publicly, find in search, archive", async ({ page }) => {
   await german(page);
-  await page.goto("/dr/services/new");
+  await page.goto("/admin/services/new");
   const name = `E2E Service ${stamp}`;
   // A select inside its label contributes its selected option to the label's name, so these match by substring.
   await page.getByLabel("Unternehmen").selectOption({ label: "Zagros Restaurant" });
@@ -56,7 +56,7 @@ test("services: create, validate, publish, show publicly, find in search, archiv
   await expect(page.getByLabel("Name", { exact: true })).toHaveValue(name); // nothing typed was lost
   await page.getByTestId("price-to").fill("40");
   await page.getByRole("button", { name: "Speichern und veröffentlichen" }).click();
-  await expect(page).toHaveURL(/\/dr\/services\/[^/?]+\?published=1$/);
+  await expect(page).toHaveURL(/\/admin\/services\/[^/?]+\?published=1$/);
   await expect(page.getByTestId("service-status")).toHaveText("Veröffentlicht");
 
   // Public: list, detail, the provider's page and unified search.
@@ -69,7 +69,7 @@ test("services: create, validate, publish, show publicly, find in search, archiv
   await expect(page.getByRole("main")).toContainText(name);
 
   // Archive (the safe "delete"): gone from the public site, still in the dashboard.
-  await page.goto(`/dr/services?q=${encodeURIComponent(name)}`);
+  await page.goto(`/admin/services?q=${encodeURIComponent(name)}`);
   await page.getByRole("row", { name: new RegExp(name) }).getByRole("button", { name: "Archivieren" }).click();
   await expect(page.getByRole("row", { name: new RegExp(name) }).getByTestId("service-status")).toHaveText("Archiviert");
   await page.goto(`/de/services?q=${encodeURIComponent(name)}`);
@@ -78,7 +78,7 @@ test("services: create, validate, publish, show publicly, find in search, archiv
 
 test("categories: seven names, the right language on public pages, deactivate hides it", async ({ page }) => {
   await german(page);
-  await page.goto("/dr/categories/new");
+  await page.goto("/admin/categories/new");
   await page.getByLabel("Name (Sorani)").fill(`پۆلی تاقیکردنەوە ${stamp}`);
   await page.getByLabel("Name (Deutsch)").fill(`E2E Kategorie ${stamp}`);
   await page.getByLabel("Name (Englisch)").fill(`E2E Category ${stamp}`);
@@ -95,7 +95,7 @@ test("categories: seven names, the right language on public pages, deactivate hi
   await expect(page.getByRole("navigation", { name: "Categories" }).getByRole("link", { name: "Legal" })).toBeVisible();
 
   await german(page);
-  await page.goto("/dr/categories");
+  await page.goto("/admin/categories");
   await page.getByRole("row", { name: new RegExp(`E2E Kategorie ${stamp}`) }).getByRole("button", { name: "Deaktivieren" }).click();
   await expect(page.getByRole("row", { name: new RegExp(`E2E Kategorie ${stamp}`) })).toContainText("Inaktiv");
   await page.goto("/en/businesses");
@@ -114,7 +114,7 @@ test("opening hours: validated input, shown on the detail page; 'Open now' keeps
   await stubBasemap(page);
   await german(page);
   const name = `E2E Rund um die Uhr ${stamp}`;
-  await page.goto("/dr/businesses/new");
+  await page.goto("/admin/businesses/new");
   await page.getByLabel("Name", { exact: true }).fill(name);
   await page.getByRole("combobox", { name: "Kategorie", exact: true }).selectOption({ label: "Recht" });
   // Hamburg, away from the Berlin demo data that other map tests cluster on.
@@ -205,11 +205,11 @@ test("REGA AI: a natural Kurdish question retrieves the real business with a loc
 async function asUser(browser: Browser, email: string, password: string) {
   const context = await browser.newContext(FRESH);
   const page = await context.newPage();
-  await page.goto("/de/login?next=%2Fdr");
+  await page.goto("/de/login?next=%2Fadmin");
   await page.getByLabel("E-Mail", { exact: true }).fill(email);
   await page.getByLabel("Passwort", { exact: true }).fill(password);
   await page.getByRole("button", { name: "Anmelden" }).click();
-  await expect(page).toHaveURL(/\/dr$/);
+  await expect(page).toHaveURL(/\/admin$/);
   return { page, context };
 }
 
@@ -217,7 +217,7 @@ test("staff: admin creates an employee; the employee edits only businesses they 
   await german(page);
   const email = `e2e-staff-${stamp}@example.org`;
   const password = "e2e-staff-password-1";
-  await page.goto("/dr/users");
+  await page.goto("/admin/users");
   await page.getByLabel("Name", { exact: true }).fill("E2E Staff");
   await page.getByLabel("E-Mail", { exact: true }).fill(email);
   await page.getByLabel("Startpasswort (mind. 12 Zeichen)").fill(password);
@@ -241,11 +241,11 @@ test("staff: admin creates an employee; the employee edits only businesses they 
     expect(still.status).toBe("published"); // the bulk call above affected nothing
     // Employees cannot manage staff: no menu entry, and the page itself is refused.
     await expect(employee.page.getByRole("navigation").getByRole("link", { name: "Nutzer" })).toHaveCount(0);
-    await employee.page.goto("/dr/users");
+    await employee.page.goto("/admin/users");
     await expect(employee.page.getByRole("button", { name: "Anlegen" })).toHaveCount(0);
 
     // Admin adds the employee to the business: now allowed.
-    await page.goto(`/dr/businesses/${zagros.id}`);
+    await page.goto(`/admin/businesses/${zagros.id}`);
     await page.getByTestId("business-team").getByLabel("E-Mail des Mitarbeiters").fill(email);
     await page.getByTestId("business-team").getByRole("button", { name: "Hinzufügen" }).click();
     await expect(page.getByTestId("team-notice")).toHaveText("Mitglied hinzugefügt.");

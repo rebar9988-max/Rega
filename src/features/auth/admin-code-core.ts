@@ -2,7 +2,7 @@
  * Administrative sign-in codes: the rules, with no database and no network, so each one is
  * tested on its own.
  *
- * A dashboard account signs in at /dr with a six-digit code sent to the address already on
+ * A dashboard account signs in at /admin with a six-digit code sent to the address already on
  * the account. Six digits is small, so the code is never stored: only an HMAC of it, keyed
  * with AUTH_SECRET and domain-separated by the address, so one leaked row yields nothing and
  * a code for one address can never be replayed for another.
@@ -11,13 +11,13 @@
 import { SUPER_ADMIN_EMAILS, isSuperAdminEmail } from "../../lib/rbac";
 
 /**
- * The only addresses /dr ever sends a code to (owner instruction, 2026-10-22): the same single owner address that may
+ * The only addresses /admin ever sends a code to (owner instruction, 2026-10-22): the same single owner address that may
  * hold SUPER_ADMIN power at all (`SUPER_ADMIN_EMAILS` in lib/rbac.ts). The account must also be an active, verified
  * SUPER_ADMIN.
  */
 export const DR_CODE_EMAILS: readonly string[] = SUPER_ADMIN_EMAILS;
 
-/** True only for an address on the /dr code allowlist (compared normalised). */
+/** True only for an address on the /admin code allowlist (compared normalised). */
 export function mayReceiveDrCode(email: string): boolean {
   return isSuperAdminEmail(email);
 }

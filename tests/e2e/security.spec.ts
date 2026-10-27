@@ -58,15 +58,15 @@ test("abuse and malformed input are rejected safely (no stack traces, no 500s)",
 });
 
 test("a suspended account loses access immediately (session revalidation)", async ({ page }) => {
-  await page.goto(`/de/login?next=${encodeURIComponent("/dr")}`);
+  await page.goto(`/de/login?next=${encodeURIComponent("/admin")}`);
   await page.getByLabel("E-Mail", { exact: true }).fill(EMPLOYEE.email);
   await page.getByLabel("Passwort", { exact: true }).fill(EMPLOYEE.password);
   await page.getByRole("button", { name: "Anmelden" }).click();
-  await expect(page).toHaveURL(/\/dr$/);
+  await expect(page).toHaveURL(/\/admin$/);
   const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }) });
   try {
     await prisma.user.update({ where: { email: EMPLOYEE.email }, data: { status: "suspended" } });
-    await page.goto("/dr");
+    await page.goto("/admin");
     // The session is gone: /dr shows its sign-in, not the dashboard.
     await expect(page.getByRole("heading", { name: "چوونەژوورەوەی بەڕێوەبەر" })).toBeVisible();
     const api = await page.request.post("/api/v1/businesses", { data: { name: "x" } });
@@ -117,8 +117,8 @@ test("private reads recheck roles and account status even while the session role
       expect((await context.request.get(`/api/v1/businesses/${business.id}`)).status()).toBe(404);
       expect((await (await context.request.get(`/api/v1/businesses?q=${marker}`)).json()).data).toEqual([]);
       expect((await (await context.request.get(`/api/v1/locations?businessId=${business.id}`)).json()).data).toEqual([]);
-      await page.goto("/dr");
-      await expect(page).toHaveURL(/\/dr$/);
+      await page.goto("/admin");
+      await expect(page).toHaveURL(/\/admin$/);
       await expect(page.getByText("Dieses Konto hat keinen Verwaltungszugriff.")).toBeVisible();
       await expect(page.getByRole("navigation")).toHaveCount(0);
     }
@@ -136,11 +136,11 @@ test("SUPER_ADMIN power exists only for the owner's address: another SUPER_ADMIN
   try {
     // A stored SUPER_ADMIN role on a non-owner address, signed in with its password.
     await prisma.user.update({ where: { id: original.id }, data: { role: "SUPER_ADMIN", status: "active", deletedAt: null } });
-    await page.goto(`/de/login?next=${encodeURIComponent("/dr")}`);
+    await page.goto(`/de/login?next=${encodeURIComponent("/admin")}`);
     await page.getByLabel("E-Mail", { exact: true }).fill(EMPLOYEE.email);
     await page.getByLabel("Passwort", { exact: true }).fill(EMPLOYEE.password);
     await page.getByRole("button", { name: "Anmelden" }).click();
-    await expect(page).toHaveURL(/\/dr$/);
+    await expect(page).toHaveURL(/\/admin$/);
     await expect(page.getByText("Dieses Konto hat keinen Verwaltungszugriff.")).toBeVisible();
     await expect(page.locator("aside")).toHaveCount(0);
     expect((await (await context.request.get("/api/auth/session")).json()).user.role).toBe("USER");
@@ -154,7 +154,7 @@ test("SUPER_ADMIN power exists only for the owner's address: another SUPER_ADMIN
     await context.addCookies([{ name: cookie, value: token, url: String(test.info().project.use.baseURL), httpOnly: true, sameSite: "Lax" }]);
     expect((await (await context.request.get("/api/auth/session")).json()).user.role).toBe("USER");
     expect((await context.request.post("/api/v1/businesses", { data: { name: "x" } })).status()).toBe(403);
-    await page.goto("/dr/users");
+    await page.goto("/admin/users");
     await expect(page.locator("aside")).toHaveCount(0);
   } finally {
     await prisma.user.update({ where: { id: original.id }, data: { role: original.role, status: original.status, deletedAt: original.deletedAt } });

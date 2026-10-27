@@ -16,22 +16,20 @@ Before any substantial task read, in order:
 
 Then verify current GitHub and Cloudflare state before acting. Do not duplicate rules here; change them in CLAUDE.md.
 
-## Infrastructure map (required)
 
-[REGA24_SYSTEM_MAP.md](REGA24_SYSTEM_MAP.md) is the infrastructure index.
-[REGA24_TROUBLESHOOTING.md](REGA24_TROUBLESHOOTING.md) is the runbook.
-They do not replace CLAUDE.md, PROJECT_MEMORY.md, or the Google Doc.
+## REGA24 system map and failure diagnosis
 
-Every coding agent must:
+Read [REGA24_SYSTEM_MAP.md](REGA24_SYSTEM_MAP.md) before architectural changes and consult
+[REGA24_TROUBLESHOOTING.md](REGA24_TROUBLESHOOTING.md) when diagnosing failures.
+The maintenance requirements are in [CLAUDE.md](CLAUDE.md), section 6 (REGA24 technical documentation).
+Update both files after verified infrastructure changes; record dependencies and known issues, reuse completed
+investigations, never invent system information, and never store credentials or secret values in documentation.
+Before committing run `node scripts/rega24-docs.mjs --check`; after reviewed source changes regenerate with
+`node scripts/rega24-docs.mjs --write` (stage new source files first). Keep the existing memory workflow above.
 
-- Read [REGA24_SYSTEM_MAP.md](REGA24_SYSTEM_MAP.md) before architectural changes.
-- Consult [REGA24_TROUBLESHOOTING.md](REGA24_TROUBLESHOOTING.md) when diagnosing failures.
-- Update both files after verified infrastructure changes.
-- Record new dependencies and known issues.
-- Avoid repeating completed investigations. Check PROJECT_MEMORY.md and the Google Doc first.
-- Never invent system information. Label anything not re-checked as REPORTED or UNKNOWN.
-- Never store credentials, tokens, passwords, or connection strings in documentation.
+Documentation-only main commits must not replace production Workers (`DOCS_ONLY_SKIP`). Existing commands
+`node scripts/generate-system-inventory.mjs` and `node scripts/validate-system-docs.mjs` remain compatible wrappers
+around the single canonical generator/checker. CI performs this validation; no separate duplicate docs workflow.
+The JSON and Markdown inventories are generated views of the same tracked facts, never separate manual authorities.
 
-Refresh the generated inventory with `node scripts/generate-system-inventory.mjs` and check links with
-`node scripts/validate-system-docs.mjs`. CI runs the checker. A documentation-only commit on `main` must not
-replace the production Worker (`DOCS_ONLY_SKIP` in `.github/workflows/deploy.yml`).
+Production Worker reconciliation (2026-10-26): `rega24` is the existing live web Worker; a subsequently recreated `rega-platform` has a different stable tag and is not a deployment target. Run the shared read-only target preflight through release/secret-sync workflows. Do not recreate it or modify the separate R&L guard. See the system map for live drift and current evidence.

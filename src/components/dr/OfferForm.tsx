@@ -7,7 +7,7 @@
  */
 import { useActionState, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { saveOfferAction, type OfferFormState } from "@/app/dr/offers/actions";
+import { saveOfferAction, type OfferFormState } from "@/app/admin/offers/actions";
 import { MediaField } from "@/components/dr/MediaField";
 
 export type OfferInitial = {

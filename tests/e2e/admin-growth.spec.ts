@@ -6,18 +6,18 @@ import { ADMIN } from "./global-setup";
 const stamp = Date.now().toString(36);
 
 async function login(page: Page) {
-  await page.goto("/de/login?next=%2Fdr");
+  await page.goto("/de/login?next=%2Fadmin");
   await page.getByLabel("E-Mail", { exact: true }).fill(ADMIN.email);
   await page.getByLabel("Passwort", { exact: true }).fill(ADMIN.password);
   await page.getByRole("button", { name: "Anmelden" }).click();
-  await expect(page).toHaveURL(/\/dr$/);
+  await expect(page).toHaveURL(/\/admin$/);
 }
 
 test.describe.configure({ mode: "serial" });
 
 test("admin adds a city; it is selectable with a (0) count and gets a slug", async ({ page }) => {
   await login(page);
-  await page.goto("/dr/geography");
+  await page.goto("/admin/geography");
   const form = page.getByTestId("city-form");
   await form.locator('select[name="countryId"]').selectOption({ label: "Germany" });
   await form.locator('input[name="nameEn"]').fill(`Teststadt ${stamp}`);
@@ -33,7 +33,7 @@ test("admin adds a city; it is selectable with a (0) count and gets a slug", asy
 test("CMS page: written per language, published, rendered with language fallback; drafts are not public", async ({ page }) => {
   await login(page);
   const slug = `e2e-seite-${stamp}`;
-  await page.goto("/dr/pages/new");
+  await page.goto("/admin/pages/new");
   const form = page.getByTestId("page-form");
   await form.locator('input[name="slug"]').fill(slug);
   await form.locator('select[name="status"]').selectOption("draft");
@@ -76,7 +76,7 @@ test("content reports reach the dashboard and can be handled", async ({ page }) 
   await expect(page.getByTestId("report-sent")).toBeVisible();
 
   await login(page);
-  await page.goto("/dr/reports");
+  await page.goto("/admin/reports");
   const row = page.getByTestId("report-row").filter({ hasText: `E2E Meldung ${stamp}` });
   await expect(row).toContainText("Offen");
   await row.getByPlaceholder("Notiz").fill("Geprüft, Angaben korrigiert");
@@ -91,7 +91,7 @@ test("moderation inboxes are closed to employees and owners", async ({ page }) =
   await page.getByLabel("Passwort", { exact: true }).fill("employee-pass-123");
   await page.getByRole("button", { name: "Anmelden" }).click();
   await expect(page).not.toHaveURL(/\/login/);
-  for (const path of ["/dr/reports", "/dr/messages", "/dr/pages", "/dr/geography"]) {
+  for (const path of ["/admin/reports", "/admin/messages", "/admin/pages", "/admin/geography"]) {
     await page.goto(path);
     await expect(page.getByTestId("report-row")).toHaveCount(0);
     await expect(page.locator("form[action]").filter({ hasText: "Speichern" })).toHaveCount(0);

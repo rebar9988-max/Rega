@@ -7,7 +7,7 @@
   "workers_dev": true,
   // No production AI binding or provider credentials in branch previews.
   "previews": { "vars": { "REGA_ISOLATED_PREVIEW": "1" } },
-  "observability": { "enabled": true },
+  "observability": { "enabled": true, "redact_query_string": true },
   "ai": { "binding": "AI", "remote": true },
   "vars": {
     "AI_EMBEDDING_MODEL": "@cf/baai/bge-m3",

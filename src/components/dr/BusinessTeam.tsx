@@ -1,7 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/db";
 import { Ltr } from "@/components/ui/Bidi";
-import { addBusinessMember, removeBusinessMember } from "@/app/dr/businesses/team-actions";
+import { addBusinessMember, removeBusinessMember } from "@/app/admin/businesses/team-actions";
 
 /**
  * Members of a business: staff accounts limited to EMPLOYEE access may edit only the businesses they belong to.

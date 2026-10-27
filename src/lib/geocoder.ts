@@ -35,7 +35,7 @@ export async function geocodeAddress(input: GeocodeInput): Promise<GeocodeOutcom
   try {
     await throttle();
     const res = await fetch(url, {
-      headers: { "user-agent": `REGA Platform (+https://${env.CANONICAL_HOST})`, accept: "application/json" },
+      headers: { "user-agent": `Rega24 (+https://${env.CANONICAL_HOST})`, accept: "application/json" },
       signal: AbortSignal.timeout(env.GEOCODING_TIMEOUT_MS),
     });
     if (!res.ok) {
@@ -58,7 +58,7 @@ export async function geocodeCity(city: string, countryCode: string): Promise<{ 
   url.search = new URLSearchParams({ format: "jsonv2", limit: "1", city, countrycodes: countryCode.toLowerCase() }).toString();
   try {
     await throttle();
-    const res = await fetch(url, { headers: { "user-agent": `REGA Platform (+https://${env.CANONICAL_HOST})` }, signal: AbortSignal.timeout(env.GEOCODING_TIMEOUT_MS) });
+    const res = await fetch(url, { headers: { "user-agent": `Rega24 (+https://${env.CANONICAL_HOST})` }, signal: AbortSignal.timeout(env.GEOCODING_TIMEOUT_MS) });
     if (!res.ok) return null;
     const [hit] = parseNominatim(await res.json());
     return hit ? { lat: hit.lat, lng: hit.lng } : null;

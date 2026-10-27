@@ -14,7 +14,7 @@ export const kmr: LegalBuilder = (o, ctx) => {
 
     impressum: {
       title: "Impressum (agahiya yasayî)",
-      description: "Agahiya yasayî ya REGA Platform li gorî xala 5 a DDG: pêşkêşvan, navnîşan, têkilî û berpirsê naveroka vê portala kurdî ya bêpere.",
+      description: "Agahiya yasayî ya Rega24 li gorî xala 5 a DDG: pêşkêşvan, navnîşan, têkilî û berpirsê naveroka vê portala kurdî ya bêpere.",
       blocks: [
         { h: "Agahî li gorî § 5 DDG", p: [who, o.responsiblePerson ? `Nûner / kesê berpirs: ${o.responsiblePerson}` : "", address].filter(Boolean) },
         { h: "Têkilî", p: [`Telefon: ${o.phone}`, `E-name: ${o.publicEmail}`] },
@@ -23,7 +23,7 @@ export const kmr: LegalBuilder = (o, ctx) => {
           : []),
         { h: "Berpirsê naverokê (§ 18 xala 2 MStV)", p: [`${o.responsiblePerson || o.legalName}, ${address}`] },
         { h: "Xala têkiliyê li gorî Qanûna Karûbarên Dîjîtal (Mad. 11, 12 DSA)", p: [`Desthilat, Komîsyon û bikarhêner dikarin bi elektronîkî bi me re li ${o.publicEmail} têkilî daynin. Em bi Almanî û Îngilîzî diaxivin.`, "Naveroka neqanûnî bi forma di bin «Naverokê raporî bike» de dikare bê ragihandin."] },
-        { h: "Karûbarê bêpere", p: ["REGA Platform bêpere ye. Ji bo bikarhêner û karsazan tu mesref çênabe."] },
+        { h: "Karûbarê bêpere", p: ["Rega24 bêpere ye. Ji bo bikarhêner û karsazan tu mesref çênabe."] },
         { h: "Çareserkirina nakokiyên xerîdaran", p: ["Em ne amade ne û ne jî mecbûr in ku beşdarî rêgezên çareserkirina nakokiyê li ber lijneyek lihevkirinê ya xerîdaran bibin."] },
         { h: "Berpirsiyariya naverokê", p: ["Tomarên karsaz, karûbar û cihan ji aliyê xwediyên wan an ji aliyê me ve li ser bingeha agahiyên wan têne çêkirin. Wekî pêşkêşvanê karûbarê, em li gorî qanûnên giştî ji bo naveroka xwe berpirs in. Ji bo naveroka kesên din em tenê ji dema ku em ji binpêkirineke diyar haydar bibin berpirs in; wê demê em wê naverokê tavilê jê dibin.", "Bersivên Alîkarê REGA yên ku bi zîrekiya çêkirî têne çêkirin dikarin şaş bin û şûna şîretê nagirin."] },
         { h: "Berpirsiyariya lînkan", p: ["Karûbarê me lînkên malperên derveyî yên aliyên sêyem dihewîne ku em bandorê li naveroka wan nakin. Em ji bo wê naverokê berpirsiyariyê napejirînin; berpirs her gav pêşkêşvanê têkildar e. Gava em ji binpêkirinan haydar bibin, em wan lînkan tavilê jê dibin."] },
@@ -33,10 +33,10 @@ export const kmr: LegalBuilder = (o, ctx) => {
 
     privacy: {
       title: "Siyaseta nepenîtiyê",
-      description: "Siyaseta nepenîtiyê ya REGA Platform: berpirsê daneyan, mêvandarî, hesab, forma têkiliyê, alîkarê AI, cookie û mafên te li gorî GDPR û mafê giliyê.",
+      description: "Siyaseta nepenîtiyê ya Rega24: berpirsê daneyan, mêvandarî, hesab, forma têkiliyê, alîkarê AI, cookie û mafên te li gorî GDPR û mafê giliyê.",
       blocks: [
         { h: "1. Berpirsê daneyan", p: ["Berpirsê hilanîna daneyan li ser vê malperê, di wateya Rêziknameya Giştî ya Parastina Daneyan (GDPR) de, ev e:", `${who}, ${address}`, `E-name: ${o.publicEmail} · Telefon: ${o.phone}`] },
-        { h: "2. Çavdêriyek giştî", p: ["REGA Platform rêbereke bêpere ye ji bo civaka kurd li Almanya û Ewropayê. Em daneyên kesane tenê di wê astê de dihilînin ku ji bo xebata malperê, hesabê te, danûstandina bi te re û parastina karûbarê pêwîst e. Em dane nafroşin û tu tora reklam an şopandinê nagerînin."] },
+        { h: "2. Çavdêriyek giştî", p: ["Rega24 rêbereke bêpere ye ji bo civaka kurd li Almanya û Ewropayê. Em daneyên kesane tenê di wê astê de dihilînin ku ji bo xebata malperê, hesabê te, danûstandina bi te re û parastina karûbarê pêwîst e. Em dane nafroşin û tu tora reklam an şopandinê nagerînin."] },
         { h: "3. Mêvandarî û tomarên serverê", p: [`Malper li ${o.hostingProvider} tê xebitandin. Gava tu malperê vedikî, pêşkêşvanê mêvandariyê daneyên ji aliyê teknîkî ve pêwîst dihilîne, bi taybetî navnîşana IP, roj û demjimêr, rûpela daxwazkirî, cureya gerokê û pergala xebitandinê; ji bo pêşkêşkirina malperê, aramiyê û berevaniya li dijî êrîşan.`, "Bingeha hiqûqî: Mad. 6(1)(f) GDPR (berjewendiya rewa ya xebateke ewle û aram). Daneyan dibe ku bi garantiyên guncan (bendên peymanê yên standard yên YE an Çarçoveya Nepenîtiya Daneyan YE-DYE) bên şandin welatên sêyem. Bi pêşkêşvan re peymana hilanîna daneyan heye."] },
         { h: "4. Cookie û hilanîna herêmî", p: ["Em tenê hilanînên ji aliyê teknîkî ve pêwîst bikar tînin ku ji bo karûbarê daxwazkirî hewce ne (§ 25(2) hejmar 2 TDDDG). Ji ber vê yekê em bannera cookie nîşan nadin."], ul: ["Cookiya danişînê (Auth.js): tenê piştî têketinê, danişîna te diparêze (90 roj, her car ku tu malperê bi kar tînî nû dibe).", "Cookiya zimanê (REGA_LOCALE / NEXT_LOCALE): zimanê te tîne bîra xwe (1 sal).", "Hilanîna gerokê «rega-theme» (localStorage): moda ronî/tarî tîne bîra xwe.", "Hilanîna gerokê «rega-location» (localStorage): cihê ku te di hilbijêrê cihê de hilbijartiye (bajarek bi welat û herêma wê) tîne bîra xwe, tenê di gerokê te de, da ku rûpela destpêkê, lîsteyên karsaziyê û nexşe bikarbînin. Gerok vê nirxê ji me re naşîne; bi hilbijartina «Hemû bajar» an jêbirina daneyên malperê tê jêbirin.", "Hilanîna danişîna gerokê: nasnameyeke rasthatî ji bo çeta Alîkarê REGA ya heyî; gava tu tabê digirî tê jêbirin."] },
         { h: "5. Pîvandina gihîştinê û analîz", p: [ctx.analytics ? `Em ev amûra analîzê bikar tînin: ${o.analyticsTool}. Heke ew cookie an teknolojiyên wekhev ên ne pêwîst bikar bîne, em berî wê razîbûna te digirin (§ 25(1) TDDDG, Mad. 6(1)(a) GDPR).` : "Em amûrên analîz an şopandinê bikar naynin û reklam nîşan nadin."] },
@@ -56,14 +56,14 @@ export const kmr: LegalBuilder = (o, ctx) => {
 
     terms: {
       title: "Mercên bikaranînê",
-      description: "Mercên bikaranînê yên REGA Platform: bikaranîna bêpere bê mesref, rêgezên tomaran, çavdêrî, berpirsiyarî û jêbirina hesabê.",
+      description: "Mercên bikaranînê yên Rega24: bikaranîna bêpere bê mesref, rêgezên tomaran, çavdêrî, berpirsiyarî û jêbirina hesabê li ser platformê.",
       blocks: [
-        { h: "1. Qada derbasdariyê", p: [`Ev merc ji bo bikaranîna REGA Platform (www.rega24.com) derbasdar in, ku ji aliyê ${who}, ${address} ve tê xebitandin.`] },
-        { h: "2. Bêpere", p: ["REGA Platform ji bo bikarhêner û karsazan bi temamî bêpere ye. Mesref, abonetî, cihên bi pere an taybetmendiyên dayînê tune ne."] },
+        { h: "1. Qada derbasdariyê", p: [`Ev merc ji bo bikaranîna Rega24 (www.rega24.com) derbasdar in, ku ji aliyê ${who}, ${address} ve tê xebitandin.`] },
+        { h: "2. Bêpere", p: ["Rega24 ji bo bikarhêner û karsazan bi temamî bêpere ye. Mesref, abonetî, cihên bi pere an taybetmendiyên dayînê tune ne."] },
         { h: "3. Hesab", p: ["Ji bo tomarkirina karsaziyê hesab pêwîst e. Divê tu agahiyên rast bidî, agahiyên têketinê veşartî bihêlî û her xirabkariya hesabê xwe tavilê ji me re bibêjî. Ji bo her kesî yek hesab tê bihesibandin."] },
         { h: "4. Rêgezên tomar û beşdariyan", p: ["Tu tenê dikarî naveroka ku mafê te yê weşandinê heye biweşînî. Bi taybetî ev tişt qedexe ne:"], ul: ["naveroka neqanûnî, heqaretkar, cudakar an nefretê belavker;", "agahiyên derew an xapînok, karsaz an nirxandinên çêkirî;", "spam, reklama pêşniyarên negirêdayî û tomarên dubare yên heman karûbarê;", "naveroka ku mafên aliyên sêyem (mafê çapê, marqe, mafên kesane) binpê dike;", "agahiyên li ser kesên din bê razîbûna wan;", "nirxandinên ku ne ji ezmûna te ne, nirxandinên karsaziya xwe, û nirxandinên kirrîn an guhertî."] },
         { h: "5. Kontrol û «Rega Verified»", p: ["Tomarên nû berî weşandinê ji aliyê me ve têne kontrolkirin û dikarin bên red kirin an ji bo sererastkirinê vegerin. Nîşana «Rega Verified» tê wê wateyê ku me hin agahiyên tomarê kontrol kirine. Ew ne pêşniyar û ne jî garantiya kalîteya pêşniyarê ye.", "Nirxandin û tomarên kar, bûyer û rêbernameyan jî tenê piştî kontrolê têne weşandin. Em dikarin beşdariyên ku van rêgezan binpê dikin red bikin an rakin."] },
-        { h: "6. Dayîna mafan", p: ["Tu mafekî sade û ne-taybet dide me ku em tomar û wêneyên te li ser REGA Platform bi hemû zimanan nîşan bidin û ji bo wê armancê ji aliyê teknîkî ve kopî bikin. Maf li cem te dimînin."] },
+        { h: "6. Dayîna mafan", p: ["Tu mafekî sade û ne-taybet dide me ku em tomar û wêneyên te li ser Rega24 bi hemû zimanan nîşan bidin û ji bo wê armancê ji aliyê teknîkî ve kopî bikin. Maf li cem te dimînin."] },
         { h: "7. Raporkirin û rakirin", p: ["Naveroka neqanûnî an ya li dijî rêgezan dikare bi «Naverokê raporî bike» bê raporkirin. Heke qanûn an ev merc werin binpêkirin, em dikarin naverokê rakin û hesaban bigirin; em kesên têkildar agahdar dikin û sedemê dibêjin heya ku qanûn pêşbîn dike."] },
         { h: "8. Berpirsiyarî", p: ["Em ji bo qesta bi mebest û nezanîna giran, ji bo zirara li jiyan, laş û tenduristiyê û li gorî Qanûna Berpirsiyariya Hilberê bê sînor berpirs in. Di nezanîna sivik de em tenê ji bo binpêkirina peywirên peymanê yên bingehîn û heya zirara pêşbînkirî û tîpîk berpirs in. Em ji bo agahiyên tomaran, pêşniyarên aliyên sêyem û rastiya bersivên AI garantiyê nadin. Em ne deyndarê berdestbûna domdar in."] },
         { h: "9. Jêbirina hesabê", p: [`Tu dikarî her dem bi nivîsandina ji me re li ${o.publicEmail} jêbirina hesabê xwe bixwazî. Em daneyên hesabê te jê dibin; tomar têne rakirin an bênav kirin heya ku peywirên parastina qanûnî nebin asteng.`] },

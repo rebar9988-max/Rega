@@ -199,7 +199,7 @@ test("OpenRouter: endpoint, bearer auth, public attribution headers sent alongsi
   const out = await p.generate(req, { signal: AbortSignal.timeout(1000) });
   assert.equal(out.content, "routed"); assert.equal(url, "https://openrouter.ai/api/v1/chat/completions");
   const h = init.headers as Record<string, string>;
-  assert.equal(h.authorization, "Bearer OPENROUTER-TEST"); assert.equal(h["HTTP-Referer"], "https://www.rega24.com"); assert.equal(h["X-Title"], "REGA Platform");
+  assert.equal(h.authorization, "Bearer OPENROUTER-TEST"); assert.equal(h["HTTP-Referer"], "https://www.rega24.com"); assert.equal(h["X-Title"], "Rega24");
   assert.equal(JSON.parse(init.body as string).model, "vendor/model-x");
 });
 

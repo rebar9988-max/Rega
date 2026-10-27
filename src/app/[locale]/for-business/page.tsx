@@ -36,10 +36,10 @@ export default async function ForBusinessPage({ params }: { params: Promise<{ lo
       <div className="container-page max-w-4xl space-y-12 pb-8">
         <div className="flex flex-wrap items-center gap-3">
           {signedIn
-            ? <NextLink href="/dr/businesses/new" className={buttonClass("primary")}>{t("ctaAdd")}</NextLink>
+            ? <NextLink href="/admin/businesses/new" className={buttonClass("primary")}>{t("ctaAdd")}</NextLink>
             : <>
-                <Link href="/register?next=%2Fdr%2Fbusinesses%2Fnew" className={buttonClass("primary")} data-testid="cta-register">{t("ctaRegister")}</Link>
-                <Link href="/login?next=%2Fdr%2Fbusinesses%2Fnew" className="text-sm font-semibold text-brand underline">{t("ctaLogin")}</Link>
+                <Link href="/register?next=%2Fadmin%2Fbusinesses%2Fnew" className={buttonClass("primary")} data-testid="cta-register">{t("ctaRegister")}</Link>
+                <Link href="/login?next=%2Fadmin%2Fbusinesses%2Fnew" className="text-sm font-semibold text-brand underline">{t("ctaLogin")}</Link>
               </>}
         </div>
 
@@ -79,8 +79,8 @@ export default async function ForBusinessPage({ params }: { params: Promise<{ lo
 
         <div>
           {signedIn
-            ? <NextLink href="/dr/businesses/new" className={buttonClass("primary")}>{t("ctaAdd")}</NextLink>
-            : <Link href="/register?next=%2Fdr%2Fbusinesses%2Fnew" className={buttonClass("primary")}>{t("ctaRegister")}</Link>}
+            ? <NextLink href="/admin/businesses/new" className={buttonClass("primary")}>{t("ctaAdd")}</NextLink>
+            : <Link href="/register?next=%2Fadmin%2Fbusinesses%2Fnew" className={buttonClass("primary")}>{t("ctaRegister")}</Link>}
         </div>
       </div>
     </>

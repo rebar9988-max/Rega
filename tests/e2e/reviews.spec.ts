@@ -73,7 +73,7 @@ test("a user reviews; it is hidden until approved; editing replaces the old revi
   const adminCtx = await browser.newContext();
   const admin = await adminCtx.newPage();
   await login(admin, ADMIN.email, ADMIN.password);
-  await admin.goto("/dr/reviews");
+  await admin.goto("/admin/reviews");
   const rows = admin.getByTestId("review-row").filter({ hasText: USER.email });
   await expect(rows).toHaveCount(1); // one review per user, even after the edit
   await expect(rows.first()).toContainText(`Sehr gut ${stamp}.`);

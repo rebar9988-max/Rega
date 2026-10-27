@@ -1,5 +1,5 @@
 /**
- * Administrative sign-in at /dr: issue a code to a dashboard account, and check one.
+ * Administrative sign-in at /admin: issue a code to a dashboard account, and check one.
  *
  * The rules live in admin-code-core.ts; this file is the part that touches the database, the
  * mailer and the rate limiter. Two things it deliberately never does: create an account, and

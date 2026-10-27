@@ -1,3 +1,4 @@
+import project from "@/config/project.json";
 /**
  * Auth.js v5 configuration.
  * - Credentials provider (email + password, bcrypt) for staff & users
@@ -42,7 +43,7 @@ const credentialsSchema = z.object({
 });
 
 /** Absolute site origin for redirects that Auth.js sends from its own callback (AUTH_URL wins, else the canonical host). */
-const siteBase = () => (process.env.AUTH_URL ? new URL(process.env.AUTH_URL).origin : `https://${process.env.CANONICAL_HOST || "www.rega24.com"}`);
+const siteBase = () => (process.env.AUTH_URL ? new URL(process.env.AUTH_URL).origin : `https://${process.env.CANONICAL_HOST || project.canonicalHost}`);
 
 /** Google / Facebook / Apple: only those with BOTH client id and secret in the environment. */
 function socialProviders(): NextAuthConfig["providers"] {
@@ -90,9 +91,9 @@ export function buildAuthConfig(): NextAuthConfig {
       // the audit trail so a failed Google return can be diagnosed (src/features/auth/oauth-diagnostics.ts). Wrong e-mail passwords are not kept.
       error(error) {
         const detail = error as unknown as { type?: unknown; cause?: { err?: unknown } };
-        console.error(`[auth][error] ${typeof detail.type === "string" ? detail.type : error.name}: ${error.message}`);
-        const inner = detail.cause?.err;
-        if (inner instanceof Error && inner.stack) console.error("[auth][cause]:", inner.stack);
+        const type = typeof detail.type === "string" && /^[A-Za-z]+$/.test(detail.type) ? detail.type : "AuthError";
+        // Provider error messages/stacks can contain callback queries or credentials; persist safe codes only.
+        console.error(`[auth][error] ${type}`);
         void recordAuthErrorCause(error);
       },
     },
@@ -151,7 +152,7 @@ export function buildAuthConfig(): NextAuthConfig {
           };
         },
       }),
-      // Administrative sign-in at /dr: a six-digit code to the address already on the account.
+      // Administrative sign-in at /admin: a six-digit code to the address already on the account.
       // It opens a session only for an account that already has dashboard access, never
       // creates a user and never grants a role; the code itself is checked in admin-code.ts.
       Credentials({
@@ -191,7 +192,7 @@ export function buildAuthConfig(): NextAuthConfig {
     callbacks: {
       async signIn({ user, account, profile }) {
         if (!account || account.provider === "credentials") return true;
-        // The /dr code provider decided everything in its own authorize (SUPER_ADMIN only).
+        // The /admin code provider decided everything in its own authorize (SUPER_ADMIN only).
         if (account.provider === "admin-code") return true;
         const result = await completeSocialSignIn({
           provider: account.provider,

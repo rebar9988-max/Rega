@@ -72,6 +72,7 @@ test("6. unknown or ambiguous identity is blocked (fail closed)", async () => {
     { project: "REGA", repos: ["someone-else/rega"] },
     { project: "REGA", repos: [REGA_REPO], domains: ["example.com"] },
     { project: "REGA", repos: [REGA_REPO], workers: ["some-other-worker"] },
+    { project: "REGA", repos: [REGA_REPO], workers: ["rega-platform"] }, // retired production target must not be recreated
     { project: "REGA", repos: ["not a repository"] },
   ];
   for (const c of cases) {

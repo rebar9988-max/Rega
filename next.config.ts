@@ -1,3 +1,4 @@
+import project from "./src/config/project.json";
 import createNextIntlPlugin from "next-intl/plugin";
 import type { NextConfig } from "next";
 import path from "node:path";
@@ -6,7 +7,7 @@ import { mapStyleOrigin } from "./src/lib/map-config";
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 // Canonical host handling: rega24.com -> www.rega24.com (301, keeps path + query)
-const CANONICAL_HOST = process.env.CANONICAL_HOST || "www.rega24.com";
+const CANONICAL_HOST = process.env.CANONICAL_HOST || project.canonicalHost;
 const APEX_HOST = CANONICAL_HOST.replace(/^www\./, "");
 
 // Content-Security-Policy. Inline scripts are needed by Next.js hydration, the theme script and JSON-LD (no nonce
@@ -75,17 +76,28 @@ const nextConfig: NextConfig = {
     return [
       { source: "/(.*)", headers: securityHeaders },
       // Admin/owner dashboard: never indexed (it also requires sign-in).
-      { source: "/dr/:path*", headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }] },
-      { source: "/dr", headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }] },
+      { source: "/admin/:path*", headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }, { key: "Cache-Control", value: "private, no-store" }] },
+      { source: "/admin", headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }] },
     ];
   },
   async redirects() {
     // /favicon.ico is a real file in public/ (served as a static asset, no Worker invocation): no redirect needed.
-    if (APEX_HOST === CANONICAL_HOST) return [];
+    const legacyHost = [{ type: "host" as const, value: `^(?:${project.legacyWebsiteHosts.map(host => host.replace(/\./g, "\\.")).join("|")})$` }];
+    const legacy = [
+      { source: "/", has: legacyHost, destination: `https://${CANONICAL_HOST}/`, statusCode: 301 },
+      { source: "/:path+", has: legacyHost, destination: `https://${CANONICAL_HOST}/:path+`, statusCode: 301 },
+    ];
+    const dashboard = [
+      { source: "/dr", destination: "/admin", permanent: true },
+      { source: "/dr/:path+", destination: "/admin/:path+", permanent: true },
+    ];
+    if (APEX_HOST === CANONICAL_HOST) return [...legacy, ...dashboard];
     // The `has.value` of a host condition is a REGEX. It must be anchored and escaped: an unanchored
-    // "rega24.com" also matches "www.rega24.com", which made www redirect to itself (redirect loop).
+    // "rega24.com" also matches project.canonicalHost, which made www redirect to itself (redirect loop).
     const apexOnly = [{ type: "host" as const, value: `^${APEX_HOST.replace(/\./g, "\\.")}$` }];
     return [
+      ...legacy,
+      ...dashboard,
       // Two rules instead of "/:path*": OpenNext leaves ":path*" unsubstituted for the empty path ("/").
       { source: "/", has: apexOnly, destination: `https://${CANONICAL_HOST}/`, statusCode: 301 },
       { source: "/:path+", has: apexOnly, destination: `https://${CANONICAL_HOST}/:path+`, statusCode: 301 },

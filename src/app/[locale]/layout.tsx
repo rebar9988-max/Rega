@@ -1,3 +1,4 @@
+import project from "@/config/project.json";
 import "../globals.css";
 import "@fontsource-variable/inter";
 import "@fontsource-variable/vazirmatn";
@@ -48,7 +49,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const { locale } = await params;
   if (!isLocale(locale)) return {};
   const t = await getTranslations({ locale, namespace: "meta" });
-  const base = process.env.CANONICAL_HOST || "www.rega24.com";
+  const base = process.env.CANONICAL_HOST || project.canonicalHost;
   return {
     metadataBase: new URL(`https://${base}`),
     title: { default: t("title"), template: `%s · ${BRAND_NAME}` },

@@ -16,14 +16,14 @@
 // route patterns of the local wrangler.jsonc. A PR number, commit or CI run id (--pr/--run/--commit) is accepted
 // but is NEVER an identity on its own.
 //
-// This file is identical in both repositories except for the LOCAL_PROJECT line.
+// REGA target reconciliation is local to this repository; never change the separate R&L repository.
 
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-/** The project this repository IS. The only line that differs between the two repositories. */
+/** The project this repository IS. */
 export const LOCAL_PROJECT = "REGA";
 
 export const PROJECTS = {

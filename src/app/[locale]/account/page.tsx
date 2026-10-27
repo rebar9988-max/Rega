@@ -45,8 +45,8 @@ export default async function AccountPage({ params }: { params: Promise<{ locale
             <div><dt className="text-muted">{t("auth.role")}</dt><dd className="font-semibold">{t(`roles.${u.role}`)}</dd></div>
           </dl>
           {unverified && <ResendVerification unavailable={!emailEnabled()} />}
-          {u.role === "BUSINESS_OWNER" && <NextLink href="/dr/businesses" className="flex min-h-11 w-full items-center justify-center rounded-xl bg-brand text-sm font-semibold text-brand-ink hover:bg-brand-hover">{t("auth.myListings")}</NextLink>}
-          {canEnterDashboard(u.role) && u.role !== "BUSINESS_OWNER" && <NextLink href="/dr" className="flex min-h-11 w-full items-center justify-center rounded-xl border border-line text-sm font-semibold hover:bg-surface-2">{t("nav.dashboard")}</NextLink>}
+          {u.role === "BUSINESS_OWNER" && <NextLink href="/admin/businesses" className="flex min-h-11 w-full items-center justify-center rounded-xl bg-brand text-sm font-semibold text-brand-ink hover:bg-brand-hover">{t("auth.myListings")}</NextLink>}
+          {canEnterDashboard(u.role) && u.role !== "BUSINESS_OWNER" && <NextLink href="/admin" className="flex min-h-11 w-full items-center justify-center rounded-xl border border-line text-sm font-semibold hover:bg-surface-2">{t("nav.dashboard")}</NextLink>}
           <form action={logout}><button type="submit" className="min-h-11 w-full rounded-xl border border-line text-sm font-semibold hover:bg-surface-2">{t("auth.signOut")}</button></form>
         </section>
       </div>

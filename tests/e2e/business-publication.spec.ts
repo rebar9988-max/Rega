@@ -13,11 +13,11 @@ const db = new PrismaClient({
 const stamp = Date.now().toString(36);
 const uploadedBusinessIds: string[] = [];
 async function login(page: Page, who = ADMIN) {
-  await page.goto("/de/login?next=%2Fdr");
+  await page.goto("/de/login?next=%2Fadmin");
   await page.getByLabel("E-Mail", { exact: true }).fill(who.email);
   await page.getByLabel("Passwort", { exact: true }).fill(who.password);
   await page.getByRole("button", { name: "Anmelden" }).click();
-  await expect(page).toHaveURL(/\/dr(?:\/businesses)?$/);
+  await expect(page).toHaveURL(/\/admin(?:\/businesses)?$/);
 }
 test.afterAll(async () => {
   try {
@@ -97,7 +97,7 @@ test("staff verification publishes atomically; canonical categories, search, cou
   });
   // Verify through the actual admin action for the second record.
   await page.goto(
-    `/dr/businesses?status=pending&q=${encodeURIComponent(`E2E Butcher ${stamp}`)}`,
+    `/admin/businesses?status=pending&q=${encodeURIComponent(`E2E Butcher ${stamp}`)}`,
   );
   await page.getByRole("button", { name: "Prüfen & veröffentlichen" }).click();
   await expect(page.locator("tbody tr")).toHaveCount(0);
@@ -250,7 +250,7 @@ test("image editor keeps crop on upload failure and saves exactly the preview ge
     };
   });
   await login(page);
-  await page.goto("/dr/businesses/new");
+  await page.goto("/admin/businesses/new");
   const pixels = new Uint8Array(200 * 100 * 4);
   for (let y = 0; y < 100; y++)
     for (let x = 0; x < 200; x++) {
@@ -377,7 +377,7 @@ test("owner completes registration and real image upload; approval publishes and
     }),
   );
   await login(page, owner);
-  await page.goto("/dr/businesses/new");
+  await page.goto("/admin/businesses/new");
   const name = `E2E Simple registration ${stamp} ${test.info().project.name}`;
   await page.getByLabel("Name", { exact: true }).fill(name);
   await page.getByLabel("Kategorien suchen", { exact: true }).fill("Recht");
@@ -391,7 +391,7 @@ test("owner completes registration and real image upload; approval publishes and
   await page.getByTestId("confirm-location").check();
   await expect(page.getByTestId("draft-saved")).toBeVisible({ timeout: 10000 });
   const stale = await page.context().newPage();
-  await stale.goto(`/dr/businesses/${await page.locator("input[name=id]").inputValue()}`);
+  await stale.goto(`/admin/businesses/${await page.locator("input[name=id]").inputValue()}`);
   await page.getByTestId("wizard-next").click();
   await expect(page.getByTestId("wizard-step-2")).toHaveAttribute(
     "aria-current",
@@ -520,7 +520,7 @@ test("image formats normalize to a stable preview; unsupported phone files have 
     URL.createObjectURL = (blob: Blob | MediaSource) => { (window as unknown as { lastImageType: string }).lastImageType = blob instanceof Blob ? blob.type : ""; return create(blob); };
   });
   await login(page);
-  await page.goto("/dr/businesses/new");
+  await page.goto("/admin/businesses/new");
   const field = page.getByTestId("upload-logoUrl");
   for (const mime of ["image/png", "image/jpeg", "image/webp"]) {
     const bytes = await page.evaluate((mime) => {

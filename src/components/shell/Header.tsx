@@ -29,7 +29,7 @@ export async function Header() {
       {signedIn && <SessionRenewal />}
       {/* Below 360 px (320 px phones) the row would not fit: slightly less padding and no search icon (search stays in the bottom bar). */}
       <div dir="ltr" className="mx-auto flex h-[72px] w-full max-w-[1440px] items-center justify-between gap-3 px-3 min-[360px]:px-4 sm:px-6 lg:px-8">
-        <Link href="/" aria-label="REGA Platform" className="shrink-0 rounded-xl">
+        <Link href="/" aria-label="Rega24" className="shrink-0 rounded-xl">
           <Logo />
         </Link>
 
@@ -46,7 +46,7 @@ export async function Header() {
             <span dir={contentDir}>{signedIn ? t("account") : t("login")}</span>
           </Link>
           {signedIn
-            ? <NextLink href="/dr/businesses/new" className={addClass}><span dir={contentDir}>{t("addAd")}</span></NextLink>
+            ? <NextLink href="/admin/businesses/new" className={addClass}><span dir={contentDir}>{t("addAd")}</span></NextLink>
             : <Link href="/for-business" className={addClass}><span dir={contentDir}>{t("addAd")}</span></Link>}
           {/* Physical edge anchor: localized account/action labels must not move the switcher. */}
           <LanguageSwitcher />

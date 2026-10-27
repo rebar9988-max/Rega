@@ -14,7 +14,7 @@ export const tr: LegalBuilder = (o, ctx) => {
 
     impressum: {
       title: "Impressum (yasal bilgiler)",
-      description: "REGA Platform'un DDG madde 5 uyarınca yasal bilgileri: hizmet sağlayıcı, adres, iletişim ve ücretsiz Kürt portalının içeriğinden sorumlu kişi.",
+      description: "Rega24'un DDG madde 5 uyarınca yasal bilgileri: hizmet sağlayıcı, adres, iletişim ve ücretsiz Kürt portalının içeriğinden sorumlu kişi.",
       blocks: [
         { h: "DDG § 5 uyarınca bilgiler", p: [who, o.responsiblePerson ? `Temsile yetkili / sorumlu kişi: ${o.responsiblePerson}` : "", address].filter(Boolean) },
         { h: "İletişim", p: [`Telefon: ${o.phone}`, `E-posta: ${o.publicEmail}`] },
@@ -23,7 +23,7 @@ export const tr: LegalBuilder = (o, ctx) => {
           : []),
         { h: "İçerikten sorumlu kişi (MStV § 18 fıkra 2)", p: [`${o.responsiblePerson || o.legalName}, ${address}`] },
         { h: "Dijital Hizmetler Yasası kapsamında irtibat noktası (DSA md. 11, 12)", p: [`Makamlar, Komisyon ve kullanıcılar bize elektronik olarak ${o.publicEmail} adresinden ulaşabilir. Almanca ve İngilizce iletişim kuruyoruz.`, "Yasa dışı içerikleri “İçeriği bildir” altındaki form ile bildirebilirsiniz."] },
-        { h: "Ücretsiz hizmet", p: ["REGA Platform ücretsizdir. Kullanıcılar ve işletmeler için herhangi bir ücret doğmaz."] },
+        { h: "Ücretsiz hizmet", p: ["Rega24 ücretsizdir. Kullanıcılar ve işletmeler için herhangi bir ücret doğmaz."] },
         { h: "Tüketici uyuşmazlıklarının çözümü", p: ["Bir tüketici hakem kurulu önündeki uyuşmazlık çözüm süreçlerine katılmaya ne istekliyiz ne de zorunluyuz."] },
         { h: "İçeriklerden sorumluluk", p: ["İşletme, hizmet ve konum kayıtları sahipleri tarafından veya onların bilgilerine dayanarak bizim tarafımızdan oluşturulur. Hizmet sağlayıcı olarak kendi içeriklerimizden genel yasalara göre sorumluyuz. Üçüncü kişilerin içeriklerinden ancak somut bir hak ihlalinden haberdar olduğumuz andan itibaren sorumluyuz; haberdar olduğumuzda bu içerikleri derhal kaldırırız.", "REGA Asistanı'nın yapay zekâ ile oluşturulan yanıtları hatalı olabilir ve danışmanlığın yerini tutmaz."] },
         { h: "Bağlantılardan sorumluluk", p: ["Hizmetimiz, içeriği üzerinde etkimiz olmayan üçüncü kişilerin harici web sitelerine bağlantılar içerir. Bu içerikler için sorumluluk kabul etmeyiz; sorumlu her zaman ilgili sağlayıcıdır. Hak ihlallerinden haberdar olduğumuzda bu bağlantıları derhal kaldırırız."] },
@@ -33,10 +33,10 @@ export const tr: LegalBuilder = (o, ctx) => {
 
     privacy: {
       title: "Gizlilik politikası",
-      description: "REGA Platform gizlilik politikası: veri sorumlusu, barındırma, hesap, iletişim formu, yapay zekâ asistanı, çerezler, GDPR haklarınız ve şikâyet hakkı.",
+      description: "Rega24 gizlilik politikası: veri sorumlusu, barındırma, hesap, iletişim formu, yapay zekâ asistanı, çerezler, GDPR haklarınız ve şikâyet hakkı.",
       blocks: [
         { h: "1. Veri sorumlusu", p: ["Bu web sitesindeki veri işlemenin Genel Veri Koruma Tüzüğü (GDPR) anlamındaki sorumlusu:", `${who}, ${address}`, `E-posta: ${o.publicEmail} · Telefon: ${o.phone}`] },
-        { h: "2. Genel bakış", p: ["REGA Platform, Almanya ve Avrupa'daki Kürt toplumu için ücretsiz bir rehberdir. Kişisel verileri yalnızca web sitesinin işletilmesi, kullanıcı hesabınız, sizinle iletişim ve hizmetin korunması için gerekli olduğu ölçüde işleriz. Veri satmayız; reklam veya takip ağları işletmeyiz."] },
+        { h: "2. Genel bakış", p: ["Rega24, Almanya ve Avrupa'daki Kürt toplumu için ücretsiz bir rehberdir. Kişisel verileri yalnızca web sitesinin işletilmesi, kullanıcı hesabınız, sizinle iletişim ve hizmetin korunması için gerekli olduğu ölçüde işleriz. Veri satmayız; reklam veya takip ağları işletmeyiz."] },
         { h: "3. Barındırma ve sunucu günlükleri", p: [`Web sitesi ${o.hostingProvider} tarafından işletilmektedir. Siteyi açtığınızda barındırma sağlayıcısı, teknik olarak gerekli verileri (özellikle IP adresi, tarih ve saat, istenen sayfa, tarayıcı türü ve işletim sistemi) siteyi sunmak, kararlı tutmak ve saldırıları savuşturmak için işler.`, "Hukuki dayanak: GDPR md. 6/1-f (güvenli ve istikrarlı işletmede meşru menfaat). Veriler uygun güvencelerle (AB standart sözleşme hükümleri veya AB-ABD Veri Gizliliği Çerçevesi) üçüncü ülkelere aktarılabilir. Sağlayıcıyla bir veri işleme sözleşmesi bulunmaktadır."] },
         { h: "4. Çerezler ve yerel depolama", p: ["Yalnızca istediğiniz hizmet için zorunlu olan, teknik olarak gerekli depolama yöntemlerini kullanırız (TDDDG § 25/2 no. 2). Bu nedenle çerez bandı göstermiyoruz."], ul: ["Oturum çerezi (Auth.js): yalnızca giriş yaptıktan sonra, oturumunuzu sürdürür (90 gün; siteyi her kullandığınızda yenilenir).", "Dil çerezi (REGA_LOCALE / NEXT_LOCALE): seçtiğiniz dili hatırlar (1 yıl).", "Tarayıcı depolaması “rega-theme” (localStorage): açık/koyu temayı hatırlar.", "Tarayıcı depolaması “rega-location” (localStorage): konum seçicide seçtiğiniz yeri (bir şehir ile ülkesi ve bölgesi) yalnızca tarayıcınızda hatırlar; ana sayfa, işletme listeleri ve harita bunu kullanabilir. Tarayıcı bu değeri bize göndermez; “Tüm şehirler” seçildiğinde veya site verileri silindiğinde silinir.", "Tarayıcı oturum depolaması: devam eden REGA Asistanı sohbeti için rastgele bir kimlik; sekmeyi kapattığınızda silinir."] },
         { h: "5. Erişim ölçümü ve analiz", p: [ctx.analytics ? `Şu analiz aracını kullanıyoruz: ${o.analyticsTool}. Zorunlu olmayan çerezler veya benzer teknolojiler kullanılıyorsa önceden onayınızı alırız (TDDDG § 25/1, GDPR md. 6/1-a).` : "Analiz veya takip araçları kullanmıyoruz ve reklam göstermiyoruz."] },
@@ -56,14 +56,14 @@ export const tr: LegalBuilder = (o, ctx) => {
 
     terms: {
       title: "Kullanım koşulları",
-      description: "REGA Platform kullanım koşulları: hiçbir ücret alınmadan ücretsiz kullanım, kayıtlar için kurallar, içerik denetimi, sorumluluk ve hesabın silinmesi.",
+      description: "Rega24 kullanım koşulları: hiçbir ücret alınmadan ücretsiz kullanım, kayıtlar için kurallar, içerik denetimi, sorumluluk ve hesabın silinmesi.",
       blocks: [
-        { h: "1. Kapsam", p: [`Bu koşullar, ${who}, ${address} tarafından işletilen REGA Platform'un (www.rega24.com) kullanımı için geçerlidir.`] },
-        { h: "2. Ücretsiz", p: ["REGA Platform kullanıcılar ve işletmeler için tamamen ücretsizdir. Ücret, abonelik, ücretli öne çıkarma veya ödeme işlevi yoktur."] },
+        { h: "1. Kapsam", p: [`Bu koşullar, ${who}, ${address} tarafından işletilen Rega24'un (www.rega24.com) kullanımı için geçerlidir.`] },
+        { h: "2. Ücretsiz", p: ["Rega24 kullanıcılar ve işletmeler için tamamen ücretsizdir. Ücret, abonelik, ücretli öne çıkarma veya ödeme işlevi yoktur."] },
         { h: "3. Hesap", p: ["İşletme eklemek için hesap gerekir. Doğru bilgi vermeli, erişim bilgilerinizi gizli tutmalı ve hesabınızın kötüye kullanımını bize derhal bildirmelisiniz. Kişi başına bir hesap öngörülmüştür."] },
         { h: "4. Kayıtlar ve katkılar için kurallar", p: ["Yalnızca yayımlamaya yetkili olduğunuz içeriği ekleyebilirsiniz. Özellikle şunlara izin verilmez:"], ul: ["yasa dışı, hakaret içeren, ayrımcı veya nefret içeren içerik;", "yanlış veya yanıltıcı bilgi, uydurma işletmeler veya yorumlar;", "spam, ilgisiz tekliflerin reklamı ve aynı hizmetin yinelenen kayıtları;", "üçüncü kişilerin haklarını (telif, marka, kişilik hakları) ihlal eden içerik;", "üçüncü kişilere ilişkin, onların onayı olmadan verilen bilgiler;", "kendi deneyiminizi yansıtmayan yorumlar, kendi işletmenize yazılan yorumlar ve satın alınmış ya da karşılıklı yazılmış yorumlar."] },
         { h: "5. İnceleme ve “Rega Verified”", p: ["Yeni kayıtlar yayımlanmadan önce tarafımızca incelenir; reddedilebilir veya düzeltme için geri gönderilebilir. “Rega Verified” işareti, kaydın belirli bilgilerini kontrol ettiğimiz anlamına gelir. Bir tavsiye değildir ve teklifin kalitesi için garanti değildir.", "Yorumlar ile iş ilanı, etkinlik ve rehber kayıtları da yalnızca inceleme sonrasında yayımlanır. Bu kuralları ihlal eden katkıları reddedebilir veya kaldırabiliriz."] },
-        { h: "6. Hakların verilmesi", p: ["REGA Platform'da kayıtlarınızı ve görsellerinizi tüm dil sürümlerinde göstermemiz ve bunun için teknik olarak çoğaltmamız için bize basit, münhasır olmayan bir hak tanırsınız. Haklar sizde kalır."] },
+        { h: "6. Hakların verilmesi", p: ["Rega24'da kayıtlarınızı ve görsellerinizi tüm dil sürümlerinde göstermemiz ve bunun için teknik olarak çoğaltmamız için bize basit, münhasır olmayan bir hak tanırsınız. Haklar sizde kalır."] },
         { h: "7. Bildirim ve kaldırma", p: ["Yasa dışı veya kurallara aykırı içerik “İçeriği bildir” ile bildirilebilir. Yasalar veya bu koşullar ihlal edilirse içeriği kaldırabilir ve hesapları engelleyebiliriz; yasanın öngördüğü ölçüde ilgilileri bilgilendirir ve gerekçeyi belirtiriz."] },
         { h: "8. Sorumluluk", p: ["Kasıt ve ağır ihmal, yaşam, beden ve sağlığın zarar görmesi ve Ürün Sorumluluğu Yasası kapsamında sınırsız sorumluyuz. Hafif ihmalde yalnızca esaslı sözleşme yükümlülüklerinin ihlalinde ve öngörülebilir, tipik zararla sınırlı olarak sorumluyuz. Kayıtlardaki bilgiler, üçüncü kişilerin teklifleri ve yapay zekâ yanıtlarının doğruluğu için garanti vermeyiz. Sürekli erişilebilirlik borcumuz yoktur."] },
         { h: "9. Hesabın silinmesi", p: [`Bize ${o.publicEmail} adresinden yazarak hesabınızı istediğiniz zaman sildirebilirsiniz. Hesap verilerinizi sileriz; yasal saklama yükümlülükleri yoksa kayıtlar kaldırılır veya anonimleştirilir.`] },

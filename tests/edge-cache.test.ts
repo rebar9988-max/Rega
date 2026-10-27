@@ -37,7 +37,7 @@ test("personal, private and non-GET requests are never cached", () => {
   assert.equal(edgeCacheKey(req("/ckb/guides", { headers: { authorization: "Bearer x" } })), null);
   assert.equal(edgeCacheKey(req("/ckb/guides", { method: "POST" })), null);
   assert.equal(edgeCacheKey(req("/ckb/guides", { method: "HEAD" })), null);
-  for (const p of ["/api/v1/health", "/dr", "/dr/businesses", "/_next/static/x.js", "/ckb/login", "/de/login?next=%2Fdr", "/ckb/account"]) assert.equal(edgeCacheKey(req(p)), null, p);
+  for (const p of ["/api/v1/health", "/admin", "/admin/businesses", "/_next/static/x.js", "/ckb/login", "/de/login?next=%2Fadmin", "/ckb/account"]) assert.equal(edgeCacheKey(req(p)), null, p);
   assert.ok(edgeCacheKey(req("/ckb/guides")));
   assert.ok(edgeCacheKey(req("/drinks"))); // only the /dr segment itself is private
 });

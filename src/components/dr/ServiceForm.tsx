@@ -5,7 +5,7 @@
  */
 import { useActionState, useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { saveServiceAction, type ServiceFormState } from "@/app/dr/services/actions";
+import { saveServiceAction, type ServiceFormState } from "@/app/admin/services/actions";
 
 export type ServiceInitial = {
   id?: string; businessId?: string; categoryId?: string | null; name?: string; nameCkb?: string | null; nameKmr?: string | null; nameAr?: string | null; nameTr?: string | null;

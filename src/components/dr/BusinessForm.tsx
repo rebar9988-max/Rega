@@ -13,7 +13,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { LOCALES, LOCALE_META, localeSuffix, type Locale } from "@/config/locales";
 import { isValidCoordinate } from "@/lib/coordinates";
 import type { GeocodeHit } from "@/lib/geocoder-parse";
-import { geocodeAction, saveBusinessAction, type BusinessFormState } from "@/app/dr/businesses/actions";
+import { geocodeAction, saveBusinessAction, type BusinessFormState } from "@/app/admin/businesses/actions";
 import { WEEK, type WeekDay } from "@/lib/opening-hours";
 import { normalizeWhatsapp } from "@/lib/whatsapp";
 import { BusinessImageField } from "./BusinessImageField";

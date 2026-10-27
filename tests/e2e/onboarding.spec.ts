@@ -12,7 +12,7 @@ import { UNCONFIRMED_NOTICE, confirmEmailOf } from "./confirm-email";
 const stamp = Date.now().toString(36);
 const OWNER = { name: "E2E Owner", email: `owner-${stamp}@example.org`, password: "owner-pass-12345" };
 
-async function login(page: Page, email: string, password: string, next = "%2Fdr") {
+async function login(page: Page, email: string, password: string, next = "%2Fadmin") {
   await page.goto(`/de/login?next=${next}`);
   await page.getByLabel("E-Mail", { exact: true }).fill(email);
   await page.getByLabel("Passwort", { exact: true }).fill(password);
@@ -25,7 +25,7 @@ async function login(page: Page, email: string, password: string, next = "%2Fdr"
  * Next stores the progress as a draft on the server.
  */
 async function fillOwnerSteps(page: Page, name: string, opts: { german?: boolean } = {}) {
-  await page.goto("/dr/businesses/new");
+  await page.goto("/admin/businesses/new");
   await expect(page.getByTestId("wizard-step-1")).toHaveAttribute("aria-current", "step");
   await page.getByLabel("Name", { exact: true }).fill(name);
   await page.getByRole("combobox", { name: "Kategorie", exact: true }).selectOption({ label: "Recht" });
@@ -55,7 +55,7 @@ test("for-business page: free statement, steps, verified explanation, register C
   await expect(page.getByRole("main")).toContainText("Rega Verified");
   await expect(page.getByRole("main")).not.toContainText(/€|\bEUR\b|Preis|Premium/);
   await page.getByTestId("cta-register").click();
-  await expect(page).toHaveURL(/\/de\/register\?next=%2Fdr%2Fbusinesses%2Fnew$/);
+  await expect(page).toHaveURL(/\/de\/register\?next=%2Fadmin%2Fbusinesses%2Fnew$/);
 });
 
 test("header 'add listing' goes to /for-business when logged out", async ({ page }) => {
@@ -97,7 +97,7 @@ test("owner registers, creates a listing, submits it; an admin approves; it is p
 
   // 2. Sign in, create a listing in the dashboard.
   await login(page, OWNER.email, OWNER.password);
-  await expect(page).toHaveURL(/\/dr\/businesses$/); // owners land on their listings, not on platform totals
+  await expect(page).toHaveURL(/\/admin\/businesses$/); // owners land on their listings, not on platform totals
   const name = `E2E Inserat ${stamp}`;
   // Owners cannot publish: only "submit for review" exists.
   await fillOwnerSteps(page, name, { german: true });
@@ -118,7 +118,7 @@ test("owner registers, creates a listing, submits it; an admin approves; it is p
   expect(hidden.data.some((b: { name: string }) => b.name === name)).toBe(false);
 
   // 3. An owner cannot reach admin pages or self-verify through the API.
-  expect((await page.request.get("/dr/users")).status()).not.toBe(200);
+  expect((await page.request.get("/admin/users")).status()).not.toBe(200);
   const patch = await page.request.patch(`/api/v1/businesses/${id}`, { data: { verified: true, featured: true } });
   expect(patch.status()).toBe(403);
   const publish = await page.request.patch(`/api/v1/businesses/${id}`, { data: { status: "published" } });
@@ -132,12 +132,12 @@ test("owner registers, creates a listing, submits it; an admin approves; it is p
   const stored = await (await admin.request.get(`/api/v1/businesses/${id}`)).json();
   expect(stored.data.verified).toBe(false);
   expect(stored.data.featured).toBe(false);
-  await admin.goto(`/dr/businesses?status=pending&q=${encodeURIComponent(name)}`);
+  await admin.goto(`/admin/businesses?status=pending&q=${encodeURIComponent(name)}`);
   const row = admin.locator("tr", { hasText: name });
   await expect(row.getByTestId("row-status")).toHaveText("Ausstehend");
   await row.getByTestId("moderation").getByRole("button", { name: "Prüfen & veröffentlichen" }).click();
   await expect(admin.locator("tr", { hasText: name })).toHaveCount(0, { timeout: 15_000 }); // no longer pending
-  await admin.goto(`/dr/businesses?q=${encodeURIComponent(name)}`);
+  await admin.goto(`/admin/businesses?q=${encodeURIComponent(name)}`);
   await expect(admin.locator("tr", { hasText: name }).getByTestId("row-status")).toHaveText("Veröffentlicht");
   await adminCtx.close();
 
@@ -156,12 +156,12 @@ test("an admin can return a pending listing for changes", async ({ page, browser
   const adminCtx = await browser.newContext();
   const admin = await adminCtx.newPage();
   await login(admin, ADMIN.email, ADMIN.password);
-  await admin.goto(`/dr/businesses?status=pending&q=${encodeURIComponent(name)}`);
+  await admin.goto(`/admin/businesses?status=pending&q=${encodeURIComponent(name)}`);
   const row = admin.locator("tr", { hasText: name });
   await row.getByPlaceholder("Grund (für den Inhaber)").fill("Bitte Öffnungszeiten ergänzen");
   await row.getByRole("button", { name: "Zur Überarbeitung zurück" }).click();
   await expect(admin.locator("tr", { hasText: name })).toHaveCount(0, { timeout: 15_000 });
-  await admin.goto(`/dr/businesses?q=${encodeURIComponent(name)}`);
+  await admin.goto(`/admin/businesses?q=${encodeURIComponent(name)}`);
   await expect(admin.locator("tr", { hasText: name }).getByTestId("row-status")).toHaveText("Entwurf");
   await adminCtx.close();
 });
@@ -169,7 +169,7 @@ test("an admin can return a pending listing for changes", async ({ page, browser
 test("owner wizard: Next needs a confirmed map pin, Back keeps what was typed, the draft is saved once, WhatsApp is checked", async ({ page }) => {
   await login(page, OWNER.email, OWNER.password);
   const name = `E2E Schritte ${stamp}`;
-  await page.goto("/dr/businesses/new");
+  await page.goto("/admin/businesses/new");
   // Step 1 needs a name and a category.
   await page.getByTestId("wizard-next").click();
   await expect(page.getByTestId("step-error")).toBeVisible();
@@ -201,13 +201,13 @@ test("owner wizard: Next needs a confirmed map pin, Back keeps what was typed, t
   await page.getByTestId("save-draft").click();
   await expect(page.getByTestId("draft-saved")).toBeVisible();
   // Saving the draft again (and the earlier Next) never created a second listing.
-  await page.goto(`/dr/businesses?q=${encodeURIComponent(name)}`);
+  await page.goto(`/admin/businesses?q=${encodeURIComponent(name)}`);
   await expect(page.locator("tr", { hasText: name })).toHaveCount(1);
 });
 
 test("an owner sees only their own listings", async ({ page }) => {
   await login(page, OWNER.email, OWNER.password);
-  await page.goto("/dr/businesses");
+  await page.goto("/admin/businesses");
   await expect(page.locator("tbody")).not.toContainText("Zagros Restaurant");
   await expect(page.locator("tbody")).toContainText("E2E Inserat");
 });

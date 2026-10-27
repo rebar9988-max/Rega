@@ -1,4 +1,5 @@
 "use server";
+import project from "@/config/project.json";
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -21,7 +22,7 @@ export type EntryFormState = { error?: "invalid" | "forbidden" | "unverified" | 
 const nameSel = { nameEn: true, nameCkb: true, nameKmr: true, nameDe: true, nameAr: true, nameFa: true, nameTr: true } as const;
 /** The text values of a row (names in every language), without ids. */
 const texts = (row: Record<string, unknown> | null) => Object.entries(row ?? {}).flatMap(([k, v]) => (k !== "id" && typeof v === "string" ? [v] : []));
-const origin = () => (process.env.AUTH_URL ? new URL(process.env.AUTH_URL).origin : `https://${process.env.CANONICAL_HOST || "www.rega24.com"}`);
+const origin = () => (process.env.AUTH_URL ? new URL(process.env.AUTH_URL).origin : `https://${process.env.CANONICAL_HOST || project.canonicalHost}`);
 
 /** Create / edit an entry of a content section (jobs, events, guides). Validation, scoping and publish rules run here. */
 export async function saveEntryAction(_prev: EntryFormState, formData: FormData): Promise<EntryFormState> {
@@ -94,10 +95,10 @@ export async function saveEntryAction(_prev: EntryFormState, formData: FormData)
 
   await writeAudit({ actorId: user.id, actorEmail: user.email, action: `${section}.${existing ? "update" : "create"}`, entity: "Listing", entityId: entryId, after: { status } });
   if (wantsSubmit && existing?.status !== "pending" && status === "pending") {
-    await sendEmail({ to: teamInbox(), subject: `[REGA] New ${section} entry to review: ${translations[0].title}`.slice(0, 200), text: `${translations[0].title}\nSubmitted by ${user.email}\nReview: ${origin()}/dr/content/${section}?status=pending` });
+    await sendEmail({ to: teamInbox(), subject: `[REGA] New ${section} entry to review: ${translations[0].title}`.slice(0, 200), text: `${translations[0].title}\nSubmitted by ${user.email}\nReview: ${origin()}/admin/content/${section}?status=pending` });
   }
   revalidatePath("/", "layout");
-  redirect(`/dr/content/${section}/${entryId}?${status === "published" && wantsPublish ? "published" : status === "pending" ? "submitted" : "saved"}=1`);
+  redirect(`/admin/content/${section}/${entryId}?${status === "published" && wantsPublish ? "published" : status === "pending" ? "submitted" : "saved"}=1`);
 }
 
 const moderationSchema = z.object({ id: z.string().min(1).max(64), section: z.string().refine(isContentSection), intent: z.enum(["publish", "reject", "archive", "restore", "verify", "unverify"]), reason: z.string().trim().max(500).optional() });

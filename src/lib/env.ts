@@ -1,3 +1,4 @@
+import project from "@/config/project.json";
 /**
  * Shared environment access. SERVER ONLY for secrets.
  * Anything read through `serverEnv` must never be imported into a client component.
@@ -8,14 +9,14 @@ import { z } from "zod";
 const serverSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   APP_ENV: z.enum(["development", "staging", "production"]).default("development"),
-  CANONICAL_HOST: z.string().default("www.rega24.com"),
+  CANONICAL_HOST: z.string().default(project.canonicalHost),
   DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
   DIRECT_DATABASE_URL: z.string().optional(),
   AUTH_SECRET: z.string().min(16, "AUTH_SECRET must be at least 16 chars"),
   AUTH_URL: z.string().url().optional(),
   // disabled | auto (default: every provider whose API key is set, with fallback) | gemini | grok | openai | groq | deepseek |
   // openrouter | anthropic (that provider only). Public use is additionally gated by the admin-controlled feature flag
-  // "public.aiSearch" (/dr/ai).
+  // "public.aiSearch" (/admin/ai).
   AI_PROVIDER: z.enum(["disabled", "auto", "gemini", "grok", "openai", "groq", "deepseek", "openrouter", "anthropic"]).default("auto"),
   // Model defaults: vendor-listed, non-deprecated ids, checked against each vendor's models/deprecations page on
   // 2026-10-01 (see README "AI Gateway"). Any *_MODEL variable overrides its default without a code change.
@@ -57,7 +58,7 @@ const serverSchema = z.object({
   // E-mail (verification, password reset, contact + report notifications). "none" = nothing is sent.
   EMAIL_PROVIDER: z.enum(["none", "resend"]).default("none"),
   RESEND_API_KEY: z.string().optional(),
-  EMAIL_FROM: z.string().min(3).default("REGA Platform <noreply@regaplatform.com>"),
+  EMAIL_FROM: z.string().min(3).default("Rega24 <noreply@regaplatform.com>"),
   // Where contact messages and content reports are announced.
   CONTACT_INBOX: z.string().email().default("info@regaplatform.com"),
   // Section registry overrides: comma-separated section keys (config/sections.ts), no code change needed.

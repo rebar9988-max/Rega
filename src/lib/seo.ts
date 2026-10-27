@@ -1,3 +1,4 @@
+import project from "@/config/project.json";
 /**
  * SEO helpers: canonical host, per-page alternates (hreflang), Open Graph / X metadata and
  * Organization structured data. Every URL is built on the canonical host (https://www.rega24.com),
@@ -8,10 +9,10 @@ import { DEFAULT_LOCALE, LOCALES, LOCALE_META, type Locale } from "@/i18n/locale
 
 /**
  * Brand identity. "REGA" alone is ambiguous (Real Estate General Authority, Saudi Arabia is an unrelated
- * organisation), so the full name "REGA Platform" is used for every entity signal: <title>, og:site_name,
+ * organisation), so the full name "Rega24" is used for every entity signal: <title>, og:site_name,
  * Organization / WebSite JSON-LD, footer, social display names.
  */
-export const BRAND_NAME = "REGA Platform";
+export const BRAND_NAME = project.name;
 export const BRAND_NAME_KU = "ڕێگا";
 export const SITE_NAME = BRAND_NAME;
 
@@ -34,7 +35,7 @@ export const CONTACT = {
 } as const;
 
 export function siteHost(): string {
-  return process.env.CANONICAL_HOST || "www.rega24.com";
+  return process.env.CANONICAL_HOST || project.canonicalHost;
 }
 export function siteOrigin(): string {
   return `https://${siteHost()}`;

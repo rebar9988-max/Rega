@@ -9,11 +9,11 @@ import { ADMIN } from "./global-setup";
 const stamp = Date.now().toString(36);
 
 async function login(page: Page) {
-  await page.goto("/de/login?next=%2Fdr");
+  await page.goto("/de/login?next=%2Fadmin");
   await page.getByLabel("E-Mail", { exact: true }).fill(ADMIN.email);
   await page.getByLabel("Passwort", { exact: true }).fill(ADMIN.password);
   await page.getByRole("button", { name: "Anmelden" }).click();
-  await expect(page).toHaveURL(/\/dr$/);
+  await expect(page).toHaveURL(/\/admin$/);
 }
 
 async function stubBasemap(page: Page) {
@@ -24,7 +24,7 @@ async function stubBasemap(page: Page) {
 }
 
 async function fillBasics(page: Page, name: string, address: string, city: string) {
-  await page.goto("/dr/businesses/new");
+  await page.goto("/admin/businesses/new");
   await page.getByLabel("Name", { exact: true }).fill(name);
   await page.getByRole("combobox", { name: "Kategorie", exact: true }).selectOption({ label: "Recht" });
   await page.getByLabel("Telefon").fill("+49 30 000000");
@@ -150,7 +150,7 @@ test("location audit, filter and list publish guard for existing businesses; API
   await expect(page.getByTestId("form-notice")).toHaveText("Gespeichert.");
   const id = page.url().split("?")[0].split("/").pop()!;
 
-  await page.goto(`/dr/businesses?loc=missing&q=${encodeURIComponent(name)}`);
+  await page.goto(`/admin/businesses?loc=missing&q=${encodeURIComponent(name)}`);
   await expect(page.getByTestId("location-audit")).toBeVisible();
   expect(Number((await page.getByTestId("audit-auditMissing").textContent())?.replace(/\D/g, ""))).toBeGreaterThan(0);
   const row = page.getByRole("row", { name: new RegExp(name) });

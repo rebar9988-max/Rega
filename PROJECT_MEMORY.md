@@ -678,12 +678,163 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
 - Production impact intended: none. CI on `main` will still run. The Worker must not be replaced by this commit.
 
 
+
+## REGA24 centralized technical reference — 2026-10-25
+
+- Task: infrastructure/source audit, root system map/runbook, agent integration and offline documentation validation.
+- Baseline: e8e2b69b0d3da1e88cf75e904cf6ff4a4e8b90a8; isolated branch docs/rega24-system-map-20261025.
+  Identity guard passed; GitHub repo metadata/default main and main Wrangler excerpt read through connector.
+- Changes: [system map](REGA24_SYSTEM_MAP.md), [troubleshooting](REGA24_TROUBLESHOOTING.md),
+  [generated inventory](docs/REGA24_INVENTORY.md), script/PR-only docs validation workflow, AGENTS/CLAUDE entry points.
+  Source/config remains authoritative; central Doc stays summary/history. No application or deployment config changed.
+- Live read-only Cloudflare: web and Python Worker settings/deployments, custom domains, REGA zone DNS/TLS,
+  R2 bucket/domain/CORS. Web version 79627fce-fc09-4df7-9094-3e8c401f2b6a at 100%; Python
+  ce53715f-a13a-459c-a7b0-ecd6130e74e2 at 100%. No public HTTP functional check claimed.
+- Live Neon metadata: Rega24 / lucky-glitter-73195208, PG18 eu-central-1; 10 branches including primary/default
+  production br-floral-hall-b22rpgrw (ready, not protected). No SQL/connection strings or database writes.
+- Verified risks: OPENAI_API_KEY/XAI_API_KEY still plain_text (values not documented); R2 CORS only allows old
+  regaplatform.com origins; legacy website domains remain enabled despite historical retired wording. No repair
+  attempted: documentation scope. Existing central-memory release/security/backup holds remain uncleared.
+- Unknown: exact runtime DB branch match, applied production ledger/backup restore, billing/provider quotas,
+  mail/OAuth end-to-end, current Builds config/CI conclusions. Executor restricted/no injected credentials.
+- Validation: offline checker PASS (7 documents, 377 source fingerprints, 102 env names, 10 procedures);
+  controlled negative cases reject source drift, broken links/anchors and missing rollback field. Node syntax,
+  ESLint for validator and git diff whitespace checks PASS. No application/build tests needed for documentation
+  and isolated offline tooling; no hosted CI triggered.
+- Production impact: no deploy, migration, domain/Worker/secret change, deletions, object writes or paid service.
+  No R&L changes. No push/merge requested or performed; local commit will contain only documentation/tooling.
+- Next: use the map/runbook for future work; re-read latest hub and reverify live state before any release;
+  address security/CORS only as separately scoped changes, preserving zero-cost and existing release gates.
+
+
+## Unified Rega24 office — 2026-10-25 continuation
+
+- Continued from documentation commit 7301bc6; isolated branch feat/rega24-central-admin-20261025. Official identity
+  Rega24; existing Worker/package identifiers retained. No R&L modifications.
+- Audit found extra Worker rega (no custom domains/Builds triggers; workers.dev/previews enabled), no matching REGA
+  Pages project, web Builds dry-run. Preserved candidate resources until dependency/rollback verification.
+- Live changes verified: canonical R2 CORS origins added (legacy rule preserved); OpenAI/xAI storage converted
+  atomically to secret_text with all 28 binding names/types otherwise preserved; both Workers redact query strings.
+  Configuration-only web version 93023599-8b90-48a2-9449-33ea286fa34e and Python b3e29ec6-d74c-4843-8b87-c110939d1987
+  each active 100%. These do not contain prepared admin application code. Provider key rotation remains unverified.
+- Read-only production SQL: neondb/neondb_owner, PG18.6, 14 finished/0 unfinished migrations, 3 businesses/3 memberships;
+  one allowlisted owner and one non-allowlisted stored SUPER_ADMIN (existing effectiveRole demotes latter to USER).
+  No data/role/migration/object writes. Neon metadata free_v3 and 10-branch ceiling verified; no provider branch created.
+- Prepared app: actual /admin route tree with legacy /dr redirects, fresh RBAC, existing modules, Super Admin system
+  page, atomic audited public-review setting, scoped media browser and provider console entry points. The rewrite trial
+  was removed for a single actual route tree; repeated private navigation/API prefetches were subsequently corrected
+  using no-prefetch sidebar links and a plain health-report anchor.
+- Central manifest drives canonical identity; static validation checks Worker names/routing. Dependency patches
+  remove npm audit findings (0); Zod4 PATCH omission regressions prevent creation defaults from mutating saved data.
+  Prepared auth logs omit raw provider messages/stacks. Both prepared deploy workflows share exact-main-CI gate.
+- Ordinary build blocked by enforced Google Font network policy; functional builds use real-font test-only mocks,
+  never for deploy. Browser/QA outcomes and exact deployment blockers in docs/REGA24_CONSOLIDATION.md.
+- Remaining: provider-side revoke/rotate + protected GitHub replacement; existing backup/restore release hold;
+  Cloudflare Billing Read 403 (OAuth lacks scope); production browser connector UNAUTHORIZED; restricted executor
+  without protected deployment credentials. No inference, paid activation/upgrade, resource/domain removal, remote
+  merge/application deploy or production migration. No 100/100 claim. Continue safe work from acceptance report.
+
+- Final QA: full unit/integration 344 PASS/0 fail/0 skip on separate local DB; targeted redirect/release gates PASS;
+  Python 7 PASS; 42 distinct selected browser scenarios PASS (21 auth/security/office + 16 geography/CMS/content/session
+  + 5 business/map/publication). Eight axe analyses en/ckb at 360/1366px: zero violations/overflow; screenshots inspected.
+  Updated mocked provider identity and explicit test geocoder/mail mode prevent inherited local config/test drift.
+- Functional Node and OpenNext Workers builds PASS with test-only actual-font response mock; ordinary Node/Worker
+  builds fail at blocked Google Fonts. Dry-run PASS (16009.65 KiB raw/3659.66 KiB gzip; 283 assets); built workerd runtime
+  smoke PASS (DB, auth/privacy, legacy redirect, public query and validation). No mocked artifact is deployable; the
+  shared release gate explicitly rejects NEXT_FONT_GOOGLE_MOCKED_RESPONSES and mismatched/superseded SHA/account.
+- Offline docs check: 8 docs, 387 source fingerprints, 107 env names, 10 procedures, links/anchors PASS; manifest-drift
+  negative test PASS. Local artifact summary/screenshots in /workspace/artifacts/rega24-unified/. Config-only active
+  versions re-read unchanged at 100%, data count readback remains 3 businesses/3 memberships/14 finished/0 unfinished.
+
+- Additional real workerd media codec/local S3 test PASS; final typecheck/lint/whitespace and docs checks PASS.
+  No normal production build, source merge or new admin application deployment is claimed.
+
+- Integration checkpoint: remote main advanced to 7011eb5 (documentation/tooling only). It is merged locally without
+  app-source changes. Preserve docs-only deploy skipping, CI validation and existing command compatibility; consolidate
+  inventories/checkers to one implementation with generated JSON/Markdown views. No remote main update or deploy.
+- Latest central hub also contains a separate proposed replacement-Worker/internal-AI migration checkpoint. It remains
+  blocked and is not adopted by this branch: preserve required Python module/technical Worker IDs and no unnecessary
+  replacement. Its reported external curl success does not override this executor's actual default-proxy CONNECT403.
+
+- Post-merge checks PASS: 17 scope/release/identity/workflow cases, TypeScript/ESLint, both legacy CLI wrappers,
+  manifest-drift rejection and redacted secret-pattern rejection. One canonical generator/checker; two generated
+  views, no duplicate CI docs workflow. Current inventory 8 docs/387 sources/107 env names/10 procedures.
+
+
+## Rega24 October26 continuation — hosted CI and live target reconciliation
+
+- Feature branch9276ed2 pushed; draft PR73 opened. Core CI40256084164 running; normal Node build already passed.
+  Cloudflare build f39a26b1-ee9d-4034-aaaf-042df45445f7 at9276ed2 completed normal npm build, then failed preview for
+  missing previews block. GitHub CLI manual dispatch Forbidden; used supported connector PR flow. No main update.
+- Only own feature preview fcdb7c667f24407bae4c85b3c29423eb now auto_build=false and dry-run deploy, HTTP200/readback.
+  Stored failed-build diagnostic contained a key-shaped OpenAI value; value never returned/copied. Original source
+  UNKNOWN; revocation and secure replacement remain required. Do not export raw logs.
+- PR73 old Neon workflow created br-sparkling-thunder-b22kukdq, expiresNovember9, no production SQL. Prepared workflow
+  now opt-in neon-preview label; disposable core CI requires no provider branch. No branches deleted by this session.
+- CRITICAL newer live state: web Worker is rega24, same stable tag7b845cda2ee749c89c4f9b83490609b4 and deployment history;
+  rega-platform endpoint404. Both official/legacy website custom domains now rega24. Discovered version1a2c3a34 at100%.
+  Rename/upload not performed by this session; exact deployed SHA unknown. Main7011eb5 still has stale target.
+- Reconciled prepared manifest/Wrangler/guard/workflows to existing rega24, retained package health identifier and all
+  R&L rules/resources. New read-only production-target gate verifies protected account, existing stable tag, Python
+  presence and both domains; missing permission/ownership drift blocks release and secret sync, never recreates Worker.
+- Current Worker redaction had regressed false. Reapplied settings-only privacy on verified existing target:
+  HTTP200/readback true, all28 binding names/types unchanged. Deployment cf37b341-5e5c-4703-915b-731aeefa6bfd,
+  version f7a118cd-6f64-4206-a19e-ec5b434a5bc9 at100%. Initial malformed multipart400/nochange, then corrected.
+- Neon list now includes concurrent fresh backup br-broad-queen-b2f9p1p0 and restore-verify br-proud-cloud-b2d38n80;
+  metadata does not certify actual restoration. Read hub’s latest checkpoint, no stale no-fresh-copy claim.
+- Application release/100 blocked by verified restoration, provider revocation/replacement, billing entitlement,
+  protected access and final-head CI/production QA. Continue exact evidence in docs/REGA24_CONSOLIDATION.md.
+
+Target reconciliation validation: 18 pipeline/identity/target tests PASS, including wrong/missing tag/service/domain, duplicate ownership, forbidden API, missing token, retired name and wrong account. TypeScript/ESLint PASS; all10 workflow YAML files parsed; docs validation PASS (8docs/388source fingerprints/107env names/10procedures). Executor policy re-read revision28: restricted/enforced, package-manager hosts plus binaries.prisma.sh only; no injected secrets/outbound identities. No policy bypass.
+
+Latest shared-hub recovery evidence (2026-10-26, REPORTED from the completed other completed session, not independently repeated here): Neon-native reconstruction compared 37public tables/2325rows with matching row/schema/index/constraint digests and14migration records; four nullable social fields were rehearsed only on the isolated restore branch, never production. Backup and restore computes were suspended. This supersedes earlier absence-of-native-proof wording; it does not certify independent PG18 dump restore, functions/grants/enums or R2 backup, and does not clear remaining release holds. Reuse that completed investigation.
+
+Publication/readback checkpoint: bc03c49 plus documentation follow-up ddcd06e pushed to PR73. Main remains7011eb5; no merge/app deployment. Hosted40256084164 superseded by final-source CI40257204065. Neon integration40257204063 SUCCESS with create/delete jobs both SKIPPED (opt-in behavior verified). Full local unit/integration347PASS/0fail/0skip; typecheck/lint/18focused checks and reconciled dry-run PASS. Central hub append bc03c49 read back exactly once; revision conflict was safely retried before append, preserving concurrent updates. Native-copy recovery evidence is reused as REPORTED; independent backup/media and other release holds remain.
+
+Media TLS continuation: canonical zone already1.2; R2 media.regaplatform.com readback minimum1.0 prompted scoped domain-only PUT enabled=true/minTLS1.2. HTTP200/readback1.2, ownershipactive; immediate SSLstatusinitializing must reachactive before final proof. No bucket/object/DNS or other-zone/R&L mutations. Application source/pipeline fingerprints unchanged; documentation-only follow-up.
+
+R2 TLS final verification around02:20Z: HTTP200, enabledtrue/minTLS1.2, SSLactive/ownershipactive after transient initializing→pending. Official Cloudflare docs confirm independent R2 TLS policy. No further mutation/retry was required. Both root documents and acceptance updated; no app/pipeline source change.
+
+
+October26 analytics diagnosis (01:55–02:25UTC window): Cloudflare GraphQL reported337 HTTP504, all requestSource=edgeWorkerCacheAPI under the synthetic /__rega-edge-cache key namespace. Source edge-cache.ts uses cache.match; official Cloudflare Cache API documentation confirms an absent/expired item logs internal504 while returning undefined to the Worker. These were NOT evidence of client-visible outage. Excluding synthetic cache paths, returned groups contained no5xx (including1532 www200 and14apex301); these are bounded adaptive analytics, not an end-to-end journey test. Worker analytics reported1364requests/0exceptions; schema confirms CPU p50/p99 units microseconds, observed19483/650432µs (19.483/650.432ms). This is not billing/Free capacity proof or a universal latency score. Never infer plan entitlement or site downtime from unfiltered counters. Root-cause documentation: https://developers.cloudflare.com/workers/runtime-apis/cache/ and request-source filtering in Cloudflare analytics.
+
 ## Repository cleanup — 2026-10-26 — PR #76 (not deployed)
 
 Baseline main `7011eb5`; remote recovery checkpoint `checkpoint/rega24-before-cleanup-20261026` and local full-history bundle created first. Isolated cleanup branch removes two unreachable UI components and consolidates directory/search business cards without changing their rendered output (448 comparisons pass). Reuses PR #71's tracked-path inventory fix/test; ignores Python caches. Two compatible transitive lockfile updates reduce npm audit findings 10→8. No direct dependency/workflow/asset/migration/data/infrastructure deletion. Active PRs retained; #68/#72/#75 own existing no-op/Neon/target work. Details: `docs/repository-cleanup-2026-10-26.md`.
 
 Local lint/typecheck, Node/Worker builds, dry-run, Python 7 and inventory regression pass. Full Node suite 331 pass/1 pre-existing tsx IPC EPERM failure/4 DB skips; hosted final-head checks required. Canonical live rega24 deployment cf37b341/version f7a118cd observed read-only. Main's retired target, deployed-source provenance and credential-release holds still block merge/deploy. No 100/100 claim; next: review PR #76 checks and reconcile #75 release gates.
 
+
+October26 deployment continuation after explicit owner request “Deploy100/100”: main advanced to5a9a95c (cleanup#76).
+Integration preserves its verified consolidated business cards/deletions, tracked-inventory regression and dependency
+updates without importing PR71 schema or PR74 page changes. Shared inventory wrapper remains canonical; the existing
+untracked-artifact regression exercises it. Main's old target is still rega-platform; prepared branch targets the
+verified existing rega24. Final deployment must use reviewed main, exact successful CI and live-target preflight.
+CI40257680473 ended cancelled at its35-minute job limit; logs show slow Ubuntu browser-dependency installation and
+E2E still running at cancellation, with no completed full-suite result. CI budget now60minutes, preserving every
+check. No timeout/test assertion was weakened. Python deployment is now explicit main-only manual dispatch with the
+same exact-CI/target gates: a web release must not redeploy an unchanged backend, rotate its token or start inference.
+Existing Python integration is preserved. Protected API checks now reject redirects, matching focused PR75's safety
+requirement. Old provider revocation, runtime DB ownership, billing and independent backup/media evidence remain
+unverified; explicit deployment intent does not certify those facts or permit a false100 score.
+
+
+Prepared release-proof improvements (not live until deployment): public health emits sourceSha only for a validated
+40-hex commit value, never arbitrary environment text. Deploy tags/messages and non-secret REGA_COMMIT_SHA identify
+reviewed source while --keep-vars preserves configuration. Post-deploy script scripts/health/release-proof.mjs checks
+100% active-version tag, health/database, canonical200, apex301, legacy admin308/query preservation and anonymous
+admin sign-in without an exposed sidebar. Protected provider authorization never goes to public endpoints. Existing
+Beta health now runs after successful deployment, followed by the existing production browser check; no new paid
+monitor. Browser verification budget45minutes accounts for the same measured slow dependency download.
+Neon metadata read explicitly for lucky-glitter-73195208 maps production br-floral-hall-b22rpgrw to endpoint
+ ep-autumn-glitter-b2jxzis9 and its public direct/pooled hostnames, now declared in the manifest (not credentials).
+Database identity helper compares the runtime URL server-side with these hosts/database, rejecting alternate-host
+query overrides and returning only a boolean. Existing health liveness semantics stay unchanged for local QA;
+production release proof requires databaseTargetMatchesManifest=true. The actual runtime relationship remains
+unverified until a real protected deployment serves that check. No connection string/password is retrieved or
+returned to the model, documentation or public health. No database target, record, role or schema is changed.
+
+Integrated candidate verification: 351/351 unit/integration tests PASS, zero fail/skip on fresh isolated local PostgreSQL; TypeScript/ESLint and 10 workflow YAML parses PASS. Initial health-fixture adapter lacked the new pure identity import; updated to the real helper, retaining every schema/liveness assertion, then full suite passed. Public-source-hash redaction and wrong-source/rollout/redirect/admin-boundary rejection cases pass. npm audit remains0 at all severities after main#76 lockfile merge. Documentation PASS:8files/387source fingerprints/108env names/10procedures. No ordinary local font build or production certification claimed; hosted CI required before release.
 ## Cleanup release hardening — 2026-10-26 — PR #76
 
 Owner explicitly requested resolving the blockers and deploying. Original PR head d4e5bbf passed complete hosted CI 40285442047, including browser/runtime checks. Added recovery checkpoint `checkpoint/rega24-pr76-before-hardening-20261026` before this continuation. Target repair reuses the focused implementation/tests from #75; no unrelated #71/#73/#74 application changes imported. Unconsumed Neon provisioning reuses #72's manual policy: real schema/migration/browser QA remains on disposable PostgreSQL; no Neon branches/backups are deleted. Verified main has no protected required checks or rulesets, so no required gate was removed.
@@ -713,3 +864,82 @@ Web release `40390749927` failed before upload: OpenNext forwards CLI arguments 
 
 
 Concurrent integration: PR78 independently passed full CI40391309551 and merged About copy/metadata changes as8edc1ed. Preserve its complete content and memory entry. PR79 had only an append conflict in this file; resolved by retaining both notes, without altering application files. Production health now reads the approved Kurdish About title from the catalogue rather than a stale hardcoded title.
+
+
+## Unified office integration continuation — 2026-10-27 UTC
+
+This checkpoint supersedes older live assertions below. **VERIFIED live:** canonical `rega24` deployment
+`5b341ca4-f063-4358-af07-427bac5c8d3e`, version `5ab5e7d5-2c4d-4f98-aaad-6074dfeb69f5`, 100% allocation;
+its version tag equals official main `c8f0cf2ac859414f48fd8dd080484f587b661679`. Both official custom domains remain
+attached to this existing Worker. This is a release from another continuation, not proof the prepared `/admin`
+changes are live. Existing main includes approved About copy, canonical listing links, isolated web/Python preview
+guards and the shell-safe deployment-message repair; this branch preserves them all. No schema changes needed.
+
+**VERIFIED live drift:** canonical Worker query redaction regressed false after an outside release; scoped settings repair restored true and preserved source/bindings. Prepared Wrangler sets true for both Workers. The original rega-platform was renamed, but a different unconfigured `rega-platform`
+was later recreated with stable tag `5a9fdd620f164660ab00487ce5cb6970`, six structural bindings and no official domains
+or application secrets at the last read. It is not the canonical deployment target. Preserve duplicate candidates
+until callers/migration/rollback are verified; no deletion is authorized by mere name similarity.
+
+**VERIFIED repository:** merge current official main into PR73; retain manual-only Neon resource policy and ordinary
+CI on supported Ubuntu24.04. Previous PR73 CI40343378458 hit its60-minute limit after about50minutes of Ubuntu
+browser-dependency installation and only partially ran E2E. It is not a complete suite result. Current main's runner
+pin addresses that environment cause; no tests are removed. Release message stays the tested single token and
+OpenNext forwarding dry-run includes the source variable. Python remains unchanged at runtime for this web release.
+
+Runtime production Neon identity, actual owner OTP/admin operations, historical provider-key revocation, independent
+backup/media recovery, billing entitlement and a measured universal100 score remain **UNKNOWN/BLOCKED**. No new paid
+service, production SQL/object mutation, duplicate deletion or R&L modification performed by this continuation.
+
+Integrated October27 verification: clean npm ci and audit0 all severities; full363/363 unit/integration PASS with0fail/skip on fresh isolated local PostgreSQL, lint/typecheck and10YAML parses PASS;28focused release/preview/identity checks and4retained main release-configuration checks PASS. Inventory check initially caught source edits made during the first suite; regenerated after all edits, then entire363suite passed. No assertion relaxed. Current offline reference8docs/388source fingerprints/108env names/10complete procedures. Fresh provider metadata confirms same production Neon endpoint (idle/scale-to-zero is not outage), R2TLS1.2/SSLactive and official domain ownership. Billing API still403/noOAuthscope. Hosted final integrated CI is required before merge/deploy.
+
+
+## Verified production blocker — 2026-10-27: Neon quota (HTTP402)
+
+**FAIL live:** existing [Beta health run40456968000](https://github.com/rebar9988-max/Rega/actions/runs/40456968000),
+job122032445102, reports uncached health503 (`database:error`, migrations/contentColumns false), directory/services/
+About500; cached homepage/static files and redirects still respond. These are client-visible failures, unlike the
+historical synthetic CacheAPI504 misses. Read-only Cloudflare telemetry05:43–05:52UTC for exact `rega24` contains
+“Your account or project has exceeded the quota.” An independent read-only `SELECT 1` on explicitly selected Neon
+project/production branch/database returned **HTTP402 with the same quota error**. No SQL write or migration.
+Project record reports `free_v3`, `compute_time_seconds=396259`, consumption period October1→November1; this does
+not establish which specific allowance applies or guarantee restoration at period end. Endpoint idle alone was
+not outage evidence; provider402 now proves database access is blocked.
+
+**SAFE CONTINUATION:** retain existing project/data/URLs, manual-only Neon provisioning and disposable CI. Confirm
+restoration of the existing Free allowance with the provider; then repeat one bounded SELECT1, health/database
+ownership, data routes and owner operations before guarded deployment. No upgrade, quota bypass, replacement
+project, branch/data deletion, seeding, DB reset or speculative version rollback. A new app version cannot clear
+provider quota; PR73 admin rollout remains BLOCKED while the database cannot pass release proof. No100/100 claim.
+
+**Config-only privacy repair:** fresh ownership/active-version checks preceded scoped settings updates restoring
+query redaction on both existing Workers; HTTP200/readbacktrue, all28web/4Python binding names/types preserved.
+No secret value/token rotation/inference/code upload. Web source tag `c8f0cf2` retained explicitly because settings
+annotations are not inherited automatically. Prepared source retains redaction to prevent future regressions.
+Exact new deployment/version readback is recorded in the final checkpoint below. Do not restore the insecure
+redaction flag to address quota; these are independent layers.
+
+Final config-only readback 2026-10-27 around07:19UTC: web deployment `5b341ca4-f063-4358-af07-427bac5c8d3e`,
+version `5ab5e7d5-2c4d-4f98-aaad-6074dfeb69f5` at100%, source tag `c8f0cf2ac859414f48fd8dd080484f587b661679`.
+Python deployment `88b3856b-9c55-49c5-8558-fa09f6ba344b`, version `ba9b4d0c-61c7-4dba-b3cb-1c0eb819a226`
+at100%; its source tag remains absent/UNKNOWN, never invented. Both query-redaction flags true; logs enabled and
+all binding names/types retained. Scoped settings revisions preserve code, tokens and data; not a new admin release.
+
+## Final verified application checkpoint — 2026-10-27 07:32UTC
+
+Application commit `5711ea64d395adf1970366ae9a8cd19b92baf2a4` passed
+[hosted CI40465533832](https://github.com/rebar9988-max/Rega/actions/runs/40465533832), job122059885004:
+**363/363 unit/integration, 338/338 browser E2E (15.9minutes), 8/8 Python**, zero Node fail/skip; clean install/audit0,
+lint/typecheck, disposable PostgreSQL migration/preflight, ordinary Node + OpenNext Worker builds, actual forwarding
+dry-run and both workerd media/business smokes PASS. Bundle16066.85KiB uncompressed/3653.07KiB gzip.
+Approved About/catalogue content preserved in all7locales; schema/migrations unchanged. Local synthetic PG stopped.
+
+This follow-up changes documentation only: no app/source/workflow/dependency or generated-fingerprint change since
+that tested commit. Offline validation PASS:8docs/388fingerprints/108environment names/10complete procedures;
+links/anchors/whitespace valid. Any newly triggered full CI on the documentation SHA is distinct from the proven
+application checkpoint; do not claim an uncompleted run passed or bypass required current-head checks.
+
+**Release BLOCKED, not completed:** Neon production SELECT1 still has verified402/quota; public health503/data
+routes500. No merge/application upload or production migration merely to generate a failing release. Existing
+mainc8f0cf2 source remains, with the separately verified privacy settings revisions above. Confirm existing Free
+quota restoration first, then bounded DB/health/data/owner checks and guarded exact-main CI/release proof. No paid
+upgrade, data/resource/domain deletion, database replacement/reset, R&L operation or100/100 certification.

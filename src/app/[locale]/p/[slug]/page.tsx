@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: Props) {
   return pageMetadata({ locale, path: `/p/${slug}`, title: page.title, description: page.metaDescription ?? undefined });
 }
 
-/** A static page written in the admin CMS (/dr/pages), in the visitor's language with the usual fallbacks. */
+/** A static page written in the admin CMS (/admin/pages), in the visitor's language with the usual fallbacks. */
 export default async function CmsPageRoute({ params }: Props) {
   const { locale, slug } = await params;
   if (!isLocale(locale) || !PAGE_SLUG.test(slug)) notFound();

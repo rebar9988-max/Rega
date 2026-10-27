@@ -1,388 +1,304 @@
 # REGA24 troubleshooting
 
-Runbook for REGA Platform (`rebar9988-max/Rega`, https://www.rega24.com).
+## Verified production blocker — 2026-10-27: Neon quota (HTTP402)
+
+**FAIL live:** existing [Beta health run40456968000](https://github.com/rebar9988-max/Rega/actions/runs/40456968000),
+job122032445102, reports uncached health503 (`database:error`, migrations/contentColumns false), directory/services/
+About500; cached homepage/static files and redirects still respond. These are client-visible failures, unlike the
+historical synthetic CacheAPI504 misses. Read-only Cloudflare telemetry05:43–05:52UTC for exact `rega24` contains
+“Your account or project has exceeded the quota.” An independent read-only `SELECT 1` on explicitly selected Neon
+project/production branch/database returned **HTTP402 with the same quota error**. No SQL write or migration.
+Project record reports `free_v3`, `compute_time_seconds=396259`, consumption period October1→November1; this does
+not establish which specific allowance applies or guarantee restoration at period end. Endpoint idle alone was
+not outage evidence; provider402 now proves database access is blocked.
 
-Read [REGA24_SYSTEM_MAP.md](REGA24_SYSTEM_MAP.md) first. Then [PROJECT_MEMORY.md](PROJECT_MEMORY.md) and the
-[Google Doc hub](https://docs.google.com/open?id=1pp6GW-UM9AQ9TuUJHumziaujxB6ZOza5S3xwA6dmxu4) so a finished
-investigation is not repeated. Architecture background: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
-Deploy background: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
+**SAFE CONTINUATION:** retain existing project/data/URLs, manual-only Neon provisioning and disposable CI. Confirm
+restoration of the existing Free allowance with the provider; then repeat one bounded SELECT1, health/database
+ownership, data routes and owner operations before guarded deployment. No upgrade, quota bypass, replacement
+project, branch/data deletion, seeding, DB reset or speculative version rollback. A new app version cannot clear
+provider quota; PR73 admin rollout remains BLOCKED while the database cannot pass release proof. No100/100 claim.
 
-Rules for every fix:
+**Config-only privacy repair:** fresh ownership/active-version checks preceded scoped settings updates restoring
+query redaction on both existing Workers; HTTP200/readbacktrue, all28web/4Python binding names/types preserved.
+No secret value/token rotation/inference/code upload. Web source tag `c8f0cf2` retained explicitly because settings
+annotations are not inherited automatically. Prepared source retains redaction to prevent future regressions.
+Exact new deployment/version readback is recorded in the final checkpoint below. Do not restore the insecure
+redaction flag to address quota; these are independent layers.
 
-- Stay in this repository. R&L (`rebar9988-max/rega-cargo`) is a different project.
-- Run `node scripts/project-identity-guard.mjs --project REGA` before a deploy, migration, or secret change.
-- No production deletion, database reset, domain removal, or Worker deletion.
-- Do not print secret values. Health and diagnostics already print names only.
-- A docs-only commit must not be used as a pretend deploy. `workflow_dispatch` on Deploy is the manual publish.
+## Current continuation — 2026-10-27 UTC
 
-## Website downtime
+This checkpoint supersedes older live assertions below. **VERIFIED live:** canonical `rega24` deployment
+`5b341ca4-f063-4358-af07-427bac5c8d3e`, version `5ab5e7d5-2c4d-4f98-aaad-6074dfeb69f5`, 100% allocation;
+its version tag equals official main `c8f0cf2ac859414f48fd8dd080484f587b661679`. Both official custom domains remain
+attached to this existing Worker. This is a release from another continuation, not proof the prepared `/admin`
+changes are live. Existing main includes approved About copy, canonical listing links, isolated web/Python preview
+guards and the shell-safe deployment-message repair; this branch preserves them all. No schema changes needed.
 
-**SYMPTOM**
+**VERIFIED live drift:** canonical Worker query redaction regressed false after an outside release; scoped settings repair restored true and preserved source/bindings. Prepared Wrangler sets true for both Workers. The original rega-platform was renamed, but a different unconfigured `rega-platform`
+was later recreated with stable tag `5a9fdd620f164660ab00487ce5cb6970`, six structural bindings and no official domains
+or application secrets at the last read. It is not the canonical deployment target. Preserve duplicate candidates
+until callers/migration/rollback are verified; no deletion is authorized by mere name similarity.
 
-`https://www.rega24.com` does not load, times out, or Cloudflare shows a 5xx page for `/` and `/ckb`.
+**VERIFIED repository:** merge current official main into PR73; retain manual-only Neon resource policy and ordinary
+CI on supported Ubuntu24.04. Previous PR73 CI40343378458 hit its60-minute limit after about50minutes of Ubuntu
+browser-dependency installation and only partially ran E2E. It is not a complete suite result. Current main's runner
+pin addresses that environment cause; no tests are removed. Release message stays the tested single token and
+OpenNext forwarding dry-run includes the source variable. Python remains unchanged at runtime for this web release.
 
-**LOCATION**
+Runtime production Neon identity, actual owner OTP/admin operations, historical provider-key revocation, independent
+backup/media recovery, billing entitlement and a measured universal100 score remain **UNKNOWN/BLOCKED**. No new paid
+service, production SQL/object mutation, duplicate deletion or R&L modification performed by this continuation.
 
-- Edge and DNS: Cloudflare, nameservers in [REGA24_SYSTEM_MAP.md](REGA24_SYSTEM_MAP.md).
-- App: Worker `rega-platform`, [wrangler.jsonc](wrangler.jsonc), [worker.mjs](worker.mjs).
-- Process: [.github/workflows/deploy.yml](.github/workflows/deploy.yml) and [.github/workflows/ci.yml](.github/workflows/ci.yml).
+Last repository/control-plane verification: **2026-10-27 UTC**; scope and evidence in [system map](REGA24_SYSTEM_MAP.md). Read [AGENTS.md](AGENTS.md), [CLAUDE.md](CLAUDE.md), [PROJECT_MEMORY.md](PROJECT_MEMORY.md) and the existing central hub before diagnosis. Older incident notes are history, not current live evidence.
 
-**DIAGNOSTIC STEPS**
 
-1. `GET /api/v1/health` and `GET /api/health`. A JSON body means the Worker ran. `checks.database: error` is a database problem, not a DNS problem.
-2. Compare `https://rega24.com/` (expect 301) and `https://www.rega24.com/` (expect 307 to a locale).
-3. Open the latest [Beta health](.github/workflows/production-health.yml) run and the latest Deploy run for `main`. A skipped deploy on a documentation commit is not an outage.
-4. If the health URL is connection-refused or a Cloudflare error page with no JSON, check GitHub Deploy logs before changing DNS.
-5. Do not assume the Worker version. This session had no Cloudflare dashboard. Use the manual Cloudflare diagnostics workflow if credentials are present. It lists names and deployment history, not values.
+## Continued admin and security checkpoint — 2026-10-25
 
-**SAFE FIX**
+Prepared canonical office is `/admin`; old `/dr` is compatibility redirect only, with one source tree at
+[src/app/admin](src/app/admin). Diagnose redirect destination/query and authentication before touching RBAC. Do not
+reintroduce an admin-to-dr rewrite: keep one actual route tree. Private navigation/API prefetching also needed
+correction in browser QA; sidebar links now disable prefetch and health uses a plain anchor. Both route
+prefixes bypass public edge cache. System settings require fresh `settings.write` permission and an atomic audit.
 
-- If the last production deploy is the regression: roll the Worker back with `npx wrangler rollback` or redeploy the last known-good SHA. Do not delete the Worker.
-- If health JSON says the database is down, use the database section. Do not roll the Worker for a database outage.
-- If only one hostname fails, fix that hostname's route. Do not remove `rega24.com` or `www.rega24.com`.
+Live R2 CORS now includes official www/apex origins plus legacy origins. OpenAI/xAI storage is now secret_text and
+prepared source sets query redaction; latest live web readback regressed false (see current checkpoint). Historical exposed-key revocation remains a release blocker; changing storage
+is not key rotation. Never roll back to a pre-hardening config version or restore plaintext credentials.
 
-**VERIFICATION**
+Both prepared deployment workflows use [exact commit verification](scripts/verified-release.mjs), including manual
+fallbacks on main. Missing/failed/wrong-SHA CI or API errors block release. Ordinary builds are blocked by executor
+Google Font policy; test-only font mocks support isolated QA and must never be released. See
+[acceptance and blockers](docs/REGA24_CONSOLIDATION.md) before deployment. Infrastructure consoles are linked from the
+system page; their account permissions/billing are independently authoritative.
 
-- `/api/v1/health` returns 200 and `ok: true`.
-- `/` redirects to a locale and that page returns 200.
-- Beta health succeeds after the fix.
+## Before any investigation
 
-**ROLLBACK**
+1. Run `node scripts/project-identity-guard.mjs --project REGA`; verify remote, branch and domain. Stop on mismatch. Never touch the separate R&L project.
+2. Find previous investigation/checkpoint first. Record time UTC, affected path, status/error code, Ray/request ID, reproduction and recent exact deployed version. Keep identifiers necessary for diagnosis; omit personal content, full query strings, cookies, codes, signed URLs, connection strings and credentials.
+3. Read existing CI/health/browser/Cloudflare results before rerunning. Distinguish repository implementation, current control plane and actual functional behavior. Use read-only checks first; provider permission/network errors are environment limitations.
+4. Fix only the responsible layer after reproducing it. No production deletion/reset, domain removal, Worker replacement, billing activation or unreviewed migration. Never use `db push`, `migrate reset`, production seeding or “mark migration applied” to silence an error.
+5. All SAFE FIX actions below are conditional repair guidance, **not authorization to mutate production during this documentation task**. Prepare code/config changes on a branch and validate in isolation; use existing release gates for actual release. Preserve backup/restore and security holds recorded in memory. Rollback is scoped and reviewed, never database reset or destructive restore.
 
-Redeploy the SHA that was live before the change. Leave the database and domains in place.
+Read-only probes from a permitted environment (TLS verification must remain enabled):
 
-## HTTP 4xx and 5xx
+```bash
+node scripts/project-identity-guard.mjs --project REGA
+curl --silent --show-error --max-time 20 https://www.rega24.com/api/v1/health
+curl --silent --show-error --max-time 20 --output /dev/null --write-out '%{http_code}\n' https://www.rega24.com/en
+curl --silent --show-error --max-time 20 --output /dev/null --write-out '%{http_code} %{redirect_url}\n' 'https://rega24.com/en?probe=1'
+node scripts/rega24-docs.mjs --check
+```
 
-**SYMPTOM**
+Expected configuration: canonical `/en` 200; apex 301 to same path/query on www. The root has locale negotiation. No public fetch was performed from this restricted executor in the audit; these are procedures, not observed HTTP results. Avoid large load tests or inference probes with unknown spend. Public page visits may increment ordinary analytics.
 
-A specific URL returns 401, 403, 404, 429, 500, or 503. The rest of the site may be fine.
+## Incident: Website downtime
 
-**LOCATION**
+**SYMPTOM** → Entire site unavailable, blank response, timeout, or health 503.
 
-- 404 for a whole section: [src/config/sections.ts](src/config/sections.ts) and `SECTIONS_ENABLED` / `SECTIONS_DISABLED`.
-- 307/308 redirects: [src/middleware.ts](src/middleware.ts) and [next.config.ts](next.config.ts).
-- 503 with JSON: [src/app/api/v1/health/route.ts](src/app/api/v1/health/route.ts) when `ok` is false.
-- 429: rate-limit bindings in [wrangler.jsonc](wrangler.jsonc) and [src/lib/rate-limit.ts](src/lib/rate-limit.ts).
-- Dashboard HTML errors: [src/app/dr/](src/app/dr/businesses/page.tsx).
+**LOCATION** → [routing and deployment map](REGA24_SYSTEM_MAP.md), [health handler](src/app/api/v1/health/route.ts), [Worker wrapper](worker.mjs), [edge cache](src/lib/edge-cache.ts), Cloudflare rega24 Deployments/Logs, existing [Beta health](.github/workflows/production-health.yml).
 
-**DIAGNOSTIC STEPS**
+**DIAGNOSTIC STEPS** → Compare canonical public page, static `/brand/rega-logo.webp` and uncached `/api/v1/health`. Read status, content-type and Ray ID without sharing cookies. Check Cloudflare active version/allocation and timestamp against exact successful deployment/CI. Inspect health database/migrations/contentColumns/missingEnv booleans; a 200 health does not prove email/storage/AI operation. If static works but health fails, proceed to DB/config procedures. If no TLS/HTTP reaches the Worker, proceed to DNS/SSL. A cached page can outlive a DB outage.
 
-1. Record the exact path, status, and whether the body is JSON or HTML.
-2. Jobs and events are disabled in source. `/de/jobs` and `/de/events` returned 404 on 2026-10-25. That is expected until the section is enabled.
-3. `/dr` returning 200 with the Sorani code form is expected for an anonymous visitor. It is not a failed redirect.
-4. Health 503: read `checks` and `missingEnv` (names only).
-5. Search [PROJECT_MEMORY.md](PROJECT_MEMORY.md) for the status code before changing code. Cloudflare error 1102 is already documented there and in [src/lib/db.workers.ts](src/lib/db.workers.ts) (too many Prisma clients or connections per isolate).
+**SAFE FIX** → Restore only proven missing runtime configuration via the approved secure mechanism, or prepare the responsible code fix. If a new web version causes the outage, consider the last known healthy compatible existing version; no replacement Worker. Do not deploy merely because a probe was blocked by executor policy.
 
-**SAFE FIX**
+**VERIFICATION** → Health 200 with DB/migrations/content columns ready, public and static paths succeed, correct active version/allocation read back, private pages remain protected. Observe repeated existing checks across a cache expiry without load testing.
 
-- Hidden section: set `SECTIONS_ENABLED` for that key, or change `enabled` in source and deploy through CI. Do not delete the route.
-- Missing `DATABASE_URL` or `AUTH_SECRET`: set the Worker secret, then redeploy only if the runtime does not pick up secrets without a new version. `keep_vars` does not remove existing secrets.
-- 429: wait for the window (login 10/60s, AI 20/60s, search 120/60s, forms 10/60s in wrangler). Do not raise limits to hide a loop.
-- 500 after a deploy: roll the Worker back. Do not reset the database.
+**ROLLBACK** → Return traffic to recorded prior compatible Worker version through existing reviewed rollback procedure in [deployment](docs/DEPLOYMENT.md). Leave data/migrations/domains intact; recheck health. Configuration repair rollback uses protected previous values without copying them into docs.
 
-**VERIFICATION**
+## Incident: HTTP 4xx and 5xx errors
 
-The same URL returns the expected status. Health stays `ok: true`. A section that must stay hidden still 404s.
+**SYMPTOM** → 401/403, unexpected 404, 413/415/422 validation, 429 throttling, 500/503 or Cloudflare 1102.
 
-**ROLLBACK**
+**LOCATION** → Matching file in [API route inventory](docs/REGA24_INVENTORY.md), [API mapping](src/lib/api.ts), [auth helpers](src/lib/auth-helpers.ts), [business access](src/lib/business-access.ts), [rate limits](src/lib/rate-limit.ts), Worker Logs.
 
-Revert the commit and let CI deploy, or `npx wrangler rollback` if the bad version is already in production. Section flags can be restored by removing the env override.
+**DIAGNOSTIC STEPS** → Capture method/path/status/stable JSON error code and deployment ID. Confirm whether response is edge HTML, application JSON or masked Next server-action error. 401 requires correct session; 403 requires current DB role/status and business membership, not a UI change. 404 can deliberately hide private/unpublished records: inspect publication rules, never auto-approve records. Check payload/mime/size for 413/415/422, shared limiter/cooldown for 429. For 500 use sanitized correlated logs; for 503 inspect health/schema. 1102 is Worker CPU exhaustion: inspect DB client/pooling/cache/build behavior before any quota change.
 
-## Cloudflare deployment failures
+**SAFE FIX** → Correct client input/session or scoped application bug after reproduction. Preserve permission, visibility and rate checks. For schema mismatch use read-only preflight and the migration procedure; don't relabel every 500 as a DB outage. Do not expose internal messages or bypass roles to get HTTP 200.
 
-**SYMPTOM**
+**VERIFICATION** → Authorized request succeeds; corresponding anonymous, inactive-member and wrong-owner requests still fail correctly. Run relevant existing [security/API tests](tests) on isolated fixtures. Confirm masked failures remain safe and new logs omit secrets.
 
-The Deploy workflow fails, a manual `wrangler deploy` fails, or production stays on the old version after a green CI run.
+**ROLLBACK** → Revert the scoped client/server change; if already released, use compatible prior Worker version. Preserve access rules, data and applied additive migrations.
 
-**LOCATION**
+## Incident: Cloudflare deployment failures
 
-[.github/workflows/deploy.yml](.github/workflows/deploy.yml), [.github/workflows/ci.yml](.github/workflows/ci.yml), [wrangler.jsonc](wrangler.jsonc), [open-next.config.ts](open-next.config.ts).
+**SYMPTOM** → OpenNext build, Wrangler packaging/upload or post-deploy smoke fails; unexpected version serves traffic.
 
-**DIAGNOSTIC STEPS**
+**LOCATION** → [web deploy](.github/workflows/deploy.yml), [CI](.github/workflows/ci.yml), [wrangler.jsonc](wrangler.jsonc), [Next config](next.config.ts), [OpenNext config](open-next.config.ts), [build preparation](scripts/prepare-worker-build.mjs), Cloudflare Builds/Deployments.
 
-1. Confirm the failed job. CI failure never starts Deploy. Deploy's `if` requires CI `success` on `main`.
-2. If Deploy is green and the log says `Skipping npx wrangler deploy`, the commit was documentation-only (`DOCS_ONLY_SKIP`). That is success, not a failed publish.
-3. Credential step: missing `CLOUDFLARE_API_TOKEN` fails closed and deploys nothing.
-4. Identity guard failure means the checkout does not look like REGA. Stop. Do not point the token at another account.
-5. `wrangler deploy --dry-run` in CI validates the bundle without publishing. A dry-run failure is a build problem. A dry-run success does not prove the real deploy ran.
-6. Python Worker failures are a different workflow: [.github/workflows/ai-python-deploy.yml](.github/workflows/ai-python-deploy.yml). It does not replace `rega-platform`.
+**DIAGNOSTIC STEPS** → Identify correct repo/SHA/trigger and first failed step. Distinguish Node build, Worker bundle, upload permission and runtime failure. Read credential **presence/types**, never values. Check package-lock/adapter/Next compatibility, entry `worker.mjs`, generated `.open-next/worker.js` and assets. Do not commit generated output. Read separate Workers Builds configuration before assuming it deploys: main dry-run is verified, but inherited branch previews had a different command. Check active allocation: successful upload alone does not prove traffic switched.
 
-**SAFE FIX**
+**SAFE FIX** → Repair only the identified build/config defect on a branch. Use local dependency install and required checks where network allows; `npm run build` followed by `npm run cf:dry-run` validates without publishing. Do not use unsupported-version overrides, replace Workers or blindly dispatch deployment. For failed auth, restore approved account-scoped credential provisioning rather than login with another account.
 
-- Fix the build error in git and let CI pass. Do not deploy from a laptop with a production database env mixed in.
-- Token missing: an owner adds `CLOUDFLARE_API_TOKEN` in GitHub secrets. Do not paste the token into the repo, the Doc, or chat.
-- Need a publish of a docs commit: run Deploy with `workflow_dispatch` on that SHA. Do not delete the skip guard to force it.
-- Do not create a second Worker to "replace" `rega-platform`.
+**VERIFICATION** → Correct CI and dry-run succeed for final SHA; normal Node/Worker/runtime tests pass. A later authorized release must read back active version/allocation and run health/public smoke. This documentation task requires no release.
 
-**VERIFICATION**
+**ROLLBACK** → Revert build/config commit. If a broken version is live, select previous compatible existing web version under reviewed rollback; do not delete Worker, bindings, domains or deployment history.
 
-The Deploy log contains `Production deploy completed successfully` (not the skip line). Then `/api/v1/health` is 200. Beta health on that SHA succeeds.
+## Incident: Neon connection failures
 
-**ROLLBACK**
+**SYMPTOM** → Health database error, connection timeout/authentication failure, pool exhaustion, missing table/column, pending/unfinished migration.
 
-`npx wrangler rollback` to the previous version. CI on `main` remains the normal path.
+**LOCATION** → [db.workers.ts](src/lib/db.workers.ts), [db.ts](src/lib/db.ts), [schema](prisma/schema.prisma), [migrations](prisma/migrations), [preflight](scripts/database-preflight.mjs), [DB workflow](.github/workflows/db-migrate.yml); Neon project `lucky-glitter-73195208` / production branch `br-floral-hall-b22rpgrw`.
 
-## Neon and database connection failures
+**DIAGNOSTIC STEPS** → Check Neon project/branch/endpoint state read-only and protected runtime binding presence. Verify target matches REGA before connecting; never paste URL. HYPERDRIVE is optional and was absent live. Distinguish cold compute/network/auth/SQL-schema errors from migration state. For provider402/quota, preserve data and confirm the existing Free allowance is restored; a new deploy or DB reset cannot fix it (October27 incident above). From an authorized protected environment run `node scripts/database-preflight.mjs`; it uses a read-only transaction. Compare committed ledger/required columns to actual state; health migration boolean alone is insufficient. Inspect Workers request-scoped pools, not a generic long-lived cross-request pool. Do not create/delete branches to work around quota.
 
-**SYMPTOM**
+**SAFE FIX** → Correct proven binding/connection configuration securely or repair the responsible pooling code while preserving request isolation. Schema changes require verified restorable backup, isolated test and committed additive migration through existing guarded workflow. Read latest release holds; manual migrate includes seed and is not a read-only diagnostic.
 
-Health `checks.database` is `error`, pages 503, Prisma cannot connect, or the Neon preview job on a pull request fails.
+**VERIFICATION** → Read-only preflight reports expected applied/pending state, no unfinished migration, health ready, representative directory reads pass; verify no row/ownership changes. For pooling repair use existing Worker runtime tests on isolated DB.
 
-**LOCATION**
+**ROLLBACK** → Restore previous connection selection/config securely or compatible prior code. Leave additive schema applied. No reset/drop/truncate, branch deletion or production restore as routine rollback. Follow [backup/restore](docs/BACKUP-RESTORE.md) for separately approved recovery.
 
-- Runtime: [src/lib/db.workers.ts](src/lib/db.workers.ts) and [src/lib/db.ts](src/lib/db.ts).
-- Schema: [prisma/schema.prisma](prisma/schema.prisma), [prisma/migrations](prisma/migrations/migration_lock.toml).
-- Production migrate: [.github/workflows/db-migrate.yml](.github/workflows/db-migrate.yml) (manual, `main` only, typed confirmations).
-- Previews: [.github/workflows/neon-branch.yml](.github/workflows/neon-branch.yml), Neon project id `lucky-glitter-73195208`.
-- Backup: [docs/BACKUP-RESTORE.md](docs/BACKUP-RESTORE.md).
+## Incident: AI service errors
 
-**DIAGNOSTIC STEPS**
+**SYMPTOM** → Assistant disabled, provider auth/quota/timeout errors, inaccurate retrieval, Python fallback warnings or slow chat.
 
-1. Health JSON: `database`, `migrations`, `contentColumns`, `missingEnv`. Never print `DATABASE_URL`.
-2. `migrations: false` with `database: ok` means the query worked but `_prisma_migrations` is empty or has an unfinished row. Do not run `migrate reset`.
-3. Production vendor is **REPORTED** as Neon in PROJECT_MEMORY. This map's audit did not open the Neon console. Confirm the host from the dashboard before blaming Neon.
-4. Hyperdrive is optional and commented out of wrangler. If a bad Hyperdrive id was added, the Worker prefers that connection string. Removing a bad binding is a config fix, not a data drop.
-5. Preview branch HTTP 422 or branch-limit errors are **REPORTED** in PROJECT_MEMORY (Neon free plan limits). They are not production migrate failures. Do not raise the plan just to open a docs PR.
-6. `DIRECT_DATABASE_URL` is for migrations (unpooled). The app can run on the pooled `DATABASE_URL`.
+**LOCATION** → [gateway](src/lib/ai/gateway.ts), [chat](src/lib/ai/chat.ts), [routing](src/lib/ai/routing.ts), [Python runtime](src/lib/ai/python-runtime.ts), [Python client](src/lib/ai/python-client.ts), [Python app](services/ai-python/src/app.py), `/dr/ai`, Worker logs and AiUsageDaily model.
 
-**SAFE FIX**
+**DIAGNOSTIC STEPS** → Read feature flags/admin settings, AI_PROVIDER/order/routing/budget and configured provider key **names/types**. Check retrieved published DB candidates first; no-match may intentionally avoid a model call. Classify provider 401/403, 429, timeout or malformed output without logging request text/keys. Python warnings `ai.python.rerank_fallback` include safe failure kind/status; check its deployment, AI binding, URL/token pairing and timeout. Service secret presence at both ends does not prove equality. Use existing tests/mocks first; no paid inference or new service activation for diagnosis.
 
-- Missing secret: set `DATABASE_URL` through the Worker dashboard or the manual sync workflow. Do not commit it.
-- Pending additive migration: take a backup or confirm Neon point-in-time recovery, then run Database migrate with the two confirmation strings. It uses `prisma migrate deploy` only.
-- Bad new migration: add a forward migration. Do not edit a migration that already ran in production.
-- Preview branch failure: fix or skip the preview. Production does not read preview branches.
+**SAFE FIX** → Fix routing/retrieval/parser errors in isolation; keep original-candidate fallback. Under separately authorized containment, disable affected provider/public AI through existing settings rather than raise spending limits. Plain-text OpenAI/xAI credentials require secure owner-side rotation/revocation and proper secret storage, with no values exported to docs.
 
-**VERIFICATION**
+**VERIFICATION** → Existing [gateway tests](tests/ai-gateway.test.ts), [Python tests](services/ai-python/tests/test_app.py), [fallback tests](tests/ai-python-service.test.ts) and budget tests pass. Ordinary search works with AI unavailable. Actual provider functional tests only when authorized within confirmed zero-cost limits; record unverified status otherwise.
 
-Health `database`, `migrations`, and `contentColumns` are true, and `ok` is true. `npx prisma migrate status` against a **non-production** URL says up to date before you touch production.
+**ROLLBACK** → Revert routing/code or restore previous safe non-secret feature settings. Preserve budget limits; never restore compromised credentials or remove deterministic fallback to force AI success.
 
-**ROLLBACK**
+## Incident: Authentication and OTP failures
 
-Restore into a **new** database and point `DATABASE_URL` or Hyperdrive at it only after the new database is checked ([docs/BACKUP-RESTORE.md](docs/BACKUP-RESTORE.md)). Do not drop the current database first. Application rollback does not undo an applied migration; old code is written to ignore additive columns.
+**SYMPTOM** → Password login fails, `/dr` email code absent/expired, confirmation/reset link fails, social callback error, repeated logout.
 
-## AI service errors
+**LOCATION** → [auth config](src/auth.config.ts), [session policy](src/features/auth/session-policy.ts), [admin code](src/features/auth/admin-code.ts), [admin code rules](src/features/auth/admin-code-core.ts), [token links](src/features/auth/tokens.ts), [OAuth diagnostics](src/features/auth/oauth-diagnostics.ts), [email adapter](src/lib/email/index.ts), [dashboard sign-in](src/app/admin/sign-in-actions.ts).
 
-**SYMPTOM**
+**DIAGNOSTIC STEPS** → Identify distinct flow: public password/social vs allowlisted super-admin six-digit `/dr` code vs public verification/reset link. Old “no OTP” memory is superseded by source. For code: verify active/verified super-admin allowlist, email configuration/delivery status, expiry (5 minutes), resend cooldown (30 seconds), durable fail/send caps; never log/retrieve codes or brute-force. Link tokens are single-use and expire. Check canonical AUTH_URL, actual provider callback registration and id+secret pairing. Inspect current session role/status/password marker and business membership, cookie scope/Secure/SameSite, and sanitized diagnostic error codes. Do not treat Google key presence as tested OAuth.
 
-The assistant errors, answers with the deterministic "nothing found" path unexpectedly, or health `ai` is false / `aiProviders` is 0.
+**SAFE FIX** → Correct proven sender/callback/runtime config securely, or scoped session/UI defect in isolation. Use an authorized test inbox/account for later live verification. Keep anti-enumeration, code hashing, expiry, attempt limits and same-site redirects; never grant super-admin, disable verification or rotate AUTH_SECRET merely to retry login.
 
-**LOCATION**
+**VERIFICATION** → Existing [delivery tests](tests/auth-delivery.test.ts), [admin-code tests](tests/admin-code-core.test.ts), [session tests](tests/session-policy.test.ts), [OAuth tests](tests/oauth-social.test.ts) pass. Authorized test verifies fresh login/expiry/logout, rejected reused/expired codes and denied unauthorized dashboard access. If no test inbox/provider access, report live delivery/login UNKNOWN.
 
-- Gateway: [src/lib/ai/gateway.ts](src/lib/ai/gateway.ts), [src/lib/ai/routing.ts](src/lib/ai/routing.ts), [src/lib/ai/runtime.ts](src/lib/ai/runtime.ts).
-- HTTP: [src/app/api/v1/ai/chat/route.ts](src/app/api/v1/ai/chat/route.ts).
-- Optional Python rerank: [services/ai-python/](services/ai-python/src/main.py), [docs/PYTHON-AI-ENGINE.md](docs/PYTHON-AI-ENGINE.md), `AI_SERVICE_URL` and `AI_SERVICE_TOKEN`.
-- Flag: `public.aiSearch` is mentioned in [src/lib/env.ts](src/lib/env.ts).
+**ROLLBACK** → Revert scoped code/config while retaining security controls; expired/consumed tokens remain invalid. Never restore revoked credentials, disable OTP limits or edit account roles as rollback. Treat any planned AUTH_SECRET rotation as a separate session-invalidating operation.
 
-**DIAGNOSTIC STEPS**
+## Incident: Missing media and R2 errors
 
-1. Health `ai` is true when any provider is configured (`isAiConfigured`). `aiProviders` is a count, not a name list. On 2026-10-25 the count was 4. Which four was not disclosed.
-2. Default order is in `DEFAULT_ROUTING`. `AI_PROVIDER=disabled` or a single vendor name overrides it. `AI_PROVIDER_ORDER` and `AI_ROUTING` are not uploaded by the secret-sync workflow; if they are set, they were set on the Worker directly.
-3. A provider error should fall through to the next configured provider. A total failure should not take the site down.
-4. Python is optional. Timeout, outage, or bad JSON keeps the Postgres order. Do not debug Python first unless `AI_SERVICE_URL` is set. Whether it is set in production is UNKNOWN (not in the sync list).
-5. Rate limit `AI_LIMITER` is 20 requests per 60 seconds per key.
+**SYMPTOM** → Broken images, public 404/403, signed upload expiry/signature mismatch, browser CORS error or storage-not-configured.
 
-**SAFE FIX**
+**LOCATION** → [storage](src/lib/storage.ts), [upload URL API](src/app/api/v1/media/upload-url/route.ts), [business-image API](src/app/api/v1/media/business-image/route.ts), [media ownership](src/lib/business-media.ts), Media rows/Business URLs, R2 `rega-media`, custom domain `media.regaplatform.com`.
 
-- Add or rotate one vendor key with the manual sync workflow. Never log the key.
-- If one vendor is down, leave the others. Do not hard-code a new provider in a page component.
-- Python deploy only when `services/ai-python/**` or the listed TS files change. A bad Python deploy does not require replacing `rega-platform`.
-- Do not raise `AI_DAILY_LIMIT` to hide a loop.
+**DIAGNOSTIC STEPS** → Distinguish server-side normalized business upload from browser direct signed PUT. Inspect safe public URL/object key, Media association/deletedAt and actual object existence using metadata only. Compare bucket/public domain to configured names and S3 endpoint. Signed URL lifetime is 300 seconds; do not paste it or its query. Browser direct PUT requires canonical-origin CORS: original audit found only old origins; continuation added canonical origins with readback, so inspect current preflight before diagnosing credentials. Inspect CSP/storage build origin, MIME/size checks and credential scope. Public media domain active in control plane does not prove every object exists.
 
-**VERIFICATION**
+**SAFE FIX** → Regenerate expired upload URL through normal authorized flow; fix proven URL association/normalization code without bulk rewrites. For a new confirmed CORS defect, prepare a narrowly scoped correction, preserving verified origins and methods. Correct credential provisioning securely if proven wrong. Do not make bucket public indiscriminately, rename bucket, delete “orphan” objects or replace domains.
 
-Health `ai: true` and a non-zero `aiProviders` if keys are supposed to be present. A no-match question still returns the deterministic empty answer. A known listing question returns grounded text. CI uses a fake AI server; it does not prove production keys.
+**VERIFICATION** → Existing [media tests](tests/business-images.test.ts) and isolated runtime smoke pass; authorized disposable upload can be retrieved on intended public domain, MIME/size and ownership checks still enforced. Check canonical browser preflight for generic uploads. No production test uploads in this documentation task.
 
-**ROLLBACK**
+**ROLLBACK** → Restore prior CORS/config or code precisely. Keep existing media bytes/keys and database rows; do not delete production objects during rollback. Restoring missing bytes requires verified backup and separately approved targeted recovery.
 
-Remove the bad `AI_PROVIDER` override or restore the previous key. Redeploy the Python Worker from the previous commit only if that Worker changed. Leave the web Worker alone if it did not change.
+## Incident: DNS and SSL
 
-## Authentication and OTP failures
+**SYMPTOM** → NXDOMAIN, certificate warning, TLS handshake failure, redirect loop, apex/legacy host serving unexpected content.
 
-**SYMPTOM**
+**LOCATION** → Cloudflare rega24 zone/custom domains/SSL settings, [Next redirects/security headers](next.config.ts), [middleware](src/middleware.ts), [site config](src/config/site.ts), [routing map](REGA24_SYSTEM_MAP.md#7-production-domains-and-routing).
 
-Sign-in fails, the six-digit `/dr` code never arrives, every code is rejected, or a non-owner appears to have SUPER_ADMIN.
+**DIAGNOSTIC STEPS** → From permitted network check DNS with `dig rega24.com` and `dig www.rega24.com`; compare authoritative nameservers and DNS propagation. Inspect enabled custom domains → rega-platform, active certificate status/expiry and Always HTTPS. No classic Worker routes is valid for custom domains. Proxied AAAA `100::` records are provider-managed: do not “repair” them into guessed origin IPs. Test apex path+query → 301 www and www locale path → 200, tracking finite redirects. Check application canonical host and external redirect rules separately. Legacy host domains remain enabled; actual redirect behavior is not confirmed here.
 
-**LOCATION**
+**SAFE FIX** → Prepare correction only to the proven misconfigured REGA rule/host after recording prior state. Keep HTTPS/HSTS/certificate validation. Do not remove/recreate custom domains, nameservers or cert packs, change SSL mode speculatively, or buy a certificate. Do not use curl `-k` to claim resolution.
 
-- Code issue and check: [src/features/auth/admin-code.ts](src/features/auth/admin-code.ts) and [src/features/auth/admin-code-core.ts](src/features/auth/admin-code-core.ts).
-- Table: `AdminSignInCode`, migration `20261022120000_admin_sign_in_codes`.
-- Role lock: `SUPER_ADMIN_EMAILS` and `effectiveRole` in [src/lib/rbac.ts](src/lib/rbac.ts).
-- Mail: [src/lib/email/index.ts](src/lib/email/index.ts).
-- Session: [src/app/api/auth/[...nextauth]/route.ts](src/app/api/auth/[...nextauth]/route.ts).
-- Password reset and verify-email routes under `src/app/[locale]/`.
+**VERIFICATION** → Valid hostname/TLS chain, expected redirects preserving path/query, no loops, health reachable on canonical domain. Read back exact rule/domain state. Recheck affected mail/media DNS remains intact.
 
-**DIAGNOSTIC STEPS**
+**ROLLBACK** → Restore only prior targeted rule/config after review. Preserve all domains/records/certificates; allow DNS TTL propagation and verify canonical, media and mail behavior.
 
-1. `/dr` for an anonymous browser should show the code form (verified 2026-10-25, HTTP 200). A password link on that page is the other path, not a bug by itself.
-2. Codes are sent only for the owner address, and only when that user is an active SUPER_ADMIN with a verified e-mail. Every other address gets the same success response and no mail. That is deliberate.
-3. Health `email: true` means `EMAIL_PROVIDER=resend` and `RESEND_API_KEY` are set. It does not prove the latest message was delivered. On 2026-10-25 `email` was true.
-4. `unavailable` from the code request means Resend did not accept the message. The unused code row is deleted.
-5. `rate` means the in-isolate limiter or the durable audit limits fired. Wait. Do not delete `AuditLog` or `AdminSignInCode` in production to "clear" it.
-6. OAuth buttons appear only when both id and secret for that provider are set ([docs/adr/0009-social-sign-in.md](docs/adr/0009-social-sign-in.md)). Callback host must match `AUTH_URL` / the canonical host. Stale docs may still say `regaplatform.com`.
-7. Another stored SUPER_ADMIN acts as USER. That is the 2026-10-22 rule, not a broken session.
+## Incident: Performance problems
 
-**SAFE FIX**
+**SYMPTOM** → Slow TTFB/search/navigation, stale pages, layout shifts, high Worker CPU/1102, connection spikes or slow AI.
 
-- Mail failing: fix `EMAIL_FROM` to a verified Resend domain and the key. PROJECT_MEMORY **reports** `regaplatform.com` as the verified sending domain. Do not change the public website domain to match the mail domain.
-- Clock or TTL: codes are short-lived (`CODE_TTL_MINUTES`). Request a new code after the cooldown. Do not lengthen TTL in a drive-by patch.
-- Wrong owner address: change `SUPER_ADMIN_EMAILS` only with a new explicit owner instruction, then deploy through CI.
-- Do not create a second admin, and do not reset all passwords.
+**LOCATION** → [edge cache](src/lib/edge-cache.ts), [Workers DB pools](src/lib/db.workers.ts), [search](src/lib/search), [business publication](src/lib/business-publication.ts), [map config](src/lib/map-config.ts), [health](src/app/api/v1/health/route.ts), existing [browser checks](.github/workflows/production-browser.yml).
 
-**VERIFICATION**
+**DIAGNOSTIC STEPS** → Compare warm/cold anonymous reads, authenticated pages and static assets with existing measurements. Read Worker CPU/wall time and DB latency/query plans before changing capacity. Cache TTL is 300 seconds + stale-while-revalidate; version metadata is part of the key. Next revalidation and independent HTML cache are distinct. Check image dimensions/bytes, map/font downloads, network failures, query pagination/indexes and AI timeouts. Public health latency is not a page-performance metric. Historical Lighthouse scores in central memory are REPORTED, not a current benchmark.
 
-Owner receives one code, signs in once, and the code cannot be reused. A different address still gets no mail. Health `email` stays true. An audit row `auth.dr_code.sent` exists for the owner only (check as the owner, do not dump the table into git).
+**SAFE FIX** → Repair measured bottleneck in isolation (bounded queries, existing index strategy, request-scoped pools, asset dimensions or cache invalidation). Preserve privacy exclusions, version keys and stale fallback. Avoid global cache purge, paid compute upgrades, new monitoring, new provider calls or production load tests.
 
-**ROLLBACK**
+**VERIFICATION** → Repeat comparable small sample with device/network/time recorded; confirm public freshness after TTL and normal navigation/assets. Existing cache/search/Worker runtime tests pass and private content never enters anonymous cache. Record actual scores and limitations, never promise 100/100 without evidence.
 
-Revert the auth commit and roll the Worker back. Do not drop `AdminSignInCode`. Existing sessions are JWTs; a rollback returns the previous rules on the next sign-in.
+**ROLLBACK** → Revert scoped optimization or cache configuration. Restore prior compatible application version if released; retain version-aware keys and DB data, no table/index deletion without separate reviewed migration.
 
-## Missing media and R2 errors
+## Incident: CI/CD failures
 
-**SYMPTOM**
+**SYMPTOM** → PR check red, main CI/deploy skipped, Neon branch setup fails, docs drift check fails or runtime smoke unavailable.
 
-Upload fails, images 404, or the business form says storage is not configured. Health `storage` is false.
+**LOCATION** → [.github/workflows](.github/workflows), [CI](.github/workflows/ci.yml), [deploy](.github/workflows/deploy.yml), [Neon integration](.github/workflows/neon-branch.yml), [Playwright config](playwright.config.ts), [docs validator](scripts/rega24-docs.mjs).
 
-**LOCATION**
+**DIAGNOSTIC STEPS** → Confirm repo/branch/exact SHA/event and first failed job/step. Separate missing GitHub credentials, executor network policy, package install/version issues, test failures and external preview integration. A failed Neon preview is not automatically core CI database failure (core CI uses disposable Postgres). Check concurrency/cancellation and whether workflow_run got success. Docs inventory drift: inspect source diff before regeneration, not blind hash acceptance. Read active deployment to see whether production was affected; a failed check alone proves neither downtime nor deployment.
 
-- [src/lib/storage.ts](src/lib/storage.ts)
-- [src/app/api/v1/media/upload-url/route.ts](src/app/api/v1/media/upload-url/route.ts)
-- [src/app/api/v1/media/business-image/route.ts](src/app/api/v1/media/business-image/route.ts)
-- Names: `STORAGE_ENDPOINT`, `STORAGE_REGION`, `STORAGE_BUCKET`, `STORAGE_ACCESS_KEY_ID`, `STORAGE_SECRET_ACCESS_KEY`, `MEDIA_PUBLIC_URL`, and build-time `MEDIA_PUBLIC_HOST` in [next.config.ts](next.config.ts).
+**SAFE FIX** → Fix responsible workflow/test/code on a branch; preserve identity guard, DB test safety and CI checks. For docs, stage new source files, review infrastructure changes, update both root documents, then `node scripts/rega24-docs.mjs --write` and `--check`. Restore approved secrets through secure settings only. Do not delete Neon branches/backups, bypass checks or dispatch main deploy to “unstick” docs. Read release holds before any main update.
 
-**DIAGNOSTIC STEPS**
+**VERIFICATION** → Local required relevant checks pass, then read final-head hosted checks when an authorized PR exists; don't cite another SHA's green run. Docs validator confirms links/structure/source freshness offline. Later release verification requires actual active version/health; no release is needed for this task.
 
-1. Health `storage: true` means the four required values are non-empty. On 2026-10-25 it was true. It does not prove the bucket is R2. R2 is **REPORTED** by the legal default and code comments.
-2. `StorageNotConfiguredError` is thrown before any network call when a required value is missing.
-3. Pre-signed PUT URLs expire in 300 seconds. A slow client looks like a broken bucket.
-4. MIME allow-list rejects SVG and HTML on purpose.
-5. Public URL is `MEDIA_PUBLIC_URL` plus the object key. A wrong public host 404s even when the PUT succeeded.
-6. `forcePathStyle: true` is set when `STORAGE_ENDPOINT` is present. A wrong endpoint host fails the PUT. Do not print the endpoint.
+**ROLLBACK** → Revert scoped workflow/documentation change; avoid triggering production by pushing/merging main just to roll back docs. Preserve checks, secrets, DB, backup/preview branches and unrelated work. If code release happened independently, follow compatible web rollback procedure.
 
-**SAFE FIX**
+## Recording a resolved incident
 
-- Set the missing names with the manual sync workflow or the Worker dashboard. Empty GitHub secrets are skipped and do not delete existing Worker values.
-- CORS on the bucket, if uploads fail only in the browser, is a bucket setting. Do not make the bucket public-list.
-- Do not delete objects to "clean" a bad URL. Fix the public base URL.
-- `MEDIA_PUBLIC_HOST` changes apply on the next Workers build, because `next.config.ts` reads it at build time.
+Append dated evidence and root cause to existing project memory, link exact source/commit/check result, describe scoped fix, verification, production impact and rollback checkpoint. Update the [system map](REGA24_SYSTEM_MAP.md) and this runbook after verified changes. Leave unresolved access/billing/functional facts explicit. Regenerate inventory, validate links/structure and do not repeat a completed investigation without evidence that its assumptions changed.
 
-**VERIFICATION**
 
-Health `storage: true`. A new business image uploads and the profile page loads it over HTTPS. An old object key still resolves.
+## Verified continuation — 2026-10-26: target drift and hosted preview failure
 
-**ROLLBACK**
+- Current live web target is `rega24`, same stable tag as earlier rega-platform; official custom domains agree.
+  Retired endpoint returns 404. This session did not rename or redeploy it. Main’s stale target must be reconciled
+  through reviewed source/CI; never fix this by recreating a missing Worker or moving domains again.
+- Before mutation use [production-target preflight](scripts/production-target.mjs) with protected credentials. It
+  reads only scripts/domain ownership. Missing permission/service, changed tag or mismatched domain means BLOCKED.
+  Verification: both hostnames must uniquely point to manifest webWorker in production. Rollback: preserve current
+  routing and review the manifest/source commit; never deploy a config with a retired name.
+- Hosted build f39a26b1-ee9d-4034-aaaf-042df45445f7 at 9276ed2: normal npm build succeeded; deploy command
+  `wrangler preview` failed because config lacks previews. Do not add new preview infrastructure merely to silence it.
+  This branch’s preview fcdb7c667f24407bae4c85b3c29423eb is now auto_build=false and dry-run only, API200/readback.
+  Rollback only after entitlement/config review: restore that preview’s setting explicitly, never production routing.
+- A key-shaped OpenAI value appeared in the stored build log’s diagnostic config suggestion. Do not fetch/export raw
+  logs or reproduce it. Limit access and use provider-side revoke/rotation; secret_text storage is insufficient.
+  No key value was returned to the model or documentation. Original source of the diagnostic value is UNKNOWN.
+- PR73’s old Neon workflow created a two-week preview successfully. Prepared workflow now requires neon-preview label
+  before creation; core CI needs no provider branch. Existing preview/data/backup branches are preserved. A ready
+  fresh backup/restore-verify branch is not proof of completed restoration; check actual isolated verification evidence.
+- On live rega24 discovery redact_query_string=false: the older privacy checkpoint is superseded. Read current settings
+  before declaring remediation; no previous version is safe merely because it once had a passing privacy setting.
 
-Restore the previous `MEDIA_PUBLIC_URL` and storage secret names. Do not delete the bucket. Roll the Worker back only if the application code, not the secret, caused the failure.
+2026-10-26 privacy repair after target reconciliation: settings-only update on existing rega24 succeeded HTTP200; readback redact_query_string=true and all 28 binding names/types unchanged. Active deployment cf37b341-5e5c-4703-915b-731aeefa6bfd / version f7a118cd-6f64-4206-a19e-ec5b434a5bc9 at100%. No application upload, route change or secret-value update; no new logging destination. An initial malformed multipart request was rejected400 with no change, then corrected. Rollback must preserve redaction rather than returning to a pre-hardening version.
 
-## DNS and SSL
+Latest shared-hub recovery evidence (2026-10-26, REPORTED from the completed other completed session, not independently repeated here): Neon-native reconstruction compared 37public tables/2325rows with matching row/schema/index/constraint digests and14migration records; four nullable social fields were rehearsed only on the isolated restore branch, never production. Backup and restore computes were suspended. This supersedes earlier absence-of-native-proof wording; it does not certify independent PG18 dump restore, functions/grants/enums or R2 backup, and does not clear remaining release holds. Reuse that completed investigation.
 
-**SYMPTOM**
+Continuation: full isolated unit/integration suite at source ddcd06e passed 347/347 without skips; focused target/release/identity checks 18/18, lint/typecheck and reconciled dry-run passed. Check PR73 for latest hosted CI rather than reusing a superseded run. App publication remains gated; configuration-only privacy repair is separate from app deployment.
 
-A hostname does not resolve, the certificate warning is new, `rega24.com` does not reach `www`, or the retired `regaplatform.com` host stops redirecting.
+October26 TLS repair: official zone already min_tls_version=1.2. Media R2 domain minTLS was1.0; updated only that domain to1.2 with enabled=true, HTTP200/readback. Initial SSL initializing/pending reached active on final HTTP200 readback; ownership remained active. Investigate a real handshake failure separately from this transient control-plane state. For a verified compatibility outage, review a scoped minimum-version rollback; do not detach/delete the domain or touch objects, other zones or R&L. TLS1.0/1.1-only clients intentionally no longer negotiate.
 
-**LOCATION**
+R2 TLS final readback PASS: enabled=true, minTLS=1.2, SSLactive/ownershipactive around02:20Z. Zone TLS minimum does not control R2 custom domains; use the separate R2 setting. See [official R2 documentation](https://developers.cloudflare.com/r2/buckets/public-buckets/). No signed URL, object byte or credential was read/changed.
 
-- Public DNS for `rega24.com` and `regaplatform.com`: Cloudflare NS `autumn.ns.cloudflare.com` and `max.ns.cloudflare.com` (verified 2026-10-25).
-- Certificate seen on `www.rega24.com`: Google Trust Services WE1, CN `rega24.com`, notAfter 2026-01-21. Renews through Cloudflare; there is no certificate file in git.
-- App redirects: [next.config.ts](next.config.ts). HSTS is two years with `includeSubDomains` and `preload`.
 
-**DIAGNOSTIC STEPS**
+October26 analytics diagnosis (01:55–02:25UTC window): Cloudflare GraphQL reported337 HTTP504, all requestSource=edgeWorkerCacheAPI under the synthetic /__rega-edge-cache key namespace. Source edge-cache.ts uses cache.match; official Cloudflare Cache API documentation confirms an absent/expired item logs internal504 while returning undefined to the Worker. These were NOT evidence of client-visible outage. Excluding synthetic cache paths, returned groups contained no5xx (including1532 www200 and14apex301); these are bounded adaptive analytics, not an end-to-end journey test. Worker analytics reported1364requests/0exceptions; schema confirms CPU p50/p99 units microseconds, observed19483/650432µs (19.483/650.432ms). This is not billing/Free capacity proof or a universal latency score. Never infer plan entitlement or site downtime from unfiltered counters. Root-cause documentation: https://developers.cloudflare.com/workers/runtime-apis/cache/ and request-source filtering in Cloudflare analytics.
 
-1. Compare apex, www, and both retired hosts. On 2026-10-25 all four reached `www.rega24.com`.
-2. `A`/`AAAA` answers in Cloudflare anycast ranges are normal. They are not the origin IP.
-3. A certificate warning before 2026-01-21 is not simple expiry. Check the hostname on the certificate and the Cloudflare SSL mode. Do not upload a random certificate into the repo.
-4. HSTS means browsers will keep forcing HTTPS. Do not "test" by turning TLS off.
-5. Dashboard custom-domain bindings were UNKNOWN in the 2026-10-25 audit. A public 301 does not prove which Cloudflare rule sent it.
 
-**SAFE FIX**
+October26 deployment continuation after explicit owner request “Deploy100/100”: main advanced to5a9a95c (cleanup#76).
+Integration preserves its verified consolidated business cards/deletions, tracked-inventory regression and dependency
+updates without importing PR71 schema or PR74 page changes. Shared inventory wrapper remains canonical; the existing
+untracked-artifact regression exercises it. Main's old target is still rega-platform; prepared branch targets the
+verified existing rega24. Final deployment must use reviewed main, exact successful CI and live-target preflight.
+CI40257680473 ended cancelled at its35-minute job limit; logs show slow Ubuntu browser-dependency installation and
+E2E still running at cancellation, with no completed full-suite result. CI budget now60minutes, preserving every
+check. No timeout/test assertion was weakened. Python deployment is now explicit main-only manual dispatch with the
+same exact-CI/target gates: a web release must not redeploy an unchanged backend, rotate its token or start inference.
+Existing Python integration is preserved. Protected API checks now reject redirects, matching focused PR75's safety
+requirement. Old provider revocation, runtime DB ownership, billing and independent backup/media evidence remain
+unverified; explicit deployment intent does not certify those facts or permit a false100 score.
 
-- Keep both `rega24.com` and `www.rega24.com` pointed at Cloudflare. Apex must 301 to www, not the other way around (www-to-apex caused a loop before; see the comment in `next.config.ts`).
-- Leave the retired hosts redirecting until the owner says to remove them. Do not delete the zones in this runbook.
-- If the certificate is actually expired after the notAfter date, renew it in Cloudflare SSL. Do not change nameservers away from Cloudflare as a first step.
 
-**VERIFICATION**
-
-The four host checks match the system map table. `openssl` or the browser shows a current certificate for `rega24.com`. HSTS is still present on www.
-
-**ROLLBACK**
-
-Restore the previous DNS record or redirect rule. Do not lower the HSTS max-age to 0 on production as a rollback; that is cached by visitors.
-
-## Performance problems
-
-**SYMPTOM**
-
-Pages feel slow, health `latencyMs` is high, or Cloudflare reports error 1102 (CPU or subrequest limit).
-
-**LOCATION**
-
-- Health handler does several SQL round-trips: [src/app/api/v1/health/route.ts](src/app/api/v1/health/route.ts). Its `latencyMs` includes those queries.
-- DB pool: [src/lib/db.workers.ts](src/lib/db.workers.ts) (3 connections per request, Hyperdrive if bound).
-- Edge cache: [src/lib/edge-cache.ts](src/lib/edge-cache.ts). The cache key includes the Worker version, so a deploy cold-starts HTML cache on purpose.
-- Rate limits and maps are not the database.
-
-**DIAGNOSTIC STEPS**
-
-1. One health sample on 2026-10-25 was `latencyMs: 1692` with `database: ok`. That is a single observation, not a trend. Repeat `/api/v1/health` and a cached HTML page before changing infrastructure.
-2. Distinguish HTML (may be edge-cached) from `/api/v1/health` (`cache-control: no-store`).
-3. 1102 after a DB change usually means a Prisma client or a connection was created per query. Read the comments in `db.workers.ts` before adding a pool.
-4. Hyperdrive is not in the committed wrangler file. Adding it is an infrastructure change, not a docs change, and needs the real config id from Cloudflare. Do not invent an id.
-5. Check Beta health history for a new failure, not just slowness.
-
-**SAFE FIX**
-
-- Fix a query or an accidental per-request client in code, then ship through CI.
-- Do not add a paid APM, a second database, or a cache vendor for a single slow sample.
-- Do not disable the edge cache globally to "see fresh HTML".
-- Do not raise Worker CPU limits as the first step.
-
-**VERIFICATION**
-
-Repeated health calls and a public HTML page are back to the usual range for this site, with no 1102 in the deploy that follows. Say the range you measured. Do not invent a baseline.
-
-**ROLLBACK**
-
-Roll the Worker back to the SHA before the performance patch. Cache fills again on its own.
-
-## CI/CD failures
-
-**SYMPTOM**
-
-GitHub CI is red, Deploy did not start, Beta health failed, or a pull request's Neon branch job failed.
-
-**LOCATION**
-
-- [.github/workflows/ci.yml](.github/workflows/ci.yml) (includes `node scripts/validate-system-docs.mjs`)
-- [.github/workflows/deploy.yml](.github/workflows/deploy.yml)
-- [.github/workflows/production-health.yml](.github/workflows/production-health.yml)
-- [.github/workflows/production-browser.yml](.github/workflows/production-browser.yml)
-- [.github/workflows/neon-branch.yml](.github/workflows/neon-branch.yml)
-- [.github/workflows/db-migrate.yml](.github/workflows/db-migrate.yml) and [.github/workflows/worker-secrets-sync.yml](.github/workflows/worker-secrets-sync.yml) are manual
-
-**DIAGNOSTIC STEPS**
-
-1. Read the failed job log. Do not rerun Deploy until CI is green.
-2. Documentation validator failures are link, heading, inventory, or secret-pattern errors. Fix the doc or regenerate the inventory. They are not production outages.
-3. CI Postgres is throw-away (`postgres:16` service). A migration failure there means the committed SQL is wrong. Do not point CI at production.
-4. E2E refuses production-looking databases. Do not override that.
-5. Beta health failure with Cloudflare Access headers is a different branch of the workflow (private gate). On 2026-10-25 the public health URL returned 200 with no Access challenge. If Access is turned on later, follow the workflow's Access checks instead of treating 302 as downtime.
-6. Production browser runs only after a **CI-triggered** successful Beta health. A skipped browser run after the hourly health job is expected.
-7. Neon branch job failure on a PR does not deploy production. See the database section and PROJECT_MEMORY before retrying in a loop.
-
-**SAFE FIX**
-
-- Code or test failure: fix the smallest cause and push. Required checks stay required.
-- Docs inventory drift: `node scripts/generate-system-inventory.mjs` and commit the JSON with the doc change.
-- Do not mark a failing check as success, and do not skip the identity guard to get a green deploy.
-- Manual migrate and secret sync stay manual. A red CI run is not a reason to type `migrate` into the migrate workflow.
-
-**VERIFICATION**
-
-CI `verify` is green on the SHA. If the commit is not documentation-only, Deploy publishes and Beta health passes. If it is documentation-only, Deploy is green **and** logs the skip line, and the live health body is unchanged aside from `time` and `latencyMs`.
-
-**ROLLBACK**
-
-Revert the commit on `main`. If a non-docs commit already deployed, roll the Worker back as well. Reverting a docs-only commit does not require a Worker rollback.
-
+Prepared release-proof improvements (not live until deployment): public health emits sourceSha only for a validated
+40-hex commit value, never arbitrary environment text. Deploy tags/messages and non-secret REGA_COMMIT_SHA identify
+reviewed source while --keep-vars preserves configuration. Post-deploy script scripts/health/release-proof.mjs checks
+100% active-version tag, health/database, canonical200, apex301, legacy admin308/query preservation and anonymous
+admin sign-in without an exposed sidebar. Protected provider authorization never goes to public endpoints. Existing
+Beta health now runs after successful deployment, followed by the existing production browser check; no new paid
+monitor. Browser verification budget45minutes accounts for the same measured slow dependency download.
+Neon metadata read explicitly for lucky-glitter-73195208 maps production br-floral-hall-b22rpgrw to endpoint
+ ep-autumn-glitter-b2jxzis9 and its public direct/pooled hostnames, now declared in the manifest (not credentials).
+Database identity helper compares the runtime URL server-side with these hosts/database, rejecting alternate-host
+query overrides and returning only a boolean. Existing health liveness semantics stay unchanged for local QA;
+production release proof requires databaseTargetMatchesManifest=true. The actual runtime relationship remains
+unverified until a real protected deployment serves that check. No connection string/password is retrieved or
+returned to the model, documentation or public health. No database target, record, role or schema is changed.
 ## Cleanup release checks — 2026-10-26
 
 - `missing previews block`: both candidate Wrangler files define isolated previews. `__preview-health` checks isolation; other preview requests return non-ready 503 before application/data/provider handlers. Do not copy production bindings to make previews appear functional. Full QA uses CI's disposable database.
@@ -395,3 +311,29 @@ Revert the commit on `main`. If a non-docs commit already deployed, roll the Wor
 ## Deployment annotation forwarding — 2026-10-26
 
 If release output says `Unknown arguments: CI, release` before upload, the OpenNext deployment wrapper split a message containing spaces. Keep the deployment message a single shell-safe token, retain the verified SHA tag and identity/ownership guards, and run `npm run cf:dry-run` through the OpenNext forwarding path before publishing. Plain Wrangler dry-run alone did not exercise that path. Failed run40390749927 uploaded no new application. See PR77 and the central Doc for the subsequent verified release.
+
+Final config-only readback 2026-10-27 around07:19UTC: web deployment `5b341ca4-f063-4358-af07-427bac5c8d3e`,
+version `5ab5e7d5-2c4d-4f98-aaad-6074dfeb69f5` at100%, source tag `c8f0cf2ac859414f48fd8dd080484f587b661679`.
+Python deployment `88b3856b-9c55-49c5-8558-fa09f6ba344b`, version `ba9b4d0c-61c7-4dba-b3cb-1c0eb819a226`
+at100%; its source tag remains absent/UNKNOWN, never invented. Both query-redaction flags true; logs enabled and
+all binding names/types retained. Scoped settings revisions preserve code, tokens and data; not a new admin release.
+
+## Final verified application checkpoint — 2026-10-27 07:32UTC
+
+Application commit `5711ea64d395adf1970366ae9a8cd19b92baf2a4` passed
+[hosted CI40465533832](https://github.com/rebar9988-max/Rega/actions/runs/40465533832), job122059885004:
+**363/363 unit/integration, 338/338 browser E2E (15.9minutes), 8/8 Python**, zero Node fail/skip; clean install/audit0,
+lint/typecheck, disposable PostgreSQL migration/preflight, ordinary Node + OpenNext Worker builds, actual forwarding
+dry-run and both workerd media/business smokes PASS. Bundle16066.85KiB uncompressed/3653.07KiB gzip.
+Approved About/catalogue content preserved in all7locales; schema/migrations unchanged. Local synthetic PG stopped.
+
+This follow-up changes documentation only: no app/source/workflow/dependency or generated-fingerprint change since
+that tested commit. Offline validation PASS:8docs/388fingerprints/108environment names/10complete procedures;
+links/anchors/whitespace valid. Any newly triggered full CI on the documentation SHA is distinct from the proven
+application checkpoint; do not claim an uncompleted run passed or bypass required current-head checks.
+
+**Release BLOCKED, not completed:** Neon production SELECT1 still has verified402/quota; public health503/data
+routes500. No merge/application upload or production migration merely to generate a failing release. Existing
+mainc8f0cf2 source remains, with the separately verified privacy settings revisions above. Confirm existing Free
+quota restoration first, then bounded DB/health/data/owner checks and guarded exact-main CI/release proof. No paid
+upgrade, data/resource/domain deletion, database replacement/reset, R&L operation or100/100 certification.

@@ -1,7 +1,7 @@
 # Deployment (Cloudflare Workers)
 
-Production is the Worker `rega-platform` (`wrangler.jsonc`), built with OpenNext. Secrets and variables live in the
-Cloudflare dashboard (Workers & Pages → rega-platform → Settings → Variables and Secrets) and in GitHub repository secrets;
+Production is the Worker `rega24` (`wrangler.jsonc`), built with OpenNext. Secrets and variables live in the
+Cloudflare dashboard (Workers & Pages → rega24 → Settings → Variables and Secrets) and in GitHub repository secrets;
 **none are ever committed or printed**. The variable names are in `.env.example`.
 
 ## 1. Pre-deploy checks (all must pass)
@@ -15,7 +15,7 @@ npm test
 npm run build:node            # Node build used by the E2E suite
 npm run e2e                   # needs a throw-away Postgres: DATABASE_URL (E2E refuses production-looking databases)
 npm run build                 # Workers build (OpenNext)
-npx wrangler deploy --dry-run # validates the bundle, deploys nothing
+npm run cf:dry-run           # OpenNext forwarding + source metadata, deploys nothing
 ```
 
 `.github/workflows/ci.yml` runs exactly this on every pull request and on `main`.
@@ -45,7 +45,8 @@ Manual fallback remains available through `workflow_dispatch` on the deploy work
 Local/manual command:
 
 ```bash
-npm run build && npx wrangler deploy
+node scripts/verified-release.mjs && npm run build
+# Use the guarded main workflow for upload and post-deploy proof.
 ```
 
 Needs `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` in the environment. Rollback: `npx wrangler rollback` (or redeploy the
@@ -66,10 +67,21 @@ New runtime variables of this release (names only; all optional unless noted): `
 | `/de/impressum`, `/de/privacy`, `/de/terms`, `/de/report`, `/de/contact` | 200; no `[[PLACEHOLDER]]` once `LEGAL_*` is filled |
 | `/de/businesses`, `/de/jobs`, `/de/events`, `/de/guides` | 200 (empty state or cards) |
 | `/sitemap.xml` and one `/sitemaps/*.xml` | valid XML with `hreflang` alternates |
-| `/robots.txt` | lists the sitemap, no `/dr` |
+| `/robots.txt` | lists the sitemap, no `/admin` |
 | `/manifest.webmanifest`, `/sw.js`, `/offline.html` | 200 |
-| Register → (verify email if a provider is set) → sign in → `/dr` | owner dashboard opens |
+| Register → (verify email if a provider is set) → sign in → `/admin` | owner dashboard opens |
 | Submit a listing as an owner, publish as a moderator | appears publicly, listed in the sitemap |
 | Assistant: a question with no match | deterministic "nothing found" answer, no model call |
 
 Then check Cloudflare Web Analytics / logs for errors and watch `production-health.yml`.
+
+
+Production target (2026-10-27): existing `rega24`, stable tag `7b845cda2ee749c89c4f9b83490609b4`,
+both official domains. Current verified live tag is main `c8f0cf2`; PR73 admin changes are not yet live.
+A subsequently recreated `rega-platform` has a different tag and is never a release target. Shared
+[production preflight](../scripts/production-target.mjs) checks account/tag/domains and creates nothing.
+[Exact-main gate](../scripts/verified-release.mjs) requires successful current-main CI before build and upload.
+The [release proof](../scripts/health/release-proof.mjs) verifies allocation/source/database/routing/admin after upload.
+Keep the release message a single shell-safe token: OpenNext forwards through a shell. CI exercises this exact path.
+Neon provisioning/deletion is manual-only; ordinary CI uses disposable PostgreSQL. Python deployment is manual-only
+and is unnecessary for an unchanged backend. Read [acceptance blockers](REGA24_CONSOLIDATION.md) before release.
