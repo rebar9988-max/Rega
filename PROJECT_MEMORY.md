@@ -835,3 +835,60 @@ unverified until a real protected deployment serves that check. No connection st
 returned to the model, documentation or public health. No database target, record, role or schema is changed.
 
 Integrated candidate verification: 351/351 unit/integration tests PASS, zero fail/skip on fresh isolated local PostgreSQL; TypeScript/ESLint and 10 workflow YAML parses PASS. Initial health-fixture adapter lacked the new pure identity import; updated to the real helper, retaining every schema/liveness assertion, then full suite passed. Public-source-hash redaction and wrong-source/rollout/redirect/admin-boundary rejection cases pass. npm audit remains0 at all severities after main#76 lockfile merge. Documentation PASS:8files/387source fingerprints/108env names/10procedures. No ordinary local font build or production certification claimed; hosted CI required before release.
+## Cleanup release hardening — 2026-10-26 — PR #76
+
+Owner explicitly requested resolving the blockers and deploying. Original PR head d4e5bbf passed complete hosted CI 40285442047, including browser/runtime checks. Added recovery checkpoint `checkpoint/rega24-pr76-before-hardening-20261026` before this continuation. Target repair reuses the focused implementation/tests from #75; no unrelated #71/#73/#74 application changes imported. Unconsumed Neon provisioning reuses #72's manual policy: real schema/migration/browser QA remains on disposable PostgreSQL; no Neon branches/backups are deleted. Verified main has no protected required checks or rulesets, so no required gate was removed.
+
+Dependency audit reached zero findings with Zod 4.6.7+ and scoped same-major glob/undici overrides. Zod 4's optional-default behaviour initially failed four new PATCH regression tests; all six validation cases pass after explicitly removing create defaults from partial-update fields. Creation defaults stay unchanged. Added an all-severities npm audit CI gate.
+
+Both Wrangler files now define isolated previews. Preview entry guards run before application/cache/provider handlers, return explicit non-ready 503 except isolated health, and cannot use inherited production credentials. This repairs missing preview configuration without claiming a fully configured functional preview. Full application QA remains in CI. Python isolation regression passes; no billed inference invoked.
+
+Cloudflare metadata-only protection: OPENAI_API_KEY and XAI_API_KEY in rega24's Previews Base were plain_text. Converted the SAME values internally to secret_text via scoped merge-patch; HTTP 200/readback verified both types, all binding names, production deployed_on and references unchanged. No key value was output, no credential deleted/rotated, no production code published by that operation. Provider-side revocation/rotation is still unverified; encrypting storage is not proof of revocation.
+
+Pre-release live health/browser: canonical site serves normally; DB/migrations/content/auth/storage/AI/email ready, four configured providers. Current immutable rollback version f7a118cd-6f64-4206-a19e-ec5b434a5bc9/deployment cf37b341-5e5c-4703-915b-731aeefa6bfd. Its source has no Git annotation; do not claim exact source identity. New web releases attach the checked-out verified workflow-run SHA as version tag, and the read-only target preflight checks stable tag/account/domains before publishing. Final-head CI, deployment and live readback results must follow before marking this release done.
+
+## About page global positioning — 2026-10-26
+
+Owner scope: About page only; replace community/Germany-only positioning with Rega24's global vision. Updated only `about` and `pageMeta.about` in all seven catalogues. Describe existing directory, map, profiles and language support; distinguish global ambition from actual local coverage and avoid unverified trust/AI/native-app claims. About-only metadata uses Rega24 and an absolute title, leaving shared branding/navigation untouched. Existing layout, CMS story, operator/legal identity and social links preserved. Baseline main 7e16349; canonical Worker rega24 verified read-only (deployment e3747e03/version df20f6a1, 100%). Local and exact-head CI/release verification pending; no deployment claimed yet. No database, infrastructure, dependencies or unrelated page changes.
+
+
+## Hosted validation and deployment-command repair — 2026-10-26
+
+PR #77 merged as `7e16349e2314255a25987b1497c66d0dd927cdea`; its tree exactly matches the verified candidate. Main CI `40387716820` passed: 351 unit/integration tests, 331 E2E tests, 8 Python tests, zero Node skips/failures, lint/typecheck, disposable PostgreSQL migration/preflight, both production builds and workerd codec/route smokes. npm 10 clean install and audit pass with zero findings at every severity. Overrides are version-specific (`glob@10.3.3`, `undici@7.29.1`) and retain their major versions. Focused release tests: 26/26.
+
+The #77 source checkpoint is 4,592,343 tracked bytes / 538 files versus baseline 4,568,729 / 533. Exactly 3 removed, 8 added, 26 modified; added safety code, tests and documentation explain the net increase. Dependencies removed: 0. Workflows modified: 7; deleted: 0. No schema/migration or brand-asset changes. Git history is preserved; no Git-storage reduction is claimed.
+
+Python production workflow `40387716870` passed live health, anonymous rejection and authenticated process/embed/rerank smokes before enabling web integration. Cloudflare's Python build trigger incorrectly used the web root/commands. Its production trigger is now validation-only in `/services/ai-python`; the existing branch Preview settings were repaired separately. Correct preview build `cf311921-fc31-4eed-9e48-942728b73464` passed; readback shows `main.py` and only `REGA_ISOLATED_PREVIEW=1`, without production/provider bindings. Public preview probes returned Cloudflare 403/1010; live preview application QA is unverified.
+
+Web release `40390749927` failed before upload: OpenNext forwards CLI arguments through a shell without preserving spaces in the deployment message (`Unknown arguments: CI, release`). The message now uses one shell-safe token. CI's dry-run invokes the actual OpenNext forwarding path with the same message and a synthetic tag; this passed locally alongside 19 release/identity/ownership tests and documentation validation. No application or dependency version change is needed. Final hosted/deployment/readback evidence belongs in PR #77 and the central Doc; never treat a dry-run as a production deployment.
+
+
+Concurrent integration: PR78 independently passed full CI40391309551 and merged About copy/metadata changes as8edc1ed. Preserve its complete content and memory entry. PR79 had only an append conflict in this file; resolved by retaining both notes, without altering application files. Production health now reads the approved Kurdish About title from the catalogue rather than a stale hardcoded title.
+
+
+## Unified office integration continuation — 2026-10-27 UTC
+
+This checkpoint supersedes older live assertions below. **VERIFIED live:** canonical `rega24` deployment
+`11e9b60c-b4b1-48a8-a700-d9eed3e38fc8`, version `9e96a7f3-ece0-4c6b-8a87-5f2b9463c450`, 100% allocation;
+its version tag equals official main `c8f0cf2ac859414f48fd8dd080484f587b661679`. Both official custom domains remain
+attached to this existing Worker. This is a release from another continuation, not proof the prepared `/admin`
+changes are live. Existing main includes approved About copy, canonical listing links, isolated web/Python preview
+guards and the shell-safe deployment-message repair; this branch preserves them all. No schema changes needed.
+
+**VERIFIED live drift:** canonical Worker query redaction is false again after an outside release; prepared Wrangler
+sets true for both Workers. The original rega-platform was renamed, but a different unconfigured `rega-platform`
+was later recreated with stable tag `5a9fdd620f164660ab00487ce5cb6970`, six structural bindings and no official domains
+or application secrets at the last read. It is not the canonical deployment target. Preserve duplicate candidates
+until callers/migration/rollback are verified; no deletion is authorized by mere name similarity.
+
+**VERIFIED repository:** merge current official main into PR73; retain manual-only Neon resource policy and ordinary
+CI on supported Ubuntu24.04. Previous PR73 CI40343378458 hit its60-minute limit after about50minutes of Ubuntu
+browser-dependency installation and only partially ran E2E. It is not a complete suite result. Current main's runner
+pin addresses that environment cause; no tests are removed. Release message stays the tested single token and
+OpenNext forwarding dry-run includes the source variable. Python remains unchanged at runtime for this web release.
+
+Runtime production Neon identity, actual owner OTP/admin operations, historical provider-key revocation, independent
+backup/media recovery, billing entitlement and a measured universal100 score remain **UNKNOWN/BLOCKED**. No new paid
+service, production SQL/object mutation, duplicate deletion or R&L modification performed by this continuation.
+
+Integrated October27 verification: clean npm ci and audit0 all severities; full363/363 unit/integration PASS with0fail/skip on fresh isolated local PostgreSQL, lint/typecheck and10YAML parses PASS;28focused release/preview/identity checks and4retained main release-configuration checks PASS. Inventory check initially caught source edits made during the first suite; regenerated after all edits, then entire363suite passed. No assertion relaxed. Current offline reference8docs/388source fingerprints/108env names/10complete procedures. Fresh provider metadata confirms same production Neon endpoint (idle/scale-to-zero is not outage), R2TLS1.2/SSLactive and official domain ownership. Billing API still403/noOAuthscope. Hosted final integrated CI is required before merge/deploy.

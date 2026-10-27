@@ -466,25 +466,25 @@
     "sun": "Pazar"
   },
   "about": {
-    "title": "REGA hakkında",
-    "intro": "REGA (ڕێگا), Almanya ve Avrupa'daki Kürt diasporası için çok dilli bir rehber olarak kurulmuş modern ve güvenilir bir dijital platformdur.",
-    "goal": "Amacımız, günlük temel ihtiyaçları ve aramaları tek bir yerde toplamak; böylece kültürel ve dilsel olarak size uygun hizmetlere kolayca ulaşmanızı sağlamak, aynı zamanda işletme sahiplerine ve uzmanlara işlerini ve becerilerini resmî ve güvenilir biçimde tanıtma imkânı sunmaktır.",
-    "offerH": "Neler sunuyoruz?",
+    "title": "Rega24 hakkında",
+    "intro": "Rega24; işletmeleri, uzmanları ve hizmetleri keşfetmek için çok dilli bir dijital platformdur. İnsanları ve işletmeleri, dil ve ülke sınırlarını aşan bir vizyonla aynı yerde buluşturuyoruz.",
+    "goal": "Amacımız, insanların açık bilgilerle uygun seçenekleri bulabilmesi için aramayı ve karşılaştırmayı kolaylaştırmak. Rega24 tek bir topluluk veya ülkeyle sınırlı değildir. Vizyonumuz küreseldir; kapsamımız gerçek yerel bilgiler ve ihtiyaçlarla büyür.",
+    "offerH": "Rega24 neler sunar?",
     "offer": [
       {
-        "label": "Hizmet rehberi",
-        "text": "Yaşadığınız yere yakın hizmetleri ve uzmanları harita üzerinden kolayca bulun."
+        "label": "Kolay keşif",
+        "text": "Kategori, şehir ve konuma göre arayın; kayıtlı işletmeleri ve hizmetleri haritada keşfedin."
       },
       {
-        "label": "Güven ve güvence",
-        "text": "Doğrulanmış bilgiler (Rega Verified) ve şeffaf bir değerlendirme sistemi."
+        "label": "Açık bilgiler",
+        "text": "Mevcut bilgiler doğrultusunda işletme profillerindeki adreslere, çalışma saatlerine ve iletişim seçeneklerine ulaşın."
       },
       {
-        "label": "Akıllı destek",
-        "text": "Aramayı kolaylaştırmak ve ihtiyaçlarınızı yanıtlamak için yapay zekâ (REGA AI)."
+        "label": "Kendi dilinizde iletişim",
+        "text": "Rega24 yedi dilde kullanılabilir; kullanıcıların aramasını ve işletme sahiplerinin çalışmalarını tanıtmasını kolaylaştırır."
       }
     ],
-    "quote": "REGA, sizinle çevrenizdeki güvenilir hizmetler arasındaki köprüdür."
+    "quote": "Rega24 — hizmetleri keşfet, yerel bağlar kur, küresel düşün."
   },
   "nearby": {
     "title": "Yakınımda",
@@ -994,7 +994,7 @@
     "locations": "Almanya ve Avrupa'daki Kürt işletmelerinin konumları: şehre göre göz atın, adres ve çalışma saatlerini görün, haritada yolu bulun.",
     "nearby": "Yakınınızdaki Kürt işletmelerini ve hizmetlerini bulun: konumunuzu kullanın veya şehir seçin, sonuçlara harita ya da liste olarak bakın.",
     "ai": "REGA Asistanı, Rega24'daki gerçek kayıtlara dayanarak sorularınızı yanıtlar: Almanya ve Avrupa'daki Kürt işletmelerini bulun.",
-    "about": "Rega24 hakkında: Almanya ve Avrupa'daki Kürtler için çok dilli bir portal; amacı, sunduğu hizmetler ve arkasındaki kişiler.",
+    "about": "Rega24 ile tanışın: işletmeleri ve hizmetleri kategori, şehir ve haritayla keşfetmek için açık bilgiler sunan, küresel vizyonlu çok dilli platform.",
     "search": "Rega24'daki tüm Kürt işletmelerinde, hizmetlerde ve konumlarda arama yapın, sonuçları türe göre süzün.",
     "register": "Rega24'da ücretsiz hesap oluşturun, işletmenizi ekleyin ve Almanya ile Avrupa'daki Kürtlere ulaşın.",
     "login": "Rega24 hesabınıza giriş yapın: kayıtlarınızı yönetin, incelemeye gönderin ve ayarlarınızı değiştirin.",

@@ -66,16 +66,16 @@ test("search is noindex; sitemap lists every locale with hreflang alternates", a
   expect(robots).toContain("Disallow: /api/");
 });
 
-test("manifest and About page (Rega24 identity, approved About text)", async ({ request, page }) => {
+test("manifest identity is preserved; About uses approved global Rega24 copy", async ({ request, page }) => {
   const m = await (await request.get("/manifest.webmanifest")).json();
   expect(m.name).toBe("Rega24");
   await page.goto("/en/about");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("About REGA");
-  await expect(page.locator("#about-offer")).toHaveText("What do we offer?");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("About Rega24");
+  await expect(page.locator("#about-offer")).toHaveText("What Rega24 offers");
   await expect(page.locator("#about-offer + ul li")).toHaveCount(3);
   await page.goto("/ckb/about");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("دەربارەی ڕێگا (REGA)");
-  await expect(page.locator("main")).toContainText("ڕێگا، پردی پەیوەندیی تۆ و خزمەتگوزارییە باوەڕپێکراوەکانی دەوروبەرتە.");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("دەربارەی Rega24");
+  await expect(page.locator("main")).toContainText("Rega24 — دۆزینەوەی خزمەتگوزاری، پەیوەندیی نزیکتر، دیدێکی جیهانی.");
 });
 
 test("crawlable internal links: home footer reaches About; header reaches all sections", async ({ page }) => {

@@ -166,7 +166,7 @@ they do not replace the central memory hub or past decisions.
 
 ### Rega24 unified office continuation (2026-10-25)
 
-Official product identity is Rega24; the package remains rega-platform. Live web Worker is rega24 (verified 2026-10-26); the old rega-platform endpoint is absent. Its stable resource tag is declared in the manifest.
+Official product identity is Rega24; the package remains rega-platform. Live web Worker is rega24 (verified 2026-10-26); a different unconfigured rega-platform was subsequently recreated; it is not the canonical target. Its stable resource tag is declared in the manifest.
 Canonical office is `/admin`, with one implementation in `src/app/admin`; `/dr` is legacy redirect only. Preserve
 owner-only SUPER_ADMIN and existing role/membership restrictions. Non-secret production identity/ownership comes
 from `src/config/project.json`; secrets remain protected provider configuration. Both release paths must verify
@@ -178,4 +178,8 @@ second narrative memory; generated JSON at `docs/generated/system-inventory.json
 by the same canonical generator. Legacy generate/validate commands remain wrappers; CI checks links, structure,
 freshness and common accidental-secret patterns. Documentation-only commits skip Worker deployment.
 
-Before any release or runtime secret sync, `scripts/production-target.mjs` must read back the existing Worker tag and both official custom domains. Missing resources, permission failures or ownership drift block all mutations; never recreate a retired Worker. Neon previews require the `neon-preview` PR label and verified Free quota; ordinary CI uses disposable Postgres.
+Before any release or runtime secret sync, `scripts/production-target.mjs` must read back the existing Worker tag and both official custom domains. Missing resources, permission failures or ownership drift block all mutations; never recreate a retired Worker. Neon resource provisioning/deletion is manual-only; ordinary CI uses disposable Postgres.
+
+### Canonical target and isolated previews — 2026-10-26
+
+The verified existing Rega24 web Worker is `rega24` (stable tag `7b845cda2ee749c89c4f9b83490609b4`), not retired `rega-platform`. This supersedes older REGA Worker labels above; R&L identifiers are unchanged. Candidate release configuration reconciles the guard, deployment, diagnostics and runtime secret targets and adds the read-only `scripts/production-target.mjs` gate. Web releases tag their exact GitHub SHA. Branch previews are deliberately non-ready and block all application/provider/data handlers; `/__preview-health` proves isolation only. Real application/database/browser validation stays in CI with disposable PostgreSQL. Never mistake a green preview upload for a production-ready app. No automatic Neon resource creation/deletion is needed for these PR tests.

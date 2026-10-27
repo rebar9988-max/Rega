@@ -47,6 +47,7 @@ export const businessCreateSchema = z.object({
   tags: z.array(z.string().trim().max(50)).max(30).default([]),
 });
 
+// Zod 4 applies defaults inside optional fields. PATCH must leave omitted values untouched.
 export const businessUpdateSchema = businessCreateSchema.partial().extend({
   status: businessCreateSchema.shape.status.removeDefault().optional(),
   verified: businessCreateSchema.shape.verified.removeDefault().optional(),

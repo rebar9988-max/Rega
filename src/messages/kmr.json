@@ -466,25 +466,25 @@
     "sun": "Yekşem"
   },
   "about": {
-    "title": "Derbarê REGA de",
-    "intro": "REGA (ڕێگا) platformeke dîjîtal a nûjen û pêbawer e, wekî rêberekî pirzimanî ji bo diyasporaya kurd li Almanya û Ewropayê hatiye damezrandin.",
-    "goal": "Armanca me ew e ku hemû pêdiviyên sereke û lêgerînên rojane li yek cihî bicivînin, da ku hûn bi hêsanî xizmetên ku ji aliyê çand û zimên ve ji we re minasib in bibînin; her wiha derfetê didin xwedîkar û pisporan ku kar û şiyanên xwe bi awayekî fermî û pêbawer bidin nasîn.",
-    "offerH": "Em çi pêşkêş dikin?",
+    "title": "Derbarê Rega24 de",
+    "intro": "Rega24 platformeke dîjîtal a pirzimanî ye ji bo dîtina karsazî, pispor û xizmetguzariyan. Em mirov û xwediyên karsaziyan li yek cihê digihînin hev, bi dîtineke ku sînorên ziman û welatan derbas dike.",
+    "goal": "Armanca me hêsankirina lêgerîn û berawirdkirinê ye, da ku her kes bi agahiyên zelal vebijarkên guncaw bibîne. Rega24 bi civakekê an welatekî tenê re ne sînordar e. Dîtina me cîhanî ye; qada xizmetên me li gorî agahiyên rast û pêdiviyên herêmî fireh dibe.",
+    "offerH": "Rega24 çi pêşkêş dike?",
     "offer": [
       {
-        "label": "Rêberê xizmetan",
-        "text": "Xizmet û pisporên nêzî cihê jiyana xwe bi rêya nexşeyê bi hêsanî bibînin."
+        "label": "Dîtina hêsan",
+        "text": "Li gorî kategorî, bajar û cihê bigere û karsazî û xizmetên tomarkirî li ser nexşeyê bibîne."
       },
       {
-        "label": "Bawerî û pêbaweriyê",
-        "text": "Agahiyên erêkirî (Rega Verified) û pergaleke nirxandinê ya zelal."
+        "label": "Agahiyên zelal",
+        "text": "Li gorî agahiyên berdest, navnîşan, demjimêrên kar û rêyên têkiliyê di profîlên karsaziyan de bibîne."
       },
       {
-        "label": "Piştgiriya jîr",
-        "text": "Zîrekiya çêkirî (REGA AI) ji bo hêsankirina lêgerînê û bersivdana pêdiviyên we."
+        "label": "Têkilî bi zimanê te",
+        "text": "Rega24 bi heft zimanan berdest e, da ku lêgerîn ji bo bikarhêneran û danasîna kar ji bo xwediyên karsaziyan hêsantir bibe."
       }
     ],
-    "quote": "REGA pira di navbera we û xizmetên pêbawer ên derdora we de ye."
+    "quote": "Rega24 — xizmetan bibîne, têkiliyên herêmî ava bike, cîhanî bifikire."
   },
   "nearby": {
     "title": "Nêzîkî min",
@@ -994,7 +994,7 @@
     "locations": "Cihên karsazên kurdî li Almanya û Ewropayê: li gorî bajêr bigere, navnîşan û demjimêrên xebatê bibîne û rê li ser nexşeyê bibîne.",
     "nearby": "Karsaz û xizmetên kurdî yên nêzîk bibîne: cihê xwe bikar bîne an bajarekî hilbijêre û wan li ser nexşe an lîsteyê bibîne.",
     "ai": "Alîkarê REGA li gorî tomarên rastîn ên Rega24 bersiva pirsên te dide: karsazên kurdî li Almanya û Ewropayê bi hêsanî bibîne.",
-    "about": "Derbarê Rega24: dergehek pirzimanî ji bo kurdên Almanya û Ewropayê, armanca wê, çi pêşkêş dike û kî li pişta wê ye.",
+    "about": "Rega24 nas bike; platformeke pirzimanî ji bo dîtina karsazî û xizmetan li gorî kategorî, bajar û nexşeyê, bi agahiyên zelal û dîtineke cîhanî.",
     "search": "Di hemû karsaz, xizmet û cihên kurdî yên Rega24 de bigere û encaman li gorî cureyê parzûn bike.",
     "register": "Li Rega24 hesabek bêpere çêke da ku karsaziya xwe tomar bikî û bigihîjî kurdên Almanya û Ewropayê.",
     "login": "Têkeve hesabê xwe yê Rega24: karsaziyên xwe birêve bibe, tomaran ji bo kontrolê bişîne û mîhengên xwe biguherîne.",

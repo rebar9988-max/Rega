@@ -1,6 +1,31 @@
 # REGA24 system map
 
-Last verification: **2026-10-26 UTC** (continued consolidation checkpoint below). Initial audit baseline: `e8e2b69b0d3da1e88cf75e904cf6ff4a4e8b90a8`. Prepared application/pipeline source checkpoint: `ddcd06e8dc159685089521adc6bad948b75af128` (PR73). Dated historical checkpoints below are explicitly superseded where newer evidence exists.
+## Current continuation — 2026-10-27 UTC
+
+This checkpoint supersedes older live assertions below. **VERIFIED live:** canonical `rega24` deployment
+`11e9b60c-b4b1-48a8-a700-d9eed3e38fc8`, version `9e96a7f3-ece0-4c6b-8a87-5f2b9463c450`, 100% allocation;
+its version tag equals official main `c8f0cf2ac859414f48fd8dd080484f587b661679`. Both official custom domains remain
+attached to this existing Worker. This is a release from another continuation, not proof the prepared `/admin`
+changes are live. Existing main includes approved About copy, canonical listing links, isolated web/Python preview
+guards and the shell-safe deployment-message repair; this branch preserves them all. No schema changes needed.
+
+**VERIFIED live drift:** canonical Worker query redaction is false again after an outside release; prepared Wrangler
+sets true for both Workers. The original rega-platform was renamed, but a different unconfigured `rega-platform`
+was later recreated with stable tag `5a9fdd620f164660ab00487ce5cb6970`, six structural bindings and no official domains
+or application secrets at the last read. It is not the canonical deployment target. Preserve duplicate candidates
+until callers/migration/rollback are verified; no deletion is authorized by mere name similarity.
+
+**VERIFIED repository:** merge current official main into PR73; retain manual-only Neon resource policy and ordinary
+CI on supported Ubuntu24.04. Previous PR73 CI40343378458 hit its60-minute limit after about50minutes of Ubuntu
+browser-dependency installation and only partially ran E2E. It is not a complete suite result. Current main's runner
+pin addresses that environment cause; no tests are removed. Release message stays the tested single token and
+OpenNext forwarding dry-run includes the source variable. Python remains unchanged at runtime for this web release.
+
+Runtime production Neon identity, actual owner OTP/admin operations, historical provider-key revocation, independent
+backup/media recovery, billing entitlement and a measured universal100 score remain **UNKNOWN/BLOCKED**. No new paid
+service, production SQL/object mutation, duplicate deletion or R&L modification performed by this continuation.
+
+Last verification: **2026-10-27 UTC** (continued consolidation checkpoint below). Initial audit baseline: `e8e2b69b0d3da1e88cf75e904cf6ff4a4e8b90a8`. Prepared application/pipeline source checkpoint: `ddcd06e8dc159685089521adc6bad948b75af128` (PR73). Dated historical checkpoints below are explicitly superseded where newer evidence exists.
 
 Read [troubleshooting](REGA24_TROUBLESHOOTING.md) for incidents and [generated inventory](docs/REGA24_INVENTORY.md) for exact dependency ranges, API files, environment names, models and source fingerprints. Existing decisions/history remain in [PROJECT_MEMORY.md](PROJECT_MEMORY.md), [CLAUDE.md](CLAUDE.md) and the [central memory hub](https://docs.google.com/document/d/1pp6GW-UM9AQ9TuUJHumziaujxB6ZOza5S3xwA6dmxu4/edit). This map indexes that documentation layer; it does not create another decision log.
 
@@ -15,7 +40,7 @@ Read [troubleshooting](REGA24_TROUBLESHOOTING.md) for incidents and [generated i
 
 ## 2. Architecture diagram
 
-Solid arrows describe prepared branch source/configuration; dashed arrows require endpoint/functional confirmation. Main still targets retired rega-platform until reviewed reconciliation is merged; never deploy it unchanged. Cloudflare custom-domain, Worker and R2 resources themselves were read live.
+Solid arrows describe prepared branch source/configuration; dashed arrows require endpoint/functional confirmation. Official main now targets the existing rega24; PR73 admin/provenance additions remain prepared until exact-head CI and release. Cloudflare custom-domain, Worker and R2 resources themselves were read live.
 
 ```mermaid
 flowchart TD
@@ -51,7 +76,7 @@ Operational control plane identifiers are locators, not credentials. Named human
 | --- | --- | --- |
 | GitHub | VERIFIED live `rebar9988-max/Rega`, public, default `main` | Source, workflows and review; repository owner `rebar9988-max` |
 | Cloudflare account | VERIFIED live `ee07860dbb8e61ff6915758785baf89a` | REGA resources below only; account also contains unrelated projects |
-| Web Worker | VERIFIED live `rega24` (same stable tag `7b845cda2ee749c89c4f9b83490609b4`; old rega-platform endpoint 404), compatibility `2026-09-01`, Node compatibility | Next.js web/API, auth, DB, media client, gateway; Cloudflare Workers |
+| Web Worker | VERIFIED live `rega24` (same stable tag `7b845cda2ee749c89c4f9b83490609b4`; old endpoint later recreated under a different tag; never target it), compatibility `2026-09-01`, Node compatibility | Next.js web/API, auth, DB, media client, gateway; Cloudflare Workers |
 | Python Worker | VERIFIED live `rega-ai-python`, compatibility `2026-10-06`, `python_workers`, `AI` binding | Optional rerank/embedding/text processing; Cloudflare Workers AI |
 | Neon | VERIFIED live project `Rega24`, ID `lucky-glitter-73195208`, AWS `eu-central-1`, PostgreSQL 18 | Relational data; project ID matches [preview workflow](.github/workflows/neon-branch.yml) |
 | Neon production branch | VERIFIED live `production`, `br-floral-hall-b22rpgrw`, default/primary, ready, `protected:false` | Runtime URL-to-branch match UNKNOWN; no connection strings read |
@@ -277,3 +302,8 @@ query overrides and returning only a boolean. Existing health liveness semantics
 production release proof requires databaseTargetMatchesManifest=true. The actual runtime relationship remains
 unverified until a real protected deployment serves that check. No connection string/password is retrieved or
 returned to the model, documentation or public health. No database target, record, role or schema is changed.
+Re-run the public checks before claiming they are still true. Update this section when they are re-checked.
+
+## Cleanup release candidate — 2026-10-26
+
+PR #76 reuses #75's existing-target reconciliation: web `rega24`, stable tag `7b845cda2ee749c89c4f9b83490609b4`; Python stays `rega-ai-python`. No resource recreated. Deployment and secret-sync gates validate live ownership before writes. The web release records its GitHub SHA in the version tag. CI now audits every npm severity. Neon provisioning is manual-only; disposable PostgreSQL still validates migrations and application behaviour. Preview configs exist for both Workers; entry guards block production data/provider execution and honestly report `applicationReady: false`. These are candidate source changes until the final release is verified. The two formerly plaintext Previews Base provider bindings were changed to secret_text using their existing values; production version/references remained unchanged. Provider-side rotation remains unverified.

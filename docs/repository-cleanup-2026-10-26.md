@@ -1,8 +1,8 @@
 # Rega24 repository cleanup — 2026-10-26
 
 Scope: `rebar9988-max/Rega` only. Baseline `7011eb5482e518aa1b0e2f3974d516cbb8c3f6d2`.
-PR: https://github.com/rebar9988-max/Rega/pull/76
-Status: safe source cleanup prepared; release blocked, not a 100/100 production certification.
+PRs: https://github.com/rebar9988-max/Rega/pull/76 and https://github.com/rebar9988-max/Rega/pull/77
+Status: cleanup and hardening merged; current release evidence is maintained in PR #77 and the central project-memory Doc. Earlier results below are historical checkpoints. No universal 100/100 certification is claimed.
 
 ## Recovery and method
 
@@ -44,7 +44,7 @@ Responsive AVIF/WebP variants are dynamically referenced, not duplicates. All lo
 
 Repeated admin image-selection, form and API scaffolding blocks were retained: their validation, access and state ownership differ, and unifying them without behavioural proof would add risk.
 
-## Verification
+## Initial verification checkpoint (superseded by hosted results below)
 
 - Lint and TypeScript: pass before and after.
 - 448 baseline/candidate static HTML comparisons: pass across seven locales, both card variants, all logo/cover combinations, ratings, verification and place/no-place. Child services/components were isolated with deterministic doubles; this is not a full browser screenshot audit.
@@ -55,8 +55,33 @@ Repeated admin image-selection, form and API scaffolding blocks were retained: t
 - npm audit: **10 → 8** affected-package findings; remaining **6 high, 2 moderate, 0 critical**. Remaining roots: pinned glob in the minifier, undici through Miniflare/Wrangler, and Zod. Audit proposes major Zod migration/toolchain downgrades; these were not forced into cleanup. Further compatible remediation requires dedicated validation.
 - Hosted CI pending at initial report publication; check final PR head before release. Local DB integration, authenticated live flows, browser accessibility/performance and runtime smokes require hosted checks; no blanket certification claimed.
 
-## Size and release safety
+## Initial size and release-safety checkpoint
 
 Baseline tracked payload: **4,568,729 bytes / 533 files**. Code/config changes before this report and memory: **4,562,437 bytes / 531 files** (6,292 bytes less). Final payload including report/memory is recorded in the PR; documentation is deliberately retained even if it offsets byte savings. Baseline Git pack: **7.67 MiB**. Git history was preserved, so Git object storage is not expected to shrink; GitHub metadata size is not a working-tree metric.
 
 Cloudflare read-only verification: canonical `rega24` deployment `cf37b341-5e5c-4703-915b-731aeefa6bfd`, version `f7a118cd-6f64-4206-a19e-ec5b434a5bc9`, 100% traffic. No application published by this task. Main still targets retired `rega-platform`; the existing #75 target reconciliation, deployed-source provenance and credential-release holds must be resolved first. Green cleanup CI alone does not make merging/deploying safe. R&L was not accessed or changed.
+
+## Owner-authorized blocker repair and deployment continuation
+
+The owner subsequently required resolving the blockers and explicitly requested deployment. Original PR head d4e5bbf completed hosted CI successfully (40285442047). Recovery checkpoint: `checkpoint/rega24-pr76-before-hardening-20261026`.
+
+- npm audit is now zero at every severity: Zod 4.6.7+, minifier-scoped glob 10.x and Miniflare-scoped undici 7.x overrides. Four regression tests first demonstrated Zod 4 resetting omitted PATCH fields; six validation tests now preserve update semantics/create defaults and bound oversized collection failures. CI adds `npm audit --audit-level=low`.
+- The focused #75 target repair is reused, with live account/stable-Worker/domain verification before release and secret writes. New web deployments attach the GitHub SHA tag for provenance. No other feature PR is imported.
+- The unconsumed external Neon provisioner is replaced with #72's manual policy. Main has no required status checks/rulesets; no protected gate is bypassed. Actual migration/preflight/integration/browser validation remains on CI PostgreSQL. No Neon data/resource deleted; genuine future preview testing requires audited capacity and a consumer.
+- Both Worker configs contain preview definitions and enforce non-ready isolation before app/provider handlers. Only `/__preview-health` returns isolated health; application requests return explicit 503. A successful upload is not functional application certification. This prevents inherited base credentials reaching production data or billed AI while real application QA runs in CI.
+- Previews Base's two plaintext provider values were converted internally, unchanged, to secret_text with HTTP 200/readback. Binding names, production deployment time and references were unchanged. No key was output/deleted/rotated. Provider-side historical revocation remains unverified.
+- Local focused release tests 25/25, Python 8/8, lint/typecheck and Worker build pass. Final-head hosted verification and live release evidence must be recorded in the PR before certification.
+- Pre-release public health and a real browser showed the current site working; DB/migrations/content/auth/storage/AI/email ready, four configured providers. Immutable rollback version: f7a118cd-6f64-4206-a19e-ec5b434a5bc9. It lacks a Git annotation, so exact old-source identity is unknown; the new SHA tag resolves future traceability. No production code had been changed at this checkpoint.
+
+Primary references: https://zod.dev/v4/changelog and https://developers.cloudflare.com/workers/previews/configuration/ . The isolation guard is intentional safety, not a claim that an unconfigured preview has passed application QA.
+
+
+## Hosted validation and deployment-command repair — 2026-10-26
+
+PR #77 merged as `7e16349e2314255a25987b1497c66d0dd927cdea`; its tree exactly matches the verified candidate. Main CI `40387716820` passed: 351 unit/integration tests, 331 E2E tests, 8 Python tests, zero Node skips/failures, lint/typecheck, disposable PostgreSQL migration/preflight, both production builds and workerd codec/route smokes. npm 10 clean install and audit pass with zero findings at every severity. Overrides are version-specific (`glob@10.3.3`, `undici@7.29.1`) and retain their major versions. Focused release tests: 26/26.
+
+The #77 source checkpoint is 4,592,343 tracked bytes / 538 files versus baseline 4,568,729 / 533. Exactly 3 removed, 8 added, 26 modified; added safety code, tests and documentation explain the net increase. Dependencies removed: 0. Workflows modified: 7; deleted: 0. No schema/migration or brand-asset changes. Git history is preserved; no Git-storage reduction is claimed.
+
+Python production workflow `40387716870` passed live health, anonymous rejection and authenticated process/embed/rerank smokes before enabling web integration. Cloudflare's Python build trigger incorrectly used the web root/commands. Its production trigger is now validation-only in `/services/ai-python`; the existing branch Preview settings were repaired separately. Correct preview build `cf311921-fc31-4eed-9e48-942728b73464` passed; readback shows `main.py` and only `REGA_ISOLATED_PREVIEW=1`, without production/provider bindings. Public preview probes returned Cloudflare 403/1010; live preview application QA is unverified.
+
+Web release `40390749927` failed before upload: OpenNext forwards CLI arguments through a shell without preserving spaces in the deployment message (`Unknown arguments: CI, release`). The message now uses one shell-safe token. CI's dry-run invokes the actual OpenNext forwarding path with the same message and a synthetic tag; this passed locally alongside 19 release/identity/ownership tests and documentation validation. No application or dependency version change is needed. Final hosted/deployment/readback evidence belongs in PR #77 and the central Doc; never treat a dry-run as a production deployment.

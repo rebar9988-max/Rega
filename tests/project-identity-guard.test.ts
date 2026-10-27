@@ -137,7 +137,7 @@ test("the guard is read-only: no file writes, no network, no child processes exc
 test("every production-changing workflow runs the guard BEFORE its first production step", () => {
   const read = (p: string) => readFileSync(new URL(`../${p}`, import.meta.url), "utf8");
   const targets: [string, RegExp][] = [
-    [".github/workflows/deploy.yml", /run: npx wrangler deploy/],
+    [".github/workflows/deploy.yml", /^\s*(?:run:\s*)?npx wrangler deploy\b/m],
     [".github/workflows/db-migrate.yml", /run: npx prisma migrate deploy/],
     [".github/workflows/worker-secrets-sync.yml", /wrangler secret bulk/],
     [".github/workflows/ai-python-deploy.yml", /run: uv run pywrangler deploy/],
@@ -160,5 +160,13 @@ test("REGA's own files agree with the guard's REGA identity", () => {
     assert.match(text, /PERMANENT P0/);
     assert.ok(text.includes("rebar9988-max/Rega") && text.includes("rebar9988-max/rega-cargo"), file);
     assert.ok(text.includes("https://www.rega24.com") && text.includes("https://www.rlgo.net"), file);
+  }
+});
+
+test("retired web workers cannot be deployed even alongside canonical identity", async () => {
+  const { checkProjectIdentity } = await load();
+  for (const worker of ["rega-platform", "rega"]) {
+    const result = checkProjectIdentity({ project: "REGA", repos: [REGA_REPO], workers: ["rega24", worker] });
+    assert.equal(result.allow, false);
   }
 });

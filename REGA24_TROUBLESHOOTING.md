@@ -1,6 +1,31 @@
 # REGA24 troubleshooting
 
-Last repository/control-plane verification: **2026-10-26 UTC**; scope and evidence in [system map](REGA24_SYSTEM_MAP.md). Read [AGENTS.md](AGENTS.md), [CLAUDE.md](CLAUDE.md), [PROJECT_MEMORY.md](PROJECT_MEMORY.md) and the existing central hub before diagnosis. Older incident notes are history, not current live evidence.
+## Current continuation — 2026-10-27 UTC
+
+This checkpoint supersedes older live assertions below. **VERIFIED live:** canonical `rega24` deployment
+`11e9b60c-b4b1-48a8-a700-d9eed3e38fc8`, version `9e96a7f3-ece0-4c6b-8a87-5f2b9463c450`, 100% allocation;
+its version tag equals official main `c8f0cf2ac859414f48fd8dd080484f587b661679`. Both official custom domains remain
+attached to this existing Worker. This is a release from another continuation, not proof the prepared `/admin`
+changes are live. Existing main includes approved About copy, canonical listing links, isolated web/Python preview
+guards and the shell-safe deployment-message repair; this branch preserves them all. No schema changes needed.
+
+**VERIFIED live drift:** canonical Worker query redaction is false again after an outside release; prepared Wrangler
+sets true for both Workers. The original rega-platform was renamed, but a different unconfigured `rega-platform`
+was later recreated with stable tag `5a9fdd620f164660ab00487ce5cb6970`, six structural bindings and no official domains
+or application secrets at the last read. It is not the canonical deployment target. Preserve duplicate candidates
+until callers/migration/rollback are verified; no deletion is authorized by mere name similarity.
+
+**VERIFIED repository:** merge current official main into PR73; retain manual-only Neon resource policy and ordinary
+CI on supported Ubuntu24.04. Previous PR73 CI40343378458 hit its60-minute limit after about50minutes of Ubuntu
+browser-dependency installation and only partially ran E2E. It is not a complete suite result. Current main's runner
+pin addresses that environment cause; no tests are removed. Release message stays the tested single token and
+OpenNext forwarding dry-run includes the source variable. Python remains unchanged at runtime for this web release.
+
+Runtime production Neon identity, actual owner OTP/admin operations, historical provider-key revocation, independent
+backup/media recovery, billing entitlement and a measured universal100 score remain **UNKNOWN/BLOCKED**. No new paid
+service, production SQL/object mutation, duplicate deletion or R&L modification performed by this continuation.
+
+Last repository/control-plane verification: **2026-10-27 UTC**; scope and evidence in [system map](REGA24_SYSTEM_MAP.md). Read [AGENTS.md](AGENTS.md), [CLAUDE.md](CLAUDE.md), [PROJECT_MEMORY.md](PROJECT_MEMORY.md) and the existing central hub before diagnosis. Older incident notes are history, not current live evidence.
 
 
 ## Continued admin and security checkpoint — 2026-10-25
@@ -12,7 +37,7 @@ correction in browser QA; sidebar links now disable prefetch and health uses a p
 prefixes bypass public edge cache. System settings require fresh `settings.write` permission and an atomic audit.
 
 Live R2 CORS now includes official www/apex origins plus legacy origins. OpenAI/xAI storage is now secret_text and
-both Workers redact query strings. Historical exposed-key revocation remains a release blocker; changing storage
+prepared source sets query redaction; latest live web readback regressed false (see current checkpoint). Historical exposed-key revocation remains a release blocker; changing storage
 is not key rotation. Never roll back to a pre-hardening config version or restore plaintext credentials.
 
 Both prepared deployment workflows use [exact commit verification](scripts/verified-release.mjs), including manual
@@ -45,7 +70,7 @@ Expected configuration: canonical `/en` 200; apex 301 to same path/query on www.
 
 **SYMPTOM** → Entire site unavailable, blank response, timeout, or health 503.
 
-**LOCATION** → [routing and deployment map](REGA24_SYSTEM_MAP.md), [health handler](src/app/api/v1/health/route.ts), [Worker wrapper](worker.mjs), [edge cache](src/lib/edge-cache.ts), Cloudflare rega-platform Deployments/Logs, existing [Beta health](.github/workflows/production-health.yml).
+**LOCATION** → [routing and deployment map](REGA24_SYSTEM_MAP.md), [health handler](src/app/api/v1/health/route.ts), [Worker wrapper](worker.mjs), [edge cache](src/lib/edge-cache.ts), Cloudflare rega24 Deployments/Logs, existing [Beta health](.github/workflows/production-health.yml).
 
 **DIAGNOSTIC STEPS** → Compare canonical public page, static `/brand/rega-logo.webp` and uncached `/api/v1/health`. Read status, content-type and Ray ID without sharing cookies. Check Cloudflare active version/allocation and timestamp against exact successful deployment/CI. Inspect health database/migrations/contentColumns/missingEnv booleans; a 200 health does not prove email/storage/AI operation. If static works but health fails, proceed to DB/config procedures. If no TLS/HTTP reaches the Worker, proceed to DNS/SSL. A cached page can outlive a DB outage.
 
@@ -250,3 +275,15 @@ query overrides and returning only a boolean. Existing health liveness semantics
 production release proof requires databaseTargetMatchesManifest=true. The actual runtime relationship remains
 unverified until a real protected deployment serves that check. No connection string/password is retrieved or
 returned to the model, documentation or public health. No database target, record, role or schema is changed.
+## Cleanup release checks — 2026-10-26
+
+- `missing previews block`: both candidate Wrangler files define isolated previews. `__preview-health` checks isolation; other preview requests return non-ready 503 before application/data/provider handlers. Do not copy production bindings to make previews appear functional. Full QA uses CI's disposable database.
+- Neon preview HTTP 422: the old workflow created unused branches without consuming its outputs. PR #72's manual policy is reused; no branch, backup or production data is deleted. CI still runs migration/preflight/integration/browser tests on PostgreSQL. Future genuine Neon preview work needs audited capacity and an actual consumer.
+- After Zod 4 upgrades, partial PATCH schemas must remove create defaults before making fields optional. `tests/validation-upgrade.test.ts` covers omitted-field preservation and bounded oversized collections.
+- Target drift: `scripts/production-target.mjs` rejects wrong account, stable Worker tag, services or official domain bindings. Never recreate retired `rega-platform`. New deployed version tags must match the verified GitHub SHA. Retain the preceding version for rollback and verify all production readiness checks after publishing.
+- Previews Base provider values are now secret_text. This storage conversion preserves values and does not prove provider-side rotation/revocation. Do not log or export secrets while checking them.
+
+
+## Deployment annotation forwarding — 2026-10-26
+
+If release output says `Unknown arguments: CI, release` before upload, the OpenNext deployment wrapper split a message containing spaces. Keep the deployment message a single shell-safe token, retain the verified SHA tag and identity/ownership guards, and run `npm run cf:dry-run` through the OpenNext forwarding path before publishing. Plain Wrangler dry-run alone did not exercise that path. Failed run40390749927 uploaded no new application. See PR77 and the central Doc for the subsequent verified release.

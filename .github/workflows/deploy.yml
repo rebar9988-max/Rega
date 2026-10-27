@@ -86,7 +86,11 @@ jobs:
 
       - name: Deploy to Cloudflare Workers
         if: steps.scope.outputs.skip != 'true'
-        run: npx wrangler deploy --tag "$(git rev-parse HEAD)" --message "Rega24 source $(git rev-parse HEAD)" --var "REGA_COMMIT_SHA:$(git rev-parse HEAD)" --keep-vars
+        env:
+          RELEASE_SHA: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+        run: |
+          test "$RELEASE_SHA" = "$(git rev-parse HEAD)"
+          npx wrangler deploy --tag "$RELEASE_SHA" --message Verified-GitHub-CI-release --var "REGA_COMMIT_SHA:$RELEASE_SHA" --keep-vars
 
       - name: Verify active production version, domains, database and anonymous admin protection
         if: steps.scope.outputs.skip != 'true'
