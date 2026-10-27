@@ -1,29 +1,69 @@
-# Rega24 three-page migration — current release checkpoint
+# Rega24 three-page migration — verified checkpoint
 
-**2026-10-27: implemented; production activation blocked by existing Neon quota exhaustion. No 100/100 claim.**
+**2026-10-27: implementation, integration, tests and production builds PASS. Deployment and migrated live verification BLOCKED by the existing Neon quota outage. No 100/100 certification.**
 
-The canonical production Worker remains on the independently published main commit `c8f0cf2ac859414f48fd8dd080484f587b661679`. PR74 is not merged and the new page designs are not live. The entries below retain earlier investigation history; this current-status section supersedes their historical blocker and deployment snapshots.
+Release candidate: `b0e25de367580c0968df42bddbc1724d9e7491cf`, [PR74](https://github.com/rebar9988-max/Rega/pull/74). Application code matches `c6feedd`; subsequent changes document the quota outage and give unchanged CI gates60minutes for slow upstream Ubuntu package downloads. Official main remains `c8f0cf2ac859414f48fd8dd080484f587b661679`. No migration merge or application deployment was performed.
 
-## Current release evidence
+## Three existing production routes
 
-- Application candidate: `c6feeddca51c39e017ec3675b9e0427168ba0247`, [PR74](https://github.com/rebar9988-max/Rega/pull/74). It includes all current main changes without altering About, homepage, Python service/workflow, auth/providers, deployment forwarding, dependency fixes or production schema/data.
-- Latest full candidate [CI40465523259](https://github.com/rebar9988-max/Rega/actions/runs/40465523259): still running at this checkpoint; all gates through ordinary Node build passed. Browser installation/E2E and final workerd gates remain pending. Both Cloudflare candidate check runs have succeeded.
-- Prior candidate `e6f3318` [full CI40342014013](https://github.com/rebar9988-max/Rega/actions/runs/40342014013) passed ordinary Node/Worker builds, full browser E2E and workerd codec/route smokes. This is prior-head evidence, not a substitute for current-head checks.
-- Current local clean install, Prisma client generation, TypeScript, ESLint,24 focused release/identity/i18n tests and documentation validation pass. `npm audit --omit=optional`: zero vulnerabilities.
-- Latest published WebsitePublisher source versions were rechecked2026-10-27 and remain v3/hash1650477e (registration),67308bfe (AI),3215436a (cities).
-- Current existing production deployment: `11e9b60c-b4b1-48a8-a700-d9eed3e38fc8`; version `9e96a7f3-ece0-4c6b-8a87-5f2b9463c450`,100% allocation, SHA tag `c8f0cf2ac859414f48fd8dd080484f587b661679`. This is **not** a three-page migration deployment.
-- Read-only Cloudflare verification: both official domains remain on existing `rega24` production;28 binding names/types retained. No secret values retrieved, no deployment/DNS/database/credential/provider change in this continuation.
-- Browser baseline: original logo present; the existing three English URLs return cached HTTP200 with no new premium markers. Health returns503/databaseerror; existing hosted Beta health40456968000 independently reports data-route500 failures.
-- Read-only Neon `SELECT 1` against existing production project/branch/database returns HTTP402: account or project exceeded quota. No paid upgrade, new database, resource/data deletion or quota bypass was attempted.
+| Feature | Exact Sorani URL | Existing integration |
+| --- | --- | --- |
+| Business registration | https://www.rega24.com/ckb/for-business | Shared BusinessForm/saveBusinessAction, existing authentication/email verification/permissions, advisory-lock duplicate protection, drafts and admin approval. No unapproved publication. |
+| REGA AI introduction | https://www.rega24.com/ckb/ai | Same AiChat/API/providers/rate limits; approved example questions and links to the existing interface. No invented answers or paid inference. |
+| City services | https://www.rega24.com/ckb/locations | Existing Köln/Bonn/Düsseldorf records, approved-only business/location queries, real category/city GET filters and existing map link. No fabricated listings or city inserts. |
 
-## Remaining release gate
+All three also support kmr/de/en/ar/tr/fa. At08:01–08:02UTC these existing Sorani URLs returned HTTPS200 but **did not contain the new design markers**. That is baseline route availability, not migrated live verification.
 
-The existing owner account must restore Neon quota before activating this release. A new Worker version changes version-specific cache keys and can expose database failures currently hidden by cached public pages. Preserve the current Worker version. After quota restoration: verify public health200/ok/database/migrations/content readiness; reconcile any newer main changes; require exact-head CI; use the existing main CI-gated production pipeline; then run the added read-only three-page live workflow and inspect its screenshots,21locale/page×4width checks and12Lighthouse reports. No live registration/admin approval or paid AI inference has been submitted.
+## Exact-head quality evidence
 
-Actual Lighthouse scores for the migrated **production** pages are unavailable because rollout is blocked. Historical local measurements below are not production certification and did not meet every target. There is no migration deployment ID or live regression certification yet. Unrelated main source is preserved; exhaustive live regression proof awaits database recovery and release.
+[Full CI40468435059](https://github.com/rebar9988-max/Rega/actions/runs/40468435059), job122069561606, completed SUCCESS on the exact release candidate. All three check runs (CI and both Cloudflare Workers Builds) are successful.
 
-## Current changed paths versus main
+| Check | Actual result |
+| --- | --- |
+| Clean install / dependency audit | PASS; zero npm vulnerabilities at every severity |
+| Python | 8 passed |
+| Disposable PostgreSQL migrations / read-only preflight | PASS; no production database writes |
+| ESLint / TypeScript | PASS |
+| Unit / integration | 351 passed,0 failed,0 skipped |
+| Full Playwright E2E | 334 passed,16.5minutes |
+| Ordinary Node production build | PASS; no test font fixture |
+| Workers production build / actual OpenNext deployment dry-run | PASS; no upload |
+| workerd business image codecs / route smokes | PASS |
+| Documentation validation / YAML / focused local release checks | PASS;19 focused tests after CI-budget repair,24 earlier identity/release/i18n tests |
 
+The three-page browser coverage checks21page/locale combinations at320/375/768/1440px, original logo, metadata/direction, city/category URLs and English light/dark axe/reduced motion. Existing integration/browser coverage includes registration, duplicate drafts, moderation/admin approval and security regression paths. This is isolated CI evidence, not authenticated production workflow proof.
+
+Earlier attempts40465523259 and40468137209 were superseded/cancelled, never reported successful. Completed logs prove the first was slowly downloading Ubuntu dependencies for20+minutes;351unit/8Python checks had passed. The only CI configuration repair was job budget35→60minutes. Every test/assertion/build/runtime gate remains intact. Final full CI above supersedes those incomplete attempts.
+
+## Verified production state and blocker
+
+At08:01:07UTC, https://www.rega24.com/api/v1/health returned HTTP503,ok=false,database=error,migrations=false,contentColumns=false,missingEnv=[]. Existing hosted Beta health40456968000 independently failed health and database-backed routes before this release. Authoritative read-only `SELECT 1` on existing Neon project `lucky-glitter-73195208`, production branch `br-floral-hall-b22rpgrw`/neondb returned HTTP402: account or project exceeded quota. Independent shared-memory telemetry corroborates the provider quota error. No paid activation, replacement database, branch/data deletion, connection-string switch or quota bypass was attempted.
+
+Fresh readback supersedes earlier snapshots: existing web Worker `rega24`, stable tag `7b845cda2ee749c89c4f9b83490609b4`, currently serves deployment `5b341ca4-f063-4358-af07-427bac5c8d3e` / version `5ab5e7d5-2c4d-4f98-aaad-6074dfeb69f5` at100%. Its retained source tag is `c8f0cf2ac859414f48fd8dd080484f587b661679`; API annotation and central memory identify an independently applied query-redaction-only repair at07:17UTC. Both official domains still point to this existing Worker. Query redaction is now true; all28 binding names/types remain. Secret values were not retrieved/output. **This is not a three-page migration deployment ID. Do not roll back to the earlier insecure logging configuration.**
+
+Activation remains blocked until the existing owner account restores database quota/readiness. A new Worker version changes cache keys and can expose database failures hidden by currently cached public responses. The prior-version advice in historical notes below is superseded by the current secure version above. No new migration deployment ID, authenticated live registration/approval proof, live AI inference, or migrated production Lighthouse result exists.
+
+## Lighthouse: actual measurements and limits
+
+Production measurements of the migrated pages are unavailable because they are not deployed. Initial historical local measurements from26October are retained in [the JSON artifact](verification/three-page-lighthouse-2026-10-26.json):
+
+| Local page | Performance | Accessibility | Best practices | SEO | LCP | CLS |
+| --- | --- | --- | --- | --- | --- | --- |
+| Registration | 91 | 100 | 100 | 92 | 3.33s | 0.00293 |
+| AI | 72 | 100 | 100 | 92 | 2.33s | 0 |
+| Cities | 72 | 100 | 100 | 92 | 3.33s | 0 |
+
+These used a test-only font fixture, system Chromium and concurrent local tests; localhost canonicals intentionally pointed to production. A subsequent local registration run scored82/100/100/92. They are not production certification or proof of the requested95+/100 targets. The added read-only workflow is prepared to collect12 live reports plus screenshots after the existing authorized web deployment succeeds; it has not run against a migrated production release.
+
+## Preservation and continuation
+
+The diff preserves all independent current main changes: homepage/shared shell/logo, About, Python source/workflow, auth, existing AI providers/rate limits, dependency fixes, deployment forwarding and unrelated navigation. No new production Worker/database/provider/dependency, schema migration, production data write, domain/DNS/secret change, R&L/Bakery operation or preview deletion was performed. Full existing CI regression gates pass; exhaustive live regression certification remains blocked by the database outage.
+
+After existing quota is restored: verify public health200/ok and database/migration/content readiness; refresh official main without losing independent changes; reuse this exact verified candidate if unchanged or test any new integration; merge through the existing guarded main pipeline; verify the deployed SHA/100% allocation and bindings; run the new read-only production checks and inspect real screenshots/Lighthouse scores. Do not weaken gates or create an alternative system.
+
+## Changed paths against current main
+
+- `.github/workflows/ci.yml`
 - `.github/workflows/three-page-live.yml`
 - `PROJECT_MEMORY.md`
 - `REGA24_SYSTEM_MAP.md`
