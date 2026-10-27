@@ -127,6 +127,11 @@ test("D1 runtime preserves atomicity and existing domain behavior", async t => {
     assert.deepEqual(await prisma.business.findUniqueOrThrow({ where: { id: saved.id }, include: { locations: true } }), before);
     const duplicate = await saveBusiness(input, { id: userId }, { canPublish: true, canCreateCity: true });
     assert.equal(duplicate.ok, true);
+    await prisma.city.createMany({ data: Array.from({ length: 100 }, (_, i) => ({ countryId: country.id, nameEn: `Berlin reserve ${i}`, slug: `berlin-reserve-${i}` })) });
+    const { geoCities } = await import("../../src/lib/data/geo");
+    const places = await geoCities({ countryCode: "DE", q: "ber", limit: 40 });
+    assert.equal(places.cities[0].id, city.id);
+    assert.ok(places.cities[0].count > 0);
   });
   await prisma.$disconnect();
 });
