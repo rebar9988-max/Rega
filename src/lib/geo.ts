@@ -52,7 +52,7 @@ export function timezoneFor(countryCode?: string | null): string {
 }
 
 const DAYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"] as const;
-type Day = (typeof DAYS)[number];
+export type Day = (typeof DAYS)[number];
 
 function minutes(hhmm: string): number | null {
   const m = /^(\d{1,2}):(\d{2})$/.exec(hhmm.trim());
@@ -100,4 +100,55 @@ export function isOpenNow(hours: unknown, countryCode: string | null | undefined
     if (end < start && minute < end) return true; // yesterday's overnight range still running
   }
   return false;
+}
+
+export type BusinessOpenStatus = "OPEN" | "CLOSING_SOON" | "CLOSED" | "OPENS_SOON" | "HOURS_UNKNOWN";
+export type OpenStatusResult = {
+  status: BusinessOpenStatus;
+  /** Next change in the location's own week: when an open business closes, or when a closed one opens. */
+  next?: { day: Day; time: string; inMinutes: number };
+};
+/** Default lead time for "closing soon" / "opens soon". */
+export const SOON_MINUTES = 60;
+const WEEK_MIN = 7 * 24 * 60;
+const hhmm = (min: number) => `${String(Math.floor(min / 60) % 24).padStart(2, "0")}:${String(min % 60).padStart(2, "0")}`;
+
+/**
+ * Detailed state for the badge on business pages: the same reading of the stored hours as `isOpenNow` (OPEN and
+ * CLOSING_SOON exactly when it returns true, HOURS_UNKNOWN exactly when it returns null), plus the next opening or
+ * closing time in the location's own timezone. Adjacent ranges ("20:00–24:00" then "00:00–02:00") count as one.
+ * A business is never reported open on a guess: no readable hours -> HOURS_UNKNOWN.
+ */
+export function openStatus(hours: unknown, countryCode: string | null | undefined, now = new Date(), soonMinutes = SOON_MINUTES): OpenStatusResult {
+  const open = isOpenNow(hours, countryCode, now);
+  if (open === null) return { status: "HOURS_UNKNOWN" };
+  const table = hours as Record<string, unknown>;
+  const { day, minute } = localDayAndMinute(now, timezoneFor(countryCode));
+  const t = DAYS.indexOf(day) * 1440 + minute;
+  // Every range as [start, end) in minutes since Sunday 00:00, repeated for last/this/next week so wrap-around works.
+  const ranges: [number, number][] = [];
+  DAYS.forEach((d, i) => {
+    for (const [s, e] of parseRanges(table[d])) {
+      const start = i * 1440 + s;
+      const end = e > s ? i * 1440 + e : (i + 1) * 1440 + e;
+      for (const offset of [-WEEK_MIN, 0, WEEK_MIN]) ranges.push([start + offset, end + offset]);
+    }
+  });
+  ranges.sort((a, b) => a[0] - b[0]);
+  const at = (abs: number, inMinutes: number) => ({ day: DAYS[(((Math.floor(abs / 1440)) % 7) + 7) % 7], time: hhmm(((abs % 1440) + 1440) % 1440), inMinutes });
+  if (open) {
+    let end = Math.max(...ranges.filter(([s, e]) => s <= t && t < e).map(([, e]) => e));
+    for (let grew = true; grew;) {
+      grew = false;
+      for (const [s, e] of ranges) if (s <= end && e > end) { end = e; grew = true; }
+    }
+    // Open around the clock all week: nothing to announce.
+    if (end - t >= WEEK_MIN) return { status: "OPEN" };
+    const inMinutes = end - t;
+    return { status: inMinutes <= soonMinutes ? "CLOSING_SOON" : "OPEN", next: at(end, inMinutes) };
+  }
+  const nextStart = ranges.find(([s]) => s > t)?.[0];
+  if (nextStart === undefined || nextStart - t > WEEK_MIN) return { status: "CLOSED" };
+  const inMinutes = nextStart - t;
+  return { status: inMinutes <= soonMinutes ? "OPENS_SOON" : "CLOSED", next: at(nextStart, inMinutes) };
 }

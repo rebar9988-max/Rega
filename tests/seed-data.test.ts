@@ -37,6 +37,23 @@ test("seed data: required cities exist with slugs, valid coordinates, a known co
   assert.equal(REGIONS.filter((r) => r.country === "DE").length, 16, "all German states");
 });
 
+test("seed data: Kurdistan Region and Iraq cities are complete, unique, inside Iraq and regions are named in every locale", () => {
+  const iraq = CITIES.filter((c) => c.country === "IQ");
+  const kurdistan = ["Erbil", "Sulaymaniyah", "Duhok", "Halabja", "Ankawa", "Zakho", "Ranya", "Koya", "Soran", "Akre", "Shaqlawa", "Chamchamal", "Kalar", "Darbandikhan"];
+  for (const en of kurdistan) assert.equal(iraq.find((c) => c.names.en === en)?.region, "kurdistan-region", en);
+  for (const en of ["Baghdad", "Basra", "Mosul", "Kirkuk", "Najaf", "Karbala", "Kifri"]) assert.ok(iraq.some((c) => c.names.en === en), en);
+  // Disputed administrative assignment: no region is guessed.
+  assert.equal(iraq.find((c) => c.slug === "kifri")?.region, undefined);
+  // Kirkuk is a governorate of its own, never filed under the Kurdistan Region.
+  assert.equal(iraq.find((c) => c.slug === "kirkuk")?.region, "kirkuk-governorate");
+  for (const c of iraq) assert.ok(c.lat > 29 && c.lat < 37.5 && c.lng > 38.7 && c.lng < 48.8, `${c.slug} inside Iraq`);
+  assert.equal(new Set(iraq.map((c) => c.names.en)).size, iraq.length, "one record per city name");
+  assert.equal(new Set(iraq.map((c) => c.names.ckb)).size, iraq.length, "one record per Sorani name");
+  for (const r of REGIONS.filter((x) => x.country === "IQ")) {
+    for (const l of LOCALES) assert.ok((l === "en" ? r.en : l === "de" ? r.de : r.names?.[l])?.trim(), `${r.slug}.${l}`);
+  }
+});
+
 // Needs the migrated database of CI / local development; skipped when none is configured.
 test("seeds are idempotent: running them twice changes nothing", { skip: !process.env.DATABASE_URL }, async () => {
   // This test writes too: apply the same fail-closed production/content guard as E2E before running any seed.

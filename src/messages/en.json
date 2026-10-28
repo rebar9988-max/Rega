@@ -229,7 +229,8 @@
     "allTypes": "All types",
     "noResults": "No results found. Try a different term.",
     "resultCount": "{count} results",
-    "hint": "Enter at least 2 characters."
+    "hint": "Enter at least 2 characters.",
+    "openNowApplied": "Showing only places that are open now (based on their listed opening hours)."
   },
   "ai": {
     "title": "REGA Assistant",
@@ -515,6 +516,11 @@
     "open": "Open",
     "closed": "Closed",
     "hoursUnknown": "Hours unknown",
+    "closingSoon": "Closing soon",
+    "opensSoon": "Opens soon",
+    "closesAt": "Closes {time}",
+    "opensAt": "Opens {time}",
+    "opensOn": "Opens {day} {time}",
     "directions": "Directions",
     "call": "Call",
     "details": "Details",

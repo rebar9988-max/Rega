@@ -29,7 +29,9 @@ export default async function SearchPage({ params, searchParams }: { params: Pro
   const totals = { businesses: res.businesses.total, services: res.services.total, locations: res.locations.total };
   // Tabs follow the section registry (sections flagged `search`); a section without a tab here is simply not offered.
   const searchable = new Set(sectionsFor("search").map((s) => s.key));
-  const tabs = ([["all", t("search.allTypes")], ["businesses", t("search.inBusinesses")], ["services", t("search.inServices")], ["locations", t("search.inLocations")]] as const).filter(([k]) => k === "all" || searchable.has(k));
+  // An "open now" search lists businesses only (opening hours belong to businesses).
+  const tabs = ([["all", t("search.allTypes")], ["businesses", t("search.inBusinesses")], ["services", t("search.inServices")], ["locations", t("search.inLocations")]] as const)
+    .filter(([k]) => k === "all" || (searchable.has(k) && (!res.openNow || k === "businesses")));
   const shown = type === "all" ? totals.businesses + totals.services + totals.locations : totals[type];
   const active = res[type === "all" ? "businesses" : type];
 
@@ -54,6 +56,7 @@ export default async function SearchPage({ params, searchParams }: { params: Pro
                 className={`inline-flex min-h-10 items-center rounded-full border px-4 text-sm font-semibold ${type === key ? "border-brand bg-brand-soft text-brand" : "border-line bg-surface hover:bg-surface-2"}`}>{label}</Link></li>
             ))}
           </ul></nav>
+          {res.openNow && <p className="container-page mb-2 text-sm font-semibold" data-testid="search-open-now">{t("search.openNowApplied")}</p>}
           <p aria-live="polite" className="container-page mb-4 text-sm text-muted">{t("search.resultCount", { count: formatNumber(shown, locale as Locale) })}</p>
           {shown === 0 && <div className="container-page"><EmptyState title={t("common.empty")} body={t("search.noResults")} /></div>}
           {res.businesses.items.length > 0 && <section className="mb-10"><h2 className="container-page mb-3 text-lg font-bold">{t("businesses.title")}</h2><Grid>{res.businesses.items.map((b) => <BusinessCard key={b.id} b={b} />)}</Grid></section>}

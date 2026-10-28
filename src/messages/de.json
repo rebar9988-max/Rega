@@ -229,7 +229,8 @@
     "allTypes": "Alle Typen",
     "noResults": "Keine Ergebnisse gefunden. Versuchen Sie einen anderen Begriff.",
     "resultCount": "{count} Ergebnisse",
-    "hint": "Geben Sie mindestens 2 Zeichen ein."
+    "hint": "Geben Sie mindestens 2 Zeichen ein.",
+    "openNowApplied": "Es werden nur Betriebe angezeigt, die jetzt geöffnet sind (laut hinterlegten Öffnungszeiten)."
   },
   "ai": {
     "title": "REGA-Assistent",
@@ -515,6 +516,11 @@
     "open": "Geöffnet",
     "closed": "Geschlossen",
     "hoursUnknown": "Öffnungszeiten unbekannt",
+    "closingSoon": "Schließt bald",
+    "opensSoon": "Öffnet bald",
+    "closesAt": "Schließt um {time}",
+    "opensAt": "Öffnet um {time}",
+    "opensOn": "Öffnet {day} um {time}",
     "directions": "Route",
     "call": "Anrufen",
     "details": "Details",
