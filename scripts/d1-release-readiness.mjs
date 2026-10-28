@@ -16,9 +16,20 @@ export async function d1ReleaseReady(sha, env = process.env, request = fetch) {
   if (!settings || !Array.isArray(settings.bindings)) throw new Error("Current REGA settings could not be verified");
   const activeD1 = settings.bindings.some(b => b.name === "REGA_DATABASE_PROVIDER" && b.text === "d1") && settings.bindings.some(b => b.name === "DB" && b.type === "d1" && b.id === D1_ID);
   if (activeD1) return true; // Subsequent releases use the already active database.
-  const result = await call(`/d1/database/${D1_ID}/query`, { sql: 'SELECT releaseSha,ready,allTablesMatch,foreignKeyViolations FROM "_RegaCutover" WHERE id=1' });
-  const row = result?.[0]?.results?.[0];
-  return row?.releaseSha === sha && row.ready === 1 && row.allTablesMatch === 1 && row.foreignKeyViolations === 0;
+  // The deploy token already reads Workers settings. A separate operator verifies the real
+  // D1 hashes and issues this attestation, avoiding an extra database permission on CI.
+  const variable = name => settings.bindings.find(b => b.name === name && b.type === "plain_text")?.text;
+  if (variable("REGA_ISOLATED_PREVIEW") !== "1") return false;
+  const nonce = variable("REGA_D1_FREEZE_NONCE");
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(nonce ?? "")) return false;
+  let proof;
+  try { proof = JSON.parse(variable("REGA_D1_CUTOVER_PROOF") ?? "null"); } catch { return false; }
+  const hash = value => typeof value === "string" && /^[0-9a-f]{64}$/.test(value);
+  const frozen = Date.parse(proof?.sourceFrozenAt), verified = Date.parse(proof?.verifiedAt), now = Date.now();
+  return proof?.version === 1 && proof.project === "REGA" && proof.releaseSha === sha && proof.databaseId === D1_ID && proof.freezeNonce === nonce
+    && proof.ready === true && proof.allTablesMatch === true && proof.foreignKeyViolations === 0 && proof.tableCount === 36
+    && Number.isSafeInteger(proof.totalRows) && proof.totalRows > 0 && hash(proof.sourceFingerprintSha256) && hash(proof.typedManifestSha256) && hash(proof.backupSha256)
+    && Number.isFinite(frozen) && Number.isFinite(verified) && verified - frozen >= 120_000 && now - verified >= -60_000 && now - verified <= 900_000;
 }
 async function main() {
   const until = Date.now() + Number(process.env.D1_CUTOVER_WAIT_MS || 0);
