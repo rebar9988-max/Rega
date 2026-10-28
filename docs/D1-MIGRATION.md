@@ -1,6 +1,8 @@
 # Rega24: Neon to Cloudflare D1
 
-Status on 2026-10-27: **BACKUP RESTORED AND ALL DATA IMPORTED/VERIFIED. Application release verification is in progress; production has not switched.**
+Status on 2026-10-28: **COMPLETE — Production uses Cloudflare D1. Refreshed backup restored, all source data verified, exact-main CI/deployment and live production checks passed.**
+
+Current evidence: [verified production cutover](evidence/d1-production-cutover-2026-10-28.json). The original archive/import below records the initial 2329-row snapshot; the final source reconciliation contains 2332 rows across the same 36 tables.
 
 ## Verified data
 
@@ -70,4 +72,16 @@ City slug search uses its own Unicode mirror in migration0003; existing URL valu
 
 PR #83 merged as `2da35b1` after successful hosted checks. The main CI also passed both 331-case browser suites and all unit/runtime/build checks. The first deployment stayed blocked even after the independently verified D1 audit row became ready. Production was restored to the original PostgreSQL application and live health 200 verified; the new application was not activated. The gate now consumes a fresh operator-issued snapshot attestation over its already authenticated Workers settings endpoint. No deployment-token permission expansion is required. Exact-main CI and ownership checks remain mandatory; source isolation, freeze nonce, drain interval, freshness and snapshot/backup hashes are checked.
 
-Current snapshot: 2332 rows (four source tables changed after the original archive) matches all 36 source tables and every typed D1 value. A new private Drive archive was restored and read back with identical SHA-256: `59713feb5a4161a05ab50a1b1734352fcb7555d838d1625192dfaf8961b080d4`. Final activation remains pending the repaired release gate.
+Current snapshot: 2332 rows (four source tables changed after the original archive) matches all 36 source tables and every typed D1 value. A new private Drive archive was restored and read back with identical SHA-256: `59713feb5a4161a05ab50a1b1734352fcb7555d838d1625192dfaf8961b080d4`. The repaired gate passed for exact main `09afcd538a71fff6b08627057d272bf318e4362c`; activation and post-cutover verification are complete (see final evidence below).
+
+## Verified production activation — 2026-10-28
+
+Exact-main CI [40651797849](https://github.com/rebar9988-max/Rega/actions/runs/40651797849) passed 354 unit tests, 10 native D1 tests, 8 Python tests, both 331-case browser suites, real Worker runtime/routes, builds and the dependency audit (zero vulnerabilities). Release [40655046631](https://github.com/rebar9988-max/Rega/actions/runs/40655046631) passed ownership, exact-SHA readiness and deployment.
+
+Source isolation was confirmed at `2026-10-28T08:14:46.811Z`. After draining in-flight requests, all 36 source fingerprints and every typed D1 scalar value matched the restored 2332-record snapshot. The original source remained unchanged when checked after activation. Target FK checks remained clean after the production browser checks.
+
+Active Worker `rega24`: version `912d7b51-341a-4017-bed9-470cd1b39c1c`, deployment `97a07f0a-96e5-4bb5-a049-bbef69c74cea`, 100% traffic, version tag `09afcd538a71fff6b08627057d272bf318e4362c`. Binding `DB` uses existing EU database `728f792d-37b6-49f8-abc1-e81512219f7d`; provider is `d1`, isolation is `0`, query redaction is enabled. All 29 pre-cutover bindings (28 original plus temporary isolation) retain their names/types and original plain variable values. Both official domains and the stable Worker identity remain intact.
+
+Fresh live health returned HTTP 200, `ok=true`, `databaseProvider=d1`, all migrations/content/config checks ready and no missing environment names. [Post-cutover health](https://github.com/rebar9988-max/Rega/actions/runs/40655046619) attempt 2 passed. [Production browser](https://github.com/rebar9988-max/Rega/actions/runs/40656143224) passed 201 checks, zero failures, on desktop and mobile, including search, geography, RTL/LTR, anonymous dashboard protection and public journeys. Live business and geography API data matched the pre-cutover responses exactly. Additional kmr/fa/tr pages returned 200 with expected direction/headings. A fresh browser confirmed eight visible images loaded, including both existing object-storage business images, with zero broken images. Configuration readiness is not a claim that a real customer's sign-in or outbound email was submitted; those flows were tested with disposable fixtures, without resetting production accounts.
+
+The current private database archive is Drive file `1pLUm0lHDJoZ2r6iO2EhfXdIG0NQfHbnM`, 172260 bytes, SHA-256 `59713feb5a4161a05ab50a1b1734352fcb7555d838d1625192dfaf8961b080d4`; full restore and downloaded-byte verification passed. Neon and the original archive remain available for recovery. Media objects remain in existing object storage; the database archive covers their references. After D1 accepts writes, do not replay the original import/delta or blindly deploy PostgreSQL-only code: any return to Neon requires a fresh freeze, backup and reconciliation of new D1 writes. Operational snapshot proof/nonce remain audit metadata; subsequent releases verify the active D1 binding.

@@ -15,6 +15,8 @@ Rules for every fix:
 - Do not print secret values. Health and diagnostics already print names only.
 - A docs-only commit must not be used as a pretend deploy. `workflow_dispatch` on Deploy is the manual publish.
 
+Current database: **Cloudflare D1**, existing `rega24-migration` / `DB`; [verified cutover](docs/evidence/d1-production-cutover-2026-10-28.json). Historical PostgreSQL diagnostics below apply only to the retained recovery provider. After D1 accepts writes, do not blindly deploy a PostgreSQL-only release or replay an old import.
+
 ## Website downtime
 
 **SYMPTOM**
@@ -24,7 +26,7 @@ Rules for every fix:
 **LOCATION**
 
 - Edge and DNS: Cloudflare, nameservers in [REGA24_SYSTEM_MAP.md](REGA24_SYSTEM_MAP.md).
-- App: Worker `rega-platform`, [wrangler.jsonc](wrangler.jsonc), [worker.mjs](worker.mjs).
+- App: Worker `rega24`, [wrangler.jsonc](wrangler.jsonc), [worker.mjs](worker.mjs).
 - Process: [.github/workflows/deploy.yml](.github/workflows/deploy.yml) and [.github/workflows/ci.yml](.github/workflows/ci.yml).
 
 **DIAGNOSTIC STEPS**
@@ -49,7 +51,7 @@ Rules for every fix:
 
 **ROLLBACK**
 
-Redeploy the SHA that was live before the change. Leave the database and domains in place.
+Redeploy a verified D1-compatible SHA that preserves the active database. Returning to a pre-D1 PostgreSQL release requires a new freeze, backup and reconciliation of D1 writes. Leave databases and domains in place.
 
 ## HTTP 4xx and 5xx
 
@@ -416,3 +418,15 @@ Earlier Neon402/source-export blocker is resolved. The real archive restores and
 - Release blocked by final-snapshot readiness: verify exact release SHA, source freeze, all-table hashes and zero FK violations before marking `_RegaCutover` ready. Waiting/failing the gate makes no deployment.
 - Local browser tests: override machine-local AUTH_URL for the E2E port and GEOCODING_PROVIDER=nominatim for the local fake. Never use production or a restored customer database as a fixture. The D1 initializer's --test marker is mandatory.
 - Browser download/Google Fonts downloads can be blocked by executor egress policy. Local Chromium and the same actual font from its package allow bounded local verification; hosted CI still runs the normal Chromium/WebKit and production font build. Do not weaken assertions or change product typography to bypass tooling.
+
+## First D1 release remains blocked — 2026-10-28
+
+The first attempt never passed the readiness gate despite a verified ready D1 audit row. Original PostgreSQL availability was restored before further diagnosis; D1 was not activated. PR #84 / main `09afcd5` reads the operator-issued snapshot proof through existing authenticated Workers settings, avoiding an additional D1 API permission on the CI reader.
+
+If first activation is blocked, inspect the current `REGA_ISOLATED_PREVIEW=1`, fresh `REGA_D1_FREEZE_NONCE`, and `REGA_D1_CUTOVER_PROOF` metadata. Require the exact release SHA/database, all-table hashes, backup hash, zero FK violations, a 120-second drain and verification within 15 minutes. Never fabricate a proof, change token scopes or bypass exact-main CI/ownership gates. If readiness or deploy fails while the old source application remains active, clear the temporary proof/nonce, restore its isolation flag to 0, and verify live health 200. After D1 accepts writes, a return to PostgreSQL requires a fresh freeze and reconciliation of D1 changes; blindly deploying old PostgreSQL code can hide new data. See [D1 cutover and recovery](docs/D1-MIGRATION.md).
+
+## Verified D1 continuation — 2026-10-28
+
+First activation succeeded at 08:18 UTC as release `09afcd538a71fff6b08627057d272bf318e4362c`; subsequent releases read the active provider plus exact D1 UUID. Health must report HTTP 200, `ok=true`, `checks.databaseProvider=d1`, migrations/content ready. Real D1 migration history includes 0001_initial.sql, 0002_runtime.sql and 0003_city_slug_fold.sql; 108 revision triggers support atomic concurrency guards. Current original-value verification and backup scope are in the [cutover evidence](docs/evidence/d1-production-cutover-2026-10-28.json).
+
+The production browser run during source isolation correctly saw 503. Replacement run 40656143224 after activation passed 201 checks with zero failures; post-cutover health 40655046619 attempt 2 also passed. Do not diagnose a historical freeze result as the current deployment. Do not fix runtime errors by resetting data, reapplying original/delta imports, dropping migrations, rotating auth secrets or recreating production resources.

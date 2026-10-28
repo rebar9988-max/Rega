@@ -1,0 +1,354 @@
+{
+  "project": "REGA",
+  "verifiedAt": "2026-10-28T08:27:17.717Z",
+  "repository": "rebar9988-max/Rega",
+  "releaseSha": "09afcd538a71fff6b08627057d272bf318e4362c",
+  "applicationMigration": {
+    "pr": 83,
+    "mergeSha": "2da35b15ad8167b14af425471c3a88699e5e67d0"
+  },
+  "readinessFix": {
+    "pr": 84,
+    "mergeSha": "09afcd538a71fff6b08627057d272bf318e4362c",
+    "transport": "Authenticated Workers settings; operator directly verifies source and D1",
+    "sourceFrozenAt": "2026-10-28T08:14:46.811Z",
+    "snapshotVerifiedAt": "2026-10-28T08:17:05.531Z",
+    "proofPublishedAt": "2026-10-28T08:17:41.180Z",
+    "freezeNonce": "26b92faa-5dbd-4537-bd3c-32ec7578cfe2"
+  },
+  "backup": {
+    "driveFileId": "1pLUm0lHDJoZ2r6iO2EhfXdIG0NQfHbnM",
+    "name": "rega24-verified-source-2026-10-28.dump",
+    "bytes": 172260,
+    "sha256": "59713feb5a4161a05ab50a1b1734352fcb7555d838d1625192dfaf8961b080d4",
+    "restoredAll36Tables": true,
+    "downloadReadbackSha256Matches": true,
+    "originalArchivePreserved": true,
+    "scope": "Database; existing object-storage media objects were retained in place"
+  },
+  "data": {
+    "verifiedBeforeOpeningTraffic": true,
+    "tableCount": 36,
+    "totalRows": 2332,
+    "sourceFingerprintSha256": "c0b6ced50a398fcde7ab6389572795fad30c73695f64ee155af6882d0d606b27",
+    "typedManifestSha256": "fbe2c1c0b7fa0cfb0f6f05b1d588e5b139dd5b855a82741b3996f3177c278497",
+    "allOriginalTypedValuesMatch": true,
+    "foreignKeyViolations": 0,
+    "migrations": [
+      "0001_initial.sql",
+      "0002_runtime.sql",
+      "0003_city_slug_fold.sql"
+    ],
+    "revisionTriggers": 108,
+    "sourceUnchangedAfterCutover": true,
+    "proofs": [
+      {
+        "table": "User",
+        "count": 3,
+        "expectedCount": 3,
+        "allValuesMatch": true
+      },
+      {
+        "table": "Account",
+        "count": 0,
+        "expectedCount": 0,
+        "allValuesMatch": true
+      },
+      {
+        "table": "Session",
+        "count": 0,
+        "expectedCount": 0,
+        "allValuesMatch": true
+      },
+      {
+        "table": "AdminSignInCode",
+        "count": 1,
+        "expectedCount": 1,
+        "allValuesMatch": true
+      },
+      {
+        "table": "VerificationToken",
+        "count": 0,
+        "expectedCount": 0,
+        "allValuesMatch": true
+      },
+      {
+        "table": "Country",
+        "count": 7,
+        "expectedCount": 7,
+        "allValuesMatch": true
+      },
+      {
+        "table": "Region",
+        "count": 22,
+        "expectedCount": 22,
+        "allValuesMatch": true
+      },
+      {
+        "table": "CountryTranslation",
+        "count": 0,
+        "expectedCount": 0,
+        "allValuesMatch": true
+      },
+      {
+        "table": "RegionTranslation",
+        "count": 44,
+        "expectedCount": 44,
+        "allValuesMatch": true
+      },
+      {
+        "table": "CityTranslation",
+        "count": 0,
+        "expectedCount": 0,
+        "allValuesMatch": true
+      },
+      {
+        "table": "City",
+        "count": 2039,
+        "expectedCount": 2039,
+        "allValuesMatch": true
+      },
+      {
+        "table": "Category",
+        "count": 19,
+        "expectedCount": 19,
+        "allValuesMatch": true
+      },
+      {
+        "table": "CategoryTranslation",
+        "count": 0,
+        "expectedCount": 0,
+        "allValuesMatch": true
+      },
+      {
+        "table": "Business",
+        "count": 3,
+        "expectedCount": 3,
+        "allValuesMatch": true
+      },
+      {
+        "table": "BusinessTranslation",
+        "count": 0,
+        "expectedCount": 0,
+        "allValuesMatch": true
+      },
+      {
+        "table": "Location",
+        "count": 3,
+        "expectedCount": 3,
+        "allValuesMatch": true
+      },
+      {
+        "table": "Service",
+        "count": 0,
+        "expectedCount": 0,
+        "allValuesMatch": true
+      },
+      {
+        "table": "Offer",
+        "count": 0,
+        "expectedCount": 0,
+        "allValuesMatch": true
+      },
+      {
+        "table": "BusinessMember",
+        "count": 3,
+        "expectedCount": 3,
+        "allValuesMatch": true
+      },
+      {
+        "table": "Media",
+        "count": 13,
+        "expectedCount": 13,
+        "allValuesMatch": true
+      },
+      {
+        "table": "Review",
+        "count": 0,
+        "expectedCount": 0,
+        "allValuesMatch": true
+      },
+      {
+        "table": "AuditLog",
+        "count": 81,
+        "expectedCount": 81,
+        "allValuesMatch": true
+      },
+      {
+        "table": "FeatureFlag",
+        "count": 1,
+        "expectedCount": 1,
+        "allValuesMatch": true
+      },
+      {
+        "table": "Setting",
+        "count": 0,
+        "expectedCount": 0,
+        "allValuesMatch": true
+      },
+      {
+        "table": "AiConversation",
+        "count": 30,
+        "expectedCount": 30,
+        "allValuesMatch": true
+      },
+      {
+        "table": "AiMessage",
+        "count": 60,
+        "expectedCount": 60,
+        "allValuesMatch": true
+      },
+      {
+        "table": "AiUsageDaily",
+        "count": 3,
+        "expectedCount": 3,
+        "allValuesMatch": true
+      },
+      {
+        "table": "Report",
+        "count": 0,
+        "expectedCount": 0,
+        "allValuesMatch": true
+      },
+      {
+        "table": "ContactMessage",
+        "count": 0,
+        "expectedCount": 0,
+        "allValuesMatch": true
+      },
+      {
+        "table": "Page",
+        "count": 0,
+        "expectedCount": 0,
+        "allValuesMatch": true
+      },
+      {
+        "table": "PageTranslation",
+        "count": 0,
+        "expectedCount": 0,
+        "allValuesMatch": true
+      },
+      {
+        "table": "Listing",
+        "count": 0,
+        "expectedCount": 0,
+        "allValuesMatch": true
+      },
+      {
+        "table": "ListingTranslation",
+        "count": 0,
+        "expectedCount": 0,
+        "allValuesMatch": true
+      },
+      {
+        "table": "JobDetails",
+        "count": 0,
+        "expectedCount": 0,
+        "allValuesMatch": true
+      },
+      {
+        "table": "EventDetails",
+        "count": 0,
+        "expectedCount": 0,
+        "allValuesMatch": true
+      },
+      {
+        "table": "GuideDetails",
+        "count": 0,
+        "expectedCount": 0,
+        "allValuesMatch": true
+      }
+    ]
+  },
+  "production": {
+    "deploymentId": "97a07f0a-96e5-4bb5-a049-bbef69c74cea",
+    "deployedAt": "2026-10-28T08:18:01.72497Z",
+    "versionId": "912d7b51-341a-4017-bed9-470cd1b39c1c",
+    "codeEtag": "e33516799e5624ed918cff9092dd83a97fea74a70bcb1fbd0a292407982d2351",
+    "provider": "d1",
+    "database": {
+      "database_id": "728f792d-37b6-49f8-abc1-e81512219f7d",
+      "id": "728f792d-37b6-49f8-abc1-e81512219f7d",
+      "name": "DB",
+      "type": "d1"
+    },
+    "isolation": "0",
+    "originalBindingsPreserved": true,
+    "originalBindingCount": 29,
+    "currentBindingCount": 33,
+    "queryRedaction": true,
+    "stableWorkerTag": "7b845cda2ee749c89c4f9b83490609b4",
+    "domains": [
+      {
+        "hostname": "www.rega24.com",
+        "service": "rega24",
+        "environment": "production"
+      },
+      {
+        "hostname": "rega24.com",
+        "service": "rega24",
+        "environment": "production"
+      }
+    ],
+    "releaseTag": "09afcd538a71fff6b08627057d272bf318e4362c"
+  },
+  "validation": {
+    "mainCI": {
+      "run": 40651797849,
+      "conclusion": "success",
+      "unitTests": 354,
+      "nativeD1Tests": 10,
+      "pythonTests": 8,
+      "browserTestsD1": 331,
+      "browserTestsPostgreSQL": 331,
+      "realWorkerTestsPassed": true,
+      "auditVulnerabilities": 0
+    },
+    "deployment": {
+      "run": 40655046631,
+      "conclusion": "success"
+    },
+    "productionHealth": {
+      "run": 40655046619,
+      "attempt": 2,
+      "conclusion": "success",
+      "databaseProvider": "d1",
+      "ok": true
+    },
+    "productionBrowser": {
+      "run": 40656143224,
+      "job": 122707523656,
+      "conclusion": "success",
+      "checks": 201,
+      "failures": 0
+    },
+    "publicApiParity": {
+      "businesses": true,
+      "geography": true
+    },
+    "additionalLocaleHTTP200": [
+      "kmr",
+      "fa",
+      "tr"
+    ],
+    "freshBrowserImages": {
+      "provider": "d1",
+      "visible": 8,
+      "broken": 0,
+      "loadedObjectStorageBusinessImages": 2,
+      "dir": "rtl"
+    }
+  },
+  "recovery": {
+    "neonRetained": true,
+    "noProductionSeed": true,
+    "noCredentialReset": true,
+    "postCutoverRollbackRequiresD1WriteReconciliation": true
+  },
+  "incident": {
+    "previousReleaseReadinessBlocked": true,
+    "previousSourceAvailabilityRestored": true,
+    "firstBrowserRunDuringFreeze": 40655278535,
+    "replacementBrowserAfterCutover": 40656143224
+  }
+}
