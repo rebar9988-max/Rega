@@ -9,6 +9,7 @@ import { prisma } from "@/lib/db";
 import { PUBLIC_BUSINESS, businessInCategories, businessInCity, textWhere } from "@/lib/search-where";
 import { searchTokens } from "@/lib/text";
 import { parseSearchIntent } from "@/lib/search-intent";
+import { buildVocabulary, correctQuery, type Vocabulary } from "@/lib/search-correction";
 import { OFFER_LIMITS, activeOfferWhere } from "@/lib/offers";
 import { PER_PAGE } from "./params";
 import { descendantIds } from "@/lib/category-tree";
@@ -306,21 +307,59 @@ export type SearchType = "all" | "businesses" | "services" | "locations";
 
 export async function searchAll({ q, type, page }: { q: string; type: SearchType; page: number }) {
   const empty = { items: [], total: 0, pages: 1, page } as const;
-  if (searchTokens(q).length === 0) return { businesses: empty, services: empty, locations: empty, openNow: false };
+  if (searchTokens(q).length === 0) return { businesses: empty, services: empty, locations: empty, openNow: false, correctedTo: null };
   const want = (t: SearchType) => type === "all" || type === t;
   // "… open now" in the text: the remaining words are searched and only businesses open right now are listed
   // (opening hours belong to businesses, so services and locations are not part of this answer).
   const intent = parseSearchIntent(q);
-  if (intent.openNow) {
-    const businesses = want("businesses") ? await listOpenBusinesses(intent.text, page) : empty;
-    return { businesses, services: empty, locations: empty, openNow: true };
+  const run = async (text: string) => {
+    if (intent.openNow) {
+      const businesses = want("businesses") ? await listOpenBusinesses(text, page) : empty;
+      return { businesses, services: empty, locations: empty, openNow: true };
+    }
+    const [businesses, services, locations] = await Promise.all([
+      want("businesses") ? listBusinesses({ q: text, sort: "featured", page }) : empty,
+      want("services") ? listServices({ q: text, sort: "featured", page }) : empty,
+      want("locations") ? listLocations({ q: text, page }) : empty,
+    ]);
+    return { businesses, services, locations, openNow: false };
+  };
+  const text = intent.openNow ? intent.text : q;
+  const res = await run(text);
+  const found = (r: Awaited<ReturnType<typeof run>>) => r.businesses.total + r.services.total + r.locations.total > 0;
+  // Nothing found: one retry with misspelled words replaced by the closest words of public listings ("did you mean").
+  if (!found(res) && page === 1 && searchTokens(text).length > 0) {
+    const correction = correctQuery(text, await searchVocabulary());
+    if (correction) {
+      const fixed = await run(correction.query);
+      // The open-now words stay in the corrected query, so tabs and pages keep the filter.
+      if (found(fixed)) return { ...fixed, correctedTo: [correction.query, ...(intent.intentWords ?? [])].join(" ") };
+    }
   }
-  const [businesses, services, locations] = await Promise.all([
-    want("businesses") ? listBusinesses({ q, sort: "featured", page }) : empty,
-    want("services") ? listServices({ q, sort: "featured", page }) : empty,
-    want("locations") ? listLocations({ q, page }) : empty,
-  ]);
-  return { businesses, services, locations, openNow: false };
+  return { ...res, correctedTo: null };
+}
+
+/** Rows per table read into the correction vocabulary (public records only). */
+const VOCABULARY_ROWS = 2000;
+const VOCABULARY_TTL_MS = 5 * 60_000;
+let vocabularyCache: { at: number; value: Promise<Vocabulary> } | null = null;
+
+/**
+ * Words of the search texts of public businesses, services and locations, for typo correction. Kept per Worker
+ * isolate for a few minutes (like the edge cache), so a zero-result search does not re-read the index each time.
+ */
+function searchVocabulary(): Promise<Vocabulary> {
+  const now = Date.now();
+  if (vocabularyCache && now - vocabularyCache.at < VOCABULARY_TTL_MS) return vocabularyCache.value;
+  const value = Promise.all([
+    prisma.business.findMany({ where: PUBLIC_BUSINESS, select: { searchText: true }, take: VOCABULARY_ROWS }),
+    prisma.service.findMany({ where: { status: "published", deletedAt: null, business: PUBLIC_BUSINESS }, select: { searchText: true }, take: VOCABULARY_ROWS }),
+    prisma.location.findMany({ where: { status: "active", deletedAt: null, business: PUBLIC_BUSINESS }, select: { searchText: true }, take: VOCABULARY_ROWS }),
+  ]).then((tables) => buildVocabulary(tables.flat().map((r) => r.searchText)));
+  vocabularyCache = { at: now, value };
+  // A failed read is not kept: the next search tries again.
+  value.catch(() => { if (vocabularyCache?.value === value) vocabularyCache = null; });
+  return value;
 }
 
 /** Upper bound of matching businesses checked against their opening hours per open-now search. */

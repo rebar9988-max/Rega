@@ -34,6 +34,8 @@ export default async function SearchPage({ params, searchParams }: { params: Pro
     .filter(([k]) => k === "all" || (searchable.has(k) && (!res.openNow || k === "businesses")));
   const shown = type === "all" ? totals.businesses + totals.services + totals.locations : totals[type];
   const active = res[type === "all" ? "businesses" : type];
+  // Results shown for a corrected query: tabs and pages continue with that query.
+  const shownQ = res.correctedTo ?? q;
 
   return (
     <>
@@ -52,17 +54,23 @@ export default async function SearchPage({ params, searchParams }: { params: Pro
         <>
           <nav aria-label={t("search.title")} className="container-page mb-4"><ul className="flex flex-wrap gap-2">
             {tabs.map(([key, label]) => (
-              <li key={key}><Link prefetch={false} href={{ pathname: "/search", query: { q, ...(key === "all" ? {} : { type: key }) } }} aria-current={type === key ? "true" : undefined}
+              <li key={key}><Link prefetch={false} href={{ pathname: "/search", query: { q: shownQ, ...(key === "all" ? {} : { type: key }) } }} aria-current={type === key ? "true" : undefined}
                 className={`inline-flex min-h-10 items-center rounded-full border px-4 text-sm font-semibold ${type === key ? "border-brand bg-brand-soft text-brand" : "border-line bg-surface hover:bg-surface-2"}`}>{label}</Link></li>
             ))}
           </ul></nav>
+          {res.correctedTo && (
+            <p className="container-page mb-2 text-sm" data-testid="search-corrected">
+              {t("search.correctedNotice", { query: q ?? "" })}{" "}
+              <Link prefetch={false} href={{ pathname: "/search", query: { q: res.correctedTo, ...(type === "all" ? {} : { type }) } }} className="font-semibold text-brand underline">{t("search.didYouMean", { query: res.correctedTo })}</Link>
+            </p>
+          )}
           {res.openNow && <p className="container-page mb-2 text-sm font-semibold" data-testid="search-open-now">{t("search.openNowApplied")}</p>}
           <p aria-live="polite" className="container-page mb-4 text-sm text-muted">{t("search.resultCount", { count: formatNumber(shown, locale as Locale) })}</p>
           {shown === 0 && <div className="container-page"><EmptyState title={t("common.empty")} body={t("search.noResults")} /></div>}
           {res.businesses.items.length > 0 && <section className="mb-10"><h2 className="container-page mb-3 text-lg font-bold">{t("businesses.title")}</h2><Grid>{res.businesses.items.map((b) => <BusinessCard key={b.id} b={b} />)}</Grid></section>}
           {res.services.items.length > 0 && <section className="mb-10"><h2 className="container-page mb-3 text-lg font-bold">{t("services.title")}</h2><Grid>{res.services.items.map((s) => <ServiceCard key={s.id} s={s} />)}</Grid></section>}
           {res.locations.items.length > 0 && <section className="mb-10"><h2 className="container-page mb-3 text-lg font-bold">{t("locations.title")}</h2><Grid>{res.locations.items.map((l) => <LocationCard key={l.id} l={l} />)}</Grid></section>}
-          {type !== "all" && <div className="container-page"><Pagination page={active.page} pages={active.pages} pathname="/search" params={{ q, type }} /></div>}
+          {type !== "all" && <div className="container-page"><Pagination page={active.page} pages={active.pages} pathname="/search" params={{ q: shownQ, type }} /></div>}
         </>
       )}
     </>

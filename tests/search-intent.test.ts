@@ -29,5 +29,7 @@ test("only both words together are an intent; names and plain queries are untouc
 });
 
 test("'open now' alone lists every open business", () => {
-  assert.deepEqual(parseSearchIntent("ئێستا کراوە"), { text: "", openNow: true });
+  assert.deepEqual(parseSearchIntent("ئێستا کراوە"), { text: "", openNow: true, intentWords: ["ئێستا", "کراوە"] });
+  // The intent words are kept so a corrected query can carry the filter on.
+  assert.deepEqual(parseSearchIntent("pharmcy open now").intentWords, ["open", "now"]);
 });

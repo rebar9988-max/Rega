@@ -230,7 +230,9 @@
     "noResults": "No results found. Try a different term.",
     "resultCount": "{count} results",
     "hint": "Enter at least 2 characters.",
-    "openNowApplied": "Showing only places that are open now (based on their listed opening hours)."
+    "openNowApplied": "Showing only places that are open now (based on their listed opening hours).",
+    "correctedNotice": "Nothing was found for «{query}»; these are the closest results.",
+    "didYouMean": "Did you mean «{query}»?"
   },
   "ai": {
     "title": "REGA Assistant",
