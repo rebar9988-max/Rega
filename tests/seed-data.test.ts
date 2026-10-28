@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 import pg from "pg";
 import { LOCALES } from "../src/config/locales";
 import { CATEGORIES } from "../prisma/seed-data/categories";
@@ -51,6 +52,22 @@ test("seed data: Kurdistan Region and Iraq cities are complete, unique, inside I
   assert.equal(new Set(iraq.map((c) => c.names.ckb)).size, iraq.length, "one record per Sorani name");
   for (const r of REGIONS.filter((x) => x.country === "IQ")) {
     for (const l of LOCALES) assert.ok((l === "en" ? r.en : l === "de" ? r.de : r.names?.[l])?.trim(), `${r.slug}.${l}`);
+  }
+});
+
+test("seed data: the production data file for Iraq geography holds exactly the seed rows", () => {
+  const sql = readFileSync("prisma/d1/data/20261028_iraq_geography.sql", "utf8");
+  const q = (v: string) => `'${v.replace(/'/g, "''")}'`;
+  assert.doesNotMatch(sql.replace(/^--.*$/gm, ""), /\b(UPDATE|DELETE|DROP|ALTER)\b/i, "insert-only");
+  const iraq = CITIES.filter((c) => c.country === "IQ" && !["erbil", "sulaymaniyah"].includes(c.slug));
+  for (const c of iraq) {
+    const n = c.names;
+    assert.ok(sql.includes(`(${[c.slug, c.region ?? "", n.en, n.ckb, n.kmr, n.de, n.fa, n.ar, n.tr].map(q).join(",")},`), c.slug);
+  }
+  assert.equal(sql.match(/'seed_city_iq_'/g)?.length, 1);
+  assert.equal((sql.match(/\('[a-z-]+','[a-z-]*','[^']+','[^']+','[^']+','[^']+','[^']+','[^']+','[^']+',\d+,/g) ?? []).length, iraq.length);
+  for (const r of REGIONS.filter((x) => x.country === "IQ")) {
+    for (const [l, name] of [["en", r.en], ["de", r.de], ...Object.entries(r.names ?? {})]) assert.ok(sql.includes(`(${[r.slug, l, name].map(q).join(",")})`), `${r.slug}.${l}`);
   }
 });
 
