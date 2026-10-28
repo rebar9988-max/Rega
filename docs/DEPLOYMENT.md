@@ -1,17 +1,18 @@
 # Deployment (Cloudflare Workers)
 
-Production is the Worker `rega-platform` (`wrangler.jsonc`), built with OpenNext. Secrets and variables live in the
-Cloudflare dashboard (Workers & Pages → rega-platform → Settings → Variables and Secrets) and in GitHub repository secrets;
+Production is the Worker `rega24` (`wrangler.jsonc`), built with OpenNext, with D1 for application data and R2 for files/images. The [permanent Cloudflare mandate](../CLAUDE.md#09-permanent-cloudflare-platform-mandate-owner-instruction-2026-10-28) also covers deployment, DNS and security. Secrets and variables live in the
+Cloudflare dashboard (Workers & Pages → rega24 → Settings → Variables and Secrets) and in GitHub repository secrets;
 **none are ever committed or printed**. The variable names are in `.env.example`.
 
 ## 1. Pre-deploy checks (all must pass)
 
 ```bash
 npm ci
-npx prisma generate
+npm run db:generate
 npm run lint
 npm run typecheck
 npm test
+npm run test:d1
 npm run build:node            # Node build used by the E2E suite
 npm run e2e                   # needs a throw-away Postgres: DATABASE_URL (E2E refuses production-looking databases)
 npm run build                 # Workers build (OpenNext)
@@ -22,14 +23,9 @@ npx wrangler deploy --dry-run # validates the bundle, deploys nothing
 
 ## 2. Database
 
-1. Take a backup ([`BACKUP-RESTORE.md`](BACKUP-RESTORE.md)).
-2. Run the manual workflow **Database migrate (production)** (`db-migrate.yml`, inputs `migrate` and `backup-verified`, from `main`; the second input is your confirmation that step 1 produced a restorable backup or snapshot). It applies the
-   committed migrations with `prisma migrate deploy` (additive only; it never resets, drops or truncates) and the idempotent
-   seed (base categories, geography, first admin when `SEED_ADMIN_*` secrets exist; no demo data in production).
-3. Merge/deploy the code **after** the migration: new code may read new columns, old code ignores them.
-
-Migrations of this release, all additive: `growth_foundation`, `business_languages`, `reviews_one_per_user` (detaches
-orphans/duplicates before adding constraints; deletes nothing), `content_sections_core`.
+1. Take and restore-verify a private D1 backup; retain a separate R2 backup ([`BACKUP-RESTORE.md`](BACKUP-RESTORE.md)).
+2. Review and rehearse committed `prisma/d1/migrations/*.sql` against a disposable database. Apply reviewed pending migrations to the existing target with `npm run db:d1:migrate` from verified `main`; verify the exact account/database and read back migration history/FK integrity. Do not reset or seed production.
+3. Release compatible code through exact-main CI below. [D1 migration and recovery](D1-MIGRATION.md) documents the active provider and operational checks. `db-migrate.yml` is the retained **Legacy PostgreSQL migrate (rollback only)** workflow; it does not migrate active D1 and is not the normal production path.
 
 ## 3. Deploy
 
@@ -42,14 +38,13 @@ Production uses a **single CI-gated deploy path**:
 
 Manual fallback remains available through `workflow_dispatch` on the deploy workflow.
 
-Local/manual command:
+For a local bundle check:
 
 ```bash
-npm run build && npx wrangler deploy
+npm run build && npm run cf:dry-run
 ```
 
-Needs `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` in the environment. Rollback: `npx wrangler rollback` (or redeploy the
-previous commit); migrations stay applied because the old code ignores additive columns.
+Actual releases use the CI-gated workflow with verified account/Worker/domain ownership and exact release tagging. Recover with a verified D1-compatible release. Returning to a PostgreSQL-only release requires explicit owner direction, a fresh freeze/backup and reconciliation of subsequent D1 writes; do not blindly roll back to the pre-D1 application.
 
 New runtime variables of this release (names only; all optional unless noted): `EMAIL_PROVIDER`, `RESEND_API_KEY`,
 `EMAIL_FROM`, `CONTACT_INBOX`, `SECTIONS_ENABLED`, `SECTIONS_DISABLED`, `ERROR_WEBHOOK_URL`, `AUTH_LOGIN_ATTEMPTS`,
@@ -60,7 +55,7 @@ New runtime variables of this release (names only; all optional unless noted): `
 
 | Check | Expect |
 | --- | --- |
-| `GET /api/v1/health` | 200, no missing required variables |
+| `GET /api/v1/health` | 200, `ok=true`, `databaseProvider=d1`, migrations/content ready, no missing required variables |
 | `GET /` | redirect to `/ckb` (or the visitor's language) |
 | `GET https://rega24.com/` | 301 to `https://www.rega24.com/` |
 | `/de/impressum`, `/de/privacy`, `/de/terms`, `/de/report`, `/de/contact` | 200; no `[[PLACEHOLDER]]` once `LEGAL_*` is filled |

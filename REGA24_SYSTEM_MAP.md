@@ -1,5 +1,7 @@
 # REGA24 system map
 
+Permanent owner platform policy: [CLAUDE.md section 0.9](CLAUDE.md#09-permanent-cloudflare-platform-mandate-owner-instruction-2026-10-28) requires D1 for the database, Workers for backend/API, R2 for files/images, and Cloudflare for deployment, DNS and security. Rechecked 2026-10-28: active Worker selects D1, its configured S3 endpoint is Cloudflare R2, the configured bucket exists in the same Cloudflare account, and `rega24.com` is an active zone with Cloudflare nameservers. This confirms the platform; it is not a new audit of every security setting.
+
 Current verified state (2026-10-28): production `rega24` uses Cloudflare D1, existing EU `rega24-migration` / `728f792d-37b6-49f8-abc1-e81512219f7d`. All 2332 source records across 36 tables were verified before opening traffic; exact-main CI, deployment and live checks passed. Release `09afcd538a71fff6b08627057d272bf318e4362c`, active version `912d7b51-341a-4017-bed9-470cd1b39c1c`. [Current migration evidence and procedure](docs/D1-MIGRATION.md). Later verified checkpoints supersede the original audit tables below.
 
 Infrastructure index for REGA Platform. This file locates components. It does not replace
