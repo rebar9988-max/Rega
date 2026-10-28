@@ -812,3 +812,10 @@ Owner choice (round 2 = Smart Search only; next: holiday/temporary closures → 
 - Measured locally (worst case, random words): 20,000-word vocabulary built in 52 ms; a correction takes 7–29 ms. At today's real size (2 public businesses) it is well under 1 ms.
 - Tests: 6 correction + 3 intent unit tests (7 languages, near letters, no wild guesses, prefix, ties, cap); `npm test` 370 tests, 366 pass, 0 fail, 4 DB-only skips; typecheck and lint pass.
 - E2E on a disposable D1, `build:node` of the final code: catalog.spec 26/26 on desktop and mobile, including the new typo test. Broader regression: 81/82; the one failure was the sitemap `/guides` expectation, which needs `content.spec.ts` to run first. Run in CI order (content + seo) it passed 50/50, so it is test order, not this change.
+- Release: PR #90 squash `14371a0`. Exact-main CI 40761152562, Deploy 40766214581, Beta health 40766214472 and Production browser check 40766414442 all succeeded. Live checks at 20:59 UTC: `/api/health` ok, provider d1.
+  - «hairtunig» → notice «Meintest du «hairtuning»?», Karwans Hairtuning shown.
+  - «تاکلاینن» and «hewlr» are corrected and show Taakline.
+  - «taaklin» is found directly as a prefix, with no correction.
+  - «qxzvwplk» gets no suggestion.
+  - «کارواان» gets no suggestion, correctly: the live record has no Sorani name. Adding names in all languages to listings improves discovery more than any correction can.
+- Next safe continuation point (owner's order): holiday/temporary closures (schema) → Lighthouse → Jobs launch → search analytics.
