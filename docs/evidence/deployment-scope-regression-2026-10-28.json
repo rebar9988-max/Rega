@@ -1,0 +1,57 @@
+{
+  "project": "REGA",
+  "date": "2026-10-28",
+  "workflow": ".github/workflows/deploy.yml",
+  "method": "Execute the actual workflow scope shell against disposable real Git histories, including a depth-2 clone.",
+  "results": [
+    {
+      "case": "root-fails-open",
+      "skipWorkerDeploy": false,
+      "passed": true
+    },
+    {
+      "case": "ordinary-docs",
+      "skipWorkerDeploy": true,
+      "passed": true
+    },
+    {
+      "case": "empty-fails-open",
+      "skipWorkerDeploy": false,
+      "passed": true
+    },
+    {
+      "case": "ordinary-app",
+      "skipWorkerDeploy": false,
+      "passed": true
+    },
+    {
+      "case": "docs-merge",
+      "skipWorkerDeploy": true,
+      "passed": true
+    },
+    {
+      "case": "old-docs-merge-reproduces-unwanted-deploy",
+      "skipWorkerDeploy": false,
+      "passed": true
+    },
+    {
+      "case": "shallow-docs-merge",
+      "skipWorkerDeploy": true,
+      "passed": true
+    },
+    {
+      "case": "app-merge",
+      "skipWorkerDeploy": false,
+      "passed": true
+    },
+    {
+      "case": "mixed-change",
+      "skipWorkerDeploy": false,
+      "passed": true
+    }
+  ],
+  "actualPolicyMerge": {
+    "sha": "da259e0d196c43a2424c99a0ca471c2fe0c2f510",
+    "skipWorkerDeploy": true
+  }
+}
