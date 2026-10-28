@@ -40,11 +40,7 @@ export function composeSearchText(parts: (string | null | undefined)[]): string 
 const categoryNames = { select: { nameCkb: true, nameKmr: true, nameDe: true, nameEn: true, nameAr: true, nameFa: true, nameTr: true } } as const;
 const cityNames = { select: { nameEn: true, nameCkb: true, nameKmr: true, nameDe: true, nameAr: true, nameTr: true } } as const;
 
-/** Recomputes the search text of one business and of all its services and locations. Missing ids are ignored. */
-export async function reindexBusinessTree(db: Db, businessId: string): Promise<void> {
-  const b = await db.business.findUnique({
-    where: { id: businessId },
-    select: {
+export const businessIndexSelect = {
       id: true, searchText: true, name: true, nameCkb: true, nameKmr: true, nameAr: true, nameTr: true,
       description: true, descriptionCkb: true, descriptionKmr: true, descriptionDe: true, descriptionAr: true, descriptionTr: true,
       tags: true,
@@ -61,9 +57,13 @@ export async function reindexBusinessTree(db: Db, businessId: string): Promise<v
         where: { deletedAt: null },
         select: { id: true, searchText: true, status: true, label: true, addressLine1: true, addressLine2: true, postalCode: true, city: cityNames },
       },
-    },
-  });
-  if (!b) return;
+    } as const;
+export type BusinessIndexRecord = Prisma.BusinessGetPayload<{ select: typeof businessIndexSelect }>;
+export type IndexWrite = { table: "Business" | "Service" | "Location"; id: string; searchText: string };
+
+/** Pure projection, shared by PostgreSQL transactions and D1 atomic batches. */
+export function businessIndexWrites(b: BusinessIndexRecord): IndexWrite[] {
+  const writes: IndexWrite[] = [];
   const bizNames = names(b);
   const activeCities = b.locations.filter((l) => l.status === "active").flatMap((l) => names(l.city, ["nameEn"]));
   const publishedServices = b.services.filter((s) => s.status === "published");
@@ -75,14 +75,27 @@ export async function reindexBusinessTree(db: Db, businessId: string): Promise<v
     ...publishedServices.flatMap((s) => [...names(s), ...names(s.category)]),
     ...descriptions(b),
   ]);
-  if (businessText !== b.searchText) await db.business.update({ where: { id: b.id }, data: { searchText: businessText } });
+  if (businessText !== b.searchText) writes.push({ table: "Business", id: b.id, searchText: businessText });
   for (const s of b.services) {
     const text = composeSearchText([...names(s), ...names(s.category), ...bizNames, ...names(b.category), ...activeCities, ...descriptions(s)]);
-    if (text !== s.searchText) await db.service.update({ where: { id: s.id }, data: { searchText: text } });
+    if (text !== s.searchText) writes.push({ table: "Service", id: s.id, searchText: text });
   }
   for (const l of b.locations) {
     const text = composeSearchText([l.label, l.addressLine1, l.addressLine2, l.postalCode, ...names(l.city, ["nameEn"]), ...bizNames]);
-    if (text !== l.searchText) await db.location.update({ where: { id: l.id }, data: { searchText: text } });
+    if (text !== l.searchText) writes.push({ table: "Location", id: l.id, searchText: text });
+  }
+  return writes;
+}
+
+/** Recomputes only changed search texts, preserving last-edit timestamps for identical retries. */
+export async function reindexBusinessTree(db: Db, businessId: string): Promise<void> {
+  const b = await db.business.findUnique({ where: { id: businessId }, select: businessIndexSelect });
+  if (!b) return;
+  for (const write of businessIndexWrites(b)) {
+    const args = { where: { id: write.id }, data: { searchText: write.searchText } };
+    if (write.table === "Business") await db.business.update(args);
+    else if (write.table === "Service") await db.service.update(args);
+    else await db.location.update(args);
   }
 }
 

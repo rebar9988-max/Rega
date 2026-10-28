@@ -17,6 +17,7 @@ function requestFor(route: string, role: rbac.Role | null | Error, { anonymous =
     verified: published, createdById: "private-owner", locations: [], services: [], media: [], photos: [] };
   const isVisible = (query: Query) => !query.where.status || query.where.status === business.status;
   const modules: Record<string, unknown> = {
+    "@/lib/database-transaction": { databaseTransaction: () => assert.fail("Public reads must never start a write transaction") },
     "server-only": {},
     "@/auth": { auth: async () => anonymous ? null : { user: { id: "actor", role: "SUPER_ADMIN", email: "cached@example.org" } } },
     "@/lib/rbac": rbac,

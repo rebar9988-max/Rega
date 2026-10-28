@@ -1,3 +1,4 @@
+import { databaseTransaction } from "@/lib/database-transaction";
 /**
  * Social sign-in glue (server only): the Prisma implementation of the rules in `oauth-core.ts` and the reading of the
  * context cookie. Only the identity (provider + provider account id) is stored; provider access/refresh/id tokens are
@@ -34,7 +35,8 @@ export const prismaOAuthStore: OAuthStore = {
     return prisma.user.findUnique({ where: { email }, select });
   },
   createUser(data) {
-    return prisma.user.create({
+    return databaseTransaction(async tx => {
+    const user = await tx.user.create({
       data: {
         email: data.email,
         name: data.name,
@@ -44,9 +46,11 @@ export const prismaOAuthStore: OAuthStore = {
         emailVerified: data.emailVerified,
         termsAcceptedAt: data.termsAcceptedAt,
         lastLoginAt: new Date(),
-        accounts: { create: { type: "oauth", provider: data.provider, providerAccountId: data.providerAccountId } },
       },
       select,
+    });
+    await tx.account.create({ data: { userId: user.id, type: "oauth", provider: data.provider, providerAccountId: data.providerAccountId } });
+    return user;
     });
   },
   async linkAccount(userId, provider, providerAccountId) {

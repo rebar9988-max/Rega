@@ -1,3 +1,4 @@
+import { databaseTransaction } from "@/lib/database-transaction";
 import "server-only";
 import { prisma } from "@/lib/db";
 import { hashToken, newToken, tokenIdentifier, type TokenPurpose } from "./tokens-core";
@@ -6,10 +7,11 @@ import { hashToken, newToken, tokenIdentifier, type TokenPurpose } from "./token
 export async function issueToken(purpose: TokenPurpose, email: string, ttlMs: number): Promise<string> {
   const identifier = tokenIdentifier(purpose, email);
   const raw = newToken();
-  await prisma.$transaction([
-    prisma.verificationToken.deleteMany({ where: { identifier } }),
-    prisma.verificationToken.create({ data: { identifier, token: await hashToken(raw), expires: new Date(Date.now() + ttlMs) } }),
-  ]);
+  const token = await hashToken(raw);
+  await databaseTransaction(async tx => {
+    await tx.verificationToken.deleteMany({ where: { identifier } });
+    await tx.verificationToken.create({ data: { identifier, token, expires: new Date(Date.now() + ttlMs) } });
+  });
   return raw;
 }
 

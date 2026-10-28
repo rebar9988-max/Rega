@@ -11,6 +11,7 @@ import { boundingBox } from "@/lib/geo";
 import { NEAREST_CITY_MAX_KM, nearestCity, queryVariants, rankByQuery } from "@/lib/location-pref";
 import { PUBLIC_BUSINESS } from "@/lib/search-where";
 import { DEFAULT_PUBLIC_COUNTRY_CODE, listSelectorCities } from "./index";
+import { usesD1 } from "../d1-connection";
 
 export const GEO_CITY_LIMIT = 40;
 /** Rows read from the database for one text search before ranking; keeps the query small and the ranking meaningful. */
@@ -61,7 +62,11 @@ const publicLocation = { status: "active", deletedAt: null, business: PUBLIC_BUS
 /** Public listing counts for these cities in one grouped query. */
 async function countsFor(ids: string[]): Promise<Map<string, number>> {
   if (ids.length === 0) return new Map();
-  const rows = await prisma.location.groupBy({ by: ["cityId", "businessId"], where: { ...publicLocation, cityId: { in: ids } }, _count: { _all: true } });
+  // D1 supports at most100 bound parameters (the adapter reserves two). City IDs partition
+  // this grouped count, so splitting them retains distinct businesses within each city.
+  const size = usesD1() ? 80 : ids.length;
+  const batches = Array.from({ length: Math.ceil(ids.length / size) }, (_, i) => ids.slice(i * size, (i + 1) * size));
+  const rows = (await Promise.all(batches.map(cityIds => prisma.location.groupBy({ by: ["cityId", "businessId"], where: { ...publicLocation, cityId: { in: cityIds } }, _count: { _all: true } })))).flat();
   const counts = new Map<string, number>();
   for (const row of rows) if (row.cityId) counts.set(row.cityId, (counts.get(row.cityId) ?? 0) + 1);
   return counts;

@@ -1,9 +1,9 @@
+import { databaseTransaction } from "@/lib/database-transaction";
 /**
  * POST /api/v1/businesses/bulk — bulk publish / archive / restore / delete
  * Bounded to 500 ids per call; each affected row is audited with one summary entry.
  */
 import type { NextRequest } from "next/server";
-import { prisma } from "@/lib/db";
 import { handleError, ok } from "@/lib/api";
 import { requirePermission } from "@/lib/auth-helpers";
 import { bulkActionSchema } from "@/lib/validation";
@@ -45,15 +45,15 @@ export async function POST(request: NextRequest) {
     const { manageableIds } = await import("@/lib/business-access");
     const { reindexBusinessTree } = await import("@/lib/search-index");
     const allowed = await manageableIds(user, ids);
-    const skipped: string[] = [];
+    const skipped = new Set<string>();
     let affected = 0;
     for (const id of [...new Set(allowed)].sort()) {
-      const changed = await prisma.$transaction(async (tx) => {
+      const changed = await databaseTransaction(async (tx) => {
         await lockBusiness(tx, id);
         const before = await tx.business.findUnique({ where: { id }, select: publicationSelect });
         if (!before || (before.deletedAt && action !== "restore")) return false;
         const next = action === "publish" ? approvalData(before) : data;
-        if (!next) { skipped.push(id); return false; }
+        if (!next) { skipped.add(id); return false; }
         if (action === "publish" && before.verified && before.status === "published") return false;
         await tx.business.update({ where: { id }, data: next });
         await reindexBusinessTree(tx, id);
@@ -71,10 +71,10 @@ export async function POST(request: NextRequest) {
       actorEmail: user.email,
       action: `business.bulk.${action}`,
       entity: "Business",
-      after: { requested: ids.length, affected: affected, skippedIncomplete: skipped.length },
+      after: { requested: ids.length, affected: affected, skippedIncomplete: skipped.size },
     });
 
-    return ok({ requested: ids.length, affected: affected, action, skippedIncomplete: skipped });
+    return ok({ requested: ids.length, affected: affected, action, skippedIncomplete: [...skipped] });
   } catch (error) {
     return handleError(error, "businesses.bulk");
   }

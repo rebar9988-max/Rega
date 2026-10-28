@@ -1,10 +1,10 @@
+import { usesD1 } from "../../src/lib/d1-connection";
+import { testDatabaseClient, assertLocalD1TestFile } from "./database-client";
 /**
  * Prepares a deterministic database: demo data + two known accounts, and resets the demo
  * businesses to their expected state (dashboard tests change status). Never deletes anything.
  */
 import { execSync } from "node:child_process";
-import { PrismaClient } from "@prisma/client";
-import { PrismaPg } from "@prisma/adapter-pg";
 import bcrypt from "bcryptjs";
 import { startFakeAi } from "./fake-ai";
 import { isMissingBusinessTable } from "./database-safety";
@@ -30,8 +30,9 @@ export async function assertSafeDatabase(url: string) {
   if (!LOCAL_HOSTS.has(host) && process.env.E2E_ALLOW_REMOTE_DB !== "1") {
     throw new Error(`E2E refused: database host "${host}" is not local. Use a local test database (or set E2E_ALLOW_REMOTE_DB=1 for a dedicated remote TEST database).`);
   }
+  if (usesD1()) assertLocalD1TestFile();
   // Content check: a database with published businesses other than the demo set is treated as real data.
-  const probe = new PrismaClient({ adapter: new PrismaPg({ connectionString: url }) });
+  const probe = testDatabaseClient();
   try {
     const real = await probe.business.count({ where: { status: "published", deletedAt: null, slug: { notIn: DEMO_SLUGS }, NOT: { name: { startsWith: "E2E " } } } });
     if (real > 0) throw new Error(`E2E refused: the database contains ${real} published non-test businesses (looks like real data).`);
@@ -49,7 +50,7 @@ export default async function globalSetup() {
   execSync("npx tsx prisma/seed.ts", { stdio: "inherit", env: { ...process.env, SEED_DEMO: "1", SEED_ADMIN_EMAIL: ADMIN.email, SEED_ADMIN_PASSWORD: ADMIN.password, NODE_ENV: "development" } });
 
   const fakeAi = await startFakeAi();
-  const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }) });
+  const prisma = testDatabaseClient();
   try {
     await prisma.featureFlag.upsert({ where: { key: "public.aiSearch" }, update: { enabled: true, rollout: 100 }, create: { key: "public.aiSearch", enabled: true, rollout: 100 } });
     await prisma.user.upsert({

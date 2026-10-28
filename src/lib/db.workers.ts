@@ -18,8 +18,11 @@ import { PrismaClient } from "@prisma/client/wasm";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import pg from "pg";
+import { usesD1, registerD1Provider, type D1Connection } from "./d1-connection";
+import { createD1Client } from "./d1-client";
+import { PrismaClient as SqliteClient, Prisma as SqlitePrisma } from "@rega/d1-client/wasm.js";
 
-type WorkerEnv = { HYPERDRIVE?: { connectionString: string } };
+type WorkerEnv = { HYPERDRIVE?: { connectionString: string }; DB?: D1Connection & { withSession?: (mode: string) => D1Connection } };
 type Ctx = { waitUntil?: (promise: Promise<unknown>) => void };
 
 /** Connections per request: enough for a page's parallel queries, few enough to keep connection setup cheap. */
@@ -30,6 +33,16 @@ const IDLE_MS = 250;
 const CLOSE_WITHIN_MS = 20_000;
 
 const requestPools = new WeakMap<object, pg.Pool>();
+const requestD1 = new WeakMap<object, D1Connection>();
+registerD1Provider(() => {
+  const { env, ctx } = getCloudflareContext();
+  const binding = (env as WorkerEnv).DB;
+  if (!binding) throw new Error("REGA D1 binding DB is missing");
+  let session = requestD1.get(ctx);
+  if (!session) { session = binding.withSession?.("first-primary") ?? binding; requestD1.set(ctx, session); }
+  return session;
+});
+let sharedD1: PrismaClient | undefined;
 
 function connectionString(): string | undefined {
   const { env } = getCloudflareContext();
@@ -73,6 +86,7 @@ class RequestScopedPool extends pg.Pool {
 let shared: { key: string | undefined; client: PrismaClient } | null = null;
 
 function client(): PrismaClient {
+  if (usesD1()) return sharedD1 ??= createD1Client(SqliteClient, SqlitePrisma) as unknown as PrismaClient;
   const key = connectionString();
   if (!shared || shared.key !== key) {
     shared = { key, client: new PrismaClient({ adapter: new PrismaPg(new RequestScopedPool({ max: 1 })), log: ["error"] }) };

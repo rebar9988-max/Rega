@@ -1,3 +1,4 @@
+import { databaseTransaction } from "@/lib/database-transaction";
 /**
  * Admin write-side for businesses: one place that creates/updates a business together with its primary location,
  * resolves city and country, and decides whether it may be published. Server-only; callers check permissions.
@@ -6,7 +7,7 @@ import "server-only";
 import { z } from "zod";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
-import { slugify } from "@/lib/api";
+import { slugify } from "@/lib/slug";
 import { geocodeCity } from "@/lib/geocoder";
 import { isValidCoordinate } from "@/lib/coordinates";
 import { WEEK, parseOpeningHours, type OpeningHours } from "@/lib/opening-hours";
@@ -157,7 +158,7 @@ export async function saveBusiness(input: BusinessForm, actor: { id: string }, p
 }
 
 async function save(input: BusinessForm, actor: { id: string }, { canPublish, canCreateCity }: SavePerms): Promise<SaveResult> {
-  const result = await prisma.$transaction(async (tx) => {
+  const result = await databaseTransaction(async (tx) => {
     // A draft may not have a location yet; every other intent was validated to have one.
     const loc = input.addressLine1 && input.city && input.countryCode ? { addressLine1: input.addressLine1, city: input.city, countryCode: input.countryCode } : null;
 

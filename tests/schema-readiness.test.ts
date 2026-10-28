@@ -27,6 +27,7 @@ function loadHealth(prisma: unknown) {
     const modules: Record<string, unknown> = {
       "next/server": { NextResponse: { json: (body: unknown, options: unknown) => ({ body, options }) } },
       "@/lib/db": { prisma },
+      "@/lib/d1-connection": { usesD1: () => false },
       "@/lib/env": { isStorageConfigured: () => false },
       "@/lib/ai": { isAiConfigured: () => false, providerCatalog: () => [] },
       "@/lib/email": { emailEnabled: () => false },
