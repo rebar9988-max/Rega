@@ -796,3 +796,19 @@ Tests (local): `npm test` 364 tests, 360 pass, 0 fail, 4 DB-only skips; typechec
 Not done in this round (needs an owner decision or a schema change): search analytics (new table + privacy/consent review), holiday/temporary-closure hours (schema), districts (no model), Jobs launch (flag), typo tolerance, Lighthouse measurements (not run).
 Release: PR #88 squash `e13f60a`. Exact-main CI 40735869540, Deploy 40741609781, Beta health 40741609899 and Production browser check 40741866280 all succeeded. Live checks at 18:14 UTC: `/api/health` ok, provider d1. `/ckb`, `/ckb/businesses`, `/ckb/services` and `/en/ai` return 200. `/ckb/search?q=ئێستا کراوە` shows the open-now notice and a plain query does not. Business pages show the new status, e.g. «داخراوە · دەکرێتەوە پێنجشەممە لە 11:00», which matches the stored hours in the IQ and DE timezones.
 Next safe continuation point: round 2, which needs owner decisions: search analytics (schema + privacy), holiday/temporary closures (schema), Jobs launch, typo tolerance, Lighthouse measurement.
+
+## Global discovery upgrade, round 2 — search typo correction ("did you mean") — 2026-10-28
+
+Owner choice (round 2 = Smart Search only; next: holiday/temporary closures → Lighthouse → Jobs → search analytics). Audit: search matched folded substrings only (`textWhere`); no typo tolerance existed anywhere (page, `/api/v1/search`, AI).
+- `src/lib/search-correction.ts` (pure): the vocabulary is the words of the `searchText` of public businesses, published services and active locations, so a correction always leads to real, public results.
+  - A query word that already matches (as a substring) is never changed.
+  - Unknown words are replaced by the closest vocabulary word: optimal-string-alignment distance including the word's prefix. Allowed edits: 0 for ≤2 letters, 1 for ≤4, 2 for ≤8, 3 above.
+  - Sorani near letters ڕ/ر, ڵ/ل, ێ/ی, ۆ/و count 0.5. Ties go to the word in more records.
+  - A letter-bitmask lower bound skips most words.
+- `searchAll`: only when the search finds nothing (page 1), it retries once with the corrected words, in normal and open-now mode alike; in open-now mode the corrected query keeps the «ئێستا کراوە» words (`intentWords`).
+- Vocabulary: ≤2000 rows per table, ≤20,000 words, cached per Worker isolate for 5 min.
+- Search page: notice «هیچ ئەنجامێک بۆ «…» نەدۆزرایەوە…» plus a «مەبەستت «…» بوو؟» link; tabs and pagination continue with the corrected query.
+- 2 new messages × 7 locales. No schema, route, API or design-token change; `/api/v1/search` is unchanged.
+- Measured locally (worst case, random words): 20,000-word vocabulary built in 52 ms; a correction takes 7–29 ms. At today's real size (2 public businesses) it is well under 1 ms.
+- Tests: 6 correction + 3 intent unit tests (7 languages, near letters, no wild guesses, prefix, ties, cap); `npm test` 370 tests, 366 pass, 0 fail, 4 DB-only skips; typecheck and lint pass.
+- E2E on a disposable D1, `build:node` of the final code: catalog.spec 26/26 on desktop and mobile, including the new typo test. Broader regression: 81/82; the one failure was the sitemap `/guides` expectation, which needs `content.spec.ts` to run first. Run in CI order (content + seo) it passed 50/50, so it is test order, not this change.

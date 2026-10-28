@@ -230,7 +230,9 @@
     "noResults": "Keine Ergebnisse gefunden. Versuchen Sie einen anderen Begriff.",
     "resultCount": "{count} Ergebnisse",
     "hint": "Geben Sie mindestens 2 Zeichen ein.",
-    "openNowApplied": "Es werden nur Betriebe angezeigt, die jetzt geöffnet sind (laut hinterlegten Öffnungszeiten)."
+    "openNowApplied": "Es werden nur Betriebe angezeigt, die jetzt geöffnet sind (laut hinterlegten Öffnungszeiten).",
+    "correctedNotice": "Für «{query}» wurde nichts gefunden – das sind die nächstliegenden Ergebnisse.",
+    "didYouMean": "Meintest du «{query}»?"
   },
   "ai": {
     "title": "REGA-Assistent",

@@ -29,7 +29,8 @@ const NOW_WORDS = fold([
   "şimdi", "simdi", // tr
 ]);
 
-export type SearchIntent = { text: string; openNow: boolean };
+/** `intentWords`: the recognised "open"/"now" words, so a rewritten query (typo correction) can keep the intent. */
+export type SearchIntent = { text: string; openNow: boolean; intentWords?: string[] };
 
 export function parseSearchIntent(q: string | null | undefined): SearchIntent {
   const text = q ?? "";
@@ -37,6 +38,6 @@ export function parseSearchIntent(q: string | null | undefined): SearchIntent {
   const hasOpen = tokens.some((w) => OPEN_WORDS.has(w));
   const hasNow = tokens.some((w) => NOW_WORDS.has(w));
   if (!hasOpen || !hasNow) return { text, openNow: false };
-  const rest = tokens.filter((w) => !OPEN_WORDS.has(w) && !NOW_WORDS.has(w));
-  return { text: rest.join(" "), openNow: true };
+  const isIntent = (w: string) => OPEN_WORDS.has(w) || NOW_WORDS.has(w);
+  return { text: tokens.filter((w) => !isIntent(w)).join(" "), openNow: true, intentWords: tokens.filter(isIntent) };
 }

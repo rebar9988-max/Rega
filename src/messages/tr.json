@@ -230,7 +230,9 @@
     "noResults": "Sonuç bulunamadı. Farklı bir terim deneyin.",
     "resultCount": "{count} sonuç",
     "hint": "En az 2 karakter yazın.",
-    "openNowApplied": "Yalnızca şu anda açık olan yerler gösteriliyor (kayıtlı çalışma saatlerine göre)."
+    "openNowApplied": "Yalnızca şu anda açık olan yerler gösteriliyor (kayıtlı çalışma saatlerine göre).",
+    "correctedNotice": "«{query}» için sonuç bulunamadı; en yakın sonuçlar bunlar.",
+    "didYouMean": "Bunu mu demek istediniz: «{query}»?"
   },
   "ai": {
     "title": "REGA Asistanı",

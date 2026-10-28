@@ -230,7 +230,9 @@
     "noResults": "Tu encam nehat dîtin. Peyveke din biceribîne.",
     "resultCount": "{count} encam",
     "hint": "Herî kêm 2 tîp binivîse.",
-    "openNowApplied": "Tenê cihên ku niha vekirî ne têne nîşandan (li gorî demên xebatê yên tomarkirî)."
+    "openNowApplied": "Tenê cihên ku niha vekirî ne têne nîşandan (li gorî demên xebatê yên tomarkirî).",
+    "correctedNotice": "Ji bo «{query}» tu encam nehat dîtin, ev encamên herî nêzîk in.",
+    "didYouMean": "Mebesta te «{query}» bû?"
   },
   "ai": {
     "title": "Alîkarê REGA",
