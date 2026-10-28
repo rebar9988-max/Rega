@@ -8,6 +8,7 @@ import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { PUBLIC_BUSINESS, businessInCategories, businessInCity, textWhere } from "@/lib/search-where";
 import { searchTokens } from "@/lib/text";
+import { parseSearchIntent } from "@/lib/search-intent";
 import { OFFER_LIMITS, activeOfferWhere } from "@/lib/offers";
 import { PER_PAGE } from "./params";
 import { descendantIds } from "@/lib/category-tree";
@@ -305,14 +306,46 @@ export type SearchType = "all" | "businesses" | "services" | "locations";
 
 export async function searchAll({ q, type, page }: { q: string; type: SearchType; page: number }) {
   const empty = { items: [], total: 0, pages: 1, page } as const;
-  if (searchTokens(q).length === 0) return { businesses: empty, services: empty, locations: empty };
+  if (searchTokens(q).length === 0) return { businesses: empty, services: empty, locations: empty, openNow: false };
   const want = (t: SearchType) => type === "all" || type === t;
+  // "… open now" in the text: the remaining words are searched and only businesses open right now are listed
+  // (opening hours belong to businesses, so services and locations are not part of this answer).
+  const intent = parseSearchIntent(q);
+  if (intent.openNow) {
+    const businesses = want("businesses") ? await listOpenBusinesses(intent.text, page) : empty;
+    return { businesses, services: empty, locations: empty, openNow: true };
+  }
   const [businesses, services, locations] = await Promise.all([
     want("businesses") ? listBusinesses({ q, sort: "featured", page }) : empty,
     want("services") ? listServices({ q, sort: "featured", page }) : empty,
     want("locations") ? listLocations({ q, page }) : empty,
   ]);
-  return { businesses, services, locations };
+  return { businesses, services, locations, openNow: false };
+}
+
+/** Upper bound of matching businesses checked against their opening hours per open-now search. */
+const OPEN_NOW_CANDIDATES = 300;
+
+/**
+ * Public businesses matching `q` that are open right now at one of their active locations, in each location's own
+ * timezone. Unknown hours never count as open. Same ranking as the normal search; one page of cards is then read.
+ */
+async function listOpenBusinesses(q: string, page: number) {
+  const { isOpenNow } = await import("@/lib/geo");
+  const candidates = await prisma.business.findMany({
+    where: { ...PUBLIC_BUSINESS, ...textWhere(q) },
+    orderBy: [...businessOrder.featured, { id: "asc" }],
+    take: OPEN_NOW_CANDIDATES,
+    select: { id: true, locations: { where: { status: "active", deletedAt: null }, select: { openingHours: true, countryCode: true } } },
+  });
+  const now = new Date();
+  const ids = candidates.filter((b) => b.locations.some((l) => isOpenNow(l.openingHours, l.countryCode, now) === true)).map((b) => b.id);
+  const { skip, take } = skipTake(page);
+  const pageIds = ids.slice(skip, skip + take);
+  const cards = pageIds.length ? await prisma.business.findMany({ where: { ...PUBLIC_BUSINESS, id: { in: pageIds } }, select: businessCard }) : [];
+  const byId = new Map(cards.map((c) => [c.id, c]));
+  const items = pageIds.flatMap((id) => byId.get(id) ?? []);
+  return { items, total: ids.length, pages: pageCount(ids.length), page };
 }
 
 export const getHomeData = cache(

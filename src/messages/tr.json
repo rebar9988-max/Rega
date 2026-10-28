@@ -229,7 +229,8 @@
     "allTypes": "Tüm türler",
     "noResults": "Sonuç bulunamadı. Farklı bir terim deneyin.",
     "resultCount": "{count} sonuç",
-    "hint": "En az 2 karakter yazın."
+    "hint": "En az 2 karakter yazın.",
+    "openNowApplied": "Yalnızca şu anda açık olan yerler gösteriliyor (kayıtlı çalışma saatlerine göre)."
   },
   "ai": {
     "title": "REGA Asistanı",
@@ -515,6 +516,11 @@
     "open": "Açık",
     "closed": "Kapalı",
     "hoursUnknown": "Çalışma saatleri bilinmiyor",
+    "closingSoon": "Yakında kapanıyor",
+    "opensSoon": "Yakında açılıyor",
+    "closesAt": "{time} saatinde kapanır",
+    "opensAt": "{time} saatinde açılır",
+    "opensOn": "{day} {time} saatinde açılır",
     "directions": "Yol tarifi",
     "call": "Ara",
     "details": "Ayrıntılar",

@@ -34,7 +34,7 @@ async function seedGeography() {
     const row = await prisma.region.upsert({ where: { countryId_slug: { countryId: countries[r.country], slug: r.slug } }, update: {}, create: { countryId: countries[r.country], slug: r.slug, nameEn: r.en } });
     regions[`${r.country}/${r.slug}`] = row.id;
     // Translations live in rows keyed by locale (a new language needs no schema change).
-    for (const [locale, name] of [["en", r.en], ["de", r.de]] as const) {
+    for (const [locale, name] of [["en", r.en], ["de", r.de], ...Object.entries(r.names ?? {})]) {
       await prisma.regionTranslation.upsert({ where: { regionId_locale: { regionId: row.id, locale } }, update: {}, create: { regionId: row.id, locale, name } });
     }
   }

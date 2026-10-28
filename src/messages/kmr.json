@@ -229,7 +229,8 @@
     "allTypes": "Hemû cure",
     "noResults": "Tu encam nehat dîtin. Peyveke din biceribîne.",
     "resultCount": "{count} encam",
-    "hint": "Herî kêm 2 tîp binivîse."
+    "hint": "Herî kêm 2 tîp binivîse.",
+    "openNowApplied": "Tenê cihên ku niha vekirî ne têne nîşandan (li gorî demên xebatê yên tomarkirî)."
   },
   "ai": {
     "title": "Alîkarê REGA",
@@ -515,6 +516,11 @@
     "open": "Vekirî",
     "closed": "Girtî",
     "hoursUnknown": "Demjimêr nayên zanîn",
+    "closingSoon": "Di demeke nêzîk de tê girtin",
+    "opensSoon": "Di demeke nêzîk de vedibe",
+    "closesAt": "Di {time} de tê girtin",
+    "opensAt": "Di {time} de vedibe",
+    "opensOn": "{day} di {time} de vedibe",
     "directions": "Rê",
     "call": "Bang bike",
     "details": "Hûrgilî",
