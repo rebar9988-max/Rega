@@ -52,7 +52,8 @@ jobs:
             echo "No parent commit; Worker deploy will continue."
             exit 0
           fi
-          mapfile -t files < <(git diff-tree --no-commit-id --name-only -r HEAD)
+          # Compare with the first parent: diff-tree without -m returns no files for PR merge commits.
+          mapfile -t files < <(git diff --name-only HEAD^ HEAD)
           if [ "${#files[@]}" -eq 0 ]; then
             echo "skip=false" >> "$GITHUB_OUTPUT"
             echo "Empty diff; Worker deploy will continue."

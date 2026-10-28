@@ -68,3 +68,5 @@ New runtime variables of this release (names only; all optional unless noted): `
 | Assistant: a question with no match | deterministic "nothing found" answer, no model call |
 
 Then check Cloudflare Web Analytics / logs for errors and watch `production-health.yml`.
+
+Documentation-only automatic releases are skipped using the merge's first-parent diff (`git diff --name-only HEAD^ HEAD`). This handles ordinary commits and PR merge commits with the depth-2 checkout; plain `git diff-tree` without merge handling is insufficient. Root/empty commits still follow the conservative deploy path. Manual workflow dispatch remains explicit and CI/ownership-gated. See [regression evidence](evidence/deployment-scope-regression-2026-10-28.json).
