@@ -60,6 +60,20 @@ REGA task in the REGA repository — ALLOW. R&L task in the R&L repository — A
 - www.rega24.com/dr signs the owner in with a six-digit e-mail code; codes go to that address only. Widening the list
   needs a new explicit owner instruction. Details and verification evidence: `PROJECT_MEMORY.md`.
 
+### 0.9 Permanent Cloudflare platform mandate (owner instruction, 2026-10-28)
+
+Applies only to Rega24: `rebar9988-max/Rega`, `https://www.rega24.com`. Manage all Rega24 application infrastructure and future technical work on Cloudflare:
+
+| Responsibility | Required platform |
+| --- | --- |
+| Production database | Cloudflare D1 |
+| Backend and API | Cloudflare Workers |
+| Files and images | Cloudflare R2 |
+| Hosting and deployment | Cloudflare |
+| DNS and security | Cloudflare |
+
+Use the existing canonical Worker `rega24`, D1 database and R2 storage. GitHub remains the source-control, review and CI repository; successful checks gate deployment to Cloudflare. Do not introduce a replacement application hosting/database/storage platform or return production to Neon without a new explicit owner instruction. Retained Neon snapshots and private backups are recovery assets; this mandate does not authorize their deletion. Preserve existing functionality, project isolation and production safeguards. Treat “100/100” as a quality objective: report actual verified results and unresolved work accurately.
+
 ## 1. Foundation rule (REGA is a finished house)
 - The foundation is fixed. Architecture and structure are not changed without a real reason.
 - Routing and navigation are not disturbed by small requests.

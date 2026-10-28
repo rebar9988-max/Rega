@@ -9,6 +9,7 @@ Deploy background: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
 Rules for every fix:
 
+- Follow the permanent Cloudflare platform mandate in [CLAUDE.md](CLAUDE.md): D1, Workers, R2, Cloudflare deployment, DNS and security. Diagnose and repair the responsible existing Cloudflare layer; keep recovery copies intact.
 - Stay in this repository. R&L (`rebar9988-max/rega-cargo`) is a different project.
 - Run `node scripts/project-identity-guard.mjs --project REGA` before a deploy, migration, or secret change.
 - No production deletion, database reset, domain removal, or Worker deletion.

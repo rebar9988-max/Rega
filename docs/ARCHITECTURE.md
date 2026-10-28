@@ -3,6 +3,8 @@
 REGA is a free, multilingual directory for the Kurdish community in Germany and Europe. This page describes how it is
 put together and where each decision lives. Decisions with trade-offs have an ADR in [`docs/adr`](adr).
 
+The owner's permanent platform mandate is recorded in [CLAUDE.md section 0.9](../CLAUDE.md#09-permanent-cloudflare-platform-mandate-owner-instruction-2026-10-28): Cloudflare D1, Workers, R2, deployment, DNS and security. GitHub hosts source control/review/CI. [Verified production migration](D1-MIGRATION.md) supersedes the historical PostgreSQL runtime notes.
+
 ## Principles
 
 * **A finished house, extended in place.** The foundation (routing, shell, design tokens, data model) is stable;
@@ -21,8 +23,8 @@ flowchart LR
   V[Visitor / PWA] -->|HTTPS| CF[Cloudflare Worker<br/>OpenNext + Next.js 16]
   CF --> MW[middleware: locale, 301 redirects, security headers]
   MW --> APP[App Router<br/>/[locale]/..., /dr, /api/v1]
-  APP --> PG[(PostgreSQL via Prisma<br/>driver adapter, Hyperdrive optional)]
-  APP --> S3[(S3-compatible media bucket)]
+  APP --> D1[(Cloudflare D1 via PrismaD1<br/>native atomic batches)]
+  APP --> R2[(Cloudflare R2 media bucket)]
   APP --> EM[Email provider<br/>Resend or none]
   APP --> AI[REGA AI Gateway<br/>providers + fallback]
   APP -. advanced AI only .-> PY[Python AI Engine<br/>rerank / embeddings / processing]
@@ -30,7 +32,7 @@ flowchart LR
   APP --> RL[Rate limiter binding<br/>FORM_LIMITER etc.]
 ```
 
-* **Hosting:** Cloudflare Worker `rega-platform` (`wrangler.jsonc`, built by `npm run build`). `npm run build:node` builds
+* **Hosting:** Cloudflare Worker `rega24` (`wrangler.jsonc`, built by `npm run build`). `npm run build:node` builds
   the same app for Node (used by Playwright and Docker).
 * **Auth:** Auth.js v5, credentials, bcrypt (cost 12), JWT sessions. Roles: `SUPER_ADMIN`, `ADMIN`, `MANAGER`
   (moderator), `EMPLOYEE`, `BUSINESS_OWNER`, `USER` (matrix in `src/lib/rbac.ts`).
