@@ -178,7 +178,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                   <span className="rega-kicker mb-3" aria-hidden="true" />
                   <h2 id="home-cats" className="text-xl font-extrabold leading-tight sm:text-[22px]">{t("browseByCategory")}</h2>
                 </div>
-                <Link href="/businesses" className="shrink-0 text-sm font-bold text-brand hover:underline">{t("viewAll")}</Link>
+                <Link href="/businesses" className="shrink-0 text-sm font-bold text-brand hover:underline">{t("viewAll")}<span className="sr-only">: {t("browseByCategory")}</span></Link>
               </div>
               <nav aria-label={t("categoriesTitle")} className="mt-4">
                 <ul className="grid grid-cols-3 gap-2.5 sm:grid-cols-4 sm:gap-3 lg:grid-cols-7">
@@ -215,7 +215,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                 <h2 id="home-latest" className="text-xl font-extrabold leading-tight sm:text-[22px]">{t("popularTitle")}</h2>
                 <p className="mt-1 text-sm text-muted">{t("latestSub")}</p>
               </div>
-              <Link href="/businesses?sort=newest" className="shrink-0 text-sm font-bold text-brand hover:underline">{t("seeMore")}</Link>
+              {/* The hidden part names the target, so the link is descriptive for screen readers and search engines. */}
+              <Link href="/businesses?sort=newest" className="shrink-0 text-sm font-bold text-brand hover:underline">{t("seeMore")}<span className="sr-only">: {t("popularTitle")}</span></Link>
             </div>
             {latest.length > 0 ? (
               <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">

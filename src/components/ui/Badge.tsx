@@ -11,5 +11,6 @@ export function VerifiedBadge() {
 }
 
 export function Chip({ children }: { children: React.ReactNode }) {
-  return <span className="inline-flex items-center rounded-full border border-line bg-surface-2 px-2.5 py-0.5 text-xs text-muted">{children}</span>;
+  // Text in the ink colour: muted text on surface-2 is 4.44:1, below the 4.5:1 WCAG AA minimum for 12px text.
+  return <span className="inline-flex items-center rounded-full border border-line bg-surface-2 px-2.5 py-0.5 text-xs text-ink">{children}</span>;
 }
