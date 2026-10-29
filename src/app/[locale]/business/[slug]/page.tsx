@@ -31,6 +31,7 @@ import { isMappableCoordinate } from "@/lib/coordinates";
 import { closedOnHolidays, hasHours, hasHoursInfo, hoursRows, upcomingExceptions } from "@/lib/opening-hours";
 import { timezoneFor } from "@/lib/geo";
 import { OpenState } from "@/components/ui/OpenState";
+import { preload } from "react-dom";
 import { ReviewSection } from "@/features/reviews/ReviewSection";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
@@ -79,6 +80,8 @@ export default async function BusinessPage({ params }: Props) {
   const directions = mainLoc ? mapLinks(mainLoc.latitude, mainLoc.longitude, mainAddress, name.text) : null;
   // Gallery: the cover plus up to three further images, in the owner's order (older listings may store more; they stay saved).
   const gallery = [b.coverUrl, ...b.photos.slice(0, 3)].map((u) => safeHttpUrl(u)).filter((u): u is string => Boolean(u));
+  // The cover is the largest paint: announced in <head>, so the browser starts it (and the media connection) early.
+  if (gallery[0]) preload(gallery[0], { as: "image", fetchPriority: "high" });
   const showLocations = b.locations.length > 1 || mapPoints.length > 0 || b.locations.some((loc) => hasHoursInfo(loc.openingHours));
   const tm = await getTranslations("map");
   const pageUrl = `https://${process.env.CANONICAL_HOST || "www.rega24.com"}/${locale}/business/${slug}`;
