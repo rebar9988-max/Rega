@@ -5,7 +5,7 @@ on:
     - cron: '43 6 * * 1'
   workflow_dispatch:
   workflow_run:
-    workflows: ['CI', 'Deploy to Cloudflare Workers', 'Beta health', 'Production browser check', 'Engineering health']
+    workflows: ['CI', 'Deploy to Cloudflare Workers', 'Beta health', 'Production browser check']
     types: [completed]
 
 permissions:
@@ -23,14 +23,11 @@ jobs:
       github.event.repository.visibility == 'public' &&
       (github.event_name != 'workflow_dispatch' || github.ref == 'refs/heads/main') &&
       (github.event_name != 'workflow_run' ||
-       ((github.event.workflow_run.name != 'Engineering health' ||
-         github.event.workflow_run.event == 'schedule' ||
-         github.event.workflow_run.event == 'workflow_dispatch') &&
-       (github.event.workflow_run.conclusion == 'failure' ||
+       github.event.workflow_run.conclusion == 'failure' ||
        github.event.workflow_run.conclusion == 'timed_out' ||
        (github.event.workflow_run.name == 'Deploy to Cloudflare Workers' &&
         github.event.workflow_run.head_branch == 'main' &&
-        github.event.workflow_run.conclusion == 'success'))))
+        github.event.workflow_run.conclusion == 'success'))
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     permissions:

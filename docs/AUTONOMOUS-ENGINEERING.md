@@ -24,7 +24,7 @@ Only create parallel Codex agents when the supported session has capacity. Give 
 - Existing deploy: exact-main green push CI gate. No new deploy/migration/secret-sync trigger.
 - `Engineering health`: Monday 06:43 UTC and manual default-branch dispatch: docs integrity, automation behavioral tests, lockfile security audit, CI reliability sample and branch-protection status. GitHub schedules may be delayed or disabled by inactivity; no continuous availability guarantee.
 - `Engineering health`: completion of CI, web deploy, Beta health or production browser: failures/timeouts enter bounded triage; successful main web deploy gets one public read-only D1 readiness request after completion. Preview success is never production proof; this health request does not attest the live version SHA.
-- Engineering health scheduled/manual failures are triaged once; failure of its own workflow_run collector cannot trigger itself recursively.
+- Engineering health failures remain visible as native red Actions runs and weekly main-run reconciliation; GitHub forbids a workflow listening to itself. No self-listener or retry loop is configured.
 
 ## Bounded recovery and resume
 
