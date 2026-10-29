@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-29T12:43:16.371Z",
+  "generatedAt": "2026-10-29T12:47:27.092Z",
   "package": {
     "name": "rega-platform",
     "version": "0.1.0",
@@ -102,7 +102,7 @@
     "20261006133000_update_sorani_category_labels",
     "20261020090000_business_whatsapp_offers",
     "20261022120000_admin_sign_in_codes",
-    "20261029120000_business_social_links"
+    "20261024220000_business_social_links"
   ],
   "locales": [
     "ar",

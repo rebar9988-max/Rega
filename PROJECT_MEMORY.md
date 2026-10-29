@@ -963,6 +963,36 @@ Remaining corrective actions, each needs an owner decision:
 4. Framework JS (~51 KB unused, ~12 KB legacy polyfills) and bf-cache blocked by deliberate `no-store` are not changed.
 Next safe continuation point (owner order): Jobs launch → search analytics; or one of the corrective actions above.
 
+## Official vivid red standardization — 2026-10-29 (candidate)
+
+Owner scope: colors only; no rebuild/redesign, logo edits, production data changes or paid services. Baseline main `311c9d7`.
+Sampled owner attachment `2-Photo-2.jpg` at (386,88): RGB (250,7,13), canonical `--brand: #fa070d`.
+Unified global/dark/home tokens, Tailwind v4 theme aliases, link/hover/focus/selected/native-control colors and map paints;
+solid red actions use black labels for AA, text on light surfaces uses an accessible darker red derivative. Official logo
+files and their asset-matching backing are preserved. Details: [brand colors](docs/BRAND-COLORS.md).
+
+Initial local verification: typecheck/lint pass; unit 379 pass, 4 DB-only skips, 0 failures; D1 10/10 + batch splitting pass;
+npm audit 0 vulnerabilities; documentation validation passes. Standard Node build is blocked by the environment's Google
+Fonts network restriction. A test-only local Noto Sans Arabic response from Fontsource permits the Node build; no font
+source, dependency or production configuration changes are committed. Browser/final release verification is ongoing.
+New regression covers actual rendered color ratios and axe brand contrast, RTL/LTR, light/dark and 390/1366px.
+
+Read central Doc and verified remote main and Cloudflare: `rega24` deployment `2323ffab-d956-4b04-bca0-23b3ad3bfb68`,
+version `373658b2-471c-4073-89fb-ae1b22587f63` at 100% (pre-change baseline). CLI GitHub authentication fails but the connected
+GitHub tool confirms access to this exact repository. Follow the existing PR/full-CI/exact-main deployment workflow;
+no direct production publish or database operation is authorized by this color task. Release results must be recorded
+before claiming completion.
+
+Candidate validation update (PR #99): final Node test build passes with the local-font transport noted above. Existing
+browser suites: 64 passed (public a11y, navigation, profiles, language switching); corrected new brand regression: 8/8
+passed, including desktop/mobile, light/dark, RTL/LTR, action/link/soft/focus/control/thumb ratios and brand axe contrast.
+The first eight brand cases failed because the test assumed a home-only wrapper existed on registration; repaired the
+test and reran all eight successfully. No application defect was hidden. Native control color also explicitly preserves
+white-thumb contrast. Visual baseline/candidate: 18/18 identical measured geometry and typography after matching test-only
+social configuration; asynchronous MapLibre internals excluded. Screenshots inspected; official artwork unchanged.
+Evidence: [local color QA](docs/evidence/brand-colors-2026-10-29.json). Extended the existing read-only production browser
+checker to assert the served primary against the checked-out CSS token, including scoped home surfaces. No workflow
+or deployment mechanism changed. Final hosted CI and production verification remain pending.
 ## Business registration & editing upgrade — 2026-10-29 (branch `claude/rega24-business-form-6ie7x9`)
 
 Owner brief "REGA24 — premium business registration & editing" + global requirement "one shared form for all permitted

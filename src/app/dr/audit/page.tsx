@@ -40,9 +40,9 @@ export default async function AuditPage({ searchParams }: { searchParams: Promis
       )}
       {pages > 1 && (
         <nav aria-label={t("common.page")} className="mt-6 flex items-center justify-between text-sm">
-          {page > 1 ? <Link href={`/dr/audit?page=${page - 1}`} className="font-semibold text-brand">{t("common.previous")}</Link> : <span />}
+          {page > 1 ? <Link href={`/dr/audit?page=${page - 1}`} className="font-semibold text-brand-text">{t("common.previous")}</Link> : <span />}
           <span className="text-muted">{t("common.page")} {page} {t("common.of")} {pages}</span>
-          {page < pages ? <Link href={`/dr/audit?page=${page + 1}`} className="font-semibold text-brand">{t("common.next")}</Link> : <span />}
+          {page < pages ? <Link href={`/dr/audit?page=${page + 1}`} className="font-semibold text-brand-text">{t("common.next")}</Link> : <span />}
         </nav>
       )}
     </>

@@ -86,8 +86,8 @@ export default async function LoginPage({ params, searchParams }: { params: Prom
               <input id="password" name="password" type="password" required minLength={8} autoComplete="current-password" dir="ltr" className={`${field} text-start`} />
             </div>
             <SubmitButton>{t("auth.signIn")}</SubmitButton>
-            <p className="text-center text-sm"><Link href="/forgot-password" className="font-semibold text-brand underline">{t("auth.forgot")}</Link></p>
-            <p className="text-center text-sm text-muted">{t("auth.noAccount")} <Link href="/register" className="font-semibold text-brand underline">{t("auth.createAccount")}</Link></p>
+            <p className="text-center text-sm"><Link href="/forgot-password" className="font-semibold text-brand-text underline">{t("auth.forgot")}</Link></p>
+            <p className="text-center text-sm text-muted">{t("auth.noAccount")} <Link href="/register" className="font-semibold text-brand-text underline">{t("auth.createAccount")}</Link></p>
           </form>
         </div>
       </div>

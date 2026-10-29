@@ -85,7 +85,7 @@ export function PhotosField({
   }
   const working = busy || decoding || !!source;
   const free = Math.max(0, max - urls.length);
-  const iconButton = "grid min-h-11 place-items-center rounded-xl border border-line px-2 text-xs font-semibold hover:border-brand hover:text-brand disabled:opacity-40";
+  const iconButton = "grid min-h-11 place-items-center rounded-xl border border-line px-2 text-xs font-semibold hover:border-brand hover:text-brand-text disabled:opacity-40";
   return (
     <fieldset className="min-w-0 space-y-2" data-testid="photos-field">
       <legend className="mb-2 text-sm font-semibold">{label} <span className="font-normal text-muted">({urls.length}/{max})</span></legend>
@@ -158,7 +158,7 @@ export function PhotosField({
         />
       )}
       {error && (
-        <p role="alert" data-testid="upload-photos-state" className="text-sm font-semibold text-brand">
+        <p role="alert" data-testid="upload-photos-state" className="text-sm font-semibold text-brand-text">
           {uploadErrorText(error, t, tb)}
         </p>
       )}

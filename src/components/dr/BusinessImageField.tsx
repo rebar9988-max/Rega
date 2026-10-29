@@ -51,7 +51,7 @@ export function UploadSlot({ inputId, label, disabled, busy, square, onFiles, te
         className={`pointer-events-none flex size-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed p-3 text-center transition peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-brand peer-disabled:opacity-50 ${over ? "border-brand bg-brand-soft" : invalid ? "border-brand" : "border-line bg-surface-2 peer-hover:border-brand"}`}>
         {busy
           ? <span className="size-6 animate-spin rounded-full border-2 border-brand border-t-transparent motion-reduce:animate-none" />
-          : <span className="grid size-10 place-items-center rounded-full bg-brand-soft text-xl font-bold leading-none text-brand">+</span>}
+          : <span className="grid size-10 place-items-center rounded-full bg-brand-soft text-xl font-bold leading-none text-brand-text">+</span>}
         <span className="text-sm font-bold text-ink">{busy ? tb("uploading") : label}</span>
         {!busy && <span className="hidden text-xs text-muted sm:block">{tb("dropHere")}</span>}
       </span>
@@ -113,10 +113,10 @@ export function BusinessImageField({
           </div>
           <div className="grid grid-cols-2 gap-1.5">
             <button type="button" disabled={!storageReady || working} onClick={() => replaceInput.current?.click()} data-testid={`replace-${name}`}
-              className="min-h-11 rounded-xl border border-line px-2 text-xs font-semibold hover:border-brand hover:text-brand disabled:opacity-50">{t("replace")}</button>
+              className="min-h-11 rounded-xl border border-line px-2 text-xs font-semibold hover:border-brand hover:text-brand-text disabled:opacity-50">{t("replace")}</button>
             <button type="button" data-testid={`remove-${name}`}
               onClick={() => { if (!window.confirm(t("removeConfirm"))) return; setUrl(""); onValueChange?.(); }}
-              className="min-h-11 rounded-xl border border-line px-2 text-xs font-semibold hover:border-brand hover:text-brand">{tb("removeImage")}</button>
+              className="min-h-11 rounded-xl border border-line px-2 text-xs font-semibold hover:border-brand hover:text-brand-text">{tb("removeImage")}</button>
           </div>
           <input id={id} ref={replaceInput} type="file" accept={BUSINESS_IMAGE_ACCEPT} disabled={!storageReady || working} aria-invalid={invalid}
             data-testid={`upload-${name}`} className="sr-only" tabIndex={-1}
@@ -156,7 +156,7 @@ export function BusinessImageField({
         </p>
       )}
       {error && (
-        <p role="alert" data-testid={`upload-${name}-state`} className="text-sm font-semibold text-brand">
+        <p role="alert" data-testid={`upload-${name}-state`} className="text-sm font-semibold text-brand-text">
           {uploadErrorText(error, t, tb)}
         </p>
       )}

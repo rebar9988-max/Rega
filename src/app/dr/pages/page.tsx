@@ -26,7 +26,7 @@ export default async function PagesAdmin({ searchParams }: { searchParams: Promi
             return (
               <li key={p.id} className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 text-sm">
                 <span><bdi className="font-semibold">{title}</bdi> <span className="text-xs text-muted" dir="ltr">/p/{p.slug}</span></span>
-                <span className="flex items-center gap-3"><span className="text-muted">{ts(p.status as "draft")} · {p.translations.length}</span><Link href={`/dr/pages/${p.id}`} className="font-semibold text-brand hover:underline">{t("edit")}</Link></span>
+                <span className="flex items-center gap-3"><span className="text-muted">{ts(p.status as "draft")} · {p.translations.length}</span><Link href={`/dr/pages/${p.id}`} className="font-semibold text-brand-text hover:underline">{t("edit")}</Link></span>
               </li>
             );
           })}

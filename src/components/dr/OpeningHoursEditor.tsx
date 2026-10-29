@@ -43,7 +43,7 @@ export function OpeningHoursEditor({ initial, invalidDays = [], onChange }: {
         {WEEK.map((d) => <input key={d} type="hidden" name={`hours_${d}`} value="" data-testid={`hours-${d}`} />)}
         <p className="text-sm text-muted">{t("notSet")}</p>
         <button type="button" onClick={start} data-testid="hours-start"
-          className="inline-flex min-h-11 items-center gap-2 rounded-xl border-2 border-brand px-4 text-sm font-bold text-brand hover:bg-brand hover:text-brand-ink">
+          className="inline-flex min-h-11 items-center gap-2 rounded-xl border-2 border-brand px-4 text-sm font-bold text-brand-text hover:bg-brand hover:text-brand-ink">
           <span aria-hidden="true" className="text-lg leading-none">+</span>{t("add")}
         </button>
       </div>
@@ -54,12 +54,12 @@ export function OpeningHoursEditor({ initial, invalidDays = [], onChange }: {
     <div className="space-y-3" data-testid="hours-editor">
       <div className="flex flex-wrap gap-2">
         <button type="button" onClick={() => copyMonday(WEEK.filter((d) => d !== "mon"))} data-testid="hours-copy-all"
-          className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-brand-soft px-3 text-sm font-semibold text-brand hover:bg-brand hover:text-brand-ink">
+          className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-brand-soft px-3 text-sm font-semibold text-brand-text hover:bg-brand hover:text-brand-ink">
           <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2" /><path d="M5 15V5a2 2 0 0 1 2-2h8" /></svg>
           {t("copyAll")}
         </button>
         <button type="button" onClick={() => copyMonday(WEEKDAYS.filter((d) => d !== "mon"))} data-testid="hours-copy-weekdays"
-          className="inline-flex min-h-11 items-center rounded-xl border border-line px-3 text-sm font-semibold hover:border-brand hover:text-brand">
+          className="inline-flex min-h-11 items-center rounded-xl border border-line px-3 text-sm font-semibold hover:border-brand hover:text-brand-text">
           {t("copyWeekdays")}
         </button>
       </div>
@@ -87,7 +87,7 @@ export function OpeningHoursEditor({ initial, invalidDays = [], onChange }: {
               {day.open ? (
                 <div className="min-w-0 space-y-2">
                   <label className="inline-flex min-h-9 cursor-pointer items-center gap-2 text-sm">
-                    <input type="checkbox" checked={day.allDay} onChange={(e) => setDay(d, { allDay: e.target.checked })} className="size-4 accent-[var(--brand)]" data-testid={`hours-allday-${d}`} />
+                    <input type="checkbox" checked={day.allDay} onChange={(e) => setDay(d, { allDay: e.target.checked })} className="size-4 accent-brand-control" data-testid={`hours-allday-${d}`} />
                     {t("allDay")}
                   </label>
                   {!day.allDay && day.ranges.map((r, i) => (
@@ -101,17 +101,17 @@ export function OpeningHoursEditor({ initial, invalidDays = [], onChange }: {
                       </label>
                       {day.ranges.length > 1 && (
                         <button type="button" onClick={() => setDay(d, { ranges: day.ranges.filter((_, j) => j !== i) })} aria-label={`${t("removeRange")} – ${label} ${i + 1}`}
-                          className="grid size-11 shrink-0 place-items-center rounded-xl border border-line text-muted hover:border-brand hover:text-brand" data-testid={`hours-remove-${d}-${i}`}>
+                          className="grid size-11 shrink-0 place-items-center rounded-xl border border-line text-muted hover:border-brand hover:text-brand-text" data-testid={`hours-remove-${d}-${i}`}>
                           <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
                         </button>
                       )}
                     </div>
                   ))}
                   {!day.allDay && day.ranges.some((r) => r.from && r.to && r.to !== "00:00" && r.to < r.from) && <p className="text-xs text-muted">{t("overnight")}</p>}
-                  {invalid && <p role="alert" className="text-xs font-semibold text-brand">{t("invalid")}</p>}
+                  {invalid && <p role="alert" className="text-xs font-semibold text-brand-text">{t("invalid")}</p>}
                   {!day.allDay && day.ranges.length < 3 && (
                     <button type="button" onClick={() => setDay(d, { ranges: [...day.ranges, { from: "", to: "" }] })} data-testid={`hours-add-${d}`}
-                      className="inline-flex min-h-9 items-center gap-1 text-sm font-semibold text-brand hover:underline">
+                      className="inline-flex min-h-9 items-center gap-1 text-sm font-semibold text-brand-text hover:underline">
                       <span aria-hidden="true">+</span>{t("addRange")}
                     </button>
                   )}

@@ -81,7 +81,7 @@ function Section({ icon, title, hint, id, children }: { icon: keyof typeof ICONS
 
 /** Visible "required" star / "optional" tag; both decorative (the inputs carry `required`), so field names stay plain. */
 function Mark({ required, optional }: { required?: boolean; optional?: string }) {
-  if (required) return <span aria-hidden="true" className="ms-1 text-brand">*</span>;
+  if (required) return <span aria-hidden="true" className="ms-1 text-brand-text">*</span>;
   return optional ? <span aria-hidden="true" className="ms-1 text-xs font-normal text-muted">({optional})</span> : null;
 }
 
@@ -253,7 +253,7 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
   const stepNames: Record<Step, string> = { 1: t("wizard.step1"), 2: t("wizard.step2"), 3: t("wizard.step3"), 4: t("wizard.step4"), 5: t("wizard.step5") };
   const busy = saving || mediaBusy > 0;
   const primaryButton = "inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-brand px-6 text-base font-bold text-brand-ink hover:bg-brand-hover disabled:opacity-60";
-  const secondaryButton = "inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-line bg-surface px-6 text-base font-bold hover:border-brand hover:text-brand disabled:opacity-60";
+  const secondaryButton = "inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-line bg-surface px-6 text-base font-bold hover:border-brand hover:text-brand-text disabled:opacity-60";
   const optional = t("optional");
 
   return (
@@ -346,7 +346,7 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
               {offered.map((f) => (
                 <label key={f} className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border border-line px-3 text-sm has-[:checked]:border-brand has-[:checked]:bg-brand-soft">
                   <input type="checkbox" name="features" value={f} checked={features.includes(f)} data-testid={`feature-${f}`}
-                    onChange={(e) => setFeatures((all) => (e.target.checked ? [...all, f] : all.filter((x) => x !== f)))} className="size-4 accent-[var(--brand)]" />
+                    onChange={(e) => setFeatures((all) => (e.target.checked ? [...all, f] : all.filter((x) => x !== f)))} className="size-4 accent-brand-control" />
                   {t(`features.items.${f}`)}
                 </label>
               ))}
@@ -378,7 +378,7 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
               <div className="flex flex-wrap gap-2">
                 {LOCALES.map((l) => (
                   <label key={l} className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border border-line px-3 text-sm has-[:checked]:border-brand has-[:checked]:bg-brand-soft">
-                    <input type="checkbox" name="languages" value={l} defaultChecked={initial.languages?.includes(l)} className="size-4 accent-[var(--brand)]" />
+                    <input type="checkbox" name="languages" value={l} defaultChecked={initial.languages?.includes(l)} className="size-4 accent-brand-control" />
                     <span lang={LOCALE_META[l].htmlLang}>{LOCALE_META[l].nativeName}</span>
                   </label>
                 ))}
@@ -402,10 +402,10 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
               <input id="f-whatsapp" name="whatsapp" type="tel" inputMode="tel" dir="ltr" maxLength={50} placeholder="+49 178 1234567" value={wa} onChange={(e) => setWa(e.target.value)} className={`${input} pe-24`}
                 aria-invalid={bad("whatsapp") || (waResult && !waResult.ok ? true : undefined)} aria-describedby="whatsapp-hint" data-testid="whatsapp" />
               {!wa && phone.trim() && (
-                <button type="button" onClick={() => { setWa(phone); markDirty(); }} className="absolute inset-y-1 end-1 rounded-lg px-2 text-xs font-semibold text-brand hover:bg-brand-soft" data-testid="whatsapp-from-phone">{t("sameAsPhone")}</button>
+                <button type="button" onClick={() => { setWa(phone); markDirty(); }} className="absolute inset-y-1 end-1 rounded-lg px-2 text-xs font-semibold text-brand-text hover:bg-brand-soft" data-testid="whatsapp-from-phone">{t("sameAsPhone")}</button>
               )}
             </div>
-            <span id="whatsapp-hint" className={`text-xs ${waResult && !waResult.ok ? "font-semibold text-brand" : "text-muted"}`} data-testid="whatsapp-hint">
+            <span id="whatsapp-hint" className={`text-xs ${waResult && !waResult.ok ? "font-semibold text-brand-text" : "text-muted"}`} data-testid="whatsapp-hint">
               {waResult && !waResult.ok ? t("whatsappInvalid") : waResult?.ok ? t("whatsappSaved", { number: waResult.value }) : t("whatsappHint")}
             </span>
           </div>
@@ -414,14 +414,14 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
               <input id="f-email" name="email" type="email" inputMode="email" autoComplete="email" dir="ltr" maxLength={200} placeholder="name@example.com" value={email} onChange={(e) => setEmail(e.target.value)} className={input}
                 aria-invalid={bad("email") || (emailBad ? true : undefined)} aria-describedby={emailBad ? "email-error" : undefined} data-testid="email" />
             </div>
-            {emailBad && <span id="email-error" className="text-xs font-semibold text-brand">{t("emailInvalid")}</span>}
+            {emailBad && <span id="email-error" className="text-xs font-semibold text-brand-text">{t("emailInvalid")}</span>}
           </div>
           <div className="flex flex-col gap-1.5">
             <div className={fieldLabel}><span><label htmlFor="f-website">{t("website")}</label><Mark optional={optional} /></span>
               <input id="f-website" name="website" type="text" inputMode="url" autoComplete="url" dir="ltr" maxLength={300} placeholder="https://example.com" value={website} onChange={(e) => setWebsite(e.target.value)} className={input}
                 aria-invalid={bad("website") || (!websiteResult.ok ? true : undefined)} aria-describedby={!websiteResult.ok ? "website-error" : undefined} data-testid="website" />
             </div>
-            {!websiteResult.ok && <span id="website-error" className="text-xs font-semibold text-brand">{t("websiteInvalid")}</span>}
+            {!websiteResult.ok && <span id="website-error" className="text-xs font-semibold text-brand-text">{t("websiteInvalid")}</span>}
           </div>
         </div>
       </Section>
@@ -443,12 +443,12 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
                       aria-invalid={invalid || undefined} aria-describedby={invalid ? `${field}-error` : undefined} data-testid={`social-${p}`} />
                     {social[p] && (
                       <button type="button" onClick={() => { setSocial((s) => ({ ...s, [p]: "" })); markDirty(); }} aria-label={t("socialClear", { platform: title })}
-                        className="absolute inset-y-1 end-1 grid w-10 place-items-center rounded-lg text-muted hover:bg-surface-2 hover:text-brand" data-testid={`social-clear-${p}`}>
+                        className="absolute inset-y-1 end-1 grid w-10 place-items-center rounded-lg text-muted hover:bg-surface-2 hover:text-brand-text" data-testid={`social-clear-${p}`}>
                         <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
                       </button>
                     )}
                   </div>
-                  {invalid && <p id={`${field}-error`} className="mt-1 text-xs font-semibold text-brand" data-testid={`social-error-${p}`}>{t("socialInvalid", { platform: title })}</p>}
+                  {invalid && <p id={`${field}-error`} className="mt-1 text-xs font-semibold text-brand-text" data-testid={`social-error-${p}`}>{t("socialInvalid", { platform: title })}</p>}
                 </div>
               </li>
             );
@@ -480,7 +480,7 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
             <input id="f-postalCode" name="postalCode" maxLength={20} dir="ltr" inputMode="text" value={postal} onChange={(e) => setPostal(e.target.value)} className={input} autoComplete="postal-code" />
           </div>
           <button type="button" onClick={find} disabled={finding || address.trim().length < 3 || !city.trim()} data-testid="find-location"
-            className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border-2 border-brand px-4 text-sm font-bold text-brand hover:bg-brand hover:text-brand-ink disabled:opacity-50 sm:col-span-2">
+            className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border-2 border-brand px-4 text-sm font-bold text-brand-text hover:bg-brand hover:text-brand-ink disabled:opacity-50 sm:col-span-2">
             <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5" /><path d="m20 20-4.2-4.2" /></svg>
             {finding ? t("finding") : t("findLocation")}
           </button>
@@ -497,10 +497,10 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
                 {lookup.hits.map((h, i) => (
                   <li key={i} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-line px-3 py-2 text-sm">
                     <span className="flex min-w-0 flex-1 items-start gap-2">
-                      <svg viewBox="0 0 24 24" className="mt-0.5 size-4 shrink-0 text-brand" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">{ICONS.location}</svg>
-                      <span><bdi>{h.label}</bdi> <span className={`ms-1 text-xs font-semibold ${h.precision === "address" ? "text-[oklch(0.45_0.12_150)]" : "text-brand"}`}>· {t(`precision_${h.precision}`)}</span></span>
+                      <svg viewBox="0 0 24 24" className="mt-0.5 size-4 shrink-0 text-brand-text" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">{ICONS.location}</svg>
+                      <span><bdi>{h.label}</bdi> <span className={`ms-1 text-xs font-semibold ${h.precision === "address" ? "text-[oklch(0.45_0.12_150)]" : "text-brand-text"}`}>· {t(`precision_${h.precision}`)}</span></span>
                     </span>
-                    <button type="button" className="min-h-10 rounded-lg border border-line px-3 text-xs font-semibold hover:border-brand hover:text-brand" onClick={() => place(h, "geocoded")}>{t("useSuggestion")}</button>
+                    <button type="button" className="min-h-10 rounded-lg border border-line px-3 text-xs font-semibold hover:border-brand hover:text-brand-text" onClick={() => place(h, "geocoded")}>{t("useSuggestion")}</button>
                   </li>
                 ))}
               </ul>
@@ -514,7 +514,7 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
 
         <input type="hidden" name="coordsSource" value={source} />
         <label className={`flex items-start gap-3 rounded-xl border p-3 text-sm ${coordsOk && confirmed ? "border-[oklch(0.45_0.12_150)] bg-surface-2" : "border-line bg-surface-2"}`}>
-          <input type="checkbox" name="coordsConfirmed" value="1" checked={confirmed} disabled={!coordsOk} onChange={(e) => setConfirmed(e.target.checked)} className="mt-0.5 size-5 accent-[var(--brand)]" data-testid="confirm-location" />
+          <input type="checkbox" name="coordsConfirmed" value="1" checked={confirmed} disabled={!coordsOk} onChange={(e) => setConfirmed(e.target.checked)} className="mt-0.5 size-5 accent-brand-control" data-testid="confirm-location" />
           <span><span className="font-semibold">{t("confirm")}</span><br /><span className="text-muted">{t("confirmHint")}</span></span>
         </label>
         {coordsOk && confirmed && (
@@ -535,7 +535,7 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
             <label className={fieldLabel}>{t("longitude")}
               <input name="longitude" inputMode="decimal" dir="ltr" value={lng} onChange={(e) => { setLng(e.target.value); setSource("manual"); setConfirmed(false); }} className={input} aria-invalid={(coordsGiven && !coordsOk) || bad("longitude")} data-testid="lng" />
             </label>
-            {coordsGiven && !coordsOk && <p role="alert" className="text-sm font-semibold text-brand sm:col-span-2" data-testid="coords-invalid">{t("coordsInvalid")}</p>}
+            {coordsGiven && !coordsOk && <p role="alert" className="text-sm font-semibold text-brand-text sm:col-span-2" data-testid="coords-invalid">{t("coordsInvalid")}</p>}
           </div>
         </details>
       </Section>
@@ -581,7 +581,7 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
             ] as [Step, string, string][]).map(([n, label, text], i) => (
               <div key={i} className="flex items-start justify-between gap-3 rounded-xl bg-surface-2 px-3 py-2.5">
                 <div className="min-w-0"><dt className="text-xs text-muted">{label}</dt><dd className="font-semibold" dir="auto"><bdi>{text}</bdi></dd></div>
-                <button type="button" onClick={() => goTo(n)} disabled={busy} className="shrink-0 rounded-lg px-2 py-1 text-xs font-bold text-brand hover:bg-brand-soft">{t("edit")}<span className="sr-only"> – {label}</span></button>
+                <button type="button" onClick={() => goTo(n)} disabled={busy} className="shrink-0 rounded-lg px-2 py-1 text-xs font-bold text-brand-text hover:bg-brand-soft">{t("edit")}<span className="sr-only"> – {label}</span></button>
               </div>
             ))}
           </dl>
@@ -610,7 +610,7 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
         )}
         <div className="flex flex-wrap gap-3">
           <button type="submit" name="intent" value={wizard && isDraft ? "draft" : "save"} disabled={busy || (wizard && isDraft && name.trim().length < 2)} data-testid={wizard && isDraft ? "save-draft" : "save"}
-            className={wizard && isDraft ? "inline-flex min-h-11 items-center px-1 text-sm font-bold text-muted underline-offset-4 hover:text-brand hover:underline disabled:opacity-60" : secondaryButton}>
+            className={wizard && isDraft ? "inline-flex min-h-11 items-center px-1 text-sm font-bold text-muted underline-offset-4 hover:text-brand-text hover:underline disabled:opacity-60" : secondaryButton}>
             {saving ? t("saving") : wizard && isDraft ? t("wizard.saveDraft") : t("save")}
           </button>
           {canPublish && <button type="submit" name="intent" value="publish" disabled={busy} className={primaryButton}>{t("savePublish")}</button>}
