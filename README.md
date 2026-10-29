@@ -30,7 +30,7 @@ src/lib/search-index.ts       search index (searchText) of businesses, services 
 src/lib/text.ts               normalization incl. Kurdish/Arabic/Persian letter folding (ك→ک, ي→ی, ه→ە …)
 src/lib/business-access.ts    per-business access (BusinessMember) for EMPLOYEE accounts
 src/lib/opening-hours.ts      opening-hours format, validation and display rows
-src/messages/*.json           UI translations for the seven locales
+src/messages/*.json           UI translations for the eleven locales
 src/i18n/locales.ts           re-exports src/config/locales.ts (locale metadata: direction, digits, dates, fonts, fallbacks)
 src/config/sections.ts        section registry: header, footer, sitemap, search and assistant are generated from it
 src/features/<name>/          feature folders: auth, contact, content (jobs/events/guides), forms, legal, listings, reports, reviews

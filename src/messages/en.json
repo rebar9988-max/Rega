@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "REGA Platform — ڕێگا | Businesses, Services & Locations",
-    "description": "REGA Platform: the Kurdish portal for Germany and Europe. Find businesses, services and places near you, with an AI assistant in seven languages."
+    "description": "REGA Platform: the Kurdish portal for Germany and Europe. Find businesses, services and places near you, with an AI assistant in eleven languages."
   },
   "common": {
     "loading": "Loading ...",
@@ -91,7 +91,7 @@
   },
   "home": {
     "heroTitle": "All businesses, services and places in one place",
-    "heroSubtitle": "REGA is the platform for discovering, comparing and managing businesses — in Sorani, Kurmancî (Badînî), German, English, Arabic, Persian and Turkish.",
+    "heroSubtitle": "REGA is the platform for discovering, comparing and managing businesses — in Sorani, Kurmancî, German, English, Arabic, Turkish, Persian, French, Swedish, Dutch and Italian.",
     "searchPlaceholder": "Search for a business, service or city ...",
     "ctaExplore": "Browse businesses",
     "ctaAI": "Ask REGA AI",
@@ -107,8 +107,8 @@
         "body": "Access trustworthy professionals and service providers."
       },
       {
-        "title": "Seven languages, correct reading direction",
-        "body": "Sorani, Kurmancî (Badînî), German, English, Arabic, Persian and Turkish — with correct right-to-left and left-to-right layout."
+        "title": "Eleven languages, correct reading direction",
+        "body": "Sorani, Kurmancî, German, English, Arabic, Turkish, Persian, French, Swedish, Dutch and Italian — with correct right-to-left and left-to-right layout."
       },
       {
         "title": "REGA AI assistant",
@@ -151,7 +151,7 @@
     "citiesTitle": "Cities in Germany",
     "citiesSub": "Choose a city. Businesses show up here as they are published.",
     "factFree": "100% free",
-    "factLang": "7 languages",
+    "factLang": "11 languages",
     "factGermany": "Germany",
     "openMap": "Open the nearby map",
     "socialTitle": "Stay connected with REGA",
@@ -484,7 +484,7 @@
       },
       {
         "label": "Connect in your language",
-        "text": "Rega24 is available in seven languages, making discovery easier for users and helping business owners introduce their work."
+        "text": "Rega24 is available in eleven languages, making discovery easier for users and helping business owners introduce their work."
       }
     ],
     "quote": "Rega24 — discover services, connect locally, think globally."
@@ -900,7 +900,7 @@
     "freeBody": "Listing on REGA is completely free. There are no fees, subscriptions, paid placements or payments, and there won't be.",
     "benefitsTitle": "Why REGA?",
     "b1Title": "In their language",
-    "b1Text": "Your description is shown in seven languages, including Sorani and Kurmanji.",
+    "b1Text": "Your description can be shown in eleven languages, including Sorani and Kurmanji.",
     "b2Title": "Near your customers",
     "b2Text": "You appear on the map and in the “Nearby” search.",
     "b3Title": "AI assistant",

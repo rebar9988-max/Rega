@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "REGA Platform — ڕێگا | İşletmeler, Hizmetler ve Konumlar",
-    "description": "REGA Platform: Almanya ve Avrupa için Kürt portalı. Yakınınızdaki işletmeleri, hizmetleri ve yerleri bulun; yedi dilde yapay zekâ asistanıyla."
+    "description": "REGA Platform: Almanya ve Avrupa için Kürt portalı. Yakınınızdaki işletmeleri, hizmetleri ve yerleri bulun; on bir dilde yapay zekâ asistanıyla."
   },
   "common": {
     "loading": "Yükleniyor...",
@@ -91,7 +91,7 @@
   },
   "home": {
     "heroTitle": "Tüm işletmeler, hizmetler ve konumlar tek yerde",
-    "heroSubtitle": "REGA; işletmeleri keşfetmek, karşılaştırmak ve yönetmek için resmî platformdur — Kürtçe Sorani, Kürtçe Kurmancî (Badînî), Almanca, Arapça, Farsça ve Türkçe desteğiyle.",
+    "heroSubtitle": "REGA; işletmeleri keşfetmek, karşılaştırmak ve yönetmek için resmî platformdur — Kürtçe Sorani, Kurmancî, Almanca, İngilizce, Arapça, Türkçe, Farsça, Fransızca, İsveççe, Felemenkçe ve İtalyanca desteğiyle.",
     "searchPlaceholder": "İşletme, hizmet veya şehir ara...",
     "ctaExplore": "İşletmeleri gör",
     "ctaAI": "REGA AI'ya sor",
@@ -107,8 +107,8 @@
         "body": "Güvenilir uzmanlara ve hizmet sağlayıcılara ulaşın."
       },
       {
-        "title": "Yedi dil, doğru yön",
-        "body": "Soranice, Kurmancî (Badînî), Almanca, Arapça, Farsça ve Türkçe — doğru sağdan sola ve soldan sağa yerleşimle."
+        "title": "On bir dil, doğru yön",
+        "body": "Soranice, Kurmancî, Almanca, İngilizce, Arapça, Türkçe, Farsça, Fransızca, İsveççe, Felemenkçe ve İtalyanca — doğru sağdan sola ve soldan sağa yerleşimle."
       },
       {
         "title": "REGA Yapay Zekâ Asistanı",
@@ -151,7 +151,7 @@
     "citiesTitle": "Almanya'daki şehirler",
     "citiesSub": "Bir şehir seçin. İşletmeler yayımlandıkça burada görünür.",
     "factFree": "%100 ücretsiz",
-    "factLang": "7 dil",
+    "factLang": "11 dil",
     "factGermany": "Almanya",
     "openMap": "Yakınımdaki haritayı aç",
     "socialTitle": "REGA ile bağlantıda kalın",
@@ -484,7 +484,7 @@
       },
       {
         "label": "Kendi dilinizde iletişim",
-        "text": "Rega24 yedi dilde kullanılabilir; kullanıcıların aramasını ve işletme sahiplerinin çalışmalarını tanıtmasını kolaylaştırır."
+        "text": "Rega24 on bir dilde kullanılabilir; kullanıcıların aramasını ve işletme sahiplerinin çalışmalarını tanıtmasını kolaylaştırır."
       }
     ],
     "quote": "Rega24 — hizmetleri keşfet, yerel bağlar kur, küresel düşün."
@@ -900,7 +900,7 @@
     "freeBody": "REGA'da yer almak tamamen ücretsizdir. Ücret, abonelik, ücretli öne çıkarma veya ödeme yoktur ve olmayacak.",
     "benefitsTitle": "Neden REGA?",
     "b1Title": "Kendi dillerinde",
-    "b1Text": "Açıklamanız Soranice ve Kurmancî dahil yedi dilde gösterilir.",
+    "b1Text": "Açıklamanız Soranice ve Kurmancî dahil on bir dilde gösterilebilir.",
     "b2Title": "Müşterilerinize yakın",
     "b2Text": "Haritada ve “Yakınımda” aramasında görünürsünüz.",
     "b3Title": "Yapay zekâ asistanı",

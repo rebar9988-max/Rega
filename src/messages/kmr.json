@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "REGA Platform — ڕێگا | Karsaz, Xizmet û Cih",
-    "description": "REGA Platform (ڕێگا): portala kurdî ji bo Almanya û Ewropayê. Karsaz, xizmet û cihan bibîne, bi alîkarê zîrekiya çêkirî bi heft zimanan."
+    "description": "REGA Platform (ڕێگا): portala kurdî ji bo Almanya û Ewropayê. Karsaz, xizmet û cihan bibîne, bi alîkarê zîrekiya çêkirî bi yazdeh zimanan."
   },
   "common": {
     "loading": "Tê barkirin...",
@@ -91,7 +91,7 @@
   },
   "home": {
     "heroTitle": "Hemû karsazî, xizmet û cih li cihekî",
-    "heroSubtitle": "REGA platvorma fermî ye ji bo dîtin, berawirdkirin û rêveberiya karsaziyan — bi kurdî soranî, kurdî badînî, almanî, îngilîzî, erebî, farisî û tirkî.",
+    "heroSubtitle": "REGA platforma fermî ye ji bo dîtin, berawirdkirin û rêveberiya karsaziyan — bi kurdî soranî, kurmancî, almanî, îngilîzî, erebî, tirkî, farisî, fransî, swêdî, holendî û îtalî.",
     "searchPlaceholder": "Karsazî, xizmet an bajarekî bigere...",
     "ctaExplore": "Karsaziyan bibîne",
     "ctaAI": "Ji REGA AI bipirse",
@@ -107,8 +107,8 @@
         "body": "Bigihîje pispor û pêşkêşkarên pêbawer."
       },
       {
-        "title": "Heft ziman, alîkirina rast",
-        "body": "Kurdiya Soranî, Kurmancî, Almanî, Îngilîzî, Erebî, Farisî û Tirkî — bi arastekirina rast a rastçep û çepraste."
+        "title": "Yazdeh ziman, alîkirina rast",
+        "body": "Kurdiya Soranî, Kurmancî, Almanî, Îngilîzî, Erebî, Tirkî, Farisî, Fransî, Swêdî, Holendî û Îtalî — bi arastekirina rast a rastçep û çepraste."
       },
       {
         "title": "Alîkarê REGA AI",
@@ -151,7 +151,7 @@
     "citiesTitle": "Bajarên Almanyayê",
     "citiesSub": "Bajarekî hilbijêre. Karsazî li vir xuya dibin gava werin weşandin.",
     "factFree": "100% belaş",
-    "factLang": "7 ziman",
+    "factLang": "11 ziman",
     "factGermany": "Almanya",
     "openMap": "Nexşeya nêzîkî min veke",
     "socialTitle": "Bi REGA re bimîne",
@@ -484,7 +484,7 @@
       },
       {
         "label": "Têkilî bi zimanê te",
-        "text": "Rega24 bi heft zimanan berdest e, da ku lêgerîn ji bo bikarhêneran û danasîna kar ji bo xwediyên karsaziyan hêsantir bibe."
+        "text": "Rega24 bi yazdeh zimanan berdest e, da ku lêgerîn ji bo bikarhêneran û danasîna kar ji bo xwediyên karsaziyan hêsantir bibe."
       }
     ],
     "quote": "Rega24 — xizmetan bibîne, têkiliyên herêmî ava bike, cîhanî bifikire."
@@ -900,7 +900,7 @@
     "freeBody": "Tomarkirin li REGA bêpere ye. Tu mesref, abonetî, cihê bi pere an dayîn tune ye û nabe.",
     "benefitsTitle": "Çima REGA?",
     "b1Title": "Bi zimanê wan",
-    "b1Text": "Danasîna te bi heft zimanan tê nîşandan, tevî soranî û kurmancî.",
+    "b1Text": "Danasîna te dikare bi yazdeh zimanan were nîşandan, tevî soranî û kurmancî.",
     "b2Title": "Nêzîkî bikarhêneran",
     "b2Text": "Li ser nexşeyê û di lêgerîna «nêzîk» de xuya dibî.",
     "b3Title": "Alîkarê zîrekiya çêkirî",

@@ -10,7 +10,7 @@ import { prisma } from "@/lib/db";
 import { boundingBox } from "@/lib/geo";
 import { NEAREST_CITY_MAX_KM, nearestCity, queryVariants, rankByQuery } from "@/lib/location-pref";
 import { PUBLIC_BUSINESS } from "@/lib/search-where";
-import { DEFAULT_PUBLIC_COUNTRY_CODE, listSelectorCities } from "./index";
+import { DEFAULT_PUBLIC_COUNTRY_CODE, MARKET_COUNTRY_CODES, listSelectorCities } from "./index";
 import { usesD1 } from "../d1-connection";
 
 export const GEO_CITY_LIMIT = 40;
@@ -77,12 +77,12 @@ async function toCities(rows: CityRow[]): Promise<GeoCity[]> {
   return rows.map(({ country, ...city }) => ({ ...city, countryCode: country.code, count: counts.get(city.id) ?? 0 }));
 }
 
-/** The public market's country first, then any other active country that already has a public listing. */
+/** The public market's country first, then the other target markets and any other active country that already has a public listing. */
 export async function geoCountries(selectedCountryCode?: string): Promise<GeoCountry[]> {
   const rows = await prisma.country.findMany({
     where: {
       isActive: true,
-      OR: [{ code: DEFAULT_PUBLIC_COUNTRY_CODE }, { code: selectedCountryCode ?? DEFAULT_PUBLIC_COUNTRY_CODE }, { cities: { some: { isActive: true, locations: { some: publicLocation } } } }],
+      OR: [{ code: { in: [...MARKET_COUNTRY_CODES, selectedCountryCode ?? DEFAULT_PUBLIC_COUNTRY_CODE] } }, { cities: { some: { isActive: true, locations: { some: publicLocation } } } }],
     },
     orderBy: [{ sortOrder: "asc" }, { nameEn: "asc" }],
     take: 30,

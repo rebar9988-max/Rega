@@ -49,6 +49,8 @@ export const getCategories = cache(async () => {
 /** Germany is the current public market. Locale/language is intentionally independent from country. */
 export const DEFAULT_PUBLIC_COUNTRY_CODE = "DE";
 
+export { MARKET_COUNTRY_CODES } from "./markets";
+
 /**
  * Active cities for one country. `count` follows the currently relevant public-business filters so category pages
  * show useful per-city totals without leaking cities from other countries into the selector.

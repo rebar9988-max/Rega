@@ -14,7 +14,7 @@ import { Link } from "@/i18n/routing";
 import { formatNumber, type Locale } from "@/i18n/locales";
 import { PageHeader, type Crumb } from "@/components/ui/PageHeader";
 import { Pagination } from "@/components/ui/Pagination";
-import { DEFAULT_PUBLIC_COUNTRY_CODE, getCategories, listBusinesses, listSelectorCities, type BusinessQuery } from "@/lib/data";
+import { DEFAULT_PUBLIC_COUNTRY_CODE, MARKET_COUNTRY_CODES, getCategories, listBusinesses, listSelectorCities, type BusinessQuery } from "@/lib/data";
 import { businessShape, parseParams } from "@/lib/data/params";
 
 const SORTS = ["featured", "rating", "newest", "name"] as const;
@@ -50,7 +50,7 @@ export async function BusinessIndex({ pathname, searchParams, title, crumbs, fix
         }),
   ]);
 
-  const countries = await prisma.country.findMany({ where: { isActive: true, OR: [{code:"DE"},{code:query.country ?? "DE"},{cities:{some:{locations:{some:{status:"active",deletedAt:null,business:PUBLIC_BUSINESS}}}}}] }, select:{code:true}, orderBy:{sortOrder:"asc"} });
+  const countries = await prisma.country.findMany({ where: { isActive: true, OR: [{code:{in:[...MARKET_COUNTRY_CODES, query.country ?? DEFAULT_PUBLIC_COUNTRY_CODE]}},{cities:{some:{locations:{some:{status:"active",deletedAt:null,business:PUBLIC_BUSINESS}}}}}] }, select:{code:true}, orderBy:{sortOrder:"asc"} });
   const locale = await getLocale();
   const countryName = (code: string) => { try {return new Intl.DisplayNames([locale,"en"],{type:"region"}).of(code) ?? code;} catch {return code;} };
   const formId = "directory-filters";

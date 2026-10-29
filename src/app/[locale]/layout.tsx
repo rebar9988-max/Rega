@@ -36,6 +36,10 @@ const PRIVATE_BETA_COPY: Record<string, { title: string; body: string; status: s
   ar: { title: "منصة REGA قيد التجهيز", body: "منصة REGA حالياً في مرحلة تجريبية خاصة. سيتم فتحها للجميع بعد اكتمال العمل والتحقق منه.", status: "Private Beta" },
   tr: { title: "REGA hazırlanıyor", body: "REGA platformu şu anda özel beta aşamasındadır. Kalan çalışmalar tamamlanıp doğrulandıktan sonra herkese açılacaktır.", status: "Private Beta" },
   fa: { title: "REGA در حال آماده‌سازی است", body: "پلتفرم REGA اکنون در مرحله بتای خصوصی است. پس از تکمیل و بررسی نهایی، برای عموم باز خواهد شد.", status: "Private Beta" },
+  fr: { title: "REGA est en préparation", body: "La plateforme REGA est actuellement en bêta privée. Elle sera ouverte au public une fois le travail restant terminé et vérifié.", status: "Private Beta" },
+  sv: { title: "REGA förbereds", body: "REGA-plattformen är just nu i privat beta. Den öppnas för alla när det återstående arbetet är klart och kontrollerat.", status: "Private Beta" },
+  nl: { title: "REGA wordt voorbereid", body: "Het REGA-platform bevindt zich momenteel in een besloten bèta. Het wordt openbaar zodra het resterende werk klaar en gecontroleerd is.", status: "Private Beta" },
+  it: { title: "REGA è in preparazione", body: "La piattaforma REGA è attualmente in beta privata. Sarà aperta al pubblico quando il lavoro rimanente sarà completato e verificato.", status: "Private Beta" },
 };
 
 export const viewport: Viewport = {

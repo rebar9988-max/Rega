@@ -14,7 +14,7 @@ import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { LOCALE_META, formatNumber, type Locale } from "@/i18n/locales";
-import { localize, type Localized } from "@/lib/content";
+import { countryFlag, countryName, localize, type Localized } from "@/lib/content";
 import { coarsen } from "@/lib/geo";
 import { plainCityName, rankByQuery, savedCityQuery } from "@/lib/location-pref";
 import {
@@ -440,7 +440,7 @@ function LocationPanel({ countryCode, panelId, anchorRef, fallback, selectedId, 
               <label className="grid gap-1 text-xs font-semibold text-muted">
                 {tl("country")}
                 <select value={country ?? data?.countryCode ?? ""} onChange={(e) => { setCountry(e.target.value); setRegion(""); }} className={`${field} font-normal text-ink`}>
-                  {countries.map((c) => <option key={c.code} value={c.code}>{nameOf(c, locale).text}</option>)}
+                  {countries.map((c) => <option key={c.code} value={c.code}>{`${countryFlag(c.code)} ${countryName(c, locale)}`.trim()}</option>)}
                 </select>
               </label>
             )}

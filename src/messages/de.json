@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "REGA Platform — ڕێگا | Unternehmen, Dienstleistungen & Standorte",
-    "description": "REGA Platform: das kurdische Portal für Deutschland und Europa. Unternehmen, Dienstleistungen und Orte finden – mit KI-Assistent in sieben Sprachen."
+    "description": "REGA Platform: das kurdische Portal für Deutschland und Europa. Unternehmen, Dienstleistungen und Orte finden – mit KI-Assistent in elf Sprachen."
   },
   "common": {
     "loading": "Wird geladen ...",
@@ -91,7 +91,7 @@
   },
   "home": {
     "heroTitle": "Alle Unternehmen, Dienstleistungen und Orte an einem Ort",
-    "heroSubtitle": "REGA ist die Plattform zum Entdecken, Vergleichen und Verwalten von Unternehmen — mit Sorani, Kurmancî (Badînî), Deutsch, Englisch, Arabisch, Persisch und Türkisch.",
+    "heroSubtitle": "REGA ist die Plattform zum Entdecken, Vergleichen und Verwalten von Unternehmen — mit Sorani, Kurmancî, Deutsch, Englisch, Arabisch, Türkisch, Persisch, Französisch, Schwedisch, Niederländisch und Italienisch.",
     "searchPlaceholder": "Unternehmen, Dienstleistung oder Stadt suchen ...",
     "ctaExplore": "Unternehmen ansehen",
     "ctaAI": "REGA KI fragen",
@@ -107,8 +107,8 @@
         "body": "Zugang zu vertrauenswürdigen Fachleuten und Dienstleistern."
       },
       {
-        "title": "Sieben Sprachen, richtige Leserichtung",
-        "body": "Sorani, Kurmancî (Badînî), Deutsch, Englisch, Arabisch, Persisch und Türkisch — mit korrekter Rechts-nach-links- und Links-nach-rechts-Darstellung."
+        "title": "Elf Sprachen, richtige Leserichtung",
+        "body": "Sorani, Kurmancî, Deutsch, Englisch, Arabisch, Türkisch, Persisch, Französisch, Schwedisch, Niederländisch und Italienisch — mit korrekter Rechts-nach-links- und Links-nach-rechts-Darstellung."
       },
       {
         "title": "REGA KI-Assistent",
@@ -151,7 +151,7 @@
     "citiesTitle": "Städte in Deutschland",
     "citiesSub": "Wählen Sie eine Stadt. Unternehmen erscheinen hier, sobald sie veröffentlicht sind.",
     "factFree": "100 % kostenlos",
-    "factLang": "7 Sprachen",
+    "factLang": "11 Sprachen",
     "factGermany": "Deutschland",
     "openMap": "Karte in der Nähe öffnen",
     "socialTitle": "Mit REGA in Verbindung bleiben",
@@ -484,7 +484,7 @@
       },
       {
         "label": "In deiner Sprache verbinden",
-        "text": "Rega24 ist in sieben Sprachen verfügbar. Das erleichtert die Suche und hilft Unternehmen, ihre Arbeit vorzustellen."
+        "text": "Rega24 ist in elf Sprachen verfügbar. Das erleichtert die Suche und hilft Unternehmen, ihre Arbeit vorzustellen."
       }
     ],
     "quote": "Rega24 – Dienstleistungen entdecken, lokal verbinden, global denken."
@@ -900,7 +900,7 @@
     "freeBody": "Der Eintrag auf REGA ist komplett kostenlos. Es gibt keine Gebühren, Abos, bezahlten Platzierungen oder Zahlungen – und wird es nicht geben.",
     "benefitsTitle": "Warum REGA?",
     "b1Title": "In ihrer Sprache",
-    "b1Text": "Ihre Beschreibung wird in sieben Sprachen gezeigt, darunter Sorani und Kurmancî.",
+    "b1Text": "Ihre Beschreibung kann in elf Sprachen gezeigt werden, darunter Sorani und Kurmancî.",
     "b2Title": "In der Nähe Ihrer Kunden",
     "b2Text": "Sie erscheinen auf der Karte und in der Umgebungssuche.",
     "b3Title": "KI-Assistent",
