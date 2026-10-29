@@ -75,7 +75,7 @@ export async function ContentIndex({ section, locale, searchParams }: { section:
           )}
           <button type="submit" className="min-h-11 rounded-xl bg-brand px-5 text-sm font-semibold text-brand-ink hover:bg-brand-hover">{t("list.apply")}</button>
         </div>
-        {active && <div className="mt-3 text-sm"><Link href={path} className="text-brand hover:underline">{t("list.reset")}</Link></div>}
+        {active && <div className="mt-3 text-sm"><Link href={path} className="text-brand-text hover:underline">{t("list.reset")}</Link></div>}
       </form>
       <Suspense key={JSON.stringify(filters)} fallback={<GridSkeleton />}><Results section={section} locale={locale} filters={filters} active={active} /></Suspense>
     </>

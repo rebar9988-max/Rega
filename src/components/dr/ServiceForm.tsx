@@ -109,7 +109,7 @@ export function ServiceForm({ initial, businesses, categories, currencies, canPu
       </fieldset>
 
       <div className="flex flex-wrap gap-3">
-        <button type="submit" name="intent" value="save" disabled={saving} className="min-h-11 rounded-xl border border-line bg-surface px-6 text-sm font-bold hover:border-brand hover:text-brand disabled:opacity-60">{saving ? t("saving") : tb("save")}</button>
+        <button type="submit" name="intent" value="save" disabled={saving} className="min-h-11 rounded-xl border border-line bg-surface px-6 text-sm font-bold hover:border-brand hover:text-brand-text disabled:opacity-60">{saving ? t("saving") : tb("save")}</button>
         {canPublish && (
           <button type="submit" name="intent" value="publish" disabled={saving} className="min-h-11 rounded-xl bg-brand px-6 text-sm font-bold text-brand-ink hover:bg-brand-hover disabled:opacity-60">{tb("savePublish")}</button>
         )}

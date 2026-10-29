@@ -44,7 +44,7 @@ export default async function OwnerLoginPage({
     <main className="grid min-h-dvh place-items-center px-4 py-12">
       <section className="w-full max-w-md">
         <div className="mb-6 text-center">
-          <p dir="ltr" className="text-3xl font-black text-brand">REGA</p>
+          <p dir="ltr" className="text-3xl font-black text-brand-text">REGA</p>
           <h1 className="mt-2 text-xl font-extrabold">چوونەژوورەوەی خاوەن</h1>
           <p className="mt-1 text-sm text-muted">Private Beta</p>
         </div>
@@ -63,7 +63,7 @@ export default async function OwnerLoginPage({
             <label htmlFor="password" className="mb-1 block text-sm font-semibold">وشەی نهێنی</label>
             <input id="password" name="password" type="password" required minLength={8} autoComplete="current-password" dir="ltr" className={`${field} text-start`} />
           </div>
-          <button type="submit" className="min-h-11 w-full rounded-xl bg-brand text-sm font-semibold text-white hover:bg-brand-hover">
+          <button type="submit" className="min-h-11 w-full rounded-xl bg-brand text-sm font-semibold text-brand-ink hover:bg-brand-hover">
             چوونەژوورەوە
           </button>
         </form>

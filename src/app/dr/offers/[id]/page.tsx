@@ -35,7 +35,7 @@ export default async function EditOffer({ params, searchParams }: { params: Prom
         <h1 className="text-2xl font-extrabold">{t("offerForm.editTitle")}: <bdi>{offer.title}</bdi></h1>
         <div className="flex flex-wrap items-center gap-3 text-sm">
           <span className="rounded-full bg-surface-2 px-3 py-1 font-semibold" data-testid="offer-state">{t(`offerForm.state_${state}`)}</span>
-          {state === "active" && offer.business.status === "published" && <Link href={`/${locale}/business/${offer.business.slug}`} className="font-semibold text-brand hover:underline">{t("bizForm.viewPublic")}</Link>}
+          {state === "active" && offer.business.status === "published" && <Link href={`/${locale}/business/${offer.business.slug}`} className="font-semibold text-brand-text hover:underline">{t("bizForm.viewPublic")}</Link>}
         </div>
       </div>
       {notice && (
@@ -60,7 +60,7 @@ export default async function EditOffer({ params, searchParams }: { params: Prom
       <form action={setOfferActiveAction} className="mt-6">
         <input type="hidden" name="id" value={offer.id} />
         <input type="hidden" name="active" value={offer.isActive ? "0" : "1"} />
-        <button type="submit" className="min-h-11 rounded-xl border border-line bg-surface px-6 text-sm font-bold hover:border-brand hover:text-brand" data-testid="offer-switch">
+        <button type="submit" className="min-h-11 rounded-xl border border-line bg-surface px-6 text-sm font-bold hover:border-brand hover:text-brand-text" data-testid="offer-switch">
           {offer.isActive ? t("offerForm.deactivate") : t("offerForm.activate")}
         </button>
         <p className="mt-2 text-xs text-muted">{offer.isActive ? t("offerForm.deactivateHint") : t("offerForm.activateHint")}</p>

@@ -44,6 +44,17 @@ test("existing Add and Edit forms persist all platforms, preserve failed input, 
   await page.getByLabel("Straße und Hausnummer").fill("Social Test Street 12");
   await page.getByLabel("Stadt", { exact: true }).fill("Berlin");
   for (const [field, value] of Object.entries(accounts)) await page.locator(`input[name=${field}]`).fill(value);
+  const instagram = page.locator("input[name=instagramUrl]");
+  await instagram.fill("https://instagram.com.evil.example/account");
+  await instagram.blur();
+  await expect(instagram).toHaveAttribute("aria-invalid", "true");
+  const invalidState = await new AxeBuilder({ page })
+    .include('[data-testid="business-social-fields"]')
+    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+    .analyze();
+  console.info(JSON.stringify({ scope: "business-social-form-invalid", violations: invalidState.violations.length, incomplete: invalidState.incomplete.length }));
+  expect(invalidState.violations, "social URL feedback contrast and semantics").toEqual([]);
+  await instagram.fill(accounts.instagramUrl);
   // Server-side validation failure in an unrelated field keeps every social input intact.
   await page.getByLabel("E-Mail", { exact: true }).fill("invalid-email");
   await page.locator("form").filter({ has: page.locator("input[name=name]") }).evaluate((form) => { (form as HTMLFormElement).noValidate = true; });

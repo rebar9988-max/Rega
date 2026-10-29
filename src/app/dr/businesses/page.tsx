@@ -141,7 +141,7 @@ export default async function DrBusinesses({ searchParams }: { searchParams: Pro
           )}
         </div>
       )}
-      {sp.blocked && <p role="alert" data-testid="publish-blocked" className="mb-5 rounded-xl border border-brand/30 bg-brand-soft px-4 py-3 text-sm font-semibold text-ink">{t("bizForm.blockedNotice")} <Link href={`/dr/businesses/${encodeURIComponent(sp.blocked)}`} className="text-brand underline">{t("bizForm.edit")}</Link></p>}
+      {sp.blocked && <p role="alert" data-testid="publish-blocked" className="mb-5 rounded-xl border border-brand/30 bg-brand-soft px-4 py-3 text-sm font-semibold text-ink">{t("bizForm.blockedNotice")} <Link href={`/dr/businesses/${encodeURIComponent(sp.blocked)}`} className="text-brand-text underline">{t("bizForm.edit")}</Link></p>}
 
       <nav aria-label={t("common.status")} className="mb-4" data-testid="status-tiles">
         <ul className="grid grid-cols-3 gap-2 xl:grid-cols-[repeat(auto-fit,minmax(8.5rem,1fr))]">
@@ -150,7 +150,7 @@ export default async function DrBusinesses({ searchParams }: { searchParams: Pro
               <Link href={tile.href} aria-current={tile.on ? "page" : undefined} data-testid={`tile-${tile.key}`}
                 className={`flex min-h-14 min-w-0 flex-col justify-center gap-0.5 rounded-xl border bg-surface px-3 py-2 transition sm:min-h-16 sm:px-4 sm:py-2.5 ${tile.on ? "border-brand ring-1 ring-brand" : "border-line hover:border-ink/20"}`}>
                 <span className="flex min-w-0 items-center gap-1.5 text-xs font-medium text-muted">
-                  {tile.key === "pinned" ? <DrIcon name="pin" className="size-3.5 text-brand" /> : tile.key === "deleted" ? <DrIcon name="trash" className="size-3.5" /> : tile.tone && <span aria-hidden="true" className={`size-2 rounded-full ${tile.tone}`} />}
+                  {tile.key === "pinned" ? <DrIcon name="pin" className="size-3.5 text-brand-text" /> : tile.key === "deleted" ? <DrIcon name="trash" className="size-3.5" /> : tile.tone && <span aria-hidden="true" className={`size-2 rounded-full ${tile.tone}`} />}
                   <span className="truncate">{tile.label}</span>
                 </span>
                 <span className="text-lg font-extrabold tabular-nums text-ink sm:text-xl">{formatNumber(tile.n, locale)}</span>
@@ -167,11 +167,11 @@ export default async function DrBusinesses({ searchParams }: { searchParams: Pro
             {([["auditMissing", audit.missing], ["auditInvalid", audit.invalid], ["auditUnverified", audit.unverified]] as const).map(([k, n]) => (
               <div key={k} className="flex items-center gap-1.5">
                 <dt className="text-muted">{t(`bizForm.${k}`)}</dt>
-                <dd data-testid={`audit-${k}`} className={`font-bold tabular-nums ${n > 0 ? "text-brand" : "text-ink"}`}>{formatNumber(n, locale)}</dd>
+                <dd data-testid={`audit-${k}`} className={`font-bold tabular-nums ${n > 0 ? "text-brand-text" : "text-ink"}`}>{formatNumber(n, locale)}</dd>
               </div>
             ))}
           </dl>
-          {attention > 0 && !needsLocation && <Link href={link({ ...current, loc: "missing" })} className="ms-auto text-sm font-semibold text-brand hover:underline">{t("bizForm.filterMissing")}</Link>}
+          {attention > 0 && !needsLocation && <Link href={link({ ...current, loc: "missing" })} className="ms-auto text-sm font-semibold text-brand-text hover:underline">{t("bizForm.filterMissing")}</Link>}
         </section>
       )}
 
@@ -195,7 +195,7 @@ export default async function DrBusinesses({ searchParams }: { searchParams: Pro
             {cities.map((c) => ({ id: c.id, name: cityLabel(c) })).sort((a, b) => a.name.localeCompare(b.name, pageLang)).map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
         </div>
-        <label className="flex min-h-11 items-center gap-2 rounded-xl px-2 text-sm font-medium text-ink"><input type="checkbox" name="loc" value="missing" defaultChecked={needsLocation} className="size-5 accent-[var(--brand)]" />{t("bizForm.filterMissing")}</label>
+        <label className="flex min-h-11 items-center gap-2 rounded-xl px-2 text-sm font-medium text-ink"><input type="checkbox" name="loc" value="missing" defaultChecked={needsLocation} className="size-5 accent-brand-control" />{t("bizForm.filterMissing")}</label>
         <div className="flex gap-2 sm:ms-auto">
           {filtered && <Link href={link({ ...(showDeleted ? { status: "deleted" } : status ? { status } : {}), ...(pinned ? { pin: "1" } : {}) })} className="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl px-4 text-sm font-semibold text-muted hover:bg-surface-2 hover:text-ink sm:flex-none">{t("drAdmin.clear")}</Link>}
           <button type="submit" className="min-h-11 flex-1 rounded-xl bg-ink px-5 text-sm font-semibold text-surface transition hover:bg-ink/85 sm:flex-none">{t("list.apply")}</button>
@@ -208,7 +208,7 @@ export default async function DrBusinesses({ searchParams }: { searchParams: Pro
         <div className="grid place-items-center rounded-xl border border-dashed border-line bg-surface px-6 py-14 text-center" data-testid="empty-list">
           <span aria-hidden="true" className="mb-3 grid size-12 place-items-center rounded-full bg-surface-2 text-muted"><DrIcon name="businesses" className="size-6" /></span>
           <p className="font-semibold text-ink">{filtered || status || pinned || showDeleted ? t("drAdmin.filtersEmpty") : t("dashboard.empty")}</p>
-          {(filtered || status || pinned || showDeleted) && <Link href="/dr/businesses" className="mt-3 text-sm font-semibold text-brand hover:underline">{t("drAdmin.clear")}</Link>}
+          {(filtered || status || pinned || showDeleted) && <Link href="/dr/businesses" className="mt-3 text-sm font-semibold text-brand-text hover:underline">{t("drAdmin.clear")}</Link>}
         </div>
       ) : (
         <div className="rounded-xl border border-line bg-surface shadow-card">
@@ -242,9 +242,9 @@ export default async function DrBusinesses({ searchParams }: { searchParams: Pro
                         <Avatar name={b.name} src={b.logoUrl} size="size-10" />
                         <div className="min-w-0">
                           <div className="flex min-w-0 items-center gap-1.5">
-                            {b.featured && !b.deletedAt && <span title={t("drAdmin.pinned")} className="text-brand" data-testid="pinned-mark"><DrIcon name="pin" className="size-3.5" /><span className="sr-only">{t("drAdmin.pinned")}</span></span>}
+                            {b.featured && !b.deletedAt && <span title={t("drAdmin.pinned")} className="text-brand-text" data-testid="pinned-mark"><DrIcon name="pin" className="size-3.5" /><span className="sr-only">{t("drAdmin.pinned")}</span></span>}
                             {editable
-                              ? <Link href={`/dr/businesses/${b.id}`} className="min-w-0 truncate font-semibold text-ink hover:text-brand hover:underline"><Text value={name} pageLang={pageLang} /></Link>
+                              ? <Link href={`/dr/businesses/${b.id}`} className="min-w-0 truncate font-semibold text-ink hover:text-brand-text hover:underline"><Text value={name} pageLang={pageLang} /></Link>
                               : <span className="min-w-0 truncate font-semibold text-ink"><Text value={name} pageLang={pageLang} /></span>}
                           </div>
                           <p className="truncate text-xs text-muted xl:hidden"><span className="md:hidden">{categoryName ?? "—"}{cityName && " · "}</span>{cityName}</p>
@@ -272,11 +272,11 @@ export default async function DrBusinesses({ searchParams }: { searchParams: Pro
                         <span className="sr-only md:hidden">{t("common.status")}: </span>
                         {b.deletedAt ? <StatusPill status="deleted" label={t("drAdmin.deleted")} /> : <StatusPill status={b.status} label={b.status === "archived" ? t("businessVisibility.hidden") : t(`status.${b.status}`)} />}
                         {b.verified && !b.deletedAt && <span title={t("businessModeration.verification")} className="text-[oklch(0.62_0.15_150)]" data-testid="staff-verification"><DrIcon name="check" className="size-4" /><span className="sr-only">{t("businessModeration.verification")}</span></span>}
-                        {!b.deletedAt && b.status === "published" && vis === "notPublic" && <span data-testid="visibility" data-state={vis} className="text-xs font-semibold text-brand">{t("businessVisibility.notPublic")}</span>}
+                        {!b.deletedAt && b.status === "published" && vis === "notPublic" && <span data-testid="visibility" data-state={vis} className="text-xs font-semibold text-brand-text">{t("businessVisibility.notPublic")}</span>}
                       </div>
                     </td>
                     <td role="cell" className="hidden px-3 py-3 xl:table-cell" data-testid="loc-state">
-                      <span className={`inline-flex items-center gap-1.5 whitespace-nowrap text-xs font-semibold ${st === "locOk" ? "text-[oklch(0.35_0.1_150)]" : "text-brand"}`}><DrIcon name={st === "locOk" ? "check" : "alert"} className="size-3.5" />{t(`bizForm.${st}`)}</span>
+                      <span className={`inline-flex items-center gap-1.5 whitespace-nowrap text-xs font-semibold ${st === "locOk" ? "text-[oklch(0.35_0.1_150)]" : "text-brand-text"}`}><DrIcon name={st === "locOk" ? "check" : "alert"} className="size-3.5" />{t(`bizForm.${st}`)}</span>
                     </td>
                     <td role="cell" className="hidden whitespace-nowrap px-3 py-3 text-muted min-[1360px]:table-cell"><time dateTime={b.updatedAt.toISOString()}>{formatDate(b.updatedAt, locale, { dateStyle: "medium" })}</time></td>
                     <td role="cell" className="hidden px-3 py-3 tabular-nums text-muted 2xl:table-cell">{formatNumber(b.viewCount, locale)}</td>

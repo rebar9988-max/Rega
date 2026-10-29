@@ -29,7 +29,7 @@ export function BusinessSocialFields({ initial, errors }: { initial: Values; err
               onBlur={() => setTouched((s) => ({ ...s, [field]: true }))}
               onChange={(e) => setValues((s) => ({ ...s, [field]: e.target.value }))}
               className="min-h-12 w-full min-w-0 rounded-xl border border-line bg-surface px-3 text-base outline-none focus:border-brand focus-visible:ring-2 focus-visible:ring-brand/20 aria-[invalid=true]:border-brand" />
-            <p id={`${field}-feedback`} aria-live="polite" className={`min-h-4 text-xs ${invalid ? "font-semibold text-brand" : "text-muted"}`}>{invalid ? t("invalid", { platform: BUSINESS_SOCIAL_LABELS[platform] }) : valid ? t("valid") : ""}</p>
+            <p id={`${field}-feedback`} aria-live="polite" className={`min-h-4 text-xs ${invalid ? "font-semibold text-brand-text" : "text-muted"}`}>{invalid ? t("invalid", { platform: BUSINESS_SOCIAL_LABELS[platform] }) : valid ? t("valid") : ""}</p>
           </div>;
         })}
       </div>

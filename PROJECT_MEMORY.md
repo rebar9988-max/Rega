@@ -963,6 +963,37 @@ Remaining corrective actions, each needs an owner decision:
 4. Framework JS (~51 KB unused, ~12 KB legacy polyfills) and bf-cache blocked by deliberate `no-store` are not changed.
 Next safe continuation point (owner order): Jobs launch → search analytics; or one of the corrective actions above.
 
+## Official vivid red standardization — 2026-10-29 (candidate)
+
+Owner scope: colors only; no rebuild/redesign, logo edits, production data changes or paid services. Baseline main `311c9d7`.
+Sampled owner attachment `2-Photo-2.jpg` at (386,88): RGB (250,7,13), canonical `--brand: #fa070d`.
+Unified global/dark/home tokens, Tailwind v4 theme aliases, link/hover/focus/selected/native-control colors and map paints;
+solid red actions use black labels for AA, text on light surfaces uses an accessible darker red derivative. Official logo
+files and their asset-matching backing are preserved. Details: [brand colors](docs/BRAND-COLORS.md).
+
+Initial local verification: typecheck/lint pass; unit 379 pass, 4 DB-only skips, 0 failures; D1 10/10 + batch splitting pass;
+npm audit 0 vulnerabilities; documentation validation passes. Standard Node build is blocked by the environment's Google
+Fonts network restriction. A test-only local Noto Sans Arabic response from Fontsource permits the Node build; no font
+source, dependency or production configuration changes are committed. Browser/final release verification is ongoing.
+New regression covers actual rendered color ratios and axe brand contrast, RTL/LTR, light/dark and 390/1366px.
+
+Read central Doc and verified remote main and Cloudflare: `rega24` deployment `2323ffab-d956-4b04-bca0-23b3ad3bfb68`,
+version `373658b2-471c-4073-89fb-ae1b22587f63` at 100% (pre-change baseline). CLI GitHub authentication fails but the connected
+GitHub tool confirms access to this exact repository. Follow the existing PR/full-CI/exact-main deployment workflow;
+no direct production publish or database operation is authorized by this color task. Release results must be recorded
+before claiming completion.
+
+Candidate validation update (PR #99): final Node test build passes with the local-font transport noted above. Existing
+browser suites: 64 passed (public a11y, navigation, profiles, language switching); corrected new brand regression: 8/8
+passed, including desktop/mobile, light/dark, RTL/LTR, action/link/soft/focus/control/thumb ratios and brand axe contrast.
+The first eight brand cases failed because the test assumed a home-only wrapper existed on registration; repaired the
+test and reran all eight successfully. No application defect was hidden. Native control color also explicitly preserves
+white-thumb contrast. Visual baseline/candidate: 18/18 identical measured geometry and typography after matching test-only
+social configuration; asynchronous MapLibre internals excluded. Screenshots inspected; official artwork unchanged.
+Evidence: [local color QA](docs/evidence/brand-colors-2026-10-29.json). Extended the existing read-only production browser
+checker to assert the served primary against the checked-out CSS token, including scoped home surfaces. No workflow
+or deployment mechanism changed. Final hosted CI and production verification remain pending.
+
 ## PR #71 D1 reconciliation — 2026-10-29 (source preparation; no production release)
 
 Resumed PR71 at8d9c365 against official mainc751e6b. Verified Cloudflare mandate(section0.9),canonical Worker
@@ -1011,3 +1042,13 @@ GitHubActions hasZERO5fworkflowruns atinspection. CLIauthavailable,butnormal gh 
 FreshprivateactiveD1export+isolatedrestore remainsunverifiedinphysicallyread-onlyexecutor;Oct28legacyarchiveisnotfreshactiveD1backup. Historicalprovider-keyrevocationremainsunverified. No0004productionmigration/featuremerge/deploy/liveCRUD. Localcheckoutstill8dwith4uncommittedmarkdowncheckpoints;donotreset/discard. Resume latestremotePRhead,nottheoldPGstage. Necessaryexternalsetup:existingCIworkflowdispatch/network(orowner-runCIonPRbranch),writableprotectedrecoveryenvironmentforfreshD1backup/restore,andproviderrevocationproof. Thenfullchecks→verifiedmigrationfirst→reviewedmainmerge→guardedCloudflarerelease→11locale/liveQA. No100claim.
 
 Latest-main reconciliation: officialmain advanced tofbf1108904a13aa68bf507f9a3c515d7c6724f82 during this task. Its onlychanges are PROJECT_MEMORY and global-expansion evidence;all application/workflow/dependency/schema blobs remain unchanged. Preserved historical corrections/new evidence and every PR71 checkpoint in a two-parent integration. The prior PR conflict was in concurrent memory edits;do not discard either history. Full Actions/production gates remain required.
+
+## PR #71 — 2026-10-29 current-platform QA and release hold
+
+- Exact head c4592e6c5ebf1d47f6a467a047b61880f56f9aa7 passed CI 40845649200/job123352355631: 396 unit/integration, 11 native D1, 8 Python, 415 D1 browser and 415 PostgreSQL rollback-provider browser tests. Forty-four public-profile axe analyses across all 11 locales at 390/1440px reported zero violations and zero incomplete results. TypeScript, ESLint, Node/Worker builds, dry-run, workerd runtime tests and npm audit passed. These are isolated CI results, not production CRUD.
+- Preserve approved main b3ac504 branding tokens and all unrelated main files. Reconcile only three overlapping scoped UI files; social validation errors use the existing accessible brand-text token. Add an axe assertion for invalid social URL feedback; this new head requires fresh CI.
+- Canonical production remains rega24 with DB binding 728f792d-37b6-49f8-abc1-e81512219f7d (rega24-migration). Last read-only inspection found three applied D1 migrations and zero social columns. No production migration or app release from PR71 has occurred.
+- Corrected only the PR71 Python Preview build settings to /services/ai-python, uv sync --python 3.13 && uv run pywrangler sync, and uv run pywrangler preview. Native Python and web preview builds succeeded on c459. Production Python deployment/settings and domains were preserved.
+- Fresh native D1 export completes, but retrieving its private signed download is blocked by the managed environment network policy (HTTP403) for 1ad59b064bfa3690063414a9906129e4.eu.r2.cloudflarestorage.com. No customer SQL, signed URL or secret was exposed. No recovery database was created; backup/isolated restore integrity remains BLOCKED.
+- Historical OpenAI/xAI provider-key revocation remains NOT VERIFIED. secret_text binding storage does not prove revocation. Await provider-side containment evidence without collecting key values.
+- Keep PR71 draft and unmerged. Do not apply D1 0004, merge to main or deploy until fresh protected backup/isolated restore and security gates pass. Never use the retired PostgreSQL staging checkout for active D1 production. No paid resource was enabled; no preserved database or branch was deleted.

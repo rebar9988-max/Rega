@@ -3,7 +3,7 @@ const TONE: Record<string, { pill: string; dot: string }> = {
   published: { pill: "bg-[oklch(0.95_0.05_150)] text-[oklch(0.35_0.1_150)]", dot: "bg-[oklch(0.62_0.15_150)]" },
   pending: { pill: "bg-sun/20 text-ink", dot: "bg-sun" },
   draft: { pill: "bg-surface-2 text-ink/75", dot: "bg-muted/60" },
-  archived: { pill: "bg-brand-soft text-brand", dot: "bg-brand/70" },
+  archived: { pill: "bg-brand-soft text-brand-text", dot: "bg-brand/70" },
   deleted: { pill: "bg-surface-2 text-muted line-through decoration-muted/50", dot: "bg-muted/60" },
 };
 

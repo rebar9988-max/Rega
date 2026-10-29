@@ -68,7 +68,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
           <ul className="mt-5 grid grid-cols-1 gap-4">
             {offers.map((o, i) => (
               <li key={o.label} className="card-lift flex items-start gap-4 rounded-[var(--radius-card)] border border-line bg-surface p-5 shadow-card">
-                <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-brand-soft text-brand">
+                <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-brand-soft text-brand-text">
                   <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{ICONS[i]}</svg>
                 </span>
                 <div className="min-w-0">
@@ -86,10 +86,10 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
             <div className="mt-4 space-y-3 text-base">
               {showOperator && <p className="font-semibold"><bdi>{[owner.operatorType, owner.legalName].filter(Boolean).join(": ")}</bdi></p>}
               {story && parseCmsBody(story.body).map((b, i) => b.type === "h2" ? <h3 key={i} className="font-bold">{b.text}</h3> : b.type === "ul" ? <ul key={i} className="list-disc ps-6">{b.items.map((li, j) => <li key={j}>{li}</li>)}</ul> : <p key={i} className="text-muted">{b.text}</p>)}
-              {showOperator && <p className="text-sm"><Link href="/impressum" className="font-semibold text-brand underline">{tl("impressum")}</Link></p>}
+              {showOperator && <p className="text-sm"><Link href="/impressum" className="font-semibold text-brand-text underline">{tl("impressum")}</Link></p>}
               {social.length > 0 && (
                 <ul className="flex flex-wrap gap-3 text-sm">
-                  {social.map((p) => <li key={p.key}><a href={p.url} rel="me noopener noreferrer" target="_blank" aria-label={`${SOCIAL_DISPLAY_NAME} — ${SOCIAL_LABEL[p.key]}`} className="inline-flex min-h-11 items-center rounded-xl border border-line bg-surface px-4 font-semibold hover:border-brand/40 hover:text-brand"><span dir="ltr">{SOCIAL_LABEL[p.key]}</span></a></li>)}
+                  {social.map((p) => <li key={p.key}><a href={p.url} rel="me noopener noreferrer" target="_blank" aria-label={`${SOCIAL_DISPLAY_NAME} — ${SOCIAL_LABEL[p.key]}`} className="inline-flex min-h-11 items-center rounded-xl border border-line bg-surface px-4 font-semibold hover:border-brand/40 hover:text-brand-text"><span dir="ltr">{SOCIAL_LABEL[p.key]}</span></a></li>)}
                 </ul>
               )}
             </div>

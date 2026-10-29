@@ -22,7 +22,7 @@ export default async function MessagesAdmin({ searchParams }: { searchParams: Pr
       <h1 className="mb-4 text-2xl font-extrabold">{t("messagesTitle")}</h1>
       <nav aria-label={t("messagesTitle")} className="mb-6 flex flex-wrap gap-2 text-sm">
         {[undefined, ...STATUSES].map((s) => (
-          <a key={s ?? "all"} href={s ? `/dr/messages?status=${s}` : "/dr/messages"} aria-current={s === status ? "page" : undefined} className={`inline-flex min-h-9 items-center rounded-full border px-3 font-semibold ${s === status ? "border-brand bg-brand-soft text-brand" : "border-line"}`}>{s ? t(`msg_${s}`) : t("all")}</a>
+          <a key={s ?? "all"} href={s ? `/dr/messages?status=${s}` : "/dr/messages"} aria-current={s === status ? "page" : undefined} className={`inline-flex min-h-9 items-center rounded-full border px-3 font-semibold ${s === status ? "border-brand bg-brand-soft text-brand-text" : "border-line"}`}>{s ? t(`msg_${s}`) : t("all")}</a>
         ))}
       </nav>
       {rows.length === 0 ? <p className="text-muted">{t("empty")}</p> : (
@@ -33,7 +33,7 @@ export default async function MessagesAdmin({ searchParams }: { searchParams: Pr
                 <span className="font-bold"><bdi>{m.subject}</bdi> <span className="font-normal text-muted">· {t(`msg_${m.status as "new"}`)}</span></span>
                 <time dateTime={m.createdAt.toISOString()} className="text-xs text-muted">{formatDate(m.createdAt, locale, { dateStyle: "medium", timeStyle: "short" })}</time>
               </div>
-              <p className="mb-2 text-xs text-muted"><bdi>{m.name}</bdi>{m.email && <> · <a href={`mailto:${m.email}`} dir="ltr" className="text-brand underline">{m.email}</a></>} · {m.locale}</p>
+              <p className="mb-2 text-xs text-muted"><bdi>{m.name}</bdi>{m.email && <> · <a href={`mailto:${m.email}`} dir="ltr" className="text-brand-text underline">{m.email}</a></>} · {m.locale}</p>
               <p className="mb-3 whitespace-pre-line" dir="auto">{m.message}</p>
               <form action={setMessageStatus} className="flex flex-wrap gap-2">
                 <input type="hidden" name="id" value={m.id} />

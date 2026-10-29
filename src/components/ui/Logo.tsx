@@ -13,7 +13,7 @@ export function LogoMark({ className = "size-11" }: { className?: string }) {
 export function Logo({ className = "" }: { className?: string }) {
   return (
     <span className={`inline-flex items-center ${className}`} dir="ltr">
-      <span className="inline-flex shrink-0 items-center overflow-hidden rounded-xl bg-[#dc0201]">
+      <span className="inline-flex shrink-0 items-center overflow-hidden rounded-xl bg-logo-surface">
         <LogoMark className="size-12 rounded-none" />
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/brand/rega-wordmark.webp" alt="" width={640} height={147} decoding="async" className="h-5 w-auto max-w-none shrink-0 pe-3 sm:h-6" />

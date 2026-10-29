@@ -51,8 +51,8 @@ export function DrSidebar({ items, groups, email, labels, siteHref }: {
                     return (
                       <li key={i.href}>
                         <Link href={i.href} aria-current={on ? "page" : undefined}
-                          className={`flex min-h-10 items-center gap-3 rounded-lg px-3 text-sm transition-colors ${on ? "bg-brand-soft font-semibold text-brand" : "font-medium text-ink/80 hover:bg-surface-2 hover:text-ink"}`}>
-                          <DrIcon name={i.icon} className={`size-[18px] ${on ? "text-brand" : "text-muted"}`} />
+                          className={`flex min-h-10 items-center gap-3 rounded-lg px-3 text-sm transition-colors ${on ? "bg-brand-soft font-semibold text-brand-text" : "font-medium text-ink/80 hover:bg-surface-2 hover:text-ink"}`}>
+                          <DrIcon name={i.icon} className={`size-[18px] ${on ? "text-brand-text" : "text-muted"}`} />
                           <span className="min-w-0 truncate">{i.label}</span>
                         </Link>
                       </li>

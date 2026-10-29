@@ -184,3 +184,7 @@ provider-key revocation remain unverified. No production migration/merge/deploy 
 Detailed evidence and continuation are in PROJECT_MEMORY.md;no100/100 claim.
 
 PR71 source5f686373 has ordinaryCloudflare webbuild53d52ae8 PASS and correctednativePythonPreviewbuildc72a23d1 PASS. Its existingPythonPreviewsettings were repaired withoutproductionchanges. FullGitHubActions remainsunstarted/networkblocked;scoped18filelint/syntax and syntheticSQLitechecks do not replaceCI. FreshactiveD1backup+isolatedrestore andproviderrevocation remainrequired before0004/merge/deploy. SeePROJECT_MEMORY.md.
+
+
+### PR71 verified checkpoint — 2026-10-29
+Exact c459 CI40845649200 passed 396 unit/integration +11 native D1 +8 Python +415 D1/415 PG browser tests and44 axe analyses with0 violations/incomplete. Main b3ac504 brand changes must remain intact; the reconciled source and invalid-form axe assertion need fresh CI. Release remains BLOCKED: fresh D1 export download is denied by managed network policy, isolated restore is not verified, and historical provider-key revocation is not verified. No PR71 production migration/main merge/deployment has occurred. Preserve canonical rega24, active D1 binding, domains and corrected isolated Python Preview settings. Never treat historical Neon copies as a fresh active-D1 backup.

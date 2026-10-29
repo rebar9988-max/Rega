@@ -17,7 +17,7 @@ export default async function EditPage({ params, searchParams }: { params: Promi
       <nav className="mb-2 text-sm"><Link href="/dr/pages" className="text-muted hover:text-ink">{t("title")}</Link></nav>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-extrabold">{t("edit")}: <bdi dir="ltr">/p/{page.slug}</bdi></h1>
-        {page.status === "published" && <Link href={`/${locale}/p/${page.slug}`} className="text-sm font-semibold text-brand hover:underline">{t("view")}</Link>}
+        {page.status === "published" && <Link href={`/${locale}/p/${page.slug}`} className="text-sm font-semibold text-brand-text hover:underline">{t("view")}</Link>}
       </div>
       {sp.saved && <p role="status" className="mb-4 rounded-xl bg-[oklch(0.95_0.05_150)] px-4 py-3 text-sm font-semibold text-[oklch(0.35_0.1_150)]">{t("saved")}</p>}
       {sp.error && <p role="alert" className="mb-4 rounded-xl bg-brand-soft px-4 py-3 text-sm font-semibold">{t("errorSlug")}</p>}

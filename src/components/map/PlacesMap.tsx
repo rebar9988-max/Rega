@@ -53,7 +53,7 @@ export function PlacesMap({ points, className = "h-80" }: { points: PlacePoint[]
                 <p className="truncate font-bold">{sel.name}</p>
                 {sel.sub && <p className="truncate text-xs text-muted" dir="auto">{sel.sub}</p>}
               </div>
-              <a className="inline-flex min-h-10 shrink-0 items-center rounded-xl border border-line px-3 text-sm font-semibold hover:border-brand hover:text-brand" target="_blank" rel="noopener noreferrer"
+              <a className="inline-flex min-h-10 shrink-0 items-center rounded-xl border border-line px-3 text-sm font-semibold hover:border-brand hover:text-brand-text" target="_blank" rel="noopener noreferrer"
                 href={`https://www.google.com/maps/dir/?api=1&destination=${sel.lat},${sel.lng}`}>{tm("directions")}</a>
               {sel.href && <Link href={sel.href} className="inline-flex min-h-10 shrink-0 items-center rounded-xl bg-brand px-3 text-sm font-semibold text-brand-ink hover:bg-brand-hover">{tm("details")}</Link>}
             </article>

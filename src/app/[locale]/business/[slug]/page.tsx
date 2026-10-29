@@ -166,7 +166,7 @@ export default async function BusinessPage({ params }: Props) {
                     {categoryName && <span><Text value={categoryName} pageLang={pageLang} /></span>}
                     {categoryName && primaryCity && <span aria-hidden="true">·</span>}
                     {primaryCity && (
-                      <span className="inline-flex items-center gap-1"><FigmaIcon name="map-pin" className="size-4 shrink-0 text-brand" /><Text value={primaryCity} pageLang={pageLang} /></span>
+                      <span className="inline-flex items-center gap-1"><FigmaIcon name="map-pin" className="size-4 shrink-0 text-brand-text" /><Text value={primaryCity} pageLang={pageLang} /></span>
                     )}
                   </p>
                 )}
@@ -196,7 +196,7 @@ export default async function BusinessPage({ params }: Props) {
               <ul className="mt-4 grid grid-cols-1 gap-2 min-[380px]:grid-cols-2 lg:max-w-2xl" data-testid="business-facts">
                 {mainAddress && (
                   <li className="flex min-h-14 items-center gap-3 rounded-xl border border-line bg-surface px-3 py-2 min-[380px]:col-span-2">
-                    <FigmaIcon name="map-pin" className="size-5 shrink-0 text-brand" />
+                    <FigmaIcon name="map-pin" className="size-5 shrink-0 text-brand-text" />
                     <span className="min-w-0">
                       <span className="block text-sm font-semibold">{t("locations.address")}</span>
                       <address className="block text-xs not-italic text-muted" data-testid="business-address">
@@ -211,7 +211,7 @@ export default async function BusinessPage({ params }: Props) {
                 {mainHours && (
                   <li>
                     <a href="#locations" className="flex min-h-14 items-center gap-3 rounded-xl border border-line bg-surface px-3 py-2 hover:border-brand">
-                      <FigmaIcon name="clock" className="size-5 shrink-0 text-brand" />
+                      <FigmaIcon name="clock" className="size-5 shrink-0 text-brand-text" />
                       <span className="min-w-0">
                         <span className="block text-sm font-semibold">{t("locations.openingHours")}</span>
                         <OpenState hours={mainHours.openingHours} countryCode={mainHours.countryCode} regionSlug={mainHours.city?.region?.slug} className="mt-0.5" />
@@ -221,7 +221,7 @@ export default async function BusinessPage({ params }: Props) {
                 )}
                 {langs.length > 0 && (
                   <li className="flex min-h-14 items-center gap-3 rounded-xl border border-line bg-surface px-3 py-2">
-                    <FigmaIcon name="languages" className="size-5 shrink-0 text-brand" />
+                    <FigmaIcon name="languages" className="size-5 shrink-0 text-brand-text" />
                     <span className="min-w-0">
                       <span className="block text-sm font-semibold">{t("bizForm.languagesSpoken")}</span>
                       <span className="block text-xs text-muted" data-testid="business-languages">{langs.join(" · ")}</span>
@@ -258,7 +258,7 @@ export default async function BusinessPage({ params }: Props) {
                             // eslint-disable-next-line @next/next/no-img-element
                             <img src={s.cover} alt="" width={400} height={300} loading="lazy" decoding="async" className="aspect-[4/3] w-full bg-surface-2 object-cover" />
                           ) : (
-                            <span aria-hidden="true" className="grid aspect-[4/3] w-full place-items-center bg-brand-soft"><FigmaIcon name="sparkles" className="size-8 text-brand" /></span>
+                            <span aria-hidden="true" className="grid aspect-[4/3] w-full place-items-center bg-brand-soft"><FigmaIcon name="sparkles" className="size-8 text-brand-text" /></span>
                           )}
                           <span className="flex flex-1 flex-col gap-1 p-3">
                             <span className="text-sm font-semibold leading-snug"><Text value={localize(s, "name", l)} pageLang={pageLang} /></span>
@@ -343,7 +343,7 @@ export default async function BusinessPage({ params }: Props) {
                           </div>
                         )}
                         {b.locations.length > 1 && directionsUrl(loc.latitude, loc.longitude, placeAddress(loc)) && (
-                          <a href={directionsUrl(loc.latitude, loc.longitude, placeAddress(loc))!} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex min-h-9 items-center text-sm font-semibold text-brand hover:underline">
+                          <a href={directionsUrl(loc.latitude, loc.longitude, placeAddress(loc))!} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex min-h-9 items-center text-sm font-semibold text-brand-text hover:underline">
                             {tm("directions")} <span aria-hidden="true" className="rtl-flip ms-1">↗</span>
                           </a>
                         )}
@@ -366,9 +366,9 @@ export default async function BusinessPage({ params }: Props) {
               <h2 className="text-lg font-bold">{t("businesses.contact")}</h2>
               {b.phone && (
                 <p className="flex items-center gap-2 text-sm">
-                  <FigmaIcon name="phone" className="size-4 shrink-0 text-brand" />
+                  <FigmaIcon name="phone" className="size-4 shrink-0 text-brand-text" />
                   <span className="sr-only">{t("businesses.phone")}</span>
-                  {tel ? <a href={`tel:${tel}`} className="font-semibold hover:text-brand"><Ltr>{b.phone}</Ltr></a> : <Ltr>{b.phone}</Ltr>}
+                  {tel ? <a href={`tel:${tel}`} className="font-semibold hover:text-brand-text"><Ltr>{b.phone}</Ltr></a> : <Ltr>{b.phone}</Ltr>}
                 </p>
               )}
               {whatsapp && <a href={whatsapp} target="_blank" rel="noopener noreferrer" aria-label={`${t("businesses.whatsapp")} – ${name.text}`} className={buttonClass("secondary", "w-full")} data-testid="whatsapp-button">{t("businesses.whatsapp")}</a>}

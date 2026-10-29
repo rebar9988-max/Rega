@@ -59,7 +59,7 @@ export function BusinessImageEditor({
     });
   }
   const zoomBy = (factor: number) => setCrop((c) => ({ ...c, zoom: Math.min(5, Math.max(1, c.zoom * factor)) }));
-  const tool = "grid size-11 place-items-center rounded-xl border border-line bg-surface text-lg font-semibold hover:border-brand hover:text-brand disabled:opacity-50";
+  const tool = "grid size-11 place-items-center rounded-xl border border-line bg-surface text-lg font-semibold hover:border-brand hover:text-brand-text disabled:opacity-50";
   async function confirm() {
     setError(false);
     try {
@@ -187,7 +187,7 @@ export function BusinessImageEditor({
           onChange={(e) =>
             setCrop((c) => ({ ...c, zoom: Number(e.target.value) }))
           }
-          className="min-h-12 w-full accent-[var(--brand)]"
+          className="min-h-12 w-full accent-brand-control"
         />
       </label>
       {/* Image space is physical (left is left), whatever the page direction. */}
@@ -220,7 +220,7 @@ export function BusinessImageEditor({
         </button>
       </div>
       {error && (
-        <p role="alert" className="text-sm text-brand">
+        <p role="alert" className="text-sm text-brand-text">
           {t("retry")}
         </p>
       )}
