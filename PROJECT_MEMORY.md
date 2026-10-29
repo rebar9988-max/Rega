@@ -892,6 +892,19 @@ Local Playwright on disposable D1 (desktop + mobile, before merging #92): 403/40
 combinations, 13 interactive locale/country runs, the owner's three examples, profile language switch). Six existing specs
 used `getByLabel("Land")`, which now also matches «Nederlands»; they select `select[name="countryCode"]` instead.
 
-Production data: NOT applied. The D1 write was refused by this session's permission system (production action). Pre-change
-snapshot 2026-10-29T01:58:13Z: Country 7, Region 28, RegionTranslation 91, City 2058, Business 3, Location 3 (Time Travel point).
-Next safe continuation point: owner applies the SQL file (command in its header), then verify `/api/v1/geo?country=IT` lists Rome.
+Release (2026-10-29): PR #93 squash `8848488`. Main CI 40814940547, Deploy 40818252784 (finished 04:34Z) and Beta health
+40818252655 succeeded. Production browser check 40818337689 failed once on one check (desktop `/de/services` client error page) —
+it started at 04:32:40, before the deploy finished; not reproducible afterwards (11 locales x 3 HTTP, 25 browser loads, 0 errors);
+the re-run succeeded at 04:45Z.
+
+Production data: APPLIED after the owner's explicit approval («APPROVED — REGA24 PRODUCTION D1 UPDATE», then «Allow»).
+Restore point (D1 Time Travel) 2026-10-29T04:22:16Z; read-only logical export of Country/Region/RegionTranslation and Business/Location
+ids taken first. Country 7→14, Region 28→35, RegionTranslation 91→105, City 2058→2065; pre-existing City fingerprint, regions,
+region names, Business 3, Location 3, User 3 unchanged; FK violations 0; slugs unique; a second run of the city statement changed 0.
+All 13 target countries have an active city. Undo: the commented statements in the SQL file header.
+Live check 04:35–04:45Z (read-only, Chromium desktop + mobile): 23/23 PASS — 143/143 language × country pages, hreflang 11 + x-default,
+sitemap, 13 countries + a default city each in the selector API, 11-language switcher keeping page + query, RTL, profile, no errors.
+Evidence: [docs/evidence/global-expansion-production-2026-10-29.json](docs/evidence/global-expansion-production-2026-10-29.json).
+Not measured: Lighthouse, field INP, full WCAG audit, WebKit against production.
+Next safe continuation point: translated names (fr/sv/nl/it) for categories and cities need admin-form fields and public reads of the
+translation rows (separate task); more cities per new market only from verified sources.
