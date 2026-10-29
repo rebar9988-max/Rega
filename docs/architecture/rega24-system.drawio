@@ -1,0 +1,741 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="app.diagrams.net" modified="2026-10-26T21:00:00.000Z" agent="Rega24 architecture documentation" version="24.7.17" type="device">
+  <diagram id="overview" name="A — System Overview">
+    <mxGraphModel dx="1600" dy="1100" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="overview-title" value="A — System Overview" style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=26;fontColor=#A71930;fontStyle=1;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="1520" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="overview-meta" value="Rega24 | source 8edc1ed873ed | 2026-10-26 | architecture snapshot, not automatic synchronization" style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=13;fontColor=#333333;fontStyle=0;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="68" width="1520" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="overview-legend" value="CODE = verified in code | CONFIG = declared configuration | LIVE = read-only observation | PLANNED = future | UNKNOWN = unverified" style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=12;fontColor=#333333;fontStyle=0;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="101" width="1520" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="overview-note" value="Browser → server-side application → data and optional external services. CODE does not imply enabled in Production." style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=14;fontColor=#333333;fontStyle=0;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="145" width="1520" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="overview-browser" value="[CODE] Public visitor / business owner / staff&#10;Localized UI and /dr" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="60" y="230" width="360" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="overview-worker" value="[LIVE] Cloudflare Worker: rega24&#10;www.rega24.com + apex domain" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="620" y="230" width="360" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="overview-app" value="[CODE] Next.js 16.4.2 / React 19&#10;OpenNext request handlers" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="620" y="460" width="360" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="overview-db" value="[CODE] Prisma + pg → PostgreSQL&#10;Workers request-scoped connection pools" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="60" y="710" width="360" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="overview-storage" value="[CODE] S3-compatible media service&#10;Provider and bucket runtime-dependent" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="620" y="710" width="360" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="overview-external" value="[CODE] Optional AI + Resend + geocoding&#10;Browser MapLibre basemap" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="1180" y="710" width="360" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="overview-edge-1" value="HTTPS" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="overview-browser" target="overview-worker">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="overview-edge-2" value="preview guard → edge cache → OpenNext" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="overview-worker" target="overview-app">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="overview-edge-3" value="Prisma query / transaction" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="overview-app" target="overview-db">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="overview-edge-4" value="S3 API / image storage" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="overview-app" target="overview-storage">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="overview-edge-5" value="Configured server integration calls" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="overview-app" target="overview-external">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="overview-mapnote" value="Map style/tiles are fetched by the browser; they do not flow through the AI provider. See page E2." style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=15;fontColor=#333333;fontStyle=0;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="970" width="1520" height="50" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="routes" name="B — Application and Routes">
+    <mxGraphModel dx="1600" dy="1100" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="routes-title" value="B — Application and Routes" style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=26;fontColor=#A71930;fontStyle=1;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="1520" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="routes-meta" value="Rega24 | source 8edc1ed873ed | 2026-10-26 | architecture snapshot, not automatic synchronization" style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=13;fontColor=#333333;fontStyle=0;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="68" width="1520" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="routes-legend" value="CODE = verified in code | CONFIG = declared configuration | LIVE = read-only observation | PLANNED = future | UNKNOWN = unverified" style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=12;fontColor=#333333;fontStyle=0;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="101" width="1520" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="routes-note" value="Exact routes and HTTP methods are indexed in routes.md. Section enablement can be overridden at runtime." style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=14;fontColor=#333333;fontStyle=0;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="145" width="1520" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="routes-locale" value="[CODE] next-intl locale middleware&#10;ckb / kmr / de / en / ar / fa / tr" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="60" y="230" width="360" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="routes-public" value="[CODE] /[locale] public pages&#10;Directory, services, search, cities, Nearby" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="620" y="230" width="360" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="routes-profile" value="[CODE] /[locale]/business/[slug]&#10;Shared profile for every business category" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="1180" y="230" width="360" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="routes-registry" value="[CODE] Section registry&#10;Jobs/events disabled in source; guides enabled" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="620" y="480" width="360" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="routes-admin" value="[CODE] /dr — non-localized dashboard&#10;Server permission and membership checks" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="60" y="740" width="360" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="routes-api" value="[CODE] /api/v1/* and /api/auth/*&#10;Public reads + protected mutations" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="620" y="740" width="360" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="routes-auth" value="[CODE] Localized account/auth pages&#10;/owner-login fallback; Auth.js handlers" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="1180" y="740" width="360" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="routes-edge-1" value="locale prefix + cookie" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="routes-locale" target="routes-public">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="routes-edge-2" value="business profile link" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="routes-public" target="routes-profile">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="routes-edge-3" value="navigation + route enablement" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="routes-registry" target="routes-public">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="routes-edge-4" value="Auth.js session endpoints" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="routes-auth" target="routes-api">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="business" name="C — Business Data Flow">
+    <mxGraphModel dx="1600" dy="1100" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="business-title" value="C — Business Data Flow" style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=26;fontColor=#A71930;fontStyle=1;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="1520" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="business-meta" value="Rega24 | source 8edc1ed873ed | 2026-10-26 | architecture snapshot, not automatic synchronization" style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=13;fontColor=#333333;fontStyle=0;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="68" width="1520" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="business-legend" value="CODE = verified in code | CONFIG = declared configuration | LIVE = read-only observation | PLANNED = future | UNKNOWN = unverified" style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=12;fontColor=#333333;fontStyle=0;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="101" width="1520" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="business-note" value="Two write surfaces share policy helpers: server actions and REST. Persistence details differ; they are not one identical transaction." style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=14;fontColor=#333333;fontStyle=0;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="145" width="1520" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="business-form" value="[CODE] BusinessForm / server action&#10;Draft → submit or authorized publish" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="60" y="230" width="360" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="business-validate" value="[CODE] Server validation + ownership&#10;Permissions / confirmed email for submit" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="620" y="230" width="360" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="business-save" value="[CODE] saveBusiness transaction&#10;Business + primary Location + translations" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="1180" y="230" width="360" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="business-moderation" value="[CODE] Staff approvalData + readiness&#10;Category, address, city, confirmed coordinates" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="1180" y="490" width="360" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="business-publish" value="[CODE] PUBLIC_BUSINESS predicate&#10;Published + verified + eligible category&#10;Not deleted / not archived" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="620" y="740" width="360" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="business-view" value="[CODE] Directory / profile / Nearby / search&#10;Photo gallery + hours + public details" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="60" y="740" width="360" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="business-effects" value="[CODE] Audit + search reindex + revalidation&#10;Best-effort review notification" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="60" y="490" width="360" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="business-edge-1" value="submitted input" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="business-form" target="business-validate">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="business-edge-2" value="validated save" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="business-validate" target="business-save">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="business-edge-3" value="draft/pending enters moderation" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="business-save" target="business-moderation">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="business-edge-4" value="approve and publish" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="business-moderation" target="business-publish">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="business-edge-5" value="shared public visibility filter" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="business-publish" target="business-view">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="business-edge-6" value="write effects (timing varies)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="business-save" target="business-effects">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="business-policy" value="Hide/soft-delete removes public visibility; recover returns hidden. Hours: stored JSON, open/closed/unknown computed with country-based timezone (multi-zone countries are approximate)." style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=15;fontColor=#333333;fontStyle=0;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="980" width="1520" height="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="ai" name="E — AI Request Pipeline">
+    <mxGraphModel dx="1600" dy="1100" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="ai-title" value="E — AI Request Pipeline" style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=26;fontColor=#A71930;fontStyle=1;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="1520" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="ai-meta" value="Rega24 | source 8edc1ed873ed | 2026-10-26 | architecture snapshot, not automatic synchronization" style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=13;fontColor=#333333;fontStyle=0;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="68" width="1520" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="ai-legend" value="CODE = verified in code | CONFIG = declared configuration | LIVE = read-only observation | PLANNED = future | UNKNOWN = unverified" style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=12;fontColor=#333333;fontStyle=0;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="101" width="1520" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="ai-note" value="Implemented optional public assistant pipeline. Private inspector / ChatGPT MCP implementation was not found under src or services." style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=14;fontColor=#333333;fontStyle=0;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="145" width="1520" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="ai-request" value="[CODE] GET/POST /api/v1/ai/chat&#10;Feature flag + schema + session/IP limits" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="60" y="230" width="360" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="ai-retrieval" value="[CODE] PostgreSQL searchService&#10;Grounded public directory candidates" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="620" y="230" width="360" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="ai-python" value="[CODE] Optional Python reranker&#10;rega-ai-python + Workers AI" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="1180" y="230" width="360" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="ai-gateway" value="[CODE] AI Gateway (application module)&#10;Budget, timeouts, circuit breaker, fallback" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="620" y="500" width="360" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="ai-providers" value="[CODE] 7 implemented provider adapters&#10;Gemini, Grok, OpenAI, Groq, DeepSeek,&#10;OpenRouter, Anthropic; runtime-gated" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="1180" y="760" width="360" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="ai-persist" value="[CODE] Conversation / message persistence&#10;Daily usage + request-time retention purge" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="60" y="760" width="360" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="ai-nomatch" value="[CODE] No matching candidates&#10;Localized answer; no model invoked" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="60" y="500" width="360" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="ai-edge-1" value="retrieve last user query" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="ai-request" target="ai-retrieval">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ai-edge-2" value="optional semantic pass;&#10;failure preserves candidates" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="ai-retrieval" target="ai-python">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ai-edge-3" value="matching hits → prompt context" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="ai-retrieval" target="ai-gateway">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ai-edge-4" value="empty candidates" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="ai-retrieval" target="ai-nomatch">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ai-edge-5" value="configured adapters only" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="ai-gateway" target="ai-providers">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ai-edge-6" value="persist returned result" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="ai-gateway" target="ai-persist">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ai-edge-7" value="persist no-match exchange" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="ai-nomatch" target="ai-persist">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ai-nolive" value="Provider adapters and Python configuration are CODE/CONFIG evidence; active credentials, inference and costs were not tested. The application Gateway is not evidence of a Cloudflare AI Gateway resource." style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=15;fontColor=#333333;fontStyle=0;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="980" width="1520" height="65" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="integrations" name="E2 — Media, Maps and Communication">
+    <mxGraphModel dx="1600" dy="1100" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="integrations-title" value="E2 — Media, Maps and Communication" style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=26;fontColor=#A71930;fontStyle=1;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="1520" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="integrations-meta" value="Rega24 | source 8edc1ed873ed | 2026-10-26 | architecture snapshot, not automatic synchronization" style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=13;fontColor=#333333;fontStyle=0;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="68" width="1520" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="integrations-legend" value="CODE = verified in code | CONFIG = declared configuration | LIVE = read-only observation | PLANNED = future | UNKNOWN = unverified" style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=12;fontColor=#333333;fontStyle=0;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="101" width="1520" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="integrations-note" value="Integration implementations are verified in code. Specific live bucket, email provider, OAuth enablement and basemap overrides remain unverified." style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=14;fontColor=#333333;fontStyle=0;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="145" width="1520" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="integrations-upload" value="[CODE] POST /api/v1/media/business-image&#10;Permission + size/MIME + safe re-encode" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="60" y="230" width="360" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="integrations-s3" value="[CODE] Server stores normalized image&#10;S3-compatible object storage" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="620" y="230" width="360" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="integrations-media" value="[CODE] Media metadata in PostgreSQL&#10;Upload ownership checked on business save" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="1180" y="230" width="360" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="integrations-map" value="[CODE] Browser MapLibre maps&#10;OpenFreeMap default / configurable style" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="60" y="500" width="360" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="integrations-geocoder" value="[CODE] Server Nominatim-compatible lookup&#10;Suggestions require explicit confirmation" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="620" y="500" width="360" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="integrations-email" value="[CODE] sendEmail → Resend or disabled&#10;Auth, contact, review notifications" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="1180" y="500" width="360" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="integrations-presigned" value="[CODE] Separate upload-url API&#10;Short-lived pre-signed PUT (300 seconds)" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="620" y="760" width="360" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="integrations-edge-1" value="validated image bytes" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="integrations-upload" target="integrations-s3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="integrations-edge-2" value="record URL; cleanup object on DB failure" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="integrations-s3" target="integrations-media">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="integrations-edge-3" value="browser direct PUT with signed URL" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="integrations-presigned" target="integrations-s3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="integrations-separate" value="MapLibre fetches map resources in the browser. Geocoding runs on the server. Resend is a runtime-selected outbound service; this audit sent no email and invoked no provider." style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=15;fontColor=#333333;fontStyle=0;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="970" width="1520" height="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="delivery" name="F — Cloudflare and Delivery">
+    <mxGraphModel dx="1600" dy="1100" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="delivery-title" value="F — Cloudflare and Delivery" style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=26;fontColor=#A71930;fontStyle=1;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="1520" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="delivery-meta" value="Rega24 | source 8edc1ed873ed | 2026-10-26 | architecture snapshot, not automatic synchronization" style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=13;fontColor=#333333;fontStyle=0;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="68" width="1520" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="delivery-legend" value="CODE = verified in code | CONFIG = declared configuration | LIVE = read-only observation | PLANNED = future | UNKNOWN = unverified" style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=12;fontColor=#333333;fontStyle=0;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="101" width="1520" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="delivery-note" value="Declared release paths and observed live metadata. This documentation task does not execute any release step." style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=14;fontColor=#333333;fontStyle=0;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="145" width="1520" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="delivery-repo" value="[CONFIG] GitHub main / feature branches&#10;Rega repository only" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="60" y="230" width="360" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="delivery-ci" value="[CONFIG] CI: disposable PostgreSQL&#10;Lint / types / unit / browser / Worker build" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="620" y="230" width="360" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="delivery-deploy" value="[CONFIG] Successful main CI → deploy.yml&#10;Docs-only skip + identity/target checks" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="1180" y="230" width="360" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="delivery-open" value="[CODE] Build: Next → OpenNext → worker.mjs&#10;Preview isolation → edge cache → fetch" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="1180" y="510" width="360" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="delivery-live" value="[LIVE] rega24 active allocation: 100%&#10;Version df20f6a1-ad1d-4967-&#10;ab52-1df65c46196c" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="620" y="770" width="360" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="delivery-builds" value="[LIVE] Cloudflare Builds trigger&#10;main only; deploy command is dry-run" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="60" y="770" width="360" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="delivery-manual" value="[CONFIG] Manual-only migrations / secret sync&#10;Python deploy: selected main paths or manual" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="60" y="510" width="360" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="delivery-edge-1" value="pull_request or push main" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="delivery-repo" target="delivery-ci">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="delivery-edge-2" value="workflow_run success on main" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="delivery-ci" target="delivery-deploy">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="delivery-edge-3" value="build checked-out CI SHA" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="delivery-deploy" target="delivery-open">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="delivery-edge-4" value="declared production publish path;&#10;active source SHA not established" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="delivery-open" target="delivery-live">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="delivery-edge-5" value="independent main build only" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="delivery-repo" target="delivery-builds">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="delivery-nomerge" value="Feature documentation branch: no push-main trigger. Draft PR runs CI on disposable PostgreSQL; no deployment or migration trigger. No cron handler is declared in worker.mjs or either Wrangler file; scheduled health checks are GitHub Actions." style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=15;fontColor=#333333;fontStyle=0;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="970" width="1520" height="70" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="security" name="G — Security and Trust Boundaries">
+    <mxGraphModel dx="1600" dy="1100" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="security-title" value="G — Security and Trust Boundaries" style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=26;fontColor=#A71930;fontStyle=1;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="1520" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="security-meta" value="Rega24 | source 8edc1ed873ed | 2026-10-26 | architecture snapshot, not automatic synchronization" style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=13;fontColor=#333333;fontStyle=0;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="68" width="1520" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="security-legend" value="CODE = verified in code | CONFIG = declared configuration | LIVE = read-only observation | PLANNED = future | UNKNOWN = unverified" style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=12;fontColor=#333333;fontStyle=0;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="101" width="1520" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="security-note" value="Shows implemented controls, not a security certification. Unknown/live configuration and known fallback behavior are recorded in unknowns.md." style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=14;fontColor=#333333;fontStyle=0;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="145" width="1520" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="security-input" value="[CODE] Untrusted browser input&#10;Forms / JSON / image bytes" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="60" y="230" width="360" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="security-session" value="[CODE] Auth.js JWT + account revalidation&#10;Password or admin email-code provider" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="620" y="230" width="360" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="security-access" value="[CODE] Server permission + business membership&#10;Owner-restricted SUPER_ADMIN rule" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="1180" y="230" width="360" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="security-db" value="[CODE] Server-only data boundary&#10;Prisma + validated write policies" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="1180" y="510" width="360" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="security-outbound" value="[CODE] External services boundary&#10;Server-held credentials; user content as data" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="620" y="770" width="360" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="security-limits" value="[CODE] Rate limits + AI budget + preview isolation&#10;Shared limiter has local fallback on error" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="60" y="510" width="360" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="security-headers" value="[CODE] CSP / HTTPS / cache bypass rules&#10;CSP includes inline script allowance" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="60" y="770" width="360" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="security-edge-1" value="authenticate protected requests" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="security-input" target="security-session">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="security-edge-2" value="re-read active account + role" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="security-session" target="security-access">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="security-edge-3" value="authorized data access" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="security-access" target="security-db">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="security-edge-4" value="rate / payload guards" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="security-input" target="security-limits">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="security-edge-5" value="outbound requests from server" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="security-db" target="security-outbound">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="security-trust" value="Trust zones: browser (untrusted) | Rega24 application (authentication/authorization) | PostgreSQL + object store (persistence) | external providers. No credential values or personal account data are included." style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=15;fontColor=#333333;fontStyle=0;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="975" width="1520" height="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="database1" name="D1 — Database: Identity">
+    <mxGraphModel dx="1600" dy="1100" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="database1-title" value="D1 — Database: Identity" style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=26;fontColor=#A71930;fontStyle=1;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="1520" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="database1-meta" value="Rega24 | source 8edc1ed873ed | 2026-10-26 | architecture snapshot, not automatic synchronization" style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=13;fontColor=#333333;fontStyle=0;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="68" width="1520" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="database1-legend" value="CODE = verified in code | CONFIG = declared configuration | LIVE = read-only observation | PLANNED = future | UNKNOWN = unverified" style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=12;fontColor=#333333;fontStyle=0;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="101" width="1520" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="database1-note" value="Schema declarations only; no production rows were read. FK arrows point from the referencing table to its referenced table. Shared tables repeat across pages." style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=14;fontColor=#333333;fontStyle=0;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="145" width="1520" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="database1-User" value="[CODE] User&#10;PK id              String    @id @default(cuid())" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="50" y="230" width="460" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="database1-Account" value="[CODE] Account&#10;PK @@id([provider, providerAccountId])&#10;FK userId → User" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="570" y="230" width="460" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="database1-Session" value="[CODE] Session&#10;PK sessionToken String   @id&#10;FK userId → User" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="1090" y="230" width="460" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="database1-AdminSignInCode" value="[CODE] AdminSignInCode&#10;PK email     String   @id" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="50" y="435" width="460" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="database1-VerificationToken" value="[CODE] VerificationToken&#10;PK @@id([identifier, token])" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="570" y="435" width="460" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="database1-BusinessMember" value="[CODE] BusinessMember&#10;PK id         String   @id @default(cuid())&#10;FK businessId → Business&#10;FK userId → User" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="1090" y="435" width="460" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="database1-AuditLog" value="[CODE] AuditLog&#10;PK id         String   @id @default(cuid())&#10;FK actorId → User" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="50" y="640" width="460" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="database1-Review" value="[CODE] Review&#10;PK id            String    @id @default(cuid())&#10;FK businessId → Business&#10;FK userId → User" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="570" y="640" width="460" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="database1-edge-1" value="userId → id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="database1-Account" target="database1-User">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="database1-edge-2" value="userId → id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="database1-Session" target="database1-User">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="database1-edge-3" value="userId → id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="database1-BusinessMember" target="database1-User">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="database1-edge-4" value="userId → id (nullable)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="database1-Review" target="database1-User">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="database1-edge-5" value="actorId → id (nullable)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="database1-AuditLog" target="database1-User">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="database2" name="D2 — Database: Geography">
+    <mxGraphModel dx="1600" dy="1100" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="database2-title" value="D2 — Database: Geography" style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=26;fontColor=#A71930;fontStyle=1;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="1520" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="database2-meta" value="Rega24 | source 8edc1ed873ed | 2026-10-26 | architecture snapshot, not automatic synchronization" style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=13;fontColor=#333333;fontStyle=0;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="68" width="1520" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="database2-legend" value="CODE = verified in code | CONFIG = declared configuration | LIVE = read-only observation | PLANNED = future | UNKNOWN = unverified" style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=12;fontColor=#333333;fontStyle=0;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="101" width="1520" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="database2-note" value="Schema declarations only; no production rows were read. FK arrows point from the referencing table to its referenced table. Shared tables repeat across pages." style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=14;fontColor=#333333;fontStyle=0;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="145" width="1520" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="database2-Country" value="[CODE] Country&#10;PK id        String   @id @default(cuid())" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="50" y="230" width="460" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="database2-Region" value="[CODE] Region&#10;PK id        String   @id @default(cuid())&#10;FK countryId → Country" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="570" y="230" width="460" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="database2-City" value="[CODE] City&#10;PK id        String   @id @default(cuid())&#10;FK countryId → Country&#10;FK regionId → Region" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="1090" y="230" width="460" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="database2-CountryTranslation" value="[CODE] CountryTranslation&#10;PK id        String  @id @default(cuid())&#10;FK countryId → Country" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="50" y="435" width="460" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="database2-RegionTranslation" value="[CODE] RegionTranslation&#10;PK id       String @id @default(cuid())&#10;FK regionId → Region" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="570" y="435" width="460" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="database2-CityTranslation" value="[CODE] CityTranslation&#10;PK id     String @id @default(cuid())&#10;FK cityId → City" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="1090" y="435" width="460" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="database2-Location" value="[CODE] Location&#10;PK id               String    @id @default(cuid())&#10;FK businessId → Business&#10;FK cityId → City" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="50" y="640" width="460" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="database2-edge-1" value="countryId → id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="database2-Region" target="database2-Country">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="database2-edge-2" value="countryId → id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="database2-CountryTranslation" target="database2-Country">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="database2-edge-3" value="regionId → id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="database2-RegionTranslation" target="database2-Region">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="database2-edge-4" value="cityId → id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="database2-CityTranslation" target="database2-City">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="database2-edge-5" value="countryId → id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="database2-City" target="database2-Country">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="database2-edge-6" value="regionId → id (nullable)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="database2-City" target="database2-Region">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="database2-edge-7" value="cityId → id (nullable)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="database2-Location" target="database2-City">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="database3" name="D3 — Database: Business">
+    <mxGraphModel dx="1600" dy="1100" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="database3-title" value="D3 — Database: Business" style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=26;fontColor=#A71930;fontStyle=1;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="1520" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="database3-meta" value="Rega24 | source 8edc1ed873ed | 2026-10-26 | architecture snapshot, not automatic synchronization" style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=13;fontColor=#333333;fontStyle=0;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="68" width="1520" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="database3-legend" value="CODE = verified in code | CONFIG = declared configuration | LIVE = read-only observation | PLANNED = future | UNKNOWN = unverified" style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=12;fontColor=#333333;fontStyle=0;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="101" width="1520" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="database3-note" value="Schema declarations only; no production rows were read. FK arrows point from the referencing table to its referenced table. Shared tables repeat across pages." style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=14;fontColor=#333333;fontStyle=0;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="145" width="1520" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="database3-Business" value="[CODE] Business&#10;PK id             String    @id @default(cuid())&#10;FK categoryId → Category" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="50" y="230" width="460" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="database3-Category" value="[CODE] Category&#10;PK id             String    @id @default(cuid())&#10;FK parentId → Category" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="570" y="230" width="460" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="database3-Service" value="[CODE] Service&#10;PK id             String    @id @default(cuid())&#10;FK businessId → Business&#10;FK categoryId → Category" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="1090" y="230" width="460" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="database3-Location" value="[CODE] Location&#10;PK id               String    @id @default(cuid())&#10;FK businessId → Business&#10;FK cityId → City" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="50" y="435" width="460" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="database3-BusinessMember" value="[CODE] BusinessMember&#10;PK id         String   @id @default(cuid())&#10;FK businessId → Business&#10;FK userId → User" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="570" y="435" width="460" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="database3-Media" value="[CODE] Media&#10;PK id           String    @id @default(cuid())&#10;FK businessId → Business&#10;FK serviceId → Service" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="1090" y="435" width="460" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="database3-Review" value="[CODE] Review&#10;PK id            String    @id @default(cuid())&#10;FK businessId → Business&#10;FK userId → User" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="50" y="640" width="460" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="database3-Offer" value="[CODE] Offer&#10;PK id            String    @id @default(cuid())&#10;FK businessId → Business" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="570" y="640" width="460" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="database3-BusinessTranslation" value="[CODE] BusinessTranslation&#10;PK id          String   @id @default(cuid())&#10;FK businessId → Business" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="1090" y="640" width="460" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="database3-CategoryTranslation" value="[CODE] CategoryTranslation&#10;PK id          String   @id @default(cuid())&#10;FK categoryId → Category" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="50" y="845" width="460" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="database3-edge-1" value="parentId → id (nullable)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="database3-Category" target="database3-Category">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="database3-edge-2" value="categoryId → id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="database3-CategoryTranslation" target="database3-Category">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="database3-edge-3" value="categoryId → id (nullable)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="database3-Business" target="database3-Category">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="database3-edge-4" value="businessId → id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="database3-BusinessTranslation" target="database3-Business">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="database3-edge-5" value="businessId → id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="database3-Location" target="database3-Business">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="database3-edge-6" value="businessId → id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="database3-Service" target="database3-Business">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="database3-edge-7" value="categoryId → id (nullable)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="database3-Service" target="database3-Category">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="database3-edge-8" value="businessId → id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="database3-Offer" target="database3-Business">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="database3-edge-9" value="businessId → id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="database3-BusinessMember" target="database3-Business">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="database3-edge-10" value="businessId → id (nullable)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="database3-Media" target="database3-Business">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="database3-edge-11" value="serviceId → id (nullable)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="database3-Media" target="database3-Service">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="database3-edge-12" value="businessId → id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="database3-Review" target="database3-Business">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="database4" name="D4 — Database: Content">
+    <mxGraphModel dx="1600" dy="1100" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="database4-title" value="D4 — Database: Content" style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=26;fontColor=#A71930;fontStyle=1;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="1520" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="database4-meta" value="Rega24 | source 8edc1ed873ed | 2026-10-26 | architecture snapshot, not automatic synchronization" style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=13;fontColor=#333333;fontStyle=0;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="68" width="1520" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="database4-legend" value="CODE = verified in code | CONFIG = declared configuration | LIVE = read-only observation | PLANNED = future | UNKNOWN = unverified" style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=12;fontColor=#333333;fontStyle=0;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="101" width="1520" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="database4-note" value="Schema declarations only; no production rows were read. FK arrows point from the referencing table to its referenced table. Shared tables repeat across pages." style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=14;fontColor=#333333;fontStyle=0;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="145" width="1520" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="database4-Listing" value="[CODE] Listing&#10;PK id          String    @id @default(cuid())&#10;FK businessId → Business&#10;FK cityId → City&#10;FK categoryId → Category" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="50" y="230" width="460" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="database4-ListingTranslation" value="[CODE] ListingTranslation&#10;PK id        String  @id @default(cuid())&#10;FK listingId → Listing" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="570" y="230" width="460" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="database4-JobDetails" value="[CODE] JobDetails&#10;PK listingId      String   @id&#10;FK listingId → Listing" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="1090" y="230" width="460" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="database4-EventDetails" value="[CODE] EventDetails&#10;PK listingId String    @id&#10;FK listingId → Listing" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="50" y="435" width="460" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="database4-GuideDetails" value="[CODE] GuideDetails&#10;PK listingId   String  @id&#10;FK listingId → Listing" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="570" y="435" width="460" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="database4-Page" value="[CODE] Page&#10;PK id        String   @id @default(cuid())" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="1090" y="435" width="460" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="database4-PageTranslation" value="[CODE] PageTranslation&#10;PK id              String  @id @default(cuid())&#10;FK pageId → Page" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="50" y="640" width="460" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="database4-Business" value="[CODE] Business&#10;PK id             String    @id @default(cuid())&#10;FK categoryId → Category" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="570" y="640" width="460" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="database4-City" value="[CODE] City&#10;PK id        String   @id @default(cuid())&#10;FK countryId → Country&#10;FK regionId → Region" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="1090" y="640" width="460" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="database4-Category" value="[CODE] Category&#10;PK id             String    @id @default(cuid())&#10;FK parentId → Category" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="50" y="845" width="460" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="database4-edge-1" value="parentId → id (nullable)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="database4-Category" target="database4-Category">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="database4-edge-2" value="categoryId → id (nullable)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="database4-Business" target="database4-Category">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="database4-edge-3" value="pageId → id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="database4-PageTranslation" target="database4-Page">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="database4-edge-4" value="businessId → id (nullable)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="database4-Listing" target="database4-Business">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="database4-edge-5" value="cityId → id (nullable)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="database4-Listing" target="database4-City">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="database4-edge-6" value="categoryId → id (nullable)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="database4-Listing" target="database4-Category">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="database4-edge-7" value="listingId → id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="database4-ListingTranslation" target="database4-Listing">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="database4-edge-8" value="listingId → id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="database4-JobDetails" target="database4-Listing">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="database4-edge-9" value="listingId → id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="database4-EventDetails" target="database4-Listing">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="database4-edge-10" value="listingId → id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="database4-GuideDetails" target="database4-Listing">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="database5" name="D5 — Database: Operations and AI">
+    <mxGraphModel dx="1600" dy="1100" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="database5-title" value="D5 — Database: Operations and AI" style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=26;fontColor=#A71930;fontStyle=1;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="1520" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="database5-meta" value="Rega24 | source 8edc1ed873ed | 2026-10-26 | architecture snapshot, not automatic synchronization" style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=13;fontColor=#333333;fontStyle=0;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="68" width="1520" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="database5-legend" value="CODE = verified in code | CONFIG = declared configuration | LIVE = read-only observation | PLANNED = future | UNKNOWN = unverified" style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=12;fontColor=#333333;fontStyle=0;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="101" width="1520" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="database5-note" value="Schema declarations only; no production rows were read. FK arrows point from the referencing table to its referenced table. Shared tables repeat across pages." style="text;html=0;whiteSpace=wrap;overflow=hidden;fontFamily=Arial;fontSize=14;fontColor=#333333;fontStyle=0;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="145" width="1520" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="database5-AiConversation" value="[CODE] AiConversation&#10;PK id        String   @id @default(cuid())" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="50" y="230" width="460" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="database5-AiMessage" value="[CODE] AiMessage&#10;PK id             String   @id @default(cuid())&#10;FK conversationId → AiConversation" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="570" y="230" width="460" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="database5-AiUsageDaily" value="[CODE] AiUsageDaily&#10;PK id        String   @id @default(cuid())" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="1090" y="230" width="460" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="database5-FeatureFlag" value="[CODE] FeatureFlag&#10;PK id          String   @id @default(cuid())" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="50" y="435" width="460" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="database5-Setting" value="[CODE] Setting&#10;PK key       String   @id" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="570" y="435" width="460" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="database5-Report" value="[CODE] Report&#10;PK id            String    @id @default(cuid())" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="1090" y="435" width="460" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="database5-ContactMessage" value="[CODE] ContactMessage&#10;PK id        String   @id @default(cuid())" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#A71930;strokeWidth=2;fontFamily=Arial;fontSize=16;fontColor=#222222;align=center;verticalAlign=middle;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="50" y="640" width="460" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="database5-edge-1" value="conversationId → id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#666666;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontColor=#333333;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="database5-AiMessage" target="database5-AiConversation">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
