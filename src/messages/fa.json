@@ -213,7 +213,9 @@
     "postalCode": "کد پستی",
     "openingHours": "ساعت کار",
     "viewOnMap": "مشاهده روی نقشه",
-    "browseByCity": "مرور بر اساس شهر"
+    "browseByCity": "مرور بر اساس شهر",
+    "closedOnHolidays": "در تعطیلات رسمی بسته است.",
+    "hoursChanges": "تعطیلی‌ها و ساعات کاری ویژه"
   },
   "categories": {
     "title": "دسته‌بندی‌ها",
@@ -535,7 +537,11 @@
     "city": "شهر",
     "searchIn": "جستجو در {place}",
     "showOnMap": "روی نقشه",
-    "inArea": "در این محدوده"
+    "inArea": "در این محدوده",
+    "temporarilyClosed": "موقتاً بسته است",
+    "opensOnDate": "در {date} ساعت {time} باز می‌شود",
+    "holidayToday": "تعطیل رسمی: {name}",
+    "specialHoursToday": "ساعات کاری ویژه امروز"
   },
   "map": {
     "title": "نقشه",
@@ -666,7 +672,20 @@
       "draftChanged": "این پیش‌نویس ارسال یا بررسی شده است. پیش از ویرایش صفحه را تازه کنید."
     },
     "categorySearch": "جستجوی دسته‌ها",
-    "optionalDetails": "جزئیات اختیاری"
+    "optionalDetails": "جزئیات اختیاری",
+    "holidaysClosed": "در تعطیلات رسمی بسته است",
+    "holidaysClosedHint": "تعطیلات رسمی ثابت کشور و منطقه خودکار محاسبه می‌شوند. عید فطر، قربان و دیگر تعطیلات قمری را با تاریخ در پایین اضافه کنید.",
+    "exceptionsTitle": "تعطیلی موقت و ساعات کاری ویژه",
+    "exceptionsHint": "برای یک روز یا یک بازه: بسته، یا ساعات متفاوت (مثلاً ۱۰:۰۰–۱۴:۰۰). تاریخ‌ها به وقت محلی مکان هستند.",
+    "exceptionsInvalid": "لطفاً تاریخ‌ها و ساعات تعطیلی یا ساعات ویژه را بررسی کنید.",
+    "exceptionFrom": "از",
+    "exceptionTo": "تا",
+    "exceptionClosed": "بسته",
+    "exceptionSpecial": "ساعات ویژه",
+    "exceptionHours": "ساعات",
+    "exceptionReason": "دلیل (اختیاری، عمومی)",
+    "exceptionRemove": "حذف",
+    "exceptionAdd": "افزودن تعطیلی یا ساعات ویژه"
   },
   "contact": {
     "title": "تماس",

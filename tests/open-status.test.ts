@@ -12,28 +12,28 @@ test("unknown hours are never reported as open or closed", () => {
 });
 
 test("open, closing soon and the closing time in the business timezone", () => {
-  assert.deepEqual(openStatus({ wed: "09:00–17:00" }, "IQ", erbil("12:00")), { status: "OPEN", next: { day: "wed", time: "17:00", inMinutes: 300 } });
-  assert.deepEqual(openStatus({ wed: "09:00–17:00" }, "IQ", erbil("16:15")), { status: "CLOSING_SOON", next: { day: "wed", time: "17:00", inMinutes: 45 } });
+  assert.deepEqual(openStatus({ wed: "09:00–17:00" }, "IQ", erbil("12:00")), { status: "OPEN", next: { day: "wed", date: "2026-10-28", time: "17:00", inMinutes: 300 } });
+  assert.deepEqual(openStatus({ wed: "09:00–17:00" }, "IQ", erbil("16:15")), { status: "CLOSING_SOON", next: { day: "wed", date: "2026-10-28", time: "17:00", inMinutes: 45 } });
   // The viewer's clock does not matter: the same instant in Berlin is 10:00, still before opening there.
   assert.equal(openStatus({ wed: "11:00–17:00" }, "IQ", erbil("12:00")).status, "OPEN");
   assert.equal(openStatus({ wed: "11:00–17:00" }, "DE", erbil("12:00")).status, "OPENS_SOON");
 });
 
 test("closed, opens soon and the next opening day", () => {
-  assert.deepEqual(openStatus({ wed: "13:00–17:00" }, "IQ", erbil("12:30")), { status: "OPENS_SOON", next: { day: "wed", time: "13:00", inMinutes: 30 } });
-  assert.deepEqual(openStatus({ wed: "09:00–17:00", thu: "08:00–16:00" }, "IQ", erbil("18:00")), { status: "CLOSED", next: { day: "thu", time: "08:00", inMinutes: 840 } });
+  assert.deepEqual(openStatus({ wed: "13:00–17:00" }, "IQ", erbil("12:30")), { status: "OPENS_SOON", next: { day: "wed", date: "2026-10-28", time: "13:00", inMinutes: 30 } });
+  assert.deepEqual(openStatus({ wed: "09:00–17:00", thu: "08:00–16:00" }, "IQ", erbil("18:00")), { status: "CLOSED", next: { day: "thu", date: "2026-10-29", time: "08:00", inMinutes: 840 } });
   // Next opening wraps over the week end.
-  assert.deepEqual(openStatus({ mon: "09:00–17:00", wed: "closed" }, "IQ", erbil("12:00")), { status: "CLOSED", next: { day: "mon", time: "09:00", inMinutes: 5 * 1440 - 180 } });
+  assert.deepEqual(openStatus({ mon: "09:00–17:00", wed: "closed" }, "IQ", erbil("12:00")), { status: "CLOSED", next: { day: "mon", date: "2026-11-02", time: "09:00", inMinutes: 5 * 1440 - 180 } });
   // Only "closed" days: closed with no next opening.
   assert.deepEqual(openStatus({ wed: "closed" }, "IQ", erbil("12:00")), { status: "CLOSED" });
 });
 
 test("overnight and split hours", () => {
   // Tuesday's 20:00–02:00 still runs at 01:00 on Wednesday.
-  assert.deepEqual(openStatus({ tue: "20:00–02:00" }, "IQ", erbil("01:00")), { status: "CLOSING_SOON", next: { day: "wed", time: "02:00", inMinutes: 60 } });
-  assert.deepEqual(openStatus({ wed: "09:00–12:00, 14:00–18:00" }, "IQ", erbil("12:30")), { status: "CLOSED", next: { day: "wed", time: "14:00", inMinutes: 90 } });
+  assert.deepEqual(openStatus({ tue: "20:00–02:00" }, "IQ", erbil("01:00")), { status: "CLOSING_SOON", next: { day: "wed", date: "2026-10-28", time: "02:00", inMinutes: 60 } });
+  assert.deepEqual(openStatus({ wed: "09:00–12:00, 14:00–18:00" }, "IQ", erbil("12:30")), { status: "CLOSED", next: { day: "wed", date: "2026-10-28", time: "14:00", inMinutes: 90 } });
   // Adjacent ranges are one opening period: 20:00–24:00 then 00:00–03:00 closes at 03:00 Thursday.
-  assert.deepEqual(openStatus({ wed: "20:00–24:00", thu: "00:00–03:00" }, "IQ", erbil("23:30")), { status: "OPEN", next: { day: "thu", time: "03:00", inMinutes: 210 } });
+  assert.deepEqual(openStatus({ wed: "20:00–24:00", thu: "00:00–03:00" }, "IQ", erbil("23:30")), { status: "OPEN", next: { day: "thu", date: "2026-10-29", time: "03:00", inMinutes: 210 } });
   // Around the clock every day: open, nothing to announce.
   const always = Object.fromEntries(["mon", "tue", "wed", "thu", "fri", "sat", "sun"].map((d) => [d, "00:00–24:00"]));
   assert.deepEqual(openStatus(always, "IQ", erbil("12:00")), { status: "OPEN" });
