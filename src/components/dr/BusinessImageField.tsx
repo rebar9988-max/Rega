@@ -128,7 +128,7 @@ export function BusinessImageField({
         <p
           role="alert"
           data-testid={`upload-${name}-state`}
-          className="text-sm font-semibold text-brand"
+          className="text-sm font-semibold text-brand-text"
         >
           {error === "notConfigured"
             ? tb("upload_notConfigured")

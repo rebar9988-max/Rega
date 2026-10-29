@@ -33,7 +33,7 @@ export async function ReviewSection({ businessId, businessSlug }: { businessId: 
         </ul>
       )}
       {session?.user ? <ReviewForm businessId={businessId} initial={own} /> : (
-        <p className="text-sm"><Link href={{ pathname: "/login", query: { next: `/${locale}/business/${businessSlug}#reviews` } }} className="font-semibold text-brand underline">{t("signIn")}</Link></p>
+        <p className="text-sm"><Link href={{ pathname: "/login", query: { next: `/${locale}/business/${businessSlug}#reviews` } }} className="font-semibold text-brand-text underline">{t("signIn")}</Link></p>
       )}
     </section>
   );

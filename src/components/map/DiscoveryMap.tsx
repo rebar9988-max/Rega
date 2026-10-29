@@ -22,8 +22,6 @@ export type MapLabels = {
 };
 type LatLng = { lat: number; lng: number };
 
-/** REGA red (logo); MapLibre paints need a plain colour, not the oklch design token. */
-const BRAND = "#dc0201";
 /** Beyond this zoom markers are never clustered, except ones at (nearly) identical coordinates. */
 const CLUSTER_MAX_ZOOM = 16;
 const STORE_ICON = '<svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9 5.5 4h13L20 9M4 9v11h16V9M4 9a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0A2.7 2.7 0 0 0 20 9"/></svg>';
@@ -90,8 +88,9 @@ export function DiscoveryMap({
           loaded = true;
           clearTimeout(failTimer);
           map.addSource("rega-radius", { type: "geojson", data: emptyFc() });
-          map.addLayer({ id: "rega-radius-fill", type: "fill", source: "rega-radius", paint: { "fill-color": BRAND, "fill-opacity": 0.04 } });
-          map.addLayer({ id: "rega-radius-line", type: "line", source: "rega-radius", paint: { "line-color": BRAND, "line-opacity": 0.45, "line-width": 1.5, "line-dasharray": [2, 2] } });
+          const brand = getComputedStyle(box.current!).getPropertyValue("--brand").trim();
+          map.addLayer({ id: "rega-radius-fill", type: "fill", source: "rega-radius", paint: { "fill-color": brand, "fill-opacity": 0.04 } });
+          map.addLayer({ id: "rega-radius-line", type: "line", source: "rega-radius", paint: { "line-color": brand, "line-opacity": 0.45, "line-width": 1.5, "line-dasharray": [2, 2] } });
           map.addSource("rega-points", { type: "geojson", data: emptyFc(), cluster: true, clusterRadius: 48, clusterMaxZoom: CLUSTER_MAX_ZOOM });
           // Invisible layer: keeps the clustered source's tiles loaded; the visible markers are HTML buttons.
           map.addLayer({ id: "rega-points-hit", type: "circle", source: "rega-points", paint: { "circle-radius": 1, "circle-opacity": 0 } });
@@ -137,7 +136,7 @@ export function DiscoveryMap({
             // MapLibre positions the button with a transform: animate only the inner disc, never the button.
             el.className = "group grid place-items-center rounded-full";
             const disc = document.createElement("span");
-            disc.className = `grid ${n < 10 ? "size-10" : n < 100 ? "size-12" : "size-14"} place-items-center rounded-full border-4 border-white/85 bg-brand text-sm font-bold text-white shadow-lift transition-transform duration-150 group-hover:scale-110 group-focus-visible:scale-110`;
+            disc.className = `grid ${n < 10 ? "size-10" : n < 100 ? "size-12" : "size-14"} place-items-center rounded-full border-4 border-white/85 bg-brand text-sm font-bold text-brand-ink shadow-lift transition-transform duration-150 group-hover:scale-110 group-focus-visible:scale-110`;
             disc.textContent = String(n);
             el.append(disc);
             el.setAttribute("aria-label", latest.current.labels.cluster(n));
@@ -154,7 +153,7 @@ export function DiscoveryMap({
             });
           } else {
             el.className = "rega-pin group grid size-9 place-items-center rounded-full";
-            el.innerHTML = `<span class="rega-pin-disc grid size-9 place-items-center rounded-full border-2 border-white bg-brand text-white shadow-lift transition-transform duration-150 group-hover:scale-110 group-focus-visible:scale-110">${STORE_ICON}</span>`;
+            el.innerHTML = `<span class="rega-pin-disc grid size-9 place-items-center rounded-full border-2 border-white bg-brand text-brand-ink shadow-lift transition-transform duration-150 group-hover:scale-110 group-focus-visible:scale-110">${STORE_ICON}</span>`;
             el.dataset.id = p.id;
             el.setAttribute("aria-label", p.label ?? "");
             el.addEventListener("click", (ev) => { ev.stopPropagation(); latest.current.onSelect(p.id ?? null); });
@@ -252,7 +251,7 @@ export function DiscoveryMap({
       {status === "failed" && (
         <div className="absolute inset-0 z-20 grid place-items-center bg-surface-2 p-6 text-center" role="status" data-testid="map-fallback">
           <div className="max-w-xs">
-            <span className="mx-auto grid size-12 place-items-center rounded-full bg-brand-soft text-brand">
+            <span className="mx-auto grid size-12 place-items-center rounded-full bg-brand-soft text-brand-text">
               <svg viewBox="0 0 24 24" className="size-6" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Zm0 0v14m6-12v14" /></svg>
             </span>
             <p className="mt-3 font-semibold">{labels.unavailable}</p>
@@ -263,7 +262,7 @@ export function DiscoveryMap({
       {status === "ready" && moved && onSearchArea && (
         <div className="pointer-events-none absolute inset-x-0 top-3 z-10 flex justify-center">
           <button type="button" data-testid="map-search-area"
-            className="pointer-events-auto inline-flex min-h-10 items-center gap-2 rounded-full bg-surface px-4 text-sm font-bold text-ink shadow-lift ring-1 ring-line hover:text-brand"
+            className="pointer-events-auto inline-flex min-h-10 items-center gap-2 rounded-full bg-surface px-4 text-sm font-bold text-ink shadow-lift ring-1 ring-line hover:text-brand-text"
             onClick={() => {
               const c = mapRef.current?.getCenter();
               if (c) onSearchArea({ lat: coarsen(c.lat), lng: coarsen(c.lng) });

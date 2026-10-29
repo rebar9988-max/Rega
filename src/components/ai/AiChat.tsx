@@ -42,7 +42,7 @@ function withLinks(text: string) {
   return text.split(LINK_RE).map((part, i) => {
     if (i % 2 === 0) return <Fragment key={i}>{part}</Fragment>;
     const [, locale, ...rest] = part.split("/");
-    return <Link key={i} href={`/${rest.join("/")}`} locale={locale as (typeof LOCALES)[number]} className="font-semibold text-brand underline" dir="ltr">{part}</Link>;
+    return <Link key={i} href={`/${rest.join("/")}`} locale={locale as (typeof LOCALES)[number]} className="font-semibold text-brand-text underline" dir="ltr">{part}</Link>;
   });
 }
 
@@ -124,7 +124,7 @@ export function AiChat() {
                     return l ? (
                       <li key={c.url}>
                         <Link href={l.href} locale={l.locale} className="block rounded-xl border border-line bg-surface px-3 py-2 hover:border-brand">
-                          <span className="block font-semibold"><bdi dir="auto">{c.title}</bdi>{c.verified && <span className="ms-2 text-xs font-bold text-brand">✓ {t("verified")}</span>}</span>
+                          <span className="block font-semibold"><bdi dir="auto">{c.title}</bdi>{c.verified && <span className="ms-2 text-xs font-bold text-brand-text">✓ {t("verified")}</span>}</span>
                           {c.subtitle && <span className="block text-xs text-muted"><bdi dir="auto">{c.subtitle}</bdi></span>}
                         </Link>
                       </li>
@@ -159,7 +159,7 @@ export function AiChat() {
       </form>
       <div className="flex flex-wrap items-center justify-center gap-3 text-center text-xs text-muted">
         <p>{t("disclaimer")}</p>
-        {messages.length > 0 && <button type="button" onClick={() => { resetSession(); setMessages([]); }} disabled={busy} className="min-h-9 rounded-lg border border-line px-3 font-semibold hover:border-brand hover:text-brand disabled:opacity-50" data-testid="ai-new-chat">{t("newChat")}</button>}
+        {messages.length > 0 && <button type="button" onClick={() => { resetSession(); setMessages([]); }} disabled={busy} className="min-h-9 rounded-lg border border-line px-3 font-semibold hover:border-brand hover:text-brand-text disabled:opacity-50" data-testid="ai-new-chat">{t("newChat")}</button>}
       </div>
     </div>
   );

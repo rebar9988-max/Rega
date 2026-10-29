@@ -124,7 +124,7 @@ export default async function Operations({ searchParams }: { searchParams: Promi
                               <ul className="mt-1 flex flex-wrap gap-1.5">
                                 {f.items.map((i) => (
                                   <li key={i.label} className="max-w-full truncate rounded-md border border-line bg-surface px-2 py-0.5 text-xs">
-                                    {i.href ? <Link href={i.href} className="text-brand hover:underline"><Ltr>{i.label}</Ltr></Link> : <Ltr>{i.label}</Ltr>}
+                                    {i.href ? <Link href={i.href} className="text-brand-text hover:underline"><Ltr>{i.label}</Ltr></Link> : <Ltr>{i.label}</Ltr>}
                                   </li>
                                 ))}
                               </ul>

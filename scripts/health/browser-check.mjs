@@ -2,11 +2,15 @@
 // journeys and the approved red/white UI, and saves full-page screenshots. Never signs in, never submits a form,
 // never writes data. Usage: BASE_URL=https://www.rega24.com node scripts/health/browser-check.mjs
 import { chromium, devices } from "@playwright/test";
-import { mkdirSync, appendFileSync } from "node:fs";
+import { mkdirSync, appendFileSync, readFileSync } from "node:fs";
 
 const BASE = (process.env.BASE_URL || "https://www.rega24.com").replace(/\/$/, "");
 const OUT = process.env.OUT_DIR || "browser-check";
 const UA_SUFFIX = " rega-ci-browser-check/1.0 (+github-actions)";
+// Read the checked-out release's canonical token, rather than maintaining another primary constant.
+const expectedBrand = readFileSync(new URL("../../src/app/globals.css", import.meta.url), "utf8")
+  .match(/--brand:\s*(#[\da-f]{6})/i)?.[1].toLowerCase();
+if (!expectedBrand) throw new Error("Canonical brand token missing from the verified release");
 mkdirSync(OUT, { recursive: true });
 
 const failures = [];
@@ -169,11 +173,16 @@ try {
           dir: document.documentElement.dir,
           h1: document.querySelector("h1")?.textContent?.trim().slice(0, 80) ?? "",
           overflow: document.documentElement.scrollWidth - window.innerWidth,
+          brand: getComputedStyle(document.documentElement).getPropertyValue("--brand").trim().toLowerCase(),
+          scopedBrands: Array.from(document.querySelectorAll(".figma"), (el) =>
+            getComputedStyle(el).getPropertyValue("--brand").trim().toLowerCase()),
         }));
         note(status >= 200 && status < 400, `${label} HTTP`, String(status));
         note(facts.dir === dir, `${label} dir=${dir}`, facts.dir);
         note(facts.h1.length > 0, `${label} has an h1`, facts.h1);
         note(facts.overflow <= 1, `${label} no horizontal scroll`, `${facts.overflow}px`);
+        note(facts.brand === expectedBrand && facts.scopedBrands.every((color) => color === expectedBrand),
+          `${label} official primary red`, facts.brand);
         await page.screenshot({ path: `${OUT}/${vp}${path.replace(/[/?=&]/g, "_")}.png`, fullPage: true });
       } catch (error) {
         note(false, `${label} loads`, String(error).split("\n")[0]);

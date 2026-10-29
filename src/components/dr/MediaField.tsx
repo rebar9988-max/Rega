@@ -60,10 +60,10 @@ export function MediaField({ name, label, initial, businessId, storageReady, inv
           onChange={(e) => { const f = e.target.files?.[0]; if (f) void upload(f); e.target.value = ""; }}
           className="max-w-full text-sm file:me-3 file:min-h-10 file:rounded-lg file:border file:border-line file:bg-surface file:px-3 file:text-sm file:font-semibold disabled:opacity-60" data-testid={`upload-${name}`} />
         {url && (
-          <button type="button" onClick={() => { setUrl(""); setState(storageReady ? "idle" : "notConfigured"); }} className="min-h-10 rounded-lg border border-line px-3 text-xs font-semibold hover:border-brand hover:text-brand">{t("removeImage")}</button>
+          <button type="button" onClick={() => { setUrl(""); setState(storageReady ? "idle" : "notConfigured"); }} className="min-h-10 rounded-lg border border-line px-3 text-xs font-semibold hover:border-brand hover:text-brand-text">{t("removeImage")}</button>
         )}
       </div>
-      {message && <p role={state === "done" ? "status" : "alert"} className={`text-xs ${state === "done" ? "text-muted" : "font-semibold text-brand"}`} data-testid={`upload-${name}-state`}>{message}</p>}
+      {message && <p role={state === "done" ? "status" : "alert"} className={`text-xs ${state === "done" ? "text-muted" : "font-semibold text-brand-text"}`} data-testid={`upload-${name}-state`}>{message}</p>}
     </div>
   );
 }

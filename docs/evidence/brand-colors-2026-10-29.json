@@ -1,0 +1,301 @@
+{
+  "baseline": "311c9d7a527ec7e5f0c2deefb5fa0a7175b3eab4",
+  "primary": "#fa070d",
+  "reference": {
+    "file": "2-Photo-2.jpg",
+    "sha256": "3911dd5a1fc48247c71bc605ca7e690234531af3cb73d7683e3d608ae7d8f087",
+    "sampleXY": [
+      386,
+      88
+    ],
+    "RGB": [
+      250,
+      7,
+      13
+    ]
+  },
+  "local": {
+    "typecheck": "pass",
+    "eslint": "pass",
+    "unit": {
+      "pass": 379,
+      "skip": 4,
+      "fail": 0
+    },
+    "d1": {
+      "pass": 10,
+      "fail": 0
+    },
+    "auditVulnerabilities": 0,
+    "nodeBuild": "pass with test-only local Noto Sans Arabic response; normal Google Fonts fetch blocked by environment policy",
+    "existingBrowserTests": {
+      "pass": 64,
+      "fail": 0
+    },
+    "brandBrowserTests": {
+      "pass": 8,
+      "fail": 0
+    },
+    "testRepair": "Initial eight brand cases failed on a nonexistent .figma wrapper on registration; test fixed, all eight rerun and passed. Control thumb contrast explicitly covered.",
+    "visualComparison": {
+      "cases": [
+        {
+          "width": 390,
+          "path": "/en",
+          "elements": 21,
+          "geometryAndTypographyIdentical": true
+        },
+        {
+          "width": 390,
+          "path": "/ckb",
+          "elements": 21,
+          "geometryAndTypographyIdentical": true
+        },
+        {
+          "width": 390,
+          "path": "/en/register",
+          "elements": 23,
+          "geometryAndTypographyIdentical": true
+        },
+        {
+          "width": 390,
+          "path": "/ckb/register",
+          "elements": 23,
+          "geometryAndTypographyIdentical": true
+        },
+        {
+          "width": 390,
+          "path": "/en/businesses",
+          "elements": 20,
+          "geometryAndTypographyIdentical": true
+        },
+        {
+          "width": 390,
+          "path": "/ckb/businesses",
+          "elements": 20,
+          "geometryAndTypographyIdentical": true
+        },
+        {
+          "width": 390,
+          "path": "/en/business/zagros-restaurant",
+          "elements": 20,
+          "geometryAndTypographyIdentical": true
+        },
+        {
+          "width": 390,
+          "path": "/ckb/business/zagros-restaurant",
+          "elements": 20,
+          "geometryAndTypographyIdentical": true
+        },
+        {
+          "width": 390,
+          "path": "/dr",
+          "elements": 4,
+          "geometryAndTypographyIdentical": true
+        },
+        {
+          "width": 1366,
+          "path": "/en",
+          "elements": 20,
+          "geometryAndTypographyIdentical": true
+        },
+        {
+          "width": 1366,
+          "path": "/ckb",
+          "elements": 20,
+          "geometryAndTypographyIdentical": true
+        },
+        {
+          "width": 1366,
+          "path": "/en/register",
+          "elements": 22,
+          "geometryAndTypographyIdentical": true
+        },
+        {
+          "width": 1366,
+          "path": "/ckb/register",
+          "elements": 22,
+          "geometryAndTypographyIdentical": true
+        },
+        {
+          "width": 1366,
+          "path": "/en/businesses",
+          "elements": 19,
+          "geometryAndTypographyIdentical": true
+        },
+        {
+          "width": 1366,
+          "path": "/ckb/businesses",
+          "elements": 19,
+          "geometryAndTypographyIdentical": true
+        },
+        {
+          "width": 1366,
+          "path": "/en/business/zagros-restaurant",
+          "elements": 19,
+          "geometryAndTypographyIdentical": true
+        },
+        {
+          "width": 1366,
+          "path": "/ckb/business/zagros-restaurant",
+          "elements": 19,
+          "geometryAndTypographyIdentical": true
+        },
+        {
+          "width": 1366,
+          "path": "/dr",
+          "elements": 4,
+          "geometryAndTypographyIdentical": true
+        }
+      ],
+      "method": "Independent baseline and candidate Node builds using the same local Noto font, local disposable D1 data and social flags. Compare visible header/main/footer/headings/inputs/buttons/images rectangles and computed typography; exclude asynchronous MapLibre internal controls. Capture before/after screenshots.",
+      "screenshots": [
+        {
+          "file": "after-1366-_ckb.png",
+          "sha256": "93a8ea2997960ab61b3d8ef29ce2c7cd6214533b82d57f7f8c36d1ad84468732"
+        },
+        {
+          "file": "after-1366-_ckb_business_zagros-restaurant.png",
+          "sha256": "ff6324d8faedabd27f8fff6b7e9edfbfff7662d34eff95e6e281094b2b4d6ba0"
+        },
+        {
+          "file": "after-1366-_ckb_businesses.png",
+          "sha256": "af58bf6b0f6e8178f615981e6a777a2774e731354bdf22e122a2167b28e1e32d"
+        },
+        {
+          "file": "after-1366-_ckb_register.png",
+          "sha256": "ffc5373f518a690e6ee680ff3087eb25fd0577bc68b65f94b59a824057274232"
+        },
+        {
+          "file": "after-1366-_dr.png",
+          "sha256": "b9f3ae723f47fb78cf4cab3951c2482339b95f3aee4a3ff614dc44aa689eddd7"
+        },
+        {
+          "file": "after-1366-_en.png",
+          "sha256": "43df47bd2ef3e9635e29702044fd4a11d371321ddb3ab4e92f3f4baf1e807a7f"
+        },
+        {
+          "file": "after-1366-_en_business_zagros-restaurant.png",
+          "sha256": "74f37ee4040c4e7c52150f3ee491901f52f46abd4680b2b4f68bd03b1fc04ac4"
+        },
+        {
+          "file": "after-1366-_en_businesses.png",
+          "sha256": "4a3d173ec664bc8fec492ea3a8e60e487c0e6956ff206c364ad1a7bd53fefef3"
+        },
+        {
+          "file": "after-1366-_en_register.png",
+          "sha256": "db95e9923273355ca807d3820678fed9870a94714b2dc3ce81369bae8fd98f60"
+        },
+        {
+          "file": "after-390-_ckb.png",
+          "sha256": "688e2e520d19d2ad17988443b558696549819e217463e54037aab5b3175fec55"
+        },
+        {
+          "file": "after-390-_ckb_business_zagros-restaurant.png",
+          "sha256": "f3d22479d805b2642c55a4239a687f74dcbf177644408bce110def48362efd3d"
+        },
+        {
+          "file": "after-390-_ckb_businesses.png",
+          "sha256": "db381d311b8c7403dc7373097ddda3aec463e51d69db2a62c16f1ac49a8c526d"
+        },
+        {
+          "file": "after-390-_ckb_register.png",
+          "sha256": "8969603ab0bb423a72420936443b40b6f53ac6524aca7b3c3942b1e3708c7b75"
+        },
+        {
+          "file": "after-390-_dr.png",
+          "sha256": "026ec90112bc1172eb838d9e196876d52d530a8bbaa4d341c7f003869523fcdf"
+        },
+        {
+          "file": "after-390-_en.png",
+          "sha256": "ef4270ea27ca3412412f3e84e77d50b43905fae30188e1a0f7b9206e4e7dd88d"
+        },
+        {
+          "file": "after-390-_en_business_zagros-restaurant.png",
+          "sha256": "20a2752213beb03efc787dc088b8bd56f8763bd1047475b5f750d3e51fc66f58"
+        },
+        {
+          "file": "after-390-_en_businesses.png",
+          "sha256": "9e93b74538cdd17f5c41b406525a51d8b0f07b1e791d70617eed79ef0a6acfcd"
+        },
+        {
+          "file": "after-390-_en_register.png",
+          "sha256": "9c68027d11e44ba4bda7a013185670d1c2d63b7fca24bd437a59f0df6ef095a5"
+        },
+        {
+          "file": "before-1366-_ckb.png",
+          "sha256": "827f4207d6e152f70e9df0a4859d98d829917e809d4f153688371b647c1ab173"
+        },
+        {
+          "file": "before-1366-_ckb_business_zagros-restaurant.png",
+          "sha256": "a05d2698b61e96aed4f1b272963c7d09920ffed053366d6c2c798b2d22d3d67e"
+        },
+        {
+          "file": "before-1366-_ckb_businesses.png",
+          "sha256": "d71b5ba0c51453d57a21b94fd31d5b3da12559febf052974487eb01458002b7a"
+        },
+        {
+          "file": "before-1366-_ckb_register.png",
+          "sha256": "868c5b1a209cee0962a1fb4ff0343d9c0984cbb0ee17afdd17d6c90b110e8876"
+        },
+        {
+          "file": "before-1366-_dr.png",
+          "sha256": "96c06cef0a69ee1727a554893627a1206dd0ed89cee8663fe8dc5b196db46877"
+        },
+        {
+          "file": "before-1366-_en.png",
+          "sha256": "a3b87b101b730b5865dad93798aa089489a57ac306ec9314ebba4f0f1dad9196"
+        },
+        {
+          "file": "before-1366-_en_business_zagros-restaurant.png",
+          "sha256": "ad1438bbfd7161283ed00a37c245f85abb83d6d68207b1c85feb55a698bd47ac"
+        },
+        {
+          "file": "before-1366-_en_businesses.png",
+          "sha256": "5fe8456009656c33f0fd5a07bb816a179cd8d8004645a80a2063bc4ce5f724b9"
+        },
+        {
+          "file": "before-1366-_en_register.png",
+          "sha256": "338091ab610d9969458d0ccfe02041a4854ee5ae3b5c146cc2d8b61a765ba1e6"
+        },
+        {
+          "file": "before-390-_ckb.png",
+          "sha256": "8103131939d98e03378e15365833ed83cd5a00e848fb335507efdb85c601c9cc"
+        },
+        {
+          "file": "before-390-_ckb_business_zagros-restaurant.png",
+          "sha256": "b6d2b2f86fe78afce3a899abe6071b80696dda2467a838df22de251c2604b0d6"
+        },
+        {
+          "file": "before-390-_ckb_businesses.png",
+          "sha256": "31d17439984dfb1744f4dc8a561f547aba1bc63e2cf7553b8d396c0cd9bc1461"
+        },
+        {
+          "file": "before-390-_ckb_register.png",
+          "sha256": "d2db01e5b7239745ad2eb4c69928873b5f95d47dd0e96c9e3be1d0633a3c0446"
+        },
+        {
+          "file": "before-390-_dr.png",
+          "sha256": "f2fc30eef227992d511b953be85cfe9c9d527d653ec4a86740fda5952234cc44"
+        },
+        {
+          "file": "before-390-_en.png",
+          "sha256": "021f0cc0411777707a9faa85ccebe62ae576cc67836ca438fca7751dfd0bbedc"
+        },
+        {
+          "file": "before-390-_en_business_zagros-restaurant.png",
+          "sha256": "ef3d7754a40690a2c143c86f75df7e881cbeffe52e922817ff3314cc0623853d"
+        },
+        {
+          "file": "before-390-_en_businesses.png",
+          "sha256": "b21acf3865128d901260b4346fbc2bdc8a8ac9d378beba13f0d60ccb8da8cea6"
+        },
+        {
+          "file": "before-390-_en_register.png",
+          "sha256": "3b914b09db47a414f0779bf9b11bc7c549e7fcc1eb48358a45f57553d1911aaf"
+        }
+      ]
+    }
+  },
+  "production": "NOT DEPLOYED at evidence creation; existing full PR CI then exact-main deployment remains required"
+}

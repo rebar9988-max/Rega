@@ -27,14 +27,14 @@ export function HoursExceptionsEditor({ initial, holidaysClosed, invalid }: { in
   return (
     <div className="space-y-4" data-testid="hours-exceptions">
       <label className="flex items-start gap-3 rounded-xl bg-surface-2 p-3 text-sm">
-        <input type="checkbox" name="holidaysClosed" value="1" defaultChecked={holidaysClosed} className="mt-0.5 size-5 accent-[var(--brand)]" data-testid="holidays-closed" />
+        <input type="checkbox" name="holidaysClosed" value="1" defaultChecked={holidaysClosed} className="mt-0.5 size-5 accent-brand-control" data-testid="holidays-closed" />
         <span><span className="font-semibold">{t("holidaysClosed")}</span><br /><span className="text-muted">{t("holidaysClosedHint")}</span></span>
       </label>
 
       <div className="space-y-3">
         <p className="text-sm font-semibold">{t("exceptionsTitle")}</p>
         <p className="text-sm text-muted" id="exceptions-hint">{t("exceptionsHint")}</p>
-        {invalid && <p className="text-sm font-semibold text-brand" role="alert" data-testid="exceptions-invalid">{t("exceptionsInvalid")}</p>}
+        {invalid && <p className="text-sm font-semibold text-brand-text" role="alert" data-testid="exceptions-invalid">{t("exceptionsInvalid")}</p>}
         <input type="hidden" name="hoursExceptions" value={JSON.stringify(payload)} />
         <ul className="space-y-3">
           {rows.map((r, i) => (
@@ -49,8 +49,8 @@ export function HoursExceptionsEditor({ initial, holidaysClosed, invalid }: { in
               </label>
               <fieldset className="flex flex-wrap gap-4 text-sm sm:col-span-2">
                 <legend className="sr-only">{t("exceptionsTitle")}</legend>
-                <label className="flex min-h-11 items-center gap-2"><input type="radio" name={`exception-kind-${r.key}`} checked={r.closed} onChange={() => update(r.key, { closed: true })} className="size-5 accent-[var(--brand)]" data-testid={`exception-closed-${i}`} />{t("exceptionClosed")}</label>
-                <label className="flex min-h-11 items-center gap-2"><input type="radio" name={`exception-kind-${r.key}`} checked={!r.closed} onChange={() => update(r.key, { closed: false })} className="size-5 accent-[var(--brand)]" data-testid={`exception-special-${i}`} />{t("exceptionSpecial")}</label>
+                <label className="flex min-h-11 items-center gap-2"><input type="radio" name={`exception-kind-${r.key}`} checked={r.closed} onChange={() => update(r.key, { closed: true })} className="size-5 accent-brand-control" data-testid={`exception-closed-${i}`} />{t("exceptionClosed")}</label>
+                <label className="flex min-h-11 items-center gap-2"><input type="radio" name={`exception-kind-${r.key}`} checked={!r.closed} onChange={() => update(r.key, { closed: false })} className="size-5 accent-brand-control" data-testid={`exception-special-${i}`} />{t("exceptionSpecial")}</label>
               </fieldset>
               {!r.closed && (
                 <label className="flex flex-col gap-1 text-sm font-semibold sm:col-span-2">{t("exceptionHours")}
@@ -63,14 +63,14 @@ export function HoursExceptionsEditor({ initial, holidaysClosed, invalid }: { in
               </label>
               <div className="sm:col-span-2">
                 <button type="button" onClick={() => setRows((all) => all.filter((x) => x.key !== r.key))}
-                  className="min-h-11 rounded-xl border border-line px-4 text-sm font-semibold hover:border-brand hover:text-brand" data-testid={`exception-remove-${i}`}>{t("exceptionRemove")}</button>
+                  className="min-h-11 rounded-xl border border-line px-4 text-sm font-semibold hover:border-brand hover:text-brand-text" data-testid={`exception-remove-${i}`}>{t("exceptionRemove")}</button>
               </div>
             </li>
           ))}
         </ul>
         {rows.length < EXCEPTION_LIMITS.max && (
           <button type="button" onClick={() => { setRows((all) => [...all, { key: nextKey, from: "", to: "", closed: true, hours: "", reason: "" }]); setNextKey((k) => k + 1); }}
-            className="min-h-11 rounded-xl border border-line bg-surface px-4 text-sm font-semibold hover:border-brand hover:text-brand" data-testid="exception-add">{t("exceptionAdd")}</button>
+            className="min-h-11 rounded-xl border border-line bg-surface px-4 text-sm font-semibold hover:border-brand hover:text-brand-text" data-testid="exception-add">{t("exceptionAdd")}</button>
         )}
       </div>
     </div>

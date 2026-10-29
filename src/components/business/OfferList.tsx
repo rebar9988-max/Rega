@@ -51,7 +51,7 @@ export function OfferList({ offers, serverNow, timeZone }: { offers: PublicOffer
                 <img src={o.imageUrl} alt="" loading="lazy" decoding="async" className="aspect-[16/9] w-full object-cover" />
               )}
               <div className="space-y-2 p-4">
-                {discount && <p className="inline-block rounded-full bg-brand-soft px-3 py-1 text-sm font-bold text-brand" data-testid="offer-discount">{discount}</p>}
+                {discount && <p className="inline-block rounded-full bg-brand-soft px-3 py-1 text-sm font-bold text-brand-text" data-testid="offer-discount">{discount}</p>}
                 <h3 className="font-bold"><bdi>{o.title}</bdi></h3>
                 {o.description && <p className="whitespace-pre-line text-sm leading-6 text-muted"><bdi>{o.description}</bdi></p>}
                 <p className="text-xs text-muted">{t("validUntil", { date: lastDay })}</p>

@@ -34,7 +34,7 @@ export async function CategoryNavigation({
           <Link
             href="/businesses"
             aria-current={!current ? "page" : undefined}
-            className={`inline-flex min-h-12 items-center rounded-xl border px-3 text-sm font-semibold ${!current ? "border-brand bg-brand-soft text-brand" : "border-line hover:border-brand"}`}
+            className={`inline-flex min-h-12 items-center rounded-xl border px-3 text-sm font-semibold ${!current ? "border-brand bg-brand-soft text-brand-text" : "border-line hover:border-brand"}`}
           >
             {t("list.allCategories")}
           </Link>
@@ -54,7 +54,7 @@ export async function CategoryNavigation({
             <Link
               href={`/businesses/${c.slug}`}
               aria-current={current?.id === c.id ? "page" : undefined}
-              className={`inline-flex min-h-12 items-center gap-2 rounded-xl border px-3 text-sm font-semibold transition-colors ${current?.id === c.id ? "border-brand bg-brand-soft text-brand" : "border-line hover:border-brand hover:text-brand"}`}
+              className={`inline-flex min-h-12 items-center gap-2 rounded-xl border px-3 text-sm font-semibold transition-colors ${current?.id === c.id ? "border-brand bg-brand-soft text-brand-text" : "border-line hover:border-brand hover:text-brand-text"}`}
             >
               {localizeText({ ...c, name: c.nameDe }, "name", locale)}
               {showCounts && <span className="rounded-lg bg-surface-2 px-1.5 text-xs text-muted">

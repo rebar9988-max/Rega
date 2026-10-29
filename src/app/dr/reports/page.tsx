@@ -25,7 +25,7 @@ export default async function ReportsAdmin({ searchParams }: { searchParams: Pro
       <h1 className="mb-4 text-2xl font-extrabold">{t("reportsTitle")}</h1>
       <nav aria-label={t("reportsTitle")} className="mb-6 flex flex-wrap gap-2 text-sm">
         {[undefined, ...STATUSES].map((s) => (
-          <a key={s ?? "all"} href={s ? `/dr/reports?status=${s}` : "/dr/reports"} aria-current={s === status ? "page" : undefined} className={`inline-flex min-h-9 items-center rounded-full border px-3 font-semibold ${s === status ? "border-brand bg-brand-soft text-brand" : "border-line"}`}>{s ? t(`status_${s}`) : t("all")}</a>
+          <a key={s ?? "all"} href={s ? `/dr/reports?status=${s}` : "/dr/reports"} aria-current={s === status ? "page" : undefined} className={`inline-flex min-h-9 items-center rounded-full border px-3 font-semibold ${s === status ? "border-brand bg-brand-soft text-brand-text" : "border-line"}`}>{s ? t(`status_${s}`) : t("all")}</a>
         ))}
       </nav>
       {rows.length === 0 ? <p className="text-muted">{t("empty")}</p> : (
@@ -38,7 +38,7 @@ export default async function ReportsAdmin({ searchParams }: { searchParams: Pro
                   <span className="font-bold">{tr(REASON_KEY[r.reason as keyof typeof REASON_KEY] ?? "reasonOther")} · <span className="text-muted">{t(`status_${r.status as "open"}`)}</span></span>
                   <time dateTime={r.createdAt.toISOString()} className="text-xs text-muted">{formatDate(r.createdAt, locale, { dateStyle: "medium", timeStyle: "short" })}</time>
                 </div>
-                <p className="mb-1 break-all" dir="ltr">{href ? <a href={href} target="_blank" rel="noopener noreferrer" className="text-brand underline">{r.targetUrl}</a> : r.targetUrl}</p>
+                <p className="mb-1 break-all" dir="ltr">{href ? <a href={href} target="_blank" rel="noopener noreferrer" className="text-brand-text underline">{r.targetUrl}</a> : r.targetUrl}</p>
                 <p className="mb-2 whitespace-pre-line">{r.details}</p>
                 <p className="mb-3 text-xs text-muted">{r.reporterName} · <bdi dir="ltr">{r.reporterEmail}</bdi></p>
                 {r.note && <p className="mb-3 rounded-lg bg-surface-2 px-3 py-2 text-xs">{r.note}</p>}

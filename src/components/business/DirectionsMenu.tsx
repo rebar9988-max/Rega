@@ -51,7 +51,7 @@ export function DirectionsMenu({ links, address, label, openWith, otherApp, clas
               <li key={app.key}>
                 <a href={app.href} target={app.key === "geo" ? undefined : "_blank"} rel="noopener noreferrer" onClick={() => setOpen(false)}
                   className="flex min-h-11 items-center gap-3 rounded-xl px-2 text-sm font-semibold hover:bg-surface-2" data-testid={`directions-${app.key}`}>
-                  <FigmaIcon name="map" className="size-5 shrink-0 text-brand" />{app.name}
+                  <FigmaIcon name="map" className="size-5 shrink-0 text-brand-text" />{app.name}
                 </a>
               </li>
             ))}

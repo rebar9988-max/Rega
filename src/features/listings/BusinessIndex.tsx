@@ -69,14 +69,14 @@ export async function BusinessIndex({ pathname, searchParams, title, crumbs, fix
         <form id={formId} action={pathname} role="search"
           className={`rega-search-shell grid gap-0 overflow-visible ${cityList ? "sm:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_auto]" : "sm:grid-cols-[minmax(0,1fr)_auto]"}`}>
           <div className="flex min-h-14 min-w-0 items-center gap-3 px-4 focus-within:ring-2 focus-within:ring-inset focus-within:ring-[var(--ring)]">
-            <FigmaIcon name="search" className="size-5 shrink-0 text-brand" />
+            <FigmaIcon name="search" className="size-5 shrink-0 text-brand-text" />
             <label htmlFor="f-q" className="sr-only">{t("search.placeholder")}</label>
             <input id="f-q" name="q" type="search" defaultValue={query.q} placeholder={t("search.placeholder")} autoComplete="off" maxLength={120}
               className="min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-muted" />
           </div>
           {cityList && (
             <div className="flex min-h-14 min-w-0 items-center gap-2 border-t border-line px-3 sm:border-s sm:border-t-0">
-              <FigmaIcon name="map-pin" className="size-5 shrink-0 text-brand" />
+              <FigmaIcon name="map-pin" className="size-5 shrink-0 text-brand-text" />
               <div className="min-w-0 flex-1">
                 <CityFilter countryCode={query.country} cities={cityList} value={query.city} allLabel={t("list.allCities")} cityLabel={t("locations.city")}
                   fieldClass="min-h-11 w-full bg-transparent px-1 text-sm outline-none" applySavedToUrl />
@@ -91,7 +91,7 @@ export async function BusinessIndex({ pathname, searchParams, title, crumbs, fix
           <aside aria-labelledby="dir-filters-title" className="rega-card p-4 lg:sticky lg:top-24">
             <div className="flex items-center justify-between gap-3">
               <h2 id="dir-filters-title" className="text-base font-bold">{t("list.filters")}</h2>
-              {active && <Link href={cityList ? `${pathname}?city=` : pathname} className="text-sm font-semibold text-brand hover:underline">{t("list.reset")}</Link>}
+              {active && <Link href={cityList ? `${pathname}?city=` : pathname} className="text-sm font-semibold text-brand-text hover:underline">{t("list.reset")}</Link>}
             </div>
             <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-1">
               <div>
@@ -115,7 +115,7 @@ export async function BusinessIndex({ pathname, searchParams, title, crumbs, fix
                 <input type="checkbox" role="switch" name="verified" value="1" form={formId} defaultChecked={query.verified === "1"} className="rega-switch" />
               </label>
             </div>
-            <button type="submit" form={formId} className="mt-4 min-h-11 w-full rounded-lg border border-brand bg-surface px-4 text-sm font-bold text-brand transition hover:bg-brand hover:text-brand-ink">{t("list.apply")}</button>
+            <button type="submit" form={formId} className="mt-4 min-h-11 w-full rounded-lg border border-brand bg-surface px-4 text-sm font-bold text-brand-text transition hover:bg-brand hover:text-brand-ink">{t("list.apply")}</button>
           </aside>
 
           <div className="min-w-0">

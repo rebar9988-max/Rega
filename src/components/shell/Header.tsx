@@ -38,10 +38,10 @@ export async function Header() {
         </nav>
 
         <div className="flex items-center gap-1 sm:gap-2">
-          <Link href="/search" aria-label={tc("search")} className="hidden size-10 min-[360px]:grid place-items-center rounded-xl text-muted transition hover:bg-brand-soft hover:text-brand xl:hidden">
+          <Link href="/search" aria-label={tc("search")} className="hidden size-10 min-[360px]:grid place-items-center rounded-xl text-muted transition hover:bg-brand-soft hover:text-brand-text xl:hidden">
             <FigmaIcon name="search" className="size-5" />
           </Link>
-          <Link href={accountHref} className="hidden min-h-10 items-center justify-center gap-2 rounded-full border border-brand px-4 text-[13px] font-semibold text-brand transition hover:bg-brand hover:text-white sm:flex">
+          <Link href={accountHref} className="hidden min-h-10 items-center justify-center gap-2 rounded-full border border-brand px-4 text-[13px] font-semibold text-brand-text transition hover:bg-brand hover:text-brand-ink sm:flex">
             <FigmaIcon name="user" className="size-4 shrink-0" />
             <span dir={contentDir}>{signedIn ? t("account") : t("login")}</span>
           </Link>

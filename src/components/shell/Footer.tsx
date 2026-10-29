@@ -27,7 +27,7 @@ export async function Footer() {
     <footer className="mt-12 border-t border-line bg-surface">
       <div className="container-page flex flex-col gap-5 py-5 md:flex-row md:items-center md:justify-between md:gap-8">
         <div className="max-w-sm space-y-1.5">
-          <Link href="/" className="inline-flex items-center overflow-hidden rounded-lg bg-[#dc0201]" aria-label="REGA Platform" dir="ltr">
+          <Link href="/" className="inline-flex items-center overflow-hidden rounded-lg bg-logo-surface" aria-label="REGA Platform" dir="ltr">
             <LogoMark className="size-8 rounded-none" />
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/brand/rega-wordmark.webp" alt="" width={640} height={147} decoding="async" className="h-6 w-auto pe-2" />
@@ -59,7 +59,7 @@ export async function Footer() {
       </div>
       {/* Below md the fixed tab bar (BottomNav) sits over the page end: reserve its height here so the footer stays last and uncovered. */}
       <div className="border-t border-line py-3 pb-[calc(4.75rem+env(safe-area-inset-bottom))] text-center text-[11px] text-muted md:pb-3">
-        <span className="me-2 font-bold tracking-wide text-brand">Beta</span>
+        <span className="me-2 font-bold tracking-wide text-brand-text">Beta</span>
         {tf("rights", { year: new Date().getFullYear() })}
       </div>
     </footer>
