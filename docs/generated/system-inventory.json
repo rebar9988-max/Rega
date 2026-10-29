@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-29T06:52:49.965Z",
+  "generatedAt": "2026-10-29T08:48:44.004Z",
   "package": {
     "name": "rega-platform",
     "version": "0.1.0",
@@ -41,6 +41,7 @@
     "database-preflight.yml",
     "db-migrate.yml",
     "deploy.yml",
+    "media-variants-backfill.yml",
     "neon-branch.yml",
     "production-browser.yml",
     "production-health.yml",
@@ -78,6 +79,7 @@
     "RegionTranslation",
     "Report",
     "Review",
+    "SearchQueryDaily",
     "Service",
     "Session",
     "Setting",
@@ -101,7 +103,8 @@
     "20261006112500_refine_sorani_category_names",
     "20261006133000_update_sorani_category_labels",
     "20261020090000_business_whatsapp_offers",
-    "20261022120000_admin_sign_in_codes"
+    "20261022120000_admin_sign_in_codes",
+    "20261029120000_search_query_daily"
   ],
   "locales": [
     "ar",

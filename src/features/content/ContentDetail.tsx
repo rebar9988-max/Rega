@@ -48,7 +48,8 @@ export async function ContentDetail({ section, locale, slug }: { section: Conten
   const paragraphs = (text.body ?? "").split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
 
   const jsonLd = listingJsonLd({
-    section, url, title: text.title, description: text.summary ?? undefined, inLanguage: LOCALE_META[text.locale].htmlLang,
+    // Job postings need the full description in structured data (Google for Jobs); the summary is only a teaser.
+    section, url, title: text.title, description: (section === "jobs" ? text.body ?? text.summary : text.summary) ?? undefined, inLanguage: LOCALE_META[text.locale].htmlLang,
     datePublished: entry.publishedAt, dateModified: entry.updatedAt,
     business: config.showsBusiness && entry.business && businessName ? { name: businessName, url: localizedUrl(locale, `/business/${entry.business.slug}`) } : null,
     city, countryCode: entry.city?.country.code,

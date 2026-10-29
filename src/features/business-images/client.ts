@@ -1,19 +1,47 @@
+import { businessImageId, variantWidthsFor, withVariants } from "./variants";
 export const BUSINESS_IMAGE_ACCEPT =
   "image/jpeg,image/png,image/webp,image/avif,image/gif,image/heic,image/heif,.heic,.heif";
 export const MAX_SOURCE_BYTES = 20 * 1024 * 1024;
-export async function uploadBusinessImage(blob: Blob, businessId?: string) {
-  const res = await fetch(
-    `/api/v1/media/business-image${businessId ? `?businessId=${encodeURIComponent(businessId)}` : ""}`,
-    {
-      method: "POST",
-      headers: { "content-type": blob.type },
-      body: blob,
-    },
-  );
+async function postBusinessImage(blob: Blob, query: string) {
+  const res = await fetch(`/api/v1/media/business-image${query}`, {
+    method: "POST",
+    headers: { "content-type": blob.type },
+    body: blob,
+  });
   const body = await res.json().catch(() => null);
   if (res.status === 503) throw new Error("notConfigured");
   if (!res.ok || !body?.ok) throw new Error("error");
-  return body.data.publicUrl as string;
+  return body.data as { publicUrl: string; width: number };
+}
+/**
+ * Uploads the image, then smaller copies of it for responsive pages (features/business-images/variants.ts). The copies
+ * are a speed-up only: if one cannot be made or stored, the plain URL is returned and the image works as before.
+ */
+export async function uploadBusinessImage(blob: Blob, businessId?: string) {
+  const main = await postBusinessImage(blob, businessId ? `?businessId=${encodeURIComponent(businessId)}` : "");
+  const id = businessImageId(main.publicUrl);
+  const widths = id ? variantWidthsFor(main.width) : [];
+  if (!id || !widths.length || typeof createImageBitmap !== "function") return main.publicUrl;
+  try {
+    const bitmap = await createImageBitmap(blob);
+    try {
+      for (const width of widths) {
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = Math.max(1, Math.round((bitmap.height * width) / bitmap.width));
+        const ctx = canvas.getContext("2d");
+        if (!ctx) throw new Error("canvas");
+        ctx.imageSmoothingQuality = "high";
+        ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+        await postBusinessImage(await canvasBlob(canvas, blob.type), `?variantOf=${id.uuid}&w=${width}`);
+      }
+    } finally {
+      bitmap.close();
+    }
+    return withVariants(main.publicUrl, widths, main.width);
+  } catch {
+    return main.publicUrl;
+  }
 }
 export async function imageFromFile(
   file: File,

@@ -8,6 +8,7 @@ import { Avatar } from "@/components/ui/Avatar";
 import { Stars } from "@/components/ui/Stars";
 import { Text } from "@/components/ui/Bidi";
 import { VerifiedBadge } from "@/components/ui/Badge";
+import { responsiveImage } from "@/features/business-images/variants";
 
 const PIN = "M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z";
 
@@ -32,18 +33,18 @@ export async function BusinessCard({ b, variant = "search" }: { b: BusinessCardD
         {directory ? (
           !b.logoUrl && b.coverUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={b.coverUrl} alt="" width={480} height={320} loading="lazy" decoding="async" className="absolute inset-0 size-full object-contain" />
+            <img {...responsiveImage(b.coverUrl)} sizes="(min-width: 640px) 176px, 104px" alt="" width={480} height={320} loading="lazy" decoding="async" className="absolute inset-0 size-full object-contain" />
           ) : (
             <div className="absolute inset-0 grid place-items-center bg-brand-soft">
               {b.logoUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={b.logoUrl} alt="" width={160} height={160} loading="lazy" decoding="async" className="aspect-square w-4/5 rounded-xl bg-surface object-contain" />
+                <img {...responsiveImage(b.logoUrl)} sizes="(min-width: 640px) 141px, 83px" alt="" width={160} height={160} loading="lazy" decoding="async" className="aspect-square w-4/5 rounded-xl bg-surface object-contain" />
               ) : <Avatar name={name.text} size="size-14" />}
             </div>
           )
         ) : b.coverUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={b.coverUrl} alt="" width={480} height={320} loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover transition-transform duration-300 group-hover:scale-[1.025]" />
+          <img {...responsiveImage(b.coverUrl)} sizes="(min-width: 640px) 176px, 104px" alt="" width={480} height={320} loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover transition-transform duration-300 group-hover:scale-[1.025]" />
         ) : (
           <div className="absolute inset-0 grid place-items-center bg-[radial-gradient(circle_at_30%_20%,var(--surface),var(--brand-soft))]">
             <Avatar name={name.text} src={b.logoUrl} size="size-14" />

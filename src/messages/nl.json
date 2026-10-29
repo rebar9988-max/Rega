@@ -399,7 +399,8 @@
     "pages": "Pagina’s (CMS)",
     "reports": "Meldingen",
     "messages": "Berichten",
-    "reviews": "Recensies"
+    "reviews": "Recensies",
+    "searchAnalytics": "Zoekanalyse"
   },
   "form": {
     "name": "Naam",
@@ -1140,6 +1141,7 @@
     "view": "Bekijken",
     "languagesAny": "Alle",
     "labelCloses": "Getoond tot",
+    "expired": "Verlopen",
     "labelStarts": "Begint",
     "labelEnds": "Eindigt",
     "labelReading": "Leestijd"
@@ -1247,5 +1249,20 @@
     "moveLater": "Naar achteren",
     "galleryHint": "Eén omslagafbeelding en maximaal 3 andere afbeeldingen. De volgorde wordt op de profielpagina gebruikt.",
     "overLimit": "Deze vermelding heeft al meer dan 3 afbeeldingen. Ze blijven allemaal bewaard; nieuwe afbeeldingen kunnen worden toegevoegd zodra er minder dan 3 over zijn."
+  },
+  "searchAnalytics": {
+    "title": "Zoekanalyse",
+    "intro": "Waar bezoekers naar zoeken en wat ze niet vinden. Alleen dagelijkse tellingen per genormaliseerde zoektekst worden opgeslagen: geen account, IP-adres, apparaat of cookie; teksten die persoonlijk lijken (e-mail, webadres, lange nummers) worden nooit opgeslagen.",
+    "last7": "Afgelopen 7 dagen",
+    "last30": "Afgelopen 30 dagen",
+    "searches": "Zoekopdrachten",
+    "zero": "Zonder resultaat",
+    "zeroRate": "Aandeel zonder resultaat",
+    "top": "Meest gezocht",
+    "missing": "Gezocht maar niet gevonden",
+    "perDay": "Per dag",
+    "query": "Zoektekst",
+    "day": "Dag",
+    "empty": "In deze periode zijn nog geen zoekopdrachten geregistreerd."
   }
 }

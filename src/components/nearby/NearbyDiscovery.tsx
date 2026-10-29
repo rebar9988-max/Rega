@@ -21,6 +21,7 @@ import { Ltr, Text } from "@/components/ui/Bidi";
 import { Rating } from "@/components/ui/Rating";
 import { VerifiedBadge } from "@/components/ui/Badge";
 import { Avatar } from "@/components/ui/Avatar";
+import { DEFAULT_MAP_STYLE_URL, mapStyleUrl } from "@/lib/map-config";
 import type { MapLabels } from "@/components/map/DiscoveryMap";
 
 const DiscoveryMap = dynamic(() => import("@/components/map/DiscoveryMap").then((m) => m.DiscoveryMap), {
@@ -62,6 +63,19 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);
   const [view, setView] = useState<"list" | "map">("list");
+  // Before a location is known the page shows a still picture of the start map (public/maps); the live map replaces it
+  // at the visitor's first interaction (or at once with a custom map style, which the picture would not match).
+  const [liveIntroMap, setLiveIntroMap] = useState(() => mapStyleUrl() !== DEFAULT_MAP_STYLE_URL);
+  useEffect(() => {
+    if (liveIntroMap) return;
+    const events = ["pointerdown", "pointermove", "keydown", "touchstart", "wheel", "scroll"] as const;
+    const start = () => {
+      events.forEach((e) => window.removeEventListener(e, start));
+      setLiveIntroMap(true);
+    };
+    events.forEach((e) => window.addEventListener(e, start, { passive: true }));
+    return () => events.forEach((e) => window.removeEventListener(e, start));
+  }, [liveIntroMap]);
   const [mapItems, setMapItems] = useState<Item[] | null>(null);
   const [mapShown, setMapShown] = useState(LIST_PAGE);
   const [selected, setSelected] = useState<string | null>(null);
@@ -244,7 +258,15 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
               <p className="mt-5 text-xs leading-5 text-muted">{t("privacy")}</p>
             </div>
             <div className="order-1 h-[42dvh] min-h-[20rem] border-b border-line lg:order-2 lg:h-[34rem] lg:border-b-0 lg:border-s">
-              <DiscoveryMap
+              {!liveIntroMap ? (
+                // Same view as the live map below (style, centre, zoom and radius), as a still picture: MapLibre is
+                // only loaded once the visitor interacts with the page, so a first visit does not pay for it.
+                <div className="relative isolate size-full overflow-hidden rounded-[var(--radius-card)] border border-line bg-surface-2 shadow-card" data-testid="discovery-map" data-status="preview">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/maps/nearby-intro-de@1x.webp" srcSet="/maps/nearby-intro-de@1x.webp 1x, /maps/nearby-intro-de@2x.webp 2x" alt="" width={800} height={560}
+                    decoding="async" fetchPriority="low" className="absolute left-1/2 top-1/2 h-[560px] w-[800px] max-w-none -translate-x-1/2 -translate-y-1/2" />
+                </div>
+              ) : <DiscoveryMap
                 className="size-full"
                 center={germany}
                 radiusKm={250}
@@ -255,7 +277,7 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
                 user={null}
                 labels={labels}
                 dir={dir}
-              />
+              />}
             </div>
           </div>
         </div>

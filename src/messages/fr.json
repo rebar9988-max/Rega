@@ -399,7 +399,8 @@
     "pages": "Pages (CMS)",
     "reports": "Signalements",
     "messages": "Messages",
-    "reviews": "Avis"
+    "reviews": "Avis",
+    "searchAnalytics": "Analyse des recherches"
   },
   "form": {
     "name": "Nom",
@@ -1140,6 +1141,7 @@
     "view": "Voir",
     "languagesAny": "Toutes",
     "labelCloses": "Affiché jusqu’au",
+    "expired": "Expirée",
     "labelStarts": "Début",
     "labelEnds": "Fin",
     "labelReading": "Temps de lecture"
@@ -1247,5 +1249,20 @@
     "moveLater": "Déplacer après",
     "galleryHint": "Une image de couverture et jusqu’à 3 autres images. L’ordre est utilisé sur la page de profil.",
     "overLimit": "Cette annonce a déjà plus de 3 images. Toutes sont conservées ; de nouvelles images pourront être ajoutées quand il en restera moins de 3."
+  },
+  "searchAnalytics": {
+    "title": "Analyse des recherches",
+    "intro": "Ce que les visiteurs recherchent et ce qu’ils ne trouvent pas. Seuls des comptages quotidiens par texte de recherche normalisé sont enregistrés : aucun compte, aucune adresse IP, aucun appareil ni cookie ; les textes qui semblent personnels (e-mail, adresse web, longs numéros) ne sont jamais enregistrés.",
+    "last7": "7 derniers jours",
+    "last30": "30 derniers jours",
+    "searches": "Recherches",
+    "zero": "Sans résultat",
+    "zeroRate": "Part sans résultat",
+    "top": "Les plus recherchés",
+    "missing": "Recherchés mais non trouvés",
+    "perDay": "Par jour",
+    "query": "Texte recherché",
+    "day": "Jour",
+    "empty": "Aucune recherche enregistrée sur cette période pour l’instant."
   }
 }

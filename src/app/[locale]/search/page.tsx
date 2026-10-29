@@ -13,6 +13,10 @@ import { formatNumber, type Locale } from "@/i18n/locales";
 import { searchAll } from "@/lib/data";
 import { parseParams, searchShape } from "@/lib/data/params";
 import { sectionsFor } from "@/config/sections";
+import { after } from "next/server";
+import { headers } from "next/headers";
+import { getBotType } from "next/dist/shared/lib/router/utils/is-bot";
+import { recordSearch } from "@/lib/search-analytics";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -27,6 +31,15 @@ export default async function SearchPage({ params, searchParams }: { params: Pro
   const t = await getTranslations();
   const res = await searchAll({ q: q ?? "", type, page });
   const totals = { businesses: res.businesses.total, services: res.services.total, locations: res.locations.total };
+  // Search analytics (lib/search-analytics.ts): a person's own search, counted once (first page, all types), after the
+  // response is sent; bots, prefetches and later pages are not counted.
+  if (q && q.length >= 2 && page === 1 && type === "all") {
+    const h = await headers();
+    if (!getBotType(h.get("user-agent") ?? "") && !h.get("next-router-prefetch") && h.get("purpose") !== "prefetch") {
+      const total = totals.businesses + totals.services + totals.locations;
+      after(() => recordSearch({ q, locale, total }));
+    }
+  }
   // Tabs follow the section registry (sections flagged `search`); a section without a tab here is simply not offered.
   const searchable = new Set(sectionsFor("search").map((s) => s.key));
   // An "open now" search lists businesses only (opening hours belong to businesses).

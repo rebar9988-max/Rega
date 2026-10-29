@@ -140,6 +140,7 @@ test("every production-changing workflow runs the guard BEFORE its first product
     [".github/workflows/db-migrate.yml", /run: npx prisma migrate deploy/],
     [".github/workflows/worker-secrets-sync.yml", /wrangler secret bulk/],
     [".github/workflows/ai-python-deploy.yml", /run: uv run pywrangler deploy/],
+    [".github/workflows/media-variants-backfill.yml", /run: npx tsx scripts\/backfill-image-variants\.ts/],
   ];
   for (const [file, production] of targets) {
     const wf = read(file);

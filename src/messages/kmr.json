@@ -399,7 +399,8 @@
     "pages": "Rûpelên statîk",
     "reports": "Raporan",
     "messages": "Peyam",
-    "reviews": "Nirxandin"
+    "reviews": "Nirxandin",
+    "searchAnalytics": "Analîza lêgerînê"
   },
   "form": {
     "name": "Nav",
@@ -1140,6 +1141,7 @@
     "view": "Bibîne",
     "languagesAny": "Her ziman",
     "labelCloses": "Tê nîşandan heta",
+    "expired": "Qediya",
     "labelStarts": "Dest pê dike",
     "labelEnds": "Dawî",
     "labelReading": "Dema xwendinê"
@@ -1247,5 +1249,20 @@
     "moveLater": "Paşê",
     "galleryHint": "Wêneyê sereke (berg) û heta 3 wêneyên din. Rêz li ser rûpela karsaziyê tê nîşandan.",
     "overLimit": "Ev karsazî ji berê ve ji 3 wêneyan zêdetir heye. Hemû hatine parastin; wêneyekî nû dema ku ji 3 kêmtir bimînin tê zêdekirin."
+  },
+  "searchAnalytics": {
+    "title": "Analîza lêgerînê",
+    "intro": "Mêvan li çi digerin û çi nabînin. Tenê hejmarên rojane yên her nivîsa lêgerînê ya normalîzekirî tên tomarkirin: ne hesab, ne navnîşana IP, ne cîhaz, ne jî cookie; nivîsên ku kesane xuya dikin (e-name, navnîşana malperê, hejmarên dirêj) qet nayên tomarkirin.",
+    "last7": "7 rojên dawî",
+    "last30": "30 rojên dawî",
+    "searches": "Lêgerîn",
+    "zero": "Bê encam",
+    "zeroRate": "Rêjeya bê encam",
+    "top": "Herî zêde hatine lêgerîn",
+    "missing": "Hatine lêgerîn lê nehatine dîtin",
+    "perDay": "Li gorî rojê",
+    "query": "Nivîsa lêgerînê",
+    "day": "Roj",
+    "empty": "Di vê demê de hîn ti lêgerîn nehatiye tomarkirin."
   }
 }

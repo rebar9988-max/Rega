@@ -399,7 +399,8 @@
     "pages": "Sidor (CMS)",
     "reports": "Anmälningar",
     "messages": "Meddelanden",
-    "reviews": "Omdömen"
+    "reviews": "Omdömen",
+    "searchAnalytics": "Sökanalys"
   },
   "form": {
     "name": "Namn",
@@ -1140,6 +1141,7 @@
     "view": "Visa",
     "languagesAny": "Alla",
     "labelCloses": "Visas till",
+    "expired": "Utgången",
     "labelStarts": "Börjar",
     "labelEnds": "Slutar",
     "labelReading": "Lästid"
@@ -1247,5 +1249,20 @@
     "moveLater": "Flytta senare",
     "galleryHint": "En omslagsbild och upp till 3 bilder till. Ordningen används på profilsidan.",
     "overLimit": "Den här annonsen har redan fler än 3 bilder. Alla sparas; nya bilder kan läggas till när färre än 3 återstår."
+  },
+  "searchAnalytics": {
+    "title": "Sökanalys",
+    "intro": "Vad besökare söker efter och vad de inte hittar. Endast dagliga antal per normaliserad söktext sparas: inget konto, ingen IP-adress, ingen enhet eller cookie; texter som verkar personliga (e-post, webbadress, långa nummer) sparas aldrig.",
+    "last7": "Senaste 7 dagarna",
+    "last30": "Senaste 30 dagarna",
+    "searches": "Sökningar",
+    "zero": "Utan resultat",
+    "zeroRate": "Andel utan resultat",
+    "top": "Mest sökta",
+    "missing": "Sökt men inte hittat",
+    "perDay": "Per dag",
+    "query": "Söktext",
+    "day": "Dag",
+    "empty": "Inga sökningar har registrerats under perioden än."
   }
 }

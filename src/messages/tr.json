@@ -399,7 +399,8 @@
     "pages": "Sayfalar (CMS)",
     "reports": "Bildirimler",
     "messages": "Mesajlar",
-    "reviews": "Değerlendirmeler"
+    "reviews": "Değerlendirmeler",
+    "searchAnalytics": "Arama analizi"
   },
   "form": {
     "name": "Ad",
@@ -1140,6 +1141,7 @@
     "view": "Görüntüle",
     "languagesAny": "Herhangi",
     "labelCloses": "Şu tarihe kadar gösterilir",
+    "expired": "Süresi doldu",
     "labelStarts": "Başlangıç",
     "labelEnds": "Bitiş",
     "labelReading": "Okuma süresi"
@@ -1247,5 +1249,20 @@
     "moveLater": "Geriye al",
     "galleryHint": "Bir kapak görseli ve en fazla 3 ek görsel. Sıra profil sayfasında kullanılır.",
     "overLimit": "Bu kayıtta zaten 3'ten fazla görsel var. Hepsi korunur; 3'ten az kaldığında yeni görsel eklenebilir."
+  },
+  "searchAnalytics": {
+    "title": "Arama analizi",
+    "intro": "Ziyaretçilerin ne aradığı ve neyi bulamadığı. Yalnızca normalleştirilmiş her arama metni için günlük sayılar saklanır: hesap, IP adresi, cihaz veya çerez yok; kişisel görünen metinler (e-posta, web adresi, uzun numaralar) asla kaydedilmez.",
+    "last7": "Son 7 gün",
+    "last30": "Son 30 gün",
+    "searches": "Aramalar",
+    "zero": "Sonuçsuz",
+    "zeroRate": "Sonuçsuz oranı",
+    "top": "En çok arananlar",
+    "missing": "Aranan ama bulunamayanlar",
+    "perDay": "Güne göre",
+    "query": "Arama metni",
+    "day": "Gün",
+    "empty": "Bu dönemde henüz arama kaydedilmedi."
   }
 }

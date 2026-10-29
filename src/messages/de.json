@@ -399,7 +399,8 @@
     "pages": "Seiten (CMS)",
     "reports": "Meldungen",
     "messages": "Nachrichten",
-    "reviews": "Bewertungen"
+    "reviews": "Bewertungen",
+    "searchAnalytics": "Suchanalyse"
   },
   "form": {
     "name": "Name",
@@ -1140,6 +1141,7 @@
     "view": "Ansehen",
     "languagesAny": "Beliebig",
     "labelCloses": "Angezeigt bis",
+    "expired": "Abgelaufen",
     "labelStarts": "Beginn",
     "labelEnds": "Ende",
     "labelReading": "Lesezeit"
@@ -1247,5 +1249,20 @@
     "moveLater": "Nach hinten",
     "galleryHint": "Ein Titelbild und bis zu 3 weitere Bilder. Die Reihenfolge gilt auch auf der Profilseite.",
     "overLimit": "Dieser Eintrag hat bereits mehr als 3 Bilder. Alle bleiben erhalten; neue Bilder lassen sich hinzufügen, sobald weniger als 3 übrig sind."
+  },
+  "searchAnalytics": {
+    "title": "Suchanalyse",
+    "intro": "Wonach Besucher suchen und was sie nicht finden. Gespeichert werden nur tägliche Zählungen je normalisiertem Suchtext: kein Konto, keine IP-Adresse, kein Gerät, kein Cookie; Texte, die persönlich wirken (E-Mail, Webadresse, lange Nummern), werden nie gespeichert.",
+    "last7": "Letzte 7 Tage",
+    "last30": "Letzte 30 Tage",
+    "searches": "Suchen",
+    "zero": "Ohne Ergebnis",
+    "zeroRate": "Anteil ohne Ergebnis",
+    "top": "Häufigste Suchen",
+    "missing": "Gesucht, aber nicht gefunden",
+    "perDay": "Pro Tag",
+    "query": "Suchtext",
+    "day": "Tag",
+    "empty": "In diesem Zeitraum wurden noch keine Suchen erfasst."
   }
 }
