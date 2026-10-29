@@ -735,6 +735,30 @@
       "morePhotos": "Fler reklambilder",
       "uploading": "Laddar upp…",
       "dropHere": "eller dra en bild hit"
+    },
+    "features": {
+      "title": "Kategoridetaljer",
+      "hint": "Markera det som gäller ditt företag. Allt är valfritt.",
+      "items": {
+        "wheelchair": "Rullstolsanpassat",
+        "parking": "Parkering",
+        "cardPayment": "Kortbetalning",
+        "delivery": "Leverans",
+        "takeaway": "Avhämtning",
+        "halal": "Halal",
+        "vegetarian": "Vegetariska alternativ",
+        "outdoorSeating": "Uteservering",
+        "appointment": "Tidsbokning",
+        "homeVisits": "Hembesök",
+        "walkIns": "Drop-in",
+        "repairService": "Reparationer",
+        "onlineLessons": "Lektioner online",
+        "freeConsultation": "Gratis första konsultation",
+        "onlineAppointments": "Möten online",
+        "freeQuote": "Gratis offert",
+        "serviceAtCustomer": "Service hos kunden",
+        "onlineBooking": "Bokning online"
+      }
     }
   },
   "contact": {

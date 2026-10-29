@@ -962,3 +962,36 @@ Remaining corrective actions, each needs an owner decision:
 3. Services: a `NoResults` block with the skeleton's height, or a shorter skeleton (visual change).
 4. Framework JS (~51 KB unused, ~12 KB legacy polyfills) and bf-cache blocked by deliberate `no-store` are not changed.
 Next safe continuation point (owner order): Jobs launch → search analytics; or one of the corrective actions above.
+
+## Business registration & editing upgrade — 2026-10-29 (branch `claude/rega24-business-form-6ie7x9`)
+
+Owner brief "REGA24 — premium business registration & editing" + global requirement "one shared form for all permitted
+categories with optional category-specific fields". Identity guard OK (REGA) before work.
+
+Audit (existing, reused): one `BusinessForm` (/dr/businesses/new and /[id]) for every category; owners = wizard, staff
+(business.publish) = single page; server action `saveBusinessAction` → `saveBusiness` (zod `businessFormSchema`); drafts,
+duplicate-create guard, moderation (draft → pending → staff publish) unchanged. Images: logoUrl, coverUrl, photos[]
+(R2 via /api/v1/media/business-image). Hours: `Location.openingHours` text format (lib/opening-hours.ts). No social columns existed.
+
+Changes:
+- Wizard 3 → 5 steps (basics, contact + social, location, hours, photos & review); completed steps reachable; Back keeps data.
+- E-mail, website, phone, WhatsApp and Facebook/Instagram/TikTok/Snapchat all optional. `src/lib/social-links.ts`: website
+  gets https when typed without scheme; social links only on the platform's own hosts (exact match), no credentials/port/
+  redirect scripts, stored canonical; profile shows only valid saved links (`rel=noopener noreferrer nofollow`).
+- Opening hours editor (`OpeningHoursEditor`, `src/lib/hours-form.ts`): switch per day, time pickers, split shifts,
+  overnight, 24 h, copy Monday to all / to weekdays; writes the unchanged stored format. No hours → still "unknown".
+- Images: logo + 3 promotional photos (promo 1 = cover/hero, promos 2–3 = `photos`). `GALLERY_PHOTOS` 3 → 2 for new
+  additions; older listings keep every stored photo and may replace without growing. Localized upload cards, drag & drop.
+- Location: coordinates under "advanced" for owners (open for staff); confirmation banner.
+- Category details (`src/config/business-features.ts`): universal (wheelchair, parking, card payment) + per top-level
+  category; sub-categories and future categories inherit (unknown → universal only). Stored as `feature:<id>` in the
+  existing `Business.tags`; other tags kept; server drops ids the category does not offer. Shown as chips on the profile.
+- DB: ADDITIVE migration — 4 nullable TEXT columns on Business (`facebookUrl`, `instagramUrl`, `tiktokUrl`, `snapchatUrl`):
+  PostgreSQL `20261029120000_business_social_links`, D1 `0004_business_social_links.sql`. Health now requires 0004.
+  Production D1 must have 0004 applied BEFORE the merge deploys (new code reads the columns).
+
+Tests (local, this container): lint, typecheck, `npm test` 389 pass / 0 fail / 4 DB-only skips (new: social-links,
+business-features), `npm run test:d1` 10/10, verify-d1-schema PASS; Playwright on disposable D1, Chromium desktop + Pixel 5:
+full suite 412/412 before the category-details addition, then 42/42 affected specs after it. Not run locally: WebKit
+(iPhone project — browser not installed here; CI runs it), PostgreSQL e2e (CI), Lighthouse.
+Next safe continuation point: PR CI green → apply D1 0004 to production (additive) → merge → verify live.

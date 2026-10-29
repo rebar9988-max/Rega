@@ -735,6 +735,30 @@
       "morePhotos": "Meer promotiefoto's",
       "uploading": "Uploaden…",
       "dropHere": "of sleep een foto hierheen"
+    },
+    "features": {
+      "title": "Categoriedetails",
+      "hint": "Vink aan wat op uw bedrijf van toepassing is. Alles is optioneel.",
+      "items": {
+        "wheelchair": "Rolstoeltoegankelijk",
+        "parking": "Parkeren",
+        "cardPayment": "Pinbetaling",
+        "delivery": "Bezorging",
+        "takeaway": "Afhalen",
+        "halal": "Halal",
+        "vegetarian": "Vegetarische opties",
+        "outdoorSeating": "Terras",
+        "appointment": "Op afspraak",
+        "homeVisits": "Huisbezoeken",
+        "walkIns": "Zonder afspraak",
+        "repairService": "Reparatieservice",
+        "onlineLessons": "Online lessen",
+        "freeConsultation": "Gratis eerste consult",
+        "onlineAppointments": "Online afspraken",
+        "freeQuote": "Gratis offerte",
+        "serviceAtCustomer": "Service op locatie",
+        "onlineBooking": "Online boeken"
+      }
     }
   },
   "contact": {

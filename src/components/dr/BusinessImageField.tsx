@@ -100,7 +100,7 @@ export function BusinessImageField({
   }
   const working = busy || decoding;
   return (
-    <div className="min-w-0 space-y-2" data-testid={`business-image-${name}`}>
+    <div className={`min-w-0 space-y-2 ${logo ? "max-w-44" : ""}`} data-testid={`business-image-${name}`}>
       <label htmlFor={id} className="block text-sm font-semibold">
         {label}
       </label>

@@ -13,6 +13,7 @@ import { FigmaIcon } from "@/components/home/FigmaIcon";
 import { directionsUrl, mapLinks, safeHttpUrl, safeTel } from "@/lib/urls";
 import { whatsappLink } from "@/lib/whatsapp";
 import { socialLinks } from "@/lib/social-links";
+import { featuresFromTags } from "@/config/business-features";
 import { SOCIAL_ICONS, SocialIcon } from "@/components/business/SocialIcon";
 import { offerTimezone } from "@/lib/offers";
 import { OfferList } from "@/components/business/OfferList";
@@ -75,6 +76,8 @@ export default async function BusinessPage({ params }: Props) {
   const categoryName = category ? localize({ ...category, name: category.nameDe }, "name", l) : null;
   const primaryCity = b.locations[0]?.city ? localize({ ...b.locations[0].city, name: b.locations[0].city.nameEn }, "name", l) : null;
   const langs = languageNames(b.languages);
+  // Optional category details the business ticked (config/business-features.ts); none -> nothing is shown.
+  const features = featuresFromTags(b.tags);
   // One location button for the whole page: the primary location (else the first) in the device's map app.
   const placeAddress = (loc: (typeof b.locations)[number]) => [loc.addressLine1, loc.addressLine2, [loc.postalCode, loc.city?.nameEn].filter(Boolean).join(" ")]
     .map((part) => (part ?? "").replace(/[\s,]+$/, "")).filter(Boolean).join(", ");
@@ -193,7 +196,7 @@ export default async function BusinessPage({ params }: Props) {
               <ShareButton url={pageUrl} title={name.text} label={t("businesses.share")} copiedLabel={t("businesses.linkCopied")} className={actionClass("share")} />
             </div>
 
-            {(mainAddress || mainHours || langs.length > 0) && (
+            {(mainAddress || mainHours || langs.length > 0 || features.length > 0) && (
               <ul className="mt-4 grid grid-cols-1 gap-2 min-[380px]:grid-cols-2 lg:max-w-2xl" data-testid="business-facts">
                 {mainAddress && (
                   <li className="flex min-h-14 items-center gap-3 rounded-xl border border-line bg-surface px-3 py-2 min-[380px]:col-span-2">
@@ -226,6 +229,15 @@ export default async function BusinessPage({ params }: Props) {
                     <span className="min-w-0">
                       <span className="block text-sm font-semibold">{t("bizForm.languagesSpoken")}</span>
                       <span className="block text-xs text-muted" data-testid="business-languages">{langs.join(" · ")}</span>
+                    </span>
+                  </li>
+                )}
+                {features.length > 0 && (
+                  <li className="flex min-h-14 items-center gap-3 rounded-xl border border-line bg-surface px-3 py-2 min-[380px]:col-span-2">
+                    <FigmaIcon name="sparkles" className="size-5 shrink-0 text-brand" />
+                    <span className="min-w-0">
+                      <span className="block text-sm font-semibold">{t("bizForm.features.title")}</span>
+                      <span className="mt-1 flex flex-wrap gap-1.5" data-testid="business-features">{features.map((f) => <Chip key={f}>{t(`bizForm.features.items.${f}`)}</Chip>)}</span>
                     </span>
                   </li>
                 )}

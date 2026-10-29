@@ -735,6 +735,30 @@
       "morePhotos": "Weitere Werbebilder",
       "uploading": "Wird hochgeladen…",
       "dropHere": "oder Bild hierher ziehen"
+    },
+    "features": {
+      "title": "Details zur Kategorie",
+      "hint": "Wählen Sie, was auf Ihr Unternehmen zutrifft. Alles optional.",
+      "items": {
+        "wheelchair": "Rollstuhlgerecht",
+        "parking": "Parkplätze",
+        "cardPayment": "Kartenzahlung",
+        "delivery": "Lieferung",
+        "takeaway": "Zum Mitnehmen",
+        "halal": "Halal",
+        "vegetarian": "Vegetarische Gerichte",
+        "outdoorSeating": "Außenbereich",
+        "appointment": "Termin nach Vereinbarung",
+        "homeVisits": "Hausbesuche",
+        "walkIns": "Ohne Termin",
+        "repairService": "Reparaturservice",
+        "onlineLessons": "Online-Unterricht",
+        "freeConsultation": "Kostenlose Erstberatung",
+        "onlineAppointments": "Online-Termine",
+        "freeQuote": "Kostenloser Kostenvoranschlag",
+        "serviceAtCustomer": "Service beim Kunden vor Ort",
+        "onlineBooking": "Online-Buchung"
+      }
     }
   },
   "contact": {

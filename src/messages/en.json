@@ -735,6 +735,30 @@
       "morePhotos": "More promotional photos",
       "uploading": "Uploading…",
       "dropHere": "or drag a photo here"
+    },
+    "features": {
+      "title": "Category details",
+      "hint": "Tick what applies to your business. All optional.",
+      "items": {
+        "wheelchair": "Wheelchair accessible",
+        "parking": "Parking",
+        "cardPayment": "Card payment",
+        "delivery": "Delivery",
+        "takeaway": "Takeaway",
+        "halal": "Halal",
+        "vegetarian": "Vegetarian options",
+        "outdoorSeating": "Outdoor seating",
+        "appointment": "By appointment",
+        "homeVisits": "Home visits",
+        "walkIns": "Walk-ins welcome",
+        "repairService": "Repair service",
+        "onlineLessons": "Online lessons",
+        "freeConsultation": "Free first consultation",
+        "onlineAppointments": "Online appointments",
+        "freeQuote": "Free quote",
+        "serviceAtCustomer": "Service at your location",
+        "onlineBooking": "Online booking"
+      }
     }
   },
   "contact": {

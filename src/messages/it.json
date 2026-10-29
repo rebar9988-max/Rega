@@ -735,6 +735,30 @@
       "morePhotos": "Altre foto promozionali",
       "uploading": "Caricamento…",
       "dropHere": "o trascina qui una foto"
+    },
+    "features": {
+      "title": "Dettagli della categoria",
+      "hint": "Seleziona ciò che vale per la tua attività. Tutto facoltativo.",
+      "items": {
+        "wheelchair": "Accessibile in sedia a rotelle",
+        "parking": "Parcheggio",
+        "cardPayment": "Pagamento con carta",
+        "delivery": "Consegna",
+        "takeaway": "Da asporto",
+        "halal": "Halal",
+        "vegetarian": "Opzioni vegetariane",
+        "outdoorSeating": "Posti all'aperto",
+        "appointment": "Su appuntamento",
+        "homeVisits": "Visite a domicilio",
+        "walkIns": "Senza appuntamento",
+        "repairService": "Servizio riparazioni",
+        "onlineLessons": "Lezioni online",
+        "freeConsultation": "Prima consulenza gratuita",
+        "onlineAppointments": "Appuntamenti online",
+        "freeQuote": "Preventivo gratuito",
+        "serviceAtCustomer": "Servizio a domicilio",
+        "onlineBooking": "Prenotazione online"
+      }
     }
   },
   "contact": {

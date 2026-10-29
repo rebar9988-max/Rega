@@ -17,6 +17,7 @@ import { BUSINESS_CATEGORY, lockBusiness, publicationSelect, businessReadiness }
 import { PUBLIC_BUSINESS } from "@/lib/search-where";
 import { ownsBusinessImages } from "@/lib/business-media";
 import { normalizeWhatsapp } from "@/lib/whatsapp";
+import { mergeFeatureTags, rootCategoryKey } from "@/config/business-features";
 import { SOCIAL_FIELD, SOCIAL_PLATFORMS, normalizeSocialUrl, normalizeWebsite } from "@/lib/social-links";
 
 /** ISO 3166-1 alpha-2 codes offered in the form (plus any country already in the database). */
@@ -52,6 +53,8 @@ export const businessFormSchema = z.object({
   descriptionTr: optionalText(8000),
   descriptionEn: optionalText(8000),
   descriptionFa: optionalText(8000),
+  /** Optional category-specific details (config/business-features.ts); ids the category does not offer are dropped on save. */
+  features: z.array(z.string().trim().max(40)).max(40).default([]),
   /** Languages spoken at the business. */
   languages: z.array(z.enum(LOCALES)).max(LOCALES.length).default([]),
   phone: optionalText(50),
@@ -214,6 +217,9 @@ async function save(input: BusinessForm, actor: { id: string }, { canPublish, ca
     const cityCreated = resolved?.created ?? false;
     const whatsapp = input.whatsapp ? normalizeWhatsapp(input.whatsapp, input.countryCode) : null;
     const website = normalizeWebsite(input.website);
+    // Category details live in the existing tags as "feature:<id>"; tags that are not features are kept as they were.
+    const categoryTree = await tx.category.findMany({ where: { sectionKey: "businesses" }, select: { id: true, key: true, parentId: true } });
+    const tags = mergeFeatureTags(before?.tags, input.features, rootCategoryKey(input.categoryId, categoryTree));
     const social = Object.fromEntries(SOCIAL_PLATFORMS.map((platform) => {
       const r = normalizeSocialUrl(platform, input[SOCIAL_FIELD[platform]]);
       return [SOCIAL_FIELD[platform], r.ok ? r.value : null];
@@ -225,7 +231,7 @@ async function save(input: BusinessForm, actor: { id: string }, { canPublish, ca
       descriptionDe: input.descriptionDe ?? null, descriptionAr: input.descriptionAr ?? null, descriptionTr: input.descriptionTr ?? null,
       languages: input.languages,
       phone: input.phone ?? null, whatsapp: whatsapp?.ok ? whatsapp.value : null, email: input.email ?? null, website: website.ok ? website.value : null,
-      ...social,
+      ...social, tags,
       logoUrl: input.logoUrl ?? null, coverUrl: input.coverUrl ?? null, photos,
     };
     let business;

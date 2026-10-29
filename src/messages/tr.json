@@ -735,6 +735,30 @@
       "morePhotos": "Diğer tanıtım fotoğrafları",
       "uploading": "Yükleniyor…",
       "dropHere": "veya fotoğrafı buraya sürükleyin"
+    },
+    "features": {
+      "title": "Kategori ayrıntıları",
+      "hint": "İşletmeniz için geçerli olanları seçin. Hepsi isteğe bağlı.",
+      "items": {
+        "wheelchair": "Tekerlekli sandalyeye uygun",
+        "parking": "Otopark",
+        "cardPayment": "Kartla ödeme",
+        "delivery": "Teslimat",
+        "takeaway": "Paket servis",
+        "halal": "Helal",
+        "vegetarian": "Vejetaryen seçenekler",
+        "outdoorSeating": "Açık hava oturma",
+        "appointment": "Randevu ile",
+        "homeVisits": "Ev ziyareti",
+        "walkIns": "Randevusuz",
+        "repairService": "Tamir hizmeti",
+        "onlineLessons": "Online dersler",
+        "freeConsultation": "Ücretsiz ilk danışma",
+        "onlineAppointments": "Online randevu",
+        "freeQuote": "Ücretsiz fiyat teklifi",
+        "serviceAtCustomer": "Yerinde hizmet",
+        "onlineBooking": "Online rezervasyon"
+      }
     }
   },
   "contact": {

@@ -700,10 +700,10 @@
     "titleMedia": "Logo û wêne",
     "locationHint": "Navnîşanê binivîse, cih bibîne û li ser nexşeyê piştrast bike.",
     "sameAsPhone": "Wek telefonê",
-    "emailInvalid": "E-nameyeke derbasdar binivîse, wek name@example.com",
-    "websiteInvalid": "Navnîşaneke malperê ya derbasdar binivîse, wek example.com",
+    "emailInvalid": "E-nameyeke derbasdar binivîse, wek ⁦name@example.com⁩",
+    "websiteInvalid": "Navnîşaneke malperê ya derbasdar binivîse, wek ⁦example.com⁩",
     "socialHint": "Hemû bijarte ne. Tenê platformên ku tu bi kar tînî lê zêde bike: girêdana profîlê an ‎@nav.",
-    "socialInvalid": "Girêdaneke profîla {platform} ya derbasdar (https://…) an ‎@nav binivîse.",
+    "socialInvalid": "Girêdaneke profîla {platform} ya derbasdar (⁦https://…⁩) an ‎@nav binivîse.",
     "socialClear": "{platform} jê bibe",
     "pinConfirmedTitle": "Cih bi serkeftî hate destnîşankirin",
     "pinConfirmedText": "Ev navnîşan li ser nexşeyê hatiye piştrastkirin.",
@@ -735,6 +735,30 @@
       "morePhotos": "Wêneyên din ên reklamê",
       "uploading": "Tê barkirin…",
       "dropHere": "An wêneyê bikişîne vir"
+    },
+    "features": {
+      "title": "Hûrguliyên kategoriyê",
+      "hint": "Yên ku ji bo karsaziya te rast in hilbijêre. Hemû bijarte ne.",
+      "items": {
+        "wheelchair": "Ji bo kursiya bi teker guncav",
+        "parking": "Parkkirin",
+        "cardPayment": "Dayîna bi kartê",
+        "delivery": "Gihandin",
+        "takeaway": "Bi xwe re birin",
+        "halal": "Helal",
+        "vegetarian": "Xwarina nebatî",
+        "outdoorSeating": "Rûniştina li derve",
+        "appointment": "Bi randevû",
+        "homeVisits": "Serdana malê",
+        "walkIns": "Bê randevû",
+        "repairService": "Tamîr",
+        "onlineLessons": "Dersên serhêl",
+        "freeConsultation": "Şêwira yekem belaş",
+        "onlineAppointments": "Randevûyên serhêl",
+        "freeQuote": "Bihayê belaş",
+        "serviceAtCustomer": "Xizmet li cihê xerîdar",
+        "onlineBooking": "Rezervasyona serhêl"
+      }
     }
   },
   "contact": {

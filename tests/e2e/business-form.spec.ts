@@ -123,6 +123,36 @@ test("opening hours: closed day, split and overnight hours are stored in the exi
   await expect(page.getByTestId("opening-hours")).toContainText("20:00–02:00");
 });
 
+test("category details: the same form offers each category its own optional details; only offered ones are saved and shown", async ({ page }, info) => {
+  await login(page);
+  const name = `E2E Details ${info.project.name} ${stamp}`;
+  await basics(page, name, { street: "Am Markt 9", city: "Bremen", lat: "53.0765", lng: "8.8079" });
+  // Legal offers consultations, not delivery; every category offers the universal details.
+  const box = page.getByTestId("category-features");
+  await expect(box.getByTestId("feature-freeConsultation")).toBeVisible();
+  await expect(box.getByTestId("feature-wheelchair")).toBeVisible();
+  await expect(box.getByTestId("feature-delivery")).toHaveCount(0);
+  await box.getByTestId("feature-wheelchair").check();
+  await box.getByTestId("feature-freeConsultation").check();
+  // Switching category keeps the shared choice and offers that category's own details.
+  await page.getByRole("combobox", { name: "Kategorie", exact: true }).selectOption({ label: "Gastronomie" });
+  await expect(box.getByTestId("feature-delivery")).toBeVisible();
+  await expect(box.getByTestId("feature-wheelchair")).toBeChecked();
+  await box.getByTestId("feature-halal").check();
+  await page.getByRole("button", { name: "Speichern und veröffentlichen" }).click();
+  await expect(page.getByTestId("business-status")).toHaveText("Veröffentlicht");
+  await expect(page.getByTestId("feature-halal")).toBeChecked();
+  await expect(page.getByTestId("feature-wheelchair")).toBeChecked();
+
+  const slug = (await (await page.request.get(`/api/v1/businesses?q=${encodeURIComponent(name)}`)).json()).data[0].slug;
+  await page.goto(`/de/business/${slug}`);
+  const shown = page.getByTestId("business-features");
+  await expect(shown).toContainText("Halal");
+  await expect(shown).toContainText("Rollstuhlgerecht");
+  // Consultation belongs to the legal category only: it was not stored for a restaurant.
+  await expect(shown).not.toContainText("Erstberatung");
+});
+
 for (const locale of ["de", "ckb"] as const) {
   test(`the form fits a 320 px phone without horizontal scrolling (${locale})`, async ({ page }, info) => {
     test.skip(info.project.name !== "mobile", "phone layout");

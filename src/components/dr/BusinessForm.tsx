@@ -41,6 +41,8 @@ export type FormInitial = {
   /** Description per language (key = locale code; field name is description<Suffix>). */
   translations?: Partial<Record<Locale, string>>;
   languages?: string[];
+  /** Optional category-specific details already saved (config/business-features.ts). */
+  features?: string[];
 };
 
 const STEPS = [1, 2, 3, 4, 5] as const;
@@ -84,7 +86,7 @@ function Mark({ required, optional }: { required?: boolean; optional?: string })
 }
 
 export function BusinessForm({ initial, categories, countries, cities, canPublish, storageReady, maxPhotos }: {
-  initial: FormInitial; categories: { id: string; name: string }[]; countries: { code: string; name: string }[];
+  initial: FormInitial; categories: { id: string; name: string; features?: string[] }[]; countries: { code: string; name: string }[];
   cities: FormCity[]; canPublish: boolean; storageReady: boolean; maxPhotos: number;
 }) {
   const t = useTranslations("bizForm");
@@ -116,6 +118,8 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
   const [website, setWebsite] = useState(initial.website ?? "");
   const [social, setSocial] = useState<Record<SocialPlatform, string>>(() => Object.fromEntries(SOCIAL_PLATFORMS.map((p) => [p, initial.social?.[p] ?? ""])) as Record<SocialPlatform, string>);
   const [categoryId, setCategoryId] = useState(initial.categoryId ?? "");
+  const [features, setFeatures] = useState<string[]>(initial.features ?? []);
+  const offered = categories.find((c) => c.id === categoryId)?.features ?? [];
   const [country, setCountry] = useState(initial.countryCode ?? "DE");
   const [city, setCity] = useState(initial.city ?? "");
   const [address, setAddress] = useState(initial.addressLine1 ?? "");
@@ -334,6 +338,21 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
             </label>
           </div>
         </div>
+        {offered.length > 0 && (
+          <fieldset className="rounded-xl border border-line p-4" data-testid="category-features">
+            <legend className="px-1 text-sm font-semibold">{t("features.title")}<Mark optional={optional} /></legend>
+            <p className="mb-3 text-xs text-muted">{t("features.hint")}</p>
+            <div className="flex flex-wrap gap-2">
+              {offered.map((f) => (
+                <label key={f} className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border border-line px-3 text-sm has-[:checked]:border-brand has-[:checked]:bg-brand-soft">
+                  <input type="checkbox" name="features" value={f} checked={features.includes(f)} data-testid={`feature-${f}`}
+                    onChange={(e) => setFeatures((all) => (e.target.checked ? [...all, f] : all.filter((x) => x !== f)))} className="size-4 accent-[var(--brand)]" />
+                  {t(`features.items.${f}`)}
+                </label>
+              ))}
+            </div>
+          </fieldset>
+        )}
         <details className="group rounded-xl border border-line" open={Boolean(initial.description) || LOCALES.some((l) => initial.translations?.[l]) || Boolean(initial.languages?.length)}>
           <summary className="flex min-h-12 cursor-pointer items-center justify-between gap-2 px-4 text-sm font-semibold">{t("optionalDetails")}
             <svg viewBox="0 0 24 24" className="size-4 shrink-0 transition group-open:rotate-180" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
@@ -553,6 +572,7 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
             {([
               [1, t("name"), name || "—"],
               [1, t("category"), categories.find((c) => c.id === categoryId)?.name ?? "—"],
+              ...(offered.length ? [[1, t("features.title"), offered.filter((f) => features.includes(f)).map((f) => t(`features.items.${f}`)).join(" · ") || "—"] as [Step, string, string]] : []),
               [2, t("titleContact"), [phone, wa, email, website].map((v) => v.trim()).filter(Boolean).join(" · ") || "—"],
               [2, t("titleSocial"), SOCIAL_PLATFORMS.filter((p) => social[p].trim()).map((p) => SOCIAL_ICONS[p].title).join(" · ") || "—"],
               [3, t("address"), [address, postal, city, countries.find((c) => c.code === country)?.name].filter(Boolean).join(", ") || "—"],
