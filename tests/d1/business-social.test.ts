@@ -78,7 +78,7 @@ test("D1 social migration preserves every existing business value and ownership;
 test("D1 business save checks resolved duplicate ownership and never regrants revoked access", async () => {
   const { prisma } = await import("../../src/lib/db");
   const { saveBusiness, businessFormSchema } = await import("../../src/lib/business-admin");
-  const { HttpError } = await import("../../src/lib/auth-helpers");
+  const { HttpError } = await import("../../src/lib/http-error");
   const owner = await prisma.user.create({ data: { email: "social-dedup-owner@example.invalid", role: "BUSINESS_OWNER" } });
   const actor = { id: owner.id, role: "BUSINESS_OWNER" as const };
   const perms = { canPublish: false, canCreateCity: false };

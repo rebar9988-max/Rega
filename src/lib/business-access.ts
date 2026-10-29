@@ -6,7 +6,8 @@
 import "server-only";
 import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
-import { HttpError, type SessionUser } from "@/lib/auth-helpers";
+import type { SessionUser } from "@/lib/auth-helpers";
+import { HttpError } from "@/lib/http-error";
 import { atLeast, type Role } from "@/lib/rbac";
 
 type Actor = Pick<SessionUser, "id" | "role">;

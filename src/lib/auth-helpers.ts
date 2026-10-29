@@ -1,4 +1,6 @@
 import "server-only";
+import { HttpError } from "@/lib/http-error";
+export { HttpError } from "@/lib/http-error";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
 import { canAny, effectiveRole, isStaff, type Permission, type Role } from "@/lib/rbac";
@@ -23,15 +25,6 @@ export async function currentUser(): Promise<SessionUser | null> {
   };
 }
 
-export class HttpError extends Error {
-  constructor(
-    readonly status: number,
-    readonly code: string,
-    message: string,
-  ) {
-    super(message);
-  }
-}
 
 /** Fresh optional account for private reads; never grant access from the JWT's cached role. */
 export async function currentAccount(): Promise<SessionUser | null> {
