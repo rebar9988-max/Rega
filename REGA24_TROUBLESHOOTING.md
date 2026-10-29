@@ -435,3 +435,20 @@ The production browser run during source isolation correctly saw 503. Replacemen
 ## Documentation PR merge unexpectedly deploys the Worker
 
 An empty result from `git diff-tree` does not prove a merge is documentation-only: without merge flags it omits merge paths, and the release's empty-diff fallback deploys. Use the first-parent comparison `git diff --name-only HEAD^ HEAD` and execute the actual scope shell against a real merge, including a depth-2 checkout. Docs-only merges must return skip=true; application/mixed changes must return skip=false. Do not weaken the exact-main CI/ownership gates or disable application releases to fix this. [Verified regression evidence](docs/evidence/deployment-scope-regression-2026-10-28.json).
+
+## CI failure signatures and permanent resolutions — 2026-10-29
+
+Audit of the 200 most recent completed workflow runs (2026-10-26 to 2026-10-29). Match a new failure against this table before investigating from scratch. No signature below is an open deterministic failure on `main`.
+
+| Signature in the log | Class | Root cause | Permanent resolution / guard |
+| --- | --- | --- | --- |
+| `npm ci` `EUSAGE` … `lock file's undici@… does not satisfy …` | PR defect, caught by CI | `package.json` override changed without regenerating `package-lock.json` | Regenerate the lock file with `npm install`; `npm ci` in `verify` is the guard (fails in the first minute) |
+| `TS2578: Unused '@ts-expect-error'` / `not assignable to … 'ProcessEnv'` in a test | PR defect, caught by CI | Test typing | `npm run typecheck` in `verify` is the guard |
+| `strict mode violation: getByLabel('Land') resolved to 3 elements` | PR defect, caught by CI (twice: «Bundesland», «Nederlands») | Playwright `getByLabel` matches substrings by default; new UI text contained the label word | Select `select[name="countryCode"]`; when new UI text is added, check short `getByLabel` lookups in `tests/e2e/`. Do not use blanket `exact: true`: a `<select>` inside its label adds its option text to the accessible name |
+| `Unknown arguments: CI, release` before upload | Release bug (run 40390749927) | OpenNext re-split a deployment message with spaces | Single shell-safe message token; `npm run cf:dry-run` in CI exercises the same forwarding path |
+| `D1 cutover pending; production release remains blocked` | Intended safety gate (run 40647881228) | Exact-SHA D1 readiness proof absent during cutover | None needed; the gate must stay. See the D1 sections above |
+| Beta health / browser: many routes `HTTP 500` or `503` on `www.rega24.com` | Real production state, correctly reported | 2026-10-27: old PostgreSQL source unavailable; 2026-10-28: authorized D1 cutover freeze | Fixed by the D1 cutover; replacement runs passed. Never mark such a run green |
+| `Create Neon Branch` `AxiosError … 422` | Retired infrastructure | Neon preview branch creation on the Free plan | `neon-branch.yml` is now a manual policy notice; PR tests use CI's disposable PostgreSQL and D1 SQLite |
+| CI run `cancelled` | Expected | `cancel-in-progress` for superseded PR pushes | None; the rule applies only to `pull_request` events, so `main` CI and Deploy are not cancelled by it |
+
+The four integration tests that need PostgreSQL (`business-repair.integration`, two `schema-readiness`, `seed-data` idempotency) skip only when `DATABASE_URL` is unset. CI sets it for the whole job, so they cannot be skipped silently there. Run them locally against a disposable PostgreSQL, never a shared database.
