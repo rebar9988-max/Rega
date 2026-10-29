@@ -182,3 +182,5 @@ D1 transaction/release/identity guards. Native D1 and both-provider browser chec
 Synthetic37table migration/restore rehearsal passed;fresh private PRODUCTION D1 backup+isolated restore and old
 provider-key revocation remain unverified. No production migration/merge/deploy is authorized before those gates.
 Detailed evidence and continuation are in PROJECT_MEMORY.md;no100/100 claim.
+
+PR71 source5f686373 has ordinaryCloudflare webbuild53d52ae8 PASS and correctednativePythonPreviewbuildc72a23d1 PASS. Its existingPythonPreviewsettings were repaired withoutproductionchanges. FullGitHubActions remainsunstarted/networkblocked;scoped18filelint/syntax and syntheticSQLitechecks do not replaceCI. FreshactiveD1backup+isolatedrestore andproviderrevocation remainrequired before0004/merge/deploy. SeePROJECT_MEMORY.md.

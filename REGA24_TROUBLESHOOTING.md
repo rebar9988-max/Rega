@@ -435,3 +435,16 @@ The production browser run during source isolation correctly saw 503. Replacemen
 ## Documentation PR merge unexpectedly deploys the Worker
 
 An empty result from `git diff-tree` does not prove a merge is documentation-only: without merge flags it omits merge paths, and the release's empty-diff fallback deploys. Use the first-parent comparison `git diff --name-only HEAD^ HEAD` and execute the actual scope shell against a real merge, including a depth-2 checkout. Docs-only merges must return skip=true; application/mixed changes must return skip=false. Do not weaken the exact-main CI/ownership gates or disable application releases to fix this. [Verified regression evidence](docs/evidence/deployment-scope-regression-2026-10-28.json).
+
+## Python Preview builds the web application
+
+**Symptom:** a Python Workers Build is green but its root is `/`,command is `npm run build`,or entrypoint is `worker.js`.
+**Location:** branch-specific build settings under the Python Worker's Preview.
+**Diagnosis:** verify exactrepository,branch,commit,Previewid and root/build/deploy metadata;never raw credential logs.
+Production and Preview build configurations are separate.
+**Safe fix:** affectedverifiedPreviewonly:root `/services/ai-python`,build `uv sync --python 3.13 && uv run pywrangler sync`,
+deploy `uv run pywrangler preview`;retain every other setting.
+**Verification:** exact-SHA rebuild,nativePython/main.py,isolatedbindingonly,andunchangedproductiondeployment.
+**Rollback:** restore only savedPreviewbuildsettings ifneeded;do notrollbackproduction orrotateworkingkeys forthisfault.
+PR71Preview `66fb4fcb57084f06ab971814067c0b35` was repaired thisway2026-10-29. FullCI andproductionbackup/recovery/security
+remainindependentgates.

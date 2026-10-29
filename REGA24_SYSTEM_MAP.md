@@ -281,3 +281,12 @@ VERIFIED live: version `912d7b51-341a-4017-bed9-470cd1b39c1c`, deployment `97a07
 ## Docs-only merge scope correction — 2026-10-28
 
 Later live readback shows documentation release caac065 active at 100% as version 38a340a5-7c83-4db8-b73a-1716c3c16b40, provider D1; its exact-main CI/deploy/health/browser checks passed. Earlier no-replacement claims based only on changed paths were disproved: the old merge diff returned no files. Release scope now compares HEAD with its first parent, preserving the existing allowlist and application safeguards. [Actual merge/shallow/ordinary-change regression evidence](docs/evidence/deployment-scope-regression-2026-10-28.json).
+
+## PR71 isolated Python Preview
+
+Existing Preview `66fb4fcb57084f06ab971814067c0b35` belongs to `rega-ai-python` stable tag
+`c4d7fa2928f04749827caee82e9b64c8`,branch `feat/business-social-profile-20261025`. Its build root is
+`/services/ai-python`,build command `uv sync --python 3.13 && uv run pywrangler sync`,deploy command
+`uv run pywrangler preview`. Read back2026-10-29;productionsettings unchanged. Correct build
+`c72a23d1-5a47-45bf-8dd0-d67e928ff2f6` produced `main.py`,replacing its old web artifact.
+Preview isolation/build success does not prove application readiness or productiondeployment.
