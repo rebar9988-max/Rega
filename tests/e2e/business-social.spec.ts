@@ -4,6 +4,7 @@ import { mkdir } from "node:fs/promises";
 import { testDatabaseClient } from "./database-client";
 import type { Page } from "@playwright/test";
 import { test, expect } from "./fixtures";
+import AxeBuilder from "@axe-core/playwright";
 import { ADMIN } from "./global-setup";
 
 // The global setup refuses production and non-test databases before any test writes.
@@ -154,6 +155,15 @@ test("public saved links have authentic icons, safe exact destinations, correct 
           expect(box.x + box.width).toBeLessThanOrEqual(width);
           await link.focus();
           await expect(link).toBeFocused();
+        }
+        if ([390, 1440].includes(width)) {
+          const accessibility = await new AxeBuilder({ page: publicPage })
+            .include('[data-testid="business-profile"]')
+            .include('[data-testid="business-social-links"]')
+            .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+            .analyze();
+          console.info(JSON.stringify({ scope: "business-profile-and-social", locale, width, violations: accessibility.violations.length, incomplete: accessibility.incomplete.length }));
+          expect(accessibility.violations, `profile accessibility ${locale} ${width}`).toEqual([]);
         }
         if (process.env.E2E_ARTIFACT_DIR && [390, 1440].includes(width)) {
           await publicPage.evaluate(() => { (document.activeElement as HTMLElement | null)?.blur(); window.scrollTo(0, 0); });
