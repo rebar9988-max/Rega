@@ -1,0 +1,59 @@
+{
+  "task": "Global expansion: 11 interface languages, 13 European target markets",
+  "repository": "rebar9988-max/Rega",
+  "production": "https://www.rega24.com",
+  "release": {
+    "pr": 93,
+    "mergeCommit": "884848832d64441bb96bb193df4c3bfc1f9a022d",
+    "ciMain": { "run": 40814940547, "conclusion": "success" },
+    "deployWorker": { "run": 40818252784, "conclusion": "success", "finishedAt": "2026-10-29T04:34:02Z" },
+    "betaHealth": { "run": 40818252655, "conclusion": "success" },
+    "productionBrowserCheck": {
+      "run": 40818337689,
+      "attempt1": "failure: 1 check (desktop /de/services showed the client error page); started 04:32:40, before the deploy finished at 04:34:02",
+      "reproduction": "not reproducible: 11 locales x 3 HTTP fetches and 25 real-browser loads of /services after the deploy, 0 errors",
+      "attempt2": "success (2026-10-29T04:45:35Z)"
+    }
+  },
+  "d1": {
+    "database": "728f792d-37b6-49f8-abc1-e81512219f7d",
+    "ownerApproval": "2026-10-29, owner message 'APPROVED — REGA24 PRODUCTION D1 UPDATE' and 'Allow'",
+    "restorePoint": "2026-10-29T04:22:16Z (D1 Time Travel)",
+    "logicalBackupBeforeChange": {
+      "Country": 7, "Region": 28, "RegionTranslation": 91, "City": 2058, "Business": 3, "Location": 3, "User": 3,
+      "cityFingerprint": "2058|56301|20568|seed_city_se_stockholm",
+      "note": "full Country, Region and RegionTranslation rows and Business/Location ids were exported read-only before the write (session transcript)"
+    },
+    "file": "prisma/d1/data/20261029_europe_target_countries.sql",
+    "after": {
+      "Country": 14, "distinctCodes": 14, "Region": 35, "RegionTranslation": 105, "City": 2065,
+      "Business": 3, "Location": 3, "User": 3, "foreignKeyViolations": 0, "citySlugsUnique": true,
+      "preExistingCityFingerprint": "2058|56301|20568|seed_city_se_stockholm",
+      "preExistingRegions": 28, "preExistingRegionTranslations": 91,
+      "targetCountriesWithActiveCity": 13,
+      "newCities": ["BE brussels", "CH bern", "GR athens", "NO oslo", "DK copenhagen", "FI helsinki", "IT rome"]
+    },
+    "idempotency": "the city statement run a second time: changes 0"
+  },
+  "liveVerification": {
+    "at": "2026-10-29T04:35Z-04:45Z",
+    "method": "read-only HTTP + Playwright Chromium (desktop 1366x900, mobile 390x844); no sign-in, no form submit",
+    "results": {
+      "languageCountryPages": "143/143 (status 200, lang, dir, country kept)",
+      "hreflang": "11/11 + x-default",
+      "canonical": "www.rega24.com",
+      "sitemapNewLocales": "pass",
+      "selectorOffers13Countries": "pass",
+      "defaultCityPerTargetCountry": "13/13",
+      "switcherLists11": "desktop + mobile pass",
+      "languageSwitchKeepsPageAndQuery": "desktop + mobile pass",
+      "rtlArabic": "pass",
+      "profileKeptOnSwitch": "pass",
+      "noHorizontalOverflow": "pass",
+      "noPageErrors": "pass",
+      "health": "ok, provider d1"
+    },
+    "summary": "23/23 PASS"
+  },
+  "notMeasured": ["Lighthouse scores", "field INP", "full WCAG audit", "WebKit/Safari against production"]
+}

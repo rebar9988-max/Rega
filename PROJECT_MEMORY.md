@@ -892,9 +892,22 @@ Local Playwright on disposable D1 (desktop + mobile, before merging #92): 403/40
 combinations, 13 interactive locale/country runs, the owner's three examples, profile language switch). Six existing specs
 used `getByLabel("Land")`, which now also matches «Nederlands»; they select `select[name="countryCode"]` instead.
 
-Production data: NOT applied. The D1 write was refused by this session's permission system (production action). Pre-change
-snapshot 2026-10-29T01:58:13Z: Country 7, Region 28, RegionTranslation 91, City 2058, Business 3, Location 3 (Time Travel point).
-Next safe continuation point: owner applies the SQL file (command in its header), then verify `/api/v1/geo?country=IT` lists Rome.
+Release (2026-10-29): PR #93 squash `8848488`. Main CI 40814940547, Deploy 40818252784 (finished 04:34Z) and Beta health
+40818252655 succeeded. Production browser check 40818337689 failed once on one check (desktop `/de/services` client error page) —
+it started at 04:32:40, before the deploy finished; not reproducible afterwards (11 locales x 3 HTTP, 25 browser loads, 0 errors);
+the re-run succeeded at 04:45Z.
+
+Production data: APPLIED after the owner's explicit approval («APPROVED — REGA24 PRODUCTION D1 UPDATE», then «Allow»).
+Restore point (D1 Time Travel) 2026-10-29T04:22:16Z; read-only logical export of Country/Region/RegionTranslation and Business/Location
+ids taken first. Country 7→14, Region 28→35, RegionTranslation 91→105, City 2058→2065; pre-existing City fingerprint, regions,
+region names, Business 3, Location 3, User 3 unchanged; FK violations 0; slugs unique; a second run of the city statement changed 0.
+All 13 target countries have an active city. Undo: the commented statements in the SQL file header.
+Live check 04:35–04:45Z (read-only, Chromium desktop + mobile): 23/23 PASS — 143/143 language × country pages, hreflang 11 + x-default,
+sitemap, 13 countries + a default city each in the selector API, 11-language switcher keeping page + query, RTL, profile, no errors.
+Evidence: [docs/evidence/global-expansion-production-2026-10-29.json](docs/evidence/global-expansion-production-2026-10-29.json).
+Not measured: Lighthouse, field INP, full WCAG audit, WebKit against production.
+Next safe continuation point: translated names (fr/sv/nl/it) for categories and cities need admin-form fields and public reads of the
+translation rows (separate task); more cities per new market only from verified sources.
 
 ## PR #71 D1 reconciliation — 2026-10-29 (source preparation; no production release)
 
@@ -942,3 +955,5 @@ Webbuild53d52ae8-46e8-4e2d-bdd0-96e7033dc1c4 SUCCESS onexact5f:ordinaryOpenNextb
 GitHubActions hasZERO5fworkflowruns atinspection. CLIauthavailable,butnormal gh run list failsbeforeHTTP:proxyconnect/socket operationnotpermitted. Narrownetworkpermissiondispatchattempt interruptedbeforeconfirmedrun;no dispatchsuccessclaimed. ConnectedGitHubtoolsexposeread/ref/rerun,notnewworkflowdispatch. Neverrerunold8djobandcallit5fproof. PR71draft/open/unmerged;GitHubreportsmergeable_state dirty,donotforcemerge. FullnewheadCI/unit/nativeD1/twobrowserproviders/ordinaryNodebuild/runtime remainBLOCKED/NOTVERIFIED.
 
 FreshprivateactiveD1export+isolatedrestore remainsunverifiedinphysicallyread-onlyexecutor;Oct28legacyarchiveisnotfreshactiveD1backup. Historicalprovider-keyrevocationremainsunverified. No0004productionmigration/featuremerge/deploy/liveCRUD. Localcheckoutstill8dwith4uncommittedmarkdowncheckpoints;donotreset/discard. Resume latestremotePRhead,nottheoldPGstage. Necessaryexternalsetup:existingCIworkflowdispatch/network(orowner-runCIonPRbranch),writableprotectedrecoveryenvironmentforfreshD1backup/restore,andproviderrevocationproof. Thenfullchecks→verifiedmigrationfirst→reviewedmainmerge→guardedCloudflarerelease→11locale/liveQA. No100claim.
+
+Latest-main reconciliation: officialmain advanced tofbf1108904a13aa68bf507f9a3c515d7c6724f82 during this task. Its onlychanges are PROJECT_MEMORY and global-expansion evidence;all application/workflow/dependency/schema blobs remain unchanged. Preserved historical corrections/new evidence and every PR71 checkpoint in a two-parent integration. The prior PR conflict was in concurrent memory edits;do not discard either history. Full Actions/production gates remain required.
