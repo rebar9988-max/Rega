@@ -1,0 +1,146 @@
+{
+  "task": "Official-red closure: shared danger menu and standalone offline colors",
+  "baseline": "ec162ff381ffc50c8d280564569804bfa7b60bbd",
+  "canonicalPrimary": "#fa070d",
+  "rootCauses": [
+    "The initial migration scanned TSX color classes but missed the shared dashboard danger-menu string in a .ts module.",
+    "The self-contained offline page retained independent OKLCH brand definitions in both themes."
+  ],
+  "changes": [
+    "Use existing accessible brand-text token for danger-menu labels; no behavior change.",
+    "Align standalone offline primary/hover/foreground tokens and supporting light neutrals.",
+    "Bump existing static-cache version v2 to v3 to deliver updated offline colors; cache strategy unchanged.",
+    "Extend rendered contrast regression with actual shared menu string and add standalone offline theme/direction/viewport/hover/focus/axe checks.",
+    "Include offline page in existing read-only production color checker."
+  ],
+  "localVerification": {
+    "negativeBrowserRegression": "Before fix: real application regression failed at danger contrast 4.116838270266513 versus required 4.5.",
+    "menuStateMatrix": {
+      "combinations": 24,
+      "beforePass": 0,
+      "afterPass": 24,
+      "minimumBefore": 3.71971812975246,
+      "minimumAfter": 5.669871114172456,
+      "representativeRatios": [
+        {
+          "theme": "light",
+          "state": "normal",
+          "beforeContrast": 4.116838270266513,
+          "afterContrast": 6.275191177417833
+        },
+        {
+          "theme": "light",
+          "state": "hover",
+          "beforeContrast": 3.71971812975246,
+          "afterContrast": 5.669871114172456
+        },
+        {
+          "theme": "light",
+          "state": "focus",
+          "beforeContrast": 3.71971812975246,
+          "afterContrast": 5.669871114172456
+        },
+        {
+          "theme": "dark",
+          "state": "normal",
+          "beforeContrast": 4.396676930364881,
+          "afterContrast": 6.400529035823649
+        },
+        {
+          "theme": "dark",
+          "state": "hover",
+          "beforeContrast": 4.4695506936418505,
+          "afterContrast": 6.5066161204994994
+        },
+        {
+          "theme": "dark",
+          "state": "focus",
+          "beforeContrast": 4.4695506936418505,
+          "afterContrast": 6.5066161204994994
+        }
+      ]
+    },
+    "offlineGeometryAndTypography": [
+      {
+        "theme": "light",
+        "locale": "en",
+        "width": 390,
+        "geometryAndTypographyIdentical": true
+      },
+      {
+        "theme": "light",
+        "locale": "en",
+        "width": 1366,
+        "geometryAndTypographyIdentical": true
+      },
+      {
+        "theme": "light",
+        "locale": "ckb",
+        "width": 390,
+        "geometryAndTypographyIdentical": true
+      },
+      {
+        "theme": "light",
+        "locale": "ckb",
+        "width": 1366,
+        "geometryAndTypographyIdentical": true
+      },
+      {
+        "theme": "dark",
+        "locale": "en",
+        "width": 390,
+        "geometryAndTypographyIdentical": true
+      },
+      {
+        "theme": "dark",
+        "locale": "en",
+        "width": 1366,
+        "geometryAndTypographyIdentical": true
+      },
+      {
+        "theme": "dark",
+        "locale": "ckb",
+        "width": 390,
+        "geometryAndTypographyIdentical": true
+      },
+      {
+        "theme": "dark",
+        "locale": "ckb",
+        "width": 1366,
+        "geometryAndTypographyIdentical": true
+      }
+    ],
+    "nodeBuild": "PASS; same test-only local Noto transport as previous session; hosted standard builds still required.",
+    "typecheck": "PASS",
+    "eslint": "PASS",
+    "unit": {
+      "pass": 416,
+      "skip": 4,
+      "fail": 0
+    },
+    "nativeD1": {
+      "pass": 10,
+      "fail": 0
+    },
+    "pwaUnit": {
+      "pass": 6,
+      "fail": 0
+    },
+    "targetedBrowser": {
+      "brandDashboardPublicationOperations": 19,
+      "offlineAndPWA": 11,
+      "fail": 0
+    },
+    "npmAuditVulnerabilities": 0
+  },
+  "preserved": [
+    "Official logo assets",
+    "Layout and typography",
+    "Existing translations and locale routing",
+    "Success/warning/error conventions",
+    "Authentication and business logic",
+    "Schema and production records",
+    "Dependencies and release workflow"
+  ],
+  "releaseStatusAtCreation": "Candidate only. Full PR CI, exact-main CI, existing production deploy and live verification remain mandatory. Final evidence belongs in PR metadata and the linked shared project memory."
+}

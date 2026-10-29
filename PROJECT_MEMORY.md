@@ -1043,3 +1043,28 @@ PASS. `probe()` executed inside workerd with the production compatibility date/f
 no cookie). Not run here: PostgreSQL Worker smoke (no local Postgres; CI runs it), WebKit/iPhone project.
 Two false positives found by running the agents on the seeded database and fixed before commit: hreflang check was
 case-sensitive (React emits `hrefLang`, confirmed on live `/ckb`), and the AI message wrongly said "production" everywhere.
+
+## Official-red closure — 2026-10-29 (owner continuation; colors only)
+
+PR #99 previously released `b3ac504`; final-head CI 40847220764, exact-main CI 40852835339, deploy 40858345557,
+post-deploy health 40858345472 attempt 2 and production browser 40858943890 all passed. Its live log recorded 36 successful
+primary-red assertions. This closes the historical pending wording in the earlier candidate checkpoint; the shared Doc
+already contained the final release. Current baseline for this continuation is `ec162ff` (unrelated operations release).
+Read-only Cloudflare verification found that exact source tag at 100% on version `14592e63-ad3f-4cd4-a500-81d88935ef6a`.
+
+Owner asked to finish remaining color work. Two genuine omissions were found: the shared danger-menu class is a `.ts`
+string (`text-brand`, not covered by the earlier TSX migration), and the standalone offline HTML retained two old OKLCH
+primary colors. Correct only these colors: existing `text-brand-text` for danger labels; canonical primary/derived hover
+and black action labels offline, preserving all layout/text/logo markup. Refresh the existing static-cache version so
+installed browsers receive the updated offline page. No cache strategy, business action, role, schema, record, dependency,
+workflow or unrelated feature change. The separate held security/data work is not included or released by this branch.
+
+Real Chromium + actual compiled CSS reproduced all 24 danger-menu default/hover/focus cases below 4.5 (minimum 3.72).
+The extended application regression failed before the fix at 4.116838270266513; after the fix all 24 state cases pass,
+minimum 5.67. Local typecheck/lint, 416 unit passes (4 DB-only skips), 10 D1 tests, 6 PWA unit tests, audit 0 vulnerabilities,
+19 targeted brand/publication/operations browsers and 11 standalone-offline/PWA browsers pass. The eight offline cases
+include light/dark, RTL/LTR, 390/1366 px, primary parity, actual hover/focus contrast and axe (zero violations).
+Offline baseline/candidate geometry and typography match in 8/8 cases; screenshot inspected. Local Node build uses the
+previous test-only Noto transport because of the executor's font-network restriction; no font changes are committed.
+Evidence: [color closure QA](docs/evidence/brand-colors-closure-2026-10-29.json). Hosted final-head/main CI, existing deploy
+and fresh production color verification must pass before marking this follow-up released.
