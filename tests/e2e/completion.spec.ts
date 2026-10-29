@@ -171,7 +171,7 @@ test("temporary closures, special hours and public holidays: validated, kept whe
   await page.getByRole("combobox", { name: "Kategorie", exact: true }).selectOption({ label: "Recht" });
   // Bremen, away from the demo and map-test clusters.
   await page.getByLabel("Straße und Hausnummer").fill("Am Markt 1");
-  await page.getByLabel("Land").selectOption("DE");
+  await page.locator('select[name="countryCode"]').selectOption("DE");
   await page.getByLabel("Stadt", { exact: true }).fill("Bremen");
   await page.getByTestId("lat").fill("53.0758");
   await page.getByTestId("lng").fill("8.8072");
