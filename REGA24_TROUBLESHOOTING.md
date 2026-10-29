@@ -436,6 +436,10 @@ The production browser run during source isolation correctly saw 503. Replacemen
 
 An empty result from `git diff-tree` does not prove a merge is documentation-only: without merge flags it omits merge paths, and the release's empty-diff fallback deploys. Use the first-parent comparison `git diff --name-only HEAD^ HEAD` and execute the actual scope shell against a real merge, including a depth-2 checkout. Docs-only merges must return skip=true; application/mixed changes must return skip=false. Do not weaken the exact-main CI/ownership gates or disable application releases to fix this. [Verified regression evidence](docs/evidence/deployment-scope-regression-2026-10-28.json).
 
+## Operations Center agent shows BLOCKED or FAIL
+
+BLOCKED means the engine refused before inspecting anything (no report stored): `cooldown` (same agent within 60 s, 15 min after 80 runs/day), `quota_exhausted` (100 runs/UTC day), `locked` (another run of that agent holds `Setting` `ops.lock.<agent>`; it expires after 2 minutes) or `store_unavailable` (D1 not reachable: fail closed). FAIL with `engine.timeout`/`engine.error` is a stored report of a crashed or slow inspection; check the Worker log line `ops.run`. A FAIL finding from an agent is a real platform rule violation: fix it through the normal `/dr` screens or a reviewed code change; agents never repair data. A QA/performance `403` from Cloudflare means the edge blocked the Worker's probe (WAF/bot rules), not a site outage; confirm with the Production browser check workflow. Never delete `AuditLog` report rows to reset the quota.
+
 ## Python Preview builds the web application
 
 **Symptom:** a Python Workers Build is green but its root is `/`,command is `npm run build`,or entrypoint is `worker.js`.
@@ -448,3 +452,6 @@ deploy `uv run pywrangler preview`;retain every other setting.
 **Rollback:** restore only savedPreviewbuildsettings ifneeded;do notrollbackproduction orrotateworkingkeys forthisfault.
 PR71Preview `66fb4fcb57084f06ab971814067c0b35` was repaired thisway2026-10-29. FullCI andproductionbackup/recovery/security
 remainindependentgates.
+
+
+PR71 recovery update2026-10-29: private D1 logical backup0a0dd3d4… and separate restore63f99c1e… verified41 tables/2513rows at13:10UTC; both retained, no production writes. Social0004 was already applied externally at12:58UTC, so pre-migration backup provenance remains unverified. Do not replay migrations or release PR71 before gates. Exact6830 CI40874885167 passed396+11D1+8Python,423 browsers/provider,46 axe analyses with0 violations/incomplete. Preserve newer main operations-center work. See PROJECT_MEMORY and docs/evidence/pr71-recovery-2026-10-29.json.

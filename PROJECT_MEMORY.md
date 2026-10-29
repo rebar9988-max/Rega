@@ -994,6 +994,56 @@ Evidence: [local color QA](docs/evidence/brand-colors-2026-10-29.json). Extended
 checker to assert the served primary against the checked-out CSS token, including scoped home surfaces. No workflow
 or deployment mechanism changed. Final hosted CI and production verification remain pending.
 
+## Digital Operations Center — ten read-only inspection agents — 2026-10-29 (branch `claude/rega24-operations-system-nj72x0`)
+
+Owner brief "REGA24 Autonomous Digital Operations System" (zero additional cost, no paid services, no data destruction, no
+public AI activation). Identity guard OK (REGA). Read CLAUDE.md, AGENTS.md, this file, system map/runbook and the central Doc
+(no earlier operations-center work recorded).
+
+Audit (read-only): production database is D1 `728f792d…` (36 tables; Business 3, Category 19, City 2065, AuditLog 83,
+Setting 0, Page/Listing 0). `public.aiSearch` is ENABLED in production (rollout 100, set earlier by the owner through
+`/dr/ai`; audit rows `featureflag.update`). It was NOT changed: switching public visibility is owner-only. The new AI agent
+reports it as a warning together with the configured provider keys (booleans only).
+
+Built (no schema, migration, binding, cron, queue, Worker, dependency or paid service):
+- `/dr/operations` (owner only): new permission `operations.manage`, SUPER_ADMIN only (ADMIN excluded); SUPER_ADMIN is honoured
+  only for `rebar9988@gmail.com` (`effectiveRole`). Nav item in the "system" group; page and both server actions check the
+  permission before reading or running anything.
+- Engine `src/lib/ops/core.ts` (pure): execution-id idempotency, 100 runs/UTC day, throttled cool-down from 80 runs
+  (60 s → 15 min), per-agent lock (`Setting` `ops.lock.<agent>`, 2 min TTL, atomic primary key), 25 s timeout with abort,
+  one retry (not for timeouts), fail-closed BLOCKED when D1 is unavailable, no report text from error messages.
+- Ten agents (`src/lib/ops/agents.ts` collectors + `src/lib/ops/analyzers/*` pure rules): business (queue, stale, required
+  info, probable duplicates, category, country/city, coordinates, links — never approves/rejects), security (owner allowlist,
+  stored SUPER_ADMIN rows, AUTH_SECRET length only, failed sign-ins 24 h as counts, live security headers, anonymous `/dr`
+  and API separation; repo secret scan in CI), QA (12 bounded live routes, lang/dir per locale, hreflang, slug integrity),
+  performance (Worker-side TTFB/HTML size/scripts; Lighthouse and field CWV reported as not measured), category, location,
+  translation (all 11 registered locales), content, privacy-safe analytics (aggregates only; zero-result searches are not
+  tracked and no tracking was added), AI discovery (flag/default, published-only filter, deterministic retrieval tests,
+  stored-answer links; never calls a model).
+- Reports = `AuditLog` rows `action=ops.report`, `entity=ops:<agent>`, `after` = report (owner's JSON shape, Sorani summary).
+- HTTP probes: canonical origin only in production; `OPS_PROBE_ORIGIN` (loopback only, ignored when APP_ENV=production) lets
+  E2E probe the local test server. User agent `REGA24-Operations-Inspector/1.0`; no cookies; redirects not followed.
+- Scheduled mode OFF on purpose: Cloudflare account usage/billing is not readable from here, so no cron is added.
+  Repository-side checks run in the existing `npm test` (CI) step: `tests/ops-repository.test.ts` (tracked-file secret scan)
+  and the translation analyzer over the real catalogues.
+- UI chrome in all 11 catalogues (`ops.*`, `dashboard.operations`); findings/summaries in Sorani (`lang="ckb" dir="rtl"`).
+  Existing dashboard tokens, pills and icon family only (one Lucide "activity" path added).
+
+Cost reasoning (REPORTED, not a billing proof): the Worker bundle exceeds the free-plan size, so the account is very likely on
+Workers Paid with included quotas; the engine's hard caps (≤100 runs/day, ≤12 probes and ≤~5k rows read per run, 3 D1 writes
+per run) are orders of magnitude below them. Account-wide usage was not readable; no billing or plan was touched.
+
+Local verification (this session, branch head before PR): lint, typecheck PASS; `npm test` 420 tests, 416 pass, 0 fail,
+4 DB-only skips (37 new ops tests); docs validator and `git diff --check` PASS. Full Playwright suite on disposable D1
+(desktop + mobile): 407/407 PASS, incl. new `tests/e2e/operations.spec.ts` (anonymous → sign-in form; EMPLOYEE → no access;
+owner runs one agent, gets a cool-down BLOCKED on an immediate repeat, runs all ten; Business/Category/City/flag snapshot
+unchanged; one AuditLog report per run; no lock left). After final probe changes: operations+auth+security specs 17/17,
+`test:d1` 10/10, Worker build + `wrangler deploy --dry-run` (4707.77 KiB gzip), workerd smoke with D1 and the D1 binding smoke
+PASS. `probe()` executed inside workerd with the production compatibility date/flags (GET, HEAD, manual redirect, budget, UA,
+no cookie). Not run here: PostgreSQL Worker smoke (no local Postgres; CI runs it), WebKit/iPhone project.
+Two false positives found by running the agents on the seeded database and fixed before commit: hreflang check was
+case-sensitive (React emits `hrefLang`, confirmed on live `/ckb`), and the AI message wrongly said "production" everywhere.
+
 ## PR #71 D1 reconciliation — 2026-10-29 (source preparation; no production release)
 
 Resumed PR71 at8d9c365 against official mainc751e6b. Verified Cloudflare mandate(section0.9),canonical Worker
@@ -1052,3 +1102,19 @@ Latest-main reconciliation: officialmain advanced tofbf1108904a13aa68bf507f9a3c5
 - Fresh native D1 export completes, but retrieving its private signed download is blocked by the managed environment network policy (HTTP403) for 1ad59b064bfa3690063414a9906129e4.eu.r2.cloudflarestorage.com. No customer SQL, signed URL or secret was exposed. No recovery database was created; backup/isolated restore integrity remains BLOCKED.
 - Historical OpenAI/xAI provider-key revocation remains NOT VERIFIED. secret_text binding storage does not prove revocation. Await provider-side containment evidence without collecting key values.
 - Keep PR71 draft and unmerged. Do not apply D1 0004, merge to main or deploy until fresh protected backup/isolated restore and security gates pass. Never use the retired PostgreSQL staging checkout for active D1 production. No paid resource was enabled; no preserved database or branch was deleted.
+
+## PR #71 — verified recovery checkpoint, 2026-10-29 15:05 UTC
+
+This section supersedes earlier Oct29 pending/blocked backup and provider-attestation notes.
+- Exact application head6830ddfadc19356d69fa5084b6e553b48984adf6: CI40874885167/job123451038035 SUCCESS;396 unit/integration,11 nativeD1,8 Python,423 D1 browser and423 PostgreSQL rollback-provider browser tests. All46 axe analyses (44 public11-locales/390+1440px,2 invalid-form states) reported0 violations and0 incomplete. TypeScript, ESLint, audit0, normal Node and Worker builds/dry-run and workerd smokes passed. Both native Cloudflare web/Python Preview checks passed. No production font substitution is used by this hosted evidence.
+- Preserved concurrent approved main ec162ff381ffc50c8d280564569804bfa7b60bbd and all operations-center files. Only social translation keys and appended documentation are reconciled with its changes; do not remove unrelated ops work. This new integration head requires fresh CI.
+- Owner explicitly confirmed both exposed old OpenAI/xAI keys revoked and replaced. Record as OWNER-ATTESTED; no independent provider audit or exact action time is available. Protected current bindings were verified as secret_text, without retrieving values.
+- FRESH LOGICAL BACKUP/ISOLATED RESTORE PASS at2026-10-29T13:10:32.091Z. Source DB728f792d-37b6-49f8-abc1-e81512219f7d; private EUbackup0a0dd3d4-899f-427e-9b79-8d1157b29ce0 and separate EUrestore63f99c1e-b559-47b1-b813-b8a401f09acc. Both retained, unbound to the app. One source SQL statement captured41 application/runtime/ledger tables,2513 rows and259 schema objects. Every per-table typed SHA256/count, exact schema/index/trigger definition, rowid and sequence matched both copies; FK0 and quick_check=ok. No source write. No customer values, SQL dump or signed URL returned/committed.
+- This is a private same-account logical backup retained outside the executor, not an immutable/off-account archive. Provider-owned_cf metadata excluded; implicit indexes/sequences verified. Native R2export download was policy-blocked; normal authenticated D1 API was used directly without proxying that URL. D1 rejects integrity_check with SQLITE_AUTH; full integrity_check is NOT claimed. Actual quick_check + complete typed/schema/index/trigger/FK verification passed.
+- IMPORTANT: production readback independently found0004_business_social_links.sql applied at12:58:35UTC and unrelated0005_search_query_daily.sql at13:02:46UTC. Neither was applied by this executor. Our13:10backup is POST-migration and cannot prove the required pre-migration recovery gate. Four social fields are already nullableTEXT/no defaults; all3 businesses haveNULL for all4fields,3 memberships remain,0orphans. Do not replay or remove either migration.
+- Latest canonical production readback: Worker rega24 deployment8f81131b-9128-428d-8a2e-591ba342fdaa, version14592e63-ad3f-4cd4-a500-81d88935ef6a, source tag ec162ff381ffc50c8d280564569804bfa7b60bbd at100%, DBbinding unchanged. This is another approved main release, not PR71 deployment.
+- PR71 remains draft/NOT MERGED. Release HOLD: obtain the concurrent migration operator's pre12:58 backup/restore evidence and provenance, complete current-head checks, then use the existing authorized exact-main CI-gated deployment process. No force merge, direct publish, reset, production-data edit, paid activation or R&L operation.
+- Real PR71 live owner CRUD and current Lighthouse remain NOT VERIFIED. Opera connector requests reauthentication repeatedly; local browser through the remote Skyvern transport is unsupported. Do not treat executor access errors as site failure or a historical production-browser run as verification of this unmerged feature.
+- Evidence: docs/evidence/pr71-recovery-2026-10-29.json. Central Hub updated. Next safe continuation: preserve both copies and complete new-head CI while waiting for migration provenance. No100/100 claim.
+
+Concurrent-migration provenance follow-up: PR100 explicitly records owner-authorized production0004 at12:58UTC and the same four columns/byte-identical legacyPG migration. Its description and branch memory do NOT provide a verified pre-migration backup/restore certificate. Treat this as identified reported provenance, not backup proof. PR100 also overlaps the same existing BusinessForm/social pipeline; do not import its unmerged redesign or introduce duplicate validators/sections in PR71. Preserve its work and require one shared contract when that separate PR is integrated.

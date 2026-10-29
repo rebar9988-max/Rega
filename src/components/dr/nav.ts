@@ -21,6 +21,7 @@ export const DR_NAV: { key: string; href: string; permission: Permission; icon: 
   { key: "users", href: "/dr/users", permission: "user.read", icon: "users", group: "system" },
   { key: "aiGateway", href: "/dr/ai", permission: "aiconfig.read", icon: "aiGateway", group: "system" },
   { key: "auditLogs", href: "/dr/audit", permission: "audit.read", icon: "auditLogs", group: "system" },
+  { key: "operations", href: "/dr/operations", permission: "operations.manage", icon: "operations", group: "system" },
 ];
 
 /** Dashboard entries of the enabled content sections (jobs, events, guides), generated from the section registry. `key` is a `nav.*` message. */

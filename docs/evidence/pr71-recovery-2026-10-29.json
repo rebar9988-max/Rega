@@ -1,0 +1,102 @@
+{
+  "project": "Rega24",
+  "repository": "rebar9988-max/Rega",
+  "production": "https://www.rega24.com",
+  "recordedAt": "2026-10-29T15:05:00Z",
+  "testedApplicationCommit": "6830ddfadc19356d69fa5084b6e553b48984adf6",
+  "currentMainPreserved": "ec162ff381ffc50c8d280564569804bfa7b60bbd",
+  "ci": {
+    "run": 40874885167,
+    "job": 123451038035,
+    "status": "PASS",
+    "unitIntegration": 396,
+    "nativeD1": 11,
+    "python": 8,
+    "browserD1": 423,
+    "browserPostgres": 423,
+    "axeAnalyses": 46,
+    "axeViolations": 0,
+    "axeIncomplete": 0,
+    "typescript": "PASS",
+    "eslint": "PASS",
+    "dependencyAuditFindings": 0,
+    "nodeBuild": "PASS",
+    "workerBuildDryRunAndWorkerd": "PASS",
+    "newIntegrationHead": "MUST RUN FRESH CI"
+  },
+  "backup": {
+    "status": "PASS",
+    "method": "single-statement typed logical snapshot via authenticated D1 API",
+    "snapshotAt": "2026-10-29T13:10:32.091Z",
+    "source": "728f792d-37b6-49f8-abc1-e81512219f7d",
+    "backup": "0a0dd3d4-899f-427e-9b79-8d1157b29ce0",
+    "restore": "63f99c1e-b559-47b1-b813-b8a401f09acc",
+    "verification": {
+      "allTablesMatch": true,
+      "tables": 41,
+      "rows": 2513,
+      "foreignKeyViolations": 0,
+      "quickCheck": "ok",
+      "fullIntegrityPragma": "D1 API returns SQLITE_AUTH; not claimed",
+      "schemaSha256": "c4d437e6a4d3864efa9601faa00830ab4fbb6944f1112ff1e519ccf6d184891e",
+      "sequencesMatch": true
+    },
+    "restoreVerification": {
+      "allTablesMatch": true,
+      "tables": 41,
+      "rows": 2513,
+      "foreignKeyViolations": 0,
+      "quickCheck": "ok",
+      "fullIntegrityPragma": "D1 API returns SQLITE_AUTH; not claimed",
+      "schemaSha256": "c4d437e6a4d3864efa9601faa00830ab4fbb6944f1112ff1e519ccf6d184891e",
+      "sequencesMatch": true
+    },
+    "schemaObjects": 259,
+    "snapshotSqlBytes": 57383,
+    "serializedSnapshotBytes": 2898106,
+    "restoreStatements": 269,
+    "restoreRequestBytes": 2674593,
+    "sourceWrites": 0,
+    "customerValuesReturned": false,
+    "limitations": "Same-account logical backup; not immutable or independent off-account archive. Provider-owned metadata excluded. Source may receive writes after captured snapshot.",
+    "providerInternalExcluded": [
+      "_cf_*",
+      "sqlite_schema"
+    ]
+  },
+  "migration": {
+    "productionObserved": "0004_business_social_links.sql",
+    "appliedAt": "2026-10-29T12:58:35Z",
+    "performedByThisExecutor": false,
+    "nullableTextFields": [
+      "facebookUrl",
+      "instagramUrl",
+      "tiktokUrl",
+      "snapchatUrl"
+    ],
+    "preMigrationBackupRestore": "NOT VERIFIED: current verified backup is post-migration",
+    "otherObservedMigration": "0005_search_query_daily.sql at2026-10-29T13:02:46Z; outside this task; preserve",
+    "reportedProvenance": {
+      "pr": 100,
+      "url": "https://github.com/rebar9988-max/Rega/pull/100",
+      "description": "Records owner-authorized0004 production migration at12:58UTC; no pre-migration backup/restore certificate found",
+      "independentlyObservedLedger": true
+    }
+  },
+  "security": {
+    "oldProviderKeyRevocation": "OWNER-ATTESTED: both revoked/replaced",
+    "independentProviderAudit": "NOT VERIFIED",
+    "keyValuesRead": false
+  },
+  "release": {
+    "pr": 71,
+    "draft": true,
+    "merged": false,
+    "deployed": false,
+    "liveFeatureVerification": "NOT VERIFIED",
+    "lighthouse": "NOT VERIFIED for this feature",
+    "hold": "Await concurrent operator pre-migration backup/restore and provenance; fresh integration CI mandatory"
+  },
+  "noNewPaidActivation": true,
+  "noPreservedResourceDeletion": true
+}
