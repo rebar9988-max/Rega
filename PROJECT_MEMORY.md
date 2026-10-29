@@ -909,6 +909,59 @@ Not measured: Lighthouse, field INP, full WCAG audit, WebKit against production.
 Next safe continuation point: translated names (fr/sv/nl/it) for categories and cities need admin-form fields and public reads of the
 translation rows (separate task); more cities per new market only from verified sources.
 
+## Phase 4 — Lighthouse audit and production optimization — 2026-10-29 (PR #95, squash `c751e6b`)
+
+Owner brief "REGA24 Phase 4". Identity guard OK (REGA, `www.rega24.com`, Worker `rega24`) before merge.
+Measurement: local Lighthouse 12 (simulated throttling) against production. The PageSpeed Insights API quota was exhausted,
+so no PSI/CrUX field data. Requests left this container through a US edge (colo EWR), far from D1 (EEUR). Mobile Performance
+varies ±5–10 between identical runs (e.g. `/ckb` 82 then 94, 93); compare trends, not single points.
+
+Root causes found (baseline before #95):
+- Uncached TTFB 0.7–3.7 s: the Worker ran at the visitor's edge and paid one transatlantic round trip per D1 query.
+- Business-profile LCP 5.3–7.2 s on mobile: full-size original images (398 KB PNG, 211/166 KB JPG), no resized variants.
+- Accessibility 96 on profiles: `Chip` text muted on surface-2 = 4.44:1 (< 4.5:1).
+- SEO 92 on `/en`: Lighthouse `link-text` failure on "See more".
+- `/ckb/nearby` TBT 8–9 s mobile, 2.2–2.5 s desktop: the map-first intro (shown before a location is known) loads and runs
+  MapLibre (chunk `ca4dcb09…`) at once; headless Lighthouse renders WebGL in software, so real devices pay less (assumption).
+- `/ckb/services` desktop CLS 0.086: the streamed results replace `GridSkeleton` with the shorter `NoResults` (0 services).
+
+Changes (#95; no schema, data, route, colour or layout change):
+- `wrangler.jsonc`: `"placement": { "mode": "smart" }`. Rollback: remove the block and deploy.
+- Business profile: `preload(gallery[0], { as: "image", fetchPriority: "high" })` (verified live on karwans-hairtuning).
+- `Chip`: `text-ink` instead of `text-muted`.
+- Home: visually hidden context after "View all" / "See more" (`sr-only`).
+
+Release: PR CI `verify` passed. Exact-main CI 40822589404, Deploy 40826355998 and Beta health 40826356070 succeeded; Production
+browser check 40826458231 succeeded. New link text live from 05:59:43 UTC.
+
+Lighthouse after (production, 06:00–06:25 UTC), Perf / A11y / BP / SEO, before → after:
+
+| Page | Mobile before | Mobile after | Desktop before | Desktop after |
+|---|---|---|---|---|
+| /ckb | 93/100/100/100 | 82–94/100/100/100 | 98/100/100/100 | 99/100/100/100 |
+| /en | 99/100/100/92 | 92–93/100/100/100 | 99/100/100/92 | 100/100/100/100 |
+| /ar | 92/100/100/100 | 96/100/100/100 | 99/100/100/100 | 99/100/100/100 |
+| /ckb/businesses | 93/100/100/100 | 94/100/100/100 | 100/100/100/100 | 100/100/100/100 |
+| /ckb/business/taakline | 69/96/100/100 | 74/100/100/100 | 97/96/100/100 | 96/100/100/100 |
+| /de/business/karwans-hairtuning | 66/96/100/100 | 65/100/100/100 | 91/96/100/100 | 95/100/100/100 |
+| /ckb/search?q=… | 77/100/100/69 | 75/100/100/69 | 97/100/100/69 | 98/100/100/69 |
+| /ckb/nearby | 59/100/100/100 | 62/100/100/100 | 62/100/100/100 | 63/100/100/100 |
+| /ckb/services | 73/100/100/69 | 92/100/100/69 | 96/100/100/69 | 98/100/100/69 |
+
+Locale homes, mobile after: kmr 96, de 93, fa 92, tr 91, fr 90, sv 93, nl 92, it 94 (A11y/BP/SEO 100 everywhere). Before:
+kmr 87, de 91, fa 92, tr 88; fr 79, sv 84, nl 93, it 96 (measured after #93 went live).
+Server response time (TTFB) after: 0.3–0.9 s on most pages (before 0.4–1.8 s); one outlier 1.4 s on mobile `/ckb/services`.
+`/en` mobile 99 → 92–93: same bytes (Document +2 KB from #93), LCP element unchanged (hero AVIF). The simulated
+load delay of the hero image was 0.56 s in the baseline run and 1.3 s after; this is not traced to #95.
+
+Not 100/100 (honest status): Accessibility and Best Practices are 100 on every measured page. SEO is 100 except search and
+services (69, deliberate `noindex`: search results, and services while 0 are published). Performance is not 100 on mobile.
+Remaining corrective actions, each needs an owner decision:
+1. Business images: upload-time resized variants (e.g. 640/1280 WebP) plus a backfill of existing originals in R2.
+2. Nearby: defer MapLibre in the pre-location intro (e.g. static preview until interaction). This changes the visible intro.
+3. Services: a `NoResults` block with the skeleton's height, or a shorter skeleton (visual change).
+4. Framework JS (~51 KB unused, ~12 KB legacy polyfills) and bf-cache blocked by deliberate `no-store` are not changed.
+Next safe continuation point (owner order): Jobs launch → search analytics; or one of the corrective actions above.
 ## Digital Operations Center — ten read-only inspection agents — 2026-10-29 (branch `claude/rega24-operations-system-nj72x0`)
 
 Owner brief "REGA24 Autonomous Digital Operations System" (zero additional cost, no paid services, no data destruction, no
