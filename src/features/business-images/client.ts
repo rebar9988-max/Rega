@@ -24,6 +24,7 @@ export async function uploadBusinessImage(blob: Blob, businessId?: string) {
   if (!id || !widths.length || typeof createImageBitmap !== "function") return main.publicUrl;
   try {
     const bitmap = await createImageBitmap(blob);
+    const copies: { width: number; blob: Blob }[] = [];
     try {
       for (const width of widths) {
         const canvas = document.createElement("canvas");
@@ -33,11 +34,13 @@ export async function uploadBusinessImage(blob: Blob, businessId?: string) {
         if (!ctx) throw new Error("canvas");
         ctx.imageSmoothingQuality = "high";
         ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-        await postBusinessImage(await canvasBlob(canvas, blob.type), `?variantOf=${id.uuid}&w=${width}`);
+        copies.push({ width, blob: await canvasBlob(canvas, blob.type) });
       }
     } finally {
       bitmap.close();
     }
+    // Sent together: the editor waits for one round trip, not one per copy.
+    await Promise.all(copies.map((c) => postBusinessImage(c.blob, `?variantOf=${id.uuid}&w=${c.width}`)));
     return withVariants(main.publicUrl, widths, main.width);
   } catch {
     return main.publicUrl;

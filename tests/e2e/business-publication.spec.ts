@@ -417,7 +417,8 @@ test("owner completes registration and real image upload; approval publishes and
   await page.getByTestId("image-editor").getByRole("button", {name:"Bild bestätigen"}).click();
   await expect(page.getByTestId("image-editor")).toHaveCount(0);
   const photo = await page.locator("input[name=photoUrls]").inputValue();
-  expect((await db.media.findFirstOrThrow({where:{url:photo}})).mimeType).toBe("image/jpeg");
+  // The stored URL announces its smaller copies in its query (features/business-images/variants.ts); the Media row holds the plain URL.
+  expect((await db.media.findFirstOrThrow({where:{url:photo.split("?")[0]}})).mimeType).toBe("image/jpeg");
   await page.getByTestId("wizard-next").click();
   await expect(page.getByTestId("wizard-review")).toContainText(name);
   await page.getByTestId("submit-review").click();
@@ -445,8 +446,10 @@ test("owner completes registration and real image upload; approval publishes and
   expect(await db.business.findUnique({where:{id:rows[0].id},select:{name:true,status:true,verified:true,logoUrl:true}})).toEqual({name,status:"published",verified:true,logoUrl});
   await page.goto(`/de/businesses/legal?q=${encodeURIComponent(name)}&city=`);
   await expect(page.getByRole("main").getByRole("link", {name,exact:true})).toBeVisible();
-  await expect(page.locator(`main article img[src="${logoUrl}"]`)).toHaveCSS("object-fit","contain");
-  await expect(page.locator(`main article img[src="${logoUrl}"]`)).toHaveJSProperty("naturalWidth",512);
+  // The logo is the 512 px original as src; its smaller copy is offered in srcset for the small card box.
+  const logo = page.locator(`main article img[src="${logoUrl.split("?")[0]}"]`);
+  await expect(logo).toHaveCSS("object-fit","contain");
+  await expect(logo).toHaveAttribute("srcset", new RegExp(`-w160\\.png 160w, .*\\.png 512w$`));
   await adminCtx.close(); await stale.close();
 
 });
