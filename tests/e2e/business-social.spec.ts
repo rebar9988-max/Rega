@@ -174,13 +174,12 @@ test("revoked owners cannot use an omitted-id Add submission to overwrite or rec
 });
 
 
-test("mobile touch Add and Edit persist, replace and remove optional social accounts", async ({ browser }) => {
-  test.setTimeout(90_000);
-  const who = { email: `social-touch-${stamp}@example.org`, password: "social-touch-test-password" };
-  await db.user.create({ data: { email: who.email, role: "BUSINESS_OWNER", locale: "de", emailVerified: new Date(), passwordHash: bcrypt.hashSync(who.password, 10) } });
-  const context = await browser.newContext({ ...devices["Pixel 5"], baseURL: `https://127.0.0.1:${Number(process.env.E2E_PORT ?? 3111) + 1}`, ignoreHTTPSErrors: true });
-  const page = await context.newPage();
-  try {
+test.describe("social account CRUD with mobile touch", () => {
+  test.use({ ...devices["Pixel 5"] });
+  test("mobile touch Add and Edit persist, replace and remove optional social accounts", async ({ page }) => {
+    test.setTimeout(90_000);
+    const who = { email: `social-touch-${stamp}@example.org`, password: "social-touch-test-password" };
+    await db.user.create({ data: { email: who.email, role: "BUSINESS_OWNER", locale: "de", emailVerified: new Date(), passwordHash: bcrypt.hashSync(who.password, 10) } });
     await login(page, who);
     await page.goto("/dr/businesses/new");
     expect(await page.evaluate(() => navigator.maxTouchPoints)).toBeGreaterThan(0);
@@ -204,7 +203,7 @@ test("mobile touch Add and Edit persist, replace and remove optional social acco
     await page.getByTestId("save-draft").tap();
     await expect.poll(async () => ({ facebookUrl: (await read(id)).facebookUrl, instagramUrl: (await read(id)).instagramUrl })).toEqual({ facebookUrl: null, instagramUrl: "https://www.instagram.com/touch.replaced/" });
     await expect(page.getByTestId("save-draft")).toBeEnabled();
-    await page.reload();
+    await page.goto(page.url());
     await expect(page.locator('input[name="facebookUrl"]')).toHaveValue("");
     await expect(page.locator('input[name="instagramUrl"]')).toHaveValue("https://www.instagram.com/touch.replaced/");
     for (const field of Object.keys(accounts)) await page.locator(`input[name=${field}]`).fill("");
@@ -214,11 +213,11 @@ test("mobile touch Add and Edit persist, replace and remove optional social acco
       return Object.keys(accounts).map(field => row[field as keyof typeof accounts]);
     }).toEqual([null, null, null, null]);
     await expect(page.getByTestId("save-draft")).toBeEnabled();
-    await page.reload();
+    await page.goto(page.url());
     for (const field of Object.keys(accounts)) await expect(page.locator(`input[name=${field}]`)).toHaveValue("");
     expect(await read(id)).toMatchObject({ name, categoryId });
     expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(0);
-  } finally { await context.close(); }
+  });
 });
 
 test("public saved links have authentic icons, safe exact destinations, correct hierarchy and responsive RTL/LTR geometry", async ({ page, browser }) => {
