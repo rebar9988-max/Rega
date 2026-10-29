@@ -3,26 +3,27 @@
   "repository": "rebar9988-max/Rega",
   "production": "https://www.rega24.com",
   "recordedAt": "2026-10-29T15:05:00Z",
-  "testedApplicationCommit": "6830ddfadc19356d69fa5084b6e553b48984adf6",
+  "testedApplicationCommit": "e907092e607e89aa2c1394e341c12c4fa2d88bd0",
   "currentMainPreserved": "ec162ff381ffc50c8d280564569804bfa7b60bbd",
   "ci": {
-    "run": 40874885167,
-    "job": 123451038035,
+    "run": 40906648254,
+    "job": 123563364008,
     "status": "PASS",
-    "unitIntegration": 396,
-    "nativeD1": 11,
+    "unitIntegration": 433,
+    "nativeD1": 12,
     "python": 8,
-    "browserD1": 423,
-    "browserPostgres": 423,
+    "browserD1": 427,
+    "browserPostgres": 427,
     "axeAnalyses": 46,
     "axeViolations": 0,
     "axeIncomplete": 0,
     "typescript": "PASS",
     "eslint": "PASS",
     "dependencyAuditFindings": 0,
+    "strictPythonAudit": "PASS: no known vulnerabilities found",
     "nodeBuild": "PASS",
     "workerBuildDryRunAndWorkerd": "PASS",
-    "newIntegrationHead": "MUST RUN FRESH CI"
+    "newCheckpointHead": "Fresh CI required for explicit mobile touch case/docs; application unchanged"
   },
   "backup": {
     "status": "PASS",
@@ -90,10 +91,10 @@
     "pythonAuditFollowup": {
       "sourcePR": 82,
       "fix": "pytest>=9.0.3,<10; strict pip-audit in existing CI",
-      "status": "PASS on13c CI step; new authorization head requires full fresh CI"
+      "status": "PASS on e907 strict audit"
     },
     "authorizationRemediation": {
-      "status": "IMPLEMENTED; fresh CI required",
+      "status": "PASS on e907 actual D1 and dual-provider browser regressions",
       "finding": "Existing omitted-id create dedup skipped active membership and post-save upsert could regrant revoked access",
       "fix": "Shared transaction-aware access guard after target resolution; atomic first membership; no action post-commit regrant",
       "regression": "Native D1 concurrent-create, omitted/explicit denied updates, no-row/no-membership/no-audit changes, active owner and global staff positive controls; browser action denial/positive dedup on both providers",
@@ -111,8 +112,20 @@
     "liveBaseline": {
       "run": 40887420432,
       "job": 123552026212,
-      "status": "PASS",
-      "scope": "Existing production only; PR71 remains unmerged/undeployed"
+      "checks": 237,
+      "failed": 0,
+      "from": "2026-10-29T15:38:53.2251318Z",
+      "to": "2026-10-29T15:41:23.1739612Z",
+      "redChecks": 36,
+      "locales": [
+        "ckb",
+        "de",
+        "en",
+        "ar"
+      ],
+      "artifact": 12911035587,
+      "digest": "sha256:d057b028452f53b631f15d19c6bdf0da4524ff488a6d016c834d22205ae8351b",
+      "scope": "Current ec162ff production baseline only; not PR71"
     }
   },
   "noNewPaidActivation": true,
