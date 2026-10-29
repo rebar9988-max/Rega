@@ -1024,4 +1024,8 @@ Tests (local, this container): lint, typecheck, `npm test` 389 pass / 0 fail / 4
 business-features), `npm run test:d1` 10/10, verify-d1-schema PASS; Playwright on disposable D1, Chromium desktop + Pixel 5:
 full suite 412/412 before the category-details addition, then 42/42 affected specs after it. Not run locally: WebKit
 (iPhone project — browser not installed here; CI runs it), PostgreSQL e2e (CI), Lighthouse.
-Next safe continuation point: PR CI green → apply D1 0004 to production (additive) → merge → verify live.
+Production D1 0004 APPLIED 2026-10-29 ~12:58 UTC after the owner's explicit approval («بەڵێ جێبەجێی بکە»), identity guard OK:
+4 nullable columns added to Business, d1_migrations row 4; readback: Business 3 / Location 3 unchanged, non-null social 0,
+FK violations 0; live health 200 (provider d1, migrations true) with the old code. PR #100 (draft PR #71 overlaps: same
+columns; PG migration made byte-identical to #71's).
+Next safe continuation point: PR #100 CI green → merge → verify deploy, health (now requires 0004) and live form/profile.
