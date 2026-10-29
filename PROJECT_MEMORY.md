@@ -1043,3 +1043,13 @@ PASS. `probe()` executed inside workerd with the production compatibility date/f
 no cookie). Not run here: PostgreSQL Worker smoke (no local Postgres; CI runs it), WebKit/iPhone project.
 Two false positives found by running the agents on the seeded database and fixed before commit: hreflang check was
 case-sensitive (React emits `hrefLang`, confirmed on live `/ckb`), and the AI message wrongly said "production" everywhere.
+
+## Autonomous engineering automation — 2026-10-29 candidate
+
+Task: persistent zero-additional-cost engineering triggers and nine logical roles, preserving existing Cloudflare/D1 and all functionality. Fresh main ec162ff includes owner-only operations inspectors; those are preserved. Central Google Doc read; GitHub main observed unprotected, repository public. Cloudflare read-only deployment check: rega24 deployment 8f81131b-9128-428d-8a2e-591ba342fdaa, version 14592e63-ad3f-4cd4-a500-81d88935ef6a at 100%. No remote runtime/data/secret/billing change.
+
+Added Engineering health weekly/manual audits, selected workflow_run failure metadata/log classification with no raw log publication, persistent bounded recovery queue and post-web-deploy D1 health. Existing full CI reused, new dependency-free collector tests added to CI. Nine logical roles and safe supported-session fix-branch/PR/resume/rollback protocol: [engineering automation](docs/AUTONOMOUS-ENGINEERING.md). No paid AI or new artifact/cache storage. Public-only hardcoded standard runners, bounded concurrency/timeouts. Billing account settings and remaining Codex entitlement UNKNOWN; no spending enabled.
+
+Local initial validation exposed missing generated Prisma clients and expected inventory drift; regenerate before final tests. Hosted full CI and actual schedule/workflow_run delivery remain pending PR/default-branch activation. General unattended arbitrary code repair cannot be enabled without a verified free supported execution entitlement; collector reports BLOCKED rather than invoking paid APIs. No automatic merge authorized. Main branch protection and pre-existing independent Python deployment need owner security review.
+
+Candidate validation completed: automation behavior 11/11 pass; existing unit suite 420 total, 416 pass/4 existing DB-only skips/0 failures; D1 10/10 plus batch preservation pass; lint/typecheck pass; npm lockfile audit zero vulnerabilities; inventory regeneration/docs validation/whitespace pass. Generated Prisma clients repaired the local setup without changing schema/dependencies. Full hosted build/browser/Python and live event delivery are not yet verified for this candidate.

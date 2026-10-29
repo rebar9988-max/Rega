@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-29T09:07:46.168Z",
+  "generatedAt": "2026-10-29T17:38:16.494Z",
   "package": {
     "name": "rega-platform",
     "version": "0.1.0",
@@ -41,6 +41,7 @@
     "database-preflight.yml",
     "db-migrate.yml",
     "deploy.yml",
+    "engineering-health.yml",
     "neon-branch.yml",
     "production-browser.yml",
     "production-health.yml",
