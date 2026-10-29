@@ -130,8 +130,12 @@ test("revoked owners cannot use an omitted-id Add submission to overwrite or rec
   const who = { email: `social-dedup-${stamp}@example.org`, password: "social-dedup-test-password" };
   const actor = await db.user.create({ data: { email: who.email, role: "BUSINESS_OWNER", locale: "de", emailVerified: new Date(), passwordHash: bcrypt.hashSync(who.password, 10) } });
   await login(page, who);
+  // Freeze only this case's browser timers so autosave cannot race the explicit server-action submission.
+  await page.clock.install();
+  await page.clock.pauseAt(new Date(Date.now() + 1000));
+  const categoryId = (await db.category.findUniqueOrThrow({ where: { key: "legal" } })).id;
   const name = `E2E Social duplicate ${stamp}`;
-  const response = await page.request.post("/api/v1/businesses", { data: { name, instagramUrl: accounts.instagramUrl } });
+  const response = await page.request.post("/api/v1/businesses", { data: { name, categoryId, instagramUrl: accounts.instagramUrl } });
   expect(response.status()).toBe(201);
   const id = (await response.json()).data.id;
   const count = await db.business.count();
@@ -144,6 +148,7 @@ test("revoked owners cannot use an omitted-id Add submission to overwrite or rec
     await expect(page.locator('input[name="id"]')).toHaveCount(0);
     const rejected = page.waitForResponse(r => r.request().method() === "POST" && new URL(r.url()).pathname === "/dr/businesses/new");
     await page.getByLabel("Name", { exact: true }).fill(name);
+    await page.getByRole("combobox", { name: "Kategorie", exact: true }).selectOption(categoryId);
     await page.locator('input[name="instagramUrl"]').fill("https://www.instagram.com/revoked.account/");
     await page.getByTestId("save-draft").click();
     // Next server actions serialize the existing HttpError as a failed RSC response; API denial remains403.
@@ -158,6 +163,7 @@ test("revoked owners cannot use an omitted-id Add submission to overwrite or rec
   await page.goto("/dr/businesses/new");
   await expect(page.locator('input[name="id"]')).toHaveCount(0);
   await page.getByLabel("Name", { exact: true }).fill(name);
+  await page.getByRole("combobox", { name: "Kategorie", exact: true }).selectOption(categoryId);
   await page.locator('input[name="instagramUrl"]').fill("https://www.instagram.com/active.owner/");
   await page.getByTestId("save-draft").click();
   await expect(page.getByTestId("draft-saved")).toBeVisible();
