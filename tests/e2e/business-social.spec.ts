@@ -175,7 +175,8 @@ test("revoked owners cannot use an omitted-id Add submission to overwrite or rec
 
 
 test.describe("social account CRUD with mobile touch", () => {
-  test.use({ ...devices["Pixel 5"] });
+  const pixel = devices["Pixel 5"];
+  test.use({ viewport: pixel.viewport, userAgent: pixel.userAgent, deviceScaleFactor: pixel.deviceScaleFactor, isMobile: pixel.isMobile, hasTouch: pixel.hasTouch });
   test("mobile touch Add and Edit persist, replace and remove optional social accounts", async ({ page }) => {
     test.setTimeout(90_000);
     const who = { email: `social-touch-${stamp}@example.org`, password: "social-touch-test-password" };
