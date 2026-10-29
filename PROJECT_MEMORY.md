@@ -982,3 +982,14 @@ version `373658b2-471c-4073-89fb-ae1b22587f63` at 100% (pre-change baseline). CL
 GitHub tool confirms access to this exact repository. Follow the existing PR/full-CI/exact-main deployment workflow;
 no direct production publish or database operation is authorized by this color task. Release results must be recorded
 before claiming completion.
+
+Candidate validation update (PR #99): final Node test build passes with the local-font transport noted above. Existing
+browser suites: 64 passed (public a11y, navigation, profiles, language switching); corrected new brand regression: 8/8
+passed, including desktop/mobile, light/dark, RTL/LTR, action/link/soft/focus/control/thumb ratios and brand axe contrast.
+The first eight brand cases failed because the test assumed a home-only wrapper existed on registration; repaired the
+test and reran all eight successfully. No application defect was hidden. Native control color also explicitly preserves
+white-thumb contrast. Visual baseline/candidate: 18/18 identical measured geometry and typography after matching test-only
+social configuration; asynchronous MapLibre internals excluded. Screenshots inspected; official artwork unchanged.
+Evidence: [local color QA](docs/evidence/brand-colors-2026-10-29.json). Extended the existing read-only production browser
+checker to assert the served primary against the checked-out CSS token, including scoped home surfaces. No workflow
+or deployment mechanism changed. Final hosted CI and production verification remain pending.
