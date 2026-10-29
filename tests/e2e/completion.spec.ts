@@ -119,7 +119,7 @@ test("opening hours: validated input, shown on the detail page; 'Open now' keeps
   await page.getByRole("combobox", { name: "Kategorie", exact: true }).selectOption({ label: "Recht" });
   // Hamburg, away from the Berlin demo data that other map tests cluster on.
   await page.getByLabel("Straße und Hausnummer").fill("Jungfernstieg 7");
-  await page.getByLabel("Land").selectOption("DE");
+  await page.locator('select[name="countryCode"]').selectOption("DE");
   await page.getByLabel("Stadt", { exact: true }).fill("Hamburg");
   await page.getByTestId("lat").fill("53.5511");
   await page.getByTestId("lng").fill("9.9937");

@@ -52,7 +52,7 @@ test("owner manages one cover and three gallery images; the profile shows them i
   await page.getByRole("combobox", { name: "Kategorie", exact: true }).selectOption({ label: "Recht" });
   // Hamburg, away from the Berlin demo listings that other tests count.
   await page.getByLabel("Straße und Hausnummer").fill("Jungfernstieg 7");
-  await page.getByLabel("Land").selectOption("DE");
+  await page.locator('select[name="countryCode"]').selectOption("DE");
   await page.getByLabel("Stadt", { exact: true }).fill("Hamburg");
   await page.getByLabel("Postleitzahl").fill("20354");
   await page.getByTestId("lat").fill("53.5511");

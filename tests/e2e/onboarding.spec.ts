@@ -34,7 +34,7 @@ async function fillOwnerSteps(page: Page, name: string, opts: { german?: boolean
     await page.getByLabel("Deutsch", { exact: true }).check();
   }
   await page.getByLabel("Straße und Hausnummer").fill("Oranienstraße 1");
-  await page.getByLabel("Land").selectOption("DE");
+  await page.locator('select[name="countryCode"]').selectOption("DE");
   await page.getByLabel("Stadt", { exact: true }).fill("Berlin");
   await page.getByLabel("Postleitzahl").fill("10999");
   await page.getByTestId("find-location").click();
