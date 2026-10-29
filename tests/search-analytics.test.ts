@@ -34,7 +34,7 @@ test("stats sum per text and per day, list the most searched and the not-found t
 
 test("D1 migration: one atomic UPSERT per search keeps one row per day, language and text", () => {
   const db = new DatabaseSync(":memory:");
-  db.exec(readFileSync("prisma/d1/migrations/0004_search_query_daily.sql", "utf8"));
+  db.exec(readFileSync("prisma/d1/migrations/0005_search_query_daily.sql", "utf8"));
   // The statement of recordSearch (lib/search-analytics.ts), with SQLite placeholders.
   const upsert = db.prepare(`INSERT INTO "SearchQueryDaily" ("id", "day", "locale", "query", "searches", "zeroResults")
       VALUES (?, ?, ?, ?, 1, ?)
