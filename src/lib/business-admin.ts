@@ -18,6 +18,10 @@ import { PUBLIC_BUSINESS } from "@/lib/search-where";
 import { ownsBusinessImages } from "@/lib/business-media";
 import { businessSocialSchemas } from "./business-social-schema";
 import { normalizeWhatsapp } from "@/lib/whatsapp";
+import { addCreatorAsMember, assertBusinessAccess } from "@/lib/business-access";
+import type { SessionUser } from "@/lib/auth-helpers";
+
+type BusinessActor = Pick<SessionUser, "id" | "role">;
 
 /** ISO 3166-1 alpha-2 codes offered in the form (plus any country already in the database). */
 export const FORM_COUNTRIES = ["DE", "AT", "CH", "NL", "BE", "LU", "FR", "GB", "IE", "DK", "SE", "NO", "FI", "IT", "ES", "PL", "CZ", "IQ", "TR", "IR", "SY", "US", "CA", "AU"] as const;
@@ -158,7 +162,7 @@ export type SavePerms = { canPublish: boolean; canCreateCity: boolean };
  * explicit confirmation lose their verification, so a moved marker must be confirmed again before publishing.
  * With intent "publish" the business is published only when every publish requirement is met.
  */
-export async function saveBusiness(input: BusinessForm, actor: { id: string }, perms: SavePerms): Promise<SaveResult> {
+export async function saveBusiness(input: BusinessForm, actor: BusinessActor, perms: SavePerms): Promise<SaveResult> {
   try {
     return await save(input, actor, perms);
   } catch (error) {
@@ -170,7 +174,7 @@ export async function saveBusiness(input: BusinessForm, actor: { id: string }, p
   }
 }
 
-async function save(input: BusinessForm, actor: { id: string }, { canPublish, canCreateCity }: SavePerms): Promise<SaveResult> {
+async function save(input: BusinessForm, actor: BusinessActor, { canPublish, canCreateCity }: SavePerms): Promise<SaveResult> {
   const result = await databaseTransaction(async (tx) => {
     // A draft may not have a location yet; every other intent was validated to have one.
     const loc = input.addressLine1 && input.city && input.countryCode ? { addressLine1: input.addressLine1, city: input.city, countryCode: input.countryCode } : null;
@@ -185,7 +189,11 @@ async function save(input: BusinessForm, actor: { id: string }, { canPublish, ca
       });
       targetId = recent?.id;
     }
-    if (targetId) await lockBusiness(tx, targetId);
+    if (targetId) {
+      await lockBusiness(tx, targetId);
+      // A retried create resolves to an existing draft too; creator identity cannot restore revoked membership.
+      await assertBusinessAccess(actor, targetId, tx);
+    }
     if (input.categoryId && !await tx.category.findFirst({ where: { id: input.categoryId, ...BUSINESS_CATEGORY }, select: { id: true } })) throw new CategoryInvalid();
     const before = targetId
       ? await tx.business.findFirst({ where: { id: targetId, deletedAt: null }, include: { locations: { where: { isPrimary: true, deletedAt: null }, take: 1 } } })
@@ -221,6 +229,8 @@ async function save(input: BusinessForm, actor: { id: string }, { canPublish, ca
       const taken = (await tx.business.findUnique({ where: { slug }, select: { id: true } })) || (await tx.category.findUnique({ where: { slug }, select: { id: true } }));
       if (taken) slug = `${slug}-${Date.now().toString(36)}`;
       business = await tx.business.create({ data: { ...businessData, slug, status: "draft", createdById: actor.id } });
+      // Create ownership atomically so a concurrent create retry sees the membership before deduplication.
+      await addCreatorAsMember(actor, business.id, tx);
     }
 
     // Languages without a column of their own (en, fa) live in BusinessTranslation rows.

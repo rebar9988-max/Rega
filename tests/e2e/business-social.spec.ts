@@ -124,6 +124,49 @@ test("API create accepts zero, one and four links; server rejects malicious URLs
   await otherContext.close();
 });
 
+
+test("revoked owners cannot use an omitted-id Add submission to overwrite or reclaim a recent draft", async ({ page }) => {
+  test.setTimeout(90_000);
+  const who = { email: `social-dedup-${stamp}@example.org`, password: "social-dedup-test-password" };
+  const actor = await db.user.create({ data: { email: who.email, role: "BUSINESS_OWNER", locale: "de", emailVerified: new Date(), passwordHash: bcrypt.hashSync(who.password, 10) } });
+  await login(page, who);
+  const name = `E2E Social duplicate ${stamp}`;
+  const response = await page.request.post("/api/v1/businesses", { data: { name, instagramUrl: accounts.instagramUrl } });
+  expect(response.status()).toBe(201);
+  const id = (await response.json()).data.id;
+  const count = await db.business.count();
+  await db.businessMember.updateMany({ where: { businessId: id, userId: actor.id }, data: { isActive: false } });
+  const before = await read(id);
+  const membership = await db.businessMember.findMany({ where: { businessId: id } });
+  page.on("dialog", dialog => dialog.accept());
+  try {
+    await page.goto("/dr/businesses/new");
+    await expect(page.locator('input[name="id"]')).toHaveCount(0);
+    const rejected = page.waitForResponse(r => r.request().method() === "POST" && new URL(r.url()).pathname === "/dr/businesses/new");
+    await page.getByLabel("Name", { exact: true }).fill(name);
+    await page.locator('input[name="instagramUrl"]').fill("https://www.instagram.com/revoked.account/");
+    await page.getByTestId("save-draft").click();
+    // Next server actions serialize the existing HttpError as a failed RSC response; API denial remains403.
+    expect([403, 500]).toContain((await rejected).status());
+    expect(await read(id)).toEqual(before);
+    expect(await db.businessMember.findMany({ where: { businessId: id } })).toEqual(membership);
+    expect(await db.business.count()).toBe(count);
+  } finally {
+    await db.businessMember.updateMany({ where: { businessId: id, userId: actor.id }, data: { isActive: true } });
+  }
+  // The legitimate owner still reuses the draft and persists the changed account without duplication.
+  await page.goto("/dr/businesses/new");
+  await expect(page.locator('input[name="id"]')).toHaveCount(0);
+  await page.getByLabel("Name", { exact: true }).fill(name);
+  await page.locator('input[name="instagramUrl"]').fill("https://www.instagram.com/active.owner/");
+  await page.getByTestId("save-draft").click();
+  await expect(page.getByTestId("draft-saved")).toBeVisible();
+  await expect(page.locator('input[name="id"]')).toHaveValue(id);
+  expect((await read(id)).instagramUrl).toBe("https://www.instagram.com/active.owner/");
+  expect(await db.business.count()).toBe(count);
+  expect(await db.businessMember.count({ where: { businessId: id, userId: actor.id, isActive: true } })).toBe(1);
+});
+
 test("public saved links have authentic icons, safe exact destinations, correct hierarchy and responsive RTL/LTR geometry", async ({ page, browser }) => {
   test.setTimeout(300_000);
   await login(page);

@@ -10,21 +10,22 @@ import { HttpError, type SessionUser } from "@/lib/auth-helpers";
 import { atLeast, type Role } from "@/lib/rbac";
 
 type Actor = Pick<SessionUser, "id" | "role">;
+type MembershipStore = Pick<Prisma.TransactionClient, "businessMember">;
 
 /** Roles that manage all businesses regardless of membership. */
 export function hasGlobalBusinessAccess(role: Role | null | undefined): boolean {
   return atLeast(role, "MANAGER");
 }
 
-export async function canManageBusiness(user: Actor, businessId: string): Promise<boolean> {
+export async function canManageBusiness(user: Actor, businessId: string, db: MembershipStore = prisma): Promise<boolean> {
   if (hasGlobalBusinessAccess(user.role)) return true;
-  const member = await prisma.businessMember.findFirst({ where: { businessId, userId: user.id, isActive: true }, select: { id: true } });
+  const member = await db.businessMember.findFirst({ where: { businessId, userId: user.id, isActive: true }, select: { id: true } });
   return Boolean(member);
 }
 
 /** Throws 403 unless the user may manage this business. */
-export async function assertBusinessAccess(user: Actor, businessId: string): Promise<void> {
-  if (!(await canManageBusiness(user, businessId))) throw new HttpError(403, "forbidden", "You do not manage this business.");
+export async function assertBusinessAccess(user: Actor, businessId: string, db: MembershipStore = prisma): Promise<void> {
+  if (!(await canManageBusiness(user, businessId, db))) throw new HttpError(403, "forbidden", "You do not manage this business.");
 }
 
 /** Filter for lists: which businesses this user may manage. */
@@ -41,9 +42,9 @@ export async function manageableIds(user: Actor, ids: string[]): Promise<string[
 }
 
 /** A non-global creator becomes a member of the business they created, so they can keep editing it. */
-export async function addCreatorAsMember(user: Actor, businessId: string): Promise<void> {
+export async function addCreatorAsMember(user: Actor, businessId: string, db: MembershipStore = prisma): Promise<void> {
   if (hasGlobalBusinessAccess(user.role)) return;
-  await prisma.businessMember.upsert({
+  await db.businessMember.upsert({
     where: { businessId_userId: { businessId, userId: user.id } },
     update: { isActive: true },
     create: { businessId, userId: user.id, role: "EMPLOYEE" },

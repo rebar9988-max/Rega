@@ -90,7 +90,13 @@
     "pythonAuditFollowup": {
       "sourcePR": 82,
       "fix": "pytest>=9.0.3,<10; strict pip-audit in existing CI",
-      "status": "PENDING CURRENT HEAD AUDIT; historical npm-only audit did not cover Python"
+      "status": "PASS on13c CI step; new authorization head requires full fresh CI"
+    },
+    "authorizationRemediation": {
+      "status": "IMPLEMENTED; fresh CI required",
+      "finding": "Existing omitted-id create dedup skipped active membership and post-save upsert could regrant revoked access",
+      "fix": "Shared transaction-aware access guard after target resolution; atomic first membership; no action post-commit regrant",
+      "regression": "Native D1 concurrent-create, omitted/explicit denied updates, no-row/no-membership/no-audit changes, active owner and global staff positive controls; browser action denial/positive dedup on both providers"
     }
   },
   "release": {
