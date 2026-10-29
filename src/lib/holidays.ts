@@ -17,7 +17,7 @@ import type { Locale } from "@/config/locales";
 export type HolidayNames = Record<Locale, string>;
 export type Holiday = { key: string; date: string; names: HolidayNames };
 
-type Rule = { key: string; regions?: readonly string[]; date: (year: number) => string; names: HolidayNames };
+type Rule = { key: string; regions?: readonly string[]; date: (year: number) => string; names: LaunchNames };
 
 const pad = (n: number) => String(n).padStart(2, "0");
 const ymd = (y: number, m: number, d: number) => `${y}-${pad(m)}-${pad(d)}`;
@@ -47,7 +47,33 @@ const repentanceDay = (y: number) => {
   return addDays(ymd(y, 11, 23), -back);
 };
 
-const n = (ckb: string, kmr: string, de: string, en: string, ar: string, fa: string, tr: string): HolidayNames => ({ ckb, kmr, de, en, ar, fa, tr });
+type LaunchNames = Omit<HolidayNames, "fr" | "sv" | "nl" | "it">;
+const n = (ckb: string, kmr: string, de: string, en: string, ar: string, fa: string, tr: string): LaunchNames => ({ ckb, kmr, de, en, ar, fa, tr });
+
+/** Names in the languages added for the European markets: [fr, sv, nl, it], by holiday key. */
+const EUROPEAN_NAMES: Record<string, readonly [string, string, string, string]> = {
+  "new-year": ["Jour de l’An", "Nyårsdagen", "Nieuwjaarsdag", "Capodanno"],
+  "epiphany": ["Épiphanie", "Trettondedag jul", "Driekoningen", "Epifania"],
+  "womens-day": ["Journée internationale des droits des femmes", "Internationella kvinnodagen", "Internationale Vrouwendag", "Giornata internazionale della donna"],
+  "good-friday": ["Vendredi saint", "Långfredagen", "Goede Vrijdag", "Venerdì santo"],
+  "easter-monday": ["Lundi de Pâques", "Annandag påsk", "Tweede paasdag", "Lunedì dell’Angelo"],
+  "labour-day": ["Fête du Travail", "Första maj", "Dag van de Arbeid", "Festa dei lavoratori"],
+  "ascension": ["Ascension", "Kristi himmelsfärdsdag", "Hemelvaartsdag", "Ascensione"],
+  "whit-monday": ["Lundi de Pentecôte", "Annandag pingst", "Tweede pinksterdag", "Lunedì di Pentecoste"],
+  "corpus-christi": ["Fête-Dieu", "Kristi lekamens fest", "Sacramentsdag", "Corpus Domini"],
+  "assumption": ["Assomption", "Marie himmelsfärd", "Maria-Tenhemelopneming", "Assunzione"],
+  "childrens-day": ["Journée mondiale de l’enfance", "Världsbarndagen", "Wereldkinderdag", "Giornata mondiale dell’infanzia"],
+  "unity-day": ["Jour de l’Unité allemande", "Tysklands enhetsdag", "Dag van de Duitse Eenheid", "Giorno dell’unità tedesca"],
+  "reformation-day": ["Fête de la Réformation", "Reformationsdagen", "Hervormingsdag", "Festa della Riforma"],
+  "all-saints": ["Toussaint", "Allhelgonadagen", "Allerheiligen", "Ognissanti"],
+  "repentance-day": ["Jour de repentance et de prière", "Bot- och bönedagen", "Boete- en Biddag", "Giorno di penitenza e preghiera"],
+  "christmas": ["Noël", "Juldagen", "Eerste kerstdag", "Natale"],
+  "boxing-day": ["Lendemain de Noël", "Annandag jul", "Tweede kerstdag", "Santo Stefano"],
+  "army-day": ["Jour de l’Armée", "Arméns dag", "Dag van het Leger", "Giornata dell’esercito"],
+  "nowruz": ["Norouz", "Nowruz", "Nowruz", "Nowruz"],
+  "national-day": ["Fête nationale", "Nationaldagen", "Nationale feestdag", "Festa nazionale"],
+  "victory-day": ["Jour de la Victoire", "Segerdagen", "Overwinningsdag", "Giorno della vittoria"],
+};
 
 const NEW_YEAR = n("سەری ساڵی زایینی", "Sersal", "Neujahr", "New Year's Day", "رأس السنة الميلادية", "سال نو میلادی", "Yılbaşı");
 const LABOUR = n("ڕۆژی کرێکاران", "Roja Karkeran", "Tag der Arbeit", "Labour Day", "عيد العمال", "روز کارگر", "Emek ve Dayanışma Günü");
@@ -95,5 +121,8 @@ export function holidaysOn(countryCode: string | null | undefined, regionSlug: s
   return rules
     .filter((r) => !r.regions || (regionSlug ? r.regions.includes(regionSlug) : false))
     .filter((r) => r.date(year) === date)
-    .map((r) => ({ key: r.key, date, names: r.names }));
+    .map((r) => {
+      const [fr, sv, nl, it] = EUROPEAN_NAMES[r.key] ?? [r.names.en, r.names.en, r.names.en, r.names.en];
+      return { key: r.key, date, names: { ...r.names, fr, sv, nl, it } };
+    });
 }

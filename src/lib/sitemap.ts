@@ -15,8 +15,8 @@ import { descendantIds } from "@/lib/category-tree";
 import { hasPublicBusinesses, hasPublicServices, hasPublishedEntries } from "@/lib/indexable";
 import { PUBLIC_BUSINESS } from "@/lib/search-where";
 
-/** Records per file: 2,000 x 7 locales = 14,000 URLs, far below the protocol limit of 50,000. */
-export const CHUNK = 2000;
+/** Records per file: 1,000 x 11 locales = 11,000 URLs, far below the protocol limit of 50,000 (and a file no larger than the earlier 2,000 x 7). */
+export const CHUNK = 1000;
 
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 

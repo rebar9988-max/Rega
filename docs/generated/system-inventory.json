@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-29T02:34:49.668Z",
+  "generatedAt": "2026-10-29T03:14:07.514Z",
   "package": {
     "name": "rega-platform",
     "version": "0.1.0",
@@ -109,7 +109,11 @@
     "de",
     "en",
     "fa",
+    "fr",
+    "it",
     "kmr",
+    "nl",
+    "sv",
     "tr"
   ],
   "sections": [

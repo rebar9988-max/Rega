@@ -103,7 +103,7 @@ There is no paid monitoring product in the repository. Health checks are GitHub 
 | `src/lib/` | db, env, rbac, storage, email, search, seo, rate-limit, edge-cache, logger. Example: [src/lib/env.ts](src/lib/env.ts) |
 | `src/lib/ai/` | gateway, routing, providers, optional Python client. Example: [src/lib/ai/gateway.ts](src/lib/ai/gateway.ts) |
 | `src/config/` | locales, sections, legal owner facts. Example: [src/config/sections.ts](src/config/sections.ts) |
-| `src/messages/` | seven UI catalogues. Example: [src/messages/en.json](src/messages/en.json) |
+| `src/messages/` | eleven UI catalogues (ckb, kmr, de, en, ar, fa, tr, fr, sv, nl, it). Example: [src/messages/en.json](src/messages/en.json) |
 | `src/i18n/` | next-intl. Example: [src/i18n/request.ts](src/i18n/request.ts) |
 | `prisma/` | schema, migrations, seed. Example: [prisma/schema.prisma](prisma/schema.prisma) |
 | `services/ai-python/` | isolated Python Worker. Example: [services/ai-python/src/main.py](services/ai-python/src/main.py) |

@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 const HOST = "https://www.rega24.com";
-const LOCALES = ["ckb", "kmr", "de", "en", "ar", "fa", "tr"];
+const LOCALES = ["ckb", "kmr", "de", "en", "ar", "fa", "tr", "fr", "sv", "nl", "it"];
 const PAGES = ["", "/businesses", "/services", "/locations", "/ai", "/about"];
 
 for (const locale of LOCALES) {

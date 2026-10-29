@@ -29,7 +29,7 @@ async function fillBasics(page: Page, name: string, address: string, city: strin
   await page.getByRole("combobox", { name: "Kategorie", exact: true }).selectOption({ label: "Recht" });
   await page.getByLabel("Telefon").fill("+49 30 000000");
   await page.getByLabel("Straße und Hausnummer").fill(address);
-  await page.getByLabel("Land").selectOption("DE");
+  await page.locator('select[name="countryCode"]').selectOption("DE");
   await page.getByLabel("Stadt", { exact: true }).fill(city);
 }
 

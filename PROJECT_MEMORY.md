@@ -864,3 +864,34 @@ Design: **no schema change, no migration**. The optional keys `holidays: "closed
   - Kurdistan-Region-only holidays are not modelled (no verified list).
   - No Lighthouse measurement yet.
 - Next safe continuation point (owner order): Lighthouse → Jobs launch → search analytics.
+
+## Global expansion — 11 interface languages, 13 European target markets — 2026-10-29 (PR #93)
+
+Owner brief "REGA24 global expansion & international experience". Identity guard OK (REGA, branch `claude/rega24-global-expansion-dc071c`).
+Audit (read-only, production D1 `728f792d…`): 6 of 13 target countries existed (DE, FR, SE, NL, GB, AT) + IQ; missing BE, CH, GR,
+NO, DK, FI, IT. Locales: 7 (ckb, kmr, de, en, ar, fa, tr); fr, sv, nl, it missing. Non-German countries showed an empty default
+city list in the location selector, and the language switcher dropped the query string (search/filters/country/city).
+
+Changes (no schema, route or design-token change):
+- `src/config/locales.ts`: fr, sv, nl, it (LTR) registered once; full catalogues (all keys, placeholder/tag parity tested);
+  glossary, AI system prompts, beta copy, holiday names (#92) in the new languages. Native labels per brief: «کوردیی سۆرانی»,
+  «Kurmancî». "Seven languages" copy changed to eleven in every catalogue. Legal pages of the new locales keep the English
+  fallback that points to the binding German text (no unreviewed legal translation).
+- Language switcher: 11 entries (scrollable), keeps the page and its query.
+- Seed: the 7 missing countries, each with capital region + capital (Brussels, Bern, Athens, Oslo, Copenhagen, Helsinki, Rome),
+  names in the 7 column languages. `prisma/d1/data/20261029_europe_target_countries.sql`: insert-only, idempotent, documented
+  undo; rehearsed on SQLite built from the D1 migrations (+7/+7/+14/+7, rerun no-op, FK clean, undo restores counts).
+- `MARKET_COUNTRY_CODES` (src/lib/data/markets.ts): selector and directory filter always offer the 13 markets; country names
+  from stored column or CLDR `Intl.DisplayNames`, with flag. Each market's seeded city is in `MAJOR_CITY_SLUGS`.
+- Sitemap CHUNK 2,000 → 1,000 (11 locales keep the earlier per-file size).
+- Names of categories/cities/businesses in fr/sv/nl/it fall back to English (public reads use legacy columns only); adding
+  translated names in the admin panel is the owner's data step.
+
+Tests: lint, typecheck; `npm test` 383 tests, 379 pass, 0 fail, 4 DB-only skips (incl. 143 language × country combinations).
+Local Playwright on disposable D1 (desktop + mobile, before merging #92): 403/403 pass, incl. `international.spec.ts` (143 HTTP
+combinations, 13 interactive locale/country runs, the owner's three examples, profile language switch). Six existing specs
+used `getByLabel("Land")`, which now also matches «Nederlands»; they select `select[name="countryCode"]` instead.
+
+Production data: NOT applied. The D1 write was refused by this session's permission system (production action). Pre-change
+snapshot 2026-10-29T01:58:13Z: Country 7, Region 28, RegionTranslation 91, City 2058, Business 3, Location 3 (Time Travel point).
+Next safe continuation point: owner applies the SQL file (command in its header), then verify `/api/v1/geo?country=IT` lists Rome.

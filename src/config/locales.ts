@@ -5,7 +5,7 @@
  *
  * Add a language: add its code to LOCALES, one entry to RAW_LOCALE_META and `src/messages/<code>.json`. Nothing else.
  */
-export const LOCALES = ["ckb", "kmr", "de", "en", "ar", "fa", "tr"] as const;
+export const LOCALES = ["ckb", "kmr", "de", "en", "ar", "fa", "tr", "fr", "sv", "nl", "it"] as const;
 export type Locale = (typeof LOCALES)[number];
 
 export const DEFAULT_LOCALE: Locale = "ckb";
@@ -43,10 +43,10 @@ type RawLocaleMeta = Omit<LocaleMeta, "dir">;
 const RAW_LOCALE_META: Record<Locale, RawLocaleMeta> = {
   ckb: {
     code: "ckb",
-    fallbacks: ["ar", "fa", "en", "de", "tr", "kmr"],
+    fallbacks: ["ar", "fa", "en", "de", "tr", "kmr", "fr", "it", "nl", "sv"],
     short: "CKB",
     script: "arab",
-    nativeName: "کوردیی ناوەندی",
+    nativeName: "کوردیی سۆرانی",
     englishName: "Kurdish (Sorani)",
     htmlLang: "ckb-IQ",
     numberingSystem: "arabext",
@@ -56,10 +56,10 @@ const RAW_LOCALE_META: Record<Locale, RawLocaleMeta> = {
   },
   kmr: {
     code: "kmr",
-    fallbacks: ["tr", "en", "de", "ckb", "ar", "fa"],
+    fallbacks: ["tr", "en", "de", "ckb", "ar", "fa", "fr", "it", "nl", "sv"],
     short: "KU",
     script: "latn",
-    nativeName: "Kurmancî (Badînî)",
+    nativeName: "Kurmancî",
     englishName: "Kurdish (Kurmanji/Badini)",
     // The kmr catalogue is Latin (Hawar) script, therefore LTR.
     htmlLang: "kmr",
@@ -70,7 +70,7 @@ const RAW_LOCALE_META: Record<Locale, RawLocaleMeta> = {
   },
   de: {
     code: "de",
-    fallbacks: ["en", "tr", "ar", "fa", "ckb", "kmr"],
+    fallbacks: ["en", "tr", "ar", "fa", "ckb", "kmr", "fr", "it", "nl", "sv"],
     short: "DE",
     script: "latn",
     nativeName: "Deutsch",
@@ -83,7 +83,7 @@ const RAW_LOCALE_META: Record<Locale, RawLocaleMeta> = {
   },
   en: {
     code: "en",
-    fallbacks: ["de", "tr", "ar", "fa", "ckb", "kmr"],
+    fallbacks: ["de", "tr", "ar", "fa", "ckb", "kmr", "fr", "it", "nl", "sv"],
     short: "EN",
     script: "latn",
     nativeName: "English",
@@ -96,7 +96,7 @@ const RAW_LOCALE_META: Record<Locale, RawLocaleMeta> = {
   },
   ar: {
     code: "ar",
-    fallbacks: ["fa", "ckb", "en", "de", "tr", "kmr"],
+    fallbacks: ["fa", "ckb", "en", "de", "tr", "kmr", "fr", "it", "nl", "sv"],
     short: "AR",
     script: "arab",
     nativeName: "العربية",
@@ -109,7 +109,7 @@ const RAW_LOCALE_META: Record<Locale, RawLocaleMeta> = {
   },
   fa: {
     code: "fa",
-    fallbacks: ["ar", "ckb", "en", "de", "tr", "kmr"],
+    fallbacks: ["ar", "ckb", "en", "de", "tr", "kmr", "fr", "it", "nl", "sv"],
     short: "FA",
     script: "arab",
     nativeName: "فارسی",
@@ -122,7 +122,7 @@ const RAW_LOCALE_META: Record<Locale, RawLocaleMeta> = {
   },
   tr: {
     code: "tr",
-    fallbacks: ["kmr", "en", "de", "ar", "fa", "ckb"],
+    fallbacks: ["kmr", "en", "de", "ar", "fa", "ckb", "fr", "it", "nl", "sv"],
     short: "TR",
     script: "latn",
     nativeName: "Türkçe",
@@ -131,6 +131,58 @@ const RAW_LOCALE_META: Record<Locale, RawLocaleMeta> = {
     numberingSystem: "latn",
     fontStack: "'Inter', 'Segoe UI', system-ui, sans-serif",
     dateFormat: "DD.MM.YYYY",
+    currency: "EUR",
+  },
+  fr: {
+    code: "fr",
+    fallbacks: ["en", "de", "it", "nl", "sv", "tr", "ar", "fa", "ckb", "kmr"],
+    short: "FR",
+    script: "latn",
+    nativeName: "Français",
+    englishName: "French",
+    htmlLang: "fr-FR",
+    numberingSystem: "latn",
+    fontStack: "'Inter', 'Segoe UI', system-ui, sans-serif",
+    dateFormat: "DD/MM/YYYY",
+    currency: "EUR",
+  },
+  sv: {
+    code: "sv",
+    fallbacks: ["en", "de", "nl", "fr", "it", "tr", "ar", "fa", "ckb", "kmr"],
+    short: "SV",
+    script: "latn",
+    nativeName: "Svenska",
+    englishName: "Swedish",
+    htmlLang: "sv-SE",
+    numberingSystem: "latn",
+    fontStack: "'Inter', 'Segoe UI', system-ui, sans-serif",
+    dateFormat: "YYYY-MM-DD",
+    currency: "EUR",
+  },
+  nl: {
+    code: "nl",
+    fallbacks: ["en", "de", "fr", "sv", "it", "tr", "ar", "fa", "ckb", "kmr"],
+    short: "NL",
+    script: "latn",
+    nativeName: "Nederlands",
+    englishName: "Dutch",
+    htmlLang: "nl-NL",
+    numberingSystem: "latn",
+    fontStack: "'Inter', 'Segoe UI', system-ui, sans-serif",
+    dateFormat: "DD-MM-YYYY",
+    currency: "EUR",
+  },
+  it: {
+    code: "it",
+    fallbacks: ["en", "fr", "de", "nl", "sv", "tr", "ar", "fa", "ckb", "kmr"],
+    short: "IT",
+    script: "latn",
+    nativeName: "Italiano",
+    englishName: "Italian",
+    htmlLang: "it-IT",
+    numberingSystem: "latn",
+    fontStack: "'Inter', 'Segoe UI', system-ui, sans-serif",
+    dateFormat: "DD/MM/YYYY",
     currency: "EUR",
   },
 };

@@ -48,7 +48,7 @@ src/lib/               cross-cutting services behind small interfaces: search/, 
 src/app/[locale]/      public pages (always locale-prefixed)
 src/app/dr/            dashboard for staff and business owners (noindex)
 src/app/api/v1/        REST API shared by web and apps
-src/messages/*.json    UI strings for the seven locales
+src/messages/*.json    UI strings for the eleven locales
 prisma/                schema, additive migrations, idempotent seed (+ seed-data/)
 ```
 
@@ -138,7 +138,7 @@ Conversations are deleted after 30 days (`AI_RETENTION_DAYS`). See `docs/PYTHON-
 | `/{locale}/business/{slug}` | canonical business page; `/businesses/{slug}` 308-redirects |
 | `/{locale}/jobs`, `/events`, `/guides` (+ `/{slug}`) | content sections |
 | `/{locale}/p/{slug}` | CMS pages |
-| `/sitemap.xml` → `/sitemaps/*.xml` | index and chunk files of at most 2,000 records × 7 locales |
+| `/sitemap.xml` → `/sitemaps/*.xml` | index and chunk files of at most 1,000 records × 11 locales |
 
 ## Security and privacy
 

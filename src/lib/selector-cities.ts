@@ -7,7 +7,8 @@
 export const SELECTOR_CITY_LIMIT = 80;
 
 /**
- * Curated German cities (prisma/seed-data/geography.ts). Always offered, even
+ * Curated cities (prisma/seed-data/geography.ts): the German set, then the seeded city of each other European target
+ * market. Queries are scoped to one country, so each country offers only its own. Always offered, even
  * before any business is published, so the "where" search stays useful.
  * Cities an admin adds are marked and offered the same way, even at count 0.
  * The bulk gazetteer appears only once a city has a public listing.
@@ -28,6 +29,18 @@ export const MAJOR_CITY_SLUGS = [
   "duisburg",
   "bonn",
   "nuernberg",
+  "wien",
+  "paris",
+  "stockholm",
+  "amsterdam",
+  "london",
+  "brussels",
+  "bern",
+  "athens",
+  "oslo",
+  "copenhagen",
+  "helsinki",
+  "rome",
 ] as const;
 
 const majorOrder = new Map<string, number>(MAJOR_CITY_SLUGS.map((slug, index) => [slug, index]));
