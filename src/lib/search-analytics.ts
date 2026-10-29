@@ -29,10 +29,16 @@ export async function recordSearch(input: { q: string; locale: string; total: nu
 /** Totals, most searched texts and texts that found nothing, over the last `days` UTC days (today included). */
 export async function searchStats(days: number, locale?: string, now = new Date()): Promise<SearchStats> {
   const since = new Date(now.getTime() - (days - 1) * 86_400_000).toISOString().slice(0, 10);
-  const rows = await prisma.searchQueryDaily.findMany({
-    where: { day: { gte: since }, ...(locale ? { locale } : {}) },
-    select: { day: true, query: true, searches: true, zeroResults: true },
-    take: 20_000,
-  });
-  return summarize(rows, days);
+  try {
+    const rows = await prisma.searchQueryDaily.findMany({
+      where: { day: { gte: since }, ...(locale ? { locale } : {}) },
+      select: { day: true, query: true, searches: true, zeroResults: true },
+      take: 20_000,
+    });
+    return summarize(rows, days);
+  } catch (error) {
+    // Table not created yet (migration pending) or a database hiccup: the dashboard shows "no searches" instead of failing.
+    log.error("search.analytics.read_failed", { error: error instanceof Error ? error.message : String(error) });
+    return summarize([], days);
+  }
 }
