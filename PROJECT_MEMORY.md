@@ -987,7 +987,7 @@ Changes:
   category; sub-categories and future categories inherit (unknown → universal only). Stored as `feature:<id>` in the
   existing `Business.tags`; other tags kept; server drops ids the category does not offer. Shown as chips on the profile.
 - DB: ADDITIVE migration — 4 nullable TEXT columns on Business (`facebookUrl`, `instagramUrl`, `tiktokUrl`, `snapchatUrl`):
-  PostgreSQL `20261029120000_business_social_links`, D1 `0004_business_social_links.sql`. Health now requires 0004.
+  PostgreSQL `20261024220000_business_social_links` (byte-identical to draft PR #71, so the columns are never added twice), D1 `0004_business_social_links.sql`. Health now requires 0004.
   Production D1 must have 0004 applied BEFORE the merge deploys (new code reads the columns).
 
 Tests (local, this container): lint, typecheck, `npm test` 389 pass / 0 fail / 4 DB-only skips (new: social-links,
