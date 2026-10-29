@@ -855,3 +855,12 @@ Design: **no schema change, no migration**. The optional keys `holidays: "closed
   - `npm test`: 377 tests, 373 pass, 0 fail, 4 DB-only skips. `test:d1` 10/10. Typecheck and lint pass.
   - E2E on a disposable D1 (`build:node`), 10 spec files that use the business form, hours, nearby or profile: 96 passed on desktop and mobile, including the new test.
   - The 8 iPhone/WebKit cases could not start because WebKit is not installed in this container (environment limit); CI installs it.
+- Release: PR #92 squash `846a18b`. PR CI `verify` passed, including the iPhone/WebKit E2E that this container cannot run. Exact-main CI 40802502526, Deploy 40806219013, Beta health 40806219024 and Production browser check 40806341935 all succeeded.
+  - Live checks at 02:34 UTC: `/api/health` ok, provider d1. `/ckb`, `/ckb/businesses`, `/ckb/nearby`, `/en/ai` and open-now search return 200.
+  - Playwright: taakline (IQ, Thursday 05:34) shows «داخراوە · دەکرێتەوە لە 11:00»; karwans-hairtuning (DE) shows «Geschlossen · Öffnet Samstag um 09:00». Both match the stored hours and local time. No holiday note, correctly: 29 October is not a holiday.
+  - No production data was changed; existing listings have no exceptions yet.
+- Remaining:
+  - Islamic holidays must be entered per business as dates.
+  - Kurdistan-Region-only holidays are not modelled (no verified list).
+  - No Lighthouse measurement yet.
+- Next safe continuation point (owner order): Lighthouse → Jobs launch → search analytics.
