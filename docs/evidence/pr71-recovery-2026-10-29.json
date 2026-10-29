@@ -86,7 +86,12 @@
   "security": {
     "oldProviderKeyRevocation": "OWNER-ATTESTED: both revoked/replaced",
     "independentProviderAudit": "NOT VERIFIED",
-    "keyValuesRead": false
+    "keyValuesRead": false,
+    "pythonAuditFollowup": {
+      "sourcePR": 82,
+      "fix": "pytest>=9.0.3,<10; strict pip-audit in existing CI",
+      "status": "PENDING CURRENT HEAD AUDIT; historical npm-only audit did not cover Python"
+    }
   },
   "release": {
     "pr": 71,
