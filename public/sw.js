@@ -5,7 +5,7 @@
  * Pages, API responses, the dashboard and anything with personal data are NEVER stored: navigations always go to the
  * network. Bump VERSION to drop old caches.
  */
-const VERSION = "v2";
+const VERSION = "v3"; // Refresh the precached offline page after the official-red color migration.
 const CACHE = `rega-static-${VERSION}`;
 const OFFLINE = "/offline.html";
 const PRECACHE = [OFFLINE, "/brand/rega-mark-256.webp"];

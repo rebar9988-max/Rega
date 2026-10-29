@@ -1,5 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "./fixtures";
+import { menuItemDanger } from "../../src/components/dr/menu-styles";
 
 // Exercise actual Tailwind output, scoped light surfaces and dark-mode inheritance.
 for (const locale of ["en", "ckb"]) {
@@ -10,7 +11,7 @@ for (const locale of ["en", "ckb"]) {
         await page.goto(`/${locale}/register`);
         await page.evaluate((value) => document.documentElement.dataset.theme = value, theme);
         await page.evaluate(() => document.fonts.ready);
-        const values = await page.evaluate(() => {
+        const values = await page.evaluate((dangerClass) => {
           const canvas = document.createElement("canvas");
           canvas.width = canvas.height = 1;
           const ctx = canvas.getContext("2d")!;
@@ -39,6 +40,10 @@ for (const locale of ["en", "ckb"]) {
               return rgb(getComputedStyle(probe).color);
             };
             const primary = color("brand");
+            const danger = document.createElement("button");
+            danger.className = dangerClass;
+            scope.append(danger);
+            const dangerInk = rgb(getComputedStyle(danger).color);
             const ratios = {
               action: contrast(primary, color("brand-ink")),
               hover: contrast(color("brand-hover"), color("brand-ink")),
@@ -47,13 +52,16 @@ for (const locale of ["en", "ckb"]) {
               focus: contrast(color("ring"), color("surface")),
               control: contrast(color("brand-control"), color("surface")),
               thumb: contrast(color("brand-control"), [255, 255, 255]),
+              danger: contrast(dangerInk, color("surface")),
+              dangerSelected: contrast(dangerInk, color("brand-soft")),
             };
+            danger.remove();
             probe.remove();
             return { primary, ratios };
           });
           lightScope.remove();
           return values;
-        });
+        }, menuItemDanger);
         for (const scope of values) {
           expect(scope.primary).toEqual([250, 7, 13]);
           for (const [state, ratio] of Object.entries(scope.ratios)) {
