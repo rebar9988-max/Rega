@@ -213,7 +213,9 @@
     "postalCode": "CAP",
     "openingHours": "Orari di apertura",
     "viewOnMap": "Vedi sulla mappa",
-    "browseByCity": "Sfoglia per città"
+    "browseByCity": "Sfoglia per città",
+    "closedOnHolidays": "Chiuso nei giorni festivi ufficiali.",
+    "hoursChanges": "Chiusure e orari speciali"
   },
   "categories": {
     "title": "Categorie",
@@ -535,7 +537,11 @@
     "city": "Città",
     "searchIn": "Cerca a {place}",
     "showOnMap": "Sulla mappa",
-    "inArea": "In questa zona"
+    "inArea": "In questa zona",
+    "temporarilyClosed": "Chiuso temporaneamente",
+    "opensOnDate": "Riapre il {date} alle {time}",
+    "holidayToday": "Giorno festivo: {name}",
+    "specialHoursToday": "Orari speciali oggi"
   },
   "map": {
     "title": "Mappa",
@@ -666,7 +672,20 @@
       "draftChanged": "Questa bozza è già stata inviata o revisionata. Ricarica la pagina prima di modificarla."
     },
     "categorySearch": "Cerca categorie",
-    "optionalDetails": "Dettagli facoltativi"
+    "optionalDetails": "Dettagli facoltativi",
+    "holidaysClosed": "Chiuso nei giorni festivi ufficiali",
+    "holidaysClosedHint": "Le festività ufficiali fisse del paese e della regione vengono applicate automaticamente. Aggiungi qui sotto l’Eid e le altre festività lunari con le loro date.",
+    "exceptionsTitle": "Chiusure temporanee e orari speciali",
+    "exceptionsHint": "Per un giorno o un periodo: chiuso, oppure orari diversi (ad es. 10:00–14:00). Le date sono nell’ora locale della sede.",
+    "exceptionsInvalid": "Controlla le date e gli orari delle chiusure o degli orari speciali.",
+    "exceptionFrom": "Dal",
+    "exceptionTo": "Al",
+    "exceptionClosed": "Chiuso",
+    "exceptionSpecial": "Orari speciali",
+    "exceptionHours": "Orari",
+    "exceptionReason": "Motivo (facoltativo, pubblico)",
+    "exceptionRemove": "Rimuovi",
+    "exceptionAdd": "Aggiungi una chiusura o orari speciali"
   },
   "contact": {
     "title": "Contatti",

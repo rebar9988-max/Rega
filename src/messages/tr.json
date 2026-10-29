@@ -213,7 +213,9 @@
     "postalCode": "Posta kodu",
     "openingHours": "Çalışma saatleri",
     "viewOnMap": "Haritada göster",
-    "browseByCity": "Şehre göre gez"
+    "browseByCity": "Şehre göre gez",
+    "closedOnHolidays": "Resmî tatillerde kapalı.",
+    "hoursChanges": "Kapanışlar ve özel çalışma saatleri"
   },
   "categories": {
     "title": "Kategoriler",
@@ -535,7 +537,11 @@
     "city": "Şehir",
     "searchIn": "{place} içinde ara",
     "showOnMap": "Haritada",
-    "inArea": "Bu bölgede"
+    "inArea": "Bu bölgede",
+    "temporarilyClosed": "Geçici olarak kapalı",
+    "opensOnDate": "{date} tarihinde {time} saatinde açılır",
+    "holidayToday": "Resmî tatil: {name}",
+    "specialHoursToday": "Bugün özel çalışma saatleri"
   },
   "map": {
     "title": "Harita",
@@ -666,7 +672,20 @@
       "draftChanged": "Bu taslak gönderilmiş veya incelenmiş. Düzenlemeden önce sayfayı yenileyin."
     },
     "categorySearch": "Kategori ara",
-    "optionalDetails": "İsteğe bağlı ayrıntılar"
+    "optionalDetails": "İsteğe bağlı ayrıntılar",
+    "holidaysClosed": "Resmî tatillerde kapalı",
+    "holidaysClosedHint": "Ülke ve bölgenin sabit resmî tatilleri otomatik uygulanır. Bayramları ve diğer kamerî tatilleri aşağıda tarihleriyle ekleyin.",
+    "exceptionsTitle": "Geçici kapanışlar ve özel çalışma saatleri",
+    "exceptionsHint": "Bir gün veya dönem için: kapalı ya da farklı saatler (ör. 10:00–14:00). Tarihler konumun yerel saatine göredir.",
+    "exceptionsInvalid": "Lütfen kapanış veya özel saatlerin tarih ve saatlerini kontrol edin.",
+    "exceptionFrom": "Başlangıç",
+    "exceptionTo": "Bitiş",
+    "exceptionClosed": "Kapalı",
+    "exceptionSpecial": "Özel saatler",
+    "exceptionHours": "Saatler",
+    "exceptionReason": "Neden (isteğe bağlı, herkese açık)",
+    "exceptionRemove": "Kaldır",
+    "exceptionAdd": "Kapanış veya özel saat ekle"
   },
   "contact": {
     "title": "İletişim",

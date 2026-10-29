@@ -4,7 +4,7 @@ import { descriptionFrom } from "@/lib/seo-server";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getLocale, getTranslations, setRequestLocale } from "next-intl/server";
-import { LOCALE_META, formatNumber, type Locale } from "@/i18n/locales";
+import { LOCALE_META, formatDate, formatNumber, type Locale } from "@/i18n/locales";
 import { Link } from "@/i18n/routing";
 import { localize, localizeText } from "@/lib/content";
 import { getBusiness, getCategories } from "@/lib/data";
@@ -28,7 +28,8 @@ import { JsonLd } from "@/components/ui/JsonLd";
 import { ViewPing } from "@/components/ui/ViewPing";
 import { PlacesMap, type PlacePoint } from "@/components/map/PlacesMap";
 import { isMappableCoordinate } from "@/lib/coordinates";
-import { hasHours, hoursRows } from "@/lib/opening-hours";
+import { closedOnHolidays, hasHours, hasHoursInfo, hoursRows, upcomingExceptions } from "@/lib/opening-hours";
+import { timezoneFor } from "@/lib/geo";
 import { OpenState } from "@/components/ui/OpenState";
 import { ReviewSection } from "@/features/reviews/ReviewSection";
 
@@ -78,10 +79,13 @@ export default async function BusinessPage({ params }: Props) {
   const directions = mainLoc ? mapLinks(mainLoc.latitude, mainLoc.longitude, mainAddress, name.text) : null;
   // Gallery: the cover plus up to three further images, in the owner's order (older listings may store more; they stay saved).
   const gallery = [b.coverUrl, ...b.photos.slice(0, 3)].map((u) => safeHttpUrl(u)).filter((u): u is string => Boolean(u));
-  const showLocations = b.locations.length > 1 || mapPoints.length > 0 || b.locations.some((loc) => hasHours(loc.openingHours));
+  const showLocations = b.locations.length > 1 || mapPoints.length > 0 || b.locations.some((loc) => hasHoursInfo(loc.openingHours));
   const tm = await getTranslations("map");
   const pageUrl = `https://${process.env.CANONICAL_HOST || "www.rega24.com"}/${locale}/business/${slug}`;
-  const mainHours = mainLoc && hasHours(mainLoc.openingHours) ? mainLoc : null;
+  const mainHours = mainLoc && hasHoursInfo(mainLoc.openingHours) ? mainLoc : null;
+  // Closures and special hours still to come, in the location's own calendar; dates shown as plain calendar days.
+  const localToday = (countryCode: string) => new Intl.DateTimeFormat("en-CA", { timeZone: timezoneFor(countryCode), year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
+  const day = (date: string) => formatDate(`${date}T00:00:00Z`, locale as Locale, { timeZone: "UTC" });
   const services = b.services.map((s) => ({ ...s, cover: safeHttpUrl(s.coverUrl) }));
   const serviceCovers = services.some((s) => s.cover);
   const hasContact = Boolean(tel || whatsapp || b.email || website);
@@ -204,7 +208,7 @@ export default async function BusinessPage({ params }: Props) {
                       <FigmaIcon name="clock" className="size-5 shrink-0 text-brand" />
                       <span className="min-w-0">
                         <span className="block text-sm font-semibold">{t("locations.openingHours")}</span>
-                        <OpenState hours={mainHours.openingHours} countryCode={mainHours.countryCode} className="mt-0.5" />
+                        <OpenState hours={mainHours.openingHours} countryCode={mainHours.countryCode} regionSlug={mainHours.city?.region?.slug} className="mt-0.5" />
                       </span>
                     </a>
                   </li>
@@ -283,9 +287,11 @@ export default async function BusinessPage({ params }: Props) {
                     const city = loc.city ? localize({ ...loc.city, name: loc.city.nameEn }, "name", l) : null;
                     // Monday first; once any day is set, a day without hours is shown as closed.
                     const hours = hasHours(loc.openingHours) ? hoursRows(loc.openingHours) : [];
+                    const changes = upcomingExceptions(loc.openingHours, localToday(loc.countryCode));
+                    const holidaysClosed = closedOnHolidays(loc.openingHours);
                     const single = b.locations.length === 1;
                     // One location: its address is already in the facts at the top, so the card holds the opening hours only.
-                    if (single && hours.length === 0) return null;
+                    if (single && !hasHoursInfo(loc.openingHours)) return null;
                     return (
                       <div key={loc.id} className="rounded-[var(--radius-card)] border border-line bg-surface p-4 sm:p-5">
                         <div className="mb-2 flex items-center gap-2">
@@ -298,16 +304,35 @@ export default async function BusinessPage({ params }: Props) {
                             {loc.postalCode && <><Ltr>{loc.postalCode}</Ltr>{" "}</>}{city && <Text value={city} pageLang={pageLang} />}
                           </address>
                         )}
+                        {/* The open state of the main location is shown once, in the facts at the top. */}
+                        {hasHoursInfo(loc.openingHours) && loc.id !== mainHours?.id && <OpenState hours={loc.openingHours} countryCode={loc.countryCode} regionSlug={loc.city?.region?.slug} />}
                         {hours.length > 0 && (
                           <>
-                            {/* The open state of the main location is shown once, in the facts at the top. */}
-                            {loc.id !== mainHours?.id && <OpenState hours={loc.openingHours} countryCode={loc.countryCode} />}
                             <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm" data-testid="opening-hours">
                               {hours.map(({ day, value }) => (
                                 <div key={day} className="contents"><dt className="text-muted">{t(`days.${day}`)}</dt><dd>{!value || value === "closed" ? t("nearby.closed") : <Ltr>{value}</Ltr>}</dd></div>
                               ))}
                             </dl>
                           </>
+                        )}
+                        {(changes.length > 0 || holidaysClosed) && (
+                          <div className="mt-3 text-sm" data-testid="hours-changes">
+                            {holidaysClosed && <p className="text-muted">{t("locations.closedOnHolidays")}</p>}
+                            {changes.length > 0 && (
+                              <>
+                                <h4 className="mt-2 font-semibold">{t("locations.hoursChanges")}</h4>
+                                <ul className="mt-1 space-y-1">
+                                  {changes.map((e) => (
+                                    <li key={`${e.from}-${e.to}-${e.hours}`}>
+                                      <time dateTime={e.from}>{day(e.from)}</time>{e.to !== e.from && <>{" – "}<time dateTime={e.to}>{day(e.to)}</time></>}{": "}
+                                      {e.hours === "closed" ? t("nearby.closed") : <Ltr>{e.hours}</Ltr>}
+                                      {e.reason && <span className="text-muted"> · <bdi>{e.reason}</bdi></span>}
+                                    </li>
+                                  ))}
+                                </ul>
+                              </>
+                            )}
+                          </div>
                         )}
                         {b.locations.length > 1 && directionsUrl(loc.latitude, loc.longitude, placeAddress(loc)) && (
                           <a href={directionsUrl(loc.latitude, loc.longitude, placeAddress(loc))!} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex min-h-9 items-center text-sm font-semibold text-brand hover:underline">

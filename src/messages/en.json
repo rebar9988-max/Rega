@@ -213,7 +213,9 @@
     "postalCode": "Postal code",
     "openingHours": "Opening hours",
     "viewOnMap": "View on map",
-    "browseByCity": "Browse by city"
+    "browseByCity": "Browse by city",
+    "closedOnHolidays": "Closed on official public holidays.",
+    "hoursChanges": "Closures and special hours"
   },
   "categories": {
     "title": "Categories",
@@ -535,7 +537,11 @@
     "city": "City",
     "searchIn": "Search in {place}",
     "showOnMap": "On the map",
-    "inArea": "In this area"
+    "inArea": "In this area",
+    "temporarilyClosed": "Temporarily closed",
+    "opensOnDate": "Reopens {date} at {time}",
+    "holidayToday": "Public holiday: {name}",
+    "specialHoursToday": "Special hours today"
   },
   "map": {
     "title": "Map",
@@ -666,7 +672,20 @@
       "draftChanged": "This draft has already been submitted or reviewed. Reload before editing."
     },
     "categorySearch": "Search categories",
-    "optionalDetails": "Optional details"
+    "optionalDetails": "Optional details",
+    "holidaysClosed": "Closed on official public holidays",
+    "holidaysClosedHint": "Fixed official holidays of the country and region are applied automatically. Add Eid and other lunar holidays below with their dates.",
+    "exceptionsTitle": "Temporary closures and special hours",
+    "exceptionsHint": "For a day or a period: closed, or different hours (e.g. 10:00–14:00). Dates are in the location's local time.",
+    "exceptionsInvalid": "Please check the dates and hours of the closures or special hours.",
+    "exceptionFrom": "From",
+    "exceptionTo": "Until",
+    "exceptionClosed": "Closed",
+    "exceptionSpecial": "Special hours",
+    "exceptionHours": "Hours",
+    "exceptionReason": "Reason (optional, public)",
+    "exceptionRemove": "Remove",
+    "exceptionAdd": "Add a closure or special hours"
   },
   "contact": {
     "title": "Contact",

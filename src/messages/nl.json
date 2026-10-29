@@ -213,7 +213,9 @@
     "postalCode": "Postcode",
     "openingHours": "Openingstijden",
     "viewOnMap": "Bekijken op de kaart",
-    "browseByCity": "Bekijken per stad"
+    "browseByCity": "Bekijken per stad",
+    "closedOnHolidays": "Gesloten op officiële feestdagen.",
+    "hoursChanges": "Sluitingen en afwijkende openingstijden"
   },
   "categories": {
     "title": "Categorieën",
@@ -535,7 +537,11 @@
     "city": "Stad",
     "searchIn": "Zoeken in {place}",
     "showOnMap": "Op de kaart",
-    "inArea": "In dit gebied"
+    "inArea": "In dit gebied",
+    "temporarilyClosed": "Tijdelijk gesloten",
+    "opensOnDate": "Weer open op {date} om {time}",
+    "holidayToday": "Feestdag: {name}",
+    "specialHoursToday": "Vandaag afwijkende openingstijden"
   },
   "map": {
     "title": "Kaart",
@@ -666,7 +672,20 @@
       "draftChanged": "Dit concept is al ingediend of gecontroleerd. Laad de pagina opnieuw voordat je bewerkt."
     },
     "categorySearch": "Categorieën zoeken",
-    "optionalDetails": "Optionele gegevens"
+    "optionalDetails": "Optionele gegevens",
+    "holidaysClosed": "Gesloten op officiële feestdagen",
+    "holidaysClosedHint": "Vaste officiële feestdagen van het land en de regio worden automatisch toegepast. Voeg hieronder het Suikerfeest en andere maanfeestdagen met hun data toe.",
+    "exceptionsTitle": "Tijdelijke sluitingen en afwijkende openingstijden",
+    "exceptionsHint": "Voor een dag of een periode: gesloten, of andere tijden (bijv. 10:00–14:00). De data gelden in de lokale tijd van de locatie.",
+    "exceptionsInvalid": "Controleer de data en tijden van de sluitingen of afwijkende openingstijden.",
+    "exceptionFrom": "Van",
+    "exceptionTo": "Tot en met",
+    "exceptionClosed": "Gesloten",
+    "exceptionSpecial": "Afwijkende openingstijden",
+    "exceptionHours": "Tijden",
+    "exceptionReason": "Reden (optioneel, openbaar)",
+    "exceptionRemove": "Verwijderen",
+    "exceptionAdd": "Sluiting of afwijkende tijden toevoegen"
   },
   "contact": {
     "title": "Contact",

@@ -213,7 +213,9 @@
     "postalCode": "الرمز البريدي",
     "openingHours": "ساعات العمل",
     "viewOnMap": "عرض على الخريطة",
-    "browseByCity": "تصفح حسب المدينة"
+    "browseByCity": "تصفح حسب المدينة",
+    "closedOnHolidays": "مغلق في العطل الرسمية.",
+    "hoursChanges": "الإغلاقات وساعات العمل الخاصة"
   },
   "categories": {
     "title": "الفئات",
@@ -535,7 +537,11 @@
     "city": "المدينة",
     "searchIn": "ابحث في {place}",
     "showOnMap": "على الخريطة",
-    "inArea": "في هذه المنطقة"
+    "inArea": "في هذه المنطقة",
+    "temporarilyClosed": "مغلق مؤقتاً",
+    "opensOnDate": "يفتح في {date} الساعة {time}",
+    "holidayToday": "عطلة رسمية: {name}",
+    "specialHoursToday": "ساعات عمل خاصة اليوم"
   },
   "map": {
     "title": "الخريطة",
@@ -666,7 +672,20 @@
       "draftChanged": "تم إرسال هذه المسودة أو مراجعتها. أعد تحميل الصفحة قبل التعديل."
     },
     "categorySearch": "البحث في الفئات",
-    "optionalDetails": "تفاصيل اختيارية"
+    "optionalDetails": "تفاصيل اختيارية",
+    "holidaysClosed": "مغلق في العطل الرسمية",
+    "holidaysClosedHint": "تُحتسب العطل الرسمية الثابتة للبلد والإقليم تلقائياً. أضف عيدي الفطر والأضحى وغيرها من العطل القمرية أدناه بتواريخها.",
+    "exceptionsTitle": "الإغلاق المؤقت وساعات العمل الخاصة",
+    "exceptionsHint": "ليوم أو فترة: مغلق، أو ساعات مختلفة (مثلاً 10:00–14:00). التواريخ بالتوقيت المحلي للموقع.",
+    "exceptionsInvalid": "يرجى التحقق من تواريخ وساعات الإغلاق أو الساعات الخاصة.",
+    "exceptionFrom": "من",
+    "exceptionTo": "إلى",
+    "exceptionClosed": "مغلق",
+    "exceptionSpecial": "ساعات خاصة",
+    "exceptionHours": "الساعات",
+    "exceptionReason": "السبب (اختياري، عام)",
+    "exceptionRemove": "إزالة",
+    "exceptionAdd": "إضافة إغلاق أو ساعات خاصة"
   },
   "contact": {
     "title": "تواصل معنا",

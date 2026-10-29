@@ -213,7 +213,9 @@
     "postalCode": "Koda postê",
     "openingHours": "Saetên vekirinê",
     "viewOnMap": "Li ser nexşeyê bibîne",
-    "browseByCity": "Li gorî bajêr bigere"
+    "browseByCity": "Li gorî bajêr bigere",
+    "closedOnHolidays": "Di betlaneyên fermî de girtî ye.",
+    "hoursChanges": "Girtin û demên taybet"
   },
   "categories": {
     "title": "Kategorî",
@@ -535,7 +537,11 @@
     "city": "Bajar",
     "searchIn": "Li {place} bigere",
     "showOnMap": "Li ser nexşeyê",
-    "inArea": "Li vê deverê"
+    "inArea": "Li vê deverê",
+    "temporarilyClosed": "Bi demkî girtî ye",
+    "opensOnDate": "Di {date} de saet {time} vedibe",
+    "holidayToday": "Betlaneya fermî: {name}",
+    "specialHoursToday": "Îro demên xebatê yên taybet"
   },
   "map": {
     "title": "Nexşe",
@@ -666,7 +672,20 @@
       "draftChanged": "Ev pêşnivîs hatiye şandin an kontrolkirin. Berî guhertinê rûpelê nû bike."
     },
     "categorySearch": "Di kategoriyan de bigere",
-    "optionalDetails": "Agahiyên vebijarkî"
+    "optionalDetails": "Agahiyên vebijarkî",
+    "holidaysClosed": "Di betlaneyên fermî de girtî ye",
+    "holidaysClosedHint": "Betlaneyên fermî yên welat û herêmê bixweber têne hesibandin. Cejnên Remezanê û Qurbanê bi tarîxên xwe li jêr zêde bike.",
+    "exceptionsTitle": "Girtina demkî û demên taybet",
+    "exceptionsHint": "Ji bo rojekê an demekê: girtî, an demên din (mînak 10:00–14:00). Tarîx li gorî dema cihê karê ne.",
+    "exceptionsInvalid": "Ji kerema xwe tarîx û demên girtin an demên taybet kontrol bike.",
+    "exceptionFrom": "Ji",
+    "exceptionTo": "Heta",
+    "exceptionClosed": "Girtî",
+    "exceptionSpecial": "Demên taybet",
+    "exceptionHours": "Dem",
+    "exceptionReason": "Sedem (vebijarkî, giştî)",
+    "exceptionRemove": "Rake",
+    "exceptionAdd": "Girtin an demên taybet zêde bike"
   },
   "contact": {
     "title": "Têkilî",

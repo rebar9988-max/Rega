@@ -213,7 +213,9 @@
     "postalCode": "کۆدی پۆست",
     "openingHours": "کاتژمێری کار",
     "viewOnMap": "بینین لەسەر نەخشە",
-    "browseByCity": "گەڕان بەپێی شار"
+    "browseByCity": "گەڕان بەپێی شار",
+    "closedOnHolidays": "لە پشووە فەرمییەکاندا داخراوە.",
+    "hoursChanges": "داخستن و کاتی کاری تایبەت"
   },
   "categories": {
     "title": "پۆلەکان",
@@ -535,7 +537,11 @@
     "city": "شار",
     "searchIn": "لە {place} بگەڕێ",
     "showOnMap": "لەسەر نەخشە",
-    "inArea": "لەم ناوچەیەدا"
+    "inArea": "لەم ناوچەیەدا",
+    "temporarilyClosed": "بە کاتی داخراوە",
+    "opensOnDate": "دەکرێتەوە لە {date} کاتژمێر {time}",
+    "holidayToday": "پشووی فەرمی: {name}",
+    "specialHoursToday": "ئەمڕۆ کاتی کاری تایبەت"
   },
   "map": {
     "title": "نەخشە",
@@ -666,7 +672,20 @@
       "draftChanged": "ئەم ڕەشنووسە نێردراوە یان پشکنراوە. پێش دەستکاریکردن پەڕەکە نوێ بکەرەوە."
     },
     "categorySearch": "گەڕان لە پۆلەکان",
-    "optionalDetails": "زانیاریی ئارەزوومەندانە"
+    "optionalDetails": "زانیاریی ئارەزوومەندانە",
+    "holidaysClosed": "لە پشووە فەرمییەکاندا داخراوە",
+    "holidaysClosedHint": "پشووە فەرمییە دیاریکراوەکانی وڵات و هەرێم بە خۆکار هەژمار دەکرێن. جەژنەکانی ڕەمەزان و قوربان بە ڕێکەوتی خۆیان لە خوارەوە زیاد بکە.",
+    "exceptionsTitle": "داخستنی کاتی و کاتی کاری تایبەت",
+    "exceptionsHint": "بۆ ڕۆژێک یان ماوەیەک: داخراو، یان کاتی کاری جیاواز (بۆ نموونە ١٠:٠٠–١٤:٠٠). ڕێکەوتەکان بەپێی کاتی شوێنی کارەکەن.",
+    "exceptionsInvalid": "تکایە ڕێکەوت و کاتەکانی داخستن یان کاتی تایبەت بپشکنە.",
+    "exceptionFrom": "لە ڕێکەوتی",
+    "exceptionTo": "تا ڕێکەوتی",
+    "exceptionClosed": "داخراوە",
+    "exceptionSpecial": "کاتی کاری تایبەت",
+    "exceptionHours": "کاتەکان",
+    "exceptionReason": "هۆکار (ئارەزوومەندانە، گشتی)",
+    "exceptionRemove": "لابردن",
+    "exceptionAdd": "زیادکردنی داخستن یان کاتی تایبەت"
   },
   "contact": {
     "title": "پەیوەندی",

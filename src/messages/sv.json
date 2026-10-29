@@ -213,7 +213,9 @@
     "postalCode": "Postnummer",
     "openingHours": "Öppettider",
     "viewOnMap": "Visa på kartan",
-    "browseByCity": "Bläddra efter stad"
+    "browseByCity": "Bläddra efter stad",
+    "closedOnHolidays": "Stängt på officiella helgdagar.",
+    "hoursChanges": "Stängningar och avvikande öppettider"
   },
   "categories": {
     "title": "Kategorier",
@@ -535,7 +537,11 @@
     "city": "Stad",
     "searchIn": "Sök i {place}",
     "showOnMap": "På kartan",
-    "inArea": "I det här området"
+    "inArea": "I det här området",
+    "temporarilyClosed": "Tillfälligt stängt",
+    "opensOnDate": "Öppnar igen {date} kl. {time}",
+    "holidayToday": "Helgdag: {name}",
+    "specialHoursToday": "Avvikande öppettider i dag"
   },
   "map": {
     "title": "Karta",
@@ -666,7 +672,20 @@
       "draftChanged": "Det här utkastet har redan skickats eller granskats. Ladda om sidan innan du redigerar."
     },
     "categorySearch": "Sök kategorier",
-    "optionalDetails": "Valfria uppgifter"
+    "optionalDetails": "Valfria uppgifter",
+    "holidaysClosed": "Stängt på officiella helgdagar",
+    "holidaysClosedHint": "Landets och regionens fasta officiella helgdagar tillämpas automatiskt. Lägg till eid och andra månbaserade helgdagar nedan med sina datum.",
+    "exceptionsTitle": "Tillfälliga stängningar och avvikande öppettider",
+    "exceptionsHint": "För en dag eller en period: stängt eller andra tider (t.ex. 10:00–14:00). Datumen gäller platsens lokala tid.",
+    "exceptionsInvalid": "Kontrollera datum och tider för stängningarna eller de avvikande öppettiderna.",
+    "exceptionFrom": "Från",
+    "exceptionTo": "Till",
+    "exceptionClosed": "Stängt",
+    "exceptionSpecial": "Avvikande öppettider",
+    "exceptionHours": "Tider",
+    "exceptionReason": "Anledning (valfritt, offentligt)",
+    "exceptionRemove": "Ta bort",
+    "exceptionAdd": "Lägg till stängning eller avvikande öppettider"
   },
   "contact": {
     "title": "Kontakt",

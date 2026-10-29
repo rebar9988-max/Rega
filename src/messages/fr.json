@@ -213,7 +213,9 @@
     "postalCode": "Code postal",
     "openingHours": "Horaires d’ouverture",
     "viewOnMap": "Voir sur la carte",
-    "browseByCity": "Parcourir par ville"
+    "browseByCity": "Parcourir par ville",
+    "closedOnHolidays": "Fermé les jours fériés officiels.",
+    "hoursChanges": "Fermetures et horaires spéciaux"
   },
   "categories": {
     "title": "Catégories",
@@ -535,7 +537,11 @@
     "city": "Ville",
     "searchIn": "Rechercher à {place}",
     "showOnMap": "Sur la carte",
-    "inArea": "Dans cette zone"
+    "inArea": "Dans cette zone",
+    "temporarilyClosed": "Fermé temporairement",
+    "opensOnDate": "Rouvre le {date} à {time}",
+    "holidayToday": "Jour férié : {name}",
+    "specialHoursToday": "Horaires spéciaux aujourd’hui"
   },
   "map": {
     "title": "Carte",
@@ -666,7 +672,20 @@
       "draftChanged": "Ce brouillon a déjà été envoyé ou vérifié. Rechargez la page avant de le modifier."
     },
     "categorySearch": "Rechercher une catégorie",
-    "optionalDetails": "Détails facultatifs"
+    "optionalDetails": "Détails facultatifs",
+    "holidaysClosed": "Fermé les jours fériés officiels",
+    "holidaysClosedHint": "Les jours fériés officiels fixes du pays et de la région sont appliqués automatiquement. Ajoutez ci-dessous l’Aïd et les autres fêtes lunaires avec leurs dates.",
+    "exceptionsTitle": "Fermetures temporaires et horaires spéciaux",
+    "exceptionsHint": "Pour un jour ou une période : fermé, ou d’autres horaires (p. ex. 10:00–14:00). Les dates sont à l’heure locale de l’établissement.",
+    "exceptionsInvalid": "Veuillez vérifier les dates et horaires des fermetures ou horaires spéciaux.",
+    "exceptionFrom": "Du",
+    "exceptionTo": "Au",
+    "exceptionClosed": "Fermé",
+    "exceptionSpecial": "Horaires spéciaux",
+    "exceptionHours": "Horaires",
+    "exceptionReason": "Motif (facultatif, public)",
+    "exceptionRemove": "Retirer",
+    "exceptionAdd": "Ajouter une fermeture ou des horaires spéciaux"
   },
   "contact": {
     "title": "Contact",

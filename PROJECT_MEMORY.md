@@ -819,3 +819,39 @@ Owner choice (round 2 = Smart Search only; next: holiday/temporary closures → 
   - «qxzvwplk» gets no suggestion.
   - «کارواان» gets no suggestion, correctly: the live record has no Sorani name. Adding names in all languages to listings improves discovery more than any correction can.
 - Next safe continuation point (owner's order): holiday/temporary closures (schema) → Lighthouse → Jobs launch → search analytics.
+
+## Phase 3 — public holidays, temporary closures and special hours — 2026-10-29
+
+Owner brief "REGA24 Phase 3". Audit:
+- Before this change, `Location.openingHours` held weekly hours only; `openStatus`/`isOpenNow` knew OPEN/CLOSING_SOON/OPENS_SOON/CLOSED/HOURS_UNKNOWN.
+- Holidays, closures and date-based hours did not exist.
+- Saving the business form fully replaces `openingHours`.
+
+Design: **no schema change, no migration**. The optional keys `holidays: "closed"` and `exceptions: [{ from, to, hours: "closed" | ranges, reason? }]` live in the same JSON. Old readers (`hoursRows`, `hasHours`) ignore them. One system for every category.
+
+- `src/lib/holidays.ts`:
+  - DE: 9 nationwide holidays plus state holidays that apply to a whole state, with Easter computed. Municipality-only holidays are left out.
+  - IQ: the 7 fixed-date holidays of the 2024 official holidays law (verified via Wikipedia/Shafaq: 1 Jan, 6 Jan, 21 Mar, 1 May, 3 Oct, 10 Dec, 25 Dec).
+  - Islamic lunar holidays are announced yearly and **not computed**; owners enter them as exceptions.
+  - No Kurdistan-Region-only holiday is assumed (no verified list).
+  - Names in 7 locales.
+- `src/lib/opening-hours.ts`: `parseHoursExceptions` validation (real dates, `to` ≥ `from`, ≤ 366 days, readable hours, one-line reason ≤ 120 characters, ≤ 30 entries), tolerant readers, `composeOpeningHours`.
+- `src/lib/geo.ts`: `openStatus` is date-based.
+  - Rule order per date: exception (the shortest matching range wins), then holiday if `holidays: "closed"`, then weekday hours.
+  - Looks back 1 day and ahead 45 days. Overnight ranges belong to their start date.
+  - New status TEMPORARILY_CLOSED. Results also carry the holiday, the exception and `next.date`.
+  - `isOpenNow` is derived from it, so search open-now and Nearby follow closures and holidays. Both pass the region (state) slug.
+- UI:
+  - Owner/staff form: `HoursExceptionsEditor` with a holiday checkbox and closure / special-hours rows, sent as one validated JSON field, always round-tripped.
+  - Business page: shows a location even when it has only closures or the holiday setting. Lists upcoming changes in the location's calendar.
+  - `OpenState`: temporary closure with reopening date, holiday and special-hours notes, reason in `<bdi>`.
+  - 19 messages × 7 locales.
+- Tests:
+  - `tests/holidays-closures.test.ts` covers Easter/state holidays, Iraq dates, validation, closures, special/overnight hours, holiday closing, timezones/DST and status vs isOpenNow agreement.
+  - Updated `open-status` expectations to include `next.date`.
+  - New E2E test in `completion.spec.ts`.
+- Caught locally: the German hint word "Bundesland" collided with the `getByLabel("Land")` lookup in an existing E2E test. Reworded; all 25 E2E label lookups checked against the new texts.
+- Local verification:
+  - `npm test`: 377 tests, 373 pass, 0 fail, 4 DB-only skips. `test:d1` 10/10. Typecheck and lint pass.
+  - E2E on a disposable D1 (`build:node`), 10 spec files that use the business form, hours, nearby or profile: 96 passed on desktop and mobile, including the new test.
+  - The 8 iPhone/WebKit cases could not start because WebKit is not installed in this container (environment limit); CI installs it.

@@ -9,7 +9,7 @@ import { businessReadiness, publicationSelect } from "@/lib/business-publication
 import type { Locale } from "@/i18n/locales";
 import { BusinessForm } from "@/components/dr/BusinessForm";
 import { isStorageConfigured } from "@/lib/env";
-import { hoursRows } from "@/lib/opening-hours";
+import { closedOnHolidays, hoursExceptions, hoursRows } from "@/lib/opening-hours";
 import { assertBusinessAccess } from "@/lib/business-access";
 import { BusinessTeam } from "@/components/dr/BusinessTeam";
 import { GALLERY_PHOTOS } from "@/lib/business-admin";
@@ -125,6 +125,7 @@ export default async function EditBusiness({ params, searchParams }: { params: P
           city: loc?.city ? localize({ ...loc.city, name: loc.city.nameEn }, "name", locale).text : undefined,
           latitude: loc?.latitude, longitude: loc?.longitude, coordsSource: loc?.coordsSource, coordsVerified: Boolean(loc?.coordsVerifiedAt),
           hours: Object.fromEntries(hoursRows(loc?.openingHours).map((r) => [r.day, r.value])),
+          holidaysClosed: closedOnHolidays(loc?.openingHours), hoursExceptions: hoursExceptions(loc?.openingHours),
           logoUrl: b.logoUrl, coverUrl: b.coverUrl, photos: b.photos, status: b.status, languages: b.languages,
           translations: {
             ckb: b.descriptionCkb ?? undefined, kmr: b.descriptionKmr ?? undefined, de: b.descriptionDe ?? undefined, ar: b.descriptionAr ?? undefined, tr: b.descriptionTr ?? undefined,
