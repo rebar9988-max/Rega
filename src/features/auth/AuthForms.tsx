@@ -12,7 +12,7 @@ import { confirmEmail, forgotPassword, register, resendVerification, resetPasswo
 const field = "min-h-11 w-full rounded-xl border border-line bg-surface px-3 text-base outline-none focus:border-brand aria-[invalid=true]:border-brand";
 const card = "mx-auto max-w-md space-y-4 rounded-[var(--radius-card)] border border-line bg-surface p-6 shadow-card";
 const primary = "min-h-12 w-full rounded-xl bg-brand text-base font-semibold text-brand-ink hover:bg-brand-hover disabled:opacity-60";
-const link = "font-semibold text-brand underline";
+const link = "font-semibold text-brand-text underline";
 
 /** Submit button for a plain server-action form (the login page): disabled and marked busy while the action runs. */
 export function SubmitButton({ children }: { children: React.ReactNode }) {
@@ -74,7 +74,7 @@ export function RegisterForm({ next, social }: { next?: string; social?: React.R
         <input id="r-pass2" name="password2" type="password" required minLength={10} maxLength={200} autoComplete="new-password" dir="ltr" aria-invalid={bad("password2")} className={`${field} text-start`} />
       </div>
       <label className="flex items-start gap-3 text-sm">
-        <input name="accept" type="checkbox" required className="mt-1 size-5 shrink-0 accent-[var(--brand)]" />
+        <input name="accept" type="checkbox" required className="mt-1 size-5 shrink-0 accent-brand-control" />
         <span>{t.rich("accept", { terms: (c) => <Link href="/terms" target="_blank" className={link}>{c}</Link>, privacy: (c) => <Link href="/privacy" target="_blank" className={link}>{c}</Link> })}</span>
       </label>
       <button type="submit" disabled={pending} className={primary}>{t("createAccount")}</button>
@@ -91,7 +91,7 @@ export function RegisterForm({ next, social }: { next?: string; social?: React.R
         <legend className="mb-1 text-sm font-semibold">{t("accountType")}</legend>
         {(["user", "owner"] as const).map((v) => (
           <label key={v} className="flex min-h-12 cursor-pointer items-start gap-3 rounded-xl border border-line px-3 py-2 has-[:checked]:border-brand has-[:checked]:bg-brand-soft">
-            <input type="radio" name="accountType" value={v} defaultChecked={v === "owner"} className="mt-1 size-5 accent-[var(--brand)]" />
+            <input type="radio" name="accountType" value={v} defaultChecked={v === "owner"} className="mt-1 size-5 accent-brand-control" />
             <span><span className="block text-sm font-semibold">{t(v === "user" ? "typeUser" : "typeOwner")}</span><span className="block text-xs text-muted">{t(v === "user" ? "typeUserHint" : "typeOwnerHint")}</span></span>
           </label>
         ))}

@@ -55,11 +55,11 @@ export function ReportForm({ defaultUrl }: { defaultUrl?: string }) {
         <input name="email" type="email" required maxLength={200} autoComplete="email" dir="ltr" aria-invalid={bad("email")} className={`${field} text-start`} />
       </label>
       <label className="flex items-start gap-3 text-sm sm:col-span-2">
-        <input name="goodFaith" type="checkbox" required className="mt-1 size-5 shrink-0 accent-[var(--brand)]" />
+        <input name="goodFaith" type="checkbox" required className="mt-1 size-5 shrink-0 accent-brand-control" />
         <span>{t("goodFaith")}</span>
       </label>
       <p className="text-xs text-muted sm:col-span-2">
-        {tf("privacyNote")} <Link href="/privacy" className="font-semibold text-brand underline">{tn("privacy")}</Link>
+        {tf("privacyNote")} <Link href="/privacy" className="font-semibold text-brand-text underline">{tn("privacy")}</Link>
       </p>
       <div className="sm:col-span-2">
         <button type="submit" disabled={pending} className="min-h-11 rounded-xl bg-brand px-6 text-sm font-bold text-brand-ink hover:bg-brand-hover disabled:opacity-60">{t("submit")}</button>

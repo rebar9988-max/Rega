@@ -39,7 +39,7 @@ export default async function ForBusinessPage({ params }: { params: Promise<{ lo
             ? <NextLink href="/dr/businesses/new" className={buttonClass("primary")}>{t("ctaAdd")}</NextLink>
             : <>
                 <Link href="/register?next=%2Fdr%2Fbusinesses%2Fnew" className={buttonClass("primary")} data-testid="cta-register">{t("ctaRegister")}</Link>
-                <Link href="/login?next=%2Fdr%2Fbusinesses%2Fnew" className="text-sm font-semibold text-brand underline">{t("ctaLogin")}</Link>
+                <Link href="/login?next=%2Fdr%2Fbusinesses%2Fnew" className="text-sm font-semibold text-brand-text underline">{t("ctaLogin")}</Link>
               </>}
         </div>
 
@@ -53,7 +53,7 @@ export default async function ForBusinessPage({ params }: { params: Promise<{ lo
           <ul className="mt-5 grid gap-4 sm:grid-cols-2">
             {BENEFITS.map(([title, text, icon]) => (
               <li key={title} className="card-lift flex items-start gap-4 rounded-[var(--radius-card)] border border-line bg-surface p-5 shadow-card">
-                <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-brand-soft text-brand"><HomeIcon name={icon} className="size-5" /></span>
+                <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-brand-soft text-brand-text"><HomeIcon name={icon} className="size-5" /></span>
                 <div className="min-w-0"><h3 className="text-base font-bold">{t(title)}</h3><p className="mt-1 text-sm text-muted sm:text-base">{t(text)}</p></div>
               </li>
             ))}

@@ -49,7 +49,7 @@ export default async function DrLayout({ children }: { children: React.ReactNode
             <main className="container-page py-24 text-center">
               <h1 className="mb-3 text-2xl font-extrabold">{t("title")}</h1>
               <p className="text-muted">{t("forbidden")}</p>
-              <Link href={`/${locale}`} className="mt-6 inline-block font-semibold text-brand hover:underline">{t("back")}</Link>
+              <Link href={`/${locale}`} className="mt-6 inline-block font-semibold text-brand-text hover:underline">{t("back")}</Link>
             </main>
           ) : (
             <div className="min-h-dvh bg-bg lg:grid lg:grid-cols-[15.5rem_minmax(0,1fr)]">

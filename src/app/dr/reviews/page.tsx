@@ -20,7 +20,7 @@ export default async function ReviewsAdmin({ searchParams }: { searchParams: Pro
     <>
       <h1 className="mb-4 text-2xl font-extrabold">{t("adminTitle")}</h1>
       <nav aria-label={t("adminTitle")} className="mb-6 flex flex-wrap gap-2 text-sm">
-        {STATUSES.map((s) => <a key={s} href={`/dr/reviews?status=${s}`} aria-current={s === status ? "page" : undefined} className={`inline-flex min-h-9 items-center rounded-full border px-3 font-semibold ${s === status ? "border-brand bg-brand-soft text-brand" : "border-line"}`}>{ts(s)}</a>)}
+        {STATUSES.map((s) => <a key={s} href={`/dr/reviews?status=${s}`} aria-current={s === status ? "page" : undefined} className={`inline-flex min-h-9 items-center rounded-full border px-3 font-semibold ${s === status ? "border-brand bg-brand-soft text-brand-text" : "border-line"}`}>{ts(s)}</a>)}
       </nav>
       {rows.length === 0 ? <p className="text-muted">{t("adminEmpty")}</p> : (
         <ul className="space-y-4">

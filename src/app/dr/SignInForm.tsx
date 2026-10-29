@@ -9,7 +9,7 @@ import { CODE_IDLE, type CodeFormState } from "./sign-in-state";
 const field =
   "min-h-11 w-full rounded-xl border border-line bg-surface px-3 text-base outline-none focus:border-brand";
 const primary =
-  "min-h-11 w-full rounded-xl bg-brand text-sm font-semibold text-white hover:bg-brand-hover disabled:opacity-60";
+  "min-h-11 w-full rounded-xl bg-brand text-sm font-semibold text-brand-ink hover:bg-brand-hover disabled:opacity-60";
 
 function Submit({ intent, children }: { intent: "send" | "verify"; children: React.ReactNode }) {
   const { pending } = useFormStatus();
@@ -55,7 +55,7 @@ export function SignInForm({ passwordHref }: { passwordHref: string }) {
     <main data-dr-sign-in="" lang="ckb" dir="rtl" className="grid min-h-dvh place-items-center px-4 py-12">
       <section className="w-full max-w-md">
         <div className="mb-6 text-center">
-          <p dir="ltr" className="text-3xl font-black text-brand">
+          <p dir="ltr" className="text-3xl font-black text-brand-text">
             REGA
           </p>
           <h1 className="mt-2 text-xl font-extrabold">چوونەژوورەوەی بەڕێوەبەر</h1>
@@ -124,7 +124,7 @@ export function SignInForm({ passwordHref }: { passwordHref: string }) {
         </form>
 
         <p className="mt-4 text-center text-sm">
-          <a href={passwordHref} className="font-semibold text-brand hover:underline">
+          <a href={passwordHref} className="font-semibold text-brand-text hover:underline">
             چوونەژوورەوە بە وشەی نهێنی
           </a>
         </p>

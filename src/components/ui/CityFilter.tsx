@@ -427,7 +427,7 @@ function LocationPanel({ countryCode, panelId, anchorRef, fallback, selectedId, 
           type="button"
           onClick={locate}
           disabled={locating === "busy"}
-          className="flex min-h-11 items-center gap-2 rounded-lg border border-brand bg-surface px-3 text-sm font-bold text-brand transition hover:bg-brand hover:text-brand-ink disabled:opacity-60"
+          className="flex min-h-11 items-center gap-2 rounded-lg border border-brand bg-surface px-3 text-sm font-bold text-brand-text transition hover:bg-brand hover:text-brand-ink disabled:opacity-60"
         >
           <span aria-hidden="true">◎</span>
           {tn("useLocation")}
@@ -466,7 +466,7 @@ function LocationPanel({ countryCode, panelId, anchorRef, fallback, selectedId, 
               onMouseDown={(e) => e.preventDefault()}
               onMouseMove={() => active !== index && setActive(index)}
               onClick={() => onChoose(row.picked)}
-              className={`flex min-h-11 cursor-pointer items-center justify-between gap-2 rounded-lg px-3 text-start text-sm ${index === activeIndex ? "bg-brand/10" : ""} ${row.id === selectedId ? "font-bold text-brand" : ""}`}
+              className={`flex min-h-11 cursor-pointer items-center justify-between gap-2 rounded-lg px-3 text-start text-sm ${index === activeIndex ? "bg-brand/10" : ""} ${row.id === selectedId ? "font-bold text-brand-text" : ""}`}
             >
               <span className="min-w-0 truncate">{row.localized ? <Text value={row.localized} pageLang={pageLang} /> : row.text}</span>
               {row.count ? <span className="shrink-0 rounded-full bg-surface-2 px-2 py-0.5 text-xs font-semibold text-muted">{formatNumber(row.count, locale)}</span> : null}

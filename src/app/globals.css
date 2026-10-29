@@ -4,23 +4,29 @@
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 /* ── REGA design tokens ─────────────────────────────────────────────
-   Clean white + cool neutrals with the REGA red (#D90000, the brand colour of the official logo) as the single
+   Clean white + neutrals with one vivid red sampled from the supplied official artwork as the single
    accent; amber only for rating stars. Components use semantic tokens only, never raw palette values. */
 :root {
-  --bg: #fbfbfc;
+  --bg: #fafafa;
   --surface: #ffffff;
   --surface-2: #f7f7f8;
-  --ink: #17191d;
+  --ink: #171717;
   --muted: #6f737a;
   --line: #e7e8eb;
-  --brand: #dc0201; /* the red of the official REGA artwork */
-  --brand-hover: #b80000;
-  --brand-ink: #ffffff;
-  --brand-soft: #fff1f1;
+  /* Canonical primary: actual background pixel (250, 7, 13), reference 2-Photo-2.jpg.
+     Text and controls use accessible red derivatives; solid actions need dark ink. */
+  --brand: #fa070d;
+  --logo-surface: #dc0201; /* Asset-matching backing only: official artwork stays unchanged. */
+  --brand-text-light: color-mix(in srgb, var(--brand) 78%, black);
+  --brand-text: var(--brand-text-light);
+  --brand-control: var(--brand);
+  --brand-hover: color-mix(in srgb, var(--brand) 98%, black);
+  --brand-ink: #000000;
+  --brand-soft: color-mix(in srgb, var(--brand) 6%, white);
   --sun: oklch(0.8 0.16 80);
-  --ring: #dc0201;
+  --ring: var(--brand);
   --shadow: 0 1px 2px rgb(17 24 39 / 0.05), 0 10px 26px -16px rgb(17 24 39 / 0.18);
-  --shadow-hover: 0 2px 4px rgb(17 24 39 / 0.07), 0 18px 36px -18px rgb(227 6 19 / 0.24);
+  --shadow-hover: 0 2px 4px rgb(17 24 39 / 0.07), 0 18px 36px -18px color-mix(in srgb, var(--brand) 24%, transparent);
   color-scheme: light;
 }
 :root[data-theme="dark"] {
@@ -30,14 +36,11 @@
   --ink: oklch(0.96 0.005 265);
   --muted: oklch(0.74 0.015 265);
   --line: oklch(0.31 0.015 265);
-  --brand: oklch(0.6 0.22 27);
-  --brand-hover: oklch(0.66 0.21 27);
-  --brand-ink: oklch(1 0 0);
-  --brand-soft: oklch(0.28 0.07 27);
+  --brand-text: color-mix(in srgb, var(--brand) 60%, white);
+  --brand-soft: color-mix(in srgb, var(--brand) 20%, black);
   --sun: oklch(0.82 0.14 82);
-  --ring: oklch(0.7 0.19 27);
   --shadow: 0 1px 2px oklch(0 0 0 / 0.3), 0 10px 28px -12px oklch(0 0 0 / 0.55);
-  --shadow-hover: 0 2px 4px oklch(0 0 0 / 0.35), 0 18px 36px -14px oklch(0.5 0.2 27 / 0.4);
+  --shadow-hover: 0 2px 4px oklch(0 0 0 / 0.35), 0 18px 36px -14px color-mix(in srgb, var(--brand) 40%, transparent);
   color-scheme: dark;
 }
 
@@ -49,6 +52,9 @@
   --color-muted: var(--muted);
   --color-line: var(--line);
   --color-brand: var(--brand);
+  --color-brand-text: var(--brand-text);
+  --color-brand-control: var(--brand-control);
+  --color-logo-surface: var(--logo-surface);
   --color-brand-hover: var(--brand-hover);
   --color-brand-ink: var(--brand-ink);
   --color-brand-soft: var(--brand-soft);
@@ -73,7 +79,8 @@
   [dir="rtl"] body { line-height: 1.85; }
   [dir="rtl"] h1, [dir="rtl"] h2, [dir="rtl"] h3 { line-height: 1.5; letter-spacing: 0; }
   :focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; border-radius: 0.375rem; }
-  ::selection { background: var(--brand-soft); }
+  ::selection { background: var(--brand-soft); color: var(--ink); }
+  input[type="checkbox"], input[type="radio"] { accent-color: var(--brand-control); }
 }
 
 @layer utilities {
@@ -116,9 +123,10 @@
 .figma { font-family: "Inter Variable", var(--font-noto-arabic), system-ui, sans-serif; line-height: normal; --placeholder: #a7abb1; --map: #e9edf0; }
 /* The approved concept is a light red/white surface. Keep it even when the phone is in dark mode. */
 .figma {
-  --brand: #dc0201; --brand-hover: #b80000; --brand-soft: #fff1f1; --ring: #dc0201;
-  --ink: #17191d; --muted: #5c6168; --line: #e6e7eb; --surface: #ffffff; --surface-2: #f6f7f8; --bg: #ffffff;
-  color: #17191d;
+  --brand-text: var(--brand-text-light);
+  --brand-soft: color-mix(in srgb, var(--brand) 6%, white);
+  --ink: #171717; --muted: #5c6168; --line: #e6e7eb; --surface: #ffffff; --surface-2: #f6f7f8; --bg: #ffffff;
+  color: var(--ink);
   background: #ffffff;
 }
 /* The frame's Arabic-script text boxes use Noto Sans Arabic's own line height (2.112 x size). The site loads Noto only
@@ -158,7 +166,7 @@
 .rega-red-panel {
   background:
     radial-gradient(circle at 78% 18%, rgb(255 255 255 / .15), transparent 30%),
-    linear-gradient(135deg, #ef0717 0%, #d9000d 72%, #bf0009 100%);
+    linear-gradient(135deg, var(--brand) 0%, var(--brand-hover) 72%, var(--brand-text-light) 100%);
 }
 .rega-card {
   border: 1px solid var(--line);
@@ -166,9 +174,9 @@
   border-radius: 0.75rem;
   box-shadow: 0 1px 2px rgb(17 24 39 / .04);
 }
-.rega-card:hover, .rega-card:focus-within { border-color: rgb(227 6 19 / .34); box-shadow: var(--shadow); }
+.rega-card:hover, .rega-card:focus-within { border-color: color-mix(in srgb, var(--brand) 34%, transparent); box-shadow: var(--shadow); }
 /* Home hero: photograph plus a brand-red panel wide enough for the official lockup at retina size. */
-.rega-hero-frame { background: #dc0201; }
+.rega-hero-frame { background: var(--logo-surface); }
 .rega-hero-brand {
   position: absolute;
   z-index: 2;
@@ -179,7 +187,7 @@
   align-items: center;
   justify-content: center;
   width: min(62%, 300px);
-  background: #dc0201;
+  background: var(--logo-surface);
   clip-path: polygon(0 0, 78% 0, 100% 100%, 0 100%);
   padding-inline: 0.65rem 18%;
 }
@@ -195,6 +203,6 @@
   content: ""; position: absolute; top: .1875rem; inset-inline-start: .1875rem; width: 1.125rem; height: 1.125rem;
   border-radius: 999px; background: #fff; box-shadow: 0 1px 2px rgb(17 24 39 / .25); transition: inset-inline-start .15s ease;
 }
-.rega-switch:checked { background: var(--brand); }
+.rega-switch:checked { background: var(--brand-control); }
 .rega-switch:checked::after { inset-inline-start: 1.1875rem; }
 .rega-switch:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }

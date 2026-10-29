@@ -32,7 +32,7 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
   const address = owner.missing.includes("streetAddress") || owner.missing.includes("postalCodeCity") ? null : `${owner.streetAddress}, ${owner.postalCodeCity}`;
 
   const card = "card-lift group flex min-h-16 items-center gap-4 rounded-[var(--radius-card)] border border-line bg-surface p-5 shadow-card hover:border-brand/40";
-  const icon = "grid size-11 shrink-0 place-items-center rounded-xl bg-brand-soft text-brand group-hover:bg-brand group-hover:text-white";
+  const icon = "grid size-11 shrink-0 place-items-center rounded-xl bg-brand-soft text-brand-text group-hover:bg-brand group-hover:text-brand-ink";
   const channels = [
     { key: "phone", testid: "contact-phone", href: `tel:+${phoneDigits}`, icon: "phone", label: t("phone"), value: owner.phone, aria: t("phoneAria", { value: owner.phone }) },
     { key: "email", testid: "contact-email", href: `mailto:${owner.publicEmail}`, icon: "mail", label: t("email"), value: owner.publicEmail, aria: t("emailAria", { value: owner.publicEmail }) },
@@ -51,7 +51,7 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
                 <span className={icon}><HomeIcon name={c.icon} className="size-5" /></span>
                 <span className="min-w-0">
                   <span className="block text-sm font-semibold text-muted">{c.label}</span>
-                  <span className="block truncate text-base font-bold text-ink group-hover:text-brand"><bdi dir="ltr">{c.value}</bdi></span>
+                  <span className="block truncate text-base font-bold text-ink group-hover:text-brand-text"><bdi dir="ltr">{c.value}</bdi></span>
                 </span>
               </a>
             </li>
@@ -74,7 +74,7 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
             <ul className="flex flex-wrap gap-3 text-sm">
               {social.map((p) => (
                 <li key={p.key}>
-                  <a href={p.url} rel="me noopener noreferrer" target="_blank" aria-label={`${SOCIAL_DISPLAY_NAME} — ${SOCIAL_LABEL[p.key]}`} className="inline-flex min-h-11 items-center rounded-xl border border-line bg-surface px-4 font-semibold hover:border-brand/40 hover:text-brand">
+                  <a href={p.url} rel="me noopener noreferrer" target="_blank" aria-label={`${SOCIAL_DISPLAY_NAME} — ${SOCIAL_LABEL[p.key]}`} className="inline-flex min-h-11 items-center rounded-xl border border-line bg-surface px-4 font-semibold hover:border-brand/40 hover:text-brand-text">
                     <span dir="ltr">{SOCIAL_LABEL[p.key]}</span>
                   </a>
                 </li>
