@@ -30,7 +30,7 @@ export default async function EditService({ params, searchParams }: { params: Pr
         <h1 className="text-2xl font-extrabold">{t("svcForm.editTitle")}: <bdi>{s.name}</bdi></h1>
         <div className="flex items-center gap-3 text-sm">
           <span className="rounded-full bg-surface-2 px-3 py-1 font-semibold" data-testid="service-status">{t(`status.${s.status}`)}</span>
-          {s.status === "published" && s.business.status === "published" && <Link href={`/${locale}/services/${s.business.slug}/${s.slug}`} className="font-semibold text-brand hover:underline">{t("bizForm.viewPublic")}</Link>}
+          {s.status === "published" && s.business.status === "published" && <Link href={`/${locale}/services/${s.business.slug}/${s.slug}`} className="font-semibold text-brand-text hover:underline">{t("bizForm.viewPublic")}</Link>}
         </div>
       </div>
       {notice && (

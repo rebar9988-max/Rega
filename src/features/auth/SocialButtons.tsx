@@ -46,8 +46,8 @@ export async function SocialButtons({ providers, intent }: { providers: OAuthPro
       {intent === "register" && (
         <p className="text-center text-xs leading-6 text-muted">
           {t.rich("socialTerms", {
-            terms: (c) => <Link href="/terms" target="_blank" className="font-semibold text-brand underline">{c}</Link>,
-            privacy: (c) => <Link href="/privacy" target="_blank" className="font-semibold text-brand underline">{c}</Link>,
+            terms: (c) => <Link href="/terms" target="_blank" className="font-semibold text-brand-text underline">{c}</Link>,
+            privacy: (c) => <Link href="/privacy" target="_blank" className="font-semibold text-brand-text underline">{c}</Link>,
           })}
         </p>
       )}

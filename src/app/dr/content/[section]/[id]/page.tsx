@@ -53,7 +53,7 @@ export default async function EditEntry({ params, searchParams }: { params: Prom
         <h1 className="text-2xl font-extrabold">{t("content.editEntry")}</h1>
         <div className="flex items-center gap-3 text-sm">
           <span className="rounded-full bg-surface-2 px-3 py-1 font-semibold" data-testid="entry-status">{t(`status.${e.status}`)}</span>
-          {e.status === "published" && <Link href={`/${locale}/${section}/${e.slug}`} className="font-semibold text-brand hover:underline">{t("content.view")}</Link>}
+          {e.status === "published" && <Link href={`/${locale}/${section}/${e.slug}`} className="font-semibold text-brand-text hover:underline">{t("content.view")}</Link>}
         </div>
       </div>
       {notice && <div role="status" data-testid="form-notice" className="mb-6 rounded-xl bg-[oklch(0.95_0.05_150)] px-4 py-3 text-sm font-semibold text-[oklch(0.35_0.1_150)]">{t(`content.${notice}`)}</div>}

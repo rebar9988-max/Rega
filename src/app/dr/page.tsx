@@ -58,7 +58,7 @@ export default async function Overview() {
         <Avatar name={b.name} src={b.logoUrl} size="size-9" />
         <span className="min-w-0 flex-1">
           <span className="flex min-w-0 items-center gap-1.5">
-            {b.featured && <DrIcon name="pin" className="size-3.5 text-brand" />}
+            {b.featured && <DrIcon name="pin" className="size-3.5 text-brand-text" />}
             <span className="min-w-0 truncate text-sm font-semibold text-ink"><Text value={localize(b, "name", locale)} pageLang={pageLang} /></span>
           </span>
           <span className="block text-xs text-muted">{meta}</span>
@@ -71,7 +71,7 @@ export default async function Overview() {
     <section aria-labelledby={id} className="flex flex-col rounded-xl border border-line bg-surface shadow-card">
       <div className="flex items-center justify-between gap-3 border-b border-line px-4 py-3">
         <h2 id={id} className="flex items-center gap-2 text-sm font-bold text-ink"><DrIcon name={icon} className="size-4 text-muted" />{title}</h2>
-        <Link href={more} className="text-xs font-semibold text-brand hover:underline">{t("drAdmin.viewAll")}</Link>
+        <Link href={more} className="text-xs font-semibold text-brand-text hover:underline">{t("drAdmin.viewAll")}</Link>
       </div>
       {body}
     </section>
@@ -99,7 +99,7 @@ export default async function Overview() {
             {attention.map((a) => (
               <li key={a.href}>
                 <Link href={a.href} className="inline-flex min-h-10 items-center gap-2 rounded-full border border-brand/25 bg-brand-soft px-3.5 text-sm font-semibold text-ink transition hover:border-brand/50">
-                  <DrIcon name={a.icon} className="size-4 text-brand" /><span className="tabular-nums text-brand">{formatNumber(a.n, locale)}</span>{a.label}
+                  <DrIcon name={a.icon} className="size-4 text-brand-text" /><span className="tabular-nums text-brand-text">{formatNumber(a.n, locale)}</span>{a.label}
                 </Link>
               </li>
             ))}
@@ -113,7 +113,7 @@ export default async function Overview() {
         {stats.map((s) => (
           <div key={s.key} className="relative rounded-xl border border-line bg-surface p-4 shadow-card transition hover:border-ink/20">
             <dt className="flex min-w-0 items-center gap-2 text-xs font-medium text-muted">
-              <span aria-hidden="true" className={`grid size-7 place-items-center rounded-lg ${s.attention ? "bg-brand-soft text-brand" : "bg-surface-2 text-ink/70"}`}><DrIcon name={s.icon} className="size-4" /></span>
+              <span aria-hidden="true" className={`grid size-7 place-items-center rounded-lg ${s.attention ? "bg-brand-soft text-brand-text" : "bg-surface-2 text-ink/70"}`}><DrIcon name={s.icon} className="size-4" /></span>
               <Link href={s.href} className="min-w-0 break-words hyphens-auto after:absolute after:inset-0 after:rounded-xl">{s.label}</Link>
             </dt>
             <dd className="mt-2 text-2xl font-extrabold tabular-nums text-ink sm:text-3xl">{formatNumber(s.n, locale)}</dd>

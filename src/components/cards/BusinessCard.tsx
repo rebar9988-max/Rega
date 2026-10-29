@@ -65,7 +65,7 @@ export async function BusinessCard({ b, variant = "search" }: { b: BusinessCardD
         <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted">
           {cityName && (
             <span className="inline-flex min-w-0 items-center gap-1.5">
-              <svg viewBox="0 0 24 24" className="size-3.5 shrink-0 text-brand" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d={PIN} /><circle cx="12" cy="10" r="2.5" /></svg>
+              <svg viewBox="0 0 24 24" className="size-3.5 shrink-0 text-brand-text" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d={PIN} /><circle cx="12" cy="10" r="2.5" /></svg>
               <span className="truncate"><Text value={cityName} pageLang={pageLang} />{directory && b.locations[0]?.countryCode && <span> · {(() => { try { return new Intl.DisplayNames([locale, "en"], {type:"region"}).of(b.locations[0].countryCode); } catch { return b.locations[0].countryCode; } })()}</span>}</span>
             </span>
           )}
@@ -75,7 +75,7 @@ export async function BusinessCard({ b, variant = "search" }: { b: BusinessCardD
       </div>
 
       <div className="hidden items-center p-5 sm:flex">
-        <span className="inline-flex min-h-10 items-center rounded-lg border border-brand px-4 text-sm font-bold text-brand transition group-hover:bg-brand group-hover:text-white">
+        <span className="inline-flex min-h-10 items-center rounded-lg border border-brand px-4 text-sm font-bold text-brand-text transition group-hover:bg-brand group-hover:text-brand-ink">
           {tc("viewDetails")}
         </span>
       </div>

@@ -53,11 +53,11 @@ export async function FilterBar({ action, values, categories, cities, sorts, ver
       <div className="mt-3 flex flex-wrap items-center gap-4 rounded-lg border border-line bg-surface px-3 py-2 text-sm">
         {verified && (
           <label className="inline-flex min-h-9 cursor-pointer items-center gap-2">
-            <input type="checkbox" name="verified" value="1" defaultChecked={values.verified === "1"} className="size-4 accent-[var(--brand)]" />
+            <input type="checkbox" name="verified" value="1" defaultChecked={values.verified === "1"} className="size-4 accent-brand-control" />
             {t("list.verifiedOnly")}
           </label>
         )}
-        {active && <Link href={cities ? `${action}?city=` : action} className="text-brand hover:underline">{t("list.reset")}</Link>}
+        {active && <Link href={cities ? `${action}?city=` : action} className="text-brand-text hover:underline">{t("list.reset")}</Link>}
       </div>
     </form>
   );

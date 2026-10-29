@@ -108,7 +108,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                 <div className="relative z-10 flex flex-col justify-center px-5 py-8 sm:px-8 lg:py-10 lg:pe-6">
                   <h1 className="rega-display max-w-xl text-[clamp(2.4rem,5vw,3.75rem)]">
                     {t("communityTitle")}
-                    <span className="mt-1 block text-brand">{t("communityAccent")}</span>
+                    <span className="mt-1 block text-brand-text">{t("communityAccent")}</span>
                   </h1>
                   <p className="mt-4 max-w-md text-[15px] leading-7 text-muted">{t("communityLead")}</p>
                 </div>
@@ -132,13 +132,13 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               <form action={`/${locale}/businesses`} role="search"
                 className="rega-search-shell relative z-20 mx-3 mb-3 mt-3 grid overflow-hidden sm:mx-5 sm:mb-5 sm:-mt-7 sm:grid-cols-[minmax(0,1.6fr)_minmax(11rem,.8fr)_auto] lg:mx-8">
                 <label className="flex min-h-14 min-w-0 items-center gap-3 px-4 focus-within:ring-2 focus-within:ring-inset focus-within:ring-[var(--ring)]">
-                  <FigmaIcon name="search" className="size-5 shrink-0 text-brand" />
+                  <FigmaIcon name="search" className="size-5 shrink-0 text-brand-text" />
                   <span className="sr-only">{t("what")}</span>
                   <input name="q" type="search" autoComplete="off" maxLength={120} placeholder={t("searchWhat")}
                     className="min-w-0 flex-1 bg-transparent text-[15px] text-ink outline-none placeholder:text-muted" />
                 </label>
                 <div className="flex min-h-14 min-w-0 items-center gap-2 border-t border-line px-4 focus-within:ring-2 focus-within:ring-inset focus-within:ring-[var(--ring)] sm:border-s sm:border-t-0">
-                  <FigmaIcon name="map-pin" className="size-4 shrink-0 text-brand" />
+                  <FigmaIcon name="map-pin" className="size-4 shrink-0 text-brand-text" />
                   <div className="min-w-0 flex-1">
                     <CityFilter
                       cities={cities.map((c) => { const name = cityName(c).text; return { id: c.id, label: name, name }; })}
@@ -150,7 +150,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                   </div>
                   <FigmaIcon name="chevron-down" className="pointer-events-none size-4 shrink-0 text-muted" />
                 </div>
-                <button type="submit" className="m-0 min-h-14 bg-brand px-8 text-[15px] font-bold text-white transition hover:bg-brand-hover sm:m-1.5 sm:min-h-0 sm:rounded-[0.7rem]">
+                <button type="submit" className="m-0 min-h-14 bg-brand px-8 text-[15px] font-bold text-brand-ink transition hover:bg-brand-hover sm:m-1.5 sm:min-h-0 sm:rounded-[0.7rem]">
                   {tn("search")}
                 </button>
               </form>
@@ -178,24 +178,24 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                   <span className="rega-kicker mb-3" aria-hidden="true" />
                   <h2 id="home-cats" className="text-xl font-extrabold leading-tight sm:text-[22px]">{t("browseByCategory")}</h2>
                 </div>
-                <Link href="/businesses" className="shrink-0 text-sm font-bold text-brand hover:underline">{t("viewAll")}<span className="sr-only">: {t("browseByCategory")}</span></Link>
+                <Link href="/businesses" className="shrink-0 text-sm font-bold text-brand-text hover:underline">{t("viewAll")}<span className="sr-only">: {t("browseByCategory")}</span></Link>
               </div>
               <nav aria-label={t("categoriesTitle")} className="mt-4">
                 <ul className="grid grid-cols-3 gap-2.5 sm:grid-cols-4 sm:gap-3 lg:grid-cols-7">
                   {rootCategories.slice(0, 6).map((c) => (
                     <li key={c.id} className="min-w-0">
-                      <Link href={`/businesses/${c.slug}`} className="rega-card flex h-full min-h-[108px] flex-col items-center justify-center gap-2.5 px-2 py-4 text-center transition-colors hover:text-brand">
+                      <Link href={`/businesses/${c.slug}`} className="rega-card flex h-full min-h-[108px] flex-col items-center justify-center gap-2.5 px-2 py-4 text-center transition-colors hover:text-brand-text">
                         <span className="grid size-11 place-items-center rounded-2xl bg-brand-soft">
-                          <FigmaIcon name={CATEGORY_ICON[c.slug] ?? "briefcase-business"} className="size-6 shrink-0 text-brand" />
+                          <FigmaIcon name={CATEGORY_ICON[c.slug] ?? "briefcase-business"} className="size-6 shrink-0 text-brand-text" />
                         </span>
                         <span className="line-clamp-2 text-[13px] font-semibold leading-snug"><Text value={categoryName(c)} pageLang={pageLang} /></span>
                       </Link>
                     </li>
                   ))}
                   <li className="min-w-0">
-                    <Link href="/businesses" className="rega-card flex h-full min-h-[108px] flex-col items-center justify-center gap-2.5 px-2 py-4 text-center transition-colors hover:text-brand">
+                    <Link href="/businesses" className="rega-card flex h-full min-h-[108px] flex-col items-center justify-center gap-2.5 px-2 py-4 text-center transition-colors hover:text-brand-text">
                       <span className="grid size-11 place-items-center rounded-2xl bg-brand-soft">
-                        <FigmaIcon name="grid-3x3" className="size-6 shrink-0 text-brand" />
+                        <FigmaIcon name="grid-3x3" className="size-6 shrink-0 text-brand-text" />
                       </span>
                       <span className="line-clamp-2 text-[13px] font-semibold leading-snug">{t("allSections")}</span>
                     </Link>
@@ -216,7 +216,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                 <p className="mt-1 text-sm text-muted">{t("latestSub")}</p>
               </div>
               {/* The hidden part names the target, so the link is descriptive for screen readers and search engines. */}
-              <Link href="/businesses?sort=newest" className="shrink-0 text-sm font-bold text-brand hover:underline">{t("seeMore")}<span className="sr-only">: {t("popularTitle")}</span></Link>
+              <Link href="/businesses?sort=newest" className="shrink-0 text-sm font-bold text-brand-text hover:underline">{t("seeMore")}<span className="sr-only">: {t("popularTitle")}</span></Link>
             </div>
             {latest.length > 0 ? (
               <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
@@ -231,7 +231,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                   <p className="text-lg font-extrabold text-ink">{t("emptyListings")}</p>
                   <p className="mt-1 max-w-lg text-sm leading-6 text-muted">{te("beFirstBody")}</p>
                 </div>
-                <Link href="/for-business" className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-xl bg-brand px-5 text-sm font-bold text-white hover:bg-brand-hover" data-testid="home-be-first">{te("beFirstCta")}</Link>
+                <Link href="/for-business" className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-xl bg-brand px-5 text-sm font-bold text-brand-ink hover:bg-brand-hover" data-testid="home-be-first">{te("beFirstCta")}</Link>
               </div>
             )}
           </div>
@@ -241,12 +241,12 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         <section className="bg-surface" aria-label={t("ctaAI")}>
           <div className={`${BAND} pt-8`}>
             <Link href="/ai" className="group flex min-h-[72px] items-stretch overflow-hidden rounded-xl border border-brand/40 bg-surface transition hover:border-brand hover:shadow-card" data-testid="home-ai-entry">
-              <span className="grid w-16 shrink-0 place-items-center bg-brand text-white sm:w-20"><FigmaIcon name="sparkles" className="size-7" /></span>
+              <span className="grid w-16 shrink-0 place-items-center bg-brand text-brand-ink sm:w-20"><FigmaIcon name="sparkles" className="size-7" /></span>
               <span className="flex min-w-0 flex-1 flex-col justify-center gap-0.5 px-4 py-3 sm:flex-row sm:items-center sm:justify-start sm:gap-4">
                 <span className="shrink-0 text-base font-extrabold text-ink" dir="auto">{t("ctaAI")}</span>
                 <span className="min-w-0 text-sm text-muted">{t("aiEntrySub")}</span>
               </span>
-              <span className="grid shrink-0 place-items-center px-4 text-brand"><FigmaIcon name="arrow-right" className="rtl-flip size-6 transition-transform group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5" /></span>
+              <span className="grid shrink-0 place-items-center px-4 text-brand-text"><FigmaIcon name="arrow-right" className="rtl-flip size-6 transition-transform group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5" /></span>
             </Link>
           </div>
         </section>
@@ -262,7 +262,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                     <h2 id="home-nearby" className="text-xl font-extrabold leading-tight sm:text-[22px]">{t("citiesTitle")}</h2>
                     <p className="mt-1 text-sm text-muted">{t("citiesSub")}</p>
                   </div>
-                  <Link href="/nearby" className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-full border border-brand px-3.5 text-sm font-bold text-brand transition-colors hover:bg-brand hover:text-white">
+                  <Link href="/nearby" className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-full border border-brand px-3.5 text-sm font-bold text-brand-text transition-colors hover:bg-brand hover:text-brand-ink">
                     <FigmaIcon name="crosshair" className="size-4 shrink-0" />{t("locateMe")}
                   </Link>
                 </div>
@@ -270,8 +270,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                   <ul className={`grid grid-cols-2 gap-2.5 ${cityPoints.length > 0 ? "" : "sm:grid-cols-4"}`}>
                     {majorCities.map((c) => (
                       <li key={c.id}>
-                        <Link href={`/city/${c.slug}`} className="rega-card flex min-h-14 items-center gap-2.5 px-3.5 py-3 text-sm font-bold hover:text-brand">
-                          <FigmaIcon name="map-pin" className="size-4 shrink-0 text-brand" />
+                        <Link href={`/city/${c.slug}`} className="rega-card flex min-h-14 items-center gap-2.5 px-3.5 py-3 text-sm font-bold hover:text-brand-text">
+                          <FigmaIcon name="map-pin" className="size-4 shrink-0 text-brand-text" />
                           <span className="truncate"><Text value={cityName(c)} pageLang={pageLang} /></span>
                         </Link>
                       </li>
@@ -293,7 +293,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                     <h2 id="home-nearby" className="text-xl font-extrabold leading-tight sm:text-[22px]">{t("nearTitle")}</h2>
                     <p className="mt-1 text-sm text-muted">{t("nearbySub")}</p>
                   </div>
-                  <Link href="/nearby" className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-full border border-brand px-3.5 text-sm font-bold text-brand transition-colors hover:bg-brand hover:text-white">
+                  <Link href="/nearby" className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-full border border-brand px-3.5 text-sm font-bold text-brand-text transition-colors hover:bg-brand hover:text-brand-ink">
                     <FigmaIcon name="crosshair" className="size-4 shrink-0" />{t("locateMe")}
                   </Link>
                 </div>
@@ -304,7 +304,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                       return (
                         <li key={b.id} className="relative flex min-h-[64px] items-center gap-3 border-b border-line bg-surface px-3.5 py-2.5 last:border-b-0 hover:bg-surface-2">
                           <span className="grid size-10 shrink-0 place-items-center rounded-full bg-brand-soft">
-                            <FigmaIcon name={(c && ROW_ICON[c.slug]) || "building-2"} className="size-5 text-brand" />
+                            <FigmaIcon name={(c && ROW_ICON[c.slug]) || "building-2"} className="size-5 text-brand-text" />
                           </span>
                           <div className="flex min-w-0 flex-1 flex-col">
                             <Link href={`/business/${b.slug}`} className="truncate text-sm font-bold after:absolute after:inset-0 after:content-['']">
@@ -312,7 +312,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                             </Link>
                             {c && <span className="truncate text-xs text-muted"><Text value={categoryName(c)} pageLang={pageLang} /></span>}
                           </div>
-                          <FigmaIcon name="arrow-right" className="rtl-flip size-4 shrink-0 text-brand" />
+                          <FigmaIcon name="arrow-right" className="rtl-flip size-4 shrink-0 text-brand-text" />
                         </li>
                       );
                     })}

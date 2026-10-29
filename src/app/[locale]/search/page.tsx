@@ -55,13 +55,13 @@ export default async function SearchPage({ params, searchParams }: { params: Pro
           <nav aria-label={t("search.title")} className="container-page mb-4"><ul className="flex flex-wrap gap-2">
             {tabs.map(([key, label]) => (
               <li key={key}><Link prefetch={false} href={{ pathname: "/search", query: { q: shownQ, ...(key === "all" ? {} : { type: key }) } }} aria-current={type === key ? "true" : undefined}
-                className={`inline-flex min-h-10 items-center rounded-full border px-4 text-sm font-semibold ${type === key ? "border-brand bg-brand-soft text-brand" : "border-line bg-surface hover:bg-surface-2"}`}>{label}</Link></li>
+                className={`inline-flex min-h-10 items-center rounded-full border px-4 text-sm font-semibold ${type === key ? "border-brand bg-brand-soft text-brand-text" : "border-line bg-surface hover:bg-surface-2"}`}>{label}</Link></li>
             ))}
           </ul></nav>
           {res.correctedTo && (
             <p className="container-page mb-2 text-sm" data-testid="search-corrected">
               {t("search.correctedNotice", { query: q ?? "" })}{" "}
-              <Link prefetch={false} href={{ pathname: "/search", query: { q: res.correctedTo, ...(type === "all" ? {} : { type }) } }} className="font-semibold text-brand underline">{t("search.didYouMean", { query: res.correctedTo })}</Link>
+              <Link prefetch={false} href={{ pathname: "/search", query: { q: res.correctedTo, ...(type === "all" ? {} : { type }) } }} className="font-semibold text-brand-text underline">{t("search.didYouMean", { query: res.correctedTo })}</Link>
             </p>
           )}
           {res.openNow && <p className="container-page mb-2 text-sm font-semibold" data-testid="search-open-now">{t("search.openNowApplied")}</p>}
