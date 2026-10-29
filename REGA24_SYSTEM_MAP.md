@@ -218,6 +218,7 @@ This documentation change is intentionally inside the docs-only allowlist so it 
 | [src/lib/logger.ts](src/lib/logger.ts) | JSON logs. Optional POST to `ERROR_WEBHOOK_URL` | Webhook destination UNKNOWN. Observability is enabled in wrangler; retention UNKNOWN |
 | GitHub Actions for the commit | CI and deploy conclusions | A green deploy workflow after a docs-only commit means the skip ran, not that a new version was published |
 | [scripts/health/probe.sh](scripts/health/probe.sh) | Script used by Beta health | Read-only |
+| `/dr/operations` Digital Operations Center ([src/lib/ops/core.ts](src/lib/ops/core.ts)) | Owner-only (`operations.manage`, SUPER_ADMIN). Ten read-only inspection agents run on demand; reports are `AuditLog` rows `ops.report` | Manual only: no schedule. Worker-side probes are not Lighthouse or field Core Web Vitals |
 
 Latest observed Beta health before this documentation change: run `40217513295`, scheduled, conclusion `success`, SHA `e8e2b69b0d3da1e88cf75e904cf6ff4a4e8b90a8`, 2026-10-25T17:39Z. **VERIFIED** via the GitHub API.
 
@@ -281,3 +282,7 @@ VERIFIED live: version `912d7b51-341a-4017-bed9-470cd1b39c1c`, deployment `97a07
 ## Docs-only merge scope correction — 2026-10-28
 
 Later live readback shows documentation release caac065 active at 100% as version 38a340a5-7c83-4db8-b73a-1716c3c16b40, provider D1; its exact-main CI/deploy/health/browser checks passed. Earlier no-replacement claims based only on changed paths were disproved: the old merge diff returned no files. Release scope now compares HEAD with its first parent, preserving the existing allowlist and application safeguards. [Actual merge/shallow/ordinary-change regression evidence](docs/evidence/deployment-scope-regression-2026-10-28.json).
+
+## Digital Operations Center — 2026-10-29
+
+Owner-only `/dr/operations` (permission `operations.manage`, held only by SUPER_ADMIN = `rebar9988@gmail.com`). Ten logical agents share the existing `rega24` Worker, D1 database and search code: no new Worker, binding, cron trigger, queue, table, migration, dependency or paid service. Engine guards ([src/lib/ops/core.ts](src/lib/ops/core.ts)): execution-id idempotency, 100 runs/UTC day with throttling from 80, 60 s (then 15 min) cool-down per agent, one lock per agent (`Setting` key `ops.lock.<agent>`, 2 min TTL), 25 s timeout, one retry, 12 HTTP probes and 2,500 rows per query. Reports are `AuditLog` rows (`action=ops.report`, `entity=ops:<agent>`). Agents never approve, reject, publish, delete, merge or change configuration; the public AI flag is reported, not changed. Repository-side checks (catalogue parity, tracked-file secret scan) run in the existing `npm test` CI step. Scheduled execution stays OFF: account-wide Cloudflare usage and billing are not readable from the repository or Worker.

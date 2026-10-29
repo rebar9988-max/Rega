@@ -993,6 +993,56 @@ social configuration; asynchronous MapLibre internals excluded. Screenshots insp
 Evidence: [local color QA](docs/evidence/brand-colors-2026-10-29.json). Extended the existing read-only production browser
 checker to assert the served primary against the checked-out CSS token, including scoped home surfaces. No workflow
 or deployment mechanism changed. Final hosted CI and production verification remain pending.
+
+## Digital Operations Center — ten read-only inspection agents — 2026-10-29 (branch `claude/rega24-operations-system-nj72x0`)
+
+Owner brief "REGA24 Autonomous Digital Operations System" (zero additional cost, no paid services, no data destruction, no
+public AI activation). Identity guard OK (REGA). Read CLAUDE.md, AGENTS.md, this file, system map/runbook and the central Doc
+(no earlier operations-center work recorded).
+
+Audit (read-only): production database is D1 `728f792d…` (36 tables; Business 3, Category 19, City 2065, AuditLog 83,
+Setting 0, Page/Listing 0). `public.aiSearch` is ENABLED in production (rollout 100, set earlier by the owner through
+`/dr/ai`; audit rows `featureflag.update`). It was NOT changed: switching public visibility is owner-only. The new AI agent
+reports it as a warning together with the configured provider keys (booleans only).
+
+Built (no schema, migration, binding, cron, queue, Worker, dependency or paid service):
+- `/dr/operations` (owner only): new permission `operations.manage`, SUPER_ADMIN only (ADMIN excluded); SUPER_ADMIN is honoured
+  only for `rebar9988@gmail.com` (`effectiveRole`). Nav item in the "system" group; page and both server actions check the
+  permission before reading or running anything.
+- Engine `src/lib/ops/core.ts` (pure): execution-id idempotency, 100 runs/UTC day, throttled cool-down from 80 runs
+  (60 s → 15 min), per-agent lock (`Setting` `ops.lock.<agent>`, 2 min TTL, atomic primary key), 25 s timeout with abort,
+  one retry (not for timeouts), fail-closed BLOCKED when D1 is unavailable, no report text from error messages.
+- Ten agents (`src/lib/ops/agents.ts` collectors + `src/lib/ops/analyzers/*` pure rules): business (queue, stale, required
+  info, probable duplicates, category, country/city, coordinates, links — never approves/rejects), security (owner allowlist,
+  stored SUPER_ADMIN rows, AUTH_SECRET length only, failed sign-ins 24 h as counts, live security headers, anonymous `/dr`
+  and API separation; repo secret scan in CI), QA (12 bounded live routes, lang/dir per locale, hreflang, slug integrity),
+  performance (Worker-side TTFB/HTML size/scripts; Lighthouse and field CWV reported as not measured), category, location,
+  translation (all 11 registered locales), content, privacy-safe analytics (aggregates only; zero-result searches are not
+  tracked and no tracking was added), AI discovery (flag/default, published-only filter, deterministic retrieval tests,
+  stored-answer links; never calls a model).
+- Reports = `AuditLog` rows `action=ops.report`, `entity=ops:<agent>`, `after` = report (owner's JSON shape, Sorani summary).
+- HTTP probes: canonical origin only in production; `OPS_PROBE_ORIGIN` (loopback only, ignored when APP_ENV=production) lets
+  E2E probe the local test server. User agent `REGA24-Operations-Inspector/1.0`; no cookies; redirects not followed.
+- Scheduled mode OFF on purpose: Cloudflare account usage/billing is not readable from here, so no cron is added.
+  Repository-side checks run in the existing `npm test` (CI) step: `tests/ops-repository.test.ts` (tracked-file secret scan)
+  and the translation analyzer over the real catalogues.
+- UI chrome in all 11 catalogues (`ops.*`, `dashboard.operations`); findings/summaries in Sorani (`lang="ckb" dir="rtl"`).
+  Existing dashboard tokens, pills and icon family only (one Lucide "activity" path added).
+
+Cost reasoning (REPORTED, not a billing proof): the Worker bundle exceeds the free-plan size, so the account is very likely on
+Workers Paid with included quotas; the engine's hard caps (≤100 runs/day, ≤12 probes and ≤~5k rows read per run, 3 D1 writes
+per run) are orders of magnitude below them. Account-wide usage was not readable; no billing or plan was touched.
+
+Local verification (this session, branch head before PR): lint, typecheck PASS; `npm test` 420 tests, 416 pass, 0 fail,
+4 DB-only skips (37 new ops tests); docs validator and `git diff --check` PASS. Full Playwright suite on disposable D1
+(desktop + mobile): 407/407 PASS, incl. new `tests/e2e/operations.spec.ts` (anonymous → sign-in form; EMPLOYEE → no access;
+owner runs one agent, gets a cool-down BLOCKED on an immediate repeat, runs all ten; Business/Category/City/flag snapshot
+unchanged; one AuditLog report per run; no lock left). After final probe changes: operations+auth+security specs 17/17,
+`test:d1` 10/10, Worker build + `wrangler deploy --dry-run` (4707.77 KiB gzip), workerd smoke with D1 and the D1 binding smoke
+PASS. `probe()` executed inside workerd with the production compatibility date/flags (GET, HEAD, manual redirect, budget, UA,
+no cookie). Not run here: PostgreSQL Worker smoke (no local Postgres; CI runs it), WebKit/iPhone project.
+Two false positives found by running the agents on the seeded database and fixed before commit: hreflang check was
+case-sensitive (React emits `hrefLang`, confirmed on live `/ckb`), and the AI message wrongly said "production" everywhere.
 ## Business registration & editing upgrade — 2026-10-29 (branch `claude/rega24-business-form-6ie7x9`)
 
 Owner brief "REGA24 — premium business registration & editing" + global requirement "one shared form for all permitted
