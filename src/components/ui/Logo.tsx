@@ -1,24 +1,19 @@
 /**
- * Official REGA logo. The pin mark and the wordmark are the official artwork
- * (white 3D logo on the brand red) and are not redrawn or recolored.
+ * Official REGA24 logo badge: the owner-supplied master artwork, resized only (scripts/generate-rega24-logo-assets.py).
+ * The only logo component: header, footer, admin and auth pages all use it. It is a square badge in its own
+ * container with a 1px border and the card shadow so it stays separate from light and dark page backgrounds.
+ * `size` is the rendered size in px and is also written as width/height, so the badge never shifts the layout.
+ * Pass `alt=""` when the badge is decorative (e.g. next to a heading); keep "REGA24" when it is the link's name.
  */
-export function LogoMark({ className = "size-11" }: { className?: string }) {
-  // Shown at 32–48 px: browsers take the 256px file (sharp up to 5x); the 512px file is kept for larger uses.
-  return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img src="/brand/rega-mark-512.webp" srcSet="/brand/rega-mark-256.webp 256w, /brand/rega-mark-512.webp 512w" sizes="48px" alt="" width={512} height={512} decoding="async" fetchPriority="high" className={`${className} shrink-0 rounded-xl`} />
-  );
-}
+const SOURCES = [64, 96, 192, 384] as const;
 
-export function Logo({ className = "" }: { className?: string }) {
+export function LogoBadge({ size, alt = "REGA24", priority = false, className = "" }: { size: number; alt?: string; priority?: boolean; className?: string }) {
   return (
-    <span className={`inline-flex items-center ${className}`} dir="ltr">
-      <span className="inline-flex shrink-0 items-center overflow-hidden rounded-xl bg-logo-surface">
-        <LogoMark className="size-12 rounded-none" />
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/brand/rega-wordmark.webp" alt="" width={640} height={147} decoding="async" className="h-5 w-auto max-w-none shrink-0 pe-3 sm:h-6" />
-      </span>
-      <span className="sr-only">REGA</span>
+    <span className={`inline-block shrink-0 overflow-hidden rounded-lg border border-line shadow-card ${className}`} style={{ width: size, height: size }} dir="ltr">
+      <picture>
+        <source type="image/webp" srcSet={SOURCES.map((w) => `/brand/rega24-badge-${w}.webp ${w}w`).join(", ")} sizes={`${size}px`} />
+        <img src="/brand/rega24-badge-192.png" alt={alt} width={size} height={size} decoding="async" fetchPriority={priority ? "high" : "auto"} loading={priority ? "eager" : "lazy"} className="block size-full" />
+      </picture>
     </span>
   );
 }

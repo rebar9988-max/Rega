@@ -5,10 +5,10 @@
  * Pages, API responses, the dashboard and anything with personal data are NEVER stored: navigations always go to the
  * network. Bump VERSION to drop old caches.
  */
-const VERSION = "v2";
+const VERSION = "v3";
 const CACHE = `rega-static-${VERSION}`;
 const OFFLINE = "/offline.html";
-const PRECACHE = [OFFLINE, "/brand/rega-mark-256.webp"];
+const PRECACHE = [OFFLINE, "/brand/rega24-badge-192.webp"];
 const MAX_ASSETS = 150;
 
 self.addEventListener("install", (event) => {

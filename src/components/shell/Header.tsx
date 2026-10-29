@@ -3,7 +3,7 @@ import { dirOf } from "@/i18n/locales";
 import { auth } from "@/auth";
 import NextLink from "next/link";
 import { Link } from "@/i18n/routing";
-import { Logo } from "@/components/ui/Logo";
+import { LogoBadge } from "@/components/ui/Logo";
 import { SessionRenewal } from "@/features/auth/SessionRenewal";
 import { FigmaIcon } from "@/components/home/FigmaIcon";
 import { LanguageSwitcher } from "./LanguageSwitcher";
@@ -29,8 +29,8 @@ export async function Header() {
       {signedIn && <SessionRenewal />}
       {/* Below 360 px (320 px phones) the row would not fit: slightly less padding and no search icon (search stays in the bottom bar). */}
       <div dir="ltr" className="mx-auto flex h-[72px] w-full max-w-[1440px] items-center justify-between gap-3 px-3 min-[360px]:px-4 sm:px-6 lg:px-8">
-        <Link href="/" aria-label="REGA Platform" className="shrink-0 rounded-xl">
-          <Logo />
+        <Link href="/" className="shrink-0 rounded-lg">
+          <LogoBadge size={48} priority />
         </Link>
 
         <nav aria-label={t("primary")} className="hidden h-full xl:block">

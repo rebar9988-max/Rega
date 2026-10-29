@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { auth } from "@/auth";
-import { LogoMark } from "@/components/ui/Logo";
+import { LogoBadge } from "@/components/ui/Logo";
 import { Link } from "@/i18n/routing";
 import { isLocale } from "@/config/locales";
 import { safeRelativePath } from "@/features/auth/oauth-core";
@@ -29,7 +29,7 @@ export default async function AuthChooserPage({ params, searchParams }: { params
   return (
     <div className="container-page flex min-h-[60vh] flex-col items-center justify-center py-12 text-center">
       <div className="w-full max-w-md space-y-6">
-        <div className="flex justify-center"><LogoMark className="size-20" /></div>
+        <div className="flex justify-center"><LogoBadge size={80} alt="" priority /></div>
         <div className="space-y-3">
           <h1 className="rega-display text-3xl sm:text-4xl">{t("chooseTitle")}</h1>
           <span aria-hidden="true" className="mx-auto block h-1 w-10 rounded-full bg-brand" />

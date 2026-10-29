@@ -29,7 +29,7 @@ test("the service worker registers, takes control and has stored the offline pag
     return urls;
   });
   expect(stored).toContain("/offline.html");
-  for (const path of stored) expect(path === "/offline.html" || path === "/brand/rega-mark-256.webp" || path.startsWith("/_next/static/"), path).toBe(true);
+  for (const path of stored) expect(path === "/offline.html" || path === "/brand/rega24-badge-192.webp" || path.startsWith("/_next/static/"), path).toBe(true);
 });
 
 test("the offline page is served as a plain static page", async ({ page }) => {

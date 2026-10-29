@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useId, useState } from "react";
-import { Logo } from "@/components/ui/Logo";
+import { LogoBadge } from "@/components/ui/Logo";
 import { DrIcon, type DrIconName } from "./icons";
 
 export type DrNavItem = { href: string; label: string; icon: DrIconName; group: string };
@@ -30,7 +30,7 @@ export function DrSidebar({ items, groups, email, labels, siteHref }: {
   return (
     <aside className="sticky top-0 z-40 border-b border-line bg-surface lg:flex lg:h-dvh lg:flex-col lg:border-b-0 lg:border-e">
       <div className="flex h-16 items-center justify-between gap-3 px-4 lg:h-[4.5rem] lg:px-5">
-        <Link href="/dr" className="rounded-xl"><Logo /></Link>
+        <Link href="/dr" className="rounded-lg"><LogoBadge size={44} priority /></Link>
         <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-controls={navId} data-testid="dr-menu-toggle"
           className="grid size-11 place-items-center rounded-xl border border-line text-ink transition hover:bg-surface-2 lg:hidden">
           <DrIcon name={open ? "close" : "menu"} className="size-5" />

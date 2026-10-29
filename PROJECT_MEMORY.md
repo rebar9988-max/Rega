@@ -993,3 +993,23 @@ social configuration; asynchronous MapLibre internals excluded. Screenshots insp
 Evidence: [local color QA](docs/evidence/brand-colors-2026-10-29.json). Extended the existing read-only production browser
 checker to assert the served primary against the checked-out CSS token, including scoped home surfaces. No workflow
 or deployment mechanism changed. Final hosted CI and production verification remain pending.
+
+## REGA24 official logo integration — 2026-10-29 (branch `claude/rega24-logo-integration-4hkyk0`)
+Task: integrate the owner-supplied REGA24 master logo unmodified as a square badge (header desktop/mobile, footer, /dr
+admin, auth/login/register, favicon, apple-touch, PWA any+maskable, OG image, offline/splash page, JSON-LD logo).
+Identity guard: `--project REGA --domain www.rega24.com` OK. The design spec `claude/rega24-official-logo-integration-spec.md`
+(Design Studio project) was not reachable from this session (environment limitation); the prompt's spec points were followed
+and the file-size budgets in `tests/logo-assets.test.ts` are this session's own (REPORTED, not from the spec).
+Change: master stored byte-identical at `docs/brand/rega24-official-logo-master.png` (sha256 pinned in the test);
+`scripts/generate-rega24-logo-assets.py` resizes it (no crop/recolour/retouch); square and 1200x630 formats keep the full
+portrait frame and fill the margins from the master's own softened edge pixels. One component, `LogoBadge`
+(`src/components/ui/Logo.tsx`): WebP srcset + PNG fallback, explicit width/height, 1px `border-line` + `shadow-card`.
+`Logo`/`LogoMark` removed; footer wordmark image removed (badge carries the name). Link names are now the visible text
+"REGA24" (alt); auth marks are decorative (`alt=""`). Service-worker cache bumped to v3 to precache the new offline mark.
+Not changed: home hero lockup (`rega-lockup-*`, not in the requested placements), `EmptyState` search icon (semantic icon;
+needs spec confirmation), old `rega-mark/logo/wordmark` files left in `public/brand` (no deletion). No colours/tokens changed.
+Known trade-off: the master is portrait 9:16 with the wordmark below, so at 16-32 px the wordmark is not legible.
+Tests: unit 383/383 pass; typecheck, lint, docs validation pass. Local browser (next dev, no DB): /en/login, /ckb/login,
+/en/auth in light+dark, RTL+LTR, 1280+390 px — all badges load, correct alt, CLS 0 / <0.002 (font swap). /dr not rendered
+locally (needs DB/auth). Hosted CI, deploy and live verification: pending; record results before claiming them.
+Next safe continuation point: review PR, confirm spec items above, merge through the normal CI-gated path.

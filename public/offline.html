@@ -11,7 +11,7 @@
   * { box-sizing: border-box; }
   body { margin: 0; min-height: 100dvh; display: grid; place-items: center; padding: 16px; background: var(--bg); color: var(--ink); font-family: "Inter Variable", "Vazirmatn Variable", system-ui, "Segoe UI", Tahoma, sans-serif; }
   main { width: 100%; max-width: 28rem; text-align: center; padding: 40px 24px; background: var(--surface); border: 1px solid var(--line); border-radius: 1.125rem; }
-  img { width: 64px; height: 64px; }
+  img { width: 64px; height: 64px; border: 1px solid var(--line); border-radius: 0.5rem; box-shadow: 0 1px 2px oklch(0 0 0 / 0.08); }
   h1 { margin: 16px 0 8px; font-size: 1.5rem; font-weight: 800; }
   p { margin: 0 0 24px; color: var(--muted); line-height: 1.6; }
   button { min-height: 44px; padding: 0 24px; border: 0; border-radius: 0.75rem; background: var(--brand); color: oklch(1 0 0); font: inherit; font-weight: 600; cursor: pointer; }
@@ -21,7 +21,7 @@
 </head>
 <body>
 <main>
-  <img src="/brand/rega-mark-256.webp" alt="" width="64" height="64">
+  <img src="/brand/rega24-badge-192.webp" alt="" width="64" height="64">
   <h1 id="t">You are offline</h1>
   <p id="b">REGA Platform needs an internet connection to load this page. Check your connection and try again.</p>
   <button type="button" id="r">Try again</button>
