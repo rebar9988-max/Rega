@@ -17,6 +17,7 @@ import { BUSINESS_CATEGORY, lockBusiness, publicationSelect, businessReadiness }
 import { PUBLIC_BUSINESS } from "@/lib/search-where";
 import { ownsBusinessImages } from "@/lib/business-media";
 import { normalizeWhatsapp } from "@/lib/whatsapp";
+import { SOCIAL_FIELD, SOCIAL_PLATFORMS, normalizeSocialUrl, normalizeWebsite } from "@/lib/social-links";
 
 /** ISO 3166-1 alpha-2 codes offered in the form (plus any country already in the database). */
 export const FORM_COUNTRIES = ["DE", "AT", "CH", "NL", "BE", "LU", "FR", "GB", "IE", "DK", "SE", "NO", "FI", "IT", "ES", "PL", "CZ", "IQ", "TR", "IR", "SY", "US", "CA", "AU"] as const;
@@ -24,10 +25,11 @@ export const FORM_COUNTRIES = ["DE", "AT", "CH", "NL", "BE", "LU", "FR", "GB", "
 /** Most gallery photos per business. */
 export const MAX_PHOTOS = 10;
 /**
- * Profile gallery: the cover image plus this many further images. Listings saved before the limit may keep up to
- * MAX_PHOTOS stored images (nothing is deleted); they can reorder or remove them but add a new one only below the limit.
+ * Four image slots: the logo, then three promotional images — the first is the cover (profile hero), the other two are
+ * gallery photos. Listings saved under earlier limits may keep up to MAX_PHOTOS stored photos (nothing is deleted); they
+ * can reorder, replace or remove them, but the number of photos may only grow while it is below the limit.
  */
-export const GALLERY_PHOTOS = 3;
+export const GALLERY_PHOTOS = 2;
 
 const httpsUrl = z.union([z.literal(""), z.string().trim().max(500).url().refine((u) => u.startsWith("https://"))]).optional().transform((v) => v || undefined);
 const optionalText = (max: number) => z.string().trim().max(max).optional().transform((v) => (v ? v : undefined));
@@ -56,7 +58,13 @@ export const businessFormSchema = z.object({
   /** Public business WhatsApp number as typed; validated and stored in international form (src/lib/whatsapp.ts). */
   whatsapp: optionalText(50),
   email: z.union([z.literal(""), z.string().trim().email().max(200)]).optional().transform((v) => v || undefined),
-  website: z.union([z.literal(""), z.string().trim().url().max(300).refine((u) => /^https?:\/\//i.test(u))]).optional().transform((v) => v || undefined),
+  // Optional; "example.com" is stored as https://example.com (src/lib/social-links.ts), other schemes are refused.
+  website: optionalText(300),
+  // Optional public profiles; each stored as the platform's canonical https link, or refused (src/lib/social-links.ts).
+  facebookUrl: optionalText(300),
+  instagramUrl: optionalText(300),
+  tiktokUrl: optionalText(300),
+  snapchatUrl: optionalText(300),
   addressLine1: loose(300),
   postalCode: optionalText(20),
   city: loose(120),
@@ -89,6 +97,10 @@ export const businessFormSchema = z.object({
   if (v.addressLine1 && v.addressLine1.length < 3) fail("addressLine1");
   if (v.countryCode && !/^[A-Z]{2}$/.test(v.countryCode)) fail("countryCode");
   if (v.whatsapp && !normalizeWhatsapp(v.whatsapp, v.countryCode).ok) ctx.addIssue({ code: "custom", path: ["whatsapp"], message: "invalid" });
+  if (!normalizeWebsite(v.website).ok) ctx.addIssue({ code: "custom", path: ["website"], message: "invalid" });
+  for (const platform of SOCIAL_PLATFORMS) {
+    if (!normalizeSocialUrl(platform, v[SOCIAL_FIELD[platform]]).ok) ctx.addIssue({ code: "custom", path: [SOCIAL_FIELD[platform]], message: "invalid" });
+  }
   const hasLat = v.latitude !== undefined;
   const hasLng = v.longitude !== undefined;
   if (hasLat !== hasLng) ctx.addIssue({ code: "custom", path: ["latitude"], message: "both" });
@@ -193,20 +205,27 @@ async function save(input: BusinessForm, actor: { id: string }, { canPublish, ca
     if (input.intent === "draft" && before && (before.status !== "draft" || before.archivedAt)) return { ok: false as const, error: "draft_changed" as const };
     if (before && before.status !== "draft" && before.categoryId !== (input.categoryId ?? null) && !canPublish) throw new CategoryInvalid();
     const photos = [...new Set(input.photoUrls)];
-    if (photos.length > GALLERY_PHOTOS && photos.some((url) => !(before?.photos ?? []).includes(url))) throw new MediaInvalid();
+    // A new photo is accepted while the gallery stays within the limit, or replaces one of a larger older gallery without growing it.
+    if (photos.length > Math.max(GALLERY_PHOTOS, before?.photos.length ?? 0) && photos.some((url) => !(before?.photos ?? []).includes(url))) throw new MediaInvalid();
     await assertOwnMedia(tx, [...photos, input.logoUrl ?? "", input.coverUrl ?? ""], actor.id, [...(before?.photos ?? []), before?.logoUrl ?? "", before?.coverUrl ?? ""]);
     const country = loc ? await ensureCountry(tx, loc.countryCode) : null;
     const resolved = loc && country ? await resolveCity(tx, country.id, loc.city, canCreateCity) : null;
     const city = resolved?.city ?? null;
     const cityCreated = resolved?.created ?? false;
     const whatsapp = input.whatsapp ? normalizeWhatsapp(input.whatsapp, input.countryCode) : null;
+    const website = normalizeWebsite(input.website);
+    const social = Object.fromEntries(SOCIAL_PLATFORMS.map((platform) => {
+      const r = normalizeSocialUrl(platform, input[SOCIAL_FIELD[platform]]);
+      return [SOCIAL_FIELD[platform], r.ok ? r.value : null];
+    })) as Record<(typeof SOCIAL_FIELD)[keyof typeof SOCIAL_FIELD], string | null>;
 
     const businessData = {
       name: input.name, nameCkb: input.nameCkb ?? null, categoryId: input.categoryId ?? null,
       description: input.description ?? null, descriptionCkb: input.descriptionCkb ?? null, descriptionKmr: input.descriptionKmr ?? null,
       descriptionDe: input.descriptionDe ?? null, descriptionAr: input.descriptionAr ?? null, descriptionTr: input.descriptionTr ?? null,
       languages: input.languages,
-      phone: input.phone ?? null, whatsapp: whatsapp?.ok ? whatsapp.value : null, email: input.email ?? null, website: input.website ?? null,
+      phone: input.phone ?? null, whatsapp: whatsapp?.ok ? whatsapp.value : null, email: input.email ?? null, website: website.ok ? website.value : null,
+      ...social,
       logoUrl: input.logoUrl ?? null, coverUrl: input.coverUrl ?? null, photos,
     };
     let business;

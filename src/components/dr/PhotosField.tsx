@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   BUSINESS_IMAGE_ACCEPT,
@@ -7,8 +7,15 @@ import {
   uploadBusinessImage,
 } from "@/features/business-images/client";
 import { BusinessImageEditor } from "./BusinessImageEditor";
+import { UploadSlot, uploadErrorText } from "./BusinessImageField";
+
+/**
+ * Gallery photos as fixed slots (promotional images after the cover). Every stored photo stays: an older listing with
+ * more photos than slots keeps them all (reorder, replace or remove), and an empty slot appears only below the limit.
+ */
 export function PhotosField({
   label,
+  slotLabel,
   initial,
   max,
   businessId,
@@ -16,6 +23,8 @@ export function PhotosField({
   onBusyChange, onValueChange,
 }: {
   label: string;
+  /** Name of the n-th photo slot (0-based), e.g. "Promotional image 2". */
+  slotLabel: (index: number) => string;
   initial: string[];
   max: number;
   businessId?: string;
@@ -25,7 +34,7 @@ export function PhotosField({
 }) {
   const t = useTranslations("businessImages"),
     tb = useTranslations("bizForm"),
-    id = useId();
+    tm = useTranslations("bizForm.media");
   const [urls, setUrls] = useState(initial),
     [source, setSource] = useState<Awaited<
       ReturnType<typeof imageFromFile>
@@ -69,33 +78,47 @@ export function PhotosField({
     setQueue(rest);
     if (next) await choose(next);
   }
+  function add(files: File[]) {
+    const [first, ...rest] = files.slice(0, max - urls.length);
+    setQueue(rest);
+    if (first) void choose(first);
+  }
+  const working = busy || decoding || !!source;
+  const free = Math.max(0, max - urls.length);
+  const iconButton = "grid min-h-11 place-items-center rounded-xl border border-line px-2 text-xs font-semibold hover:border-brand hover:text-brand disabled:opacity-40";
   return (
-    <div className="min-w-0 space-y-3 sm:col-span-2" data-testid="photos-field">
-      <label htmlFor={id} className="block text-sm font-semibold">
-        {label} ({urls.length}/{max})
-      </label>
+    <fieldset className="min-w-0 space-y-2" data-testid="photos-field">
+      <legend className="mb-2 text-sm font-semibold">{label} <span className="font-normal text-muted">({urls.length}/{max})</span></legend>
       {urls.map((u) => (
         <input key={u} type="hidden" name="photoUrls" value={u} />
       ))}
-      <p className="text-xs text-muted">{t("galleryHint")}</p>
       {urls.length > max && <p role="status" className="rounded-xl bg-surface-2 px-3 py-2 text-xs text-muted" data-testid="photos-over-limit">{t("overLimit")}</p>}
-      <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+      <ul className="grid grid-cols-2 gap-3">
         {urls.map((u, i) => (
           <li key={u} className="min-w-0 space-y-2" data-testid="photo-item">
+            <p className="text-xs font-semibold text-muted">{slotLabel(i)}</p>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={u}
-              alt=""
-              className="aspect-[4/3] w-full rounded-xl border border-line bg-surface-2 object-cover"
-            />
+            <img src={u} alt={slotLabel(i)} className="aspect-[4/3] w-full rounded-xl border border-line bg-surface-2 object-cover" />
             <div className="grid grid-cols-2 gap-1.5">
-              <button type="button" className="min-h-11 rounded-xl border border-line px-2 text-xs font-semibold disabled:opacity-40" disabled={i === 0} onClick={() => move(i, i - 1)} data-testid="photo-earlier">{t("moveEarlier")}</button>
-              <button type="button" className="min-h-11 rounded-xl border border-line px-2 text-xs font-semibold disabled:opacity-40" disabled={i === urls.length - 1} onClick={() => move(i, i + 1)} data-testid="photo-later">{t("moveLater")}</button>
-              <button type="button" className="min-h-11 rounded-xl border border-line px-2 text-xs font-semibold disabled:opacity-40" disabled={!storageReady || busy || decoding || !!source} onClick={() => { setReplacing(i); replaceInput.current?.click(); }} data-testid="photo-replace">{t("replace")}</button>
-              <button type="button" className="min-h-11 rounded-xl border border-line px-2 text-xs font-semibold" onClick={() => remove(u)} data-testid="photo-remove">{tb("removeImage")}</button>
+              <button type="button" className={iconButton} disabled={!storageReady || working} onClick={() => { setReplacing(i); replaceInput.current?.click(); }} data-testid="photo-replace">{t("replace")}</button>
+              <button type="button" className={iconButton} onClick={() => remove(u)} data-testid="photo-remove">{tb("removeImage")}</button>
+              {urls.length > 1 && <>
+                <button type="button" className={iconButton} disabled={i === 0} onClick={() => move(i, i - 1)} data-testid="photo-earlier" aria-label={`${t("moveEarlier")} – ${slotLabel(i)}`}><span aria-hidden="true" className="rtl-flip">←</span></button>
+                <button type="button" className={iconButton} disabled={i === urls.length - 1} onClick={() => move(i, i + 1)} data-testid="photo-later" aria-label={`${t("moveLater")} – ${slotLabel(i)}`}><span aria-hidden="true" className="rtl-flip">→</span></button>
+              </>}
             </div>
           </li>
         ))}
+        {Array.from({ length: free }, (_, k) => {
+          const index = urls.length + k;
+          return (
+            <li key={`free-${index}`} className="min-w-0 space-y-2">
+              <p className="text-xs font-semibold text-muted" id={`photo-slot-${index}`}>{slotLabel(index)}</p>
+              <UploadSlot inputId={`photo-input-${index}`} label={tm("addPhoto")} disabled={!storageReady || working} busy={k === 0 && working && replacing === null}
+                multiple={k === 0} testId={k === 0 ? "upload-photos" : `upload-photos-${index}`} onFiles={add} />
+            </li>
+          );
+        })}
       </ul>
       <input
         ref={replaceInput}
@@ -111,25 +134,6 @@ export function PhotosField({
           e.target.value = "";
         }}
       />
-      <input
-        id={id}
-        type="file"
-        multiple
-        accept={BUSINESS_IMAGE_ACCEPT}
-        disabled={!storageReady || busy || decoding || !!source || urls.length >= max}
-        data-testid="upload-photos"
-        className="w-full text-sm file:me-2 file:min-h-12 file:rounded-xl file:border file:border-line file:bg-surface file:px-3"
-        onChange={(e) => {
-          const [first, ...rest] = Array.from(e.target.files ?? []).slice(
-            0,
-            max - urls.length,
-          );
-          setQueue(rest);
-          if (first) void choose(first);
-          e.target.value = "";
-        }}
-      />
-      <p className="text-xs text-muted">{t("formats")}</p>
       {source && (
         <BusinessImageEditor
           key={source.url}
@@ -153,24 +157,11 @@ export function PhotosField({
           }}
         />
       )}
-      {!storageReady && (
-        <p role="status" className="text-sm text-muted">
-          {tb("upload_notConfigured")}
-        </p>
-      )}
       {error && (
-        <p
-          role="alert"
-          data-testid="upload-photos-state"
-          className="text-sm text-brand"
-        >
-          {error === "unsupported" || error === "badType"
-            ? t("unsupported")
-            : error === "tooLarge"
-              ? t("tooLarge")
-              : t("retry")}
+        <p role="alert" data-testid="upload-photos-state" className="text-sm font-semibold text-brand">
+          {uploadErrorText(error, t, tb)}
         </p>
       )}
-    </div>
+    </fieldset>
   );
 }

@@ -190,7 +190,9 @@
     "readMore": "Zêdetir bixwîne",
     "readLess": "Kêmtir",
     "photoCount": "{count} wêne",
-    "openPhoto": "Wêneyê {n} veke"
+    "openPhoto": "Wêneyê {n} veke",
+    "socialProfiles": "Medyaya civakî",
+    "socialProfile": "{platform} (pencereya nû)"
   },
   "services": {
     "title": "Xizmet",
@@ -656,9 +658,9 @@
     "mediaInvalid": "Yek ji wêneyan nehat qebûlkirin. Bi bişkoka barkirinê dîsa bar bike.",
     "wizard": {
       "steps": "Gavên tomarkirinê",
-      "step1": "Kar û cih",
-      "step2": "Logo û wêne",
-      "step3": "Binirxîne û bişîne",
+      "step1": "Bingehîn",
+      "step2": "Têkilî",
+      "step3": "Cih",
       "next": "Pêş",
       "back": "Paş",
       "saveDraft": "Reşnivîsê tomar bike",
@@ -669,7 +671,11 @@
       "reviewHint": "Piştî şandinê, tîma REGA tomara te kontrol dike. Tenê piştî pejirandinê tê weşandin.",
       "pinConfirmed": "Li ser nexşeyê hat piştrastkirin",
       "pinMissing": "Hê nehatiye danîn",
-      "draftChanged": "Ev pêşnivîs hatiye şandin an kontrolkirin. Berî guhertinê rûpelê nû bike."
+      "draftChanged": "Ev pêşnivîs hatiye şandin an kontrolkirin. Berî guhertinê rûpelê nû bike.",
+      "step4": "Dem",
+      "step5": "Wêne û dawî",
+      "stepOf": "Gav {n} ji {total}: {name}",
+      "completed": "qediya"
     },
     "categorySearch": "Di kategoriyan de bigere",
     "optionalDetails": "Agahiyên vebijarkî",
@@ -685,7 +691,51 @@
     "exceptionHours": "Dem",
     "exceptionReason": "Sedem (vebijarkî, giştî)",
     "exceptionRemove": "Rake",
-    "exceptionAdd": "Girtin an demên taybet zêde bike"
+    "exceptionAdd": "Girtin an demên taybet zêde bike",
+    "optional": "bijarte",
+    "titleBasics": "Agahiyên bingehîn",
+    "titleContact": "Agahiyên têkiliyê",
+    "titleSocial": "Medyaya civakî",
+    "titleLocation": "Cih û navnîşan",
+    "titleMedia": "Logo û wêne",
+    "locationHint": "Navnîşanê binivîse, cih bibîne û li ser nexşeyê piştrast bike.",
+    "sameAsPhone": "Wek telefonê",
+    "emailInvalid": "E-nameyeke derbasdar binivîse, wek name@example.com",
+    "websiteInvalid": "Navnîşaneke malperê ya derbasdar binivîse, wek example.com",
+    "socialHint": "Hemû bijarte ne. Tenê platformên ku tu bi kar tînî lê zêde bike: girêdana profîlê an ‎@nav.",
+    "socialInvalid": "Girêdaneke profîla {platform} ya derbasdar (https://…) an ‎@nav binivîse.",
+    "socialClear": "{platform} jê bibe",
+    "pinConfirmedTitle": "Cih bi serkeftî hate destnîşankirin",
+    "pinConfirmedText": "Ev navnîşan li ser nexşeyê hatiye piştrastkirin.",
+    "advancedCoords": "Pêşketî: koordînat",
+    "saving": "Tê tomarkirin…",
+    "hoursEditor": {
+      "hint": "Ji bo her rojê vekirî an girtî hilbijêre û deman destnîşan bike. Demên du beş û şevane tên piştgirî kirin.",
+      "notSet": "Demên xebatê hîn nehatine destnîşankirin. Bê wan, karsazî qet wek «vekirî» nayê nîşandan.",
+      "add": "Demên xebatê destnîşan bike",
+      "clear": "Hemû deman jê bibe",
+      "open": "Vekirî",
+      "closed": "Girtî",
+      "allDay": "24 saet vekirî",
+      "from": "Ji",
+      "to": "Heta",
+      "addRange": "Demeke din lê zêde bike",
+      "removeRange": "Vê demê jê bibe",
+      "copyAll": "Duşemê ji bo hemû rojan kopî bike",
+      "copyWeekdays": "Ji bo rojên kar (Duşem–În)",
+      "overnight": "Girtin roja din e (piştî nîvê şevê).",
+      "invalid": "Dema destpêk û dawiyê binivîse; divê ne wek hev bin.",
+      "unknown": "Nehatiye destnîşankirin"
+    },
+    "media": {
+      "hint": "1 logo û 3 wêneyên reklamê. Hemû bijarte ne; wêneya reklamê ya 1 wêneya sereke ya profîlê ye.",
+      "uploadLogo": "Logo bar bike",
+      "addPhoto": "Wêne lê zêde bike",
+      "promo": "Wêneya reklamê {n}",
+      "morePhotos": "Wêneyên din ên reklamê",
+      "uploading": "Tê barkirin…",
+      "dropHere": "An wêneyê bikişîne vir"
+    }
   },
   "contact": {
     "title": "Têkilî",
@@ -1246,6 +1296,6 @@
     "moveEarlier": "Berê",
     "moveLater": "Paşê",
     "galleryHint": "Wêneyê sereke (berg) û heta 3 wêneyên din. Rêz li ser rûpela karsaziyê tê nîşandan.",
-    "overLimit": "Ev karsazî ji berê ve ji 3 wêneyan zêdetir heye. Hemû hatine parastin; wêneyekî nû dema ku ji 3 kêmtir bimînin tê zêdekirin."
+    "overLimit": "Ev tomar ji hejmara cihan zêdetir wêne hene. Hemû têne parastin; wêneya nû dema cihek vala be tê zêdekirin."
   }
 }
