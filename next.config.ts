@@ -56,6 +56,8 @@ const onWorkers = process.env.REGA_TARGET === "workers";
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  // Leave the generated WASM client external for OpenNext/Wrangler to bundle its compiler correctly.
+  serverExternalPackages: ["@rega/d1-client"],
   reactStrictMode: true,
   poweredByHeader: false,
   webpack(config) {

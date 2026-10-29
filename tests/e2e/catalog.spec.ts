@@ -72,6 +72,22 @@ test("unified search: tabs, hint for short queries, results", async ({ page }) =
   await expect(page.getByRole("heading", { name: "Dienstleistungen" })).toHaveCount(0);
 });
 
+test("search corrects typos to words of public listings and never guesses wildly", async ({ page }) => {
+  // German UI, Latin typo (swapped letters): results for the corrected word with a visible notice.
+  await page.goto("/de/search?q=zagrso");
+  await expect(page.getByTestId("search-corrected")).toContainText("zagros");
+  await expect(page.getByRole("link", { name: "Zagros Restaurant" }).first()).toBeVisible();
+  // Sorani UI, Sorani typo (س typed as ز).
+  await page.goto(`/ckb/search?q=${encodeURIComponent("زاگرۆز")}`);
+  await expect(page.getByTestId("search-corrected")).toContainText("زاگرۆس");
+  // A correctly spelled word is not "corrected"; nonsense finds nothing and suggests nothing.
+  await page.goto("/de/search?q=zagros");
+  await expect(page.getByTestId("search-corrected")).toHaveCount(0);
+  await page.goto("/de/search?q=qxzvwplk");
+  await expect(page.getByTestId("search-corrected")).toHaveCount(0);
+  await expect(page.getByText("0 Ergebnisse")).toBeVisible();
+});
+
 test("home search form: what + where (city) navigate to filtered businesses", async ({ page }) => {
   await page.goto("/de");
   const form = page.locator("main form[role=search]");

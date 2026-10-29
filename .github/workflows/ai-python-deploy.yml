@@ -54,6 +54,10 @@ jobs:
         working-directory: services/ai-python
         run: uv run pytest
 
+      - name: Verify existing production Worker and domains
+        if: steps.creds.outputs.present == 'true'
+        run: node scripts/production-target.mjs
+
       - name: Deploy isolated Python Worker
         if: steps.creds.outputs.present == 'true'
         working-directory: services/ai-python
@@ -116,8 +120,8 @@ jobs:
       - name: Enable Python AI engine for REGA only after smoke tests pass
         if: steps.creds.outputs.present == 'true'
         run: |
-          printf '%s' "$AI_SERVICE_URL" | npx wrangler secret put AI_SERVICE_URL --name rega-platform --config wrangler.jsonc
-          printf '%s' "$AI_SERVICE_TOKEN" | npx wrangler secret put AI_SERVICE_TOKEN --name rega-platform --config wrangler.jsonc
+          printf '%s' "$AI_SERVICE_URL" | npx wrangler secret put AI_SERVICE_URL --name rega24 --config wrangler.jsonc
+          printf '%s' "$AI_SERVICE_TOKEN" | npx wrangler secret put AI_SERVICE_TOKEN --name rega24 --config wrangler.jsonc
 
       - name: Deployment skipped
         if: steps.creds.outputs.present != 'true'

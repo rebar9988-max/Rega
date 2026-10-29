@@ -1,17 +1,18 @@
 # Deployment (Cloudflare Workers)
 
-Production is the Worker `rega-platform` (`wrangler.jsonc`), built with OpenNext. Secrets and variables live in the
-Cloudflare dashboard (Workers & Pages → rega-platform → Settings → Variables and Secrets) and in GitHub repository secrets;
+Production is the Worker `rega24` (`wrangler.jsonc`), built with OpenNext, with D1 for application data and R2 for files/images. The [permanent Cloudflare mandate](../CLAUDE.md#09-permanent-cloudflare-platform-mandate-owner-instruction-2026-10-28) also covers deployment, DNS and security. Secrets and variables live in the
+Cloudflare dashboard (Workers & Pages → rega24 → Settings → Variables and Secrets) and in GitHub repository secrets;
 **none are ever committed or printed**. The variable names are in `.env.example`.
 
 ## 1. Pre-deploy checks (all must pass)
 
 ```bash
 npm ci
-npx prisma generate
+npm run db:generate
 npm run lint
 npm run typecheck
 npm test
+npm run test:d1
 npm run build:node            # Node build used by the E2E suite
 npm run e2e                   # needs a throw-away Postgres: DATABASE_URL (E2E refuses production-looking databases)
 npm run build                 # Workers build (OpenNext)
@@ -22,25 +23,9 @@ npx wrangler deploy --dry-run # validates the bundle, deploys nothing
 
 ## 2. Database
 
-1. Take a backup ([`BACKUP-RESTORE.md`](BACKUP-RESTORE.md)).
-2. Run the manual workflow **Database migrate (production)** (`db-migrate.yml`, inputs `migrate` and `backup-verified`, from `main`; the second input is your confirmation that step 1 produced a restorable backup or snapshot). It applies the
-   committed migrations with `prisma migrate deploy` (additive only; it never resets, drops or truncates) and the idempotent
-   seed (base categories, geography, first admin when `SEED_ADMIN_*` secrets exist; no demo data in production).
-3. Merge/deploy the code **after** the migration: new code may read new columns, old code ignores them.
-
-For PR #71, the additive SQL must be staged on `main` independently of the application/ORM-model change:
-the approved migration workflow reads only `main`. A migration-only commit containing **only**
-`prisma/migrations/20261024220000_business_social_links/migration.sql` is prepared locally on
-`ops/pr71-migration-only` (based on verified `e8e2b69`; not pushed or merged at the recovery checkpoint).
-Keep the existing Prisma model/application code unchanged in that stage: regenerating the new model can
-make existing implicit queries select new columns too. After verified backup/restore, pass the required
-checks for that stage, apply the migration using the existing production workflow, verify its ledger and
-four nullable TEXT columns, then merge the feature only after its final checks pass. Do not race an
-application rollout against the database job. Rollback uses the prior verified Worker version; retain
-the additive nullable columns, and verify both the actual active version and database state after rollback.
-
-Migrations of this release, all additive: `growth_foundation`, `business_languages`, `reviews_one_per_user` (detaches
-orphans/duplicates before adding constraints; deletes nothing), `content_sections_core`.
+1. Take and restore-verify a private D1 backup; retain a separate R2 backup ([`BACKUP-RESTORE.md`](BACKUP-RESTORE.md)).
+2. Review and rehearse committed `prisma/d1/migrations/*.sql` against a disposable database. Apply reviewed pending migrations to the existing target with `npm run db:d1:migrate` from verified `main`; verify the exact account/database and read back migration history/FK integrity. Do not reset or seed production.
+3. Release compatible code through exact-main CI below. [D1 migration and recovery](D1-MIGRATION.md) documents the active provider and operational checks. `db-migrate.yml` is the retained **Legacy PostgreSQL migrate (rollback only)** workflow; it does not migrate active D1 and is not the normal production path.
 
 ## 3. Deploy
 
@@ -53,14 +38,13 @@ Production uses a **single CI-gated deploy path**:
 
 Manual fallback remains available through `workflow_dispatch` on the deploy workflow.
 
-Local/manual command:
+For a local bundle check:
 
 ```bash
-npm run build && npx wrangler deploy
+npm run build && npm run cf:dry-run
 ```
 
-Needs `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` in the environment. Rollback: `npx wrangler rollback` (or redeploy the
-previous commit); migrations stay applied because the old code ignores additive columns.
+Actual releases use the CI-gated workflow with verified account/Worker/domain ownership and exact release tagging. Recover with a verified D1-compatible release. Returning to a PostgreSQL-only release requires explicit owner direction, a fresh freeze/backup and reconciliation of subsequent D1 writes; do not blindly roll back to the pre-D1 application.
 
 New runtime variables of this release (names only; all optional unless noted): `EMAIL_PROVIDER`, `RESEND_API_KEY`,
 `EMAIL_FROM`, `CONTACT_INBOX`, `SECTIONS_ENABLED`, `SECTIONS_DISABLED`, `ERROR_WEBHOOK_URL`, `AUTH_LOGIN_ATTEMPTS`,
@@ -71,7 +55,7 @@ New runtime variables of this release (names only; all optional unless noted): `
 
 | Check | Expect |
 | --- | --- |
-| `GET /api/v1/health` | 200, no missing required variables |
+| `GET /api/v1/health` | 200, `ok=true`, `databaseProvider=d1`, migrations/content ready, no missing required variables |
 | `GET /` | redirect to `/ckb` (or the visitor's language) |
 | `GET https://rega24.com/` | 301 to `https://www.rega24.com/` |
 | `/de/impressum`, `/de/privacy`, `/de/terms`, `/de/report`, `/de/contact` | 200; no `[[PLACEHOLDER]]` once `LEGAL_*` is filled |
@@ -84,3 +68,14 @@ New runtime variables of this release (names only; all optional unless noted): `
 | Assistant: a question with no match | deterministic "nothing found" answer, no model call |
 
 Then check Cloudflare Web Analytics / logs for errors and watch `production-health.yml`.
+
+Documentation-only automatic releases are skipped using the merge's first-parent diff (`git diff --name-only HEAD^ HEAD`). This handles ordinary commits and PR merge commits with the depth-2 checkout; plain `git diff-tree` without merge handling is insufficient. Root/empty commits still follow the conservative deploy path. Manual workflow dispatch remains explicit and CI/ownership-gated. See [regression evidence](evidence/deployment-scope-regression-2026-10-28.json).
+
+## PR71 social-field release gate
+
+The candidate adds four nullable TEXT Business account fields through
+`prisma/d1/migrations/0004_business_social_links.sql`. Export and restore-verify the current active D1 before
+applying it. Rehearse against a disposable database,retain applied0001–0003 unchanged,and verify the actual ledger,
+column definitions,existing records and FK integrity. Release application code only after migration readiness.
+The similarly named PostgreSQL migration is for isolated rollback-provider tests,not active production.
+PR71 remains held for fresh recovery/security evidence and exact-head checks;see PROJECT_MEMORY.md.

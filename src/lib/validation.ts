@@ -1,7 +1,7 @@
 /** Zod schemas shared by API routes and forms. One source of truth per entity. */
 import { z } from "zod";
-import { LOCALES } from "@/config/locales";
 import { businessSocialSchemas } from "./business-social-schema";
+import { LOCALES } from "@/config/locales";
 import { ROLES } from "@/lib/rbac";
 
 export const idSchema = z.string().min(1).max(64);
@@ -49,7 +49,7 @@ export const businessCreateSchema = z.object({
   tags: z.array(z.string().trim().max(50)).max(30).default([]),
 });
 
-// PATCH must preserve omitted fields: Zod 4 applies inner defaults even through optional().
+// Zod 4 applies defaults inside optional fields. PATCH must leave omitted values untouched.
 export const businessUpdateSchema = businessCreateSchema.partial().extend({
   status: businessCreateSchema.shape.status.removeDefault().optional(),
   verified: businessCreateSchema.shape.verified.removeDefault().optional(),

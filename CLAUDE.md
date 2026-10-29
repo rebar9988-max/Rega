@@ -60,6 +60,20 @@ REGA task in the REGA repository — ALLOW. R&L task in the R&L repository — A
 - www.rega24.com/dr signs the owner in with a six-digit e-mail code; codes go to that address only. Widening the list
   needs a new explicit owner instruction. Details and verification evidence: `PROJECT_MEMORY.md`.
 
+### 0.9 Permanent Cloudflare platform mandate (owner instruction, 2026-10-28)
+
+Applies only to Rega24: `rebar9988-max/Rega`, `https://www.rega24.com`. Manage all Rega24 application infrastructure and future technical work on Cloudflare:
+
+| Responsibility | Required platform |
+| --- | --- |
+| Production database | Cloudflare D1 |
+| Backend and API | Cloudflare Workers |
+| Files and images | Cloudflare R2 |
+| Hosting and deployment | Cloudflare |
+| DNS and security | Cloudflare |
+
+Use the existing canonical Worker `rega24`, D1 database and R2 storage. GitHub remains the source-control, review and CI repository; successful checks gate deployment to Cloudflare. Do not introduce a replacement application hosting/database/storage platform or return production to Neon without a new explicit owner instruction. Retained Neon snapshots and private backups are recovery assets; this mandate does not authorize their deletion. Preserve existing functionality, project isolation and production safeguards. Treat “100/100” as a quality objective: report actual verified results and unresolved work accurately.
+
 ## 1. Foundation rule (REGA is a finished house)
 - The foundation is fixed. Architecture and structure are not changed without a real reason.
 - Routing and navigation are not disturbed by small requests.
@@ -143,15 +157,6 @@ the Doc keeps the cross-tool summary and change log, the repository keeps detail
 5. Proceed autonomously with safe read, diagnosis, documentation and verified repair work. Ask the owner only for an
    unavoidable billing, permission, authentication, destructive or security approval.
 
-### Verified PR #71 release checkpoint — 2026-10-25
-
-The recovery checkpoint and evidence live in `PROJECT_MEMORY.md`. Hosted head `5e59cf0` passed349 unit tests,
-334 browser tests and both production builds/runtime checks. The subsequent security repair passed353 local tests,
-TypeScript and lint; its final hosted checks must be verified separately. Current `npm audit` reports0 vulnerabilities
-after patched dependencies and Zod4 PATCH-omission compatibility fixes; this does not prove provider-key revocation.
-Cloudflare connectivity is restored. Production release remains blocked on fresh complete backup+isolated restore,
-active exposed-provider-key containment and the Neon branch-quota check. Never infer these gates from green local tests.
-
 ### Infrastructure index (owner instruction, 2026-10-25)
 
 `REGA24_SYSTEM_MAP.md` and `REGA24_TROUBLESHOOTING.md` are the infrastructure index and the failure runbook. They do
@@ -164,17 +169,16 @@ not repeat an investigation already recorded in PROJECT_MEMORY.md or the Google 
 change, update the map and the runbook, record new dependencies and known issues, and label unverified statements as
 REPORTED or UNKNOWN. Never invent system information. Never store credentials or secret values in any of these files.
 
-### PR #71 continuation — verified 2026-10-26
 
-Hosted `ccbb9eb` CI40213427844 passed353 unit/integration and334 browser tests, ordinary Node/Worker builds and runtime
-checks. Native Neon checkpoint/recovery copies were independently compared:all37 table counts/SHA256 digests and
-the original schema match; recovery additionally has4nullable TEXT social columns. Production remains unmigrated.
-This is native Neon recovery evidence,not an independent pg_dump/pg_restore certificate. Keep both copies.
-Both canonical domains now serve Worker `rega24`; repository/main still targets retired `rega-platform`. This is
-verified source/live drift within Rega24,not evidence of R&L. Block production migration staging/merge/deploy and
-old-target secret sync pending cutover provenance and source reconciliation. Provider-side revoke/rotation remains
-unverified despite secret_text storage. The newly integrated main docs/CI tree needs its own final checks.
-Current local source checks:360/360 unit/integration,TypeScript,lint and documentation validator PASS. Six target-gate
-tests cover both canonical mappings and rejection paths. Web deploy and dedicated runtime-secret sync verify the live
-target before mutating it;the bulk command reads the same Wrangler config. No target rename/allow-list edit was made.
-The separate Python workflow's legacy web-secret destination remains held for source reconciliation;do not run it.
+### Canonical target and isolated previews — 2026-10-26
+
+The verified existing Rega24 web Worker is `rega24` (stable tag `7b845cda2ee749c89c4f9b83490609b4`), not retired `rega-platform`. This supersedes older REGA Worker labels above; R&L identifiers are unchanged. Candidate release configuration reconciles the guard, deployment, diagnostics and runtime secret targets and adds the read-only `scripts/production-target.mjs` gate. Web releases tag their exact GitHub SHA. Branch previews are deliberately non-ready and block all application/provider/data handlers; `/__preview-health` proves isolation only. Real application/database/browser validation stays in CI with disposable PostgreSQL. Never mistake a green preview upload for a production-ready app. No automatic Neon resource creation/deletion is needed for these PR tests.
+
+### PR71 D1 continuation — 2026-10-29
+
+PR71 now prepares its existing social feature against current Cloudflare D1 main. Use0004_business_social_links.sql
+for activeD1;the PostgreSQL migration is rollback-provider coverage only. Preserve applied0001–0003 and current
+D1 transaction/release/identity guards. Native D1 and both-provider browser checks must certify the new head.
+Synthetic37table migration/restore rehearsal passed;fresh private PRODUCTION D1 backup+isolated restore and old
+provider-key revocation remain unverified. No production migration/merge/deploy is authorized before those gates.
+Detailed evidence and continuation are in PROJECT_MEMORY.md;no100/100 claim.

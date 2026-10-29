@@ -9,11 +9,14 @@ Deploy background: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
 Rules for every fix:
 
+- Follow the permanent Cloudflare platform mandate in [CLAUDE.md](CLAUDE.md): D1, Workers, R2, Cloudflare deployment, DNS and security. Diagnose and repair the responsible existing Cloudflare layer; keep recovery copies intact.
 - Stay in this repository. R&L (`rebar9988-max/rega-cargo`) is a different project.
 - Run `node scripts/project-identity-guard.mjs --project REGA` before a deploy, migration, or secret change.
 - No production deletion, database reset, domain removal, or Worker deletion.
 - Do not print secret values. Health and diagnostics already print names only.
 - A docs-only commit must not be used as a pretend deploy. `workflow_dispatch` on Deploy is the manual publish.
+
+Current database: **Cloudflare D1**, existing `rega24-migration` / `DB`; [verified cutover](docs/evidence/d1-production-cutover-2026-10-28.json). Historical PostgreSQL diagnostics below apply only to the retained recovery provider. After D1 accepts writes, do not blindly deploy a PostgreSQL-only release or replay an old import.
 
 ## Website downtime
 
@@ -24,7 +27,7 @@ Rules for every fix:
 **LOCATION**
 
 - Edge and DNS: Cloudflare, nameservers in [REGA24_SYSTEM_MAP.md](REGA24_SYSTEM_MAP.md).
-- App: Worker `rega-platform`, [wrangler.jsonc](wrangler.jsonc), [worker.mjs](worker.mjs).
+- App: Worker `rega24`, [wrangler.jsonc](wrangler.jsonc), [worker.mjs](worker.mjs).
 - Process: [.github/workflows/deploy.yml](.github/workflows/deploy.yml) and [.github/workflows/ci.yml](.github/workflows/ci.yml).
 
 **DIAGNOSTIC STEPS**
@@ -49,7 +52,7 @@ Rules for every fix:
 
 **ROLLBACK**
 
-Redeploy the SHA that was live before the change. Leave the database and domains in place.
+Redeploy a verified D1-compatible SHA that preserves the active database. Returning to a pre-D1 PostgreSQL release requires a new freeze, backup and reconciliation of D1 writes. Leave databases and domains in place.
 
 ## HTTP 4xx and 5xx
 
@@ -148,10 +151,9 @@ Health `checks.database` is `error`, pages 503, Prisma cannot connect, or the Ne
 **SAFE FIX**
 
 - Missing secret: set `DATABASE_URL` through the Worker dashboard or the manual sync workflow. Do not commit it.
-- Before any production secret sync or deployment, verify its target is the active canonical Worker. Source/live drift is currently VERIFIED: `rega-platform` in source versus `rega24` live. Do not recreate the retired Worker or point a database recovery at an unverified application version. The web deploy workflow's [read-only target gate](scripts/verify-worker-target.mjs) blocks mismatched canonical routing.
-- Pending additive migration: verify a fresh complete backup and an isolated recovery test before running Database migrate with both confirmation strings. Existing PITR alone does not establish this gate. Use `prisma migrate deploy` only, after verifying the active deployment target and pending migrations.
+- Pending additive migration: take a backup or confirm Neon point-in-time recovery, then run Database migrate with the two confirmation strings. It uses `prisma migrate deploy` only.
 - Bad new migration: add a forward migration. Do not edit a migration that already ran in production.
-- Preview branch failure: fix its responsible layer without skipping a required check or changing the plan. Preserve production, backups and active work; do not delete branches without verified safety and necessary owner authorization. Production does not read preview branches.
+- Preview branch failure: fix or skip the preview. Production does not read preview branches.
 
 **VERIFICATION**
 
@@ -383,3 +385,53 @@ CI `verify` is green on the SHA. If the commit is not documentation-only, Deploy
 **ROLLBACK**
 
 Revert the commit on `main`. If a non-docs commit already deployed, roll the Worker back as well. Reverting a docs-only commit does not require a Worker rollback.
+
+## Cleanup release checks — 2026-10-26
+
+- `missing previews block`: both candidate Wrangler files define isolated previews. `__preview-health` checks isolation; other preview requests return non-ready 503 before application/data/provider handlers. Do not copy production bindings to make previews appear functional. Full QA uses CI's disposable database.
+- Neon preview HTTP 422: the old workflow created unused branches without consuming its outputs. PR #72's manual policy is reused; no branch, backup or production data is deleted. CI still runs migration/preflight/integration/browser tests on PostgreSQL. Future genuine Neon preview work needs audited capacity and an actual consumer.
+- After Zod 4 upgrades, partial PATCH schemas must remove create defaults before making fields optional. `tests/validation-upgrade.test.ts` covers omitted-field preservation and bounded oversized collections.
+- Target drift: `scripts/production-target.mjs` rejects wrong account, stable Worker tag, services or official domain bindings. Never recreate retired `rega-platform`. New deployed version tags must match the verified GitHub SHA. Retain the preceding version for rollback and verify all production readiness checks after publishing.
+- Previews Base provider values are now secret_text. This storage conversion preserves values and does not prove provider-side rotation/revocation. Do not log or export secrets while checking them.
+
+
+## Deployment annotation forwarding — 2026-10-26
+
+If release output says `Unknown arguments: CI, release` before upload, the OpenNext deployment wrapper split a message containing spaces. Keep the deployment message a single shell-safe token, retain the verified SHA tag and identity/ownership guards, and run `npm run cf:dry-run` through the OpenNext forwarding path before publishing. Plain Wrangler dry-run alone did not exercise that path. Failed run40390749927 uploaded no new application. See PR77 and the central Doc for the subsequent verified release.
+
+
+## D1 migration preparation — 2026-10-27
+
+VERIFIED read-only: existing EU D1 `rega24-migration` reports zero tables; production `rega24` has no D1 binding and still uses PostgreSQL. Neon bounded SELECT1 returns HTTP402 quota exceeded. The owner reports an available backup, not yet supplied/verified. Separate local candidate schema/SQL is preparation only. See [D1 migration status and continuation](docs/D1-MIGRATION.md) for runtime incompatibilities, data verification, cutover and recovery requirements. Do not point the live Worker at the empty target. No remote infrastructure change performed.
+
+
+## D1 target schema applied — 2026-10-27
+
+Supersedes the earlier empty-target observation: the existing disconnected `rega24-migration` now contains the candidate36-table schema (105statements accepted). Remote readback verifies every scalar column, zero application records and zero FK violations. Production `rega24` has noD1binding; query redaction remains enabled. New offline export/rehearsal scripts and remaining runtime/data/source blockers are documented in [D1 migration status](docs/D1-MIGRATION.md). Neon production and existing backup-branch SELECT1 both return402; no quota bypass/paid activation/source change performed. Do not bind the live app to this empty candidate.
+
+## D1 candidate and cutover checks — 2026-10-27
+
+Earlier Neon402/source-export blocker is resolved. The real archive restores and matches all36 live source tables; the disconnected D1 copy has2329 exact records and no FK errors. Production activation remains pending hosted release checks. See [D1 migration](docs/D1-MIGRATION.md).
+
+- Date filters missing numeric timestamps: the PrismaD1 default emits ISO filter arguments. REGA normalizes typed datetime arguments to UTC epoch milliseconds; do not change imported dates to text or silently reimport data.
+- Non-atomic Prisma transactions: REGA refuses the SDK's emulation and uses one guarded native batch. A P2034 conflict means retry the request; never bypass the revision guard or remove its triggers.
+- Unicode case matching: verify mirror backfill and current write adapter, not SQLite's ASCII lower(). Internal mirror fields must remain omitted from DTOs.
+- Release blocked by final-snapshot readiness: verify exact release SHA, source freeze, all-table hashes and zero FK violations before marking `_RegaCutover` ready. Waiting/failing the gate makes no deployment.
+- Local browser tests: override machine-local AUTH_URL for the E2E port and GEOCODING_PROVIDER=nominatim for the local fake. Never use production or a restored customer database as a fixture. The D1 initializer's --test marker is mandatory.
+- Browser download/Google Fonts downloads can be blocked by executor egress policy. Local Chromium and the same actual font from its package allow bounded local verification; hosted CI still runs the normal Chromium/WebKit and production font build. Do not weaken assertions or change product typography to bypass tooling.
+
+## First D1 release remains blocked — 2026-10-28
+
+The first attempt never passed the readiness gate despite a verified ready D1 audit row. Original PostgreSQL availability was restored before further diagnosis; D1 was not activated. PR #84 / main `09afcd5` reads the operator-issued snapshot proof through existing authenticated Workers settings, avoiding an additional D1 API permission on the CI reader.
+
+If first activation is blocked, inspect the current `REGA_ISOLATED_PREVIEW=1`, fresh `REGA_D1_FREEZE_NONCE`, and `REGA_D1_CUTOVER_PROOF` metadata. Require the exact release SHA/database, all-table hashes, backup hash, zero FK violations, a 120-second drain and verification within 15 minutes. Never fabricate a proof, change token scopes or bypass exact-main CI/ownership gates. If readiness or deploy fails while the old source application remains active, clear the temporary proof/nonce, restore its isolation flag to 0, and verify live health 200. After D1 accepts writes, a return to PostgreSQL requires a fresh freeze and reconciliation of D1 changes; blindly deploying old PostgreSQL code can hide new data. See [D1 cutover and recovery](docs/D1-MIGRATION.md).
+
+## Verified D1 continuation — 2026-10-28
+
+First activation succeeded at 08:18 UTC as release `09afcd538a71fff6b08627057d272bf318e4362c`; subsequent releases read the active provider plus exact D1 UUID. Health must report HTTP 200, `ok=true`, `checks.databaseProvider=d1`, migrations/content ready. Real D1 migration history includes 0001_initial.sql, 0002_runtime.sql and 0003_city_slug_fold.sql; 108 revision triggers support atomic concurrency guards. Current original-value verification and backup scope are in the [cutover evidence](docs/evidence/d1-production-cutover-2026-10-28.json).
+
+The production browser run during source isolation correctly saw 503. Replacement run 40656143224 after activation passed 201 checks with zero failures; post-cutover health 40655046619 attempt 2 also passed. Do not diagnose a historical freeze result as the current deployment. Do not fix runtime errors by resetting data, reapplying original/delta imports, dropping migrations, rotating auth secrets or recreating production resources.
+
+## Documentation PR merge unexpectedly deploys the Worker
+
+An empty result from `git diff-tree` does not prove a merge is documentation-only: without merge flags it omits merge paths, and the release's empty-diff fallback deploys. Use the first-parent comparison `git diff --name-only HEAD^ HEAD` and execute the actual scope shell against a real merge, including a depth-2 checkout. Docs-only merges must return skip=true; application/mixed changes must return skip=false. Do not weaken the exact-main CI/ownership gates or disable application releases to fix this. [Verified regression evidence](docs/evidence/deployment-scope-regression-2026-10-28.json).

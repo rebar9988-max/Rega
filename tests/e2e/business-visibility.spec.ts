@@ -27,7 +27,7 @@ async function createPublished(page: Page, name: string): Promise<string> {
   await page.getByRole("combobox", { name: "Kategorie", exact: true }).selectOption({ label: "Recht" });
   await page.getByLabel("Telefon").fill("+49 30 111111");
   await page.getByLabel("Straße und Hausnummer").fill("Oranienstraße 1");
-  await page.getByLabel("Land").selectOption("DE");
+  await page.locator('select[name="countryCode"]').selectOption("DE");
   await page.getByLabel("Stadt", { exact: true }).fill("Berlin");
   await page.getByLabel("Postleitzahl").fill("10999");
   await page.getByTestId("find-location").click();

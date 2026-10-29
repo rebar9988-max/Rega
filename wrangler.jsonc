@@ -2,13 +2,17 @@
   // Cloudflare Worker for REGA (Next.js via OpenNext). `npm run build` produces .open-next/.
   // Production: `npx wrangler deploy` (main). Branch previews: `wrangler versions upload`.
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "rega-platform",
+  "name": "rega24",
   // worker.mjs wraps the OpenNext output (.open-next/worker.js) with the edge cache for anonymous pages.
   "main": "worker.mjs",
   "compatibility_date": "2026-09-01",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
-  "observability": { "enabled": true },
+  "observability": { "enabled": true, "redact_query_string": true },
+  // Pages make several D1 queries per render; Smart Placement runs the Worker where the total latency to D1 (EEUR) is
+  // lowest instead of at the visitor's edge (e.g. a US edge paid one transatlantic round trip per query, 2-3 s TTFB).
+  // Static assets and the edge cache are unaffected. Remove the block to return to edge execution.
+  "placement": { "mode": "smart" },
   // The deployed version id: part of the edge-cache key, so no page of an earlier deployment (linking JS/CSS chunks
   // the new deployment no longer has) is ever served after a deploy (src/lib/edge-cache.ts).
   "version_metadata": { "binding": "CF_VERSION_METADATA" },
@@ -16,6 +20,18 @@
   // Variables and Secrets (DATABASE_URL, AUTH_SECRET, AI keys, ...) stay managed in the Cloudflare dashboard.
   // `keep_vars` stops a deploy from wiping dashboard-defined variables.
   "keep_vars": true,
+  "vars": { "REGA_DATABASE_PROVIDER": "d1", "REGA_ISOLATED_PREVIEW": "0" },
+  "d1_databases": [
+    { "binding": "DB", "database_name": "rega24-migration", "database_id": "728f792d-37b6-49f8-abc1-e81512219f7d", "migrations_dir": "prisma/d1/migrations" }
+  ],
+
+  // Branch previews never contact production data or paid providers. The entry guard
+  // answers before Next.js/cache execution; /__preview-health reports isolation only.
+  "previews": {
+    "vars": { "REGA_ISOLATED_PREVIEW": "1", "APP_ENV": "staging", "AI_PROVIDER": "disabled", "EMAIL_PROVIDER": "none" },
+    "d1_databases": [],
+    "version_metadata": { "binding": "CF_VERSION_METADATA" }
+  },
 
   // Workers Rate Limiting: counters shared across isolates (the in-memory limiter alone is per isolate).
   // Used by src/lib/rate-limit.ts#allowShared; keys are per account (login) and per client IP (login, AI).

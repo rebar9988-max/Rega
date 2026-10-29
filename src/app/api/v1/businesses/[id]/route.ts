@@ -1,3 +1,4 @@
+import { databaseTransaction } from "@/lib/database-transaction";
 /** GET /api/v1/businesses/[id] — single business with locations, services, media */
 import type { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
@@ -67,7 +68,7 @@ export async function PATCH(request: NextRequest, ctx: { params: Promise<{ id: s
     const { HttpError } = await import("@/lib/auth-helpers");
     if (payload.verified !== undefined || payload.featured !== undefined || payload.status === "published") await requirePermission("business.publish");
     if (payload.featured !== undefined) await requirePermission("business.pin");
-    const business = await prisma.$transaction(async (tx) => {
+    const business = await databaseTransaction(async (tx) => {
       await lockBusiness(tx, id);
       const before = await tx.business.findFirst({ where: { id, deletedAt: null }, select: { ...publicationSelect, logoUrl: true, coverUrl: true, photos: true } });
       if (!before) throw new HttpError(404, "not_found", "Business not found.");
@@ -120,7 +121,7 @@ export async function DELETE(request: NextRequest, ctx: { params: Promise<{ id: 
     const { id } = await ctx.params;
     const hard = new URL(request.url).searchParams.get("hard") === "true";
 
-    await prisma.$transaction(async (tx) => {
+    await databaseTransaction(async (tx) => {
       await lockBusiness(tx, id);
       if (hard) await tx.business.delete({ where: { id } });
       else await tx.business.update({ where: { id }, data: { status: "archived", archivedAt: new Date(), deletedAt: new Date() } });

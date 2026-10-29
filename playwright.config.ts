@@ -3,7 +3,7 @@ import { existsSync, statSync } from "node:fs";
 
 const PORT = Number(process.env.E2E_PORT ?? 3111);
 // In sandboxes the browser is pre-installed; on a normal machine `npx playwright install chromium` is enough.
-const SANDBOX_CHROMIUM = "/opt/pw-browsers/chromium";
+const SANDBOX_CHROMIUM = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH || "/opt/pw-browsers/chromium";
 const executablePath = existsSync(SANDBOX_CHROMIUM) && statSync(SANDBOX_CHROMIUM).isFile() ? SANDBOX_CHROMIUM : undefined;
 
 // The map needs WebGL: headless Chromium provides it in software (SwiftShader).
@@ -30,6 +30,6 @@ export default defineConfig({
   projects: [
     { name: "iphone", use: { ...devices["iPhone 13"], baseURL: `https://127.0.0.1:${PORT+1}`, ignoreHTTPSErrors: true }, testMatch: /business-publication\.spec\.ts/ },
     { name: "desktop", use: { ...devices["Desktop Chrome"], launchOptions } },
-    { name: "mobile", use: { ...devices["Pixel 5"], launchOptions }, testMatch: /(navigation|catalog|language-switcher|nearby|business-publication|business-visibility|business-profile|business-gallery)\.spec\.ts/ },
+    { name: "mobile", use: { ...devices["Pixel 5"], launchOptions }, testMatch: /(navigation|catalog|language-switcher|international|nearby|business-publication|business-visibility|business-profile|business-gallery)\.spec\.ts/ },
   ],
 });

@@ -1,14 +1,22 @@
 /** Exercise the built Worker locally. CI uses only its throw-away database and dummy auth secret. */
 import assert from "node:assert/strict";
-import { spawn } from "node:child_process";
+import { spawn, execFileSync } from "node:child_process";
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
 const port = 8798;
+const d1 = process.argv.includes("--d1");
+const persistence = d1 ? mkdtempSync(join(tmpdir(), "rega-d1-workerd-")) : null;
+if (d1) execFileSync(process.execPath, ["node_modules/wrangler/bin/wrangler.js", "d1", "migrations", "apply", "rega24-migration", "--local", "--persist-to", persistence], { stdio: "pipe" });
 let databaseUrl;
 try { databaseUrl = new URL(process.env.DATABASE_URL); }
 catch { throw new Error("Configure a valid local DATABASE_URL for the Worker smoke test."); }
 const child = spawn(process.execPath, [
   "node_modules/wrangler/bin/wrangler.js", "dev", "--local", "--port", String(port),
   "--var", `DATABASE_URL:${databaseUrl}`,
+  "--var", `REGA_DATABASE_PROVIDER:${d1 ? "d1" : "postgres"}`,
+  ...(d1 ? ["--persist-to", persistence] : []),
   "--var", "AUTH_SECRET:worker-smoke-local-only", "--var", "REGA_PRIVATE_BETA:0",
 ], { stdio: ["ignore", "ignore", "ignore"] });
 let exited = false;
@@ -27,6 +35,7 @@ try {
   }
   assert.equal(health?.service, "rega-platform", "Built Worker must execute a Next.js route and return its health report");
   assert.equal(health.ok, true, `Worker database and migrations must be ready: ${JSON.stringify(health.checks)}`);
+  assert.equal(health.checks.databaseProvider, d1 ? "d1" : "postgres");
   const management = await fetch(`http://localhost:${port}/dr`, { redirect: "manual" });
   // Anonymous /dr answers with its own sign-in (e-mail code) and nothing of the dashboard, never a 404.
   assert.equal(management.status, 200, "Built Worker must render the /dr sign-in for anonymous requests, not 404");
@@ -49,4 +58,5 @@ try {
   console.log("Worker runtime: database, private routing/auth, public business query and validation passed");
 } finally {
   child.kill("SIGTERM");
+  if (persistence) rmSync(persistence, { recursive: true, force: true });
 }

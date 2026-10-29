@@ -31,7 +31,7 @@ test("a valid public WhatsApp number is stored in international form and shown a
   await page.getByLabel("Name", { exact: true }).fill(name);
   await page.getByRole("combobox", { name: "Kategorie", exact: true }).selectOption({ label: "Recht" });
   await page.getByLabel("Straße und Hausnummer").fill("Jungfernstieg 7");
-  await page.getByLabel("Land").selectOption("DE");
+  await page.locator('select[name="countryCode"]').selectOption("DE");
   await page.getByLabel("Stadt", { exact: true }).fill("Hamburg");
   await page.getByTestId("lat").fill("53.5511");
   await page.getByTestId("lng").fill("9.9937");

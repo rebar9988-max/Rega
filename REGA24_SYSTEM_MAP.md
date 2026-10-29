@@ -1,5 +1,9 @@
 # REGA24 system map
 
+Permanent owner platform policy: [CLAUDE.md section 0.9](CLAUDE.md#09-permanent-cloudflare-platform-mandate-owner-instruction-2026-10-28) requires D1 for the database, Workers for backend/API, R2 for files/images, and Cloudflare for deployment, DNS and security. Rechecked 2026-10-28: active Worker selects D1, its configured S3 endpoint is Cloudflare R2, the configured bucket exists in the same Cloudflare account, and `rega24.com` is an active zone with Cloudflare nameservers. This confirms the platform; it is not a new audit of every security setting.
+
+Current verified state (2026-10-28): production `rega24` uses Cloudflare D1, existing EU `rega24-migration` / `728f792d-37b6-49f8-abc1-e81512219f7d`. All 2332 source records across 36 tables were verified before opening traffic; exact-main CI, deployment and live checks passed. Initial cutover release `09afcd538a71fff6b08627057d272bf318e4362c`; later verified active release `caac0653eed0b86b8e2498b3d7a4c490dd4baf24`, version `38a340a5-7c83-4db8-b73a-1716c3c16b40`. [Current migration evidence and procedure](docs/D1-MIGRATION.md). Later verified checkpoints supersede the original audit tables below.
+
 Infrastructure index for REGA Platform. This file locates components. It does not replace
 [CLAUDE.md](CLAUDE.md), [PROJECT_MEMORY.md](PROJECT_MEMORY.md), or the
 [Google Doc hub](https://docs.google.com/open?id=1pp6GW-UM9AQ9TuUJHumziaujxB6ZOza5S3xwA6dmxu4).
@@ -29,32 +33,22 @@ No secret values belong in this file.
 | Canonical site | `https://www.rega24.com` | VERIFIED live HTTP 2026-10-25 |
 | Apex | `https://rega24.com` returns 301 to `https://www.rega24.com/` | VERIFIED live HTTP |
 | Retired hosts | `regaplatform.com` and `www.regaplatform.com` return 301 to `https://www.rega24.com/` | VERIFIED live HTTP |
-| Web Worker | Source still targets `rega-platform` ([wrangler.jsonc](wrangler.jsonc), entry [worker.mjs](worker.mjs)); canonical live service is `rega24` | VERIFIED source/live drift on 2026-10-26. Release BLOCKED pending cutover provenance and target reconciliation |
+| Web Worker | `rega24` ([wrangler.jsonc](wrangler.jsonc), entry [worker.mjs](worker.mjs)) | VERIFIED live 2026-10-28: version `38a340a5-7c83-4db8-b73a-1716c3c16b40`, 100% traffic |
 | Python Worker | `rega-ai-python` ([services/ai-python/wrangler.jsonc](services/ai-python/wrangler.jsonc)) | VERIFIED in repo. Whether it is the active AI path UNKNOWN |
 | Separate project | R&L is `rebar9988-max/rega-cargo`, `https://www.rlgo.net`, Workers `rega-cargo` / `rega-cargo-staging`. Do not edit it from this repo. | VERIFIED as an instruction in [CLAUDE.md](CLAUDE.md). R&L itself was not opened |
 | Owner SUPER_ADMIN | Only the address in `SUPER_ADMIN_EMAILS` in [src/lib/rbac.ts](src/lib/rbac.ts) | VERIFIED in source |
 
 Audited tree: `e8e2b69b0d3da1e88cf75e904cf6ff4a4e8b90a8` (2026-10-24, business profile gallery). This map was written after that commit.
 
-**Verified live update, 2026-10-26:** both canonical custom domains map to `rega24`/production. Cloudflare deployment
-`3010f7a1-f41d-4938-917a-7bc666e89917`, version `1a2c3a34-38d0-45fe-88d2-cd9144b0e02e` serves100%; old
-`rega-platform` lookup returns404. Version metadata reports Wrangler source without a commit annotation. Source
-workflows and identity allow-list still target the retired name. Do not deploy or sync secrets to either name until
-the approved cutover source and runtime dependencies are reconciled; do not recreate the retired Worker.
-All current credential binding types are `secret_text`; this does not prove provider-side key revocation.
-The diagram and source inventories below describe the audited source architecture, not proof of live bundle identity.
-The existing web deploy and runtime-secret-sync workflows now check both canonical domain bindings with
-[verify-worker-target.mjs](scripts/verify-worker-target.mjs) before dependency install/build/deploy. This read-only gate
-fails closed on missing credentials, API errors or target drift; it does not rename a Worker or authorize cutover.
-
 ## Architecture
 
 ```mermaid
 flowchart LR
   visitor[Visitor or PWA] -->|HTTPS| cf[Cloudflare]
-  cf --> worker[Worker rega-platform]
+  cf --> worker[Worker rega24]
   worker --> app[Next.js App Router via OpenNext]
-  app --> pg[(PostgreSQL via Prisma)]
+  app --> d1[(Cloudflare D1 via PrismaD1)]
+  pg[(Neon retained for recovery)]
   app --> media[S3-compatible media bucket]
   app --> mail[Resend or none]
   app --> gateway[AI gateway]
@@ -68,7 +62,7 @@ flowchart LR
 - Web and API: Next.js **16.4.2**, React 19, App Router, Tailwind 4, next-intl. [README.md](README.md) still says Next.js 15. Trust [package.json](package.json).
 - Host build: `npm run build` sets `REGA_TARGET=workers` and runs OpenNext `@opennextjs/cloudflare` 1.20.12 ([open-next.config.ts](open-next.config.ts)). [worker.mjs](worker.mjs) wraps `.open-next/worker.js` with the edge cache in [src/lib/edge-cache.ts](src/lib/edge-cache.ts).
 - Node build (`npm run build:node`) is for Playwright, Docker, and CI. [Dockerfile](Dockerfile) is an alternate Node image, not the production deploy path.
-- Database client on Workers: [src/lib/db.workers.ts](src/lib/db.workers.ts) (Prisma WASM + `pg`, Hyperdrive connection string if the binding exists, otherwise `DATABASE_URL`). Node uses [src/lib/db.ts](src/lib/db.ts).
+- Database client on Workers: [src/lib/db.workers.ts](src/lib/db.workers.ts) selects PrismaD1 with request-scoped primary D1 sessions and native atomic batches. The PostgreSQL adapter remains for rollback-provider tests and carefully reconciled recovery. Node uses [src/lib/db.ts](src/lib/db.ts).
 - Auth: Auth.js v5 (`next-auth` 5 beta) at [src/app/api/auth/[...nextauth]/route.ts](src/app/api/auth/[...nextauth]/route.ts). Credentials and bcrypt. `/dr` uses a six-digit e-mail code ([src/features/auth/admin-code.ts](src/features/auth/admin-code.ts)).
 - AI: [src/lib/ai/](src/lib/ai/gateway.ts) is the gateway. README's `src/lib/ai.ts` path is stale.
 - Media: [src/lib/storage.ts](src/lib/storage.ts), S3 API, pre-signed upload.
@@ -80,15 +74,16 @@ flowchart LR
 | --- | --- | --- | --- |
 | GitHub repo, Actions, secrets | `.github/workflows/` | GitHub account `rebar9988-max` | VERIFIED workflows exist. Which secret values are set is UNKNOWN |
 | Cloudflare DNS | Public NS `autumn.ns.cloudflare.com`, `max.ns.cloudflare.com` for `rega24.com` and `regaplatform.com` | Cloudflare account referenced by Actions | VERIFIED DNS. Dashboard routes UNKNOWN |
-| Worker `rega-platform` | [wrangler.jsonc](wrangler.jsonc) | Same Cloudflare account. Deployed by [.github/workflows/deploy.yml](.github/workflows/deploy.yml) after CI on `main` | VERIFIED workflow. Active version UNKNOWN |
+| Worker `rega24` | [wrangler.jsonc](wrangler.jsonc) | Same Cloudflare account. Deployed by [.github/workflows/deploy.yml](.github/workflows/deploy.yml) after CI on `main` | VERIFIED live release `caac065`; see current checkpoint |
 | Worker `rega-ai-python` | [services/ai-python/wrangler.jsonc](services/ai-python/wrangler.jsonc) | [.github/workflows/ai-python-deploy.yml](.github/workflows/ai-python-deploy.yml), path-filtered | VERIFIED workflow. Live deployment UNKNOWN |
-| PostgreSQL | [prisma/schema.prisma](prisma/schema.prisma) | Production `DATABASE_URL` is a Worker/GitHub secret | Vendor: see Database section |
+| Cloudflare D1 | [prisma/d1/schema.prisma](prisma/d1/schema.prisma), [migrations](prisma/d1/migrations/0003_city_slug_fold.sql) | Existing `rega24-migration`, binding `DB` | VERIFIED active provider `d1`, three migrations |
+| PostgreSQL / Neon | [prisma/schema.prisma](prisma/schema.prisma) | Retained source and recovery provider; credentials remain private | VERIFIED source snapshot matched all 36 tables; not active application storage |
 | Neon preview branches | [.github/workflows/neon-branch.yml](.github/workflows/neon-branch.yml) project id `lucky-glitter-73195208` | `NEON_API_KEY` | VERIFIED workflow text. Whether production uses this project is REPORTED |
 | Object storage | `STORAGE_*` and `MEDIA_PUBLIC_URL` | Worker secrets. Code accepts any S3 API, including R2 | Endpoint hostname UNKNOWN |
 | E-mail | [src/lib/email/index.ts](src/lib/email/index.ts) Resend HTTPS API | `EMAIL_PROVIDER`, `RESEND_API_KEY` | Live health said `email: true` (VERIFIED boolean) |
 | AI vendors | [src/lib/ai/routing.ts](src/lib/ai/routing.ts) | One API key per vendor, Worker secrets | Live health said `aiProviders: 4` (count only) |
 | Maps / geocoding | [src/lib/map-config.ts](src/lib/map-config.ts), Nominatim default in [src/lib/env.ts](src/lib/env.ts) | Public tile style URL, not a secret | VERIFIED defaults |
-| Google Doc memory | Drive file `1pp6GW-UM9AQ9TuUJHumziaujxB6ZOza5S3xwA6dmxu4` | Owner's Drive | VERIFIED readable. Not writable from this session |
+| Google Doc memory | Drive file `1pp6GW-UM9AQ9TuUJHumziaujxB6ZOza5S3xwA6dmxu4` | Owner's Drive | VERIFIED readable/writable; migration checkpoints appended |
 | Figma, Calendar, Voice | Connected to the owner's Grok account | Not part of the production request path | No REGA Figma file was required for this audit |
 
 There is no paid monitoring product in the repository. Health checks are GitHub Actions plus `/api/v1/health`.
@@ -108,7 +103,7 @@ There is no paid monitoring product in the repository. Health checks are GitHub 
 | `src/lib/` | db, env, rbac, storage, email, search, seo, rate-limit, edge-cache, logger. Example: [src/lib/env.ts](src/lib/env.ts) |
 | `src/lib/ai/` | gateway, routing, providers, optional Python client. Example: [src/lib/ai/gateway.ts](src/lib/ai/gateway.ts) |
 | `src/config/` | locales, sections, legal owner facts. Example: [src/config/sections.ts](src/config/sections.ts) |
-| `src/messages/` | seven UI catalogues. Example: [src/messages/en.json](src/messages/en.json) |
+| `src/messages/` | eleven UI catalogues (ckb, kmr, de, en, ar, fa, tr, fr, sv, nl, it). Example: [src/messages/en.json](src/messages/en.json) |
 | `src/i18n/` | next-intl. Example: [src/i18n/request.ts](src/i18n/request.ts) |
 | `prisma/` | schema, migrations, seed. Example: [prisma/schema.prisma](prisma/schema.prisma) |
 | `services/ai-python/` | isolated Python Worker. Example: [services/ai-python/src/main.py](services/ai-python/src/main.py) |
@@ -144,7 +139,9 @@ flowchart TD
 
 **Database**
 
-- Engine: PostgreSQL. Prisma 6.19 with `engineType = client` and a driver adapter ([prisma/schema.prisma](prisma/schema.prisma)).
+Current production: Cloudflare D1 / SQLite, `REGA_DATABASE_PROVIDER=d1`, existing EU binding `DB`. Three committed D1 migrations, 36 application tables and native atomic transaction planning. Exact release and backup/restore evidence: [production cutover](docs/evidence/d1-production-cutover-2026-10-28.json). Neon is retained for recovery, with no automatic runtime fallback. The following PostgreSQL notes describe the original audit and retained provider.
+
+- Retained engine: PostgreSQL. Prisma 6.19 with `engineType = client` and a driver adapter ([prisma/schema.prisma](prisma/schema.prisma)).
 - 14 committed migrations, latest `20261022120000_admin_sign_in_codes` (table `AdminSignInCode`). Models and names: the inventory file.
 - [docs/BACKUP-RESTORE.md](docs/BACKUP-RESTORE.md): backup before migrate; restore into a new database; never drop production as the first step.
 - **REPORTED:** production database is Neon, and PROJECT_MEMORY calls the database `rega-platform`. Preview workflow uses Neon project `lucky-glitter-73195208`. This audit did not open Neon and did not read `DATABASE_URL`.
@@ -254,3 +251,33 @@ Latest observed Beta health before this documentation change: run `40217513295`,
 | Cloudflare dashboard, Neon console, Worker version, secret values | not accessed | — |
 
 Re-run the public checks before claiming they are still true. Update this section when they are re-checked.
+
+## Cleanup release candidate — 2026-10-26
+
+PR #76 reuses #75's existing-target reconciliation: web `rega24`, stable tag `7b845cda2ee749c89c4f9b83490609b4`; Python stays `rega-ai-python`. No resource recreated. Deployment and secret-sync gates validate live ownership before writes. The web release records its GitHub SHA in the version tag. CI now audits every npm severity. Neon provisioning is manual-only; disposable PostgreSQL still validates migrations and application behaviour. Preview configs exist for both Workers; entry guards block production data/provider execution and honestly report `applicationReady: false`. These are candidate source changes until the final release is verified. The two formerly plaintext Previews Base provider bindings were changed to secret_text using their existing values; production version/references remained unchanged. Provider-side rotation remains unverified.
+
+
+## D1 migration preparation — 2026-10-27
+
+VERIFIED read-only: existing EU D1 `rega24-migration` reports zero tables; production `rega24` has no D1 binding and still uses PostgreSQL. Neon bounded SELECT1 returns HTTP402 quota exceeded. The owner reports an available backup, not yet supplied/verified. Separate local candidate schema/SQL is preparation only. See [D1 migration status and continuation](docs/D1-MIGRATION.md) for runtime incompatibilities, data verification, cutover and recovery requirements. Do not point the live Worker at the empty target. No remote infrastructure change performed.
+
+
+## D1 target schema applied — 2026-10-27
+
+Supersedes the earlier empty-target observation: the existing disconnected `rega24-migration` now contains the candidate36-table schema (105statements accepted). Remote readback verifies every scalar column, zero application records and zero FK violations. Production `rega24` has noD1binding; query redaction remains enabled. New offline export/rehearsal scripts and remaining runtime/data/source blockers are documented in [D1 migration status](docs/D1-MIGRATION.md). Neon production and existing backup-branch SELECT1 both return402; no quota bypass/paid activation/source change performed. Do not bind the live app to this empty candidate.
+
+## D1 migration target and candidate runtime — 2026-10-27
+
+Verified existing EU D1 `rega24-migration`/`728f792d-37b6-49f8-abc1-e81512219f7d`: all36 application tables and2329 restored source rows; exact typed values and FK integrity checked remotely after both runtime migrations. Candidate Worker binds it as `DB` and selects `REGA_DATABASE_PROVIDER=d1`; production activation is still pending final CI/cutover. Neon remains intact. See [migration evidence and procedure](docs/D1-MIGRATION.md). New runtime dependency: `@prisma/adapter-d1@6.19.3`; local development requires Node22.16+. The original PostgreSQL schema, tests and recovery provider remain available.
+
+## D1 readiness transport — 2026-10-28
+
+PR #84 / main `09afcd5` changes only the first-cutover gate transport. The operator verifies source and D1 directly and publishes a snapshot proof through authenticated `rega24` Worker settings. The CI reader uses its existing Workers permission; no deployment-token permission expansion. Exact-main CI and existing ownership gates remain mandatory. Proof binds the release SHA, database UUID, current source isolation and freeze nonce, all 36 tables, row count, zero FK violations, source/typed-manifest/backup hashes, a 120-second drain and verification less than 15 minutes old. D1 audit row `_RegaCutover` remains an audit record. Production activation remains pending successful exact-main CI and final verification.
+
+## D1 active production — 2026-10-28
+
+VERIFIED live: version `912d7b51-341a-4017-bed9-470cd1b39c1c`, deployment `97a07f0a-96e5-4bb5-a049-bbef69c74cea`, exact release tag `09afcd538a71fff6b08627057d272bf318e4362c`, provider `d1`, existing EU database UUID `728f792d-37b6-49f8-abc1-e81512219f7d`, isolation 0, query redaction enabled and official domains/stable Worker preserved. Post-cutover health and 201 desktop/mobile browser checks passed. All 36 source tables/2332 original records were verified before activation. See [full evidence](docs/evidence/d1-production-cutover-2026-10-28.json). Source Neon and private backups remain; any PostgreSQL rollback must reconcile subsequent D1 writes.
+
+## Docs-only merge scope correction — 2026-10-28
+
+Later live readback shows documentation release caac065 active at 100% as version 38a340a5-7c83-4db8-b73a-1716c3c16b40, provider D1; its exact-main CI/deploy/health/browser checks passed. Earlier no-replacement claims based only on changed paths were disproved: the old merge diff returned no files. Release scope now compares HEAD with its first parent, preserving the existing allowlist and application safeguards. [Actual merge/shallow/ordinary-change regression evidence](docs/evidence/deployment-scope-regression-2026-10-28.json).

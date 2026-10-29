@@ -107,6 +107,13 @@ async def require_internal(
 
 @app.middleware("http")
 async def payload_limit(request: Request, call_next):
+    if _env(request, "REGA_ISOLATED_PREVIEW") == "1":
+        health = request.method == "GET" and request.url.path == "/__preview-health"
+        return JSONResponse(
+            status_code=200 if health else 503,
+            content={"ok": health, "mode": "isolated-preview", "applicationReady": False},
+            headers={"cache-control": "no-store", "x-robots-tag": "noindex, nofollow"},
+        )
     length = request.headers.get("content-length")
     if length:
         try:

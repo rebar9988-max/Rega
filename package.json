@@ -5,11 +5,11 @@
   "description": "REGA Platform - production web application (www.rega24.com)",
   "scripts": {
     "dev": "node scripts/vendor-maplibre.mjs && next dev",
-    "build": "node scripts/vendor-maplibre.mjs && prisma generate && REGA_TARGET=workers opennextjs-cloudflare build",
+    "build": "node scripts/vendor-maplibre.mjs && npm run db:generate && REGA_TARGET=workers opennextjs-cloudflare build",
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "db:generate": "prisma generate",
+    "db:generate": "prisma generate && node scripts/generate-d1-models.mjs && prisma generate --schema prisma/d1/schema.prisma",
     "db:migrate": "prisma migrate deploy",
     "db:migrate:dev": "prisma migrate dev",
     "db:seed": "tsx prisma/seed.ts",
@@ -17,10 +17,13 @@
     "backup": "bash scripts/backup.sh",
     "test": "tsx --test tests/*.test.ts",
     "e2e": "playwright test",
-    "build:node": "node scripts/vendor-maplibre.mjs && prisma generate && next build --webpack",
+    "build:node": "node scripts/vendor-maplibre.mjs && npm run db:generate && next build --webpack",
     "cf:preview": "npm run build && opennextjs-cloudflare preview",
-    "cf:dry-run": "wrangler deploy --dry-run",
-    "guard:identity": "node scripts/project-identity-guard.mjs --project REGA"
+    "cf:dry-run": "opennextjs-cloudflare deploy --dry-run --tag dry-run-verification --message Verified-GitHub-CI-release",
+    "guard:identity": "node scripts/project-identity-guard.mjs --project REGA",
+    "test:d1": "node scripts/generate-d1-models.mjs --check && NODE_OPTIONS=--conditions=react-server tsx --test tests/d1/*.test.ts && python3 scripts/test-d1-batches.py",
+    "db:d1:local": "node scripts/init-local-d1.mjs",
+    "db:d1:migrate": "node scripts/project-identity-guard.mjs --project REGA && wrangler d1 migrations apply rega24-migration --remote"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -31,6 +34,7 @@
     "@fontsource-variable/inter": "^5.3.0",
     "@fontsource-variable/vazirmatn": "^5.3.0",
     "@opennextjs/cloudflare": "1.20.12",
+    "@prisma/adapter-d1": "6.19.3",
     "@prisma/adapter-pg": "~6.19.3",
     "@prisma/client": "~6.19.3",
     "bcryptjs": "^3.0.2",
@@ -64,18 +68,12 @@
     "wrangler": "^4.144.0"
   },
   "engines": {
-    "node": ">=20.9.0"
+    "node": ">=22.16.0"
   },
   "overrides": {
     "postcss": "^8.5.28",
     "deepmerge-ts": "^8.0.2",
-    "@node-minify/core": {
-      "glob": "^10.5.0"
-    },
-    "body-parser": "^2.4.0",
-    "source-map-js": "^1.2.2",
-    "miniflare@5.20261019.1-beta": {
-      "undici": "^7.30.1"
-    }
+    "glob@10.3.3": "^10.5.0",
+    "undici@7.29.1": "^7.30.1"
   }
 }

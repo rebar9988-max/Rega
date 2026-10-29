@@ -16,7 +16,7 @@ and `npm run e2e` before merging.
 5. **Routes:** copy `src/app/[locale]/jobs/page.tsx` and `[slug]/page.tsx` (each is ~15 lines) and change the key.
 6. **Search:** add `contentRetriever("<key>")` to `RETRIEVERS` in `src/lib/search/postgres.ts` and the key to
    `src/lib/search/retriever-keys.ts` (a test fails until you do).
-7. **Strings:** `nav.<key>`, `pageMeta.<key>` and any new `content.*` keys in **all seven** `src/messages/*.json`.
+7. **Strings:** `nav.<key>`, `pageMeta.<key>` and any new `content.*` keys in **all eleven** `src/messages/*.json`.
 8. Tests: `tests/content.test.ts` patterns, plus an e2e spec.
 
 Switch a section off without code: `SECTIONS_DISABLED=events` (it vanishes from nav, footer, sitemap and returns 404).

@@ -1,6 +1,6 @@
+import { testSqlClient } from "./database-client";
 /** Reviews: signed-in users only, one per user per business, hidden until a moderator approves, owners cannot review themselves. */
 import type { Page } from "@playwright/test";
-import pg from "pg";
 import { expect, test } from "./fixtures";
 import { ADMIN } from "./global-setup";
 import { UNCONFIRMED_NOTICE, confirmEmailOf } from "./confirm-email";
@@ -101,7 +101,7 @@ test("members of a business cannot review it; invalid input is refused by the se
   await expect(form.getByRole("alert")).toContainText("Pflichtfelder");
 
   // Make the user a member of the business: the review is refused.
-  const client = new pg.Client({ connectionString: process.env.DATABASE_URL });
+  const client = testSqlClient();
   await client.connect();
   const row = (await client.query(`select u.id as uid, b.id as bid from "User" u, "Business" b where u.email = $1 and b.slug = 'sulaymaniyah-clinic'`, [USER.email])).rows[0];
   await client.query(`insert into "BusinessMember" (id, "businessId", "userId", role, "isActive") values ($1, $2, $3, 'EMPLOYEE', true)`, [`m-${stamp}`, row.bid, row.uid]);

@@ -16,7 +16,7 @@ jobs:
   verify:
     # Playwright 1.56 supports Noble; ubuntu-latest moved to unsupported 26.04 on 2026-10-22.
     runs-on: ubuntu-24.04
-    timeout-minutes: 35
+    timeout-minutes: 60
     permissions:
       contents: read
     services:
@@ -47,6 +47,8 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Audit dependencies (all severities)
+        run: npm audit --audit-level=low
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
@@ -54,7 +56,7 @@ jobs:
       - name: Python AI engine tests
         working-directory: services/ai-python
         run: uv run pytest
-      - run: npx prisma generate
+      - run: npm run db:generate
       - run: npx prisma migrate deploy
       - name: Exercise read-only preflight against the throw-away database
         run: node scripts/database-preflight.mjs
@@ -64,20 +66,32 @@ jobs:
         run: npm run typecheck
       - name: Unit tests
         run: npm test
+      - name: D1 atomicity, concurrency and data preservation tests
+        run: npm run test:d1
+      - name: D1 WASM client with a real local workerd binding
+        run: node scripts/health/d1-worker-smoke.mjs
       - name: Build (Node, used by E2E)
         run: npm run build:node
       - name: Install Playwright browser
         run: npx playwright install --with-deps chromium webkit
-      - name: E2E tests
+      - name: E2E tests against disposable D1 SQLite (same browser assertions)
+        run: |
+          export D1_SQLITE_PATH="$(node scripts/init-local-d1.mjs --test | tail -1)"
+          export REGA_DATABASE_PROVIDER=d1
+          export E2E_PORT=3211
+          npm run e2e
+      - name: E2E tests (PostgreSQL rollback provider)
         run: npm run e2e
       - name: Build for Cloudflare Workers + validate the Worker bundle (no credentials, no deploy)
         run: |
           npm run build
-          npx wrangler deploy --dry-run
+          npm run cf:dry-run
       - name: Exercise business image codecs in workerd
         run: node scripts/health/business-image-worker-smoke.mjs
       - name: Exercise business routes in the built Worker runtime
         run: node scripts/health/worker-smoke.mjs
+      - name: Exercise D1 migrations and routes in the built Worker runtime
+        run: node scripts/health/worker-smoke.mjs --d1
       - name: Upload Playwright traces on failure
         if: failure()
         uses: actions/upload-artifact@v4

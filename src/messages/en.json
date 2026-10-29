@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "REGA Platform — ڕێگا | Businesses, Services & Locations",
-    "description": "REGA Platform: the Kurdish portal for Germany and Europe. Find businesses, services and places near you, with an AI assistant in seven languages."
+    "description": "REGA Platform: the Kurdish portal for Germany and Europe. Find businesses, services and places near you, with an AI assistant in eleven languages."
   },
   "common": {
     "loading": "Loading ...",
@@ -91,7 +91,7 @@
   },
   "home": {
     "heroTitle": "All businesses, services and places in one place",
-    "heroSubtitle": "REGA is the platform for discovering, comparing and managing businesses — in Sorani, Kurmancî (Badînî), German, English, Arabic, Persian and Turkish.",
+    "heroSubtitle": "REGA is the platform for discovering, comparing and managing businesses — in Sorani, Kurmancî, German, English, Arabic, Turkish, Persian, French, Swedish, Dutch and Italian.",
     "searchPlaceholder": "Search for a business, service or city ...",
     "ctaExplore": "Browse businesses",
     "ctaAI": "Ask REGA AI",
@@ -107,8 +107,8 @@
         "body": "Access trustworthy professionals and service providers."
       },
       {
-        "title": "Seven languages, correct reading direction",
-        "body": "Sorani, Kurmancî (Badînî), German, English, Arabic, Persian and Turkish — with correct right-to-left and left-to-right layout."
+        "title": "Eleven languages, correct reading direction",
+        "body": "Sorani, Kurmancî, German, English, Arabic, Turkish, Persian, French, Swedish, Dutch and Italian — with correct right-to-left and left-to-right layout."
       },
       {
         "title": "REGA AI assistant",
@@ -151,7 +151,7 @@
     "citiesTitle": "Cities in Germany",
     "citiesSub": "Choose a city. Businesses show up here as they are published.",
     "factFree": "100% free",
-    "factLang": "7 languages",
+    "factLang": "11 languages",
     "factGermany": "Germany",
     "openMap": "Open the nearby map",
     "socialTitle": "Stay connected with REGA",
@@ -213,7 +213,9 @@
     "postalCode": "Postal code",
     "openingHours": "Opening hours",
     "viewOnMap": "View on map",
-    "browseByCity": "Browse by city"
+    "browseByCity": "Browse by city",
+    "closedOnHolidays": "Closed on official public holidays.",
+    "hoursChanges": "Closures and special hours"
   },
   "categories": {
     "title": "Categories",
@@ -229,7 +231,10 @@
     "allTypes": "All types",
     "noResults": "No results found. Try a different term.",
     "resultCount": "{count} results",
-    "hint": "Enter at least 2 characters."
+    "hint": "Enter at least 2 characters.",
+    "openNowApplied": "Showing only places that are open now (based on their listed opening hours).",
+    "correctedNotice": "Nothing was found for «{query}»; these are the closest results.",
+    "didYouMean": "Did you mean «{query}»?"
   },
   "ai": {
     "title": "REGA Assistant",
@@ -466,25 +471,25 @@
     "sun": "Sunday"
   },
   "about": {
-    "title": "About REGA",
-    "intro": "REGA (ڕێگا) is a modern, trusted digital platform, founded as a multilingual guide for the Kurdish diaspora in Germany and Europe.",
-    "goal": "Our aim is to bring all the main everyday needs and searches together in one place, so you can easily reach services that suit you culturally and linguistically, while giving business owners and professionals an official, trusted way to present their work and skills.",
-    "offerH": "What do we offer?",
+    "title": "About Rega24",
+    "intro": "Rega24 is a multilingual digital platform for discovering businesses, professionals and services. We bring people and businesses together in one place, with a vision that reaches across languages and borders.",
+    "goal": "Our aim is to make searching and comparing easier, so people can find suitable options through clear information. Rega24 is not limited to one community or country. Our vision is global, while coverage grows with real local information and needs.",
+    "offerH": "What Rega24 offers",
     "offer": [
       {
-        "label": "Service guide",
-        "text": "Easily find services and professionals near where you live, on a map."
+        "label": "Easy discovery",
+        "text": "Search by category, city and location, and explore listed businesses and services on the map."
       },
       {
-        "label": "Trust and assurance",
-        "text": "Verified information (Rega Verified) and a transparent rating system."
+        "label": "Clear information",
+        "text": "Find addresses, opening hours and contact options on business profiles, based on the information available."
       },
       {
-        "label": "Smart support",
-        "text": "Artificial intelligence (REGA AI) to make searching easier and answer your needs."
+        "label": "Connect in your language",
+        "text": "Rega24 is available in eleven languages, making discovery easier for users and helping business owners introduce their work."
       }
     ],
-    "quote": "REGA is the bridge between you and the trusted services around you."
+    "quote": "Rega24 — discover services, connect locally, think globally."
   },
   "nearby": {
     "title": "Nearby",
@@ -515,6 +520,11 @@
     "open": "Open",
     "closed": "Closed",
     "hoursUnknown": "Hours unknown",
+    "closingSoon": "Closing soon",
+    "opensSoon": "Opens soon",
+    "closesAt": "Closes {time}",
+    "opensAt": "Opens {time}",
+    "opensOn": "Opens {day} {time}",
     "directions": "Directions",
     "call": "Call",
     "details": "Details",
@@ -527,7 +537,11 @@
     "city": "City",
     "searchIn": "Search in {place}",
     "showOnMap": "On the map",
-    "inArea": "In this area"
+    "inArea": "In this area",
+    "temporarilyClosed": "Temporarily closed",
+    "opensOnDate": "Reopens {date} at {time}",
+    "holidayToday": "Public holiday: {name}",
+    "specialHoursToday": "Special hours today"
   },
   "map": {
     "title": "Map",
@@ -658,7 +672,20 @@
       "draftChanged": "This draft has already been submitted or reviewed. Reload before editing."
     },
     "categorySearch": "Search categories",
-    "optionalDetails": "Optional details"
+    "optionalDetails": "Optional details",
+    "holidaysClosed": "Closed on official public holidays",
+    "holidaysClosedHint": "Fixed official holidays of the country and region are applied automatically. Add Eid and other lunar holidays below with their dates.",
+    "exceptionsTitle": "Temporary closures and special hours",
+    "exceptionsHint": "For a day or a period: closed, or different hours (e.g. 10:00–14:00). Dates are in the location's local time.",
+    "exceptionsInvalid": "Please check the dates and hours of the closures or special hours.",
+    "exceptionFrom": "From",
+    "exceptionTo": "Until",
+    "exceptionClosed": "Closed",
+    "exceptionSpecial": "Special hours",
+    "exceptionHours": "Hours",
+    "exceptionReason": "Reason (optional, public)",
+    "exceptionRemove": "Remove",
+    "exceptionAdd": "Add a closure or special hours"
   },
   "contact": {
     "title": "Contact",
@@ -892,7 +919,7 @@
     "freeBody": "Listing on REGA is completely free. There are no fees, subscriptions, paid placements or payments, and there won't be.",
     "benefitsTitle": "Why REGA?",
     "b1Title": "In their language",
-    "b1Text": "Your description is shown in seven languages, including Sorani and Kurmanji.",
+    "b1Text": "Your description can be shown in eleven languages, including Sorani and Kurmanji.",
     "b2Title": "Near your customers",
     "b2Text": "You appear on the map and in the “Nearby” search.",
     "b3Title": "AI assistant",
@@ -994,7 +1021,7 @@
     "locations": "Locations of Kurdish businesses in Germany and Europe: browse by city, see addresses and opening hours, and find the way on the map.",
     "nearby": "Find Kurdish businesses and services near you: use your location or choose a city, then browse the results on the map or as a list.",
     "ai": "The REGA Assistant answers your questions from the real listings on REGA Platform: find Kurdish businesses in Germany and Europe.",
-    "about": "About REGA Platform: a multilingual portal for Kurds in Germany and Europe, with its goal, what it offers and who is behind it.",
+    "about": "Discover Rega24, a multilingual platform for finding businesses and services by category, city and map, with clear information and a global vision.",
     "search": "Search all Kurdish businesses, services and locations on REGA Platform and filter the results by type.",
     "register": "Create a free account on REGA Platform to list your business and reach Kurds in Germany and Europe.",
     "login": "Sign in to your REGA Platform account: manage your listings, submit them for review and change your settings.",
@@ -1222,11 +1249,11 @@
     "overLimit": "This listing already has more than 3 images. All are kept; new images can be added once fewer than 3 remain."
   },
   "businessSocial": {
-  "title": "Social media",
-  "helper": "Add your business account links so customers can easily get in touch.",
-  "optional": "Optional",
-  "invalid": "Enter a valid HTTPS {platform} account link.",
-  "valid": "Account link ready",
-  "open": "Open {name} on {platform}"
-}
+    "title": "Social media",
+    "helper": "Add your business account links so customers can easily get in touch.",
+    "optional": "Optional",
+    "invalid": "Enter a valid HTTPS {platform} account link.",
+    "valid": "Account link ready",
+    "open": "Open {name} on {platform}"
+  }
 }

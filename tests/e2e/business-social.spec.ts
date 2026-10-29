@@ -1,15 +1,14 @@
 import bcrypt from "bcryptjs";
 import { encode } from "fast-png";
 import { mkdir } from "node:fs/promises";
-import { PrismaClient } from "@prisma/client";
-import { PrismaPg } from "@prisma/adapter-pg";
+import { testDatabaseClient } from "./database-client";
 import type { Page } from "@playwright/test";
 import { test, expect } from "./fixtures";
 import { ADMIN } from "./global-setup";
 
 // The global setup refuses production and non-test databases before any test writes.
 test.use({ baseURL: `https://127.0.0.1:${Number(process.env.E2E_PORT ?? 3111) + 1}`, ignoreHTTPSErrors: true });
-const db = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL! }) });
+const db = testDatabaseClient();
 const stamp = `${Date.now().toString(36)}-${process.pid}`;
 const accounts = {
   facebookUrl: "https://www.facebook.com/rega-e2e-business",
@@ -95,6 +94,15 @@ test("API create accepts zero, one and four links; server rejects malicious URLs
     expect((await page.request.patch(`/api/v1/businesses/${id}`, { data: { instagramUrl: value } })).status(), value.slice(0, 100)).toBe(422);
   }
   expect((await read(id)).instagramUrl).toBe(before.instagramUrl);
+  // The same signed-in owner loses mutation access immediately when membership is revoked.
+  const untouched = await read(id);
+  await db.businessMember.updateMany({ where: { businessId: id, userId: actors[0].id }, data: { isActive: false } });
+  try {
+    expect((await page.request.patch(`/api/v1/businesses/${id}`, { data: { instagramUrl: "https://www.instagram.com/revoked/" } })).status()).toBe(403);
+    expect(await read(id)).toEqual(untouched);
+  } finally {
+    await db.businessMember.updateMany({ where: { businessId: id, userId: actors[0].id }, data: { isActive: true } });
+  }
   const otherContext = await browser.newContext();
   const other = await otherContext.newPage();
   await login(other, stranger);
@@ -105,7 +113,7 @@ test("API create accepts zero, one and four links; server rejects malicious URLs
 });
 
 test("public saved links have authentic icons, safe exact destinations, correct hierarchy and responsive RTL/LTR geometry", async ({ page, browser }) => {
-  test.setTimeout(120_000);
+  test.setTimeout(300_000);
   await login(page);
   const template = await db.business.findUniqueOrThrow({ where: { slug: "kurdistan-rechtsberatung" }, include: { locations: { where: { isPrimary: true }, take: 1 } } });
   const location = template.locations[0];
@@ -125,12 +133,12 @@ test("public saved links have authentic icons, safe exact destinations, correct 
     await expect.poll(async () => Boolean((await read(business.id)).coverUrl && (await read(business.id)).logoUrl)).toBe(true);
     for (const width of [320, 360, 375, 390, 430, 768, 1024, 1440, 1920]) {
       await publicPage.setViewportSize({ width, height: 900 });
-      for (const locale of ["ckb", "en"]) {
+      for (const locale of ["ckb", "ar", "fa", "de", "en", "kmr", "tr", "nl", "fr", "it", "sv"]) {
         expect((await publicPage.goto(`/${locale}/business/${business.slug}`, { waitUntil: "domcontentloaded" }))?.status()).toBe(200);
         const section = publicPage.getByTestId("business-social-links");
         await expect(section).toBeVisible();
         expect(await publicPage.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth), `${locale} ${width}`).toBeLessThanOrEqual(0);
-        expect(await publicPage.locator("html").getAttribute("dir")).toBe(locale === "ckb" ? "rtl" : "ltr");
+        expect(await publicPage.locator("html").getAttribute("dir")).toBe(["ckb", "ar", "fa"].includes(locale) ? "rtl" : "ltr");
         for (const [i, href] of Object.values(accounts).entries()) {
           const link = section.getByRole("link").nth(i);
           await expect(link).toHaveAttribute("href", href);

@@ -119,7 +119,7 @@ test("opening hours: validated input, shown on the detail page; 'Open now' keeps
   await page.getByRole("combobox", { name: "Kategorie", exact: true }).selectOption({ label: "Recht" });
   // Hamburg, away from the Berlin demo data that other map tests cluster on.
   await page.getByLabel("Straße und Hausnummer").fill("Jungfernstieg 7");
-  await page.getByLabel("Land").selectOption("DE");
+  await page.locator('select[name="countryCode"]').selectOption("DE");
   await page.getByLabel("Stadt", { exact: true }).fill("Hamburg");
   await page.getByTestId("lat").fill("53.5511");
   await page.getByTestId("lng").fill("9.9937");
@@ -158,6 +158,60 @@ test("opening hours: validated input, shown on the detail page; 'Open now' keeps
   await page.getByTestId("nearby-locate").click();
   await expect(page.getByTestId("nearby-open")).toBeChecked();
   await expect(page.getByTestId("nearby-results")).toContainText(name);
+});
+
+test("temporary closures, special hours and public holidays: validated, kept when the form is reopened, shown publicly", async ({ page }) => {
+  await stubBasemap(page);
+  await german(page);
+  const name = `E2E Betriebsferien ${stamp}`;
+  // Dates in the location's own calendar (Germany).
+  const day = (offset: number) => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Berlin", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(Date.now() + offset * 86_400_000));
+  await page.goto("/dr/businesses/new");
+  await page.getByLabel("Name", { exact: true }).fill(name);
+  await page.getByRole("combobox", { name: "Kategorie", exact: true }).selectOption({ label: "Recht" });
+  // Bremen, away from the demo and map-test clusters.
+  await page.getByLabel("Straße und Hausnummer").fill("Am Markt 1");
+  await page.locator('select[name="countryCode"]').selectOption("DE");
+  await page.getByLabel("Stadt", { exact: true }).fill("Bremen");
+  await page.getByTestId("lat").fill("53.0758");
+  await page.getByTestId("lng").fill("8.8072");
+  await page.getByTestId("confirm-location").check();
+  for (const d of ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]) await page.getByTestId(`hours-${d}`).fill("09:00-17:00");
+  await page.getByTestId("holidays-closed").check();
+  // A closure from today for four days, with a public reason.
+  await page.getByTestId("exception-add").click();
+  await page.getByTestId("exception-from-0").fill(day(0));
+  await page.getByTestId("exception-to-0").fill(day(3));
+  await page.getByTestId("exception-reason-0").fill("Betriebsferien");
+  // Special hours later on; unreadable hours are refused first.
+  await page.getByTestId("exception-add").click();
+  await page.getByTestId("exception-from-1").fill(day(10));
+  await page.getByTestId("exception-special-1").check();
+  await page.getByTestId("exception-hours-1").fill("10 bis 12");
+  await page.getByRole("button", { name: "Speichern und veröffentlichen" }).click();
+  await expect(page.getByTestId("form-error")).toBeVisible();
+  await expect(page.getByTestId("exceptions-invalid")).toBeVisible();
+  await page.getByTestId("exception-hours-1").fill("10:00-12:00");
+  await page.getByRole("button", { name: "Speichern und veröffentlichen" }).click();
+  await expect(page.getByTestId("business-status")).toHaveText("Veröffentlicht");
+
+  // Reopened, the form shows what is stored (so saving it again keeps it).
+  await page.reload();
+  await expect(page.getByTestId("holidays-closed")).toBeChecked();
+  await expect(page.getByTestId("exception-from-0")).toHaveValue(day(0));
+  await expect(page.getByTestId("exception-reason-0")).toHaveValue("Betriebsferien");
+  await expect(page.getByTestId("exception-hours-1")).toHaveValue("10:00–12:00"); // stored normalized
+  await expect(page.locator("input[name=hoursExceptions]")).toHaveValue(/Betriebsferien/);
+
+  const slug = (await (await page.request.get(`/api/v1/businesses?q=${encodeURIComponent(name)}`)).json()).data[0].slug;
+  await page.goto(`/de/businesses/${slug}`);
+  await expect(page.getByTestId("open-state")).toHaveAttribute("data-status", "TEMPORARILY_CLOSED");
+  await expect(page.getByTestId("open-state")).toContainText("Vorübergehend geschlossen");
+  await expect(page.getByTestId("open-state-note")).toContainText("Betriebsferien");
+  const changes = page.getByTestId("hours-changes");
+  await expect(changes).toContainText("An gesetzlichen Feiertagen geschlossen");
+  await expect(changes).toContainText("Betriebsferien");
+  await expect(changes).toContainText("10:00–12:00");
 });
 
 test("search: Arabic-keyboard spelling finds Kurdish names; words in any order; filters change results and totals", async ({ page, request }) => {

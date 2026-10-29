@@ -1,3 +1,4 @@
+import { testDatabaseClient } from "./database-client";
 import { expect, test } from "./fixtures";
 
 const BERLIN = { latitude: 52.5201, longitude: 13.4049 };
@@ -166,9 +167,7 @@ test.describe("without location permission", () => {
 });
 
 test("only published providers appear; draft and deleted ones never do", async ({ request }) => {
-  const { PrismaClient } = await import("@prisma/client");
-  const { PrismaPg } = await import("@prisma/adapter-pg");
-  const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }) });
+  const prisma = testDatabaseClient();
   const slugs = ["e2e-nearby-draft", "e2e-nearby-deleted"];
   try {
     for (const [i, slug] of slugs.entries()) {

@@ -14,12 +14,13 @@ import { LOCALES, LOCALE_META, localeSuffix, type Locale } from "@/config/locale
 import { isValidCoordinate } from "@/lib/coordinates";
 import type { GeocodeHit } from "@/lib/geocoder-parse";
 import { geocodeAction, saveBusinessAction, type BusinessFormState } from "@/app/dr/businesses/actions";
-import { WEEK, type WeekDay } from "@/lib/opening-hours";
+import { WEEK, type HoursException, type WeekDay } from "@/lib/opening-hours";
 import { normalizeWhatsapp } from "@/lib/whatsapp";
 import { BusinessImageField } from "./BusinessImageField";
 import { PhotosField } from "./PhotosField";
 import { BusinessSocialFields } from "./BusinessSocialFields";
 import { BUSINESS_SOCIAL_PLATFORMS, BUSINESS_SOCIAL_FIELDS, normalizeBusinessSocialUrl } from "@/lib/business-social";
+import { HoursExceptionsEditor } from "./HoursExceptionsEditor";
 
 const LocationPicker = dynamic(() => import("./LocationPicker").then((m) => m.LocationPicker), {
   ssr: false,
@@ -33,7 +34,7 @@ export type FormInitial = {
   latitude?: number | null; longitude?: number | null; coordsSource?: string | null; coordsVerified?: boolean;
   facebookUrl?: string | null; instagramUrl?: string | null; tiktokUrl?: string | null; snapchatUrl?: string | null;
   status?: string;
-  hours?: Partial<Record<WeekDay, string>>; logoUrl?: string | null; coverUrl?: string | null; photos?: string[];
+  hours?: Partial<Record<WeekDay, string>>; holidaysClosed?: boolean; hoursExceptions?: HoursException[]; logoUrl?: string | null; coverUrl?: string | null; photos?: string[];
   /** Description per language (key = locale code; field name is description<Suffix>). */
   translations?: Partial<Record<Locale, string>>;
   languages?: string[];
@@ -393,6 +394,7 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
             </label>
           ))}
         </div>
+        <HoursExceptionsEditor initial={initial.hoursExceptions ?? []} holidaysClosed={Boolean(initial.holidaysClosed)} invalid={bad("hoursExceptions")} />
       </fieldset>
       </details>
 

@@ -1,5 +1,8 @@
 "use server";
 
+import { databaseTransaction } from "@/lib/database-transaction";
+
+
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
@@ -63,7 +66,7 @@ export async function saveEntryAction(_prev: EntryFormState, formData: FormData)
   const shared = { businessId: business?.id ?? null, cityId: city?.id ?? null, categoryId: category?.id ?? null, status, searchText, ...(status === "published" && !existing?.publishedAt ? { publishedAt: new Date() } : {}) };
   const jobs = section === "jobs" ? (parsed.data as { expiresAt?: Date }) : null;
 
-  const entryId = await prisma.$transaction(async (tx) => {
+  const entryId = await databaseTransaction(async (tx) => {
     let id = existing?.id;
     if (id) {
       await tx.listing.update({ where: { id }, data: { ...shared, expiresAt: jobs?.expiresAt ?? null } });

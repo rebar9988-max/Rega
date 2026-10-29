@@ -47,3 +47,23 @@ export function localize(row: Row, field: string, locale: Locale): Localized {
 export function localizeText(row: Row, field: string, locale: Locale): string {
   return localize(row, field, locale).text;
 }
+
+/**
+ * Display name of a country. Its own stored translation wins; a language without a stored name (fr, sv, nl, it, …) gets
+ * the CLDR name of the ISO code from Intl.DisplayNames, so no country name has to be invented or stored for it; the
+ * fallback chain of `localize` covers runtimes without that data.
+ */
+export function countryName(row: Row & { code: string }, locale: Locale): string {
+  const own = clean(row["name" + localeSuffix(locale)]);
+  if (own) return own;
+  try {
+    const cldr = new Intl.DisplayNames([LOCALE_META[locale].htmlLang], { type: "region", fallback: "none" }).of(row.code.toUpperCase());
+    if (cldr) return cldr;
+  } catch { /* no Intl region data: fall through */ }
+  return localizeText({ ...row, name: row.nameEn }, "name", locale);
+}
+
+/** Flag emoji of an ISO 3166-1 alpha-2 code (two regional indicator letters); empty for anything else. */
+export function countryFlag(code: string): string {
+  return /^[A-Z]{2}$/i.test(code) ? String.fromCodePoint(...[...code.toUpperCase()].map((c) => 0x1f1e6 + c.charCodeAt(0) - 65)) : "";
+}

@@ -8,6 +8,8 @@ import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { PUBLIC_BUSINESS, businessInCategories, businessInCity, textWhere } from "@/lib/search-where";
 import { searchTokens } from "@/lib/text";
+import { parseSearchIntent } from "@/lib/search-intent";
+import { buildVocabulary, correctQuery, type Vocabulary } from "@/lib/search-correction";
 import { OFFER_LIMITS, activeOfferWhere } from "@/lib/offers";
 import { PER_PAGE } from "./params";
 import { descendantIds } from "@/lib/category-tree";
@@ -46,6 +48,8 @@ export const getCategories = cache(async () => {
 
 /** Germany is the current public market. Locale/language is intentionally independent from country. */
 export const DEFAULT_PUBLIC_COUNTRY_CODE = "DE";
+
+export { MARKET_COUNTRY_CODES } from "./markets";
 
 /**
  * Active cities for one country. `count` follows the currently relevant public-business filters so category pages
@@ -219,7 +223,8 @@ export const getBusiness = cache(async (slug: string) =>
       locations: {
         where: { status: "active", deletedAt: null },
         orderBy: { isPrimary: "desc" },
-        select: { id: true, label: true, addressLine1: true, addressLine2: true, postalCode: true, countryCode: true, latitude: true, longitude: true, phone: true, email: true, openingHours: true, isPrimary: true, city: cityInclude },
+        // The region (state) decides regional public holidays for the opening status.
+        select: { id: true, label: true, addressLine1: true, addressLine2: true, postalCode: true, countryCode: true, latitude: true, longitude: true, phone: true, email: true, openingHours: true, isPrimary: true, city: { select: { ...cityInclude.select, region: { select: { slug: true } } } } },
       },
     },
   }),
@@ -306,14 +311,84 @@ export type SearchType = "all" | "businesses" | "services" | "locations";
 
 export async function searchAll({ q, type, page }: { q: string; type: SearchType; page: number }) {
   const empty = { items: [], total: 0, pages: 1, page } as const;
-  if (searchTokens(q).length === 0) return { businesses: empty, services: empty, locations: empty };
+  if (searchTokens(q).length === 0) return { businesses: empty, services: empty, locations: empty, openNow: false, correctedTo: null };
   const want = (t: SearchType) => type === "all" || type === t;
-  const [businesses, services, locations] = await Promise.all([
-    want("businesses") ? listBusinesses({ q, sort: "featured", page }) : empty,
-    want("services") ? listServices({ q, sort: "featured", page }) : empty,
-    want("locations") ? listLocations({ q, page }) : empty,
-  ]);
-  return { businesses, services, locations };
+  // "… open now" in the text: the remaining words are searched and only businesses open right now are listed
+  // (opening hours belong to businesses, so services and locations are not part of this answer).
+  const intent = parseSearchIntent(q);
+  const run = async (text: string) => {
+    if (intent.openNow) {
+      const businesses = want("businesses") ? await listOpenBusinesses(text, page) : empty;
+      return { businesses, services: empty, locations: empty, openNow: true };
+    }
+    const [businesses, services, locations] = await Promise.all([
+      want("businesses") ? listBusinesses({ q: text, sort: "featured", page }) : empty,
+      want("services") ? listServices({ q: text, sort: "featured", page }) : empty,
+      want("locations") ? listLocations({ q: text, page }) : empty,
+    ]);
+    return { businesses, services, locations, openNow: false };
+  };
+  const text = intent.openNow ? intent.text : q;
+  const res = await run(text);
+  const found = (r: Awaited<ReturnType<typeof run>>) => r.businesses.total + r.services.total + r.locations.total > 0;
+  // Nothing found: one retry with misspelled words replaced by the closest words of public listings ("did you mean").
+  if (!found(res) && page === 1 && searchTokens(text).length > 0) {
+    const correction = correctQuery(text, await searchVocabulary());
+    if (correction) {
+      const fixed = await run(correction.query);
+      // The open-now words stay in the corrected query, so tabs and pages keep the filter.
+      if (found(fixed)) return { ...fixed, correctedTo: [correction.query, ...(intent.intentWords ?? [])].join(" ") };
+    }
+  }
+  return { ...res, correctedTo: null };
+}
+
+/** Rows per table read into the correction vocabulary (public records only). */
+const VOCABULARY_ROWS = 2000;
+const VOCABULARY_TTL_MS = 5 * 60_000;
+let vocabularyCache: { at: number; value: Promise<Vocabulary> } | null = null;
+
+/**
+ * Words of the search texts of public businesses, services and locations, for typo correction. Kept per Worker
+ * isolate for a few minutes (like the edge cache), so a zero-result search does not re-read the index each time.
+ */
+function searchVocabulary(): Promise<Vocabulary> {
+  const now = Date.now();
+  if (vocabularyCache && now - vocabularyCache.at < VOCABULARY_TTL_MS) return vocabularyCache.value;
+  const value = Promise.all([
+    prisma.business.findMany({ where: PUBLIC_BUSINESS, select: { searchText: true }, take: VOCABULARY_ROWS }),
+    prisma.service.findMany({ where: { status: "published", deletedAt: null, business: PUBLIC_BUSINESS }, select: { searchText: true }, take: VOCABULARY_ROWS }),
+    prisma.location.findMany({ where: { status: "active", deletedAt: null, business: PUBLIC_BUSINESS }, select: { searchText: true }, take: VOCABULARY_ROWS }),
+  ]).then((tables) => buildVocabulary(tables.flat().map((r) => r.searchText)));
+  vocabularyCache = { at: now, value };
+  // A failed read is not kept: the next search tries again.
+  value.catch(() => { if (vocabularyCache?.value === value) vocabularyCache = null; });
+  return value;
+}
+
+/** Upper bound of matching businesses checked against their opening hours per open-now search. */
+const OPEN_NOW_CANDIDATES = 300;
+
+/**
+ * Public businesses matching `q` that are open right now at one of their active locations, in each location's own
+ * timezone. Unknown hours never count as open. Same ranking as the normal search; one page of cards is then read.
+ */
+async function listOpenBusinesses(q: string, page: number) {
+  const { isOpenNow } = await import("@/lib/geo");
+  const candidates = await prisma.business.findMany({
+    where: { ...PUBLIC_BUSINESS, ...textWhere(q) },
+    orderBy: [...businessOrder.featured, { id: "asc" }],
+    take: OPEN_NOW_CANDIDATES,
+    select: { id: true, locations: { where: { status: "active", deletedAt: null }, select: { openingHours: true, countryCode: true, city: { select: { region: { select: { slug: true } } } } } } },
+  });
+  const now = new Date();
+  const ids = candidates.filter((b) => b.locations.some((l) => isOpenNow(l.openingHours, l.countryCode, now, l.city?.region?.slug) === true)).map((b) => b.id);
+  const { skip, take } = skipTake(page);
+  const pageIds = ids.slice(skip, skip + take);
+  const cards = pageIds.length ? await prisma.business.findMany({ where: { ...PUBLIC_BUSINESS, id: { in: pageIds } }, select: businessCard }) : [];
+  const byId = new Map(cards.map((c) => [c.id, c]));
+  const items = pageIds.flatMap((id) => byId.get(id) ?? []);
+  return { items, total: ids.length, pages: pageCount(ids.length), page };
 }
 
 export const getHomeData = cache(
@@ -379,7 +454,8 @@ export async function nearbyBusinesses(query: NearbyQuery) {
     take: NEARBY_CANDIDATES,
     select: {
       id: true, addressLine1: true, postalCode: true, countryCode: true, latitude: true, longitude: true, phone: true, openingHours: true,
-      city: cityInclude,
+      // The region (state) decides regional public holidays for the open-now state; it is not part of the response.
+      city: { select: { ...cityInclude.select, region: { select: { slug: true } } } },
       business: {
         select: {
           id: true, slug: true, name: true, nameCkb: true, nameKmr: true, nameAr: true, nameTr: true, logoUrl: true, coverUrl: true, verified: true, ratingAvg: true, ratingCount: true,
@@ -394,8 +470,9 @@ export async function nearbyBusinesses(query: NearbyQuery) {
   const nearest = new Map<string, ReturnType<typeof toItem>>();
   function toItem(r: (typeof rows)[number]) {
     const distance = distanceKm(query, { lat: r.latitude!, lng: r.longitude! });
-    const { openingHours, business: { services, category, ...business }, ...rest } = r;
-    return { ...rest, business, category: category ?? services[0]?.category ?? null, distanceKm: Math.round(distance * 100) / 100, openNow: isOpenNow(openingHours, r.countryCode) };
+    const { openingHours, city: cityRow, business: { services, category, ...business }, ...rest } = r;
+    const { region, ...city } = cityRow ?? { region: null };
+    return { ...rest, city: cityRow ? city : null, business, category: category ?? services[0]?.category ?? null, distanceKm: Math.round(distance * 100) / 100, openNow: isOpenNow(openingHours, r.countryCode, undefined, region?.slug) };
   }
   for (const r of rows) {
     const item = toItem(r);

@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "REGA Platform — ڕێگا | Unternehmen, Dienstleistungen & Standorte",
-    "description": "REGA Platform: das kurdische Portal für Deutschland und Europa. Unternehmen, Dienstleistungen und Orte finden – mit KI-Assistent in sieben Sprachen."
+    "description": "REGA Platform: das kurdische Portal für Deutschland und Europa. Unternehmen, Dienstleistungen und Orte finden – mit KI-Assistent in elf Sprachen."
   },
   "common": {
     "loading": "Wird geladen ...",
@@ -91,7 +91,7 @@
   },
   "home": {
     "heroTitle": "Alle Unternehmen, Dienstleistungen und Orte an einem Ort",
-    "heroSubtitle": "REGA ist die Plattform zum Entdecken, Vergleichen und Verwalten von Unternehmen — mit Sorani, Kurmancî (Badînî), Deutsch, Englisch, Arabisch, Persisch und Türkisch.",
+    "heroSubtitle": "REGA ist die Plattform zum Entdecken, Vergleichen und Verwalten von Unternehmen — mit Sorani, Kurmancî, Deutsch, Englisch, Arabisch, Türkisch, Persisch, Französisch, Schwedisch, Niederländisch und Italienisch.",
     "searchPlaceholder": "Unternehmen, Dienstleistung oder Stadt suchen ...",
     "ctaExplore": "Unternehmen ansehen",
     "ctaAI": "REGA KI fragen",
@@ -107,8 +107,8 @@
         "body": "Zugang zu vertrauenswürdigen Fachleuten und Dienstleistern."
       },
       {
-        "title": "Sieben Sprachen, richtige Leserichtung",
-        "body": "Sorani, Kurmancî (Badînî), Deutsch, Englisch, Arabisch, Persisch und Türkisch — mit korrekter Rechts-nach-links- und Links-nach-rechts-Darstellung."
+        "title": "Elf Sprachen, richtige Leserichtung",
+        "body": "Sorani, Kurmancî, Deutsch, Englisch, Arabisch, Türkisch, Persisch, Französisch, Schwedisch, Niederländisch und Italienisch — mit korrekter Rechts-nach-links- und Links-nach-rechts-Darstellung."
       },
       {
         "title": "REGA KI-Assistent",
@@ -151,7 +151,7 @@
     "citiesTitle": "Städte in Deutschland",
     "citiesSub": "Wählen Sie eine Stadt. Unternehmen erscheinen hier, sobald sie veröffentlicht sind.",
     "factFree": "100 % kostenlos",
-    "factLang": "7 Sprachen",
+    "factLang": "11 Sprachen",
     "factGermany": "Deutschland",
     "openMap": "Karte in der Nähe öffnen",
     "socialTitle": "Mit REGA in Verbindung bleiben",
@@ -213,7 +213,9 @@
     "postalCode": "Postleitzahl",
     "openingHours": "Öffnungszeiten",
     "viewOnMap": "Auf Karte ansehen",
-    "browseByCity": "Nach Stadt durchsuchen"
+    "browseByCity": "Nach Stadt durchsuchen",
+    "closedOnHolidays": "An gesetzlichen Feiertagen geschlossen.",
+    "hoursChanges": "Schließzeiten und besondere Öffnungszeiten"
   },
   "categories": {
     "title": "Kategorien",
@@ -229,7 +231,10 @@
     "allTypes": "Alle Typen",
     "noResults": "Keine Ergebnisse gefunden. Versuchen Sie einen anderen Begriff.",
     "resultCount": "{count} Ergebnisse",
-    "hint": "Geben Sie mindestens 2 Zeichen ein."
+    "hint": "Geben Sie mindestens 2 Zeichen ein.",
+    "openNowApplied": "Es werden nur Betriebe angezeigt, die jetzt geöffnet sind (laut hinterlegten Öffnungszeiten).",
+    "correctedNotice": "Für «{query}» wurde nichts gefunden – das sind die nächstliegenden Ergebnisse.",
+    "didYouMean": "Meintest du «{query}»?"
   },
   "ai": {
     "title": "REGA-Assistent",
@@ -466,25 +471,25 @@
     "sun": "Sonntag"
   },
   "about": {
-    "title": "Über REGA",
-    "intro": "REGA (ڕێگا) ist eine moderne, vertrauenswürdige digitale Plattform, gegründet als mehrsprachiger Wegweiser für die kurdische Diaspora in Deutschland und Europa.",
-    "goal": "Unser Ziel ist es, alle wichtigen Alltagsbedürfnisse und Suchanfragen an einem Ort zu bündeln, damit Sie leicht Dienstleistungen finden, die kulturell und sprachlich zu Ihnen passen. Gleichzeitig geben wir Unternehmern und Fachleuten die Möglichkeit, ihre Arbeit und ihr Können offiziell und vertrauenswürdig zu präsentieren.",
-    "offerH": "Was bieten wir?",
+    "title": "Über Rega24",
+    "intro": "Rega24 ist eine mehrsprachige digitale Plattform zum Entdecken von Unternehmen, Fachleuten und Dienstleistungen. Wir bringen Menschen und Unternehmen an einem Ort zusammen – über Sprach- und Landesgrenzen hinweg.",
+    "goal": "Wir möchten die Suche und den Vergleich erleichtern, damit Menschen mit klaren Informationen passende Angebote finden. Rega24 ist nicht auf eine Gemeinschaft oder ein Land begrenzt. Unsere Vision ist global; unsere Reichweite wächst mit echten lokalen Informationen und Bedürfnissen.",
+    "offerH": "Was Rega24 bietet",
     "offer": [
       {
-        "label": "Dienstleistungsführer",
-        "text": "Dienstleistungen und Fachleute in Ihrer Nähe einfach über die Karte finden."
+        "label": "Einfach entdecken",
+        "text": "Nach Kategorie, Stadt und Standort suchen und eingetragene Unternehmen und Dienstleistungen auf der Karte entdecken."
       },
       {
-        "label": "Vertrauen und Sicherheit",
-        "text": "Geprüfte Informationen (Rega Verified) und ein transparentes Bewertungssystem."
+        "label": "Klare Informationen",
+        "text": "Adressen, Öffnungszeiten und Kontaktmöglichkeiten in Unternehmensprofilen finden – soweit diese Informationen verfügbar sind."
       },
       {
-        "label": "Intelligente Unterstützung",
-        "text": "Künstliche Intelligenz (REGA AI), die die Suche erleichtert und Ihre Anliegen beantwortet."
+        "label": "In deiner Sprache verbinden",
+        "text": "Rega24 ist in elf Sprachen verfügbar. Das erleichtert die Suche und hilft Unternehmen, ihre Arbeit vorzustellen."
       }
     ],
-    "quote": "REGA ist die Brücke zwischen Ihnen und den vertrauenswürdigen Dienstleistungen in Ihrer Umgebung."
+    "quote": "Rega24 – Dienstleistungen entdecken, lokal verbinden, global denken."
   },
   "nearby": {
     "title": "In der Nähe",
@@ -515,6 +520,11 @@
     "open": "Geöffnet",
     "closed": "Geschlossen",
     "hoursUnknown": "Öffnungszeiten unbekannt",
+    "closingSoon": "Schließt bald",
+    "opensSoon": "Öffnet bald",
+    "closesAt": "Schließt um {time}",
+    "opensAt": "Öffnet um {time}",
+    "opensOn": "Öffnet {day} um {time}",
     "directions": "Route",
     "call": "Anrufen",
     "details": "Details",
@@ -527,7 +537,11 @@
     "city": "Stadt",
     "searchIn": "In {place} suchen",
     "showOnMap": "Auf der Karte",
-    "inArea": "In diesem Gebiet"
+    "inArea": "In diesem Gebiet",
+    "temporarilyClosed": "Vorübergehend geschlossen",
+    "opensOnDate": "Öffnet am {date} um {time}",
+    "holidayToday": "Feiertag: {name}",
+    "specialHoursToday": "Heute besondere Öffnungszeiten"
   },
   "map": {
     "title": "Karte",
@@ -658,7 +672,20 @@
       "draftChanged": "Dieser Entwurf wurde bereits eingereicht oder geprüft. Vor dem Bearbeiten neu laden."
     },
     "categorySearch": "Kategorien suchen",
-    "optionalDetails": "Optionale Angaben"
+    "optionalDetails": "Optionale Angaben",
+    "holidaysClosed": "An gesetzlichen Feiertagen geschlossen",
+    "holidaysClosedHint": "Feste gesetzliche Feiertage werden für den Standort automatisch berücksichtigt. Islamische Feiertage (Eid) bitte unten mit Datum eintragen.",
+    "exceptionsTitle": "Vorübergehende Schließungen und besondere Öffnungszeiten",
+    "exceptionsHint": "Für einen Tag oder Zeitraum: geschlossen oder andere Zeiten (z. B. 10:00–14:00). Die Daten gelten in der Ortszeit des Standorts.",
+    "exceptionsInvalid": "Bitte Daten und Zeiten der Schließungen bzw. besonderen Öffnungszeiten prüfen.",
+    "exceptionFrom": "Von",
+    "exceptionTo": "Bis",
+    "exceptionClosed": "Geschlossen",
+    "exceptionSpecial": "Besondere Öffnungszeiten",
+    "exceptionHours": "Zeiten",
+    "exceptionReason": "Grund (optional, öffentlich)",
+    "exceptionRemove": "Entfernen",
+    "exceptionAdd": "Schließung oder besondere Zeiten hinzufügen"
   },
   "contact": {
     "title": "Kontakt",
@@ -892,7 +919,7 @@
     "freeBody": "Der Eintrag auf REGA ist komplett kostenlos. Es gibt keine Gebühren, Abos, bezahlten Platzierungen oder Zahlungen – und wird es nicht geben.",
     "benefitsTitle": "Warum REGA?",
     "b1Title": "In ihrer Sprache",
-    "b1Text": "Ihre Beschreibung wird in sieben Sprachen gezeigt, darunter Sorani und Kurmancî.",
+    "b1Text": "Ihre Beschreibung kann in elf Sprachen gezeigt werden, darunter Sorani und Kurmancî.",
     "b2Title": "In der Nähe Ihrer Kunden",
     "b2Text": "Sie erscheinen auf der Karte und in der Umgebungssuche.",
     "b3Title": "KI-Assistent",
@@ -994,7 +1021,7 @@
     "locations": "Standorte kurdischer Unternehmen in Deutschland und Europa: nach Stadt stöbern, Adressen und Öffnungszeiten sehen und den Weg auf der Karte finden.",
     "nearby": "Kurdische Unternehmen und Dienstleistungen in Ihrer Nähe finden: Standort nutzen oder Stadt wählen und Ergebnisse auf Karte oder Liste ansehen.",
     "ai": "Der REGA-Assistent beantwortet Fragen auf Basis der echten Einträge von REGA Platform: kurdische Unternehmen in Deutschland und Europa finden.",
-    "about": "Über REGA Platform: ein mehrsprachiges Portal für Kurden in Deutschland und Europa – Ziel, Angebot und die Menschen dahinter.",
+    "about": "Rega24 kennenlernen: die mehrsprachige Plattform für Unternehmen und Dienstleistungen nach Kategorie, Stadt und Karte – mit einer globalen Vision.",
     "search": "Durchsuchen Sie alle kurdischen Unternehmen, Dienstleistungen und Standorte auf REGA Platform und filtern Sie die Ergebnisse nach Typ.",
     "register": "Erstellen Sie ein kostenloses Konto auf REGA Platform, tragen Sie Ihr Unternehmen ein und erreichen Sie Kurden in Deutschland und Europa.",
     "login": "Melden Sie sich bei Ihrem REGA-Platform-Konto an: Einträge verwalten, zur Prüfung einreichen und Ihre Einstellungen ändern.",
@@ -1222,11 +1249,11 @@
     "overLimit": "Dieser Eintrag hat bereits mehr als 3 Bilder. Alle bleiben erhalten; neue Bilder lassen sich hinzufügen, sobald weniger als 3 übrig sind."
   },
   "businessSocial": {
-  "title": "Soziale Medien",
-  "helper": "Füge die Kontolinks deines Unternehmens hinzu, damit Kunden dich einfach erreichen.",
-  "optional": "Optional",
-  "invalid": "Gib einen gültigen HTTPS-Kontolink für {platform} ein.",
-  "valid": "Kontolink bereit",
-  "open": "{name} auf {platform} öffnen"
-}
+    "title": "Soziale Medien",
+    "helper": "Füge die Kontolinks deines Unternehmens hinzu, damit Kunden dich einfach erreichen.",
+    "optional": "Optional",
+    "invalid": "Gib einen gültigen HTTPS-Kontolink für {platform} ein.",
+    "valid": "Kontolink bereit",
+    "open": "{name} auf {platform} öffnen"
+  }
 }

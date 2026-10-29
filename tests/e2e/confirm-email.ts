@@ -1,8 +1,8 @@
-import pg from "pg";
+import { testSqlClient } from "./database-client";
 
 /** Stands in for clicking the confirmation link of the e-mail (the e2e server has no mail provider, so no mail is sent). */
 export async function confirmEmailOf(email: string) {
-  const client = new pg.Client({ connectionString: process.env.DATABASE_URL });
+  const client = testSqlClient();
   await client.connect();
   try {
     await client.query(`update "User" set "emailVerified" = now() where email = $1 and "emailVerified" is null`, [email]);

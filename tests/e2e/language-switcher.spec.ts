@@ -1,13 +1,15 @@
 import { expect, test } from "./fixtures";
 import type { Page } from "@playwright/test";
 
-const DIR: Record<string, "rtl" | "ltr"> = { ckb: "rtl", kmr: "ltr", de: "ltr", en: "ltr", ar: "rtl", fa: "rtl", tr: "ltr" };
-const LANG: Record<string, string> = { ckb: "ckb-IQ", kmr: "kmr", de: "de-DE", en: "en", ar: "ar", fa: "fa-IR", tr: "tr-TR" };
-const NATIVE: Record<string, string> = { ckb: "کوردیی ناوەندی", kmr: "Kurmancî", de: "Deutsch", en: "English", ar: "العربية", fa: "فارسی", tr: "Türkçe" };
+const DIR: Record<string, "rtl" | "ltr"> = { ckb: "rtl", kmr: "ltr", de: "ltr", en: "ltr", ar: "rtl", fa: "rtl", tr: "ltr", fr: "ltr", sv: "ltr", nl: "ltr", it: "ltr" };
+const LANG: Record<string, string> = { ckb: "ckb-IQ", kmr: "kmr", de: "de-DE", en: "en", ar: "ar", fa: "fa-IR", tr: "tr-TR", fr: "fr-FR", sv: "sv-SE", nl: "nl-NL", it: "it-IT" };
+const NATIVE: Record<string, string> = { ckb: "کوردیی سۆرانی", kmr: "Kurmancî", de: "Deutsch", en: "English", ar: "العربية", fa: "فارسی", tr: "Türkçe", fr: "Français", sv: "Svenska", nl: "Nederlands", it: "Italiano" };
 const MATRIX: [string, string][] = [
   ["ckb", "kmr"], ["ckb", "de"], ["ckb", "en"], ["ckb", "ar"], ["ckb", "fa"], ["ckb", "tr"],
   ["fa", "ckb"], ["fa", "de"], ["fa", "en"], ["fa", "ar"], ["fa", "tr"],
   ["de", "ckb"], ["en", "ckb"], ["ar", "ckb"], ["tr", "ckb"],
+  // The four languages added for the European markets, to and from both directions.
+  ["ckb", "fr"], ["fr", "sv"], ["sv", "nl"], ["nl", "it"], ["it", "ar"], ["fa", "it"], ["it", "ckb"],
 ];
 
 const trigger = (page: Page) => page.locator("header details > summary");
@@ -55,8 +57,8 @@ for (const [from, to] of MATRIX) {
     expect(menuBefore!.x + menuBefore!.width).toBeLessThanOrEqual(viewport.width);
     // the menu hangs from the trigger's physical right edge in every language
     expect(Math.abs(menuBefore!.x + menuBefore!.width - (before.x + before.w))).toBeLessThanOrEqual(1);
-    // all seven languages, same order, one checkmark on the current one
-    await expect(menu(page).locator("li")).toHaveCount(7);
+    // all eleven languages, same order, one checkmark on the current one
+    await expect(menu(page).locator("li")).toHaveCount(11);
     await expect(menu(page).locator('a[aria-current="true"]')).toHaveCount(1);
     await expect(menu(page).locator('a[aria-current="true"]')).toContainText(NATIVE[from]);
 
@@ -78,6 +80,19 @@ for (const [from, to] of MATRIX) {
     void info;
   });
 }
+
+test("switching the language keeps the page, the search text and the filters; only the language changes", async ({ page }) => {
+  await page.goto("/ckb/businesses?q=rest&country=DE&verified=1");
+  await trigger(page).click();
+  await menu(page).getByRole("link", { name: new RegExp(NATIVE.it) }).click();
+  await expect(page).toHaveURL(/\/it\/businesses\?q=rest&country=DE&verified=1$/);
+  await expect(page.locator("html")).toHaveAttribute("lang", "it-IT");
+  await expect(page.locator("html")).toHaveAttribute("dir", "ltr");
+  await trigger(page).click();
+  await menu(page).getByRole("link", { name: new RegExp(NATIVE.ar) }).click();
+  await expect(page).toHaveURL(/\/ar\/businesses\?q=rest&country=DE&verified=1$/);
+  await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
+});
 
 test("keyboard: Enter opens, Escape closes and returns focus, selection is announced", async ({ page }) => {
   await page.goto("/de");

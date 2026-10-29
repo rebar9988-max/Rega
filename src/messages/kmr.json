@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "REGA Platform — ڕێگا | Karsaz, Xizmet û Cih",
-    "description": "REGA Platform (ڕێگا): portala kurdî ji bo Almanya û Ewropayê. Karsaz, xizmet û cihan bibîne, bi alîkarê zîrekiya çêkirî bi heft zimanan."
+    "description": "REGA Platform (ڕێگا): portala kurdî ji bo Almanya û Ewropayê. Karsaz, xizmet û cihan bibîne, bi alîkarê zîrekiya çêkirî bi yazdeh zimanan."
   },
   "common": {
     "loading": "Tê barkirin...",
@@ -91,7 +91,7 @@
   },
   "home": {
     "heroTitle": "Hemû karsazî, xizmet û cih li cihekî",
-    "heroSubtitle": "REGA platvorma fermî ye ji bo dîtin, berawirdkirin û rêveberiya karsaziyan — bi kurdî soranî, kurdî badînî, almanî, îngilîzî, erebî, farisî û tirkî.",
+    "heroSubtitle": "REGA platforma fermî ye ji bo dîtin, berawirdkirin û rêveberiya karsaziyan — bi kurdî soranî, kurmancî, almanî, îngilîzî, erebî, tirkî, farisî, fransî, swêdî, holendî û îtalî.",
     "searchPlaceholder": "Karsazî, xizmet an bajarekî bigere...",
     "ctaExplore": "Karsaziyan bibîne",
     "ctaAI": "Ji REGA AI bipirse",
@@ -107,8 +107,8 @@
         "body": "Bigihîje pispor û pêşkêşkarên pêbawer."
       },
       {
-        "title": "Heft ziman, alîkirina rast",
-        "body": "Kurdiya Soranî, Kurmancî, Almanî, Îngilîzî, Erebî, Farisî û Tirkî — bi arastekirina rast a rastçep û çepraste."
+        "title": "Yazdeh ziman, alîkirina rast",
+        "body": "Kurdiya Soranî, Kurmancî, Almanî, Îngilîzî, Erebî, Tirkî, Farisî, Fransî, Swêdî, Holendî û Îtalî — bi arastekirina rast a rastçep û çepraste."
       },
       {
         "title": "Alîkarê REGA AI",
@@ -151,7 +151,7 @@
     "citiesTitle": "Bajarên Almanyayê",
     "citiesSub": "Bajarekî hilbijêre. Karsazî li vir xuya dibin gava werin weşandin.",
     "factFree": "100% belaş",
-    "factLang": "7 ziman",
+    "factLang": "11 ziman",
     "factGermany": "Almanya",
     "openMap": "Nexşeya nêzîkî min veke",
     "socialTitle": "Bi REGA re bimîne",
@@ -213,7 +213,9 @@
     "postalCode": "Koda postê",
     "openingHours": "Saetên vekirinê",
     "viewOnMap": "Li ser nexşeyê bibîne",
-    "browseByCity": "Li gorî bajêr bigere"
+    "browseByCity": "Li gorî bajêr bigere",
+    "closedOnHolidays": "Di betlaneyên fermî de girtî ye.",
+    "hoursChanges": "Girtin û demên taybet"
   },
   "categories": {
     "title": "Kategorî",
@@ -229,7 +231,10 @@
     "allTypes": "Hemû cure",
     "noResults": "Tu encam nehat dîtin. Peyveke din biceribîne.",
     "resultCount": "{count} encam",
-    "hint": "Herî kêm 2 tîp binivîse."
+    "hint": "Herî kêm 2 tîp binivîse.",
+    "openNowApplied": "Tenê cihên ku niha vekirî ne têne nîşandan (li gorî demên xebatê yên tomarkirî).",
+    "correctedNotice": "Ji bo «{query}» tu encam nehat dîtin, ev encamên herî nêzîk in.",
+    "didYouMean": "Mebesta te «{query}» bû?"
   },
   "ai": {
     "title": "Alîkarê REGA",
@@ -466,25 +471,25 @@
     "sun": "Yekşem"
   },
   "about": {
-    "title": "Derbarê REGA de",
-    "intro": "REGA (ڕێگا) platformeke dîjîtal a nûjen û pêbawer e, wekî rêberekî pirzimanî ji bo diyasporaya kurd li Almanya û Ewropayê hatiye damezrandin.",
-    "goal": "Armanca me ew e ku hemû pêdiviyên sereke û lêgerînên rojane li yek cihî bicivînin, da ku hûn bi hêsanî xizmetên ku ji aliyê çand û zimên ve ji we re minasib in bibînin; her wiha derfetê didin xwedîkar û pisporan ku kar û şiyanên xwe bi awayekî fermî û pêbawer bidin nasîn.",
-    "offerH": "Em çi pêşkêş dikin?",
+    "title": "Derbarê Rega24 de",
+    "intro": "Rega24 platformeke dîjîtal a pirzimanî ye ji bo dîtina karsazî, pispor û xizmetguzariyan. Em mirov û xwediyên karsaziyan li yek cihê digihînin hev, bi dîtineke ku sînorên ziman û welatan derbas dike.",
+    "goal": "Armanca me hêsankirina lêgerîn û berawirdkirinê ye, da ku her kes bi agahiyên zelal vebijarkên guncaw bibîne. Rega24 bi civakekê an welatekî tenê re ne sînordar e. Dîtina me cîhanî ye; qada xizmetên me li gorî agahiyên rast û pêdiviyên herêmî fireh dibe.",
+    "offerH": "Rega24 çi pêşkêş dike?",
     "offer": [
       {
-        "label": "Rêberê xizmetan",
-        "text": "Xizmet û pisporên nêzî cihê jiyana xwe bi rêya nexşeyê bi hêsanî bibînin."
+        "label": "Dîtina hêsan",
+        "text": "Li gorî kategorî, bajar û cihê bigere û karsazî û xizmetên tomarkirî li ser nexşeyê bibîne."
       },
       {
-        "label": "Bawerî û pêbaweriyê",
-        "text": "Agahiyên erêkirî (Rega Verified) û pergaleke nirxandinê ya zelal."
+        "label": "Agahiyên zelal",
+        "text": "Li gorî agahiyên berdest, navnîşan, demjimêrên kar û rêyên têkiliyê di profîlên karsaziyan de bibîne."
       },
       {
-        "label": "Piştgiriya jîr",
-        "text": "Zîrekiya çêkirî (REGA AI) ji bo hêsankirina lêgerînê û bersivdana pêdiviyên we."
+        "label": "Têkilî bi zimanê te",
+        "text": "Rega24 bi yazdeh zimanan berdest e, da ku lêgerîn ji bo bikarhêneran û danasîna kar ji bo xwediyên karsaziyan hêsantir bibe."
       }
     ],
-    "quote": "REGA pira di navbera we û xizmetên pêbawer ên derdora we de ye."
+    "quote": "Rega24 — xizmetan bibîne, têkiliyên herêmî ava bike, cîhanî bifikire."
   },
   "nearby": {
     "title": "Nêzîkî min",
@@ -515,6 +520,11 @@
     "open": "Vekirî",
     "closed": "Girtî",
     "hoursUnknown": "Demjimêr nayên zanîn",
+    "closingSoon": "Di demeke nêzîk de tê girtin",
+    "opensSoon": "Di demeke nêzîk de vedibe",
+    "closesAt": "Di {time} de tê girtin",
+    "opensAt": "Di {time} de vedibe",
+    "opensOn": "{day} di {time} de vedibe",
     "directions": "Rê",
     "call": "Bang bike",
     "details": "Hûrgilî",
@@ -527,7 +537,11 @@
     "city": "Bajar",
     "searchIn": "Li {place} bigere",
     "showOnMap": "Li ser nexşeyê",
-    "inArea": "Li vê deverê"
+    "inArea": "Li vê deverê",
+    "temporarilyClosed": "Bi demkî girtî ye",
+    "opensOnDate": "Di {date} de saet {time} vedibe",
+    "holidayToday": "Betlaneya fermî: {name}",
+    "specialHoursToday": "Îro demên xebatê yên taybet"
   },
   "map": {
     "title": "Nexşe",
@@ -658,7 +672,20 @@
       "draftChanged": "Ev pêşnivîs hatiye şandin an kontrolkirin. Berî guhertinê rûpelê nû bike."
     },
     "categorySearch": "Di kategoriyan de bigere",
-    "optionalDetails": "Agahiyên vebijarkî"
+    "optionalDetails": "Agahiyên vebijarkî",
+    "holidaysClosed": "Di betlaneyên fermî de girtî ye",
+    "holidaysClosedHint": "Betlaneyên fermî yên welat û herêmê bixweber têne hesibandin. Cejnên Remezanê û Qurbanê bi tarîxên xwe li jêr zêde bike.",
+    "exceptionsTitle": "Girtina demkî û demên taybet",
+    "exceptionsHint": "Ji bo rojekê an demekê: girtî, an demên din (mînak 10:00–14:00). Tarîx li gorî dema cihê karê ne.",
+    "exceptionsInvalid": "Ji kerema xwe tarîx û demên girtin an demên taybet kontrol bike.",
+    "exceptionFrom": "Ji",
+    "exceptionTo": "Heta",
+    "exceptionClosed": "Girtî",
+    "exceptionSpecial": "Demên taybet",
+    "exceptionHours": "Dem",
+    "exceptionReason": "Sedem (vebijarkî, giştî)",
+    "exceptionRemove": "Rake",
+    "exceptionAdd": "Girtin an demên taybet zêde bike"
   },
   "contact": {
     "title": "Têkilî",
@@ -892,7 +919,7 @@
     "freeBody": "Tomarkirin li REGA bêpere ye. Tu mesref, abonetî, cihê bi pere an dayîn tune ye û nabe.",
     "benefitsTitle": "Çima REGA?",
     "b1Title": "Bi zimanê wan",
-    "b1Text": "Danasîna te bi heft zimanan tê nîşandan, tevî soranî û kurmancî.",
+    "b1Text": "Danasîna te dikare bi yazdeh zimanan were nîşandan, tevî soranî û kurmancî.",
     "b2Title": "Nêzîkî bikarhêneran",
     "b2Text": "Li ser nexşeyê û di lêgerîna «nêzîk» de xuya dibî.",
     "b3Title": "Alîkarê zîrekiya çêkirî",
@@ -994,7 +1021,7 @@
     "locations": "Cihên karsazên kurdî li Almanya û Ewropayê: li gorî bajêr bigere, navnîşan û demjimêrên xebatê bibîne û rê li ser nexşeyê bibîne.",
     "nearby": "Karsaz û xizmetên kurdî yên nêzîk bibîne: cihê xwe bikar bîne an bajarekî hilbijêre û wan li ser nexşe an lîsteyê bibîne.",
     "ai": "Alîkarê REGA li gorî tomarên rastîn ên REGA Platform bersiva pirsên te dide: karsazên kurdî li Almanya û Ewropayê bi hêsanî bibîne.",
-    "about": "Derbarê REGA Platform: dergehek pirzimanî ji bo kurdên Almanya û Ewropayê, armanca wê, çi pêşkêş dike û kî li pişta wê ye.",
+    "about": "Rega24 nas bike; platformeke pirzimanî ji bo dîtina karsazî û xizmetan li gorî kategorî, bajar û nexşeyê, bi agahiyên zelal û dîtineke cîhanî.",
     "search": "Di hemû karsaz, xizmet û cihên kurdî yên REGA Platform de bigere û encaman li gorî cureyê parzûn bike.",
     "register": "Li REGA Platform hesabek bêpere çêke da ku karsaziya xwe tomar bikî û bigihîjî kurdên Almanya û Ewropayê.",
     "login": "Têkeve hesabê xwe yê REGA Platform: karsaziyên xwe birêve bibe, tomaran ji bo kontrolê bişîne û mîhengên xwe biguherîne.",
@@ -1222,11 +1249,11 @@
     "overLimit": "Ev karsazî ji berê ve ji 3 wêneyan zêdetir heye. Hemû hatine parastin; wêneyekî nû dema ku ji 3 kêmtir bimînin tê zêdekirin."
   },
   "businessSocial": {
-  "title": "Torên civakî",
-  "helper": "Girêdanên hesabên karsaziya xwe zêde bike da ku xerîdar bi hêsanî bi te re têkilî deynin.",
-  "optional": "Bijartî",
-  "invalid": "Girêdaneke hesabê HTTPS ya derbasdar ji bo {platform} binivîse.",
-  "valid": "Girêdana hesabê amade ye",
-  "open": "{name} li ser {platform} veke"
-}
+    "title": "Torên civakî",
+    "helper": "Girêdanên hesabên karsaziya xwe zêde bike da ku xerîdar bi hêsanî bi te re têkilî deynin.",
+    "optional": "Bijartî",
+    "invalid": "Girêdaneke hesabê HTTPS ya derbasdar ji bo {platform} binivîse.",
+    "valid": "Girêdana hesabê amade ye",
+    "open": "{name} li ser {platform} veke"
+  }
 }

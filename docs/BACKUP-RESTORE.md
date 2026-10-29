@@ -1,6 +1,12 @@
 # Backup and restore
 
-The data that matters is the PostgreSQL database and the media bucket. Code is in git.
+Production data lives in **Cloudflare D1 and Cloudflare R2**. Code is in GitHub. Follow the [Cloudflare platform mandate](../CLAUDE.md#09-permanent-cloudflare-platform-mandate-owner-instruction-2026-10-28) and [verified D1 migration/recovery procedure](D1-MIGRATION.md).
+
+## Production D1 and R2
+
+Before a D1 migration, export the existing database privately with `npx wrangler d1 export rega24-migration --remote --output <private-path>.sql`. Verify restoration into a disposable local D1/SQLite database, including table counts, typed values and FK integrity; retain a separate copy outside the executor. Never commit dumps or restore over the active database as a rehearsal. Back up R2 objects separately: a database archive contains media references, not the image/file bytes. Preserve the verified Drive archives and retained Neon recovery source. Returning to PostgreSQL requires explicit owner direction and reconciliation of writes made after D1 activation.
+
+The PostgreSQL commands below apply only to the retained legacy source. `npm run backup` does not back up active D1. Customer-backup restore checks must use dedicated scratch databases; browser E2E fixtures must use separately created disposable test databases, never restored customer data.
 
 ## Back up
 
@@ -18,32 +24,14 @@ it never resets, drops or truncates).
 
 ## Restore (into an empty database, never over production)
 
-The verified REGA production server is PostgreSQL 18.6 (2026-10-25). Use PostgreSQL 18 or newer `pg_dump`
-and an isolated PostgreSQL 18 restore target; a PostgreSQL 16 client cannot dump this server.
-Record the dump checksum, restore exit status, migration ledger, exact table counts and business/membership
-digests from the same consistent backup point. Never publish an unencrypted database dump in public CI artifacts.
-
 ```bash
 createdb rega_restore
 gunzip -c backups/db-<stamp>.sql.gz | psql "$RESTORE_DATABASE_URL"
 DATABASE_URL="$RESTORE_DATABASE_URL" npx prisma migrate status     # must report "up to date"
 ```
 
-To go back to a dump in production, restore into a *new* database, check it, then switch `DATABASE_URL` /
-the Hyperdrive binding to it. Do not drop the damaged database until the new one has been verified.
+For an explicitly authorized legacy recovery, restore into a new database and verify it. Changing `DATABASE_URL` does not switch the active D1 provider. Follow the D1 recovery procedure and reconcile subsequent D1 writes before any production provider change; retain the existing database.
 
 ## Rehearsal
 
-Restore the latest dump into a scratch database once per quarter and run `npx prisma migrate status` and
-`npm run e2e` against it (E2E refuses to run against anything that looks like production).
-
-## PR #71 recovery constraints (2026-10-25)
-
-The production branch is `br-floral-hall-b22rpgrw` in REGA project `lucky-glitter-73195208`.
-Fresh snapshot creation returned HTTP 422 `snapshots limit exceeded`; the existing manual snapshot from
-2026-10-02 is not a verified current backup. The free branch limit is also full (10/10).
-Do not delete the only snapshot or an existing backup to make room, and do not upgrade the plan.
-Cleanup of existing non-production copies requires an identified target and owner authorization.
-An alternative is the existing `scripts/backup.sh` through an authorized direct connection, followed by
-the isolated restore proof above. Executor network-policy denial must be resolved through the environment
-configuration workflow; never bypass its proxy or TLS checks. Until backup and restore succeed, migration is blocked.
+Restore the latest legacy dump into a dedicated scratch database and verify migrations, counts and values read-only. Run E2E separately against owned disposable fixtures, never against a customer archive or production.

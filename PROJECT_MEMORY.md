@@ -666,205 +666,6 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
   sizes). The upload route allows 10 uploads/min per person; the gallery e2e (5 uploads) waits out the window and re-confirms
   if it is hit, like a person would. Local full suite (desktop + mobile): 323 passed before these fixes; affected specs re-run green.
 
-## Business profile + owner social accounts — 2026-10-25 (PR #71, not deployed)
-
-- Identity verified: `rebar9988-max/Rega`, canonical `www.rega24.com`, Worker `rega-platform`; guard passes.
-  Base `e8e2b69`; source commit `7a9da31`, branch `feat/business-social-profile-20261025`.
-  Cloudflare readback confirmed canonical domains on this Worker; deployment `5d6f039c-01b9-4384-8bde-6a6da9daaf54`
-  used version `79627fce-fc09-4df7-9094-3e8c401f2b6a` at 100%. This task has NOT deployed a version.
-- Figma session read frames `22:104` (desktop detail), `22:116` (mobile detail), `22:160` (Add Business).
-  Adapted to existing tokens/primitives: same profile route, one BusinessForm for Add/Edit, existing gallery/media,
-  owner guards, Call/Directions/Share, About and services. With real gallery media the desktop hero uses two columns;
-  mobile wraps the same content. Social precedes About/Services; offers follow services. No homepage/admin/nav redesign.
-- Schema audit found no equivalent social fields. Model/table `Business`, primary key `id` (cuid); owner access is
-  active `BusinessMember(userId,businessId,isActive)` (staff keep existing global access), creator marker `createdById`.
-  Frontend -> form action/REST -> DB use the SAME four names: `facebookUrl`, `instagramUrl`, `tiktokUrl`, `snapchatUrl`.
-  Additive migration `20261024220000_business_social_links` adds four nullable TEXT columns using existing camelCase
-  conventions. Empty/null removes; omitted PATCH/form fields preserve existing accounts. No production migration run.
-- Shared pure `business-social.ts` validator + shared Zod schemas: HTTPS, exact approved hosts, bounded 500 characters,
-  no userinfo/lookalike/redirect/content-only paths, account identity retained; tracking query/hash removed (Facebook
-  profile.php keeps numeric id). Four authentic icons reuse existing simple-icons. Optional compact fields preserve
-  failed submitted input; public server-rendered section hides missing platforms and disappears entirely when empty.
-  Safe external attributes, localized accessible names, seven locales; same valid URLs in JSON-LD sameAs.
-- Local final validation: lint/typecheck pass; 349/349 unit/integration tests pass, zero skipped. Integration applies all
-  14 baseline migrations to an isolated local DB, inserts existing business/owner/membership, applies the new migration,
-  proves every old column and owner relationship unchanged, then CREATE zero/one/four, READ/reload, replace/partial
-  UPDATE and REMOVE one/all. Separate browser API tests prove owner access, stranger403 and anonymous401.
-- Final focused browser run: 13/13 PASS, zero failures/skips/retries (desktop profile/gallery/social + touch social).
-  All nine requested widths (320/360/375/390/430/768/1024/1440/1920) in Sorani RTL and English LTR; real LOCAL test
-  cover/logo uploaded through the existing editor; exact links, icons, tap dimensions, focus, empty hiding and input
-  retention verified. Earlier runs exposed a removed phone display (restored before final build) and a test that typed
-  during an unfinished save response (now waits for Save enabled, retaining exact persistence assertions).
-- Normal local build is blocked fetching Google Fonts (proxy403). Local Node/OpenNext builds use a TEST-ONLY
-  NEXT_FONT_GOOGLE_MOCKED_RESPONSES backed by genuine npm Noto Sans Arabic files; no source/dependency/font change.
-  Both builds PASS, Wrangler dry-run PASS (3593.25 KiB gzip), actual local Worker DB/auth/routes/validation smoke PASS.
-  Pinned Chromium download locally returns403; local browser checks use system Chromium151.0.7922.173, not pinned141.
-  Hosted CI on initial source `7a9da31` (run40166399806) already passed ordinary Node build, lint/typecheck/unit/migration
-  and pinned browser installation; full E2E/Worker checks were still running at this checkpoint. Final-head CI must pass.
-- PR: https://github.com/rebar9988-max/Rega/pull/71 (draft). Existing separate Create Neon Branch workflow
-  run40166399832 failed at Create Neon Branch; not disabled/bypassed. No migration/production workflow dispatched.
-- Release blockers: no current restorable production backup verified (Neon snapshot listing returned only manual
-  snap-muddy-mountain-b2f40zxu dated2026-10-02). Owner asked only for backup identifier/time, never credentials.
-  Follow docs/DEPLOYMENT.md: verify backup, make migration available to the main-only DB workflow WITHOUT deploying
-  code that reads new columns, apply migration first, then release application through existing CI-gated main process.
-  Do not merge this feature first and race the auto-deploy against a migration. No production rows/settings/secrets,
-  paid services/plans or R&L resources changed. Current official platform-documentation lookup and executor public
-  www.rega24.com fetch are proxy403; live feature behavior/performance and authenticated production CRUD unverified.
-- Evidence (outside repository): `/workspace/artifacts/rega-social/` (349-test log, final13 browser log/traces,
-  migration proof, build/dry-run/runtime logs, eight desktop/touch Sorani/English screenshots). No 100/100 claim.
-- Additional bounded QA after the clean final13: existing Add form checked at all nine widths in en/ckb (18 states),
-  with no page overflow, all four URL inputs LTR, >=44px and contained in the viewport. Scoped axe WCAG2A/AA+2.1A/AA
-  checked the social fieldset in all18 states and public social in en/ckb at390/1440:22 checks, zero violations and zero
-  incomplete results, including contrast. Actual Tab navigation through all four public links passes. Temporary LOCAL
-  fixture social values restored in finally. Evidence:extra-qa.log/extra-qa-results.json. Existing Node/proxy stopped.
-
-## PR #71 production recovery — 2026-10-25 (release held)
-
-- Resumed clean `2f02a44`; identity guard PASS, repo `rebar9988-max/Rega`, www.rega24.com → rega-platform.
-  Production readback remains deployment5d6f039c-01b9-4384-8bde-6a6da9daaf54 / version79627fce-fc09-4df7-9094-3e8c401f2b6a at100%.
-- Actual Neon production metadata: lucky-glitter-73195208 / br-floral-hall-b22rpgrw / neondb / PostgreSQL18.6.
-  Read-only SQL:3 Business,3 BusinessMember,14 applied migrations,0 unfinished,0 social columns, social migration not applied,
-  0 orphan memberships. Pre-migration business digest f7c15ac83f54d776dff7ed31d4e685d2; membership digest
-  3d3620e17398f5ee18d8b8cfa1269af5 (no customer rows/content retained). All14 applied migrations match the baseline.
-- Backup creation actually attempted through Neon create_snapshot for production: HTTP422 `snapshots limit exceeded`.
-  Snapshot listing still only snap-muddy-mountain-b2f40zxu (2026-10-02). Fresh backup/isolated restore NOT VERIFIED;
-  production migration/merge/deploy BLOCKED. No snapshot deleted and no plan upgraded.
-- Neon Create Branch run40166824571/job121089502786: Axios HTTP422. Project free tier branch limit10, actual branches10,
-  PR71 preview absent. Three existing preview PRs29/35/47 are still OPEN, so they were not treated as stale or deleted.
-  Exact owner cleanup approval requested for archived temporary branches br-young-sea-b2xt4g94 (seed-validation) and
-  br-aged-fog-b2e43gus (old restore rehearsal), retaining production/backups/the existing snapshot. Await reply; no deletion.
-- CI40166823984 failed with332 browser passes and2 map failures (desktop/mobile nearby.spec.ts:64, selected marker vanished).
-  Reproduced locally by running the original social fixture before nearby. The public social fixture remained published
-  at the reference listing's coordinates; it polluted later map clustering. Fixed ONLY its test lifecycle: public-context
-  work is inside try/finally; after closing it, archive/soft-delete this newly created local fixture. No map/search code,
-  application behavior, assertion or timeout weakened. Diagnostic narrow run also lacked the full suite's Hamburg fixture;
-  the properly composed profile/gallery/social/nearby run includes that prerequisite and passes unchanged RTL assertions.
-- Fresh verification:349/349 unit/integration,0 skips; lint/typecheck PASS;37/37 composed desktop/touch browser tests PASS
-  (includes the13 scoped tests plus nearby regressions). Fresh extra QA:22 scoped WCAG2/2.1A/AA axe analyses,0 violations,
-  0 incomplete, including contrast; Add fields all9widths×en/ckb, public social keyboard/layout checks. No production writes.
-  Local functional Node build uses the existing test-only genuine-font response due network restrictions; this is NOT proof
-  of production typography. Earlier remote normal Node/OpenNext build logs on2f02a44 prove ordinary builds completed;
-  final-head hosted CI and real production typography still require verification. Evidence:/workspace/artifacts/rega-social/recovery/.
-- Cloudflare non-production build3dbc5197-2529-4a1c-8ada-3dceddc9a9fe: normal OpenNext build succeeded, then `npx wrangler preview`
-  failed because its preview config block was missing. Identified the exact Rega repo1402276782 feature-only trigger
-  9d825d1a-494d-4a62-b51c-93478f9aa285 (tag4affdd6cf1ad4d7b88690352ccea6be3, includes only this feature branch).
-  Changed ONLY its deploy command through the documented trigger PATCH API to `npx wrangler deploy --dry-run` (HTTP200).
-  Readback confirms it; main trigger b396f1cf-0a07-4019-ad6c-76f0a770747e stays dry-run; GitHub CI-gated production deployment
-  remains unchanged. This fixes the responsible validation configuration without publishing a second production path.
-  The next feature push must actually pass the rebuilt Cloudflare check; configuration readback alone is not build success.
-- Security incident: the existing Cloudflare preview error log contained provider key values and the initial diagnostic
-  tool output forwarded that raw log before redaction. Values are never repeated or stored here. Later diagnostics emit
-  only whitelisted metadata. Runtime binding metadata confirms OPENAI_API_KEY/XAI_API_KEY are plain_text, unlike other secrets.
-  Owner must rotate those two provider keys via secure provider management and update them as secret_text; no values in chat.
-  Rotation NOT VERIFIED and no production key/config mutation performed. Deployment stays held pending containment.
-- Live paths: executor www.rega24.com requests remain policy-blocked CONNECT403; approved connected Opera navigation was
-  attempted but returned UNAUTHORIZED/requires reauthentication. Environment allow-list/TCP5432 access requested for the
-  verified Neon host and HTTPS site/font/API hosts. No proxy/TLS bypass or paid browser used. Live verification NOT VERIFIED.
-- Prepared a SQL-only migration stage locally, ops/pr71-migration-only commit a7d241a on verified main e8e2b69. One7-line
-  migration file only; no schema/model/application changes, no push/merge/apply. Initially stale local origin/main was
-  refreshed and the new staging commit rebased before this proof; the guard now passes in that worktree. docs/DEPLOYMENT.md
-  describes the approved main-only workflow order; docs/BACKUP-RESTORE.md records PG18 and full quota constraints.
-- Two helper-agent turns hit the session usage limit; no role approvals or reviews invented. Root completed the checks.
-  PR71 remains draft. Next safe steps: obtain exact cleanup/network permissions and secure key rotation; verify a fresh
-  complete backup + isolated restore, then migration-only stage/approved production migration, final green feature checks,
-  merge, existing CI-gated deployment, active-version readback and real live verification. No R&L resources modified.
-
-## PR #71 final hosted verification checkpoint — 2026-10-25 (release still blocked)
-
-- Tested/pushed feature head remains `5e59cf044ae70b95860cbe66917523a7068b325b`; PR71 readback: open, draft, unmerged.
-- Final-head CI run40178054976/job121122940002 completed SUCCESS: Python7 PASS; unit/integration349 PASS,0FAIL/skip;
-  Playwright334 PASS; migration/preflight,lint,typecheck,ordinary Node build,OpenNext Worker build/dry-run,workerd image
-  codecs and Worker DB/private routing/auth/public query/validation all PASS. Expected auth rejections in security tests
-  are not test failures. Feature Cloudflare validation build b6aa3bdb-e5df-4f30-bd4c-0bcd6407bff9 also succeeded.
-- Neon run40178054918 still FAILURE at branch creation (HTTP422,10/10 branches). No required check bypassed.
-- Re-ran existing read-only Production browser job on run40094114547; new job121124212664 SUCCESS on2026-10-25.
-  Live www.rega24.com:201 PASS lines,0FAIL; desktop/mobile public profile /de/business/karwans-hairtuning HTTP200,
-  public home/list/auth-entry pages and RTL/LTR/overflow/location checks passed. This tests CURRENT production only,
-  not the undeployed social feature. Script does not establish font loading, console cleanliness, accessibility or
-  authenticated Add/Edit/production CRUD; these remain NOT VERIFIED for the feature.
-- New production-screenshots artifact12593540407 exists (17,577,611bytes; expires2026-11-08).
-  Archive SHA256 e79e885627804478b5adef7da04eeed6005684e1c7711505d7b74b96e073518c.
-  Artifact download through the executor was denied CONNECT403; screenshots NOT visually inspected, no typography claim.
-- Latest Cloudflare active-deployment read returned UNAUTHORIZED/connection requires reauthentication; no new deployment
-  state inferred. Last verified active deployment/version remains the earlier checkpoint, not proof of a new release.
-- Backup/isolated restore and provider-key rotation remain NOT VERIFIED. Owner cleanup/network answers not received;
-  generic continue is not treated as permission to permanently delete the two archived branches. No deletion,
-  production migration,merge,deploy,secret change,paid service or R&L operation performed.
-- Local evidence remains /workspace/artifacts/rega-social/recovery/. This documentation-only working-tree checkpoint
-  intentionally does not change the remotely tested head. Central Google Doc updated separately with final results.
-- Next safe continuation: owner-authorized cleanup or securely enabled independent PG18 backup path; verified complete
-  backup+isolated restore and key rotation; resolve Neon check and reconnect Cloudflare; then approved migration-only
-  staging/main DB workflow, final green feature gates,merge/existing deploy and actual feature live verification.
-
-### Cloudflare reconnection verified — 2026-10-25
-
-- After owner reported reconnection, authenticated deployment/settings/domain/build API reads all returned HTTP200.
-  www.rega24.com and rega24.com both map to rega-platform/production. Active deployment remains
-  5d6f039c-01b9-4384-8bde-6a6da9daaf54,version79627fce-fc09-4df7-9094-3e8c401f2b6a at100%.
-- Build b6aa3bdb-e5df-4f30-bd4c-0bcd6407bff9 readback outcome success. Cloudflare reauthentication blocker resolved.
-  Only binding names/types were emitted: OPENAI_API_KEY and XAI_API_KEY still plain_text; rotation/containment unverified.
-- Fresh Neon inventory remains10branches and sole2026-10-02 snapshot. Backup/restore/migration/merge/deploy gates remain
-  blocked. No production mutation,branch/snapshot deletion,secret value output or paid resource created.
-
-## PR #71 security dependency repair and read-only metrics — 2026-10-25
-
-- Latest request authorizes security/dependency repair, backup audit and verified release, while forbidding destructive
-  cleanup and production migration before restore. Rega identity guard PASS; no R&L operation.
-- Fresh npm registry audit found8high/2moderate dependency entries (some transitive chains). Patched zod3.25.76→4.6.7,
-  glob10.3.3→10.5.0 under node-minify,body-parser2.3→2.4,source-map-js1.2.1→1.2.2,miniflare's undici7.29.1→7.30.1.
-  Same-major transitive overrides; existing OpenNext/Wrangler versions kept. No force audit fix or downgrade.
-  Fresh npm audit:0info/low/moderate/high/critical. Evidence:recovery/npm-audit-current.json and npm-audit-after.json.
-- Official Zod4 migration guide inspected from colinhacks/zod. Zod4 applies inner defaults through partial/optional:
-  initial existing business PATCH test caught the regression. Four update schemas explicitly remove creation defaults
-  before optional(),preserving omitted stored values. Added4 regression tests for empty/single-field/explicit updates,
-  false/zero/empty-array replacements and currency normalization.353/353 local unit/integration,0skip/fail;
-  typecheck and lint PASS. No auth/UI/business behavior redesigned. Source scan's potential refine type concern did
-  not produce TypeScript errors,so no cosmetic changes made. Hosted final-head validation still required after push.
-- Independent bounded credential scan:537tracked files+1201reachable Git blobs,142pattern occurrences reviewed;
-  matches were synthetic/example/test fixtures,no confirmed real Git credential within that scan. Does not establish
-  universal absence. Metadata-only report:recovery/credential-pattern-audit.json. Existing owner/stranger/anonymous,
-  active BusinessMember,staff/suspension/owner-only SUPER_ADMIN coverage reviewed; live authenticated checks unverified.
-  No explicit inactive-membership E2E regression found; this gap is documented,not represented as verified coverage.
-- Current production read-only SQL:neondb PG18.6,3Business,3BusinessMember,14finished migrations,0unfinished,0social columns,
-  0orphan memberships. Current audit digest formula is ordered string_agg(to_jsonb(row)::text,'') with four social keys
-  removed for Business:3511237a6c2b4d7aa06c266b8886fdb7; membership:be2d12216285ebf5a9454124b9bfd21a.
-  These are a fresh baseline; do not compare with older digests without first proving identical serialization/formula.
-- Neon project lucky-glitter-73195208 now reports name Rega24,free_v3,branch limit10. Same verified production branch;
-  full10branch inventory+soleOct2snapshot retained. Backups and active/open-PR branches remain protected by task policy;
-  archived test copies lack unique-data/backup proof. No deletion,plan change or unsupported quota workaround attempted.
-- Environment spec29 remains restricted:only custom binaries.prisma.sh+package hosts,no injected secrets or direct DB
-  network permission. Backup/isolated restore BLOCKED. Existing Cloudflare key metadata still plain_text for the two
-  exposed provider keys. Tool inventory has no OpenAI/xAI admin-key management capability; owner asked to revoke/rotate
-  securely at providers and save replacements in GitHub Secrets,never chat. Existing main-only secret-sync can upload
-  verified replacements once owner confirms. No production secret changed and no exposed value fetched or emitted.
-- Extended EXISTING read-only production-browser workflow to run when its own audit changes on a PR; no deploy workflow,
-  production credential or write scope added. Added pinned Lighthouse13.5.0 script for real current public profile in
-  en/ckb×mobile/desktop,using pinned Playwright Chromium and no font substitution. Records actual four category scores,
-  URL/version/time; runtime/missing-report/wrong-profile errors fail. Scores are measurements,not assumed100 thresholds.
-  Script syntax and lint checked; actual remote execution/metrics still pending. It measures current production baseline,
-  not an unmerged feature. Existing public browser assertions remain intact; reports join existing screenshot artifacts.
-- Updated CLAUDE.md at owner's explicit request. Next:verify final hosted security/build/browser gates and actual Lighthouse
-  results; independently obtain approved DB network+fresh encrypted backup/isolated restore and provider-key revocation.
-  Only then reassess migration-first release. PR71 remains unmerged; no production schema/data/deployment mutation.
-
-### Security lockfile parity repair
-
-- Security commit7832b1d pushed to existing PR71. CI40212603423 and production-browser40212603417 failed at npm ci,
-  before any tests/measurements. Cloudflare build953cd2a4-aeca-475f-9ee8-070af9a61542 failed at the same install step.
-  Sanitized evidence identifies undici7.30.1 lock vs7.29.1 expected. No raw Cloudflare log/value emitted.
-- Root cause: local npm11.9 accepts unversioned miniflare override for its5.20261019.1-beta prerelease; hosted npm10.9.9
-  does not apply that selector identically. Reproduced with npm10; selected exact installed miniflare prerelease in
-  overrides and regenerated lock with npm10.9.9. Its bundled optional-package metadata is now represented as required.
-  Actual clean npm10.9.9 ci --ignore-scripts PASS; installed Zod4.6.7/Undici7.30.1 read back; audit remains0vulnerabilities.
-  Original npm-ci gate unchanged. Hosted final-head/browser/Lighthouse/Worker checks must pass after the repair push.
-
--6e58508 hosted CI40212877693 passed clean install,migrations/preflight,lint,typecheck,unit and ordinary Node build;
-  E2E was running. Production-browser40212877717 was externally cancelled before Lighthouse (log:operation canceled).
-  Its existing global concurrency group was shared between main production checks and the newly enabled PR audit.
-  Isolated PR audit concurrency by PR number while retaining one production group and cancellation of older runs
-  within each group. No checks disabled. Updated overly broad read-only comment:ordinary public visits can trigger
-  existing page-view telemetry; no explicit business-content writes/sign-in/deployment are made by the audit.
-
 ## Infrastructure index — 2026-10-25
 
 - Task: add a permanent system map and troubleshooting runbook. No application code, no migration, no domain change, no Worker publish intended.
@@ -876,78 +677,258 @@ business list and map, saved without an account, mobile bottom sheet, Kurdish RT
 - Not verified: Cloudflare dashboard, Worker version, Neon console, secret values. Google Doc was read and not updated (no write tool).
 - Production impact intended: none. CI on `main` will still run. The Worker must not be replaced by this commit.
 
-## PR #71 verified continuation — 2026-10-26 (production release held)
 
-- Resumed clean ccbb9eb,PR71 open/draft/unmerged. Final hosted CI40213427844/job121229595241 SUCCESS:353unit/integration,
-  0fail/skip;334browser;7Python;ordinary Node/Worker builds,workerd codecs and business DB/auth/query/runtime PASS.
-  Cloudflare validation111c03f5-78f2-4680-8964-354fcca4e2d8 succeeded;dry-run only. Prior Lighthouse baseline remains
-  Oct25 evidence for the old deployment,not a current-new-Worker or unmerged-feature score.
-- Verified live state has changed outside this task:canonical www+apex now target rega24/production. Deployment
-  3010f7a1-f41d-4938-917a-7bc666e89917/version1a2c3a34-38d0-45fe-88d2-cd9144b0e02e at100%,created Oct25T20:17:10Z;
-  sourceWrangler,no commit annotation. Old rega-platform returns404. All credential bindings now secret_text,including
-  OpenAI/xAI;do not repeat the completed storage-type fix. Provider revoke/rotation still NOT VERIFIED.
-- Fetched main7011eb5 (system docs,CI validator,docs-only deployment skip). Source still targets old Worker in Wrangler,
-  guard allow-list,deploy/secret sync/diagnostics/Python sync. Do not recreate retired Worker or deploy old architecture
-  over active service. PR73 is separately open/draft/unmerged;its docs say new admin app is not deployed. No PR73
-  application code imported. Active cutover source/commit requested; no production configuration mutation performed.
-- Neon same verified project lucky-glitter-73195208/Rega24/free_v3,PG18.6,limit10. Initial branch read showed7;later read
-  includes new external backup/recovery/PR73 branches and count10. Attempt to create named PR71 backup returned422
-  branches limit exceeded;no branch/endpoint created. No existing resource deleted and no plan changed.
-- Reused existing backup br-broad-queen-b2f9p1p0 (backup-rega24-20261026-pre-release),created01:46:03Z,parent production
-  br-floral-hall-b22rpgrw at01:45:30Z/LSN0/14AC2248. Existing recovery br-proud-cloud-b2d38n80 was created01:46:57Z from
-  that backup. Both have managed0.25CU endpoints. Root performed SELECT-only validation,not resource creation/restoration.
-- Independently verified ALL37non-system base tables:every row count and SHA256 digest matches backup→recovery,
-  normalizing only the four added Business keys. Original schema fingerprint (columns/defaults/constraints/indexes/
-  enums/sequences/views/function definitions) matches:b0207d522565e101c18727f638005698310cddc6d1df9db959c497ca92ea4c03.
-  Both have3businesses/3memberships,0orphan memberships,14finished/0unfinished migrations. Recovery has4newnullableTEXT
-  fields,allNULL;backup has0social columns. This validates existing native recovery+additive SQL rehearsal without
-  overwriting original rows. Recovery ledger still14:do not claim Prisma recorded the social migration there.
-  Production readback still14migrations/0social columns. No production migration run and no duplicate schema created.
-- Backup proof is a native Neon checkpoint/recovery copy,NOT an independent exported pg_dump backup. Existing soleOct2
-  snapshot retained. No current independent dump/pg_restore claim. Local PG18.6 clients were prepared previously;
-  enforced environment still lacks approved direct DB path/injected credentials. Preserve both current recovery copies.
-  Evidence:recovery/neon-branch-manifest-sha256.sql,neon-backup-manifest.json,neon-restore-manifest.json;only hashes/counts,
-  no customer rows/credentials. Full existing old backup inventory retained;no destructive cleanup.
-- Integrating only current main documentation/release-safety changes into PR71. Preserve both memory histories,main's
-  canonical-domain correction,docs-only deploy skip and validator. Tightened scoped runbook wording:complete backup
-  plus isolated recovery,never skip required preview. System map now explicitly records verified live/source drift.
-  Regenerate inventory and verify merged tree;earlier green ccbb9eb does not certify the new tree.
-- Next safe steps:finish source-only integration/tests;obtain cutover provenance and reconcile approved deploy target,
-  independently establish provider-key revocation/protected replacement;resolve required Neon check without deleting
-  preserved copies. Reassess backup freshness/appropriate recovery evidence before migration-first approved workflow.
-  PR71 remains unmerged,no production deployment/migration/secret change,paid resource or R&L operation by this task.
+## Repository cleanup — 2026-10-26 — PR #76 (not deployed)
 
-- Main integration found inventory nondeterminism:topLevel scanned ignored local .next/.env.local/.wrangler/etc,
-  making clean-checkout CI differ from a built workspace. Generator now derives top-level names from tracked paths;
-  a regression creates an untracked QA directory and proves --check remains valid. Regenerated inventory;doc validator,
-  whitespace,TypeScript,ESLint and354/354 local unit/integration PASS,0skip/fail. Main-only deployment skip remains intact.
-  This commit integrates main's infrastructure documentation and scoped release safety only,not PR73 admin/architecture.
+Baseline main `7011eb5`; remote recovery checkpoint `checkpoint/rega24-before-cleanup-20261026` and local full-history bundle created first. Isolated cleanup branch removes two unreachable UI components and consolidates directory/search business cards without changing their rendered output (448 comparisons pass). Reuses PR #71's tracked-path inventory fix/test; ignores Python caches. Two compatible transitive lockfile updates reduce npm audit findings 10→8. No direct dependency/workflow/asset/migration/data/infrastructure deletion. Active PRs retained; #68/#72/#75 own existing no-op/Neon/target work. Details: `docs/repository-cleanup-2026-10-26.md`.
 
-- Added a read-only canonical-target verification before web deployment and dedicated runtime-secret bulk sync.
-  It compares Wrangler's name with both exact canonical hostname bindings on the fixed Cloudflare API origin;
-  rejects redirects,missing credentials,API/malformed/missing/disabled/preview/mismatched targets. Errors are sanitized,
-  no provider response/token logged. Actual API readback confirms current source would FAIL (oldname vsrega24).
-  No target rename/guard allow-list change or Cloudflare mutation. Secret bulk now reads that same Wrangler config,
-  preserving current source behavior while avoiding a future hardcoded-name divergence.
-  Separate AI deployment workflow remains outside these two guards and must stay held for the same drift;do not claim
-  every secret-writing workflow is covered. No AI code/workflow changes or inference/deployment triggered by this task.
-- Six target-gate regressions PASS;full local360/360 unit/integration,0fail/skip,typecheck/lint PASS. Initial new test
-  import caught top-level-await incompatibility with repo CJS tsx;CLI now uses a caught async main (no TLA). Gate
-  source review found no blocking issue for current configuration. Future approved reconciliation must update all
-  old hardcoded target references and prove active source/bundle identity;new gate does not waive that requirement.
-- Fresh current-Worker browser baseline40257587004/job121362665071 PASS:201checks/0FAIL;Lighthouse13.5.0 (Oct26)
-  P/A/BP/SEO:en mobile73/100/100/100,desktop89/100/100/100;ckb mobile69/100/100/100,desktop89/100/100/100.
-  Artifact12623545097 SHA256f7430ca38fd73933aeb587f59e926f2f79f123dbe7beb3b14f477948d0a6b1b5. Not proof of PR71 live;
-  feature still unmerged/unmigrated. Enhanced existing Lighthouse output with scalar timing/savings diagnostics only,
-  no URLs/DOM/bodies,so performance shortfall can be investigated despite artifact download policy restrictions.
-- Asked exact cutover source/commit and explicit permission for any deletion of the fully compared recovery copy
-  if needed to free a preview slot;no answer yet,no deletion. neon_delete_branch tool requires explicit prior ask.
-  Native backup retained;independent exported dump remains unverified. Environment still restricts site/DB access
-  (normal curl /api/health CONNECT403) and injects no secrets. Production source drift and provider revocation remain
-  independent release blockers. No production migration/main merge/deploy performed.
+Local lint/typecheck, Node/Worker builds, dry-run, Python 7 and inventory regression pass. Full Node suite 331 pass/1 pre-existing tsx IPC EPERM failure/4 DB skips; hosted final-head checks required. Canonical live rega24 deployment cf37b341/version f7a118cd observed read-only. Main's retired target, deployed-source provenance and credential-release holds still block merge/deploy. No 100/100 claim; next: review PR #76 checks and reconcile #75 release gates.
 
-- GitHub repository visibility independently read as public;standard Ubuntu Actions runners reused,no paid runner
-  or new service activated. Existing Neon free_v3 limits unchanged. Native backup/recovery copied data by other work
-  are retained;root validation is SELECT-only. Full360 local checks and6focused target tests pass;TypeScript/lint and
-  docs validate. Secret bulk follows the same Wrangler config as the read-only gate;covered policy regression rejects
-  a separate --name override. No source Worker rename or guard allow-list change made without provenance.
+## Cleanup release hardening — 2026-10-26 — PR #76
+
+Owner explicitly requested resolving the blockers and deploying. Original PR head d4e5bbf passed complete hosted CI 40285442047, including browser/runtime checks. Added recovery checkpoint `checkpoint/rega24-pr76-before-hardening-20261026` before this continuation. Target repair reuses the focused implementation/tests from #75; no unrelated #71/#73/#74 application changes imported. Unconsumed Neon provisioning reuses #72's manual policy: real schema/migration/browser QA remains on disposable PostgreSQL; no Neon branches/backups are deleted. Verified main has no protected required checks or rulesets, so no required gate was removed.
+
+Dependency audit reached zero findings with Zod 4.6.7+ and scoped same-major glob/undici overrides. Zod 4's optional-default behaviour initially failed four new PATCH regression tests; all six validation cases pass after explicitly removing create defaults from partial-update fields. Creation defaults stay unchanged. Added an all-severities npm audit CI gate.
+
+Both Wrangler files now define isolated previews. Preview entry guards run before application/cache/provider handlers, return explicit non-ready 503 except isolated health, and cannot use inherited production credentials. This repairs missing preview configuration without claiming a fully configured functional preview. Full application QA remains in CI. Python isolation regression passes; no billed inference invoked.
+
+Cloudflare metadata-only protection: OPENAI_API_KEY and XAI_API_KEY in rega24's Previews Base were plain_text. Converted the SAME values internally to secret_text via scoped merge-patch; HTTP 200/readback verified both types, all binding names, production deployed_on and references unchanged. No key value was output, no credential deleted/rotated, no production code published by that operation. Provider-side revocation/rotation is still unverified; encrypting storage is not proof of revocation.
+
+Pre-release live health/browser: canonical site serves normally; DB/migrations/content/auth/storage/AI/email ready, four configured providers. Current immutable rollback version f7a118cd-6f64-4206-a19e-ec5b434a5bc9/deployment cf37b341-5e5c-4703-915b-731aeefa6bfd. Its source has no Git annotation; do not claim exact source identity. New web releases attach the checked-out verified workflow-run SHA as version tag, and the read-only target preflight checks stable tag/account/domains before publishing. Final-head CI, deployment and live readback results must follow before marking this release done.
+
+## About page global positioning — 2026-10-26
+
+Owner scope: About page only; replace community/Germany-only positioning with Rega24's global vision. Updated only `about` and `pageMeta.about` in all seven catalogues. Describe existing directory, map, profiles and language support; distinguish global ambition from actual local coverage and avoid unverified trust/AI/native-app claims. About-only metadata uses Rega24 and an absolute title, leaving shared branding/navigation untouched. Existing layout, CMS story, operator/legal identity and social links preserved. Baseline main 7e16349; canonical Worker rega24 verified read-only (deployment e3747e03/version df20f6a1, 100%). Local and exact-head CI/release verification pending; no deployment claimed yet. No database, infrastructure, dependencies or unrelated page changes.
+
+
+## Hosted validation and deployment-command repair — 2026-10-26
+
+PR #77 merged as `7e16349e2314255a25987b1497c66d0dd927cdea`; its tree exactly matches the verified candidate. Main CI `40387716820` passed: 351 unit/integration tests, 331 E2E tests, 8 Python tests, zero Node skips/failures, lint/typecheck, disposable PostgreSQL migration/preflight, both production builds and workerd codec/route smokes. npm 10 clean install and audit pass with zero findings at every severity. Overrides are version-specific (`glob@10.3.3`, `undici@7.29.1`) and retain their major versions. Focused release tests: 26/26.
+
+The #77 source checkpoint is 4,592,343 tracked bytes / 538 files versus baseline 4,568,729 / 533. Exactly 3 removed, 8 added, 26 modified; added safety code, tests and documentation explain the net increase. Dependencies removed: 0. Workflows modified: 7; deleted: 0. No schema/migration or brand-asset changes. Git history is preserved; no Git-storage reduction is claimed.
+
+Python production workflow `40387716870` passed live health, anonymous rejection and authenticated process/embed/rerank smokes before enabling web integration. Cloudflare's Python build trigger incorrectly used the web root/commands. Its production trigger is now validation-only in `/services/ai-python`; the existing branch Preview settings were repaired separately. Correct preview build `cf311921-fc31-4eed-9e48-942728b73464` passed; readback shows `main.py` and only `REGA_ISOLATED_PREVIEW=1`, without production/provider bindings. Public preview probes returned Cloudflare 403/1010; live preview application QA is unverified.
+
+Web release `40390749927` failed before upload: OpenNext forwards CLI arguments through a shell without preserving spaces in the deployment message (`Unknown arguments: CI, release`). The message now uses one shell-safe token. CI's dry-run invokes the actual OpenNext forwarding path with the same message and a synthetic tag; this passed locally alongside 19 release/identity/ownership tests and documentation validation. No application or dependency version change is needed. Final hosted/deployment/readback evidence belongs in PR #77 and the central Doc; never treat a dry-run as a production deployment.
+
+
+Concurrent integration: PR78 independently passed full CI40391309551 and merged About copy/metadata changes as8edc1ed. Preserve its complete content and memory entry. PR79 had only an append conflict in this file; resolved by retaining both notes, without altering application files. Production health now reads the approved Kurdish About title from the catalogue rather than a stale hardcoded title.
+
+
+## Neon to D1 preparation — 2026-10-27
+
+Owner requested migration of Rega24 from Neon to Cloudflare D1 and confirmed an existing backup/export; file not yet received. Identity guard verified REGA, baseline/main c8f0cf2. Read central Doc before starting. Read-only Cloudflare checks: rega24 version 5ab5e7d5 / deployment 5b341ca4 at100%, source tag c8f0cf2, query redaction true; existing EU D1 rega24-migration (728f792d-37b6-49f8-abc1-e81512219f7d) reports zero tables and no production binding. Neon Rega24/lucky-glitter-73195208 SELECT1 returned HTTP402 quota. No export possible through that connection.
+
+Added separate staged D1 schema/SQL, offline generator and in-memory SQLite verification, with details and required runtime/data/release work in docs/D1-MIGRATION.md. Active PostgreSQL schema/client/builds/workflows remain unchanged. No remote resource, binding, migration, import, paid activation, deletion or deployment. Local branch codex/rega24-d1-preparation-20261027; no PR/commit/deploy claimed. Backup validation and runtime transaction/lock/search/array/health/CI conversion remain outstanding. Next: receive backup, inspect/restore privately into disposable PostgreSQL, finalize mapping and verify data before remote import/cutover. Central Doc was read; no append-capable write used in this preparation.
+
+Verification for staged D1 preparation: Prisma 6.19.3 schema validation/diff PASS; in-memory SQLite rehearsal PASS for all36 models/scalar columns, JSON defaults, Kurdish round-trip, original Offer/role constraints, FK rejection/cascade; generator ESLint, git whitespace and local documentation links PASS. Full application builds/browser/runtime tests not run because no runtime was changed. System inventory regeneration failed in this executor with spawnSync git EPERM; documentation validator therefore not claimed green. No inventory data fields were intentionally changed.
+
+
+## D1 continuation — target schema and export rehearsal — 2026-10-27
+
+Owner requested autonomous completion. Searched local/workspace/tmp files and Drive; no source export found (Drive search cannot establish absence of unsupported archive types). Located existing Neon backup-rega24-20261026-pre-release/br-broad-queen-b2f9p1p0 and restore-verification branches; both the latest production SELECT1 and backup SELECT1 return402. Old native snapshot dated2026-10-02 is not a current downloadable export. No Neon write, restore, deletion, resource creation or plan change. Requested backup file/location; not received yet.
+
+Prepared read-only local-restored-backup exporter with strict typed conversion and private files, per-row/table hashes, and a separate in-memory SQLite verifier. Mapping/rehearsal tests cover money, UTC/day dates, NULL versus JSON null, arrays/multilingual/injection text, tampered checksum and changed data with recalculated checksum. No real export/import tested because source remains unavailable.
+
+Remote change: after exact account/name/UUID and fresh empty-target guards, applied105 CREATE statements to existing disconnected D1 rega24-migration/728f792d-37b6-49f8-abc1-e81512219f7d. HTTP 200/all statements success. Readback all36 table scalar-column sets match, total application rows0, FKviolations 0. Canonical Worker still has noD1binding and queryRedactiontrue. An oversized compound SELECT failed read-only, then separate count queries verified successfully. No production deploy/binding/route/secret/data change. This supersedes earlier notes saying no remote schema change.
+
+Runtime adapter/transaction/locking/arrays/search/health/CI conversion, actual backup validation/data import and production release remain incomplete. No100/100 claim. Continuation details in docs/D1-MIGRATION.md; preserve current production and obtain source export before data cutover.
+
+Final continuation verification: schema generator/Prisma validation, typed mapping and cross-language SQLite/hash/tamper rehearsal,36-model constraints/FK rehearsal, ESLint and documentation relative links/whitespace all PASS. Full system inventory remains unverified due existing executor subprocess EPERM, not marked green. Central Google Doc was now updated through revision-guarded native Docs append and readback verified (supersedes earlier no-append note). Owner reiterated autonomous completion but provided no source-file location; source access and full application/runtime migration remain blocked/incomplete. No100/100 claim.
+
+## D1 actual backup restore, complete data import and runtime verification — 2026-10-27
+
+Supersedes earlier source402/backup-unavailable notes. Received owner's Drive archive rega24-2026-10-27-212653.dump; SHA256 4bfeb4beaab6f4655f7cac61c7e6b73fea121a6e194e902857b37fd1151116fb. Actual local PostgreSQL17.11 restore succeeded; all36 application fingerprints matched live Neon. Existing disconnected EU D1 rega24-migration/728f792d-37b6-49f8-abc1-e81512219f7d now contains all2329 application records, imported in41 journaled batches. Every original typed scalar value/hash and FK verified remotely. A newline-normalization discrepancy was detected and repaired with one guarded update, then byte-preserving splitting gained a regression test. No customer records are committed.
+
+Runtime0002 was rehearsed against the real restored export, then applied to the disconnected target. Real D1 migration history has0001_initial.sql and0002_runtime.sql;108 revision triggers and Unicode case mirrors backfilled. Remote rehash still matches all2329 records, FKviolations 0. Actual workerd binding tests passed for nested writes, Unicode, date filters, compound daily upserts, atomic rollback and cascade. Local351 existing application tests passed; browser/complete Worker release checks remain in progress. D1 date-filter mismatch was caught and corrected before activation.
+
+Candidate application uses PrismaD1 plus guarded native atomic batches; SDK's ignored transactions are rejected. Same domain rules and owner-only SUPER_ADMIN remain. Candidate wrangler adds existing DB binding/providerD1, production release retains exact-main CI/identity/ownership gates and adds exact-SHA final-snapshot readiness. Preview remains isolated with no D1 binding. Node22.16+; new dependency @prisma/adapter-d1@6.19.3; npm audit0 vulnerabilities. Detailed procedures and limitations: docs/D1-MIGRATION.md. Production is still PostgreSQL until final snapshot freeze, hosted checks, release and live readback actually complete; do not claim100% yet.
+
+## D1 release checkpoint — 2026-10-28
+
+VERIFIED: migration PR #83 merged as `2da35b15ad8167b14af425471c3a88699e5e67d0`. Its exact-main CI `40644108064` passed all application checks, including both 331-case browser suites, native D1 atomicity/concurrency tests and real Worker routes. Four source tables changed after the original archive; a consistent reconciliation brought the disconnected D1 to 2332 records across all 36 application tables. Every original typed scalar value matches, with zero FK violations, three migrations and 108 revision triggers.
+
+The refreshed private archive `rega24-verified-source-2026-10-28.dump` was restored and checked against all source tables, then uploaded and downloaded from Drive file `1pLUm0lHDJoZ2r6iO2EhfXdIG0NQfHbnM` with identical SHA-256 `59713feb5a4161a05ab50a1b1734352fcb7555d838d1625192dfaf8961b080d4`. The original archive remains intact. No production seed, credential reset or Neon resource deletion occurred.
+
+The first cutover attempt stopped at the CI readiness gate. No D1 application was activated. Original PostgreSQL availability was restored at 07:22 UTC and live health 200 verified. Readiness fix PR #84 merged as `09afcd538a71fff6b08627057d272bf318e4362c`; 354 unit tests, 10 native D1 tests, lint/typecheck/docs passed locally and the changed gate passed hosted unit/native checks. Exact-main CI `40651797849` is running. Production is still PostgreSQL, isolation=0; final activation and live D1 verification remain pending. See [D1 migration procedure](docs/D1-MIGRATION.md).
+
+## D1 production migration complete — 2026-10-28
+
+Supersedes all earlier pending D1 checkpoints: production `rega24` now runs D1 at 100% traffic. Verified exact source release `09afcd538a71fff6b08627057d272bf318e4362c`; version `912d7b51-341a-4017-bed9-470cd1b39c1c`, deployment `97a07f0a-96e5-4bb5-a049-bbef69c74cea`. DB binding points to existing EU `rega24-migration` / `728f792d-37b6-49f8-abc1-e81512219f7d`; provider=d1, isolation=0, query redaction=true, original 29 bindings and official domain ownership preserved. No new Worker/database, paid activation, production seed, account reset or Neon deletion.
+
+All 36 source tables / 2332 records and every original typed D1 value matched after the final request drain, before traffic opened. Source remained unchanged after activation; target FK violations 0, three real migrations, 108 revision triggers. Refreshed private Drive archive `1pLUm0lHDJoZ2r6iO2EhfXdIG0NQfHbnM` restores fully and its downloaded SHA-256 matches `59713feb5a4161a05ab50a1b1734352fcb7555d838d1625192dfaf8961b080d4`. Original archive retained.
+
+Exact-main CI 40651797849 passed 354 unit, 10 native D1, 8 Python and 331 browser cases per provider plus Worker/build/audit checks. Deploy 40655046631 succeeded. Post-cutover health 40655046619 attempt 2 reports actual provider d1/ok/HTTP 200; browser 40656143224 passed 201 desktop/mobile checks, 0 failures. Public business/geography API data exactly matched the prior production responses. Additional kmr/fa/tr pages and fresh RTL browser images verified; eight loaded images, no broken images.
+
+Initial readiness attempt was safely blocked, source availability restored, then PR #84 changed only the gate transport to an operator-issued proof over existing Workers settings. The final gate actually passed. A browser run during the authorized source freeze observed 503; the post-cutover replacement run passed. Evidence and continuation: [cutover evidence](docs/evidence/d1-production-cutover-2026-10-28.json), [migration/recovery](docs/D1-MIGRATION.md). Do not rerun imports against active D1 or roll back to the old PostgreSQL application without reconciling D1 writes. Production sign-in/email was not triggered with customer accounts; disposable integration coverage and preserved auth configuration/hashes verify migration behavior.
+
+## Permanent Cloudflare platform mandate — 2026-10-28
+
+Owner instruction: Rega24 ONLY (`rebar9988-max/Rega`, `www.rega24.com`). All future application infrastructure work must use Cloudflare: D1 for the production database, Workers for backend/API, R2 for files/images, Cloudflare for hosting/deployment, DNS and security. Added the authoritative rule to CLAUDE.md section 0.9; AGENTS.md already applies all CLAUDE rules to every agent. GitHub remains source control/review/CI. Retained Neon/private backups remain recovery assets, not active application infrastructure; this instruction does not authorize deleting them. Quality 100/100 is an objective, not an unverified certification.
+
+Read central memory and verified GitHub main caac065 before editing. Read-only Cloudflare checks confirmed provider d1 with existing database 728f792d-37b6-49f8-abc1-e81512219f7d / isolation 0; configured storage endpoint is R2 and the configured bucket exists in the same account; rega24.com is an active zone with Cloudflare nameservers. No audit score for individual security settings is claimed. Updated system map/runbook and corrected legacy deployment, architecture and backup instructions to identify D1/Workers/R2, the legacy-only PostgreSQL workflow, and safe restore rehearsals without customer-data E2E fixtures.
+
+Documentation only: no runtime/configuration/schema/DNS/security rule/secret/resource change. Validate with generated inventory, documentation links and git whitespace; application tests/build need no repeat for this policy update. All changed paths match the existing documentation-only deployment skip rule, preserving the verified production release. Continue future work within the Cloudflare platform mandate and existing REGA identity/CI/ownership safeguards.
+
+## Documentation merge deployment guard correction — 2026-10-28
+
+Final verification of the permanent Cloudflare policy exposed a real docs-only release guard bug: `git diff-tree --no-commit-id --name-only -r HEAD` returns no paths for a PR merge commit. The configured empty-diff fallback then deployed, even for documentation. Earlier notes inferred DOCS_ONLY_SKIP from allowed paths without exercising a merge; those no-replacement claims were incorrect. Cloudflare actually shows documentation release caac065 as active version 38a340a5-7c83-4db8-b73a-1716c3c16b40 since 09:09 UTC, still provider d1 at 100%. Exact-main CI 40657214994, deployment 40661821443, health 40661821485 and browser 40661946377 all succeeded for that release. No database/provider/data loss was observed. Historical cutover evidence still records the initial 08:18 activation.
+
+Fixed only the workflow scope comparison to `git diff --name-only HEAD^ HEAD` so merges compare with their first parent. Preserved the allowlist, manual dispatch behavior, root/empty-diff fallback, exact-main CI, identity and ownership gates. Executing the actual shell against real disposable Git histories passed 8 corrected cases (including depth 2 docs merges and app/mixed merges); the old unwanted-deploy behavior was reproduced separately. Running the corrected shell against actual policy merge da259e0 returns skip=true. Evidence: docs/evidence/deployment-scope-regression-2026-10-28.json. All 18 relevant identity/ownership/readiness regression tests passed. This workflow/documentation fix contains no application change and itself matches the existing skip allowlist.
+
+## Global discovery upgrade, round 1 — Kurdistan/Iraq geography, opening status, open-now search — 2026-10-28 (PR #88)
+
+Owner brief "REGA24 global platform upgrade" (audit → improve → extend). Identity guard OK (REGA, `main` 63149e6). Audit, read-only:
+- Production D1 `728f792d…`: 3 businesses (2 public), 19 categories, 0 services. Iraq had **1 region, 2 cities** (Erbil, Sulaymaniyah). The Kurdistan Region was named only in en/de.
+- Public routes `/ckb`, `/ckb/businesses`, `/ckb/services`, `/en/businesses`, `/en/services`, `/en/ai`, `/ar/businesses`, `/ckb/search`, `/ckb/nearby` and `/api/health` all returned 200 at 16:2x UTC. The earlier reported 500s **did not reproduce**; no fix was needed. `/ckb/jobs` returns 404 **by design**: the `jobs` section has `enabled: false`, "Hidden until launch", so launching it is an owner decision.
+- Already in place and kept: Unicode/Arabic-script folding and function-word search, Nearby with an open-now filter, MapLibre, opening hours with overnight ranges, location picker, moderation-only public visibility.
+
+Changes in PR #88 (no schema change, no route change):
+- Seed: Iraq regions (Kurdistan Region plus the Baghdad, Basra, Nineveh, Kirkuk, Najaf and Karbala governorates) named in 7 locales. 19 cities added. Kifri has **no region** because its assignment is disputed; Kirkuk is under its own governorate. The seed writes every region translation and stays upsert-only.
+- `openStatus()` (geo.ts) returns OPEN / CLOSING_SOON / OPENS_SOON / CLOSED / HOURS_UNKNOWN plus the next time, in the location's timezone. It is property-tested against `isOpenNow`. `OpenState` shows it, with 5 new messages × 7 locales.
+- `search-intent.ts`: an "open" + "now" word in 7 languages becomes an open-now filter (businesses only, ≤300 candidates, unknown hours never count as open), with a notice on the search page.
+- `prisma/d1/data/20261028_iraq_geography.sql`: the same Iraq rows as additive, idempotent SQL for production D1, kept identical to the seed by a test.
+
+Tests (local): `npm test` 364 tests, 360 pass, 0 fail, 4 DB-only skips; typecheck and lint pass; `test:d1` 10/10; seed run twice on a disposable D1 is idempotent. The SQL file was rehearsed on a pre-change D1 copy (+6 regions, +47 names, +19 cities, FK clean, second run no-op, values identical to the seed, empty DB no-op).
+
+**Production geography rows APPLIED (owner instruction «جێبەجێی بکە», 2026-10-28 17:49 UTC).** The session first refused a write without explicit owner approval; after approval the three statements of `prisma/d1/data/20261028_iraq_geography.sql` ran on D1 `728f792d…`. Restore point (D1 Time Travel) 2026-10-28T17:49:12Z. City 2039→2058, Region 22→28, RegionTranslation 44→91; Business/Location unchanged (3/3); FK violations 0. A readback of all 21 IQ cities (names, coordinates, folded columns) and all 49 IQ region names matched the seed. Live `/api/v1/geo?country=IQ` lists 7 regions, and «عەنکاوە», «هەڵەبجە» and «duhok» each find their city. Undo: delete the ids `seed_city_iq_*`, `seed_rt_iq_*` and `seed_region_iq_*` except `seed_region_iq_kurdistan-region`, which already existed.
+
+Not done in this round (needs an owner decision or a schema change): search analytics (new table + privacy/consent review), holiday/temporary-closure hours (schema), districts (no model), Jobs launch (flag), typo tolerance, Lighthouse measurements (not run).
+Release: PR #88 squash `e13f60a`. Exact-main CI 40735869540, Deploy 40741609781, Beta health 40741609899 and Production browser check 40741866280 all succeeded. Live checks at 18:14 UTC: `/api/health` ok, provider d1. `/ckb`, `/ckb/businesses`, `/ckb/services` and `/en/ai` return 200. `/ckb/search?q=ئێستا کراوە` shows the open-now notice and a plain query does not. Business pages show the new status, e.g. «داخراوە · دەکرێتەوە پێنجشەممە لە 11:00», which matches the stored hours in the IQ and DE timezones.
+Next safe continuation point: round 2, which needs owner decisions: search analytics (schema + privacy), holiday/temporary closures (schema), Jobs launch, typo tolerance, Lighthouse measurement.
+
+## Global discovery upgrade, round 2 — search typo correction ("did you mean") — 2026-10-28
+
+Owner choice (round 2 = Smart Search only; next: holiday/temporary closures → Lighthouse → Jobs → search analytics). Audit: search matched folded substrings only (`textWhere`); no typo tolerance existed anywhere (page, `/api/v1/search`, AI).
+- `src/lib/search-correction.ts` (pure): the vocabulary is the words of the `searchText` of public businesses, published services and active locations, so a correction always leads to real, public results.
+  - A query word that already matches (as a substring) is never changed.
+  - Unknown words are replaced by the closest vocabulary word: optimal-string-alignment distance including the word's prefix. Allowed edits: 0 for ≤2 letters, 1 for ≤4, 2 for ≤8, 3 above.
+  - Sorani near letters ڕ/ر, ڵ/ل, ێ/ی, ۆ/و count 0.5. Ties go to the word in more records.
+  - A letter-bitmask lower bound skips most words.
+- `searchAll`: only when the search finds nothing (page 1), it retries once with the corrected words, in normal and open-now mode alike; in open-now mode the corrected query keeps the «ئێستا کراوە» words (`intentWords`).
+- Vocabulary: ≤2000 rows per table, ≤20,000 words, cached per Worker isolate for 5 min.
+- Search page: notice «هیچ ئەنجامێک بۆ «…» نەدۆزرایەوە…» plus a «مەبەستت «…» بوو؟» link; tabs and pagination continue with the corrected query.
+- 2 new messages × 7 locales. No schema, route, API or design-token change; `/api/v1/search` is unchanged.
+- Measured locally (worst case, random words): 20,000-word vocabulary built in 52 ms; a correction takes 7–29 ms. At today's real size (2 public businesses) it is well under 1 ms.
+- Tests: 6 correction + 3 intent unit tests (7 languages, near letters, no wild guesses, prefix, ties, cap); `npm test` 370 tests, 366 pass, 0 fail, 4 DB-only skips; typecheck and lint pass.
+- E2E on a disposable D1, `build:node` of the final code: catalog.spec 26/26 on desktop and mobile, including the new typo test. Broader regression: 81/82; the one failure was the sitemap `/guides` expectation, which needs `content.spec.ts` to run first. Run in CI order (content + seo) it passed 50/50, so it is test order, not this change.
+- Release: PR #90 squash `14371a0`. Exact-main CI 40761152562, Deploy 40766214581, Beta health 40766214472 and Production browser check 40766414442 all succeeded. Live checks at 20:59 UTC: `/api/health` ok, provider d1.
+  - «hairtunig» → notice «Meintest du «hairtuning»?», Karwans Hairtuning shown.
+  - «تاکلاینن» and «hewlr» are corrected and show Taakline.
+  - «taaklin» is found directly as a prefix, with no correction.
+  - «qxzvwplk» gets no suggestion.
+  - «کارواان» gets no suggestion, correctly: the live record has no Sorani name. Adding names in all languages to listings improves discovery more than any correction can.
+- Next safe continuation point (owner's order): holiday/temporary closures (schema) → Lighthouse → Jobs launch → search analytics.
+
+## Phase 3 — public holidays, temporary closures and special hours — 2026-10-29
+
+Owner brief "REGA24 Phase 3". Audit:
+- Before this change, `Location.openingHours` held weekly hours only; `openStatus`/`isOpenNow` knew OPEN/CLOSING_SOON/OPENS_SOON/CLOSED/HOURS_UNKNOWN.
+- Holidays, closures and date-based hours did not exist.
+- Saving the business form fully replaces `openingHours`.
+
+Design: **no schema change, no migration**. The optional keys `holidays: "closed"` and `exceptions: [{ from, to, hours: "closed" | ranges, reason? }]` live in the same JSON. Old readers (`hoursRows`, `hasHours`) ignore them. One system for every category.
+
+- `src/lib/holidays.ts`:
+  - DE: 9 nationwide holidays plus state holidays that apply to a whole state, with Easter computed. Municipality-only holidays are left out.
+  - IQ: the 7 fixed-date holidays of the 2024 official holidays law (verified via Wikipedia/Shafaq: 1 Jan, 6 Jan, 21 Mar, 1 May, 3 Oct, 10 Dec, 25 Dec).
+  - Islamic lunar holidays are announced yearly and **not computed**; owners enter them as exceptions.
+  - No Kurdistan-Region-only holiday is assumed (no verified list).
+  - Names in 7 locales.
+- `src/lib/opening-hours.ts`: `parseHoursExceptions` validation (real dates, `to` ≥ `from`, ≤ 366 days, readable hours, one-line reason ≤ 120 characters, ≤ 30 entries), tolerant readers, `composeOpeningHours`.
+- `src/lib/geo.ts`: `openStatus` is date-based.
+  - Rule order per date: exception (the shortest matching range wins), then holiday if `holidays: "closed"`, then weekday hours.
+  - Looks back 1 day and ahead 45 days. Overnight ranges belong to their start date.
+  - New status TEMPORARILY_CLOSED. Results also carry the holiday, the exception and `next.date`.
+  - `isOpenNow` is derived from it, so search open-now and Nearby follow closures and holidays. Both pass the region (state) slug.
+- UI:
+  - Owner/staff form: `HoursExceptionsEditor` with a holiday checkbox and closure / special-hours rows, sent as one validated JSON field, always round-tripped.
+  - Business page: shows a location even when it has only closures or the holiday setting. Lists upcoming changes in the location's calendar.
+  - `OpenState`: temporary closure with reopening date, holiday and special-hours notes, reason in `<bdi>`.
+  - 19 messages × 7 locales.
+- Tests:
+  - `tests/holidays-closures.test.ts` covers Easter/state holidays, Iraq dates, validation, closures, special/overnight hours, holiday closing, timezones/DST and status vs isOpenNow agreement.
+  - Updated `open-status` expectations to include `next.date`.
+  - New E2E test in `completion.spec.ts`.
+- Caught locally: the German hint word "Bundesland" collided with the `getByLabel("Land")` lookup in an existing E2E test. Reworded; all 25 E2E label lookups checked against the new texts.
+- Local verification:
+  - `npm test`: 377 tests, 373 pass, 0 fail, 4 DB-only skips. `test:d1` 10/10. Typecheck and lint pass.
+  - E2E on a disposable D1 (`build:node`), 10 spec files that use the business form, hours, nearby or profile: 96 passed on desktop and mobile, including the new test.
+  - The 8 iPhone/WebKit cases could not start because WebKit is not installed in this container (environment limit); CI installs it.
+- Release: PR #92 squash `846a18b`. PR CI `verify` passed, including the iPhone/WebKit E2E that this container cannot run. Exact-main CI 40802502526, Deploy 40806219013, Beta health 40806219024 and Production browser check 40806341935 all succeeded.
+  - Live checks at 02:34 UTC: `/api/health` ok, provider d1. `/ckb`, `/ckb/businesses`, `/ckb/nearby`, `/en/ai` and open-now search return 200.
+  - Playwright: taakline (IQ, Thursday 05:34) shows «داخراوە · دەکرێتەوە لە 11:00»; karwans-hairtuning (DE) shows «Geschlossen · Öffnet Samstag um 09:00». Both match the stored hours and local time. No holiday note, correctly: 29 October is not a holiday.
+  - No production data was changed; existing listings have no exceptions yet.
+- Remaining:
+  - Islamic holidays must be entered per business as dates.
+  - Kurdistan-Region-only holidays are not modelled (no verified list).
+  - No Lighthouse measurement yet.
+- Next safe continuation point (owner order): Lighthouse → Jobs launch → search analytics.
+
+## Global expansion — 11 interface languages, 13 European target markets — 2026-10-29 (PR #93)
+
+Owner brief "REGA24 global expansion & international experience". Identity guard OK (REGA, branch `claude/rega24-global-expansion-dc071c`).
+Audit (read-only, production D1 `728f792d…`): 6 of 13 target countries existed (DE, FR, SE, NL, GB, AT) + IQ; missing BE, CH, GR,
+NO, DK, FI, IT. Locales: 7 (ckb, kmr, de, en, ar, fa, tr); fr, sv, nl, it missing. Non-German countries showed an empty default
+city list in the location selector, and the language switcher dropped the query string (search/filters/country/city).
+
+Changes (no schema, route or design-token change):
+- `src/config/locales.ts`: fr, sv, nl, it (LTR) registered once; full catalogues (all keys, placeholder/tag parity tested);
+  glossary, AI system prompts, beta copy, holiday names (#92) in the new languages. Native labels per brief: «کوردیی سۆرانی»,
+  «Kurmancî». "Seven languages" copy changed to eleven in every catalogue. Legal pages of the new locales keep the English
+  fallback that points to the binding German text (no unreviewed legal translation).
+- Language switcher: 11 entries (scrollable), keeps the page and its query.
+- Seed: the 7 missing countries, each with capital region + capital (Brussels, Bern, Athens, Oslo, Copenhagen, Helsinki, Rome),
+  names in the 7 column languages. `prisma/d1/data/20261029_europe_target_countries.sql`: insert-only, idempotent, documented
+  undo; rehearsed on SQLite built from the D1 migrations (+7/+7/+14/+7, rerun no-op, FK clean, undo restores counts).
+- `MARKET_COUNTRY_CODES` (src/lib/data/markets.ts): selector and directory filter always offer the 13 markets; country names
+  from stored column or CLDR `Intl.DisplayNames`, with flag. Each market's seeded city is in `MAJOR_CITY_SLUGS`.
+- Sitemap CHUNK 2,000 → 1,000 (11 locales keep the earlier per-file size).
+- Names of categories/cities/businesses in fr/sv/nl/it fall back to English (public reads use legacy columns only); adding
+  translated names in the admin panel is the owner's data step.
+
+Tests: lint, typecheck; `npm test` 383 tests, 379 pass, 0 fail, 4 DB-only skips (incl. 143 language × country combinations).
+Local Playwright on disposable D1 (desktop + mobile, before merging #92): 403/403 pass, incl. `international.spec.ts` (143 HTTP
+combinations, 13 interactive locale/country runs, the owner's three examples, profile language switch). Six existing specs
+used `getByLabel("Land")`, which now also matches «Nederlands»; they select `select[name="countryCode"]` instead.
+
+Production data: NOT applied. The D1 write was refused by this session's permission system (production action). Pre-change
+snapshot 2026-10-29T01:58:13Z: Country 7, Region 28, RegionTranslation 91, City 2058, Business 3, Location 3 (Time Travel point).
+Next safe continuation point: owner applies the SQL file (command in its header), then verify `/api/v1/geo?country=IT` lists Rome.
+
+## PR #71 D1 reconciliation — 2026-10-29 (source preparation; no production release)
+
+Resumed PR71 at8d9c365 against official mainc751e6b. Verified Cloudflare mandate(section0.9),canonical Worker
+rega24 and DB binding728f792d-37b6-49f8-abc1-e81512219f7d. Both official domains remainrega24/production.
+Active readback:e4a77e13-76f7-45b4-bd10-715f90b60f6f/version73bc61c5-a5f2-4e07-94f5-6fe3795bc8f3,
+source tag884848832d64441bb96bb193df4c3bfc1f9a022d at100%;query redactiontrue,tracesoff,provider bindingssecret_text.
+D1 SELECT-only audit:3Business,3BusinessMember,0orphan memberships;actual0001/0002/0003 ledger;four social columns
+absent. This supersedes obsolete production-Neon/target-drift release notes;never run the old PostgreSQL stage.
+
+Preserved current main application/platform/workflows/dependencies/security,opening-hours extensions,11locales,
+D1 transaction wrappers and original PR71 social implementation. Reconciled profile/form/query/server patches;
+added translations for all11existing locales. Four optional fields remain identical frontend→server→Business:
+facebookUrl,instagramUrl,tiktokUrl,snapchatUrl. Both Prisma schemas and generated D1 metadata include them.
+New D1 migration0004_business_social_links.sql is four nullableTEXT additions,no defaults. Applied0001–0003
+remain byte-identical. Legacy20261024220000_business_social_links is retained only for the tested PG rollback
+provider. No parallel registration/profile/schema pipeline. Readiness requires actual0004 ledger and four nullable
+TEXT columns;missing migration fails closed. Existing metadata generator verifies the primary-schema SHA256.
+
+Social E2E now uses existing guarded testDatabaseClient for both disposableD1 and PG providers;all existing
+assertions retained,with immediate revoked-membership403+unchanged business proof and11locale/9width geometry.
+Added native D1 migration/data/ownership/CRUD/reopen test,updated existing D1 fixture and portable-schema rehearsal.
+Read-only Python in-memory rehearsal PASS:37tables preserved through migration,synthetic export/restore exact,
+36portable model columns match,four nullableTEXT fields and0FK violations. This is SYNTHETIC evidence,not a
+production backup/restore certificate. Full candidate hosted CI/build/browser/workerd results still PENDING.
+
+Local checkout is physically read-only:gitfetch with additional permissions failedcannotopen.git/FETCH_HEAD;
+large here-doc also could not create a temporary file. Small read-only commands and argument-based in-memory
+SQLite rehearsal succeeded. Prepared exact source via authenticated GitHub Git-data tools instead;existing local
+uncommitted documentation checkpoint is retained. No local customer archive retrieved or remote data printed.
+
+PR71 remainsdraft/unmerged. No production schema/data/secret/routing/deployment change,Neon mutation,paid
+resource or R&L access. Source merge into the feature branch is not permission to merge main or publish.
+Before production:add fresh private D1 export+isolated restore proof on a writable protected recovery environment,
+verify existing data/relationships and owner credential revocation containment,then required exact-head checks,
+reviewed migration-first main staging,actual0004/FK/record readback and CI-gated release/live owner/public QA.
+The Oct28 PostgreSQL archive and original Neon remain recovery assets;neither certifies a fresh activeD1 backup.

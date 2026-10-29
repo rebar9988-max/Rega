@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-26T02:03:58.787Z",
+  "generatedAt": "2026-10-29T05:47:43.000Z",
   "package": {
     "name": "rega-platform",
     "version": "0.1.0",
@@ -8,17 +8,18 @@
     "prisma": "~6.19.3",
     "openNext": "1.20.12",
     "nextAuth": "^5.0.0-beta.28",
-    "nodeEngine": ">=20.9.0"
+    "nodeEngine": ">=22.16.0"
   },
   "workers": [
     {
       "file": "wrangler.jsonc",
-      "name": "rega-platform",
+      "name": "rega24",
       "main": "worker.mjs",
       "bindings": [
         "AI_LIMITER",
         "ASSETS",
         "CF_VERSION_METADATA",
+        "DB",
         "FORM_LIMITER",
         "LOGIN_LIMITER",
         "SEARCH_LIMITER"
@@ -109,7 +110,11 @@
     "de",
     "en",
     "fa",
+    "fr",
+    "it",
     "kmr",
+    "nl",
+    "sv",
     "tr"
   ],
   "sections": [
@@ -271,6 +276,7 @@
     "AUTH_URL",
     "CANONICAL_HOST",
     "CONTACT_INBOX",
+    "D1_SQLITE_PATH",
     "DATABASE_URL",
     "DEEPSEEK_API_KEY",
     "DEEPSEEK_BASE_URL",
@@ -313,6 +319,7 @@
     "OPENROUTER_API_KEY",
     "OPENROUTER_BASE_URL",
     "OPENROUTER_MODEL",
+    "REGA_DATABASE_PROVIDER",
     "RESEND_API_KEY",
     "SECTIONS_DISABLED",
     "SECTIONS_ENABLED",
@@ -367,6 +374,7 @@
     "OPENAI_MODEL",
     "OPENROUTER_API_KEY",
     "OPENROUTER_MODEL",
+    "REGA_DATABASE_PROVIDER",
     "RESEND_API_KEY",
     "SOCIAL_FACEBOOK_URL",
     "SOCIAL_INSTAGRAM_URL",
@@ -404,6 +412,7 @@
     "AUTH_FACEBOOK_SECRET",
     "AUTH_GOOGLE_ID",
     "AUTH_GOOGLE_SECRET",
+    "D1_SQLITE_PATH",
     "DEEPSEEK_BASE_URL",
     "ERROR_WEBHOOK_URL",
     "GEMINI_BASE_URL",
@@ -440,7 +449,6 @@
     "GEMINI_API_KEY",
     "GROQ_API_KEY",
     "MEDIA_PUBLIC_URL",
-    "NEON_API_KEY",
     "OPENAI_API_KEY",
     "OPENROUTER_API_KEY",
     "RESEND_API_KEY",
@@ -476,6 +484,7 @@
     "ANTHROPIC_MODEL",
     "AUTH_URL",
     "CANONICAL_HOST",
+    "D1_SQLITE_PATH",
     "DEEPSEEK_BASE_URL",
     "DEEPSEEK_MODEL",
     "ERROR_WEBHOOK_URL",
@@ -507,6 +516,7 @@
     "OPENAI_MODEL",
     "OPENROUTER_BASE_URL",
     "OPENROUTER_MODEL",
+    "REGA_DATABASE_PROVIDER",
     "SECTIONS_DISABLED",
     "SECTIONS_ENABLED"
   ]

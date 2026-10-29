@@ -1,6 +1,5 @@
+import { testDatabaseClient } from "./database-client";
 import { expect, test } from "./fixtures";
-import { PrismaClient } from "@prisma/client";
-import { PrismaPg } from "@prisma/adapter-pg";
 import { EMPLOYEE } from "./global-setup";
 import { encode } from "@auth/core/jwt";
 import { randomUUID } from "node:crypto";
@@ -63,7 +62,7 @@ test("a suspended account loses access immediately (session revalidation)", asyn
   await page.getByLabel("Passwort", { exact: true }).fill(EMPLOYEE.password);
   await page.getByRole("button", { name: "Anmelden" }).click();
   await expect(page).toHaveURL(/\/dr$/);
-  const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }) });
+  const prisma = testDatabaseClient();
   try {
     await prisma.user.update({ where: { email: EMPLOYEE.email }, data: { status: "suspended" } });
     await page.goto("/dr");
@@ -79,7 +78,7 @@ test("a suspended account loses access immediately (session revalidation)", asyn
 
 test("private reads recheck roles and account status even while the session role is cached", async ({ context, page }) => {
   test.skip(!process.env.AUTH_SECRET, "requires the local test server's signing secret");
-  const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }) });
+  const prisma = testDatabaseClient();
   const original = await prisma.user.findUniqueOrThrow({ where: { email: EMPLOYEE.email } });
   const marker = `e2eprivate${randomUUID().replaceAll("-", "")}`;
   let businessId: string | undefined;
@@ -131,7 +130,7 @@ test("private reads recheck roles and account status even while the session role
 
 test("SUPER_ADMIN power exists only for the owner's address: another SUPER_ADMIN account gets nothing", async ({ context, page }) => {
   test.skip(!process.env.AUTH_SECRET, "requires the local test server's signing secret");
-  const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }) });
+  const prisma = testDatabaseClient();
   const original = await prisma.user.findUniqueOrThrow({ where: { email: EMPLOYEE.email } });
   try {
     // A stored SUPER_ADMIN role on a non-owner address, signed in with its password.

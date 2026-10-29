@@ -6,6 +6,7 @@ import { isAiConfigured, providerCatalog } from "@/lib/ai";
 import { emailEnabled } from "@/lib/email";
 import { contentColumnsReady } from "@/lib/schema-readiness";
 import { schemaRecoveryReport } from "@/lib/schema-recovery-report";
+import { usesD1 } from "@/lib/d1-connection";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -20,6 +21,16 @@ export async function GET() {
   try {
     await prisma.$queryRaw`SELECT 1`;
     database = "ok";
+    if (usesD1()) {
+      const history = await prisma.$queryRaw<{ count: number }[]>`SELECT count(*) AS count FROM d1_migrations WHERE name IN ('0001_initial.sql', '0002_runtime.sql', '0003_city_slug_fold.sql', '0004_business_social_links.sql')`;
+      const revision = await prisma.$queryRaw<{ revision: number }[]>`SELECT revision FROM "_RegaRevision" WHERE id=1`;
+      const social = await prisma.$queryRaw<{ count: number }[]>`SELECT count(*) AS count FROM pragma_table_info('Business') WHERE name IN ('facebookUrl','instagramUrl','tiktokUrl','snapchatUrl') AND type='TEXT' AND "notnull"=0 AND dflt_value IS NULL`;
+      migrations = Number(history[0]?.count) === 4 && revision.length === 1 && Number(social[0]?.count) === 4;
+      const columns = await prisma.$queryRaw<{ table_name: string; column_name: string }[]>`
+        SELECT m.name AS table_name, p.name AS column_name FROM sqlite_master m JOIN pragma_table_info(m.name) p
+        WHERE m.type='table' AND m.name IN ('City','Page','PageTranslation','Listing','ListingTranslation')`;
+      contentColumns = contentColumnsReady(columns);
+    } else {
     const rows = await prisma.$queryRaw<{ count: bigint; failed_count: bigint }[]>`
       SELECT count(*) FILTER (WHERE finished_at IS NOT NULL AND rolled_back_at IS NULL) AS count,
              count(*) FILTER (WHERE finished_at IS NULL AND rolled_back_at IS NULL) AS failed_count
@@ -41,13 +52,14 @@ export async function GET() {
         console.warn("REGA_DATABASE_PREFLIGHT unavailable");
       }
     }
+    }
   } catch {
     database = "error";
   }
 
   // Configuration must never turn the health report into an empty 500: report WHICH required variables are
   // missing (names only, never values) so a misconfigured deployment can be diagnosed from the outside.
-  const missingEnv = ["DATABASE_URL", "AUTH_SECRET"].filter((k) => !process.env[k]);
+  const missingEnv = (usesD1() ? ["AUTH_SECRET"] : ["DATABASE_URL", "AUTH_SECRET"]).filter((k) => !process.env[k]);
   const safe = <T,>(fn: () => T, fallback: T): T => { try { return fn(); } catch { return fallback; } };
 
   const body = {
@@ -58,6 +70,7 @@ export async function GET() {
     latencyMs: Date.now() - started,
     checks: {
       database,
+      databaseProvider: usesD1() ? "d1" : "postgres",
       migrations,
       contentColumns,
       auth: Boolean(process.env.AUTH_SECRET),

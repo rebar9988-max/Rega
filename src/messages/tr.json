@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "REGA Platform — ڕێگا | İşletmeler, Hizmetler ve Konumlar",
-    "description": "REGA Platform: Almanya ve Avrupa için Kürt portalı. Yakınınızdaki işletmeleri, hizmetleri ve yerleri bulun; yedi dilde yapay zekâ asistanıyla."
+    "description": "REGA Platform: Almanya ve Avrupa için Kürt portalı. Yakınınızdaki işletmeleri, hizmetleri ve yerleri bulun; on bir dilde yapay zekâ asistanıyla."
   },
   "common": {
     "loading": "Yükleniyor...",
@@ -91,7 +91,7 @@
   },
   "home": {
     "heroTitle": "Tüm işletmeler, hizmetler ve konumlar tek yerde",
-    "heroSubtitle": "REGA; işletmeleri keşfetmek, karşılaştırmak ve yönetmek için resmî platformdur — Kürtçe Sorani, Kürtçe Kurmancî (Badînî), Almanca, Arapça, Farsça ve Türkçe desteğiyle.",
+    "heroSubtitle": "REGA; işletmeleri keşfetmek, karşılaştırmak ve yönetmek için resmî platformdur — Kürtçe Sorani, Kurmancî, Almanca, İngilizce, Arapça, Türkçe, Farsça, Fransızca, İsveççe, Felemenkçe ve İtalyanca desteğiyle.",
     "searchPlaceholder": "İşletme, hizmet veya şehir ara...",
     "ctaExplore": "İşletmeleri gör",
     "ctaAI": "REGA AI'ya sor",
@@ -107,8 +107,8 @@
         "body": "Güvenilir uzmanlara ve hizmet sağlayıcılara ulaşın."
       },
       {
-        "title": "Yedi dil, doğru yön",
-        "body": "Soranice, Kurmancî (Badînî), Almanca, Arapça, Farsça ve Türkçe — doğru sağdan sola ve soldan sağa yerleşimle."
+        "title": "On bir dil, doğru yön",
+        "body": "Soranice, Kurmancî, Almanca, İngilizce, Arapça, Türkçe, Farsça, Fransızca, İsveççe, Felemenkçe ve İtalyanca — doğru sağdan sola ve soldan sağa yerleşimle."
       },
       {
         "title": "REGA Yapay Zekâ Asistanı",
@@ -151,7 +151,7 @@
     "citiesTitle": "Almanya'daki şehirler",
     "citiesSub": "Bir şehir seçin. İşletmeler yayımlandıkça burada görünür.",
     "factFree": "%100 ücretsiz",
-    "factLang": "7 dil",
+    "factLang": "11 dil",
     "factGermany": "Almanya",
     "openMap": "Yakınımdaki haritayı aç",
     "socialTitle": "REGA ile bağlantıda kalın",
@@ -213,7 +213,9 @@
     "postalCode": "Posta kodu",
     "openingHours": "Çalışma saatleri",
     "viewOnMap": "Haritada göster",
-    "browseByCity": "Şehre göre gez"
+    "browseByCity": "Şehre göre gez",
+    "closedOnHolidays": "Resmî tatillerde kapalı.",
+    "hoursChanges": "Kapanışlar ve özel çalışma saatleri"
   },
   "categories": {
     "title": "Kategoriler",
@@ -229,7 +231,10 @@
     "allTypes": "Tüm türler",
     "noResults": "Sonuç bulunamadı. Farklı bir terim deneyin.",
     "resultCount": "{count} sonuç",
-    "hint": "En az 2 karakter yazın."
+    "hint": "En az 2 karakter yazın.",
+    "openNowApplied": "Yalnızca şu anda açık olan yerler gösteriliyor (kayıtlı çalışma saatlerine göre).",
+    "correctedNotice": "«{query}» için sonuç bulunamadı; en yakın sonuçlar bunlar.",
+    "didYouMean": "Bunu mu demek istediniz: «{query}»?"
   },
   "ai": {
     "title": "REGA Asistanı",
@@ -466,25 +471,25 @@
     "sun": "Pazar"
   },
   "about": {
-    "title": "REGA hakkında",
-    "intro": "REGA (ڕێگا), Almanya ve Avrupa'daki Kürt diasporası için çok dilli bir rehber olarak kurulmuş modern ve güvenilir bir dijital platformdur.",
-    "goal": "Amacımız, günlük temel ihtiyaçları ve aramaları tek bir yerde toplamak; böylece kültürel ve dilsel olarak size uygun hizmetlere kolayca ulaşmanızı sağlamak, aynı zamanda işletme sahiplerine ve uzmanlara işlerini ve becerilerini resmî ve güvenilir biçimde tanıtma imkânı sunmaktır.",
-    "offerH": "Neler sunuyoruz?",
+    "title": "Rega24 hakkında",
+    "intro": "Rega24; işletmeleri, uzmanları ve hizmetleri keşfetmek için çok dilli bir dijital platformdur. İnsanları ve işletmeleri, dil ve ülke sınırlarını aşan bir vizyonla aynı yerde buluşturuyoruz.",
+    "goal": "Amacımız, insanların açık bilgilerle uygun seçenekleri bulabilmesi için aramayı ve karşılaştırmayı kolaylaştırmak. Rega24 tek bir topluluk veya ülkeyle sınırlı değildir. Vizyonumuz küreseldir; kapsamımız gerçek yerel bilgiler ve ihtiyaçlarla büyür.",
+    "offerH": "Rega24 neler sunar?",
     "offer": [
       {
-        "label": "Hizmet rehberi",
-        "text": "Yaşadığınız yere yakın hizmetleri ve uzmanları harita üzerinden kolayca bulun."
+        "label": "Kolay keşif",
+        "text": "Kategori, şehir ve konuma göre arayın; kayıtlı işletmeleri ve hizmetleri haritada keşfedin."
       },
       {
-        "label": "Güven ve güvence",
-        "text": "Doğrulanmış bilgiler (Rega Verified) ve şeffaf bir değerlendirme sistemi."
+        "label": "Açık bilgiler",
+        "text": "Mevcut bilgiler doğrultusunda işletme profillerindeki adreslere, çalışma saatlerine ve iletişim seçeneklerine ulaşın."
       },
       {
-        "label": "Akıllı destek",
-        "text": "Aramayı kolaylaştırmak ve ihtiyaçlarınızı yanıtlamak için yapay zekâ (REGA AI)."
+        "label": "Kendi dilinizde iletişim",
+        "text": "Rega24 on bir dilde kullanılabilir; kullanıcıların aramasını ve işletme sahiplerinin çalışmalarını tanıtmasını kolaylaştırır."
       }
     ],
-    "quote": "REGA, sizinle çevrenizdeki güvenilir hizmetler arasındaki köprüdür."
+    "quote": "Rega24 — hizmetleri keşfet, yerel bağlar kur, küresel düşün."
   },
   "nearby": {
     "title": "Yakınımda",
@@ -515,6 +520,11 @@
     "open": "Açık",
     "closed": "Kapalı",
     "hoursUnknown": "Çalışma saatleri bilinmiyor",
+    "closingSoon": "Yakında kapanıyor",
+    "opensSoon": "Yakında açılıyor",
+    "closesAt": "{time} saatinde kapanır",
+    "opensAt": "{time} saatinde açılır",
+    "opensOn": "{day} {time} saatinde açılır",
     "directions": "Yol tarifi",
     "call": "Ara",
     "details": "Ayrıntılar",
@@ -527,7 +537,11 @@
     "city": "Şehir",
     "searchIn": "{place} içinde ara",
     "showOnMap": "Haritada",
-    "inArea": "Bu bölgede"
+    "inArea": "Bu bölgede",
+    "temporarilyClosed": "Geçici olarak kapalı",
+    "opensOnDate": "{date} tarihinde {time} saatinde açılır",
+    "holidayToday": "Resmî tatil: {name}",
+    "specialHoursToday": "Bugün özel çalışma saatleri"
   },
   "map": {
     "title": "Harita",
@@ -658,7 +672,20 @@
       "draftChanged": "Bu taslak gönderilmiş veya incelenmiş. Düzenlemeden önce sayfayı yenileyin."
     },
     "categorySearch": "Kategori ara",
-    "optionalDetails": "İsteğe bağlı ayrıntılar"
+    "optionalDetails": "İsteğe bağlı ayrıntılar",
+    "holidaysClosed": "Resmî tatillerde kapalı",
+    "holidaysClosedHint": "Ülke ve bölgenin sabit resmî tatilleri otomatik uygulanır. Bayramları ve diğer kamerî tatilleri aşağıda tarihleriyle ekleyin.",
+    "exceptionsTitle": "Geçici kapanışlar ve özel çalışma saatleri",
+    "exceptionsHint": "Bir gün veya dönem için: kapalı ya da farklı saatler (ör. 10:00–14:00). Tarihler konumun yerel saatine göredir.",
+    "exceptionsInvalid": "Lütfen kapanış veya özel saatlerin tarih ve saatlerini kontrol edin.",
+    "exceptionFrom": "Başlangıç",
+    "exceptionTo": "Bitiş",
+    "exceptionClosed": "Kapalı",
+    "exceptionSpecial": "Özel saatler",
+    "exceptionHours": "Saatler",
+    "exceptionReason": "Neden (isteğe bağlı, herkese açık)",
+    "exceptionRemove": "Kaldır",
+    "exceptionAdd": "Kapanış veya özel saat ekle"
   },
   "contact": {
     "title": "İletişim",
@@ -892,7 +919,7 @@
     "freeBody": "REGA'da yer almak tamamen ücretsizdir. Ücret, abonelik, ücretli öne çıkarma veya ödeme yoktur ve olmayacak.",
     "benefitsTitle": "Neden REGA?",
     "b1Title": "Kendi dillerinde",
-    "b1Text": "Açıklamanız Soranice ve Kurmancî dahil yedi dilde gösterilir.",
+    "b1Text": "Açıklamanız Soranice ve Kurmancî dahil on bir dilde gösterilebilir.",
     "b2Title": "Müşterilerinize yakın",
     "b2Text": "Haritada ve “Yakınımda” aramasında görünürsünüz.",
     "b3Title": "Yapay zekâ asistanı",
@@ -994,7 +1021,7 @@
     "locations": "Almanya ve Avrupa'daki Kürt işletmelerinin konumları: şehre göre göz atın, adres ve çalışma saatlerini görün, haritada yolu bulun.",
     "nearby": "Yakınınızdaki Kürt işletmelerini ve hizmetlerini bulun: konumunuzu kullanın veya şehir seçin, sonuçlara harita ya da liste olarak bakın.",
     "ai": "REGA Asistanı, REGA Platform'daki gerçek kayıtlara dayanarak sorularınızı yanıtlar: Almanya ve Avrupa'daki Kürt işletmelerini bulun.",
-    "about": "REGA Platform hakkında: Almanya ve Avrupa'daki Kürtler için çok dilli bir portal; amacı, sunduğu hizmetler ve arkasındaki kişiler.",
+    "about": "Rega24 ile tanışın: işletmeleri ve hizmetleri kategori, şehir ve haritayla keşfetmek için açık bilgiler sunan, küresel vizyonlu çok dilli platform.",
     "search": "REGA Platform'daki tüm Kürt işletmelerinde, hizmetlerde ve konumlarda arama yapın, sonuçları türe göre süzün.",
     "register": "REGA Platform'da ücretsiz hesap oluşturun, işletmenizi ekleyin ve Almanya ile Avrupa'daki Kürtlere ulaşın.",
     "login": "REGA Platform hesabınıza giriş yapın: kayıtlarınızı yönetin, incelemeye gönderin ve ayarlarınızı değiştirin.",
@@ -1222,11 +1249,11 @@
     "overLimit": "Bu kayıtta zaten 3'ten fazla görsel var. Hepsi korunur; 3'ten az kaldığında yeni görsel eklenebilir."
   },
   "businessSocial": {
-  "title": "Sosyal medya",
-  "helper": "Müşterilerin size kolayca ulaşabilmesi için işletme hesap bağlantılarınızı ekleyin.",
-  "optional": "İsteğe bağlı",
-  "invalid": "Geçerli bir HTTPS {platform} hesap bağlantısı girin.",
-  "valid": "Hesap bağlantısı hazır",
-  "open": "{name} hesabını {platform} üzerinde aç"
-}
+    "title": "Sosyal medya",
+    "helper": "Müşterilerin size kolayca ulaşabilmesi için işletme hesap bağlantılarınızı ekleyin.",
+    "optional": "İsteğe bağlı",
+    "invalid": "Geçerli bir HTTPS {platform} hesap bağlantısı girin.",
+    "valid": "Hesap bağlantısı hazır",
+    "open": "{name} hesabını {platform} üzerinde aç"
+  }
 }

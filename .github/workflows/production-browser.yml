@@ -2,14 +2,9 @@ name: Production browser check
 
 # Read-only. Opens https://www.rega24.com in a real Chromium (desktop + mobile), checks the public journeys,
 # RTL/LTR, horizontal overflow, Germany-only city discovery and the approved UI, and uploads full-page screenshots.
-# No sign-in, explicit business mutations or deployment. Public visits may trigger the site's normal view telemetry.
-# Also runs on PR changes to this audit itself.
+# Never signs in, never submits forms, never deploys or writes. Runs after each Beta health run on main and on demand.
 on:
   workflow_dispatch:
-  pull_request:
-    paths:
-      - .github/workflows/production-browser.yml
-      - scripts/health/profile-lighthouse.mjs
   workflow_run:
     workflows: ["Beta health"]
     types: [completed]
@@ -19,13 +14,13 @@ permissions:
   contents: read
 
 concurrency:
-  group: production-browser-check-${{ github.event_name == 'pull_request' && github.event.pull_request.number || 'production' }}
+  group: production-browser-check
   cancel-in-progress: true
 
 jobs:
   browser:
-    # After successful main health, on demand, or to verify a change to this read-only audit.
-    if: github.event_name == 'workflow_dispatch' || github.event_name == 'pull_request' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'workflow_run')
+    # Only after a successful health run triggered by CI on main (the hourly schedule does not need screenshots).
+    if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'workflow_run')
     # Match the supported Playwright OS used by the CI browser gate.
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -42,8 +37,6 @@ jobs:
         env:
           BASE_URL: https://www.rega24.com
           OUT_DIR: browser-check
-      - name: Measure the current public business profile (read-only Lighthouse)
-        run: node scripts/health/profile-lighthouse.mjs
       - name: Upload screenshots
         if: always()
         uses: actions/upload-artifact@v4

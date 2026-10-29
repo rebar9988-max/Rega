@@ -1,3 +1,4 @@
+import { databaseTransaction } from "@/lib/database-transaction";
 /**
  * GET  /api/v1/locations — paginated list (?businessId, ?cityId, ?countryCode, ?q)
  * POST /api/v1/locations — create
@@ -78,7 +79,7 @@ export async function POST(request: NextRequest) {
 
     if (payload.cityId && !await prisma.city.findFirst({ where: { id: payload.cityId, isActive: true, country: { code: payload.countryCode } }, select: { id: true } })) return fail(422, "validation_error", "The city must belong to the selected country.");
     // A business may have exactly one primary location; demote the previous one first.
-    const location = await prisma.$transaction(async (tx) => {
+    const location = await databaseTransaction(async (tx) => {
       await lockBusiness(tx, payload.businessId);
       if (payload.isPrimary) {
         await tx.location.updateMany({ where: { businessId: payload.businessId, isPrimary: true }, data: { isPrimary: false } });

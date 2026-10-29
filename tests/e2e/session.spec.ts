@@ -1,6 +1,7 @@
+import { testSqlClient } from "./database-client";
 import type { BrowserContext, Page } from "@playwright/test";
 import { encode } from "@auth/core/jwt";
-import pg from "pg";
+import type pg from "pg";
 import { expect, test } from "./fixtures";
 import { EMPLOYEE } from "./global-setup";
 
@@ -26,7 +27,7 @@ async function sessionCookie(context: BrowserContext) {
 }
 
 async function sql<T extends pg.QueryResultRow = pg.QueryResultRow>(text: string, values: unknown[] = []) {
-  const client = new pg.Client({ connectionString: process.env.DATABASE_URL });
+  const client = testSqlClient();
   await client.connect();
   try {
     return (await client.query<T>(text, values)).rows;

@@ -4,8 +4,7 @@
  *   SEED_ADMIN_EMAIL=… SEED_ADMIN_PASSWORD=… npm run db:seed     also creates the first SUPER_ADMIN
  *   SEED_DEMO=1 npm run db:seed             also loads a small demo dataset (development only)
  */
-import { PrismaClient } from "@prisma/client";
-import { PrismaPg } from "@prisma/adapter-pg";
+import { createNodeClient } from "../src/lib/db-node-client";
 import bcrypt from "bcryptjs";
 import { normalizeSearch } from "../src/lib/text";
 import { reindexAll } from "../src/lib/search-index";
@@ -13,7 +12,7 @@ import { CATEGORIES } from "./seed-data/categories";
 import { CITIES, COUNTRIES, REGIONS } from "./seed-data/geography";
 import { GERMAN_CITIES } from "./seed-data/german-cities";
 
-const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }) });
+const prisma = createNodeClient();
 const search = (...parts: (string | null | undefined)[]) => normalizeSearch(parts.filter(Boolean).join(" "));
 
 /** Only fields that are still empty are filled: values an admin edited are never overwritten (idempotent, non-destructive). */
@@ -35,7 +34,7 @@ async function seedGeography() {
     const row = await prisma.region.upsert({ where: { countryId_slug: { countryId: countries[r.country], slug: r.slug } }, update: {}, create: { countryId: countries[r.country], slug: r.slug, nameEn: r.en } });
     regions[`${r.country}/${r.slug}`] = row.id;
     // Translations live in rows keyed by locale (a new language needs no schema change).
-    for (const [locale, name] of [["en", r.en], ["de", r.de]] as const) {
+    for (const [locale, name] of [["en", r.en], ["de", r.de], ...Object.entries(r.names ?? {})]) {
       await prisma.regionTranslation.upsert({ where: { regionId_locale: { regionId: row.id, locale } }, update: {}, create: { regionId: row.id, locale, name } });
     }
   }
