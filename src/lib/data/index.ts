@@ -220,7 +220,8 @@ export const getBusiness = cache(async (slug: string) =>
       locations: {
         where: { status: "active", deletedAt: null },
         orderBy: { isPrimary: "desc" },
-        select: { id: true, label: true, addressLine1: true, addressLine2: true, postalCode: true, countryCode: true, latitude: true, longitude: true, phone: true, email: true, openingHours: true, isPrimary: true, city: cityInclude },
+        // The region (state) decides regional public holidays for the opening status.
+        select: { id: true, label: true, addressLine1: true, addressLine2: true, postalCode: true, countryCode: true, latitude: true, longitude: true, phone: true, email: true, openingHours: true, isPrimary: true, city: { select: { ...cityInclude.select, region: { select: { slug: true } } } } },
       },
     },
   }),
@@ -375,10 +376,10 @@ async function listOpenBusinesses(q: string, page: number) {
     where: { ...PUBLIC_BUSINESS, ...textWhere(q) },
     orderBy: [...businessOrder.featured, { id: "asc" }],
     take: OPEN_NOW_CANDIDATES,
-    select: { id: true, locations: { where: { status: "active", deletedAt: null }, select: { openingHours: true, countryCode: true } } },
+    select: { id: true, locations: { where: { status: "active", deletedAt: null }, select: { openingHours: true, countryCode: true, city: { select: { region: { select: { slug: true } } } } } } },
   });
   const now = new Date();
-  const ids = candidates.filter((b) => b.locations.some((l) => isOpenNow(l.openingHours, l.countryCode, now) === true)).map((b) => b.id);
+  const ids = candidates.filter((b) => b.locations.some((l) => isOpenNow(l.openingHours, l.countryCode, now, l.city?.region?.slug) === true)).map((b) => b.id);
   const { skip, take } = skipTake(page);
   const pageIds = ids.slice(skip, skip + take);
   const cards = pageIds.length ? await prisma.business.findMany({ where: { ...PUBLIC_BUSINESS, id: { in: pageIds } }, select: businessCard }) : [];
@@ -450,7 +451,8 @@ export async function nearbyBusinesses(query: NearbyQuery) {
     take: NEARBY_CANDIDATES,
     select: {
       id: true, addressLine1: true, postalCode: true, countryCode: true, latitude: true, longitude: true, phone: true, openingHours: true,
-      city: cityInclude,
+      // The region (state) decides regional public holidays for the open-now state; it is not part of the response.
+      city: { select: { ...cityInclude.select, region: { select: { slug: true } } } },
       business: {
         select: {
           id: true, slug: true, name: true, nameCkb: true, nameKmr: true, nameAr: true, nameTr: true, logoUrl: true, coverUrl: true, verified: true, ratingAvg: true, ratingCount: true,
@@ -465,8 +467,9 @@ export async function nearbyBusinesses(query: NearbyQuery) {
   const nearest = new Map<string, ReturnType<typeof toItem>>();
   function toItem(r: (typeof rows)[number]) {
     const distance = distanceKm(query, { lat: r.latitude!, lng: r.longitude! });
-    const { openingHours, business: { services, category, ...business }, ...rest } = r;
-    return { ...rest, business, category: category ?? services[0]?.category ?? null, distanceKm: Math.round(distance * 100) / 100, openNow: isOpenNow(openingHours, r.countryCode) };
+    const { openingHours, city: cityRow, business: { services, category, ...business }, ...rest } = r;
+    const { region, ...city } = cityRow ?? { region: null };
+    return { ...rest, city: cityRow ? city : null, business, category: category ?? services[0]?.category ?? null, distanceKm: Math.round(distance * 100) / 100, openNow: isOpenNow(openingHours, r.countryCode, undefined, region?.slug) };
   }
   for (const r of rows) {
     const item = toItem(r);

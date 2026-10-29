@@ -213,7 +213,9 @@
     "postalCode": "Postleitzahl",
     "openingHours": "Öffnungszeiten",
     "viewOnMap": "Auf Karte ansehen",
-    "browseByCity": "Nach Stadt durchsuchen"
+    "browseByCity": "Nach Stadt durchsuchen",
+    "closedOnHolidays": "An gesetzlichen Feiertagen geschlossen.",
+    "hoursChanges": "Schließzeiten und besondere Öffnungszeiten"
   },
   "categories": {
     "title": "Kategorien",
@@ -535,7 +537,11 @@
     "city": "Stadt",
     "searchIn": "In {place} suchen",
     "showOnMap": "Auf der Karte",
-    "inArea": "In diesem Gebiet"
+    "inArea": "In diesem Gebiet",
+    "temporarilyClosed": "Vorübergehend geschlossen",
+    "opensOnDate": "Öffnet am {date} um {time}",
+    "holidayToday": "Feiertag: {name}",
+    "specialHoursToday": "Heute besondere Öffnungszeiten"
   },
   "map": {
     "title": "Karte",
@@ -666,7 +672,20 @@
       "draftChanged": "Dieser Entwurf wurde bereits eingereicht oder geprüft. Vor dem Bearbeiten neu laden."
     },
     "categorySearch": "Kategorien suchen",
-    "optionalDetails": "Optionale Angaben"
+    "optionalDetails": "Optionale Angaben",
+    "holidaysClosed": "An gesetzlichen Feiertagen geschlossen",
+    "holidaysClosedHint": "Feste gesetzliche Feiertage werden für den Standort automatisch berücksichtigt. Islamische Feiertage (Eid) bitte unten mit Datum eintragen.",
+    "exceptionsTitle": "Vorübergehende Schließungen und besondere Öffnungszeiten",
+    "exceptionsHint": "Für einen Tag oder Zeitraum: geschlossen oder andere Zeiten (z. B. 10:00–14:00). Die Daten gelten in der Ortszeit des Standorts.",
+    "exceptionsInvalid": "Bitte Daten und Zeiten der Schließungen bzw. besonderen Öffnungszeiten prüfen.",
+    "exceptionFrom": "Von",
+    "exceptionTo": "Bis",
+    "exceptionClosed": "Geschlossen",
+    "exceptionSpecial": "Besondere Öffnungszeiten",
+    "exceptionHours": "Zeiten",
+    "exceptionReason": "Grund (optional, öffentlich)",
+    "exceptionRemove": "Entfernen",
+    "exceptionAdd": "Schließung oder besondere Zeiten hinzufügen"
   },
   "contact": {
     "title": "Kontakt",
