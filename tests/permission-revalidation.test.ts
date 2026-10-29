@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import { runInNewContext } from "node:vm";
 import ts from "typescript";
 import * as rbac from "../src/lib/rbac";
+import { HttpError } from "../src/lib/http-error";
 
 const compiled = ts.transpileModule(readFileSync(new URL("../src/lib/auth-helpers.ts", import.meta.url), "utf8"), {
   compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
@@ -14,6 +15,7 @@ function guards(row: Actor | null | Error, signedIn = true) {
   let queries = 0;
   const modules: Record<string, unknown> = {
     "server-only": {},
+    "@/lib/http-error": { HttpError },
     "@/auth": { auth: async () => signedIn ? { user: { id: "actor", role: "SUPER_ADMIN", email: "old@example.org" } } : null },
     "@/lib/rbac": rbac,
     "@/lib/db": { prisma: { user: { findFirst: async (query: { where: { status: string; deletedAt: null } }) => {

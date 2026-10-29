@@ -96,7 +96,8 @@
       "status": "IMPLEMENTED; fresh CI required",
       "finding": "Existing omitted-id create dedup skipped active membership and post-save upsert could regrant revoked access",
       "fix": "Shared transaction-aware access guard after target resolution; atomic first membership; no action post-commit regrant",
-      "regression": "Native D1 concurrent-create, omitted/explicit denied updates, no-row/no-membership/no-audit changes, active owner and global staff positive controls; browser action denial/positive dedup on both providers"
+      "regression": "Native D1 concurrent-create, omitted/explicit denied updates, no-row/no-membership/no-audit changes, active owner and global staff positive controls; browser action denial/positive dedup on both providers",
+      "followup": "Real HttpError moved to pure module/re-export; existing VM import maps updated with actual class;18 authorization/private-read regressions locally PASS without assertions removed. Full fresh CI mandatory."
     }
   },
   "release": {
@@ -106,7 +107,13 @@
     "deployed": false,
     "liveFeatureVerification": "NOT VERIFIED",
     "lighthouse": "NOT VERIFIED for this feature",
-    "hold": "Await concurrent operator pre-migration backup/restore and provenance; fresh integration CI mandatory"
+    "hold": "Await concurrent operator pre-migration backup/restore and provenance; fresh integration CI mandatory",
+    "liveBaseline": {
+      "run": 40887420432,
+      "job": 123552026212,
+      "status": "PASS",
+      "scope": "Existing production only; PR71 remains unmerged/undeployed"
+    }
   },
   "noNewPaidActivation": true,
   "noPreservedResourceDeletion": true
