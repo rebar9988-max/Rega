@@ -68,7 +68,7 @@ export async function ContentDetail({ section, locale, slug }: { section: Conten
       <article className="container-page max-w-3xl py-10">
         <Breadcrumbs items={[{ label: t("nav.home"), href: "/" }, { label: title, href: `/${section}` }, { label: <bdi>{text.title}</bdi> }]} />
         <header>
-          <p className="mb-2 flex flex-wrap items-center gap-2 text-sm font-semibold text-brand">
+          <p className="mb-2 flex flex-wrap items-center gap-2 text-sm font-semibold text-brand-text">
             {t(`content.${KIND_KEY[section]}`)}
             {entry.verified && <VerifiedBadge />}
           </p>
@@ -78,7 +78,7 @@ export async function ContentDetail({ section, locale, slug }: { section: Conten
         </header>
 
         <dl className="mt-6 grid gap-4 rounded-[var(--radius-card)] border border-line bg-surface p-5 sm:grid-cols-2">
-          {entry.business && businessName && config.showsBusiness && fact(t(section === "jobs" ? "content.employer" : "content.organizer"), <Link href={`/business/${entry.business.slug}`} className="text-brand hover:underline"><bdi>{businessName}</bdi></Link>)}
+          {entry.business && businessName && config.showsBusiness && fact(t(section === "jobs" ? "content.employer" : "content.organizer"), <Link href={`/business/${entry.business.slug}`} className="text-brand-text hover:underline"><bdi>{businessName}</bdi></Link>)}
           {(city || entry.event?.venue) && fact(t("content.where"), <bdi>{[entry.event?.venue, city].filter(Boolean).join(", ")}</bdi>)}
           {entry.job && fact(t("content.employmentType"), t(`content.type_${entry.job.employmentType}` as never))}
           {entry.job && entry.job.languages.length > 0 && fact(t("content.languagesRequired"), entry.job.languages.map((l) => LOCALE_META[l as Locale]?.nativeName ?? l).join(", "))}

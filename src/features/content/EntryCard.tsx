@@ -26,7 +26,7 @@ export async function EntryCard({ entry, section, locale }: { entry: Entry; sect
 
   return (
     <article className="relative flex h-full flex-col gap-2 rounded-[var(--radius-card)] border border-line bg-surface p-5 card-lift shadow-card hover:border-brand/40" data-testid="content-card">
-      {entry.event && <p className="text-sm font-semibold text-brand"><time dateTime={entry.event.startsAt.toISOString().slice(0, 16)}>{formatWhen(entry.event.startsAt, locale)}</time></p>}
+      {entry.event && <p className="text-sm font-semibold text-brand-text"><time dateTime={entry.event.startsAt.toISOString().slice(0, 16)}>{formatWhen(entry.event.startsAt, locale)}</time></p>}
       <h2 className="text-base font-bold">
         <Link href={`/${section}/${entry.slug}`} className="after:absolute after:inset-0 after:content-[''] focus-visible:outline-none">
           <bdi lang={other?.htmlLang} dir={other?.dir}>{text.title}</bdi>

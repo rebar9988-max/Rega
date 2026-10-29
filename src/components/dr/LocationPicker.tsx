@@ -13,7 +13,7 @@ import { isValidCoordinate } from "@/lib/coordinates";
 
 type LatLng = { lat: number; lng: number };
 const round6 = (v: number) => Math.round(v * 1e6) / 1e6;
-const PIN = '<svg viewBox="0 0 32 42" width="32" height="42" aria-hidden="true"><path d="M16 41s14-12.3 14-24A14 14 0 1 0 2 17c0 11.7 14 24 14 24Z" fill="#dc0201" stroke="#fff" stroke-width="2.5"/><circle cx="16" cy="16" r="5.5" fill="#fff"/></svg>';
+const PIN = '<svg viewBox="0 0 32 42" width="32" height="42" aria-hidden="true"><path d="M16 41s14-12.3 14-24A14 14 0 1 0 2 17c0 11.7 14 24 14 24Z" fill="var(--brand)" stroke="#fff" stroke-width="2.5"/><circle cx="16" cy="16" r="5.5" fill="#fff"/></svg>';
 
 export function LocationPicker({ value, fallbackCenter, onPick, label, unavailable, dir }: {
   value: LatLng | null; fallbackCenter: LatLng | null; onPick: (v: LatLng) => void;

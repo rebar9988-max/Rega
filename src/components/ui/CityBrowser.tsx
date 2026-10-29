@@ -112,7 +112,7 @@ export function CityBrowser({ cities, locale, activeCityId, browseLabel, searchP
         <div className="space-y-8">
           {groups.map(({ letter, items }) => (
             <div key={letter}>
-              <h2 className="mb-3 inline-block border-b-2 border-brand/30 pb-1 text-lg font-bold text-brand">
+              <h2 className="mb-3 inline-block border-b-2 border-brand/30 pb-1 text-lg font-bold text-brand-text">
                 {letter}
               </h2>
               <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
@@ -126,7 +126,7 @@ export function CityBrowser({ cities, locale, activeCityId, browseLabel, searchP
                         aria-current={isActive ? "true" : undefined}
                         className={`card-lift flex min-h-11 items-center justify-between gap-2 rounded-xl border px-3.5 py-2.5 text-sm font-medium transition
                           ${isActive
-                            ? "border-brand bg-brand-soft text-brand"
+                            ? "border-brand bg-brand-soft text-brand-text"
                             : "border-line bg-surface hover:border-brand/40 hover:bg-surface-2"
                           }`}
                       >

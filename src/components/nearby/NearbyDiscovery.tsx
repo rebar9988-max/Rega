@@ -236,7 +236,7 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
         <div className="rega-shell overflow-hidden">
           <div className="grid lg:grid-cols-[minmax(19rem,0.9fr)_minmax(0,1.6fr)]">
             <div className="order-2 p-5 sm:p-7 lg:order-1 lg:p-8">
-              <div className="mb-5 inline-flex size-11 items-center justify-center rounded-2xl bg-brand-soft text-brand"><LocateIcon /></div>
+              <div className="mb-5 inline-flex size-11 items-center justify-center rounded-2xl bg-brand-soft text-brand-text"><LocateIcon /></div>
               <h2 className="text-xl font-bold tracking-tight">{t("title")}</h2>
               <p className="mt-2 max-w-xl text-sm leading-7 text-muted">{t("start")}</p>
               {notice && <p role="alert" data-testid="nearby-notice" className="mt-4 rounded-xl bg-brand-soft px-4 py-3 text-sm text-ink">{notice}</p>}
@@ -294,7 +294,7 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
         <p className="text-sm font-semibold" data-testid="nearby-place">{placeName}</p>
         <div className="flex flex-wrap items-center gap-3">
           {center.label.kind !== "device" && status !== "unsupported" && (
-            <button type="button" className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand hover:underline" onClick={locate}>
+            <button type="button" className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-text hover:underline" onClick={locate}>
               <LocateIcon className="size-4" />{t("useLocation")}
             </button>
           )}
@@ -316,9 +316,9 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
               {placeMatches.map((p) => {
                 const c = cities.find((x) => x.id === p.id)!;
                 return (
-                  <button key={p.id} type="button" className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-line bg-bg px-3 text-xs font-semibold hover:border-brand hover:text-brand"
+                  <button key={p.id} type="button" className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-line bg-bg px-3 text-xs font-semibold hover:border-brand hover:text-brand-text"
                     onClick={() => { pickCity(p.id); setQ(""); }}>
-                    <PinIcon className="size-3.5 text-brand" />{t("searchIn", { place: cityName(c) })}
+                    <PinIcon className="size-3.5 text-brand-text" />{t("searchIn", { place: cityName(c) })}
                   </button>
                 );
               })}
@@ -338,7 +338,7 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
           <option value="rating">{t("sortRating")}</option>
         </select>
         <label className="flex min-h-11 items-center gap-2 text-sm font-semibold">
-          <input type="checkbox" className="size-5 accent-[var(--brand)]" checked={filters.open} onChange={(e) => setFilters((f) => ({ ...f, open: e.target.checked }))} data-testid="nearby-open" />
+          <input type="checkbox" className="size-5 accent-brand-control" checked={filters.open} onChange={(e) => setFilters((f) => ({ ...f, open: e.target.checked }))} data-testid="nearby-open" />
           {t("openNow")}
         </label>
       </form>
@@ -364,7 +364,7 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
 
       {status === "ready" && total === 0 && (
         <div className="mt-6 rounded-[var(--radius-card)] border border-line bg-surface p-8 text-center" data-testid="nearby-empty">
-          <span className="mx-auto grid size-12 place-items-center rounded-full bg-brand-soft text-brand"><PinIcon className="size-6" /></span>
+          <span className="mx-auto grid size-12 place-items-center rounded-full bg-brand-soft text-brand-text"><PinIcon className="size-6" /></span>
           <p className="mt-3 font-semibold">{t("empty")}</p>
           <p className="mt-2 text-sm text-muted">{t("emptyHint")}</p>
         </div>
@@ -385,12 +385,12 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
                       {it.category ? <Text value={localize({ ...it.category, name: it.category.nameDe }, "name", locale)} pageLang={pageLang} /> : <Ltr>{it.addressLine1}</Ltr>}
                     </span>
                   </span>
-                  <span className="shrink-0 rounded-full bg-brand-soft px-2.5 py-0.5 text-xs font-bold text-brand">{distance(it)}</span>
+                  <span className="shrink-0 rounded-full bg-brand-soft px-2.5 py-0.5 text-xs font-bold text-brand-text">{distance(it)}</span>
                 </button>
               </li>
             ))}
             {mapList.length > mapShown && (
-              <li><button type="button" className="min-h-11 w-full rounded-xl border border-line bg-surface text-sm font-semibold hover:border-brand hover:text-brand" onClick={() => setMapShown((n) => n + LIST_PAGE)}>{t("loadMore")}</button></li>
+              <li><button type="button" className="min-h-11 w-full rounded-xl border border-line bg-surface text-sm font-semibold hover:border-brand hover:text-brand-text" onClick={() => setMapShown((n) => n + LIST_PAGE)}>{t("loadMore")}</button></li>
             )}
           </ul>
           <div className="order-1 h-[min(70dvh,640px)] min-h-[22rem] lg:order-2 lg:sticky lg:top-24">
@@ -431,7 +431,7 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
                   <h3 className="min-w-0 text-base font-bold">
                     <Link href={`/business/${it.business.slug}`} className="hover:underline"><Text value={name} pageLang={pageLang} /></Link>
                   </h3>
-                  <span className="shrink-0 rounded-full bg-brand-soft px-2.5 py-0.5 text-xs font-bold text-brand" data-testid="nearby-distance">{distance(it)}</span>
+                  <span className="shrink-0 rounded-full bg-brand-soft px-2.5 py-0.5 text-xs font-bold text-brand-text" data-testid="nearby-distance">{distance(it)}</span>
                 </div>
                 <div className="flex flex-wrap items-center gap-2 text-sm">
                   <Rating value={it.business.ratingAvg} count={it.business.ratingCount} />
@@ -442,10 +442,10 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
                   <Ltr>{it.addressLine1}</Ltr>{it.postalCode && <>, <Ltr>{it.postalCode}</Ltr></>}{city && <> · <Text value={city} pageLang={pageLang} /></>}
                 </address>
                 <div className="mt-auto flex flex-wrap gap-2 pt-1 text-sm font-semibold">
-                  <button type="button" className="inline-flex min-h-10 items-center gap-1.5 rounded-xl border border-line px-3 hover:border-brand hover:text-brand" onClick={() => { setView("map"); setSelected(it.id); }}>
+                  <button type="button" className="inline-flex min-h-10 items-center gap-1.5 rounded-xl border border-line px-3 hover:border-brand hover:text-brand-text" onClick={() => { setView("map"); setSelected(it.id); }}>
                     <MapIcon />{t("showOnMap")}
                   </button>
-                  {it.phone && <a className="inline-flex min-h-10 items-center rounded-xl border border-line px-3 hover:border-brand hover:text-brand" href={`tel:${it.phone.replace(/[^\d+]/g, "")}`}>{t("call")}</a>}
+                  {it.phone && <a className="inline-flex min-h-10 items-center rounded-xl border border-line px-3 hover:border-brand hover:text-brand-text" href={`tel:${it.phone.replace(/[^\d+]/g, "")}`}>{t("call")}</a>}
                   <Link className="inline-flex min-h-10 items-center rounded-xl bg-brand px-3 text-brand-ink hover:bg-brand-hover" href={`/business/${it.business.slug}`}>{t("details")}</Link>
                 </div>
               </li>
@@ -456,7 +456,7 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
 
       {view === "list" && status === "ready" && page < pages && (
         <div className="mt-6 text-center">
-          <button type="button" className="min-h-11 rounded-xl border border-line bg-surface px-6 text-sm font-semibold hover:border-brand hover:text-brand" onClick={() => load(center, page + 1)}>{t("loadMore")}</button>
+          <button type="button" className="min-h-11 rounded-xl border border-line bg-surface px-6 text-sm font-semibold hover:border-brand hover:text-brand-text" onClick={() => load(center, page + 1)}>{t("loadMore")}</button>
         </div>
       )}
       <p className="mt-6 text-xs text-muted">{t("privacy")}</p>
@@ -516,7 +516,7 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
               </button>
             </div>
             <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted">
-              {it.category && <span className="font-semibold text-brand"><Text value={localize({ ...it.category, name: it.category.nameDe }, "name", locale)} pageLang={pageLang} /></span>}
+              {it.category && <span className="font-semibold text-brand-text"><Text value={localize({ ...it.category, name: it.category.nameDe }, "name", locale)} pageLang={pageLang} /></span>}
               <span>{dist}</span>
               {it.business.verified && <VerifiedBadge />}
             </div>
@@ -528,8 +528,8 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
         </address>
         <div className="mt-3 flex flex-wrap gap-2 text-sm font-semibold">
           <Link className="inline-flex min-h-10 items-center rounded-xl bg-brand px-3 text-brand-ink hover:bg-brand-hover" href={`/business/${it.business.slug}`}>{tm("details")}</Link>
-          {it.phone && <a className="inline-flex min-h-10 items-center rounded-xl border border-line px-3 hover:border-brand hover:text-brand" href={`tel:${it.phone.replace(/[^\d+]/g, "")}`}><Ltr>{it.phone}</Ltr></a>}
-          <a className="inline-flex min-h-10 items-center rounded-xl border border-line px-3 hover:border-brand hover:text-brand" target="_blank" rel="noopener noreferrer"
+          {it.phone && <a className="inline-flex min-h-10 items-center rounded-xl border border-line px-3 hover:border-brand hover:text-brand-text" href={`tel:${it.phone.replace(/[^\d+]/g, "")}`}><Ltr>{it.phone}</Ltr></a>}
+          <a className="inline-flex min-h-10 items-center rounded-xl border border-line px-3 hover:border-brand hover:text-brand-text" target="_blank" rel="noopener noreferrer"
             href={`https://www.google.com/maps/dir/?api=1&destination=${it.latitude},${it.longitude}`}>{tm("directions")}</a>
         </div>
       </article>

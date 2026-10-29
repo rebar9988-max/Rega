@@ -15,7 +15,7 @@ function linkify(text: string): ReactNode {
     if (i % 2 === 0) return <Fragment key={i}>{part}</Fragment>;
     const external = part.startsWith("http");
     return (
-      <a key={i} href={external ? part : `mailto:${part}`} {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})} className="font-semibold text-brand underline" dir="ltr">{part}</a>
+      <a key={i} href={external ? part : `mailto:${part}`} {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})} className="font-semibold text-brand-text underline" dir="ltr">{part}</a>
     );
   });
 }
@@ -47,7 +47,7 @@ export function legalPage(key: LegalKey, path: string) {
           {locale !== "de" && (
             <p role="note" className="rounded-xl border border-line bg-surface px-4 py-3 text-sm">
               {texts.ui.translationNote}{" "}
-              <Link href={path} locale="de" hrefLang="de" className="font-semibold text-brand underline">{texts.ui.germanLink}</Link>
+              <Link href={path} locale="de" hrefLang="de" className="font-semibold text-brand-text underline">{texts.ui.germanLink}</Link>
             </p>
           )}
           {doc.blocks.map((block, i) => (

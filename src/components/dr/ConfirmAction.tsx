@@ -41,7 +41,7 @@ export function ConfirmAction({ action, fields, trigger, triggerClassName, trigg
           <form action={action} className="p-5 sm:p-6">
             {Object.entries(fields).map(([name, value]) => <input key={name} type="hidden" name={name} value={value} />)}
             <div className="flex gap-4">
-              <span aria-hidden="true" className={`grid size-10 shrink-0 place-items-center rounded-full ${tone === "danger" ? "bg-brand-soft text-brand" : "bg-surface-2 text-ink"}`}>
+              <span aria-hidden="true" className={`grid size-10 shrink-0 place-items-center rounded-full ${tone === "danger" ? "bg-brand-soft text-brand-text" : "bg-surface-2 text-ink"}`}>
                 <DrIcon name={icon ?? "alert"} className="size-5" />
               </span>
               <div className="min-w-0">

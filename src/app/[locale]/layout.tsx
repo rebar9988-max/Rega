@@ -93,8 +93,8 @@ export default async function LocaleLayout({ children, params }: { children: Rea
           <body className="min-h-dvh bg-surface-2 text-ink">
             <main className="grid min-h-dvh place-items-center px-5 py-12">
               <section className="w-full max-w-xl rounded-[var(--radius-card)] border border-line bg-surface p-8 text-center shadow-card sm:p-12">
-                <p dir="ltr" className="text-4xl font-black tracking-tight text-brand">REGA</p>
-                <p className="mt-3 inline-flex rounded-full bg-brand-soft px-3 py-1 text-xs font-bold text-brand">{copy.status}</p>
+                <p dir="ltr" className="text-4xl font-black tracking-tight text-brand-text">REGA</p>
+                <p className="mt-3 inline-flex rounded-full bg-brand-soft px-3 py-1 text-xs font-bold text-brand-text">{copy.status}</p>
                 <h1 className="mt-6 text-2xl font-extrabold sm:text-3xl">{copy.title}</h1>
                 <p className="mx-auto mt-4 max-w-lg text-sm leading-7 text-muted sm:text-base">{copy.body}</p>
               </section>

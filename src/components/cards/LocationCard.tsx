@@ -23,7 +23,7 @@ export async function LocationCard({ l }: { l: LocationCardData }) {
       <address className="text-sm not-italic text-muted"><Ltr>{l.addressLine1}</Ltr>{l.postalCode && <>, <Ltr>{l.postalCode}</Ltr></>}</address>
       <div className="mt-auto flex items-center justify-between pt-1 text-xs text-muted">
         <span>{city ? <Text value={city} pageLang={pageLang} /> : t("singular")}</span>
-        {l.isPrimary && <span className="text-brand">★</span>}
+        {l.isPrimary && <span className="text-brand-text">★</span>}
       </div>
     </article>
   );

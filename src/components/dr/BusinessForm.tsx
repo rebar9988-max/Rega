@@ -268,7 +268,7 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
           <div className="flex flex-wrap gap-2">
             {LOCALES.map((l) => (
               <label key={l} className="inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-xl border border-line px-3 text-sm has-[:checked]:border-brand has-[:checked]:bg-brand-soft">
-                <input type="checkbox" name="languages" value={l} defaultChecked={initial.languages?.includes(l)} className="size-4 accent-[var(--brand)]" />
+                <input type="checkbox" name="languages" value={l} defaultChecked={initial.languages?.includes(l)} className="size-4 accent-brand-control" />
                 <span lang={LOCALE_META[l].htmlLang}>{LOCALE_META[l].nativeName}</span>
               </label>
             ))}
@@ -290,7 +290,7 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
             <input name="whatsapp" type="tel" dir="ltr" maxLength={50} placeholder="+49 178 1234567" value={wa} onChange={(e) => setWa(e.target.value)} className={input}
               aria-invalid={bad("whatsapp") || (waResult && !waResult.ok ? true : undefined)} aria-describedby="whatsapp-hint" data-testid="whatsapp" />
           </label>
-          <span id="whatsapp-hint" className={`text-xs ${waResult && !waResult.ok ? "font-semibold text-brand" : "text-muted"}`} data-testid="whatsapp-hint">
+          <span id="whatsapp-hint" className={`text-xs ${waResult && !waResult.ok ? "font-semibold text-brand-text" : "text-muted"}`} data-testid="whatsapp-hint">
             {waResult && !waResult.ok ? t("whatsappInvalid") : waResult?.ok ? t("whatsappSaved", { number: waResult.value }) : t("whatsappHint")}
           </span>
         </div>
@@ -328,7 +328,7 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
           </div>
           <div className="flex items-end lg:col-span-2">
             <button type="button" onClick={find} disabled={finding || address.trim().length < 3 || !city.trim()} data-testid="find-location"
-              className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border-2 border-brand px-4 text-sm font-bold text-brand hover:bg-brand hover:text-brand-ink disabled:opacity-50">
+              className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border-2 border-brand px-4 text-sm font-bold text-brand-text hover:bg-brand hover:text-brand-ink disabled:opacity-50">
               <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5" /><path d="m20 20-4.2-4.2" /></svg>
               {finding ? t("finding") : t("findLocation")}
             </button>
@@ -345,8 +345,8 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
               <ul className="space-y-2">
                 {lookup.hits.map((h, i) => (
                   <li key={i} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-line px-3 py-2 text-sm">
-                    <span className="min-w-0 flex-1"><bdi>{h.label}</bdi> <span className={`ms-1 text-xs font-semibold ${h.precision === "address" ? "text-[oklch(0.45_0.12_150)]" : "text-brand"}`}>· {t(`precision_${h.precision}`)}</span></span>
-                    <button type="button" className="min-h-9 rounded-lg border border-line px-3 text-xs font-semibold hover:border-brand hover:text-brand" onClick={() => place(h, "geocoded")}>{t("useSuggestion")}</button>
+                    <span className="min-w-0 flex-1"><bdi>{h.label}</bdi> <span className={`ms-1 text-xs font-semibold ${h.precision === "address" ? "text-[oklch(0.45_0.12_150)]" : "text-brand-text"}`}>· {t(`precision_${h.precision}`)}</span></span>
+                    <button type="button" className="min-h-9 rounded-lg border border-line px-3 text-xs font-semibold hover:border-brand hover:text-brand-text" onClick={() => place(h, "geocoded")}>{t("useSuggestion")}</button>
                   </li>
                 ))}
               </ul>
@@ -366,10 +366,10 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
             <input name="longitude" inputMode="decimal" dir="ltr" value={lng} onChange={(e) => { setLng(e.target.value); setSource("manual"); setConfirmed(false); }} className={input} aria-invalid={(coordsGiven && !coordsOk) || bad("longitude")} data-testid="lng" />
           </label>
         </div>
-        {coordsGiven && !coordsOk && <p role="alert" className="text-sm font-semibold text-brand" data-testid="coords-invalid">{t("coordsInvalid")}</p>}
+        {coordsGiven && !coordsOk && <p role="alert" className="text-sm font-semibold text-brand-text" data-testid="coords-invalid">{t("coordsInvalid")}</p>}
         <input type="hidden" name="coordsSource" value={source} />
         <label className="flex items-start gap-3 rounded-xl bg-surface-2 p-3 text-sm">
-          <input type="checkbox" name="coordsConfirmed" value="1" checked={confirmed} disabled={!coordsOk} onChange={(e) => setConfirmed(e.target.checked)} className="mt-0.5 size-5 accent-[var(--brand)]" data-testid="confirm-location" />
+          <input type="checkbox" name="coordsConfirmed" value="1" checked={confirmed} disabled={!coordsOk} onChange={(e) => setConfirmed(e.target.checked)} className="mt-0.5 size-5 accent-brand-control" data-testid="confirm-location" />
           <span><span className="font-semibold">{t("confirm")}</span><br /><span className="text-muted">{t("confirmHint")}</span></span>
         </label>
       </fieldset>
@@ -424,12 +424,12 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
 
       <div className="flex flex-wrap gap-3">
         {wizard && step > 1 && (
-          <button type="button" onClick={() => goTo((step - 1) as 1 | 2)} disabled={saving || mediaBusy > 0} data-testid="wizard-back" className="min-h-11 rounded-xl border border-line bg-surface px-6 text-sm font-bold hover:border-brand hover:text-brand disabled:opacity-60">{t("wizard.back")}</button>
+          <button type="button" onClick={() => goTo((step - 1) as 1 | 2)} disabled={saving || mediaBusy > 0} data-testid="wizard-back" className="min-h-11 rounded-xl border border-line bg-surface px-6 text-sm font-bold hover:border-brand hover:text-brand-text disabled:opacity-60">{t("wizard.back")}</button>
         )}
         {wizard && step < 3 && (
           <button type="button" onClick={next} disabled={saving || mediaBusy > 0} data-testid="wizard-next" className="min-h-11 rounded-xl bg-brand px-6 text-sm font-bold text-brand-ink hover:bg-brand-hover disabled:opacity-60">{t("wizard.next")}</button>
         )}
-        <button type="submit" name="intent" value={wizard && isDraft ? "draft" : "save"} disabled={saving || mediaBusy > 0 || (wizard && isDraft && name.trim().length < 2)} data-testid={wizard && isDraft ? "save-draft" : "save"} className="min-h-11 rounded-xl border border-line bg-surface px-6 text-sm font-bold hover:border-brand hover:text-brand disabled:opacity-60">{wizard && isDraft ? t("wizard.saveDraft") : t("save")}</button>
+        <button type="submit" name="intent" value={wizard && isDraft ? "draft" : "save"} disabled={saving || mediaBusy > 0 || (wizard && isDraft && name.trim().length < 2)} data-testid={wizard && isDraft ? "save-draft" : "save"} className="min-h-11 rounded-xl border border-line bg-surface px-6 text-sm font-bold hover:border-brand hover:text-brand-text disabled:opacity-60">{wizard && isDraft ? t("wizard.saveDraft") : t("save")}</button>
         {canPublish ? (
           <button type="submit" name="intent" value="publish" disabled={saving || mediaBusy > 0} className="min-h-11 rounded-xl bg-brand px-6 text-sm font-bold text-brand-ink hover:bg-brand-hover disabled:opacity-60">{t("savePublish")}</button>
         ) : (!wizard || step === 3) && (

@@ -103,7 +103,7 @@ export function ContentForm({ section, initial, businesses, cities, categories, 
             <div className="flex flex-wrap gap-2">
               {LOCALES.map((l) => (
                 <label key={l} className="inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-xl border border-line px-3 text-sm has-[:checked]:border-brand has-[:checked]:bg-brand-soft">
-                  <input type="checkbox" name="languages" value={l} defaultChecked={initial.languages?.includes(l)} className="size-4 accent-[var(--brand)]" />
+                  <input type="checkbox" name="languages" value={l} defaultChecked={initial.languages?.includes(l)} className="size-4 accent-brand-control" />
                   <span lang={LOCALE_META[l].htmlLang}>{LOCALE_META[l].nativeName}</span>
                 </label>
               ))}
@@ -166,7 +166,7 @@ export function ContentForm({ section, initial, businesses, cities, categories, 
       </fieldset>
 
       <div className="flex flex-wrap gap-3">
-        <button type="submit" name="intent" value="save" disabled={saving} className="min-h-11 rounded-xl border border-line bg-surface px-6 text-sm font-bold hover:border-brand hover:text-brand disabled:opacity-60">{t("save")}</button>
+        <button type="submit" name="intent" value="save" disabled={saving} className="min-h-11 rounded-xl border border-line bg-surface px-6 text-sm font-bold hover:border-brand hover:text-brand-text disabled:opacity-60">{t("save")}</button>
         {canPublish ? (
           <button type="submit" name="intent" value="publish" disabled={saving} className="min-h-11 rounded-xl bg-brand px-6 text-sm font-bold text-brand-ink hover:bg-brand-hover disabled:opacity-60">{t("publish")}</button>
         ) : (

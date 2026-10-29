@@ -162,7 +162,7 @@ export function PhotosField({
         <p
           role="alert"
           data-testid="upload-photos-state"
-          className="text-sm text-brand"
+          className="text-sm text-brand-text"
         >
           {error === "unsupported" || error === "badType"
             ? t("unsupported")

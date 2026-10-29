@@ -48,13 +48,13 @@ export function BusinessRow({ b, locale, pageLang, category }: { b: BusinessCard
           {category && cityName && <span aria-hidden="true">·</span>}
           {cityName && (
             <span className="inline-flex min-w-0 items-center gap-1">
-              <FigmaIcon name="map-pin" className="size-3 shrink-0 text-brand" />
+              <FigmaIcon name="map-pin" className="size-3 shrink-0 text-brand-text" />
               <span className="truncate"><Text value={cityName} pageLang={pageLang} /></span>
             </span>
           )}
         </p>
       </div>
-      <FigmaIcon name="arrow-right" className="rtl-flip size-5 shrink-0 text-brand transition-transform group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5" />
+      <FigmaIcon name="arrow-right" className="rtl-flip size-5 shrink-0 text-brand-text transition-transform group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5" />
     </article>
   );
 }

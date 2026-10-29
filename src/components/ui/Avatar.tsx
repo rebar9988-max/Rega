@@ -6,6 +6,6 @@ export function Avatar({ name, src, size = "size-12" }: { name: string; src?: st
     // eslint-disable-next-line @next/next/no-img-element
     <img {...responsiveImage(src)} sizes="64px" alt="" width={96} height={96} loading="lazy" decoding="async" className={`${size} shrink-0 rounded-xl border border-line bg-surface object-cover`} />
   ) : (
-    <span aria-hidden="true" className={`${size} grid shrink-0 place-items-center rounded-xl bg-brand-soft text-lg font-bold text-brand`}>{initial}</span>
+    <span aria-hidden="true" className={`${size} grid shrink-0 place-items-center rounded-xl bg-brand-soft text-lg font-bold text-brand-text`}>{initial}</span>
   );
 }

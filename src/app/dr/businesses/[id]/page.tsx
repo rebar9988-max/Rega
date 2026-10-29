@@ -69,7 +69,7 @@ export default async function EditBusiness({ params, searchParams }: { params: P
                 <DrIcon name={visibility === "public" ? "view" : "hide"} className="size-3.5" />{t(`businessVisibility.${visibility}`)}
               </span>
               <span data-testid="staff-verification" className="inline-flex items-center gap-1 text-muted">{b.verified && <DrIcon name="check" className="size-3.5 text-[oklch(0.62_0.15_150)]" />}{b.verified ? t("businesses.verified") : t("businessModeration.unverified")}</span>
-              {b.featured && <span className="inline-flex items-center gap-1 font-semibold text-brand"><DrIcon name="pin" className="size-3.5" />{t("drAdmin.pinned")}</span>}
+              {b.featured && <span className="inline-flex items-center gap-1 font-semibold text-brand-text"><DrIcon name="pin" className="size-3.5" />{t("drAdmin.pinned")}</span>}
             </div>
           </div>
         </div>
@@ -108,7 +108,7 @@ export default async function EditBusiness({ params, searchParams }: { params: P
             const done = !readiness.missing.includes(k);
             return (
               <li key={k} className="flex items-center gap-2" data-done={done}>
-                <span aria-hidden="true" className={`grid size-5 place-items-center rounded-full text-xs font-bold ${done ? "bg-[oklch(0.9_0.08_150)] text-[oklch(0.35_0.1_150)]" : "bg-brand-soft text-brand"}`}>{done ? "✓" : "!"}</span>
+                <span aria-hidden="true" className={`grid size-5 place-items-center rounded-full text-xs font-bold ${done ? "bg-[oklch(0.9_0.08_150)] text-[oklch(0.35_0.1_150)]" : "bg-brand-soft text-brand-text"}`}>{done ? "✓" : "!"}</span>
                 {t(`bizForm.req_${k}`)}
               </li>
             );
@@ -141,7 +141,7 @@ export default async function EditBusiness({ params, searchParams }: { params: P
       <section aria-labelledby="biz-services" className="mt-8 rounded-[var(--radius-card)] border border-line bg-surface p-5" data-testid="business-services">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
           <h2 id="biz-services" className="text-base font-bold">{t("dashboard.services")}</h2>
-          {can(user.role, "service.write") && <Link href={`/dr/services/new?business=${b.id}`} className="inline-flex min-h-10 items-center rounded-xl border-2 border-brand px-4 text-sm font-bold text-brand hover:bg-brand hover:text-brand-ink">+ {t("svcForm.new")}</Link>}
+          {can(user.role, "service.write") && <Link href={`/dr/services/new?business=${b.id}`} className="inline-flex min-h-10 items-center rounded-xl border-2 border-brand px-4 text-sm font-bold text-brand-text hover:bg-brand hover:text-brand-ink">+ {t("svcForm.new")}</Link>}
         </div>
         {services.length === 0 ? <p className="text-sm text-muted">{t("svcForm.noneYet")}</p> : (
           <ul className="divide-y divide-line">
@@ -149,7 +149,7 @@ export default async function EditBusiness({ params, searchParams }: { params: P
               <li key={s.id} className="flex flex-wrap items-center justify-between gap-2 py-2 text-sm">
                 <bdi className="font-semibold">{s.nameCkb && locale === "ckb" ? s.nameCkb : s.name}</bdi>
                 <span className="flex items-center gap-3"><span className="text-muted">{t(`status.${s.status}`)}</span>
-                  {can(user.role, "service.write") && <Link href={`/dr/services/${s.id}`} className="font-semibold text-brand hover:underline">{t("bizForm.edit")}</Link>}</span>
+                  {can(user.role, "service.write") && <Link href={`/dr/services/${s.id}`} className="font-semibold text-brand-text hover:underline">{t("bizForm.edit")}</Link>}</span>
               </li>
             ))}
           </ul>
@@ -159,7 +159,7 @@ export default async function EditBusiness({ params, searchParams }: { params: P
       <section aria-labelledby="biz-offers" className="mt-8 rounded-[var(--radius-card)] border border-line bg-surface p-5" data-testid="business-offers">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
           <h2 id="biz-offers" className="text-base font-bold">{t("offerForm.sectionOffers")}</h2>
-          <Link href={`/dr/offers/new?business=${b.id}`} className="inline-flex min-h-10 items-center rounded-xl border-2 border-brand px-4 text-sm font-bold text-brand hover:bg-brand hover:text-brand-ink" data-testid="new-offer">+ {t("offerForm.new")}</Link>
+          <Link href={`/dr/offers/new?business=${b.id}`} className="inline-flex min-h-10 items-center rounded-xl border-2 border-brand px-4 text-sm font-bold text-brand-text hover:bg-brand hover:text-brand-ink" data-testid="new-offer">+ {t("offerForm.new")}</Link>
         </div>
         {offers.length === 0 ? <p className="text-sm text-muted">{t("offerForm.noneYet")}</p> : (
           <ul className="divide-y divide-line">
@@ -167,7 +167,7 @@ export default async function EditBusiness({ params, searchParams }: { params: P
               <li key={o.id} className="flex flex-wrap items-center justify-between gap-2 py-2 text-sm">
                 <bdi className="font-semibold">{o.title}</bdi>
                 <span className="flex items-center gap-3"><span className="text-muted">{t(`offerForm.state_${offerState(o, now)}`)}</span>
-                  <Link href={`/dr/offers/${o.id}`} className="font-semibold text-brand hover:underline">{t("bizForm.edit")}</Link></span>
+                  <Link href={`/dr/offers/${o.id}`} className="font-semibold text-brand-text hover:underline">{t("bizForm.edit")}</Link></span>
               </li>
             ))}
           </ul>

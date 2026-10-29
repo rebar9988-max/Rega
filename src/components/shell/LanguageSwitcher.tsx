@@ -41,7 +41,7 @@ export function LanguageSwitcher() {
     <details ref={ref} className="relative" onKeyDown={(e) => e.key === "Escape" && close(true)}>
       {/* Design frame 204:912: language name + chevron. Fixed width so the trigger never moves between languages. */}
       <summary aria-label={`${t("language")}: ${LOCALE_META[locale as keyof typeof LOCALE_META]?.nativeName ?? locale}`}
-        className="flex min-h-11 w-[5.25rem] cursor-pointer list-none items-center justify-center gap-[5px] rounded-xl text-[13px] font-medium text-muted transition-colors hover:text-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand [&::-webkit-details-marker]:hidden">
+        className="flex min-h-11 w-[5.25rem] cursor-pointer list-none items-center justify-center gap-[5px] rounded-xl text-[13px] font-medium text-muted transition-colors hover:text-brand-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand [&::-webkit-details-marker]:hidden">
         <span className="whitespace-nowrap" lang={LOCALE_META[locale as keyof typeof LOCALE_META]?.htmlLang}>{TRIGGER_LABEL[locale] ?? locale.toUpperCase()}</span>
         <svg viewBox="0 0 24 24" className="size-3 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
       </summary>
@@ -53,7 +53,7 @@ export function LanguageSwitcher() {
             <li key={code}>
               <Link href={href} locale={code} onClick={() => close()} hrefLang={meta.htmlLang}
                 aria-current={current ? "true" : undefined}
-                className={`flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm hover:bg-brand-soft focus-visible:outline-2 focus-visible:outline-brand ${current ? "bg-brand-soft font-bold text-brand" : ""}`}>
+                className={`flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm hover:bg-brand-soft focus-visible:outline-2 focus-visible:outline-brand ${current ? "bg-brand-soft font-bold text-brand-text" : ""}`}>
                 <span className="w-5 shrink-0 text-center" aria-hidden="true">{current ? "✓" : ""}</span>
                 <span className="min-w-0 flex-1 truncate text-start" lang={meta.htmlLang} dir={meta.dir} style={{ textAlign: "left" }}>{meta.nativeName}</span>
                 <span className="text-xs font-semibold text-muted" dir="ltr" aria-hidden="true">{meta.short}</span>

@@ -36,7 +36,7 @@ export function MobileNav({ items }: { items: NavItem[] }) {
               <li key={item.key}>
                 <Link href={item.href} onClick={() => dialog.current?.close()}
                   aria-current={pathname === item.href ? "page" : undefined}
-                  className={`flex min-h-12 items-center rounded-xl px-4 text-base font-semibold hover:bg-surface-2 ${pathname === item.href ? "bg-brand-soft text-brand" : ""}`}>
+                  className={`flex min-h-12 items-center rounded-xl px-4 text-base font-semibold hover:bg-surface-2 ${pathname === item.href ? "bg-brand-soft text-brand-text" : ""}`}>
                   {t(item.key)}
                 </Link>
               </li>

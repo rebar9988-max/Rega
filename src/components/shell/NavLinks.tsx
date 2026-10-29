@@ -19,7 +19,7 @@ export function NavLinks({ dir, items }: { dir: "rtl" | "ltr"; items: NavItem[] 
           <li key={item.key}>
             {/* Approved concept: vertically centred label, a short red bar under the current section. */}
             <Link href={item.href} dir={dir} aria-current={active ? "page" : undefined}
-              className={`relative flex h-full items-center whitespace-nowrap text-[14px] transition-colors hover:text-brand ${active ? "font-bold text-brand" : "font-medium text-ink"}`}>
+              className={`relative flex h-full items-center whitespace-nowrap text-[14px] transition-colors hover:text-brand-text ${active ? "font-bold text-brand-text" : "font-medium text-ink"}`}>
               <span>{t(item.key)}</span>
               <span aria-hidden="true" className={`absolute inset-x-0 bottom-0 h-[3px] rounded-t-full ${active ? "bg-brand" : "bg-transparent"}`} />
             </Link>
