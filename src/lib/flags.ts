@@ -13,7 +13,7 @@ export type FlagKey =
   | "dashboard.analytics";
 
 /** Safe defaults when the flags table has not been seeded yet. */
-const DEFAULTS: Record<FlagKey, boolean> = {
+export const FLAG_DEFAULTS: Readonly<Record<FlagKey, boolean>> = {
   "public.aiSearch": false,
   "public.reviews": true, // reviews are live (moderated); an admin can switch them off with the flag
   "public.ratings": true,
@@ -35,7 +35,7 @@ export const loadFlags = cache(async (): Promise<Record<string, { enabled: boole
 export async function isEnabled(key: FlagKey, bucket = ""): Promise<boolean> {
   const flags = await loadFlags();
   const flag = flags[key];
-  if (!flag) return DEFAULTS[key];
+  if (!flag) return FLAG_DEFAULTS[key];
   if (!flag.enabled) return false;
   if (flag.rollout >= 100) return true;
   if (flag.rollout <= 0) return false;

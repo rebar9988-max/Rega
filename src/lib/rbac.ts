@@ -61,6 +61,8 @@ export const PERMISSIONS = [
   "content.read",
   "content.write",
   "review.moderate",
+  /** Digital Operations Center (/dr/operations): owner only — held by SUPER_ADMIN alone, which only the owner's address can be. */
+  "operations.manage",
 ] as const;
 export type Permission = (typeof PERMISSIONS)[number];
 
@@ -68,7 +70,7 @@ const ALL: Permission[] = [...PERMISSIONS];
 
 const MATRIX: Record<Role, Permission[] | "*"> = {
   SUPER_ADMIN: "*",
-  ADMIN: ALL.filter((p) => p !== "settings.write" && p !== "featureflag.write" && p !== "user.role").concat([
+  ADMIN: ALL.filter((p) => p !== "settings.write" && p !== "featureflag.write" && p !== "user.role" && p !== "operations.manage").concat([
     "settings.read",
     "featureflag.read",
     "aiconfig.read",
