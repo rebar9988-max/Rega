@@ -26,7 +26,9 @@ test("searches are counted without personal data and shown in the dashboard", as
   await expect(page.getByTestId("search-top")).not.toContainText("example.org");
 });
 
-test("the dashboard is not public", async ({ page }) => {
-  await page.goto("/dr/search-analytics");
-  await expect(page).not.toHaveURL(/\/dr\/search-analytics$/);
+test("the dashboard is not public", async ({ request }) => {
+  // A guest gets the /dr sign-in form only: no dashboard navigation, no counts.
+  const html = await (await request.get("/dr/search-analytics", { maxRedirects: 0 })).text();
+  expect(html).toContain("data-dr-sign-in");
+  expect(html).not.toContain("search-totals");
 });
