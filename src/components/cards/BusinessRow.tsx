@@ -17,24 +17,24 @@ export function languageNames(codes: readonly string[] | undefined): string[] {
  * image (cover, logo or initial; never a stock photo), name, rating when real reviews exist, languages, category and
  * city, and a red arrow. The whole card is one link (stretched), so it is one focus stop with one accessible name.
  */
-export function BusinessRow({ b, locale, pageLang, category }: { b: BusinessCardData; locale: Locale; pageLang: string; category: Localized | null }) {
+export function BusinessRow({ b, locale, pageLang, category, layout, viewLabel }: { layout?: "home"; viewLabel?: string; b: BusinessCardData; locale: Locale; pageLang: string; category: Localized | null }) {
   const name = localize(b, "name", locale);
   const city = b.locations[0]?.city;
   const cityName = city ? localize({ ...city, name: city.nameEn }, "name", locale) : null;
   const langs = languageNames(b.languages);
   return (
-    <article className="rega-card group relative flex min-h-[112px] items-center gap-3 p-2.5 pe-3">
-      <div className="size-[88px] shrink-0 overflow-hidden rounded-lg bg-brand-soft">
+    <article className={`rega-card group relative flex min-h-[112px] items-center gap-3 p-3 ${layout === "home" ? "rega-home-business lg:min-h-[310px] lg:flex-col lg:items-stretch" : ""}`}>
+      <div className={`size-[88px] shrink-0 overflow-hidden rounded-xl bg-surface-2 ${layout === "home" ? "lg:h-[148px] lg:w-full" : ""}`}>
         {b.coverUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={b.coverUrl} alt="" width={176} height={176} loading="lazy" decoding="async" className="size-full object-cover transition-transform duration-300 group-hover:scale-[1.04]" />
         ) : (
-          <div className="grid size-full place-items-center bg-[radial-gradient(circle_at_30%_20%,var(--surface),var(--brand-soft))]">
+          <div className="grid size-full place-items-center bg-surface-2">
             <Avatar name={name.text} src={b.logoUrl} size="size-12" />
           </div>
         )}
       </div>
-      <div className="flex min-w-0 flex-1 flex-col gap-1">
+      <div className="flex min-w-0 flex-1 flex-col gap-2">
         <h3 className="truncate text-[15px] font-bold leading-snug text-ink">
           <Link href={`/business/${b.slug}`} className="after:absolute after:inset-0 after:rounded-[inherit] after:content-[''] focus-visible:outline-none">
             <Text value={name} pageLang={pageLang} />
@@ -53,7 +53,10 @@ export function BusinessRow({ b, locale, pageLang, category }: { b: BusinessCard
           )}
         </p>
       </div>
-      <FigmaIcon name="arrow-right" className="rtl-flip size-5 shrink-0 text-brand-text transition-transform group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5" />
+      {layout === "home" && viewLabel
+        ? <span aria-hidden="true" className="inline-flex min-h-11 items-center justify-center gap-2 text-sm font-bold text-brand-text lg:w-full lg:rounded-[13px] lg:bg-brand lg:px-4 lg:text-brand-ink">{viewLabel}<FigmaIcon name="arrow-right" className="rtl-flip size-4 shrink-0" /></span>
+        : <FigmaIcon name="arrow-right" className="rtl-flip size-5 shrink-0 text-brand-text transition-transform group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5" />}
+
     </article>
   );
 }

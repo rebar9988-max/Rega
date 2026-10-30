@@ -1,7 +1,7 @@
 {
   "meta": {
-    "title": "REGA Platform — ڕێگا | Attività, servizi e luoghi",
-    "description": "REGA Platform: il portale curdo per la Germania e l’Europa. Trova attività, servizi e luoghi vicino a te, con un assistente IA in undici lingue."
+    "title": "Rega24 — ڕێگا | Attività, servizi e luoghi",
+    "description": "Rega24: il portale curdo per la Germania e l’Europa. Trova attività, servizi e luoghi vicino a te, con un assistente IA in undici lingue."
   },
   "common": {
     "loading": "Caricamento ...",
@@ -116,9 +116,9 @@
       }
     ],
     "ask": "Che cosa cerchi?",
-    "communityTitle": "La tua comunità.",
-    "communityAccent": "Più vicina.",
-    "communityLead": "Scopri attività e servizi locali affidabili in Germania, sostenuti dalla tua comunità.",
+    "communityTitle": "Servizi locali,",
+    "communityAccent": "facili da trovare",
+    "communityLead": "Scopri attività e servizi curdi in Germania e in Europa.",
     "popularTitle": "Popolari nella tua zona",
     "lead": "Servizi, attività, luoghi e informazioni con REGA",
     "what": "ad es. ristorante, medico, avvocato …",
@@ -435,10 +435,10 @@
   },
   "footer": {
     "tagline": "Il portale curdo per la Germania e l’Europa",
-    "rights": "© {year} REGA Platform. Tutti i diritti riservati.",
+    "rights": "© {year} Rega24. Tutti i diritti riservati.",
     "explore": "Esplora",
-    "follow": "Segui REGA Platform",
-    "about": "Informazioni su REGA Platform",
+    "follow": "Segui Rega24",
+    "about": "Informazioni su Rega24",
     "contact": "Contatti",
     "legal": "Note legali"
   },
@@ -907,11 +907,11 @@
   },
   "emails": {
     "verifySubject": "REGA: conferma il tuo indirizzo e-mail",
-    "verifyBody": "Ciao {name},\n\nconferma il tuo indirizzo e-mail per attivare il tuo account REGA:\n{link}\n\nIl link è valido per {hours} ore. Se non hai creato un account, ignora questo messaggio.\n\nREGA Platform",
+    "verifyBody": "Ciao {name},\n\nconferma il tuo indirizzo e-mail per attivare il tuo account REGA:\n{link}\n\nIl link è valido per {hours} ore. Se non hai creato un account, ignora questo messaggio.\n\nRega24",
     "resetSubject": "REGA: reimposta la password",
-    "resetBody": "Ciao {name},\n\nè stata richiesta la reimpostazione della password del tuo account. Apri questo link per impostare una nuova password:\n{link}\n\nIl link è valido per {minutes} minuti. Se non l’hai richiesto tu, ignora questo messaggio; la tua password resta invariata.\n\nREGA Platform",
+    "resetBody": "Ciao {name},\n\nè stata richiesta la reimpostazione della password del tuo account. Apri questo link per impostare una nuova password:\n{link}\n\nIl link è valido per {minutes} minuti. Se non l’hai richiesto tu, ignora questo messaggio; la tua password resta invariata.\n\nRega24",
     "reviewSubject": "REGA: il tuo annuncio deve essere modificato",
-    "reviewBody": "Ciao {name},\n\nil tuo annuncio «{listing}» non è ancora stato pubblicato ed è stato rimandato per modifiche.\n{reason}\n\nPuoi correggerlo nel tuo pannello e inviarlo di nuovo:\n{link}\n\nREGA Platform"
+    "reviewBody": "Ciao {name},\n\nil tuo annuncio «{listing}» non è ancora stato pubblicato ed è stato rimandato per modifiche.\n{reason}\n\nPuoi correggerlo nel tuo pannello e inviarlo di nuovo:\n{link}\n\nRega24"
   },
   "forBusiness": {
     "title": "Per le attività",
@@ -1017,32 +1017,32 @@
     "setStatus": "Cambia stato ..."
   },
   "pageMeta": {
-    "businesses": "Attività curde in Germania e in Europa su REGA Platform: indirizzo, telefono, orari di apertura e badge Rega Verified per ogni annuncio.",
+    "businesses": "Attività curde in Germania e in Europa su Rega24: indirizzo, telefono, orari di apertura e badge Rega Verified per ogni annuncio.",
     "services": "Servizi di fornitori curdi in Germania e in Europa: confronta le offerte, guarda i prezzi indicati da ogni attività e contattala direttamente.",
     "locations": "Sedi di attività curde in Germania e in Europa: sfoglia per città, consulta indirizzi e orari e trova il percorso sulla mappa.",
     "nearby": "Trova attività e servizi curdi vicino a te: usa la tua posizione o scegli una città, poi sfoglia i risultati sulla mappa o nell’elenco.",
-    "ai": "L’assistente REGA risponde alle tue domande in base agli annunci reali su REGA Platform: trova attività curde in Germania e in Europa.",
+    "ai": "L’assistente REGA risponde alle tue domande in base agli annunci reali su Rega24: trova attività curde in Germania e in Europa.",
     "about": "Scopri Rega24, una piattaforma multilingue per trovare attività e servizi per categoria, città e mappa, con informazioni chiare e visione globale.",
-    "search": "Cerca tra tutte le attività, i servizi e i luoghi curdi su REGA Platform e filtra i risultati per tipo, in modo rapido e semplice.",
-    "register": "Crea un account gratuito su REGA Platform per inserire la tua attività e raggiungere i curdi in Germania e in Europa.",
-    "login": "Accedi al tuo account REGA Platform: gestisci i tuoi annunci, inviali per la revisione e modifica le tue impostazioni.",
-    "account": "Il tuo account REGA Platform: gestisci il profilo, la conferma dell’e-mail e i tuoi annunci in un unico posto.",
-    "forgotPassword": "Reimposta la password di REGA Platform: inserisci il tuo indirizzo e-mail e ricevi un link per impostare una nuova password.",
-    "resetPassword": "Imposta una nuova password per il tuo account REGA Platform: scegli una password sicura di almeno dieci caratteri e salvala.",
-    "verifyEmail": "Conferma il tuo indirizzo e-mail su REGA Platform: fai clic sul pulsante per attivare l’account e iniziare a inserire la tua attività.",
-    "categoryPage": "{name}: attività curde in Germania e in Europa su REGA Platform, con indirizzo, telefono e orari di apertura per ogni annuncio.",
-    "cityPage": "{name}: attività, servizi e luoghi curdi su REGA Platform: indirizzi, numeri di telefono e orari di apertura in un unico posto.",
-    "cityCategoryPage": "{category} a {city}: attività curde su REGA Platform, con indirizzo, telefono e orari di apertura per ogni annuncio.",
-    "businessFallback": "{name} a {place}: indirizzo, telefono e orari di apertura di questa attività curda su REGA Platform.",
-    "businessFallbackNoPlace": "{name}: indirizzo, telefono e orari di apertura di questa attività curda su REGA Platform.",
-    "serviceFallback": "{name} di {provider}: dettagli di questo servizio curdo, il suo prezzo e il contatto diretto su REGA Platform.",
-    "contact": "Contatta REGA Platform per telefono, e-mail, WhatsApp o modulo: domande, suggerimenti e collaborazioni per il portale curdo.",
-    "report": "Segnala contenuti illegali, ingannevoli o inappropriati su REGA Platform. La segnalazione è esaminata e gestita secondo il regolamento sui servizi digitali (DSA).",
-    "forBusiness": "Inserisci gratis la tua attività su REGA Platform e raggiungi i curdi in Germania e in Europa. Nessun costo né abbonamento; con revisione.",
+    "search": "Cerca tra tutte le attività, i servizi e i luoghi curdi su Rega24 e filtra i risultati per tipo, in modo rapido e semplice.",
+    "register": "Crea un account gratuito su Rega24 per inserire la tua attività e raggiungere i curdi in Germania e in Europa.",
+    "login": "Accedi al tuo account Rega24: gestisci i tuoi annunci, inviali per la revisione e modifica le tue impostazioni.",
+    "account": "Il tuo account Rega24: gestisci il profilo, la conferma dell’e-mail e i tuoi annunci in un unico posto.",
+    "forgotPassword": "Reimposta la password di Rega24: inserisci il tuo indirizzo e-mail e ricevi un link per impostare una nuova password.",
+    "resetPassword": "Imposta una nuova password per il tuo account Rega24: scegli una password sicura di almeno dieci caratteri e salvala.",
+    "verifyEmail": "Conferma il tuo indirizzo e-mail su Rega24: fai clic sul pulsante per attivare l’account e iniziare a inserire la tua attività.",
+    "categoryPage": "{name}: attività curde in Germania e in Europa su Rega24, con indirizzo, telefono e orari di apertura per ogni annuncio.",
+    "cityPage": "{name}: attività, servizi e luoghi curdi su Rega24: indirizzi, numeri di telefono e orari di apertura in un unico posto.",
+    "cityCategoryPage": "{category} a {city}: attività curde su Rega24, con indirizzo, telefono e orari di apertura per ogni annuncio.",
+    "businessFallback": "{name} a {place}: indirizzo, telefono e orari di apertura di questa attività curda su Rega24.",
+    "businessFallbackNoPlace": "{name}: indirizzo, telefono e orari di apertura di questa attività curda su Rega24.",
+    "serviceFallback": "{name} di {provider}: dettagli di questo servizio curdo, il suo prezzo e il contatto diretto su Rega24.",
+    "contact": "Contatta Rega24 per telefono, e-mail, WhatsApp o modulo: domande, suggerimenti e collaborazioni per il portale curdo.",
+    "report": "Segnala contenuti illegali, ingannevoli o inappropriati su Rega24. La segnalazione è esaminata e gestita secondo il regolamento sui servizi digitali (DSA).",
+    "forBusiness": "Inserisci gratis la tua attività su Rega24 e raggiungi i curdi in Germania e in Europa. Nessun costo né abbonamento; con revisione.",
     "jobs": "Lavoro per i curdi in Germania e in Europa: trova offerte per città e categoria e candidati direttamente presso il datore di lavoro.",
     "events": "Eventi curdi in Germania e in Europa: trova feste di Newroz, concerti e incontri della comunità per città e data.",
     "guides": "Guide REGA per vivere in Germania e in Europa: articoli chiari in più lingue, raccolti in un unico posto.",
-    "entryFallback": "{title}: {kind} su REGA Platform, il portale curdo per la Germania e l’Europa."
+    "entryFallback": "{title}: {kind} su Rega24, il portale curdo per la Germania e l’Europa."
   },
   "seoPages": {
     "inCity": "Attività a {city}",

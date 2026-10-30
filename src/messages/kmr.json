@@ -1,7 +1,7 @@
 {
   "meta": {
-    "title": "REGA Platform — ڕێگا | Karsaz, Xizmet û Cih",
-    "description": "REGA Platform (ڕێگا): portala kurdî ji bo Almanya û Ewropayê. Karsaz, xizmet û cihan bibîne, bi alîkarê zîrekiya çêkirî bi yazdeh zimanan."
+    "title": "Rega24 — ڕێگا | Karsaz, Xizmet û Cih",
+    "description": "Rega24 (ڕێگا): portala kurdî ji bo Almanya û Ewropayê. Karsaz, xizmet û cihan bibîne, bi alîkarê zîrekiya çêkirî bi yazdeh zimanan."
   },
   "common": {
     "loading": "Tê barkirin...",
@@ -116,9 +116,9 @@
       }
     ],
     "ask": "Tu li çi digerî?",
-    "communityTitle": "Civaka te.",
-    "communityAccent": "Nêzîktir.",
-    "communityLead": "Karsazî û xizmetên herêmî yên pêbawer li Almanyayê bibîne, bi hêza civaka xwe.",
+    "communityTitle": "Xizmetguzariyan",
+    "communityAccent": "bi hêsanî bibîne",
+    "communityLead": "Karsazî û xizmetguzariyên kurdî li Almanya û Ewropayê bibîne.",
     "popularTitle": "Navdar li herêma te",
     "lead": "Xizmet, karsaz, cih û agahî bi REGA re",
     "what": "Mînak: xwaringeh, doktor, parêzer …",
@@ -435,10 +435,10 @@
   },
   "footer": {
     "tagline": "Portala kurdî ji bo Almanya û Ewropayê",
-    "rights": "© {year} REGA Platform. Hemû maf parastî ne.",
+    "rights": "© {year} Rega24. Hemû maf parastî ne.",
     "explore": "Bikole",
-    "follow": "REGA Platform bişopînin",
-    "about": "Derbarê REGA Platform",
+    "follow": "Rega24 bişopînin",
+    "about": "Derbarê Rega24",
     "contact": "Têkilî",
     "legal": "Yasayî"
   },
@@ -907,11 +907,11 @@
   },
   "emails": {
     "verifySubject": "REGA: E-nameya xwe bipejirîne",
-    "verifyBody": "Silav {name},\n\nJi bo çalakkirina hesabê xwe yê REGA vê girêdanê veke:\n{link}\n\nGirêdan {hours} saetan derbasdar e. Heke te ev hesab çênekiriye, vê peyamê paşguh bike.\n\nREGA Platform",
+    "verifyBody": "Silav {name},\n\nJi bo çalakkirina hesabê xwe yê REGA vê girêdanê veke:\n{link}\n\nGirêdan {hours} saetan derbasdar e. Heke te ev hesab çênekiriye, vê peyamê paşguh bike.\n\nRega24",
     "resetSubject": "REGA: Guhertina şîfreyê",
-    "resetBody": "Silav {name},\n\nDaxwazek hat ji bo guhertina şîfreya hesabê te. Ji bo danîna şîfreyeke nû vê girêdanê veke:\n{link}\n\nGirêdan {minutes} xulekan derbasdar e. Heke te daxwaz nekiriye, vê peyamê paşguh bike; şîfreya te nayê guhertin.\n\nREGA Platform",
+    "resetBody": "Silav {name},\n\nDaxwazek hat ji bo guhertina şîfreya hesabê te. Ji bo danîna şîfreyeke nû vê girêdanê veke:\n{link}\n\nGirêdan {minutes} xulekan derbasdar e. Heke te daxwaz nekiriye, vê peyamê paşguh bike; şîfreya te nayê guhertin.\n\nRega24",
     "reviewSubject": "REGA: Tomara te hewceyî guhertinê ye",
-    "reviewBody": "Silav {name},\n\nTomara \"{listing}\" nehat weşandin û ji bo sererastkirinê hat vegerandin.\n{reason}\n\nTu dikarî di dashboardê de rast bikî û dîsa bişînî:\n{link}\n\nREGA Platform"
+    "reviewBody": "Silav {name},\n\nTomara \"{listing}\" nehat weşandin û ji bo sererastkirinê hat vegerandin.\n{reason}\n\nTu dikarî di dashboardê de rast bikî û dîsa bişînî:\n{link}\n\nRega24"
   },
   "forBusiness": {
     "title": "Ji bo karsazan",
@@ -1017,32 +1017,32 @@
     "setStatus": "Rewşê biguherîne..."
   },
   "pageMeta": {
-    "businesses": "Karsazên kurdî yên Almanya û Ewropayê li REGA Platform: navnîşan, telefon, demjimêrên xebatê û nîşana Rega Verified ji bo her karsaziyê.",
-    "services": "Xizmetên kurdî li Almanya û Ewropayê: xizmetan bide ber hev, nirxên karsazan bibîne û rasterast têkilî dayne li REGA Platform.",
+    "businesses": "Karsazên kurdî yên Almanya û Ewropayê li Rega24: navnîşan, telefon, demjimêrên xebatê û nîşana Rega Verified ji bo her karsaziyê.",
+    "services": "Xizmetên kurdî li Almanya û Ewropayê: xizmetan bide ber hev, nirxên karsazan bibîne û rasterast têkilî dayne li Rega24.",
     "locations": "Cihên karsazên kurdî li Almanya û Ewropayê: li gorî bajêr bigere, navnîşan û demjimêrên xebatê bibîne û rê li ser nexşeyê bibîne.",
     "nearby": "Karsaz û xizmetên kurdî yên nêzîk bibîne: cihê xwe bikar bîne an bajarekî hilbijêre û wan li ser nexşe an lîsteyê bibîne.",
-    "ai": "Alîkarê REGA li gorî tomarên rastîn ên REGA Platform bersiva pirsên te dide: karsazên kurdî li Almanya û Ewropayê bi hêsanî bibîne.",
+    "ai": "Alîkarê REGA li gorî tomarên rastîn ên Rega24 bersiva pirsên te dide: karsazên kurdî li Almanya û Ewropayê bi hêsanî bibîne.",
     "about": "Rega24 nas bike; platformeke pirzimanî ji bo dîtina karsazî û xizmetan li gorî kategorî, bajar û nexşeyê, bi agahiyên zelal û dîtineke cîhanî.",
-    "search": "Di hemû karsaz, xizmet û cihên kurdî yên REGA Platform de bigere û encaman li gorî cureyê parzûn bike.",
-    "register": "Li REGA Platform hesabek bêpere çêke da ku karsaziya xwe tomar bikî û bigihîjî kurdên Almanya û Ewropayê.",
-    "login": "Têkeve hesabê xwe yê REGA Platform: karsaziyên xwe birêve bibe, tomaran ji bo kontrolê bişîne û mîhengên xwe biguherîne.",
-    "account": "Hesabê te yê REGA Platform: agahiyên profîlê, pejirandina e-nameyê û karsaziyên xwe birêve bibe.",
-    "forgotPassword": "Guhertina şîfreyê li REGA Platform: e-nameya xwe binivîse û girêdana guhertina şîfreyê ji bo hesabê xwe bistîne.",
-    "resetPassword": "Şîfreyeke nû ji bo hesabê xwe yê REGA Platform deyne: şîfreyeke xurt û ji 10 tîpan dirêjtir hilbijêre.",
-    "verifyEmail": "E-nameya hesabê xwe yê REGA Platform bipejirîne: li ser bişkokê bitikîne da ku hesabê xwe çalak bikî û karsaziyê tomar bikî.",
-    "categoryPage": "{name}: karsazên kurdî li Almanya û Ewropayê li REGA Platform. Navnîşan, telefon û demjimêrên xebatê ji bo her tomarê.",
-    "cityPage": "{name}: karsaz, xizmet û cihên kurdî li REGA Platform. Navnîşan, telefon û demjimêrên xebatê li cihekî.",
-    "cityCategoryPage": "{category} li {city}: karsazên kurdî li REGA Platform. Navnîşan, telefon û demjimêrên xebatê ji bo her tomarê.",
-    "businessFallback": "{name} li {place}: navnîşan, telefon û demjimêrên xebatê yên vê karsaziya kurdî li REGA Platform.",
-    "businessFallbackNoPlace": "{name}: navnîşan, telefon û demjimêrên xebatê yên vê karsaziya kurdî li REGA Platform.",
-    "serviceFallback": "{name} ji {provider}: hûrgiliyên vê xizmeta kurdî, nirx û têkiliya rasterast li REGA Platform.",
-    "contact": "Bi REGA Platform re têkilî daynin: telefon, e-name, WhatsApp an formê peyamê. Ji bo pirs, pêşniyar û hevkariyê ji bo civaka kurd li Almanya û Ewropayê.",
-    "report": "Naveroka neqanûnî, xapînok an nguncan ya li REGA Platform raporî bike. Raporta te tê kontrolkirin û li gorî Qanûna Karûbarên Dîjîtal tê birêvebirin.",
-    "forBusiness": "Karsaziya xwe li REGA Platform bêpere tomar bike û bigihîje kurdên Almanya û Ewropayê. Bê mesref, bê abonetî; kontrol û nîşana Rega Verified.",
+    "search": "Di hemû karsaz, xizmet û cihên kurdî yên Rega24 de bigere û encaman li gorî cureyê parzûn bike.",
+    "register": "Li Rega24 hesabek bêpere çêke da ku karsaziya xwe tomar bikî û bigihîjî kurdên Almanya û Ewropayê.",
+    "login": "Têkeve hesabê xwe yê Rega24: karsaziyên xwe birêve bibe, tomaran ji bo kontrolê bişîne û mîhengên xwe biguherîne.",
+    "account": "Hesabê te yê Rega24: agahiyên profîlê, pejirandina e-nameyê û karsaziyên xwe birêve bibe.",
+    "forgotPassword": "Guhertina şîfreyê li Rega24: e-nameya xwe binivîse û girêdana guhertina şîfreyê ji bo hesabê xwe bistîne.",
+    "resetPassword": "Şîfreyeke nû ji bo hesabê xwe yê Rega24 deyne: şîfreyeke xurt û ji 10 tîpan dirêjtir hilbijêre.",
+    "verifyEmail": "E-nameya hesabê xwe yê Rega24 bipejirîne: li ser bişkokê bitikîne da ku hesabê xwe çalak bikî û karsaziyê tomar bikî.",
+    "categoryPage": "{name}: karsazên kurdî li Almanya û Ewropayê li Rega24. Navnîşan, telefon û demjimêrên xebatê ji bo her tomarê.",
+    "cityPage": "{name}: karsaz, xizmet û cihên kurdî li Rega24. Navnîşan, telefon û demjimêrên xebatê li cihekî.",
+    "cityCategoryPage": "{category} li {city}: karsazên kurdî li Rega24. Navnîşan, telefon û demjimêrên xebatê ji bo her tomarê.",
+    "businessFallback": "{name} li {place}: navnîşan, telefon û demjimêrên xebatê yên vê karsaziya kurdî li Rega24.",
+    "businessFallbackNoPlace": "{name}: navnîşan, telefon û demjimêrên xebatê yên vê karsaziya kurdî li Rega24.",
+    "serviceFallback": "{name} ji {provider}: hûrgiliyên vê xizmeta kurdî, nirx û têkiliya rasterast li Rega24.",
+    "contact": "Bi Rega24 re têkilî daynin: telefon, e-name, WhatsApp an formê peyamê. Ji bo pirs, pêşniyar û hevkariyê ji bo civaka kurd li Almanya û Ewropayê.",
+    "report": "Naveroka neqanûnî, xapînok an nguncan ya li Rega24 raporî bike. Raporta te tê kontrolkirin û li gorî Qanûna Karûbarên Dîjîtal tê birêvebirin.",
+    "forBusiness": "Karsaziya xwe li Rega24 bêpere tomar bike û bigihîje kurdên Almanya û Ewropayê. Bê mesref, bê abonetî; kontrol û nîşana Rega Verified.",
     "jobs": "Kar û pîşe ji bo kurdên Almanya û Ewropayê: pêşniyarên karî li gorî bajar û kategoriyê bibîne û rasterast serlêdan bike.",
-    "events": "Bûyerên kurdî li Almanya û Ewropayê: Newroz, konser û civînên civakê li gorî bajar û demê li REGA Platform bibîne.",
+    "events": "Bûyerên kurdî li Almanya û Ewropayê: Newroz, konser û civînên civakê li gorî bajar û demê li Rega24 bibîne.",
     "guides": "Rêberên REGA ji bo jiyana li Almanya û Ewropayê: gotarên rêbertiyê bi gelek zimanan li cihekî bixwîne.",
-    "entryFallback": "{title}: {kind} li REGA Platform, portala kurdî ji bo Almanya û Ewropayê."
+    "entryFallback": "{title}: {kind} li Rega24, portala kurdî ji bo Almanya û Ewropayê."
   },
   "seoPages": {
     "inCity": "Karsazî li {city}",
