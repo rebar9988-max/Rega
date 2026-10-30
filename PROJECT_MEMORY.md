@@ -1140,3 +1140,12 @@ CI run 41067658630 (head `b9fb362`): lint, typecheck, unit, D1, Node build PASS;
 23 px at narrow widths: the long compound "Behördenangelegenheiten" widened its category tile (`overflow-wrap: break-word` does not
 reduce min-content). Fix: grid items `min-width: 0`, label `overflow-wrap: anywhere` + `hyphens: auto`, 12 px label below 400 px.
 Local re-check of all 11 locales at 320–1024 px: no overflow from the new sections.
+
+### REGA24 logo — release and health-check follow-up — 2026-10-30
+PR #101 squash `f5ff417` is on `main` and was deployed with `5caee06` ("Deploy to Cloudflare Workers" run 41034244928,
+success). Live check (public fetch): `/favicon.ico` is the new 5645-byte REGA24 ICO (sha256 matches the repository),
+the manifest lists maskable 192/512, and `/brand/rega24-maskable-{192,512}.png` return 200. Root cause of the red
+"Beta health" runs since #105: `production-health.yml` still required `/brand/rega-mark-256.webp` in the `/ckb` header,
+but the header now renders `rega24-badge-*`. Follow-up PR updates that check (and the static-asset probe list) to the
+current official assets; every new probe was confirmed 200 / present against live production before the change.
+
