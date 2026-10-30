@@ -243,3 +243,5 @@
 .rega-profile > :is(div, section) { min-width: 0; }
 
 @media (min-width: 1024px) { .container-page { padding-inline: 3.5rem; } }
+/* A stretched profile link needs a visible keyboard focus indicator around its whole card. */
+.rega-home-business:focus-within { outline: 2px solid var(--ring); outline-offset: 3px; }

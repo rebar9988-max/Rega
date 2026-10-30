@@ -27,6 +27,14 @@ for (const locale of LOCALES) {
       await info.attach(`${locale}-${width}`, { path: screenshot, contentType: "image/png" });
     }
     await page.setViewportSize({ width: 390, height: 844 });
+    const profileLink = page.locator(".rega-home-business h3 a").first();
+    await profileLink.focus();
+    const focus = await profileLink.evaluate(el => {
+      const style = getComputedStyle(el.closest("article")!);
+      return { style: style.outlineStyle, width: parseFloat(style.outlineWidth) };
+    });
+    expect(focus.style).toBe("solid");
+    expect(focus.width).toBeGreaterThanOrEqual(2);
     const a11y = await new AxeBuilder({ page }).include("main").withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze();
     expect(a11y.violations).toEqual([]);
   });
