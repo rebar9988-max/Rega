@@ -22,19 +22,7 @@ async function homeData() {
   try { return await getHomeData(); } catch (error) { log.error("home.data", { error: String(error) }); return null; }
 }
 
-/**
- * Hero images: resized copies of the official files (same artwork, same colours) so phones do not download the
- * 1600px photo or the 1154px lockup that is shown at 132–196 px. `sizes` follows the hero grid: the photo fills the
- * frame (full width below lg, the right column of the max-1100px hero from lg), the lockup has fixed widths.
- */
-const HERO_WIDTHS = [640, 960, 1280, 1600];
-const HERO_SIZES = "(min-width: 1024px) 520px, 100vw";
-const LOCKUP_WIDTHS = [200, 400, 600];
-const LOCKUP_SIZES = "(min-width: 1024px) 196px, (min-width: 640px) 168px, 132px";
-const srcSet = (base: string, ext: string, widths: number[]) => widths.map((w) => `${base}-${w}.${ext} ${w}w`).join(", ");
-
-/** Content band shared by the home sections (same width as the hero). */
-const BAND = "mx-auto max-w-[1220px] px-4 sm:px-6 lg:px-8";
+const BAND = "mx-auto max-w-[1440px] px-5 md:px-8 lg:px-14";
 
 /** The home page must still render when these lookups fail (database briefly unavailable). */
 async function safe<T>(fn: () => Promise<T>, fallback: T, onFail: () => void): Promise<T> {
@@ -57,6 +45,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   setRequestLocale(locale);
   const t = await getTranslations("home");
   const tn = await getTranslations("nav");
+  const tc = await getTranslations("common");
   const te = await getTranslations("empty");
   const l = locale as Locale;
   const pageLang = LOCALE_META[l].htmlLang;
@@ -96,48 +85,26 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
   return (
     <>
-      <div className="figma text-ink">
+      <div className="figma rega-home text-ink">
         <PageSchema name={`${t("communityTitle")} ${t("communityAccent")}`} description={t("communityLead")} />
         {degraded && <NoEdgeCache />}
 
-        {/* ---------- Hero: approved red/white concept (community headline + city photo) ---------- */}
-        <section className="border-b border-line bg-surface">
-          <div className="mx-auto max-w-[1100px] px-4 pb-8 pt-5 sm:px-6 lg:px-8 lg:pb-10 lg:pt-8">
-            <div className="relative overflow-hidden rounded-[1.25rem] bg-surface">
-              <div className="grid min-h-[280px] lg:min-h-[340px] lg:grid-cols-[minmax(0,1.05fr)_minmax(0,.95fr)]">
-                <div className="relative z-10 flex flex-col justify-center px-5 py-8 sm:px-8 lg:py-10 lg:pe-6">
-                  <h1 className="rega-display max-w-xl text-[clamp(2.4rem,5vw,3.75rem)]">
-                    {t("communityTitle")}
-                    <span className="mt-1 block text-brand-text">{t("communityAccent")}</span>
-                  </h1>
-                  <p className="mt-4 max-w-md text-[15px] leading-7 text-muted">{t("communityLead")}</p>
-                </div>
-                <div className="rega-hero-frame relative min-h-[232px] sm:min-h-[300px] lg:min-h-full" aria-hidden="true">
-                  {/* Pre-resized AVIF/WebP variants (public/brand/community-hero-<width>.*); the JPEG stays the fallback. */}
-                  <picture>
-                    <source type="image/avif" srcSet={srcSet("/brand/community-hero", "avif", HERO_WIDTHS)} sizes={HERO_SIZES} />
-                    <source type="image/webp" srcSet={srcSet("/brand/community-hero", "webp", HERO_WIDTHS)} sizes={HERO_SIZES} />
-                    <img src="/brand/community-hero.jpg" alt="" width={1600} height={900} decoding="async" fetchPriority="high" className="absolute inset-0 size-full object-cover object-[center_42%]" />
-                  </picture>
-                  {/* Official lockup, unaltered, at a fixed size so it stays sharp on phones. It sits on the brand red, never stretched across the photograph. */}
-                  <div className="rega-hero-brand">
-                    <picture>
-                      <source type="image/avif" srcSet={srcSet("/brand/rega-lockup", "avif", LOCKUP_WIDTHS)} sizes={LOCKUP_SIZES} />
-                      <img src="/brand/rega-lockup-400.webp" srcSet={srcSet("/brand/rega-lockup", "webp", LOCKUP_WIDTHS)} sizes={LOCKUP_SIZES} alt="" width={1154} height={1255} decoding="async" className="h-auto w-[132px] sm:w-[168px] lg:w-[196px]" />
-                    </picture>
-                  </div>
-                </div>
-              </div>
-
+        <section className={`${BAND} pt-4 lg:pt-[22px]`}>
+          <div className="rega-editorial-hero relative rounded-3xl border border-line bg-surface px-[22px] py-6 lg:min-h-[410px] lg:py-7">
+            <span className="rega-hero-accent" aria-hidden="true" />
+            <h1 className="rega-display pe-4 text-[clamp(1.8rem,3.34vw,3rem)] leading-normal">
+              {t("communityTitle")}<span className="mt-3 block text-brand-text">{t("communityAccent")}</span>
+            </h1>
+            <p className="mt-6 text-[15px] leading-7 text-muted lg:text-[19px]">{t("communityLead")}</p>
               <form action={`/${locale}/businesses`} role="search"
-                className="rega-search-shell relative z-20 mx-3 mb-3 mt-3 grid overflow-hidden sm:mx-5 sm:mb-5 sm:-mt-7 sm:grid-cols-[minmax(0,1.6fr)_minmax(11rem,.8fr)_auto] lg:mx-8">
-                <label className="flex min-h-14 min-w-0 items-center gap-3 px-4 focus-within:ring-2 focus-within:ring-inset focus-within:ring-[var(--ring)]">
+                className="rega-home-search relative z-20 mt-6 grid gap-3 lg:mt-10 lg:grid-cols-[minmax(0,1fr)_minmax(11rem,.3fr)_auto] lg:gap-0 lg:rounded-[14px] lg:bg-surface-2 lg:p-2">
+                <label className="flex min-h-[58px] min-w-0 items-center gap-3 rounded-[14px] bg-surface-2 px-4 focus-within:ring-2 focus-within:ring-inset focus-within:ring-[var(--ring)]">
                   <FigmaIcon name="search" className="size-5 shrink-0 text-brand-text" />
                   <span className="sr-only">{t("what")}</span>
                   <input name="q" type="search" autoComplete="off" maxLength={120} placeholder={t("searchWhat")}
                     className="min-w-0 flex-1 bg-transparent text-[15px] text-ink outline-none placeholder:text-muted" />
                 </label>
-                <div className="flex min-h-14 min-w-0 items-center gap-2 border-t border-line px-4 focus-within:ring-2 focus-within:ring-inset focus-within:ring-[var(--ring)] sm:border-s sm:border-t-0">
+                <div className="flex min-h-14 min-w-0 items-center gap-2 rounded-xl bg-surface-2 px-4 focus-within:ring-2 focus-within:ring-inset focus-within:ring-[var(--ring)]">
                   <FigmaIcon name="map-pin" className="size-4 shrink-0 text-brand-text" />
                   <div className="min-w-0 flex-1">
                     <CityFilter
@@ -150,16 +117,15 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                   </div>
                   <FigmaIcon name="chevron-down" className="pointer-events-none size-4 shrink-0 text-muted" />
                 </div>
-                <button type="submit" className="m-0 min-h-14 bg-brand px-8 text-[15px] font-bold text-brand-ink transition hover:bg-brand-hover sm:m-1.5 sm:min-h-0 sm:rounded-[0.7rem]">
+                <button type="submit" className="min-h-14 rounded-[15px] bg-brand px-8 text-[18px] font-bold text-brand-ink transition hover:bg-brand-hover">
                   {tn("search")}
                 </button>
               </form>
-            </div>
           </div>
         </section>
 
-        <section className="border-b border-line bg-surface" aria-label={t("factGermany")}>
-          <ul className="mx-auto flex max-w-[1100px] flex-wrap items-center justify-center gap-x-8 gap-y-2 px-4 py-4 text-[13px] font-bold text-ink sm:text-sm">
+        <section className={`${BAND} mt-3`} aria-label={t("factGermany")}>
+          <ul className="flex flex-wrap items-center justify-center gap-x-8 gap-y-2 rounded-xl bg-surface px-4 py-3 text-xs font-bold text-ink sm:text-sm">
             {[t("factFree"), t("factLang"), t("factGermany")].map((label) => (
               <li key={label} className="inline-flex items-center gap-2">
                 <span className="size-1.5 rounded-full bg-brand" aria-hidden="true" />
@@ -171,35 +137,28 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
         {/* ---------- Categories: six clear entry points + all ---------- */}
         {rootCategories.length > 0 && (
-          <section className="bg-surface" aria-labelledby="home-cats">
+          <section className="" aria-labelledby="home-cats">
             <div className={`${BAND} pt-8`}>
               <div className="flex items-end justify-between gap-4">
                 <div className="min-w-0">
-                  <span className="rega-kicker mb-3" aria-hidden="true" />
-                  <h2 id="home-cats" className="text-xl font-extrabold leading-tight sm:text-[22px]">{t("browseByCategory")}</h2>
+
+                  <h2 id="home-cats" className="text-xl font-extrabold leading-tight sm:text-[28px]">{t("browseByCategory")}</h2>
                 </div>
                 <Link href="/businesses" className="shrink-0 text-sm font-bold text-brand-text hover:underline">{t("viewAll")}<span className="sr-only">: {t("browseByCategory")}</span></Link>
               </div>
               <nav aria-label={t("categoriesTitle")} className="mt-4">
-                <ul className="grid grid-cols-3 gap-2.5 sm:grid-cols-4 sm:gap-3 lg:grid-cols-7">
-                  {rootCategories.slice(0, 6).map((c) => (
+                <ul className="grid grid-cols-3 gap-2.5 sm:grid-cols-4 sm:gap-3 lg:grid-cols-6">
+                  {rootCategories.slice(0, 12).map((c) => (
                     <li key={c.id} className="min-w-0">
-                      <Link href={`/businesses/${c.slug}`} className="rega-card flex h-full min-h-[108px] flex-col items-center justify-center gap-2.5 px-2 py-4 text-center transition-colors hover:text-brand-text">
-                        <span className="grid size-11 place-items-center rounded-2xl bg-brand-soft">
+                      <Link href={`/businesses/${c.slug}`} className="rega-card flex h-full min-h-[94px] flex-col items-start justify-center gap-2 px-3 py-3 text-start transition-colors hover:text-brand-text">
+                        <span className="grid size-7 place-items-center">
                           <FigmaIcon name={CATEGORY_ICON[c.slug] ?? "briefcase-business"} className="size-6 shrink-0 text-brand-text" />
                         </span>
                         <span className="line-clamp-2 text-[13px] font-semibold leading-snug"><Text value={categoryName(c)} pageLang={pageLang} /></span>
                       </Link>
                     </li>
                   ))}
-                  <li className="min-w-0">
-                    <Link href="/businesses" className="rega-card flex h-full min-h-[108px] flex-col items-center justify-center gap-2.5 px-2 py-4 text-center transition-colors hover:text-brand-text">
-                      <span className="grid size-11 place-items-center rounded-2xl bg-brand-soft">
-                        <FigmaIcon name="grid-3x3" className="size-6 shrink-0 text-brand-text" />
-                      </span>
-                      <span className="line-clamp-2 text-[13px] font-semibold leading-snug">{t("allSections")}</span>
-                    </Link>
-                  </li>
+
                 </ul>
               </nav>
             </div>
@@ -207,22 +166,22 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         )}
 
         {/* ---------- Recently added: compact result cards ---------- */}
-        <section className="bg-surface" aria-labelledby="home-latest">
+        <section className="" aria-labelledby="home-latest">
           <div className={`${BAND} pt-10`}>
             <div className="flex items-end justify-between gap-4">
               <div className="min-w-0">
-                <span className="rega-kicker mb-3" aria-hidden="true" />
-                <h2 id="home-latest" className="text-xl font-extrabold leading-tight sm:text-[22px]">{t("popularTitle")}</h2>
+
+                <h2 id="home-latest" className="text-xl font-extrabold leading-tight sm:text-[28px]">{t("popularTitle")}</h2>
                 <p className="mt-1 text-sm text-muted">{t("latestSub")}</p>
               </div>
               {/* The hidden part names the target, so the link is descriptive for screen readers and search engines. */}
               <Link href="/businesses?sort=newest" className="shrink-0 text-sm font-bold text-brand-text hover:underline">{t("seeMore")}<span className="sr-only">: {t("popularTitle")}</span></Link>
             </div>
             {latest.length > 0 ? (
-              <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-                {latest.slice(0, 3).map((b) => {
+              <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+                {latest.slice(0, 4).map((b) => {
                   const c = categoryOf(b.categoryId);
-                  return <BusinessRow key={b.id} b={b} locale={l} pageLang={pageLang} category={c ? categoryName(c) : null} />;
+                  return <BusinessRow layout="home" viewLabel={tc("viewDetails")} key={b.id} b={b} locale={l} pageLang={pageLang} category={c ? categoryName(c) : null} />;
                 })}
               </div>
             ) : (
@@ -237,8 +196,24 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           </div>
         </section>
 
+        <section className={`${BAND} pt-12`} aria-label={tn("addAd")}>
+          <div className="flex min-h-[210px] flex-col items-start justify-center gap-4 rounded-[20px] bg-brand p-6 text-brand-ink">
+            <h2 className="text-2xl font-bold lg:text-[31px]">{tn("addAd")}</h2>
+            <Link href="/for-business" className="inline-flex min-h-11 items-center rounded-xl border border-current px-5 font-bold hover:bg-surface hover:text-ink">{te("beFirstCta")}</Link>
+          </div>
+        </section>
+        {data && <dl className={`${BAND} flex flex-wrap gap-8 py-8 text-lg font-bold`}>
+          {([["statsBusinesses", data.stats.businesses], ["statsServices", data.stats.services], ["statsLocations", data.stats.locations]] as const).map(([key, value]) => <div key={key}><dd>{value.toLocaleString(l)}</dd><dt className="text-sm text-muted">{t(key)}</dt></div>)}
+        </dl>}
+        <section className={`${BAND} py-5`} aria-labelledby="home-major-cities">
+          <h2 id="home-major-cities" className="text-[22px] font-bold lg:text-[28px]">{t("citiesTitle")}</h2>
+          <ul className="mt-5 grid grid-cols-2 gap-4 md:grid-cols-4">
+            {majorCities.map((c) => <li key={c.id}><Link href={`/city/${c.slug}`} className="rega-card flex min-h-[100px] items-center p-5 font-bold lg:min-h-[120px]"><Text value={cityName(c)} pageLang={pageLang} /></Link></li>)}
+          </ul>
+        </section>
+
         {/* ---------- Compact AI entry ---------- */}
-        <section className="bg-surface" aria-label={t("ctaAI")}>
+        <section className="" aria-label={t("ctaAI")}>
           <div className={`${BAND} pt-8`}>
             <Link href="/ai" className="group flex min-h-[72px] items-stretch overflow-hidden rounded-xl border border-brand/40 bg-surface transition hover:border-brand hover:shadow-card" data-testid="home-ai-entry">
               <span className="grid w-16 shrink-0 place-items-center bg-brand text-brand-ink sm:w-20"><FigmaIcon name="sparkles" className="size-7" /></span>
@@ -252,14 +227,14 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         </section>
 
         {/* ---------- Nearby: list + map ---------- */}
-        <section className="bg-surface" aria-labelledby="home-nearby">
+        <section className="" aria-labelledby="home-nearby">
           <div className={`${BAND} pb-10 pt-10`}>
             {pool.length === 0 ? (
               <>
                 <div className="flex items-end justify-between gap-4">
                   <div className="min-w-0">
-                    <span className="rega-kicker mb-3" aria-hidden="true" />
-                    <h2 id="home-nearby" className="text-xl font-extrabold leading-tight sm:text-[22px]">{t("citiesTitle")}</h2>
+
+                    <h2 id="home-nearby" className="text-xl font-extrabold leading-tight sm:text-[28px]">{t("citiesTitle")}</h2>
                     <p className="mt-1 text-sm text-muted">{t("citiesSub")}</p>
                   </div>
                   <Link href="/nearby" className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-full border border-brand px-3.5 text-sm font-bold text-brand-text transition-colors hover:bg-brand hover:text-brand-ink">
@@ -289,8 +264,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               <>
                 <div className="flex items-end justify-between gap-4">
                   <div className="min-w-0">
-                    <span className="rega-kicker mb-3" aria-hidden="true" />
-                    <h2 id="home-nearby" className="text-xl font-extrabold leading-tight sm:text-[22px]">{t("nearTitle")}</h2>
+
+                    <h2 id="home-nearby" className="text-xl font-extrabold leading-tight sm:text-[28px]">{t("nearTitle")}</h2>
                     <p className="mt-1 text-sm text-muted">{t("nearbySub")}</p>
                   </div>
                   <Link href="/nearby" className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-full border border-brand px-3.5 text-sm font-bold text-brand-text transition-colors hover:bg-brand hover:text-brand-ink">

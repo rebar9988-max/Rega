@@ -63,7 +63,7 @@ for (const locale of ["en", "ckb"]) {
           return values;
         }, menuItemDanger);
         for (const scope of values) {
-          expect(scope.primary).toEqual([250, 7, 13]);
+          expect(scope.primary).toEqual([219, 5, 18]);
           for (const [state, ratio] of Object.entries(scope.ratios)) {
             expect(ratio, state).toBeGreaterThanOrEqual(["focus", "control", "thumb"].includes(state) ? 3 : 4.5);
           }
@@ -75,7 +75,7 @@ for (const locale of ["en", "ckb"]) {
           .flatMap((v) => v.nodes.filter((n) => n.html.includes("brand")).map((n) => n.target));
         expect(brandContrast).toEqual([]);
         const manifest = await (await page.request.get("/manifest.webmanifest")).json();
-        expect(manifest.theme_color).toBe("#fa070d");
+        expect(manifest.theme_color).toBe("#db0512");
         await page.screenshot({ path: info.outputPath(`brand-${locale}-${theme}-${width}.png`), fullPage: true });
         await info.attach("contrast-ratios", { body: JSON.stringify(values, null, 2), contentType: "application/json" });
       });

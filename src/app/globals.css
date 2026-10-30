@@ -7,21 +7,21 @@
    Clean white + neutrals with one vivid red sampled from the supplied official artwork as the single
    accent; amber only for rating stars. Components use semantic tokens only, never raw palette values. */
 :root {
-  --bg: #fafafa;
+  --bg: #f8fafb;
   --surface: #ffffff;
   --surface-2: #f7f7f8;
-  --ink: #171717;
+  --ink: #171f29;
   --muted: #6f737a;
-  --line: #e7e8eb;
-  /* Canonical primary: actual background pixel (250, 7, 13), reference 2-Photo-2.jpg.
-     Text and controls use accessible red derivatives; solid actions need dark ink. */
-  --brand: #fa070d;
+  --line: #e8edf2;
+  /* Current visual source: Figma design foundations 22:6, #db0512.
+     White action ink meets AA on this red; derived text/control tokens stay shared. */
+  --brand: #db0512;
   --logo-surface: #dc0201; /* Asset-matching backing only: official artwork stays unchanged. */
   --brand-text-light: color-mix(in srgb, var(--brand) 78%, black);
   --brand-text: var(--brand-text-light);
   --brand-control: var(--brand);
   --brand-hover: color-mix(in srgb, var(--brand) 98%, black);
-  --brand-ink: #000000;
+  --brand-ink: #ffffff;
   --brand-soft: color-mix(in srgb, var(--brand) 6%, white);
   --sun: oklch(0.8 0.16 80);
   --ring: var(--brand);
@@ -84,7 +84,7 @@
 }
 
 @layer utilities {
-  .container-page { width: 100%; max-width: 76rem; margin-inline: auto; padding-inline: 1rem; }
+  .container-page { width: 100%; max-width: 90rem; margin-inline: auto; padding-inline: 1rem; }
   @media (min-width: 640px) { .container-page { padding-inline: 1.5rem; } }
   /* Mirror directional icons (arrows, chevrons) in RTL. */
   [dir="rtl"] .rtl-flip { transform: scaleX(-1); }
@@ -116,25 +116,21 @@
 
 /* ── Figma design frame 204:912 (header + home page) ────────────────
    `.figma` wraps the header and the home page. Light theme takes the frame's exact colours; dark theme keeps the
-   existing dark tokens (the frame has no dark variant). Arabic-script text uses Noto Sans Arabic as in the frame,
+   existing dark tokens (the frame has no dark variant). Arabic-script text uses the bundled Vazirmatn face from the current handoff,
    Latin text Inter. Unlayered on purpose: the frame's sizes, weights and line heights must win over the global
-   Arabic-script adjustments above, so inside `.figma` those adjustments roll back to the utility classes (headings
-   therefore carry an explicit leading utility, otherwise the base layer's heading line height would come back). */
-.figma { font-family: "Inter Variable", var(--font-noto-arabic), system-ui, sans-serif; line-height: normal; --placeholder: #a7abb1; --map: #e9edf0; }
+   Arabic-script adjustments above. Current components declare their own heading sizes and line heights. */
+.figma { font-family: "Inter Variable", "Vazirmatn Variable", system-ui, sans-serif; line-height: normal; --placeholder: #a7abb1; --map: #e9edf0; }
 /* The approved concept is a light red/white surface. Keep it even when the phone is in dark mode. */
 .figma {
   --brand-text: var(--brand-text-light);
   --brand-soft: color-mix(in srgb, var(--brand) 6%, white);
-  --ink: #171717; --muted: #5c6168; --line: #e6e7eb; --surface: #ffffff; --surface-2: #f6f7f8; --bg: #ffffff;
+  --ink: #171f29; --muted: #5c6168; --line: #e6e7eb; --surface: #ffffff; --surface-2: #f6f7f8; --bg: #ffffff;
   color: var(--ink);
   background: #ffffff;
 }
-/* The frame's Arabic-script text boxes use Noto Sans Arabic's own line height (2.112 x size). The site loads Noto only
-   for Arabic-script glyphs, so "normal" would come from Inter; RTL pages therefore set it explicitly. */
+/* Legacy editorial sections retain roomy RTL line boxes; the current home sets its own below. */
 [dir="rtl"] .figma { line-height: 2.112; }
-[dir="rtl"] .figma :is(h1, h2, h3, h4, .font-extrabold, .font-bold, .font-semibold, .text-xs) {
-  font-size: revert-layer; font-weight: revert-layer; line-height: revert-layer; letter-spacing: revert-layer;
-}
+
 
 
 /* Approved REGA red/white concept - shared visual primitives. */
@@ -206,3 +202,44 @@
 .rega-switch:checked { background: var(--brand-control); }
 .rega-switch:checked::after { inset-inline-start: 1.1875rem; }
 .rega-switch:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+
+/* Figma enQ8cs8Yd2xxZ5bajyk6rI — one visual system, responsive geometry.
+   Use the current Figma foundation red with accessible white action ink. */
+.rega-home {
+  --bg: #f8fafb;
+  --surface-2: #f9fafb;
+  --ink: #171f29;
+  --line: #e8edf2;
+  background: var(--bg);
+  font-family: "Vazirmatn Variable", "Inter Variable", system-ui, sans-serif;
+  line-height: 1.6;
+}
+[dir="rtl"] .rega-home { line-height: 1.8; }
+.rega-home h1 { font-weight: 700; }
+.rega-home .rega-hero-accent {
+  position: absolute;
+  top: 24px;
+  right: 8px;
+  width: 6px;
+  height: 100px;
+  border-radius: 3px;
+  background: var(--brand);
+}
+.rega-home :is(h1, h2, h3) { overflow-wrap: anywhere; }
+.rega-home .rega-card { box-shadow: none; border-radius: 14px; }
+.rega-home .rega-editorial-hero { min-height: 470px; }
+.rega-home-search input { font-size: 1rem; }
+.rega-directory-card { border-radius: 14px; box-shadow: none; }
+@media (min-width: 1024px) {
+  .rega-home .rega-editorial-hero { min-height: 410px; }
+  .rega-home .rega-hero-accent { height: 150px; }
+}
+/* The add-business frame is a visual shell over the existing validated wizard. */
+.rega-business-form :is(input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]), select) {
+  min-height: 3.5rem;
+  border-radius: 14px;
+}
+.rega-profile { box-shadow: none; }
+.rega-profile > :is(div, section) { min-width: 0; }
+
+@media (min-width: 1024px) { .container-page { padding-inline: 3.5rem; } }

@@ -2,7 +2,6 @@ import "../globals.css";
 import "@fontsource-variable/inter";
 import "@fontsource-variable/vazirmatn";
 import type { Metadata, Viewport } from "next";
-import { Noto_Sans_Arabic } from "next/font/google";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
@@ -17,11 +16,7 @@ import { BRAND_NAME, SITE_ASSETS, organizationJsonLd } from "@/lib/seo";
 import { currentUser } from "@/lib/auth-helpers";
 import { PRIVATE_BETA } from "@/lib/private-beta";
 
-/** Arabic-script face of design frame 204:912 (header + home page, via `.figma`). Self-hosted by next/font at build
- *  time: no request to Google at runtime, CSP unchanged. Not preloaded: the browser fetches it only for Arabic-script
- *  glyphs (unicode-range), so LTR pages never download it. */
-const notoArabic = Noto_Sans_Arabic({ subsets: ["arabic"], variable: "--font-noto-arabic", display: "swap", preload: false });
-
+// The current Figma handoff uses the already-bundled, self-hosted Vazirmatn face.
 export function generateStaticParams() {
   return LOCALES.map((locale) => ({ locale }));
 }
@@ -88,7 +83,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
     if (user?.role !== "SUPER_ADMIN") {
       const copy = PRIVATE_BETA_COPY[locale] ?? PRIVATE_BETA_COPY.en;
       return (
-        <html lang={meta.htmlLang} dir={meta.dir} className={notoArabic.variable} suppressHydrationWarning>
+        <html lang={meta.htmlLang} dir={meta.dir} suppressHydrationWarning>
           <head><ThemeScript /></head>
           <body className="min-h-dvh bg-surface-2 text-ink">
             <main className="grid min-h-dvh place-items-center px-5 py-12">
@@ -109,7 +104,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
   const tm = await getTranslations({ locale, namespace: "meta" });
 
   return (
-    <html lang={meta.htmlLang} dir={meta.dir} className={notoArabic.variable} suppressHydrationWarning>
+    <html lang={meta.htmlLang} dir={meta.dir} suppressHydrationWarning>
       <head><ThemeScript /></head>
       <body className="flex min-h-dvh flex-col">
         <a href="#main" className="sr-only rounded-xl bg-brand px-4 py-3 font-semibold text-brand-ink focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-50">

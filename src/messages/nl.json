@@ -1,7 +1,7 @@
 {
   "meta": {
-    "title": "REGA Platform — ڕێگا | Bedrijven, diensten en locaties",
-    "description": "REGA Platform: het Koerdische portaal voor Duitsland en Europa. Vind bedrijven, diensten en plekken bij jou in de buurt, met een AI-assistent in elf talen."
+    "title": "Rega24 — ڕێگا | Bedrijven, diensten en locaties",
+    "description": "Rega24: het Koerdische portaal voor Duitsland en Europa. Vind bedrijven, diensten en plekken bij jou in de buurt, met een AI-assistent in elf talen."
   },
   "common": {
     "loading": "Laden ...",
@@ -116,9 +116,9 @@
       }
     ],
     "ask": "Waar ben je naar op zoek?",
-    "communityTitle": "Jouw gemeenschap.",
-    "communityAccent": "Dichterbij.",
-    "communityLead": "Ontdek betrouwbare lokale bedrijven en diensten in Duitsland, gedragen door jouw gemeenschap.",
+    "communityTitle": "Lokale diensten,",
+    "communityAccent": "makkelijk te vinden",
+    "communityLead": "Ontdek Koerdische bedrijven en diensten in Duitsland en Europa.",
     "popularTitle": "Populair in jouw omgeving",
     "lead": "Diensten, bedrijven, plekken en informatie met REGA",
     "what": "bijv. restaurant, arts, advocaat …",
@@ -435,10 +435,10 @@
   },
   "footer": {
     "tagline": "Het Koerdische portaal voor Duitsland en Europa",
-    "rights": "© {year} REGA Platform. Alle rechten voorbehouden.",
+    "rights": "© {year} Rega24. Alle rechten voorbehouden.",
     "explore": "Ontdekken",
-    "follow": "Volg REGA Platform",
-    "about": "Over REGA Platform",
+    "follow": "Volg Rega24",
+    "about": "Over Rega24",
     "contact": "Contact",
     "legal": "Juridisch"
   },
@@ -907,11 +907,11 @@
   },
   "emails": {
     "verifySubject": "REGA: bevestig je e-mailadres",
-    "verifyBody": "Hallo {name},\n\nbevestig je e-mailadres om je REGA-account te activeren:\n{link}\n\nDe link is {hours} uur geldig. Heb je geen account aangemaakt, negeer dan dit bericht.\n\nREGA Platform",
+    "verifyBody": "Hallo {name},\n\nbevestig je e-mailadres om je REGA-account te activeren:\n{link}\n\nDe link is {hours} uur geldig. Heb je geen account aangemaakt, negeer dan dit bericht.\n\nRega24",
     "resetSubject": "REGA: stel je wachtwoord opnieuw in",
-    "resetBody": "Hallo {name},\n\ner is gevraagd om het wachtwoord van je account opnieuw in te stellen. Open deze link om een nieuw wachtwoord in te stellen:\n{link}\n\nDe link is {minutes} minuten geldig. Heb je dit niet aangevraagd, negeer dan dit bericht; je wachtwoord blijft ongewijzigd.\n\nREGA Platform",
+    "resetBody": "Hallo {name},\n\ner is gevraagd om het wachtwoord van je account opnieuw in te stellen. Open deze link om een nieuw wachtwoord in te stellen:\n{link}\n\nDe link is {minutes} minuten geldig. Heb je dit niet aangevraagd, negeer dan dit bericht; je wachtwoord blijft ongewijzigd.\n\nRega24",
     "reviewSubject": "REGA: je vermelding moet worden aangepast",
-    "reviewBody": "Hallo {name},\n\nje vermelding „{listing}” is nog niet gepubliceerd en is teruggestuurd voor wijzigingen.\n{reason}\n\nJe kunt haar in je dashboard aanpassen en opnieuw indienen:\n{link}\n\nREGA Platform"
+    "reviewBody": "Hallo {name},\n\nje vermelding „{listing}” is nog niet gepubliceerd en is teruggestuurd voor wijzigingen.\n{reason}\n\nJe kunt haar in je dashboard aanpassen en opnieuw indienen:\n{link}\n\nRega24"
   },
   "forBusiness": {
     "title": "Voor bedrijven",
@@ -1017,32 +1017,32 @@
     "setStatus": "Status wijzigen ..."
   },
   "pageMeta": {
-    "businesses": "Koerdische bedrijven in Duitsland en Europa op REGA Platform: adres, telefoon, openingstijden en het Rega Verified-label bij elke vermelding.",
+    "businesses": "Koerdische bedrijven in Duitsland en Europa op Rega24: adres, telefoon, openingstijden en het Rega Verified-label bij elke vermelding.",
     "services": "Diensten van Koerdische aanbieders in Duitsland en Europa: vergelijk aanbiedingen, bekijk de prijzen van elk bedrijf en neem direct contact op.",
     "locations": "Locaties van Koerdische bedrijven in Duitsland en Europa: bekijk per stad, zie adressen en openingstijden en vind de route op de kaart.",
     "nearby": "Vind Koerdische bedrijven en diensten bij jou in de buurt: gebruik je locatie of kies een stad en bekijk de resultaten op de kaart of in de lijst.",
-    "ai": "De REGA-assistent beantwoordt je vragen op basis van de echte vermeldingen op REGA Platform: vind Koerdische bedrijven in Duitsland en Europa.",
+    "ai": "De REGA-assistent beantwoordt je vragen op basis van de echte vermeldingen op Rega24: vind Koerdische bedrijven in Duitsland en Europa.",
     "about": "Ontdek Rega24, een meertalig platform om bedrijven en diensten te vinden per categorie, stad en kaart, met duidelijke informatie en een wereldwijde visie.",
-    "search": "Doorzoek alle Koerdische bedrijven, diensten en locaties op REGA Platform en filter de resultaten op type, snel en eenvoudig.",
-    "register": "Maak een gratis account aan op REGA Platform om je bedrijf te vermelden en Koerden in Duitsland en Europa te bereiken.",
-    "login": "Log in op je REGA Platform-account: beheer je vermeldingen, dien ze in voor controle en wijzig je instellingen.",
-    "account": "Je REGA Platform-account: beheer je profiel, de bevestiging van je e-mailadres en je vermeldingen op één plek.",
-    "forgotPassword": "Stel je REGA Platform-wachtwoord opnieuw in: voer je e-mailadres in en ontvang een link om een nieuw wachtwoord in te stellen.",
-    "resetPassword": "Stel een nieuw wachtwoord in voor je REGA Platform-account: kies een sterk wachtwoord van minstens tien tekens en sla het op.",
-    "verifyEmail": "Bevestig je e-mailadres op REGA Platform: klik op de knop om je account te activeren en je bedrijf te gaan vermelden.",
-    "categoryPage": "{name}: Koerdische bedrijven in Duitsland en Europa op REGA Platform, met adres, telefoon en openingstijden bij elke vermelding.",
-    "cityPage": "{name}: Koerdische bedrijven, diensten en plekken op REGA Platform: adressen, telefoonnummers en openingstijden op één plek.",
-    "cityCategoryPage": "{category} in {city}: Koerdische bedrijven op REGA Platform, met adres, telefoon en openingstijden bij elke vermelding.",
-    "businessFallback": "{name} in {place}: adres, telefoon en openingstijden van dit Koerdische bedrijf op REGA Platform.",
-    "businessFallbackNoPlace": "{name}: adres, telefoon en openingstijden van dit Koerdische bedrijf op REGA Platform.",
-    "serviceFallback": "{name} van {provider}: details van deze Koerdische dienst, de prijs en direct contact op REGA Platform.",
-    "contact": "Neem contact op met REGA Platform via telefoon, e-mail, WhatsApp of het formulier: vragen, suggesties en samenwerkingen voor het Koerdische portaal.",
-    "report": "Meld illegale, misleidende of ongepaste inhoud op REGA Platform. Je melding wordt bekeken en behandeld volgens de digitaledienstenverordening (DSA).",
-    "forBusiness": "Vermeld je bedrijf gratis op REGA Platform en bereik Koerden in Duitsland en Europa. Geen kosten, geen abonnement; met controle.",
+    "search": "Doorzoek alle Koerdische bedrijven, diensten en locaties op Rega24 en filter de resultaten op type, snel en eenvoudig.",
+    "register": "Maak een gratis account aan op Rega24 om je bedrijf te vermelden en Koerden in Duitsland en Europa te bereiken.",
+    "login": "Log in op je Rega24-account: beheer je vermeldingen, dien ze in voor controle en wijzig je instellingen.",
+    "account": "Je Rega24-account: beheer je profiel, de bevestiging van je e-mailadres en je vermeldingen op één plek.",
+    "forgotPassword": "Stel je Rega24-wachtwoord opnieuw in: voer je e-mailadres in en ontvang een link om een nieuw wachtwoord in te stellen.",
+    "resetPassword": "Stel een nieuw wachtwoord in voor je Rega24-account: kies een sterk wachtwoord van minstens tien tekens en sla het op.",
+    "verifyEmail": "Bevestig je e-mailadres op Rega24: klik op de knop om je account te activeren en je bedrijf te gaan vermelden.",
+    "categoryPage": "{name}: Koerdische bedrijven in Duitsland en Europa op Rega24, met adres, telefoon en openingstijden bij elke vermelding.",
+    "cityPage": "{name}: Koerdische bedrijven, diensten en plekken op Rega24: adressen, telefoonnummers en openingstijden op één plek.",
+    "cityCategoryPage": "{category} in {city}: Koerdische bedrijven op Rega24, met adres, telefoon en openingstijden bij elke vermelding.",
+    "businessFallback": "{name} in {place}: adres, telefoon en openingstijden van dit Koerdische bedrijf op Rega24.",
+    "businessFallbackNoPlace": "{name}: adres, telefoon en openingstijden van dit Koerdische bedrijf op Rega24.",
+    "serviceFallback": "{name} van {provider}: details van deze Koerdische dienst, de prijs en direct contact op Rega24.",
+    "contact": "Neem contact op met Rega24 via telefoon, e-mail, WhatsApp of het formulier: vragen, suggesties en samenwerkingen voor het Koerdische portaal.",
+    "report": "Meld illegale, misleidende of ongepaste inhoud op Rega24. Je melding wordt bekeken en behandeld volgens de digitaledienstenverordening (DSA).",
+    "forBusiness": "Vermeld je bedrijf gratis op Rega24 en bereik Koerden in Duitsland en Europa. Geen kosten, geen abonnement; met controle.",
     "jobs": "Banen voor Koerden in Duitsland en Europa: vind vacatures per stad en categorie en solliciteer direct bij de werkgever.",
     "events": "Koerdische evenementen in Duitsland en Europa: vind Newroz-feesten, concerten en gemeenschapsbijeenkomsten per stad en datum.",
     "guides": "REGA-gidsen voor het leven in Duitsland en Europa: duidelijke artikelen in meerdere talen, overzichtelijk op één plek.",
-    "entryFallback": "{title}: {kind} op REGA Platform, het Koerdische portaal voor Duitsland en Europa."
+    "entryFallback": "{title}: {kind} op Rega24, het Koerdische portaal voor Duitsland en Europa."
   },
   "seoPages": {
     "inCity": "Bedrijven in {city}",
