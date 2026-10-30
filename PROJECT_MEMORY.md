@@ -1194,4 +1194,13 @@ Deliberate deviations: no favourites heart or notifications bell (features do no
 hero is an original illustration; Latin face stays Inter/Vazirmatn (typography locked); header nav keeps registry items.
 
 Local verification (local PostgreSQL 16 + SEED_DEMO): typecheck, lint, unit 427 pass/4 DB skips/0 fail, D1 10/10, docs
-validation pass; screenshots en/ckb at 1440 and 390 px, no horizontal overflow. Browser suites/build: see next update.
+validation pass; screenshots en/ckb at 1440 and 390 px, no horizontal overflow. `next build --webpack` passes.
+Browser (local Chromium, desktop+mobile projects): first full pass 432 passed, 12 failed — 8 iPhone/WebKit cases cannot
+launch here (WebKit not installed in this sandbox; CI installs it), 1 caused by a too-short local AUTH_SECRET (passes with a
+valid one), 3 were tests pinned to the previous headline (fa ×2, en SEO; updated to the new copy). Re-runs: 59/59 and, after
+the tab refactor, 133/133 (figma-responsive 11 locales × 8 widths + axe, a11y, navigation, SEO, new tabs/category/map test).
+Lighthouse 12.8.2 on `/en`, same sandbox, local `next start`: desktop Perf 100 / A11y 100 / BP 96 / SEO 92; mobile Perf
+80–85 vs main baseline 83–88 (3 runs each; LCP equal ~3 s, TBT variance 240–530 ms), A11y 100. BP 96 and SEO 92 are local
+artefacts (missing e2e media server; canonical points to www.rega24.com). Fixes from this: card nodes are sent once and only
+the selected tab renders (was serialized per tab), lists cut to 4, "More" tile link gets a screen-reader suffix.
+Next: hosted CI on PR #111 → squash merge → existing CI-gated deploy → production browser check → live verification.
