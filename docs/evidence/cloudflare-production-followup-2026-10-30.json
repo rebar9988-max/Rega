@@ -1,0 +1,164 @@
+{
+  "project": "REGA",
+  "date": "2026-10-30",
+  "repository": "rebar9988-max/Rega",
+  "release": {
+    "deploymentId": "7e6d7b5e-8e9a-4a83-9adf-8779412646d6",
+    "versionId": "13360c99-2027-4b79-a064-fcc5ad4bce2b",
+    "deployedAt": "2026-10-29T20:07:29.790509Z",
+    "releaseSha": "b36703f419773d7fae503c4b8af62d13bb6e88c6",
+    "provider": "d1",
+    "databaseId": "728f792d-37b6-49f8-abc1-e81512219f7d",
+    "isolation": "0",
+    "queryRedaction": true
+  },
+  "platform": {
+    "verifiedAt": "2026-10-30T06:25:27.865Z",
+    "provider": "d1",
+    "databaseId": "728f792d-37b6-49f8-abc1-e81512219f7d",
+    "foreignKeyViolations": 0,
+    "quickCheck": [
+      {
+        "quick_check": "ok"
+      }
+    ],
+    "migrations": [
+      "0001_initial.sql",
+      "0002_runtime.sql",
+      "0003_city_slug_fold.sql",
+      "0004_business_social_links.sql",
+      "0005_search_query_daily.sql"
+    ],
+    "storageEndpointIsR2": true,
+    "configuredBucketExists": true,
+    "zone": [
+      {
+        "name": "rega24.com",
+        "status": "active",
+        "cloudflareNameservers": true
+      }
+    ],
+    "domains": [
+      {
+        "hostname": "www.rega24.com",
+        "service": "rega24",
+        "environment": "production"
+      },
+      {
+        "hostname": "rega24.com",
+        "service": "rega24",
+        "environment": "production"
+      }
+    ],
+    "queryRedaction": true,
+    "sharedRateLimitBindings": [
+      "AI_LIMITER",
+      "FORM_LIMITER",
+      "LOGIN_LIMITER",
+      "SEARCH_LIMITER"
+    ]
+  },
+  "health": {
+    "status": 200,
+    "body": {
+      "ok": true,
+      "service": "rega-platform",
+      "env": "production",
+      "time": "2026-10-30T06:22:50.973Z",
+      "latencyMs": 670,
+      "checks": {
+        "database": "ok",
+        "databaseProvider": "d1",
+        "migrations": true,
+        "contentColumns": true,
+        "auth": true,
+        "storage": true,
+        "ai": true,
+        "email": true,
+        "missingEnv": [],
+        "aiProviders": 4
+      }
+    }
+  },
+  "ci": {
+    "run": 40939331852,
+    "job": 123678216552,
+    "conclusion": "success",
+    "unit": {
+      "pass": 420,
+      "fail": 0,
+      "skip": 0
+    },
+    "nativeD1": {
+      "pass": 10,
+      "fail": 0,
+      "skip": 0
+    },
+    "pythonPass": 8,
+    "D1Browser": {
+      "cases": 431,
+      "passedWithoutRetry": 430,
+      "flakyRetried": 1,
+      "retriedCase": "mobile business-visibility: hide/show public surfaces",
+      "conclusion": "success"
+    },
+    "PostgresBrowser": {
+      "pass": 431
+    },
+    "npmAuditVulnerabilities": 0
+  },
+  "deployment": {
+    "run": 40945821770,
+    "conclusion": "success"
+  },
+  "productionBrowser": {
+    "run": 40945971183,
+    "attempt": 2,
+    "job": 123925086094,
+    "conclusion": "success",
+    "passed": 247,
+    "failed": 0,
+    "officialPrimaryAssertions": 38,
+    "expectedPrimary": "#fa070d",
+    "offlineDesktop": true,
+    "offlineMobile": true
+  },
+  "earlierBrowser": {
+    "attempt": 1,
+    "job": 123701282817,
+    "failed": 1,
+    "failedCase": "desktop offline primary color",
+    "observedValue": "oklch(0.54 0.23 29)",
+    "start": "2026-10-29T20:06:46.0519587Z",
+    "deploymentCompleted": "2026-10-29T20:07:29.790509Z",
+    "mobileOfflineAlreadyCorrect": true,
+    "interpretation": "The browser run overlapped publication; a fresh post-deploy rerun passed without application changes. The checks still trigger from CI-completion health, so future runs can overlap releases."
+  },
+  "documentationSkipGuard": {
+    "verifiedSourceSha": "63149e6696ca34f60af6c5148f8feb154a474790",
+    "ciRun": 40669719090,
+    "deployRuns": [
+      40673108064,
+      40674900779
+    ],
+    "jobs": [
+      122764613989,
+      122770690553
+    ],
+    "scopeConclusion": "success",
+    "workerDeployConclusion": "skipped"
+  },
+  "taskScope": {
+    "applicationChanged": false,
+    "productionSettingsChanged": false,
+    "migrationsApplied": false,
+    "customerFormsSubmitted": false,
+    "otherReleaseHoldsPreserved": true,
+    "heldPR71StillDraft": true,
+    "PR103AutomationNotMergedByThisTask": true,
+    "screenshotVisualReview": false,
+    "lighthouseMeasured": false,
+    "productionWriteStatementsIssued": false,
+    "publicVisitsMayProduceNormalApplicationMetrics": true
+  }
+}

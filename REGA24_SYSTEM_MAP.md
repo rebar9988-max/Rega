@@ -1,8 +1,8 @@
 # REGA24 system map
 
-Permanent owner platform policy: [CLAUDE.md section 0.9](CLAUDE.md#09-permanent-cloudflare-platform-mandate-owner-instruction-2026-10-28) requires D1 for the database, Workers for backend/API, R2 for files/images, and Cloudflare for deployment, DNS and security. Rechecked 2026-10-28: active Worker selects D1, its configured S3 endpoint is Cloudflare R2, the configured bucket exists in the same Cloudflare account, and `rega24.com` is an active zone with Cloudflare nameservers. This confirms the platform; it is not a new audit of every security setting.
+Permanent owner platform policy: [CLAUDE.md section 0.9](CLAUDE.md#09-permanent-cloudflare-platform-mandate-owner-instruction-2026-10-28) requires D1 for the database, Workers for backend/API, R2 for files/images, and Cloudflare for deployment, DNS and security. Rechecked 2026-10-30: active Worker selects D1, its configured S3 endpoint is Cloudflare R2, the configured bucket exists in the same Cloudflare account, and `rega24.com` is an active zone with Cloudflare nameservers. This confirms the platform; it is not a new audit of every security setting.
 
-Current verified state (2026-10-28): production `rega24` uses Cloudflare D1, existing EU `rega24-migration` / `728f792d-37b6-49f8-abc1-e81512219f7d`. All 2332 source records across 36 tables were verified before opening traffic; exact-main CI, deployment and live checks passed. Initial cutover release `09afcd538a71fff6b08627057d272bf318e4362c`; later verified active release `caac0653eed0b86b8e2498b3d7a4c490dd4baf24`, version `38a340a5-7c83-4db8-b73a-1716c3c16b40`. [Current migration evidence and procedure](docs/D1-MIGRATION.md). Later verified checkpoints supersede the original audit tables below.
+Current verified state (2026-10-30): production `rega24` uses Cloudflare D1, existing EU `rega24-migration` / `728f792d-37b6-49f8-abc1-e81512219f7d`. Source `b36703f419773d7fae503c4b8af62d13bb6e88c6`, version `13360c99-2027-4b79-a064-fcc5ad4bce2b`, 100% traffic. Exact-main CI/deploy passed; fresh health 200 and 247 post-deploy desktop/mobile checks passed. R2, official domain ownership/Cloudflare DNS, query redaction and four rate-limit bindings verified. [Current evidence](docs/evidence/cloudflare-production-followup-2026-10-30.json). Historical cutover checkpoints below retain their original times; unrelated PR #71 release holds remain.
 
 Infrastructure index for REGA Platform. This file locates components. It does not replace
 [CLAUDE.md](CLAUDE.md), [PROJECT_MEMORY.md](PROJECT_MEMORY.md), or the
@@ -33,7 +33,7 @@ No secret values belong in this file.
 | Canonical site | `https://www.rega24.com` | VERIFIED live HTTP 2026-10-25 |
 | Apex | `https://rega24.com` returns 301 to `https://www.rega24.com/` | VERIFIED live HTTP |
 | Retired hosts | `regaplatform.com` and `www.regaplatform.com` return 301 to `https://www.rega24.com/` | VERIFIED live HTTP |
-| Web Worker | `rega24` ([wrangler.jsonc](wrangler.jsonc), entry [worker.mjs](worker.mjs)) | VERIFIED live 2026-10-28: version `38a340a5-7c83-4db8-b73a-1716c3c16b40`, 100% traffic |
+| Web Worker | `rega24` ([wrangler.jsonc](wrangler.jsonc), entry [worker.mjs](worker.mjs)) | VERIFIED live 2026-10-30: version `13360c99-2027-4b79-a064-fcc5ad4bce2b`, 100% traffic |
 | Python Worker | `rega-ai-python` ([services/ai-python/wrangler.jsonc](services/ai-python/wrangler.jsonc)) | VERIFIED in repo. Whether it is the active AI path UNKNOWN |
 | Separate project | R&L is `rebar9988-max/rega-cargo`, `https://www.rlgo.net`, Workers `rega-cargo` / `rega-cargo-staging`. Do not edit it from this repo. | VERIFIED as an instruction in [CLAUDE.md](CLAUDE.md). R&L itself was not opened |
 | Owner SUPER_ADMIN | Only the address in `SUPER_ADMIN_EMAILS` in [src/lib/rbac.ts](src/lib/rbac.ts) | VERIFIED in source |
@@ -74,7 +74,7 @@ flowchart LR
 | --- | --- | --- | --- |
 | GitHub repo, Actions, secrets | `.github/workflows/` | GitHub account `rebar9988-max` | VERIFIED workflows exist. Which secret values are set is UNKNOWN |
 | Cloudflare DNS | Public NS `autumn.ns.cloudflare.com`, `max.ns.cloudflare.com` for `rega24.com` and `regaplatform.com` | Cloudflare account referenced by Actions | VERIFIED DNS. Dashboard routes UNKNOWN |
-| Worker `rega24` | [wrangler.jsonc](wrangler.jsonc) | Same Cloudflare account. Deployed by [.github/workflows/deploy.yml](.github/workflows/deploy.yml) after CI on `main` | VERIFIED live release `caac065`; see current checkpoint |
+| Worker `rega24` | [wrangler.jsonc](wrangler.jsonc) | Same Cloudflare account. Deployed by [.github/workflows/deploy.yml](.github/workflows/deploy.yml) after CI on `main` | VERIFIED live release `b36703f`; see current checkpoint |
 | Worker `rega-ai-python` | [services/ai-python/wrangler.jsonc](services/ai-python/wrangler.jsonc) | [.github/workflows/ai-python-deploy.yml](.github/workflows/ai-python-deploy.yml), path-filtered | VERIFIED workflow. Live deployment UNKNOWN |
 | Cloudflare D1 | [prisma/d1/schema.prisma](prisma/d1/schema.prisma), [migrations](prisma/d1/migrations/0003_city_slug_fold.sql) | Existing `rega24-migration`, binding `DB` | VERIFIED active provider `d1`, three migrations |
 | PostgreSQL / Neon | [prisma/schema.prisma](prisma/schema.prisma) | Retained source and recovery provider; credentials remain private | VERIFIED source snapshot matched all 36 tables; not active application storage |
@@ -286,3 +286,7 @@ Later live readback shows documentation release caac065 active at 100% as versio
 ## Digital Operations Center — 2026-10-29
 
 Owner-only `/dr/operations` (permission `operations.manage`, held only by SUPER_ADMIN = `rebar9988@gmail.com`). Ten logical agents share the existing `rega24` Worker, D1 database and search code: no new Worker, binding, cron trigger, queue, table, migration, dependency or paid service. Engine guards ([src/lib/ops/core.ts](src/lib/ops/core.ts)): execution-id idempotency, 100 runs/UTC day with throttling from 80, 60 s (then 15 min) cool-down per agent, one lock per agent (`Setting` key `ops.lock.<agent>`, 2 min TTL), 25 s timeout, one retry, 12 HTTP probes and 2,500 rows per query. Reports are `AuditLog` rows (`action=ops.report`, `entity=ops:<agent>`). Agents never approve, reject, publish, delete, merge or change configuration; the public AI flag is reported, not changed. Repository-side checks (catalogue parity, tracked-file secret scan) run in the existing `npm test` CI step. Scheduled execution stays OFF: account-wide Cloudflare usage and billing are not readable from the repository or Worker.
+
+## Production and documentation-scope verification — 2026-10-30
+
+Latest verified release b36703f uses D1/R2/Workers and Cloudflare DNS as mandated. Remote D1 quick_check=ok/FK 0; remote ledger has five existing migrations, without replay. Browser rerun 40945971183 attempt 2 passed 247 checks and 38 primary-red assertions, including standalone offline. Earlier source 63149e6 scope-fix deploy runs 40673108064 and 40674900779 skipped Worker upload, proving the first-parent docs-only gate in hosted execution. [Evidence](docs/evidence/cloudflare-production-followup-2026-10-30.json). No infrastructure, record or security-setting changes performed; this is current-state verification.
