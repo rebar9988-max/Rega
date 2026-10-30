@@ -6,6 +6,7 @@
 import { check } from "../core";
 import type { Check, FindingItem, Inspection } from "../types";
 import type { ProbeResult } from "../probe";
+import type { SearchStats } from "@/lib/search-analytics-core";
 
 export type ContentRow = {
   kind: "page" | "guide" | "job" | "event";
@@ -78,7 +79,13 @@ export type AnalyticsFacts = {
   reviews: { approved: number; pending: number };
   aiRequests7d: number;
   openReports: number;
+  /** Aggregated search counters of the last 7 UTC days (SearchQueryDaily: no user, session, IP or device), or null when unreadable. */
+  searches: (SearchStats & { truncated: boolean }) | null;
 };
+
+/** Above this share of searches finding nothing (with at least ZERO_RESULT_MIN of them) discovery gaps are reported. */
+export const ZERO_RESULT_WARN_RATIO = 0.3;
+export const ZERO_RESULT_MIN = 5;
 
 export function analyzeAnalytics(f: AnalyticsFacts): Inspection {
   const checks: Check[] = [];
@@ -90,6 +97,16 @@ export function analyzeAnalytics(f: AnalyticsFacts): Inspection {
   checks.push(check.info("analytics.city_coverage", `${f.citiesWithBusinesses} لە ${f.activeCities} شاری چالاک بازرگانییان هەیە.`));
   checks.push(check.items("analytics.discovery_paths", f.undiscoverable.map((u) => ({ label: `${u.slug} (${u.reason})` })), "warn", `${f.undiscoverable.length} بازرگانیی گشتی لە نەخشە، شار یان پۆلدا ناگەیەنرێن.`, "هەموو بازرگانییە گشتییەکان لە نەخشە، شار و پۆلدا دەدۆزرێنەوە.", "شوێن، شار یان پۆلیان تەواو بکە."));
   checks.push(check.info("analytics.engagement", `هەڵسەنگاندن: ${f.reviews.approved} پەسەندکراو، ${f.reviews.pending} چاوەڕوان · داواکاریی AI (٧ ڕۆژ): ${f.aiRequests7d} · ڕاپۆرتی کراوە: ${f.openReports}.`));
-  checks.push(check.skip("analytics.zero_result_searches", "گەڕانە بێ ئەنجامەکان تۆمار ناکرێن؛ بۆ پاراستنی تایبەتمەندی هیچ چاودێرییەکی نوێ زیاد نەکرا."));
-  return { inspected: f.publicBusinesses + f.activeCategories, checks, evidence: ["D1 aggregates only: Business(viewCount sum), Category, City, Review, AiUsageDaily, Report counts", "no personal data, no new tracking, no third-party analytics"] };
+  const s = f.searches;
+  if (!s) checks.push(check.skip("analytics.zero_result_searches", "ئاماری گەڕان نەخوێنرایەوە (خشتەی SearchQueryDaily بەردەست نییە)."));
+  else if (s.searches === 0) checks.push(check.info("analytics.zero_result_searches", `لە ${s.days} ڕۆژی ڕابردوودا هیچ گەڕانێک تۆمار نەکراوە.`));
+  else {
+    const ratio = s.zeroResults / s.searches;
+    const items = s.missing.slice(0, 12).map((m) => ({ label: `${m.query}: ${m.zeroResults}` }));
+    const message = `لە ${s.days} ڕۆژدا ${s.zeroResults} لە ${s.searches} گەڕان (${Math.round(ratio * 100)}%) هیچ ئەنجامێکیان نەبوو.`;
+    checks.push(ratio > ZERO_RESULT_WARN_RATIO && s.zeroResults >= ZERO_RESULT_MIN
+      ? { code: "analytics.zero_result_searches", result: "warn", message, count: s.zeroResults, items, action: "بۆ ئەم گەڕانانە بازرگانی یان پۆلی ڕاستەقینە زیاد بکە، یان وشەی هاوواتا؛ هیچ داتایەک بە خۆکار دروست ناکرێت." }
+      : check.info("analytics.zero_result_searches", message, { count: s.zeroResults, items }));
+  }
+  return { inspected: f.publicBusinesses + f.activeCategories, checks, evidence: ["D1 aggregates only: Business(viewCount sum), Category, City, Review, AiUsageDaily, Report counts", `D1 SearchQueryDaily (7 days, existing counters; no personal data)${f.searches?.truncated ? " — read bounded, more rows exist" : ""}`, "no new tracking, no third-party analytics"] };
 }

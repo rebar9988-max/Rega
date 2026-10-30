@@ -12,6 +12,7 @@ import { locationAudit } from "@/lib/business-admin";
 import { FLAG_DEFAULTS } from "@/lib/flags";
 import { providerCatalog } from "@/lib/ai";
 import { searchService } from "@/lib/search/postgres";
+import { summarize as summarizeSearches } from "@/lib/search-analytics-core";
 import { DEFAULT_LOCALE, LOCALES, LOCALE_META, type Locale } from "@/config/locales";
 import { OPS_LIMITS } from "./core";
 import { ProbeBudget, probe, type ProbeResult } from "./probe";
@@ -211,6 +212,12 @@ async function analyticsInspector(): Promise<Inspection> {
     prisma.aiUsageDaily.aggregate({ where: { day: { gte: weekAgo } }, _sum: { requests: true } }),
     prisma.report.count({ where: { status: "open" } }),
   ]);
+  // Existing aggregated search counters (lib/search-analytics.ts): read-only, bounded like every other agent query.
+  const since = new Date(Date.now() - 6 * DAY).toISOString().slice(0, 10);
+  const searchRows = await prisma.searchQueryDaily
+    .findMany({ where: { day: { gte: since } }, select: { day: true, query: true, searches: true, zeroResults: true }, orderBy: { zeroResults: "desc" }, take: TAKE })
+    .catch(() => null);
+  const searches = searchRows ? { ...summarizeSearches(searchRows, 7), truncated: searchRows.length >= TAKE } : null;
   const undiscoverable = listed.flatMap((b): AnalyticsFacts["undiscoverable"] => {
     const loc = b.locations[0];
     if (!loc || loc.latitude == null || loc.longitude == null) return [{ slug: b.slug, reason: "no_marker" }];
@@ -222,7 +229,7 @@ async function analyticsInspector(): Promise<Inspection> {
     publicBusinesses, totalViews: views._sum.viewCount ?? 0, viewsTop: top.map((t) => ({ slug: t.slug, views: t.viewCount })),
     activeCategories, categoriesWithBusinesses: byCategory.filter((c) => c.categoryId).length,
     activeCities, citiesWithBusinesses: byCity.length, undiscoverable,
-    reviews: { approved: reviewCount("approved"), pending: reviewCount("pending") }, aiRequests7d: ai._sum.requests ?? 0, openReports,
+    reviews: { approved: reviewCount("approved"), pending: reviewCount("pending") }, aiRequests7d: ai._sum.requests ?? 0, openReports, searches,
   });
 }
 

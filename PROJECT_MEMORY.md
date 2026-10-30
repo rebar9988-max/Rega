@@ -1140,3 +1140,27 @@ CI run 41067658630 (head `b9fb362`): lint, typecheck, unit, D1, Node build PASS;
 23 px at narrow widths: the long compound "Behördenangelegenheiten" widened its category tile (`overflow-wrap: break-word` does not
 reduce min-content). Fix: grid items `min-width: 0`, label `overflow-wrap: anywhere` + `hyphens: auto`, 12 px label below 400 px.
 Local re-check of all 11 locales at 320–1024 px: no overflow from the new sections.
+
+## Digital Operations Center — release VERIFIED — 2026-10-29/30 (PR #98, squash `ec162ff`)
+
+- PR #98: final-head CI `40874691068` (verify) and both Workers Builds checks passed on `dbee6bf` after merging #99 (red
+  standard; the one `/dr/operations` finding link was moved to `text-brand-text`). Squash-merged with the head SHA pinned.
+- Exact-main chain for `ec162ff`: CI `40880938489` success → CI-gated `Deploy to Cloudflare Workers` `40887207127` success
+  (2026-10-29 14:02 UTC, identity guard + exact-SHA CI gate passed) → Production browser check `40887420432` success (attempt 2).
+- Later releases #104 (`b36703f`) and #105 (`0140487`) contain `ec162ff` and do not touch `src/lib/ops`, `src/app/dr/operations`,
+  `rbac.ts` or `nav.ts`. Current release `0140487`: CI `41018644062`, deploy `41022039957` (wrangler "Current Version ID"
+  `f38613d7-34c5-4cee-a3d7-6b5f5b213999`), Beta health `41022040086`, Production browser `41022134779` — all success.
+- Live read-only check 2026-10-30 08:02 UTC: `/api/health` ok, provider `d1`, migrations ready; anonymous `/dr/operations`
+  HTTP 200 with the sign-in form only (no agent grid), `cache-control: private, no-cache, no-store`, `x-robots-tag: noindex,
+  nofollow`, edge BYPASS; `/ckb /en /de /ar /fr /ckb/businesses /dr` 200; anonymous `/api/v1/businesses?status=draft` returned
+  only published rows.
+- Not verified: an authenticated owner run of the agents in production (needs the owner's own sign-in; no session is
+  fabricated). Version-at-100% is taken from the wrangler deploy output, not an independent Cloudflare deployments read.
+- No production data, schema, flag, secret, binding or plan was changed. `public.aiSearch` remains as the owner set it (on).
+- Next safe continuation point: the owner signs in at `/dr/operations`, runs "Run all", and reviews the Sorani findings
+  (expected warnings today: public AI flag on with paid-provider keys configured; low category coverage).
+- Follow-up (owner, 2026-10-30): the privacy-safe analytics agent now reads the existing aggregated `SearchQueryDaily`
+  counters from #102 (7 days, ≤2,500 rows, read-only; no user/session/IP data exists there). The check reports searches
+  that found nothing, as a warning above 30% with at least 5 such searches. It never creates data. If the table is
+  unreadable it reports SKIPPED. Production D1 has migration `0005_search_query_daily.sql` (read-only check: 0 rows).
+  Still owner-triggered only: scheduling stays off because account-wide usage/billing cannot be verified.
