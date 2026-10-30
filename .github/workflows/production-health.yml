@@ -301,11 +301,11 @@ jobs:
           fail=0
           about_title=$(jq -er '.about.title | select(type == "string" and length > 0)' src/messages/ckb.json) || exit 1
           . "$PROBE"
-          for p in /brand/rega-logo.webp /brand/rega-mark-256.webp /brand/rega-wordmark.webp /icon.png /apple-icon.png /opengraph-image.png /manifest.webmanifest; do
+          for p in /brand/rega24-badge-96.webp /brand/rega24-badge-512.png /brand/rega24-maskable-512.png /favicon.ico /icon.png /apple-icon.png /opengraph-image.png /manifest.webmanifest; do
             if probe 200 "https://www.rega24.com$p"; then echo "ok   $p -> 200"; else probe_fail "$p" 200; fail=1; fi
             sleep 0.3
           done
-          if probe 200 https://www.rega24.com/ckb && grep -qF '/brand/rega-mark-256.webp' "$PROBE_BODY"; then echo "ok   header uses the official logo"; else echo "::error::FAIL header logo (HTTP $PROBE_CODE)"; fail=1; fi
+          if probe 200 https://www.rega24.com/ckb && grep -qF '/brand/rega24-badge-96.webp' "$PROBE_BODY"; then echo "ok   header uses the official logo"; else echo "::error::FAIL header logo (HTTP $PROBE_CODE)"; fail=1; fi
           if ! probe 200 https://www.rega24.com/ckb/about; then probe_fail /ckb/about 200; fail=1
           elif grep -qF -- "$about_title" "$PROBE_BODY"; then echo "ok   /ckb/about approved text"
           else echo "::error::FAIL /ckb/about -> approved text missing"; fail=1; fi

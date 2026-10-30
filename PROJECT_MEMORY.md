@@ -1252,3 +1252,34 @@ Not verified: hosted CI, deploy, live site.
 
 Next milestone scaffold (unwired, no schema): `src/features/admin-audit/*`, `src/features/admin-notifications/*`,
 `tests/admin-scaffold.test.ts`, plan in [docs/ADMIN-AUDIT-NOTIFICATIONS.md](docs/ADMIN-AUDIT-NOTIFICATIONS.md).
+
+### REGA24 logo — release and health-check follow-up — 2026-10-30
+PR #101 squash `f5ff417` is on `main` and was deployed with `5caee06` ("Deploy to Cloudflare Workers" run 41034244928,
+success). Live check (public fetch): `/favicon.ico` is the new 5645-byte REGA24 ICO (sha256 matches the repository),
+the manifest lists maskable 192/512, and `/brand/rega24-maskable-{192,512}.png` return 200. Root cause of the red
+"Beta health" runs since #105: `production-health.yml` still required `/brand/rega-mark-256.webp` in the `/ckb` header,
+but the header now renders `rega24-badge-*`. Follow-up PR updates that check (and the static-asset probe list) to the
+current official assets; every new probe was confirmed 200 / present against live production before the change.
+
+
+## Owner reference v2 + logo colours — release VERIFIED — 2026-10-30 (PR #111, squash `89a516c`)
+
+- PR #111: final-head `verify` CI on `80341e7` passed (17:58–18:44 UTC; lint, typecheck, unit, D1, full Playwright on
+  D1 and PostgreSQL, Worker build) plus both Workers Builds checks. Identity guard OK; squash-merged with the head SHA pinned.
+- Exact-main chain for `89a516c`: CI `41111803716` success → CI-gated `Deploy to Cloudflare Workers` `41117708805` success
+  (19:46:38 UTC; identity guard, exact-SHA CI gate and D1 snapshot gate passed; wrangler "Current Version ID"
+  `3ea28e82-c67c-40fe-9ae7-941b4af48090`, Worker `rega24`, D1 `rega24-migration`).
+- Production browser check `41118297909` (manual dispatch, attempt 2; attempt 1 was cancelled by the workflow's own
+  `cancel-in-progress` concurrency, not a test failure): success, no FAIL lines. Desktop 1366 px and Pixel 5: 19 public
+  pages HTTP 200, correct dir, 0 px horizontal scroll, served `--brand` `#d42a20` everywhere (incl. /offline.html); new
+  hero headlines live on /ckb /de /en /ar; home search form, AI entry, mobile tab bar, header links, location selector,
+  business profile and /dr sign-in protection pass. Screenshots: artifact `13007371734` (14 days).
+- Post-deploy Beta health `41118353053`: health/D1, routes, canonical redirects/SEO, legal, security headers and access
+  control pass. Only step 9 fails: it greps the header HTML for the retired `/brand/rega-mark-256.webp`, but the header has
+  used the `rega24-badge-*.webp` LogoMark since #105 (already failing on `b52064e` before this release). Open PRs #109/#110
+  update that probe; not changed here. Because Beta health fails, the browser check does not auto-trigger; dispatch it.
+- Info only (pre-existing, not from this release): the mobile browser check's diagnosis lists `/de/businesses` filter chips
+  extending past 393 px inside their own horizontal scroller; page horizontal scroll is 0 px.
+- No production data, schema, migration, secret, binding, plan or paid service was changed.
+- Next safe continuation point: merge #109/#110 (health probe), then a real-photo pass when owner-supplied images exist
+  (category covers fall back to logo-red icon tiles until businesses upload covers).
