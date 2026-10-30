@@ -1204,3 +1204,12 @@ Lighthouse 12.8.2 on `/en`, same sandbox, local `next start`: desktop Perf 100 /
 artefacts (missing e2e media server; canonical points to www.rega24.com). Fixes from this: card nodes are sent once and only
 the selected tab renders (was serialized per tab), lists cut to 4, "More" tile link gets a screen-reader suffix.
 Next: hosted CI on PR #111 → squash merge → existing CI-gated deploy → production browser check → live verification.
+
+### REGA24 logo — release and health-check follow-up — 2026-10-30
+PR #101 squash `f5ff417` is on `main` and was deployed with `5caee06` ("Deploy to Cloudflare Workers" run 41034244928,
+success). Live check (public fetch): `/favicon.ico` is the new 5645-byte REGA24 ICO (sha256 matches the repository),
+the manifest lists maskable 192/512, and `/brand/rega24-maskable-{192,512}.png` return 200. Root cause of the red
+"Beta health" runs since #105: `production-health.yml` still required `/brand/rega-mark-256.webp` in the `/ckb` header,
+but the header now renders `rega24-badge-*`. Follow-up PR updates that check (and the static-asset probe list) to the
+current official assets; every new probe was confirmed 200 / present against live production before the change.
+
