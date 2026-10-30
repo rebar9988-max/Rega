@@ -8,6 +8,7 @@ import { localize } from "@/lib/content";
 import { businessReadiness, publicationSelect } from "@/lib/business-publication";
 import type { Locale } from "@/i18n/locales";
 import { BusinessForm } from "@/components/dr/BusinessForm";
+import { featuresFromTags } from "@/config/business-features";
 import { isStorageConfigured } from "@/lib/env";
 import { closedOnHolidays, hoursExceptions, hoursRows } from "@/lib/opening-hours";
 import { assertBusinessAccess } from "@/lib/business-access";
@@ -121,12 +122,13 @@ export default async function EditBusiness({ params, searchParams }: { params: P
         initial={{
           id: b.id, name: b.name, nameCkb: b.nameCkb ?? undefined, categoryId: b.categoryId ?? undefined,
           description: b.description ?? undefined, phone: b.phone ?? undefined, whatsapp: b.whatsapp ?? undefined, email: b.email ?? undefined, website: b.website ?? undefined,
+          social: { facebook: b.facebookUrl ?? undefined, instagram: b.instagramUrl ?? undefined, tiktok: b.tiktokUrl ?? undefined, snapchat: b.snapchatUrl ?? undefined },
           addressLine1: loc?.addressLine1, postalCode: loc?.postalCode ?? undefined, countryCode: loc?.countryCode ?? "DE",
           city: loc?.city ? localize({ ...loc.city, name: loc.city.nameEn }, "name", locale).text : undefined,
           latitude: loc?.latitude, longitude: loc?.longitude, coordsSource: loc?.coordsSource, coordsVerified: Boolean(loc?.coordsVerifiedAt),
           hours: Object.fromEntries(hoursRows(loc?.openingHours).map((r) => [r.day, r.value])),
           holidaysClosed: closedOnHolidays(loc?.openingHours), hoursExceptions: hoursExceptions(loc?.openingHours),
-          logoUrl: b.logoUrl, coverUrl: b.coverUrl, photos: b.photos, status: b.status, languages: b.languages,
+          logoUrl: b.logoUrl, coverUrl: b.coverUrl, photos: b.photos, status: b.status, languages: b.languages, features: featuresFromTags(b.tags),
           translations: {
             ckb: b.descriptionCkb ?? undefined, kmr: b.descriptionKmr ?? undefined, de: b.descriptionDe ?? undefined, ar: b.descriptionAr ?? undefined, tr: b.descriptionTr ?? undefined,
             ...Object.fromEntries(b.translations.flatMap((x) => (x.description ? [[x.locale, x.description]] : []))),

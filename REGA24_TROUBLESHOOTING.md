@@ -428,7 +428,7 @@ If first activation is blocked, inspect the current `REGA_ISOLATED_PREVIEW=1`, f
 
 ## Verified D1 continuation — 2026-10-28
 
-First activation succeeded at 08:18 UTC as release `09afcd538a71fff6b08627057d272bf318e4362c`; subsequent releases read the active provider plus exact D1 UUID. Health must report HTTP 200, `ok=true`, `checks.databaseProvider=d1`, migrations/content ready. Real D1 migration history includes 0001_initial.sql, 0002_runtime.sql and 0003_city_slug_fold.sql; 108 revision triggers support atomic concurrency guards. Current original-value verification and backup scope are in the [cutover evidence](docs/evidence/d1-production-cutover-2026-10-28.json).
+First activation succeeded at 08:18 UTC as release `09afcd538a71fff6b08627057d272bf318e4362c`; subsequent releases read the active provider plus exact D1 UUID. Health must report HTTP 200, `ok=true`, `checks.databaseProvider=d1`, migrations/content ready. Real D1 migration history includes 0001_initial.sql, 0002_runtime.sql, 0003_city_slug_fold.sql and (from 2026-10-29) the additive 0004_business_social_links.sql — health requires all four; 108 revision triggers support atomic concurrency guards. Current original-value verification and backup scope are in the [cutover evidence](docs/evidence/d1-production-cutover-2026-10-28.json).
 
 The production browser run during source isolation correctly saw 503. Replacement run 40656143224 after activation passed 201 checks with zero failures; post-cutover health 40655046619 attempt 2 also passed. Do not diagnose a historical freeze result as the current deployment. Do not fix runtime errors by resetting data, reapplying original/delta imports, dropping migrations, rotating auth secrets or recreating production resources.
 

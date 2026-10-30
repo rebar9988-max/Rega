@@ -190,7 +190,9 @@
     "readMore": "Devamını oku",
     "readLess": "Daha az",
     "photoCount": "{count} fotoğraf",
-    "openPhoto": "{n}. fotoğrafı aç"
+    "openPhoto": "{n}. fotoğrafı aç",
+    "socialProfiles": "Sosyal medya",
+    "socialProfile": "{platform} (yeni pencere)"
   },
   "services": {
     "title": "Hizmetler",
@@ -657,9 +659,9 @@
     "mediaInvalid": "Bir fotoğraf kabul edilemedi. Yükleme düğmesiyle yeniden yükleyin.",
     "wizard": {
       "steps": "Kayıt adımları",
-      "step1": "İşletme ve konum",
-      "step2": "Logo ve görseller",
-      "step3": "İncele ve gönder",
+      "step1": "Bilgiler",
+      "step2": "İletişim",
+      "step3": "Konum",
       "next": "İleri",
       "back": "Geri",
       "saveDraft": "Taslağı kaydet",
@@ -670,7 +672,11 @@
       "reviewHint": "Gönderdikten sonra REGA ekibi kaydınızı inceler. Yalnızca onaydan sonra yayımlanır.",
       "pinConfirmed": "Haritada onaylandı",
       "pinMissing": "Henüz ayarlanmadı",
-      "draftChanged": "Bu taslak gönderilmiş veya incelenmiş. Düzenlemeden önce sayfayı yenileyin."
+      "draftChanged": "Bu taslak gönderilmiş veya incelenmiş. Düzenlemeden önce sayfayı yenileyin.",
+      "step4": "Saatler",
+      "step5": "Fotoğraflar ve bitiş",
+      "stepOf": "Adım {n} / {total}: {name}",
+      "completed": "tamamlandı"
     },
     "categorySearch": "Kategori ara",
     "optionalDetails": "İsteğe bağlı ayrıntılar",
@@ -686,7 +692,75 @@
     "exceptionHours": "Saatler",
     "exceptionReason": "Neden (isteğe bağlı, herkese açık)",
     "exceptionRemove": "Kaldır",
-    "exceptionAdd": "Kapanış veya özel saat ekle"
+    "exceptionAdd": "Kapanış veya özel saat ekle",
+    "optional": "isteğe bağlı",
+    "titleBasics": "Temel bilgiler",
+    "titleContact": "İletişim bilgileri",
+    "titleSocial": "Sosyal medya",
+    "titleLocation": "Konum ve adres",
+    "titleMedia": "Logo ve fotoğraflar",
+    "locationHint": "Adresi yazın, konumu bulun ve haritada onaylayın.",
+    "sameAsPhone": "Telefonla aynı",
+    "emailInvalid": "Geçerli bir e-posta girin, ör. name@example.com",
+    "websiteInvalid": "Geçerli bir web sitesi adresi girin, ör. example.com",
+    "socialHint": "Hepsi isteğe bağlıdır. Yalnızca kullandığınız platformları ekleyin: profil bağlantısı veya @ad.",
+    "socialInvalid": "Geçerli bir {platform} profil bağlantısı (https://…) veya @ad girin.",
+    "socialClear": "{platform} kaldır",
+    "pinConfirmedTitle": "Konum başarıyla belirlendi",
+    "pinConfirmedText": "Bu adres haritada onaylandı.",
+    "advancedCoords": "Gelişmiş: koordinatlar",
+    "saving": "Kaydediliyor…",
+    "hoursEditor": {
+      "hint": "Her gün için açık veya kapalı seçin ve saatleri belirleyin. Bölünmüş (ör. 09:00–12:00 ve 14:00–18:00) ve gece yarısını aşan (ör. 20:00–02:00) saatler desteklenir.",
+      "notSet": "Henüz çalışma saati yok. Saatler olmadan işletme asla “açık” gösterilmez.",
+      "add": "Çalışma saatleri ekle",
+      "clear": "Tüm saatleri kaldır",
+      "open": "Açık",
+      "closed": "Kapalı",
+      "allDay": "24 saat açık",
+      "from": "başlangıç",
+      "to": "bitiş",
+      "addRange": "Başka saat aralığı ekle",
+      "removeRange": "Bu aralığı kaldır",
+      "copyAll": "Pazartesiyi tüm günlere kopyala",
+      "copyWeekdays": "Hafta içine (Pzt–Cum)",
+      "overnight": "Ertesi gün kapanır (gece yarısından sonra).",
+      "invalid": "Başlangıç ve bitiş saatini girin; aynı olamaz.",
+      "unknown": "Belirtilmedi"
+    },
+    "media": {
+      "hint": "1 logo ve 3 tanıtım fotoğrafı. Hepsi isteğe bağlı; tanıtım fotoğrafı 1 profilin ana görselidir.",
+      "uploadLogo": "Logo yükle",
+      "addPhoto": "Fotoğraf ekle",
+      "promo": "Tanıtım fotoğrafı {n}",
+      "morePhotos": "Diğer tanıtım fotoğrafları",
+      "uploading": "Yükleniyor…",
+      "dropHere": "veya fotoğrafı buraya sürükleyin"
+    },
+    "features": {
+      "title": "Kategori ayrıntıları",
+      "hint": "İşletmeniz için geçerli olanları seçin. Hepsi isteğe bağlı.",
+      "items": {
+        "wheelchair": "Tekerlekli sandalyeye uygun",
+        "parking": "Otopark",
+        "cardPayment": "Kartla ödeme",
+        "delivery": "Teslimat",
+        "takeaway": "Paket servis",
+        "halal": "Helal",
+        "vegetarian": "Vejetaryen seçenekler",
+        "outdoorSeating": "Açık hava oturma",
+        "appointment": "Randevu ile",
+        "homeVisits": "Ev ziyareti",
+        "walkIns": "Randevusuz",
+        "repairService": "Tamir hizmeti",
+        "onlineLessons": "Online dersler",
+        "freeConsultation": "Ücretsiz ilk danışma",
+        "onlineAppointments": "Online randevu",
+        "freeQuote": "Ücretsiz fiyat teklifi",
+        "serviceAtCustomer": "Yerinde hizmet",
+        "onlineBooking": "Online rezervasyon"
+      }
+    }
   },
   "contact": {
     "title": "İletişim",
@@ -1247,7 +1321,7 @@
     "moveEarlier": "Öne al",
     "moveLater": "Geriye al",
     "galleryHint": "Bir kapak görseli ve en fazla 3 ek görsel. Sıra profil sayfasında kullanılır.",
-    "overLimit": "Bu kayıtta zaten 3'ten fazla görsel var. Hepsi korunur; 3'ten az kaldığında yeni görsel eklenebilir."
+    "overLimit": "Bu kayıtta yuvalardan fazla fotoğraf var. Hepsi korunur; bir yuva boşaldığında yeni fotoğraf eklenebilir."
   },
   "ops": {
     "title": "Operasyon Merkezi",

@@ -76,7 +76,7 @@ flowchart LR
 | Cloudflare DNS | Public NS `autumn.ns.cloudflare.com`, `max.ns.cloudflare.com` for `rega24.com` and `regaplatform.com` | Cloudflare account referenced by Actions | VERIFIED DNS. Dashboard routes UNKNOWN |
 | Worker `rega24` | [wrangler.jsonc](wrangler.jsonc) | Same Cloudflare account. Deployed by [.github/workflows/deploy.yml](.github/workflows/deploy.yml) after CI on `main` | VERIFIED live release `caac065`; see current checkpoint |
 | Worker `rega-ai-python` | [services/ai-python/wrangler.jsonc](services/ai-python/wrangler.jsonc) | [.github/workflows/ai-python-deploy.yml](.github/workflows/ai-python-deploy.yml), path-filtered | VERIFIED workflow. Live deployment UNKNOWN |
-| Cloudflare D1 | [prisma/d1/schema.prisma](prisma/d1/schema.prisma), [migrations](prisma/d1/migrations/0003_city_slug_fold.sql) | Existing `rega24-migration`, binding `DB` | VERIFIED active provider `d1`, three migrations |
+| Cloudflare D1 | [prisma/d1/schema.prisma](prisma/d1/schema.prisma), [migrations](prisma/d1/migrations/0004_business_social_links.sql) | Existing `rega24-migration`, binding `DB` | VERIFIED active provider `d1`, four migrations (0004 additive, 2026-10-29) |
 | PostgreSQL / Neon | [prisma/schema.prisma](prisma/schema.prisma) | Retained source and recovery provider; credentials remain private | VERIFIED source snapshot matched all 36 tables; not active application storage |
 | Neon preview branches | [.github/workflows/neon-branch.yml](.github/workflows/neon-branch.yml) project id `lucky-glitter-73195208` | `NEON_API_KEY` | VERIFIED workflow text. Whether production uses this project is REPORTED |
 | Object storage | `STORAGE_*` and `MEDIA_PUBLIC_URL` | Worker secrets. Code accepts any S3 API, including R2 | Endpoint hostname UNKNOWN |

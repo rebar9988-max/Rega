@@ -185,7 +185,7 @@ export type BusinessFormState = {
 /** Create / edit form. Validation, permissions and publish rules all run here, on the server. */
 export async function saveBusinessAction(_prev: BusinessFormState, formData: FormData): Promise<BusinessFormState> {
   const user = await requirePermission("business.write");
-  const parsed = businessFormSchema.safeParse({ ...Object.fromEntries(formData), languages: formData.getAll("languages"), photoUrls: formData.getAll("photoUrls") });
+  const parsed = businessFormSchema.safeParse({ ...Object.fromEntries(formData), languages: formData.getAll("languages"), features: formData.getAll("features"), photoUrls: formData.getAll("photoUrls") });
   if (!parsed.success) return { error: "invalid", fields: [...new Set(parsed.error.issues.map((i) => String(i.path[0])))] };
   const input = parsed.data;
   if (input.id) await assertBusinessAccess(user, input.id);

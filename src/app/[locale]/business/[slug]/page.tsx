@@ -12,6 +12,9 @@ import { languageNames } from "@/components/cards/BusinessRow";
 import { FigmaIcon } from "@/components/home/FigmaIcon";
 import { directionsUrl, mapLinks, safeHttpUrl, safeTel } from "@/lib/urls";
 import { whatsappLink } from "@/lib/whatsapp";
+import { socialLinks } from "@/lib/social-links";
+import { featuresFromTags } from "@/config/business-features";
+import { SOCIAL_ICONS, SocialIcon } from "@/components/business/SocialIcon";
 import { offerTimezone } from "@/lib/offers";
 import { OfferList } from "@/components/business/OfferList";
 import { ExpandableText } from "@/components/business/ExpandableText";
@@ -66,11 +69,15 @@ export default async function BusinessPage({ params }: Props) {
   const tel = safeTel(b.phone);
   // Only the business's public WhatsApp number (never an account phone), and only when it is a valid stored number.
   const whatsapp = whatsappLink(b.whatsapp);
+  // Only the profiles the business saved, each re-validated (platform host, https) before it becomes a link.
+  const social = socialLinks(b);
   const offers = b.offers.map((o) => ({ ...o, discountValue: o.discountValue == null ? null : Number(o.discountValue), startsAt: o.startsAt.toISOString(), endsAt: o.endsAt.toISOString() }));
   const category = b.categoryId ? (await getCategories()).find((c) => c.id === b.categoryId) : undefined;
   const categoryName = category ? localize({ ...category, name: category.nameDe }, "name", l) : null;
   const primaryCity = b.locations[0]?.city ? localize({ ...b.locations[0].city, name: b.locations[0].city.nameEn }, "name", l) : null;
   const langs = languageNames(b.languages);
+  // Optional category details the business ticked (config/business-features.ts); none -> nothing is shown.
+  const features = featuresFromTags(b.tags);
   // One location button for the whole page: the primary location (else the first) in the device's map app.
   const placeAddress = (loc: (typeof b.locations)[number]) => [loc.addressLine1, loc.addressLine2, [loc.postalCode, loc.city?.nameEn].filter(Boolean).join(" ")]
     .map((part) => (part ?? "").replace(/[\s,]+$/, "")).filter(Boolean).join(", ");
@@ -91,7 +98,7 @@ export default async function BusinessPage({ params }: Props) {
   const day = (date: string) => formatDate(`${date}T00:00:00Z`, locale as Locale, { timeZone: "UTC" });
   const services = b.services.map((s) => ({ ...s, cover: safeHttpUrl(s.coverUrl) }));
   const serviceCovers = services.some((s) => s.cover);
-  const hasContact = Boolean(tel || whatsapp || b.email || website);
+  const hasContact = Boolean(tel || whatsapp || b.email || website || social.length);
   // Primary (red) action: directions when the place can be found, else the call; share is always possible.
   const primaryAction = directions ? "directions" : "call";
   const actionCount = (tel ? 1 : 0) + (directions ? 1 : 0) + 1;
@@ -107,7 +114,7 @@ export default async function BusinessPage({ params }: Props) {
     image: b.logoUrl || b.coverUrl || undefined,
     telephone: b.phone || undefined,
     email: b.email || undefined,
-    sameAs: website ? [website] : undefined,
+    sameAs: website || social.length ? [...(website ? [website] : []), ...social.map((x) => x.url)] : undefined,
     aggregateRating: b.ratingCount ? { "@type": "AggregateRating", ratingValue: b.ratingAvg, reviewCount: b.ratingCount } : undefined,
     address: b.locations[0] ? { "@type": "PostalAddress", streetAddress: b.locations[0].addressLine1, postalCode: b.locations[0].postalCode || undefined, addressCountry: b.locations[0].countryCode, addressLocality: b.locations[0].city?.nameEn } : undefined,
   };
@@ -190,7 +197,7 @@ export default async function BusinessPage({ params }: Props) {
               <ShareButton url={pageUrl} title={name.text} label={t("businesses.share")} copiedLabel={t("businesses.linkCopied")} className={actionClass("share")} />
             </div>
 
-            {(mainAddress || mainHours || langs.length > 0) && (
+            {(mainAddress || mainHours || langs.length > 0 || features.length > 0) && (
               <ul className="mt-4 grid grid-cols-1 gap-2 min-[380px]:grid-cols-2 lg:max-w-2xl" data-testid="business-facts">
                 {mainAddress && (
                   <li className="flex min-h-14 items-center gap-3 rounded-xl border border-line bg-surface px-3 py-2 min-[380px]:col-span-2">
@@ -223,6 +230,15 @@ export default async function BusinessPage({ params }: Props) {
                     <span className="min-w-0">
                       <span className="block text-sm font-semibold">{t("bizForm.languagesSpoken")}</span>
                       <span className="block text-xs text-muted" data-testid="business-languages">{langs.join(" · ")}</span>
+                    </span>
+                  </li>
+                )}
+                {features.length > 0 && (
+                  <li className="flex min-h-14 items-center gap-3 rounded-xl border border-line bg-surface px-3 py-2 min-[380px]:col-span-2">
+                    <FigmaIcon name="sparkles" className="size-5 shrink-0 text-brand-text" />
+                    <span className="min-w-0">
+                      <span className="block text-sm font-semibold">{t("bizForm.features.title")}</span>
+                      <span className="mt-1 flex flex-wrap gap-1.5" data-testid="business-features">{features.map((f) => <Chip key={f}>{t(`bizForm.features.items.${f}`)}</Chip>)}</span>
                     </span>
                   </li>
                 )}
@@ -370,6 +386,18 @@ export default async function BusinessPage({ params }: Props) {
               {whatsapp && <a href={whatsapp} target="_blank" rel="noopener noreferrer" aria-label={`${t("businesses.whatsapp")} – ${name.text}`} className={buttonClass("secondary", "w-full")} data-testid="whatsapp-button">{t("businesses.whatsapp")}</a>}
               {b.email && <a href={`mailto:${b.email}`} title={t("businesses.sendEmail")} className={buttonClass("secondary", "w-full")}><span className="sr-only">{t("businesses.sendEmail")}: </span><span className="min-w-0 truncate"><Ltr>{b.email}</Ltr></span></a>}
               {website && <a href={website} target="_blank" rel="noopener noreferrer nofollow" className={buttonClass("secondary", "w-full")}>{t("businesses.visitWebsite")}</a>}
+              {social.length > 0 && (
+                <ul className="flex flex-wrap gap-2 pt-1" aria-label={t("businesses.socialProfiles")} data-testid="business-social">
+                  {social.map(({ platform, url }) => (
+                    <li key={platform}>
+                      <a href={url} target="_blank" rel="noopener noreferrer nofollow" aria-label={t("businesses.socialProfile", { platform: SOCIAL_ICONS[platform].title })}
+                        className="grid size-12 place-items-center rounded-full transition hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand" data-testid={`social-${platform}`}>
+                        <SocialIcon platform={platform} className="size-11" />
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              )}
               <Link href={{ pathname: "/report", query: { url: pageUrl } }} rel="nofollow" className="inline-flex min-h-9 items-center text-xs font-semibold text-muted underline hover:text-ink">{t("report.reportThis")}</Link>
             </aside>
           )}

@@ -124,15 +124,23 @@ test("opening hours: validated input, shown on the detail page; 'Open now' keeps
   await page.getByTestId("lat").fill("53.5511");
   await page.getByTestId("lng").fill("9.9937");
   await page.getByTestId("confirm-location").check();
-  for (const d of ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]) await page.getByTestId(`hours-${d}`).fill("00:00-24:00");
-  await page.getByTestId("hours-tue").fill("9 bis 5"); // unreadable: refused
+  // Structured hours: Monday open 24 hours, copied to every day.
+  await page.getByTestId("hours-start").click();
+  await page.getByTestId("hours-allday-mon").check();
+  await page.getByTestId("hours-copy-all").click();
+  await expect(page.getByTestId("hours-sun")).toHaveValue("00:00–24:00");
+  // A range that starts and ends at the same time is refused (here and on the server).
+  await page.getByTestId("hours-allday-tue").uncheck();
+  await page.getByTestId("hours-from-tue-0").fill("10:00");
+  await page.getByTestId("hours-to-tue-0").fill("10:00");
+  await expect(page.getByTestId("hours-to-tue-0")).toHaveAttribute("aria-invalid", "true");
   await page.getByRole("button", { name: "Speichern und veröffentlichen" }).click();
   await expect(page.getByTestId("form-error")).toBeVisible();
-  await expect(page.getByTestId("hours-tue")).toHaveAttribute("aria-invalid", "true");
-  await page.getByTestId("hours-tue").fill("00:00-24:00");
+  await page.getByTestId("hours-allday-tue").check();
   await page.getByRole("button", { name: "Speichern und veröffentlichen" }).click();
   await expect(page.getByTestId("business-status")).toHaveText("Veröffentlicht");
   await expect(page.getByTestId("hours-mon")).toHaveValue("00:00–24:00"); // stored in the normalized form
+  await expect(page.getByTestId("hours-allday-tue")).toBeChecked();
 
   const slug = (await (await page.request.get(`/api/v1/businesses?q=${encodeURIComponent(name)}`)).json()).data[0].slug;
   await page.goto(`/de/businesses/${slug}`);
@@ -176,7 +184,10 @@ test("temporary closures, special hours and public holidays: validated, kept whe
   await page.getByTestId("lat").fill("53.0758");
   await page.getByTestId("lng").fill("8.8072");
   await page.getByTestId("confirm-location").check();
-  for (const d of ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]) await page.getByTestId(`hours-${d}`).fill("09:00-17:00");
+  // Monday–Friday 09:00–17:00 is the editor's starting point; Monday's hours are copied to the weekend too.
+  await page.getByTestId("hours-start").click();
+  await page.getByTestId("hours-copy-all").click();
+  await expect(page.getByTestId("hours-sat")).toHaveValue("09:00–17:00");
   await page.getByTestId("holidays-closed").check();
   // A closure from today for four days, with a public reason.
   await page.getByTestId("exception-add").click();

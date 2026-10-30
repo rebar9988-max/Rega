@@ -1086,3 +1086,39 @@ Production remains untouched by this task. Earlier read-only Cloudflare baseline
 Figma QA continuation: corrected public batch is 94/94 PASS (including all 88 screenshot/locale-width combinations, all eight actual brand contrast cases and eight standalone offline cases). Exact application head `6cd40d5` builds successfully. Authenticated local batch: 30 passes and one intermittent upload case; the unchanged isolated upload case then passed (24.8s), so no deterministic application defect is demonstrated. Its stale-page setup opened a second active tab and never returned to the editing tab; the test now explicitly brings the editing tab to front, retaining the stale tab and every upload/permission/preview/approval/autosave assertion and timeout. Chromium background canvas encoding is a plausible cause, not independently established. A new real owner-account test passed (navigation, pending filter, four viewport screenshots, axe, sign-out and account retention). No app code changes follow `6cd40d5`; final test-only head/full CI remain mandatory. Cloudflare Billing Read returned 403 (OAuth scope unavailable), so no invoice-total/remaining-quota claim is possible; no paid resource or plan was activated.
 
 Final in-scope accessibility review adds a 2px canonical focus ring around the stretched home profile link's whole card. The old link suppresses its own outline and the low-opacity card border alone is insufficiently distinct. The eleven-locale browser matrix now explicitly checks the rendered focus indicator. This source change requires a new exact-head CI; do not merge using the preceding head's results. No security/data/workflow changes.
+## Business registration & editing upgrade — 2026-10-29 (branch `claude/rega24-business-form-6ie7x9`)
+
+Owner brief "REGA24 — premium business registration & editing" + global requirement "one shared form for all permitted
+categories with optional category-specific fields". Identity guard OK (REGA) before work.
+
+Audit (existing, reused): one `BusinessForm` (/dr/businesses/new and /[id]) for every category; owners = wizard, staff
+(business.publish) = single page; server action `saveBusinessAction` → `saveBusiness` (zod `businessFormSchema`); drafts,
+duplicate-create guard, moderation (draft → pending → staff publish) unchanged. Images: logoUrl, coverUrl, photos[]
+(R2 via /api/v1/media/business-image). Hours: `Location.openingHours` text format (lib/opening-hours.ts). No social columns existed.
+
+Changes:
+- Wizard 3 → 5 steps (basics, contact + social, location, hours, photos & review); completed steps reachable; Back keeps data.
+- E-mail, website, phone, WhatsApp and Facebook/Instagram/TikTok/Snapchat all optional. `src/lib/social-links.ts`: website
+  gets https when typed without scheme; social links only on the platform's own hosts (exact match), no credentials/port/
+  redirect scripts, stored canonical; profile shows only valid saved links (`rel=noopener noreferrer nofollow`).
+- Opening hours editor (`OpeningHoursEditor`, `src/lib/hours-form.ts`): switch per day, time pickers, split shifts,
+  overnight, 24 h, copy Monday to all / to weekdays; writes the unchanged stored format. No hours → still "unknown".
+- Images: logo + 3 promotional photos (promo 1 = cover/hero, promos 2–3 = `photos`). `GALLERY_PHOTOS` 3 → 2 for new
+  additions; older listings keep every stored photo and may replace without growing. Localized upload cards, drag & drop.
+- Location: coordinates under "advanced" for owners (open for staff); confirmation banner.
+- Category details (`src/config/business-features.ts`): universal (wheelchair, parking, card payment) + per top-level
+  category; sub-categories and future categories inherit (unknown → universal only). Stored as `feature:<id>` in the
+  existing `Business.tags`; other tags kept; server drops ids the category does not offer. Shown as chips on the profile.
+- DB: ADDITIVE migration — 4 nullable TEXT columns on Business (`facebookUrl`, `instagramUrl`, `tiktokUrl`, `snapchatUrl`):
+  PostgreSQL `20261024220000_business_social_links` (byte-identical to draft PR #71, so the columns are never added twice), D1 `0004_business_social_links.sql`. Health now requires 0004.
+  Production D1 must have 0004 applied BEFORE the merge deploys (new code reads the columns).
+
+Tests (local, this container): lint, typecheck, `npm test` 389 pass / 0 fail / 4 DB-only skips (new: social-links,
+business-features), `npm run test:d1` 10/10, verify-d1-schema PASS; Playwright on disposable D1, Chromium desktop + Pixel 5:
+full suite 412/412 before the category-details addition, then 42/42 affected specs after it. Not run locally: WebKit
+(iPhone project — browser not installed here; CI runs it), PostgreSQL e2e (CI), Lighthouse.
+Production D1 0004 APPLIED 2026-10-29 ~12:58 UTC after the owner's explicit approval («بەڵێ جێبەجێی بکە»), identity guard OK:
+4 nullable columns added to Business, d1_migrations row 4; readback: Business 3 / Location 3 unchanged, non-null social 0,
+FK violations 0; live health 200 (provider d1, migrations true) with the old code. PR #100 (draft PR #71 overlaps: same
+columns; PG migration made byte-identical to #71's).
+Next safe continuation point: PR #100 CI green → merge → verify deploy, health (now requires 0004) and live form/profile.
