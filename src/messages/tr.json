@@ -1318,5 +1318,13 @@
       "analytics": "Gizlilik Dostu Analitik",
       "aiDiscovery": "Yapay Zekâ Keşif Denetçisi"
     }
+  },
+  "businessSocial": {
+    "title": "Sosyal medya",
+    "helper": "Müşterilerin size kolayca ulaşabilmesi için işletme hesap bağlantılarınızı ekleyin.",
+    "optional": "İsteğe bağlı",
+    "invalid": "Geçerli bir HTTPS {platform} hesap bağlantısı girin.",
+    "valid": "Hesap bağlantısı hazır",
+    "open": "{name} hesabını {platform} üzerinde aç"
   }
 }

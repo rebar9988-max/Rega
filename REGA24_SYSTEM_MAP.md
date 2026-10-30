@@ -286,3 +286,20 @@ Later live readback shows documentation release caac065 active at 100% as versio
 ## Digital Operations Center — 2026-10-29
 
 Owner-only `/dr/operations` (permission `operations.manage`, held only by SUPER_ADMIN = `rebar9988@gmail.com`). Ten logical agents share the existing `rega24` Worker, D1 database and search code: no new Worker, binding, cron trigger, queue, table, migration, dependency or paid service. Engine guards ([src/lib/ops/core.ts](src/lib/ops/core.ts)): execution-id idempotency, 100 runs/UTC day with throttling from 80, 60 s (then 15 min) cool-down per agent, one lock per agent (`Setting` key `ops.lock.<agent>`, 2 min TTL), 25 s timeout, one retry, 12 HTTP probes and 2,500 rows per query. Reports are `AuditLog` rows (`action=ops.report`, `entity=ops:<agent>`). Agents never approve, reject, publish, delete, merge or change configuration; the public AI flag is reported, not changed. Repository-side checks (catalogue parity, tracked-file secret scan) run in the existing `npm test` CI step. Scheduled execution stays OFF: account-wide Cloudflare usage and billing are not readable from the repository or Worker.
+
+## PR71 isolated Python Preview
+
+Existing Preview `66fb4fcb57084f06ab971814067c0b35` belongs to `rega-ai-python` stable tag
+`c4d7fa2928f04749827caee82e9b64c8`,branch `feat/business-social-profile-20261025`. Its build root is
+`/services/ai-python`,build command `uv sync --python 3.13 && uv run pywrangler sync`,deploy command
+`uv run pywrangler preview`. Read back2026-10-29;productionsettings unchanged. Correct build
+`c72a23d1-5a47-45bf-8dd0-d67e928ff2f6` produced `main.py`,replacing its old web artifact.
+Preview isolation/build success does not prove application readiness or productiondeployment.
+
+
+PR71 recovery update2026-10-29: private D1 logical backup0a0dd3d4… and separate restore63f99c1e… verified41 tables/2513rows at13:10UTC; both retained, no production writes. Social0004 was already applied externally at12:58UTC, so pre-migration backup provenance remains unverified. Do not replay migrations or release PR71 before gates. Exact6830 CI40874885167 passed396+11D1+8Python,423 browsers/provider,46 axe analyses with0 violations/incomplete. Preserve newer main operations-center work. See PROJECT_MEMORY and docs/evidence/pr71-recovery-2026-10-29.json.
+
+
+### Private recovery inventory addition — 2026-10-30
+
+Rega24 production binding is unchanged. Two additional EU private/unbound D1 recovery assets,never app/test-fixture bindings:rega24-pr71-backup-20261030(36c33223-d548-460a-875d-10f2e77cf705) and rega24-pr71-restore-20261030(7761f051-2975-402c-9052-9001194b6170). Snapshot2026-10-30T06:37:05.391Z,41application/runtime/ledger tables/2525rows,verified typed/schema/rowid/sequence equality andFK0/quick_checkOK;260objects includes sqlite_sequence metadata. Same-account/non-immutable DB logicalcopies,R2bytes excluded;older copies retained. No Worker/domain/binding/plan change. Narrative and hashes:PROJECT_MEMORY.md and docs/evidence/pr71-recovery-2026-10-29.json.

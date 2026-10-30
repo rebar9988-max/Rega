@@ -1318,5 +1318,13 @@
       "analytics": "Analyse respectueuse de la vie privée",
       "aiDiscovery": "Inspecteur de la recherche IA"
     }
+  },
+  "businessSocial": {
+    "title": "Réseaux sociaux",
+    "helper": "Ajoutez les liens des comptes de votre entreprise pour permettre aux clients de vous contacter facilement.",
+    "optional": "Facultatif",
+    "invalid": "Saisissez un lien de compte {platform} HTTPS valide.",
+    "valid": "Lien du compte prêt",
+    "open": "Ouvrir {name} sur {platform}"
   }
 }

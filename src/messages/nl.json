@@ -1318,5 +1318,13 @@
       "analytics": "Privacyvriendelijke analyse",
       "aiDiscovery": "AI-zoekinspecteur"
     }
+  },
+  "businessSocial": {
+    "title": "Sociale media",
+    "helper": "Voeg de accountlinks van je bedrijf toe, zodat klanten gemakkelijk contact met je kunnen opnemen.",
+    "optional": "Optioneel",
+    "invalid": "Voer een geldige HTTPS-accountlink voor {platform} in.",
+    "valid": "Accountlink is klaar",
+    "open": "Open {name} op {platform}"
   }
 }

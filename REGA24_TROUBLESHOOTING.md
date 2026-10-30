@@ -439,3 +439,24 @@ An empty result from `git diff-tree` does not prove a merge is documentation-onl
 ## Operations Center agent shows BLOCKED or FAIL
 
 BLOCKED means the engine refused before inspecting anything (no report stored): `cooldown` (same agent within 60 s, 15 min after 80 runs/day), `quota_exhausted` (100 runs/UTC day), `locked` (another run of that agent holds `Setting` `ops.lock.<agent>`; it expires after 2 minutes) or `store_unavailable` (D1 not reachable: fail closed). FAIL with `engine.timeout`/`engine.error` is a stored report of a crashed or slow inspection; check the Worker log line `ops.run`. A FAIL finding from an agent is a real platform rule violation: fix it through the normal `/dr` screens or a reviewed code change; agents never repair data. A QA/performance `403` from Cloudflare means the edge blocked the Worker's probe (WAF/bot rules), not a site outage; confirm with the Production browser check workflow. Never delete `AuditLog` report rows to reset the quota.
+
+## Python Preview builds the web application
+
+**Symptom:** a Python Workers Build is green but its root is `/`,command is `npm run build`,or entrypoint is `worker.js`.
+**Location:** branch-specific build settings under the Python Worker's Preview.
+**Diagnosis:** verify exactrepository,branch,commit,Previewid and root/build/deploy metadata;never raw credential logs.
+Production and Preview build configurations are separate.
+**Safe fix:** affectedverifiedPreviewonly:root `/services/ai-python`,build `uv sync --python 3.13 && uv run pywrangler sync`,
+deploy `uv run pywrangler preview`;retain every other setting.
+**Verification:** exact-SHA rebuild,nativePython/main.py,isolatedbindingonly,andunchangedproductiondeployment.
+**Rollback:** restore only savedPreviewbuildsettings ifneeded;do notrollbackproduction orrotateworkingkeys forthisfault.
+PR71Preview `66fb4fcb57084f06ab971814067c0b35` was repaired thisway2026-10-29. FullCI andproductionbackup/recovery/security
+remainindependentgates.
+
+
+PR71 recovery update2026-10-29: private D1 logical backup0a0dd3d4… and separate restore63f99c1e… verified41 tables/2513rows at13:10UTC; both retained, no production writes. Social0004 was already applied externally at12:58UTC, so pre-migration backup provenance remains unverified. Do not replay migrations or release PR71 before gates. Exact6830 CI40874885167 passed396+11D1+8Python,423 browsers/provider,46 axe analyses with0 violations/incomplete. Preserve newer main operations-center work. See PROJECT_MEMORY and docs/evidence/pr71-recovery-2026-10-29.json.
+
+
+### Already-applied migration with absent historical recovery proof — 2026-10-30
+
+For PR71,owner confirmed pre-0004 backup/restore proof does not exist. Never call a later backup pre-migration or replay0004 to manufacture compliance. Historical gate failure remains recorded. Fresh CURRENT backup plus isolated restore can establish a new baseline for FUTURE code-only release when no migration is pending:actual2026-10-30T06:37:05.391Z copies PASS exacttyped/schema/sequence checks,FK0,quick_checkOK. Preserve both newer/older recoverycopies and all livewrites;do not use E2Efixtures on customercopies. Existing all-head/main CI/security/identity/readiness gates and actual live verification still apply. Code rollback uses previous verified D1-compatible app,never an old DB restore. See PROJECT_MEMORY.md and docs/evidence/pr71-recovery-2026-10-29.json;no retrospective100/100 or unsupported integrity_check claim.

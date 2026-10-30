@@ -1318,5 +1318,13 @@
       "analytics": "Privacy-safe Analytics",
       "aiDiscovery": "AI Discovery Inspector"
     }
+  },
+  "businessSocial": {
+    "title": "Social media",
+    "helper": "Add your business account links so customers can easily get in touch.",
+    "optional": "Optional",
+    "invalid": "Enter a valid HTTPS {platform} account link.",
+    "valid": "Account link ready",
+    "open": "Open {name} on {platform}"
   }
 }

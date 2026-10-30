@@ -1,0 +1,188 @@
+{
+  "project": "Rega24",
+  "repository": "rebar9988-max/Rega",
+  "production": "https://www.rega24.com",
+  "recordedAt": "2026-10-29T15:05:00Z",
+  "testedApplicationCommit": "e907092e607e89aa2c1394e341c12c4fa2d88bd0",
+  "currentMainPreserved": "ec162ff381ffc50c8d280564569804bfa7b60bbd",
+  "ci": {
+    "run": 40906648254,
+    "job": 123563364008,
+    "status": "PASS",
+    "unitIntegration": 433,
+    "nativeD1": 12,
+    "python": 8,
+    "browserD1": 427,
+    "browserPostgres": 427,
+    "axeAnalyses": 46,
+    "axeViolations": 0,
+    "axeIncomplete": 0,
+    "typescript": "PASS",
+    "eslint": "PASS",
+    "dependencyAuditFindings": 0,
+    "strictPythonAudit": "PASS: no known vulnerabilities found",
+    "nodeBuild": "PASS",
+    "workerBuildDryRunAndWorkerd": "PASS",
+    "newCheckpointHead": "Fresh CI required for explicit mobile touch case/docs; application unchanged"
+  },
+  "backup": {
+    "status": "PASS",
+    "method": "single-statement typed logical snapshot via authenticated D1 API",
+    "snapshotAt": "2026-10-29T13:10:32.091Z",
+    "source": "728f792d-37b6-49f8-abc1-e81512219f7d",
+    "backup": "0a0dd3d4-899f-427e-9b79-8d1157b29ce0",
+    "restore": "63f99c1e-b559-47b1-b813-b8a401f09acc",
+    "verification": {
+      "allTablesMatch": true,
+      "tables": 41,
+      "rows": 2513,
+      "foreignKeyViolations": 0,
+      "quickCheck": "ok",
+      "fullIntegrityPragma": "D1 API returns SQLITE_AUTH; not claimed",
+      "schemaSha256": "c4d437e6a4d3864efa9601faa00830ab4fbb6944f1112ff1e519ccf6d184891e",
+      "sequencesMatch": true
+    },
+    "restoreVerification": {
+      "allTablesMatch": true,
+      "tables": 41,
+      "rows": 2513,
+      "foreignKeyViolations": 0,
+      "quickCheck": "ok",
+      "fullIntegrityPragma": "D1 API returns SQLITE_AUTH; not claimed",
+      "schemaSha256": "c4d437e6a4d3864efa9601faa00830ab4fbb6944f1112ff1e519ccf6d184891e",
+      "sequencesMatch": true
+    },
+    "schemaObjects": 259,
+    "snapshotSqlBytes": 57383,
+    "serializedSnapshotBytes": 2898106,
+    "restoreStatements": 269,
+    "restoreRequestBytes": 2674593,
+    "sourceWrites": 0,
+    "customerValuesReturned": false,
+    "limitations": "Same-account logical backup; not immutable or independent off-account archive. Provider-owned metadata excluded. Source may receive writes after captured snapshot.",
+    "providerInternalExcluded": [
+      "_cf_*",
+      "sqlite_schema"
+    ]
+  },
+  "migration": {
+    "productionObserved": "0004_business_social_links.sql",
+    "appliedAt": "2026-10-29T12:58:35Z",
+    "performedByThisExecutor": false,
+    "nullableTextFields": [
+      "facebookUrl",
+      "instagramUrl",
+      "tiktokUrl",
+      "snapchatUrl"
+    ],
+    "preMigrationBackupRestore": "ABSENT — owner explicitly confirmed proof does not exist on2026-10-30; historical migration recovery-gate compliance is not verified.",
+    "otherObservedMigration": "0005_search_query_daily.sql at2026-10-29T13:02:46Z; outside this task; preserve",
+    "reportedProvenance": {
+      "pr": 100,
+      "url": "https://github.com/rebar9988-max/Rega/pull/100",
+      "description": "Records owner-authorized0004 production migration at12:58UTC; no pre-migration backup/restore certificate found",
+      "independentlyObservedLedger": true
+    }
+  },
+  "security": {
+    "oldProviderKeyRevocation": "OWNER-ATTESTED: both revoked/replaced",
+    "independentProviderAudit": "NOT VERIFIED",
+    "keyValuesRead": false,
+    "pythonAuditFollowup": {
+      "sourcePR": 82,
+      "fix": "pytest>=9.0.3,<10; strict pip-audit in existing CI",
+      "status": "PASS on e907 strict audit"
+    },
+    "authorizationRemediation": {
+      "status": "PASS on e907 actual D1 and dual-provider browser regressions",
+      "finding": "Existing omitted-id create dedup skipped active membership and post-save upsert could regrant revoked access",
+      "fix": "Shared transaction-aware access guard after target resolution; atomic first membership; no action post-commit regrant",
+      "regression": "Native D1 concurrent-create, omitted/explicit denied updates, no-row/no-membership/no-audit changes, active owner and global staff positive controls; browser action denial/positive dedup on both providers",
+      "followup": "Real HttpError moved to pure module/re-export; existing VM import maps updated with actual class;18 authorization/private-read regressions locally PASS without assertions removed. Full fresh CI mandatory."
+    }
+  },
+  "release": {
+    "pr": 71,
+    "draft": true,
+    "merged": false,
+    "deployed": false,
+    "liveFeatureVerification": "NOT VERIFIED",
+    "lighthouse": "NOT VERIFIED for this feature",
+    "hold": "Fresh CURRENT backup+isolated restore PASS; awaiting final-head/main CI/security and code-only release/live gates. No migration replay. Historical missing pre-migration proof is owner-confirmed and not retrospectively certified.",
+    "liveBaseline": {
+      "run": 40887420432,
+      "job": 123552026212,
+      "checks": 237,
+      "failed": 0,
+      "from": "2026-10-29T15:38:53.2251318Z",
+      "to": "2026-10-29T15:41:23.1739612Z",
+      "redChecks": 36,
+      "locales": [
+        "ckb",
+        "de",
+        "en",
+        "ar"
+      ],
+      "artifact": 12911035587,
+      "digest": "sha256:d057b028452f53b631f15d19c6bdf0da4524ff488a6d016c834d22205ae8351b",
+      "scope": "Current ec162ff production baseline only; not PR71"
+    },
+    "historicalPreMigrationHold": "Await concurrent operator pre-migration backup/restore and provenance; fresh integration CI mandatory"
+  },
+  "noNewPaidActivation": true,
+  "noPreservedResourceDeletion": true,
+  "updatedAt": "2026-10-30T06:38:00Z",
+  "currentContinuation": {
+    "date": "2026-10-30",
+    "strategy": "Forward code-only release after fresh CURRENT recovery baseline; no new production migration",
+    "freshBackup": {
+      "mode": "FRESH_BACKUP_AND_ISOLATED_RESTORE_VERIFIED",
+      "snapshotAt": "2026-10-30T06:37:05.391Z",
+      "source": "728f792d-37b6-49f8-abc1-e81512219f7d",
+      "sourceWrites": 0,
+      "tables": 41,
+      "rows": 2525,
+      "schemaObjects": 260,
+      "schemaSha256": "18977b8823fd2774e9011ae5073eda931e2c513881db44984446c8daaac87950",
+      "manifestSha256": "70fade2601c82b947489443d9e6f986dc12f6ecf37f7bf96d785ae1ba58ef1ac",
+      "copies": [
+        {
+          "name": "rega24-pr71-backup-20261030",
+          "id": "36c33223-d548-460a-875d-10f2e77cf705",
+          "createdAt": "2026-10-30T06:37:06.930Z",
+          "rows": 2525,
+          "tables": 41,
+          "schemaObjects": 260,
+          "schemaSha256": "18977b8823fd2774e9011ae5073eda931e2c513881db44984446c8daaac87950",
+          "manifestSha256": "70fade2601c82b947489443d9e6f986dc12f6ecf37f7bf96d785ae1ba58ef1ac",
+          "foreignKeyViolations": 0,
+          "quickCheck": "ok",
+          "restoreStatements": 280,
+          "restoreBytes": 2691131
+        },
+        {
+          "name": "rega24-pr71-restore-20261030",
+          "id": "7761f051-2975-402c-9052-9001194b6170",
+          "createdAt": "2026-10-30T06:37:09.262Z",
+          "rows": 2525,
+          "tables": 41,
+          "schemaObjects": 260,
+          "schemaSha256": "18977b8823fd2774e9011ae5073eda931e2c513881db44984446c8daaac87950",
+          "manifestSha256": "70fade2601c82b947489443d9e6f986dc12f6ecf37f7bf96d785ae1ba58ef1ac",
+          "foreignKeyViolations": 0,
+          "quickCheck": "ok",
+          "restoreStatements": 280,
+          "restoreBytes": 2691131
+        }
+      ],
+      "limits": "Private same-account logical D1 copies;not immutable/off-account;excludes provider metadata;R2 media bytes not copied;no historical pre-migration proof;no production writes"
+    },
+    "priorMain": "b36703f419773d7fae503c4b8af62d13bb6e88c6",
+    "priorBranchHead": "05a57cb6b48547d47249753d8ce9b3130b1c124a",
+    "newHeadChecks": "Fresh full CI required",
+    "rollback": "Prior verified D1-compatible application; preserve current DB/additive columns/later0005 and subsequent writes",
+    "historicalIncident": "Pre-migration recovery proof absent,owner-confirmed; never retroactive PASS",
+    "liveFeatureVerification": "NOT VERIFIED",
+    "lighthouse": "NOT VERIFIED"
+  }
+}

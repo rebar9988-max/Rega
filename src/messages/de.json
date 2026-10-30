@@ -1318,5 +1318,13 @@
       "analytics": "Datenschutzfreundliche Analyse",
       "aiDiscovery": "KI-Suchprüfung"
     }
+  },
+  "businessSocial": {
+    "title": "Soziale Medien",
+    "helper": "Füge die Kontolinks deines Unternehmens hinzu, damit Kunden dich einfach erreichen.",
+    "optional": "Optional",
+    "invalid": "Gib einen gültigen HTTPS-Kontolink für {platform} ein.",
+    "valid": "Kontolink bereit",
+    "open": "{name} auf {platform} öffnen"
   }
 }

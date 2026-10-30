@@ -1318,5 +1318,13 @@
       "analytics": "Integritetsvänlig analys",
       "aiDiscovery": "Granskare av AI-sökning"
     }
+  },
+  "businessSocial": {
+    "title": "Sociala medier",
+    "helper": "Lägg till länkar till företagets konton så att kunder enkelt kan kontakta dig.",
+    "optional": "Valfritt",
+    "invalid": "Ange en giltig HTTPS-länk till ett {platform}-konto.",
+    "valid": "Kontolänken är klar",
+    "open": "Öppna {name} på {platform}"
   }
 }

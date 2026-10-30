@@ -33,6 +33,8 @@ import { timezoneFor } from "@/lib/geo";
 import { OpenState } from "@/components/ui/OpenState";
 import { preload } from "react-dom";
 import { ReviewSection } from "@/features/reviews/ReviewSection";
+import { BusinessSocialLinks } from "@/components/business/BusinessSocialLinks";
+import { BUSINESS_SOCIAL_PLATFORMS, BUSINESS_SOCIAL_FIELDS, normalizeBusinessSocialUrl } from "@/lib/business-social";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -92,12 +94,13 @@ export default async function BusinessPage({ params }: Props) {
   const services = b.services.map((s) => ({ ...s, cover: safeHttpUrl(s.coverUrl) }));
   const serviceCovers = services.some((s) => s.cover);
   const hasContact = Boolean(tel || whatsapp || b.email || website);
-  // Primary (red) action: directions when the place can be found, else the call; share is always possible.
-  const primaryAction = directions ? "directions" : "call";
+  // Primary action uses the real phone when available, otherwise the real destination.
+  const primaryAction = tel ? "call" : "directions";
   const actionCount = (tel ? 1 : 0) + (directions ? 1 : 0) + 1;
   const actionClass = (kind: "call" | "directions" | "share") =>
     buttonClass(kind === primaryAction ? "primary" : "secondary", "min-h-12 w-full gap-2 px-3 text-center leading-tight shadow-sm motion-safe:active:scale-[.98]");
 
+  const socialUrls = BUSINESS_SOCIAL_PLATFORMS.flatMap((p) => { const r = normalizeBusinessSocialUrl(p, b[BUSINESS_SOCIAL_FIELDS[p]]); return r.ok && r.value ? [r.value] : []; });
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
@@ -107,7 +110,7 @@ export default async function BusinessPage({ params }: Props) {
     image: b.logoUrl || b.coverUrl || undefined,
     telephone: b.phone || undefined,
     email: b.email || undefined,
-    sameAs: website ? [website] : undefined,
+    sameAs: website || socialUrls.length ? [...(website ? [website] : []), ...socialUrls] : undefined,
     aggregateRating: b.ratingCount ? { "@type": "AggregateRating", ratingValue: b.ratingAvg, reviewCount: b.ratingCount } : undefined,
     address: b.locations[0] ? { "@type": "PostalAddress", streetAddress: b.locations[0].addressLine1, postalCode: b.locations[0].postalCode || undefined, addressCountry: b.locations[0].countryCode, addressLocality: b.locations[0].city?.nameEn } : undefined,
   };
@@ -122,14 +125,14 @@ export default async function BusinessPage({ params }: Props) {
 
         {/* One profile for every business: identity, actions and facts; each part only when the business has the data. */}
         {/* No overflow clipping: the directions menu opens below its button and must stay visible. */}
-        <header className="rega-shell" data-testid="business-profile">
+        <header className={`rega-shell ${gallery.length ? "lg:grid lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]" : ""}`} data-testid="business-profile">
           {gallery.length > 0 && (
             // Same gallery on every screen: one main image and a row of up to three more; sizes reserved, no layout shift.
             <div className="space-y-2 p-2 pb-0 sm:p-3 sm:pb-0" data-testid="business-gallery">
               <a href={gallery[0]} target="_blank" rel="noopener noreferrer" aria-label={t("businesses.openPhoto", { n: formatNumber(1, l) })}
-                className="relative block aspect-[16/9] overflow-hidden rounded-xl bg-brand-soft sm:aspect-[21/9] lg:aspect-[3/1]">
+                className="relative block aspect-[16/9] overflow-hidden rounded-xl bg-brand-soft sm:aspect-[21/9] lg:aspect-[16/10]">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={gallery[0]} alt="" width={1200} height={500} decoding="async" fetchPriority="high" className="absolute inset-0 size-full object-cover" />
+                <img src={gallery[0]} alt={name.text} width={1200} height={500} decoding="async" fetchPriority="high" className="absolute inset-0 size-full object-cover" />
                 {gallery.length > 1 && (
                   <span className="absolute bottom-2 end-2 inline-flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1 text-xs font-semibold text-white">
                     <FigmaIcon name="grid-3x3" className="size-3.5" />{t("businesses.photoCount", { count: formatNumber(gallery.length, l) })}
@@ -142,7 +145,7 @@ export default async function BusinessPage({ params }: Props) {
                     <li key={src}>
                       <a href={src} target="_blank" rel="noopener noreferrer" aria-label={t("businesses.openPhoto", { n: formatNumber(i + 2, l) })} className="block overflow-hidden rounded-lg">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={src} alt="" width={400} height={300} loading="lazy" decoding="async" className="aspect-[4/3] w-full bg-surface-2 object-cover transition-transform motion-safe:hover:scale-[1.03]" />
+                        <img src={src} alt={name.text} width={400} height={300} loading="lazy" decoding="async" className="aspect-[4/3] w-full bg-surface-2 object-cover transition-transform motion-safe:hover:scale-[1.03]" />
                       </a>
                     </li>
                   ))}
@@ -232,6 +235,7 @@ export default async function BusinessPage({ params }: Props) {
 
         <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_18rem]">
           <div className="min-w-0 space-y-8">
+            <BusinessSocialLinks business={b} name={name.text} />
             {about.text && (
               <section aria-labelledby="about">
                 <h2 id="about" className="mb-3 text-xl font-bold">{t("businesses.about")}</h2>
@@ -241,7 +245,6 @@ export default async function BusinessPage({ params }: Props) {
               </section>
             )}
 
-            <OfferList offers={offers} serverNow={new Date().toISOString()} timeZone={offerTimezone(b.locations[0]?.countryCode)} />
 
             {services.length > 0 && (
               <section aria-labelledby="services">
@@ -280,6 +283,8 @@ export default async function BusinessPage({ params }: Props) {
               </section>
             )}
 
+
+            <OfferList offers={offers} serverNow={new Date().toISOString()} timeZone={offerTimezone(b.locations[0]?.countryCode)} />
 
             {showLocations && (
               <section aria-labelledby="locations-title" id="locations" className="scroll-mt-24">
@@ -357,7 +362,7 @@ export default async function BusinessPage({ params }: Props) {
           </div>
 
           {hasContact && (
-            <aside aria-label={t("businesses.contact")} className="rega-shell order-first h-fit space-y-3 p-4 sm:p-5 lg:order-none lg:sticky lg:top-24">
+            <aside aria-label={t("businesses.contact")} className="rega-shell h-fit space-y-3 p-4 sm:p-5 lg:sticky lg:top-24">
               <h2 className="text-lg font-bold">{t("businesses.contact")}</h2>
               {b.phone && (
                 <p className="flex items-center gap-2 text-sm">

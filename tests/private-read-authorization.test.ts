@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import { runInNewContext } from "node:vm";
 import ts from "typescript";
 import * as rbac from "../src/lib/rbac";
+import { HttpError } from "../src/lib/http-error";
 import { PUBLIC_BUSINESS } from "../src/lib/search-where";
 
 const routes = ["businesses/route.ts", "businesses/[id]/route.ts", "locations/route.ts"];
@@ -19,6 +20,7 @@ function requestFor(route: string, role: rbac.Role | null | Error, { anonymous =
   const modules: Record<string, unknown> = {
     "@/lib/database-transaction": { databaseTransaction: () => assert.fail("Public reads must never start a write transaction") },
     "server-only": {},
+    "@/lib/http-error": { HttpError },
     "@/auth": { auth: async () => anonymous ? null : { user: { id: "actor", role: "SUPER_ADMIN", email: "cached@example.org" } } },
     "@/lib/rbac": rbac,
     "@/lib/db": { prisma: {

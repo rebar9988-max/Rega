@@ -1318,5 +1318,13 @@
       "analytics": "Analisi rispettosa della privacy",
       "aiDiscovery": "Ispettore della ricerca IA"
     }
+  },
+  "businessSocial": {
+    "title": "Social media",
+    "helper": "Aggiungi i link agli account della tua attività per consentire ai clienti di contattarti facilmente.",
+    "optional": "Facoltativo",
+    "invalid": "Inserisci un link HTTPS valido per l’account {platform}.",
+    "valid": "Link dell’account pronto",
+    "open": "Apri {name} su {platform}"
   }
 }

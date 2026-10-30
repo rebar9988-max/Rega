@@ -7,6 +7,8 @@ root = Path(__file__).resolve().parent.parent
 db = sqlite3.connect(":memory:")
 db.execute("PRAGMA foreign_keys=ON")
 db.executescript((root / "prisma/d1/migrations/0001_initial.sql").read_text())
+# Rehearse the new scalar extension without rewriting the applied cutover baseline.
+db.executescript((root / "prisma/d1/migrations/0004_business_social_links.sql").read_text())
 source = (root / "prisma/schema.prisma").read_text()
 models = re.findall(r"model (\w+) \{(.*?)\n\}", source, re.S)
 scalars = {"String", "DateTime", "Int", "Float", "Decimal", "Boolean", "Json", "Role"}
