@@ -1204,3 +1204,29 @@ Lighthouse 12.8.2 on `/en`, same sandbox, local `next start`: desktop Perf 100 /
 artefacts (missing e2e media server; canonical points to www.rega24.com). Fixes from this: card nodes are sent once and only
 the selected tab renders (was serialized per tab), lists cut to 4, "More" tile link gets a screen-reader suffix.
 Next: hosted CI on PR #111 → squash merge → existing CI-gated deploy → production browser check → live verification.
+
+## Owner-authorized legacy logo cleanup — 2026-10-30
+
+Owner explicitly authorized deleting the retired logos and updating their production health-check references.
+Local baseline `f3db553` on `work`; identity guard passed. GitHub main read-only rechecked at `89a516c`
+(two commits newer); upstream comparison added no retired-logo consumers. The owner then authorized
+commit/rebase/push; cleanup is rebased onto `origin/main` at `89a516c`, retaining all upstream changes. Latest read-only Cloudflare observation in this cleanup session: Worker
+`rega24`, deployment `40f9d527-1f5c-4674-b223-8940e8251e95`, version
+`16e08d3c-9b21-449d-b75c-2a99990c2d07` at 100%; no source SHA inferred from this observation.
+
+Removed six unused files from `public/brand`: `rega-logo-256.webp`, `rega-logo.webp`,
+`rega-mark-256.webp`, `rega-mark-512.png`, `rega-mark-512.webp`, `rega-wordmark.webp`
+(178,821 bytes). Their only remaining code consumer was `.github/workflows/production-health.yml`.
+That workflow now probes all seven current REGA24 badge/maskable derivatives, the favicon, existing
+app/social icons and manifest, and requires the current 96px badge in the home-page HTML.
+Approved master, active assets, lockup/hero artwork, source behavior, schemas, data and runtime settings
+remain unchanged. Earlier owner-approved cache/log cleanup already removed five generated files
+and ten completed npm logs; those are not part of this tracked change.
+
+Verification: existing logo tests 4/4 pass (master hash, dimensions/budgets, manifest and component
+usage); workflow YAML and Bash syntax pass; all twelve probed assets exist; mock-probe execution
+accepts the current header badge and rejects the retired mark; documentation validation and
+`git diff --check` pass. These are local checks, not hosted CI or live production verification.
+Owner authorized staging, committing and pushing this cleanup branch after rebasing onto current main.
+No merge, deploy, remote resource deletion or central Hub write is included. Hosted CI and existing
+release gates remain required before production publishing.
