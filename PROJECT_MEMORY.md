@@ -1141,6 +1141,70 @@ CI run 41067658630 (head `b9fb362`): lint, typecheck, unit, D1, Node build PASS;
 reduce min-content). Fix: grid items `min-width: 0`, label `overflow-wrap: anywhere` + `hyphens: auto`, 12 px label below 400 px.
 Local re-check of all 11 locales at 320–1024 px: no overflow from the new sections.
 
+## Digital Operations Center — release VERIFIED — 2026-10-29/30 (PR #98, squash `ec162ff`)
+
+- PR #98: final-head CI `40874691068` (verify) and both Workers Builds checks passed on `dbee6bf` after merging #99 (red
+  standard; the one `/dr/operations` finding link was moved to `text-brand-text`). Squash-merged with the head SHA pinned.
+- Exact-main chain for `ec162ff`: CI `40880938489` success → CI-gated `Deploy to Cloudflare Workers` `40887207127` success
+  (2026-10-29 14:02 UTC, identity guard + exact-SHA CI gate passed) → Production browser check `40887420432` success (attempt 2).
+- Later releases #104 (`b36703f`) and #105 (`0140487`) contain `ec162ff` and do not touch `src/lib/ops`, `src/app/dr/operations`,
+  `rbac.ts` or `nav.ts`. Current release `0140487`: CI `41018644062`, deploy `41022039957` (wrangler "Current Version ID"
+  `f38613d7-34c5-4cee-a3d7-6b5f5b213999`), Beta health `41022040086`, Production browser `41022134779` — all success.
+- Live read-only check 2026-10-30 08:02 UTC: `/api/health` ok, provider `d1`, migrations ready; anonymous `/dr/operations`
+  HTTP 200 with the sign-in form only (no agent grid), `cache-control: private, no-cache, no-store`, `x-robots-tag: noindex,
+  nofollow`, edge BYPASS; `/ckb /en /de /ar /fr /ckb/businesses /dr` 200; anonymous `/api/v1/businesses?status=draft` returned
+  only published rows.
+- Not verified: an authenticated owner run of the agents in production (needs the owner's own sign-in; no session is
+  fabricated). Version-at-100% is taken from the wrangler deploy output, not an independent Cloudflare deployments read.
+- No production data, schema, flag, secret, binding or plan was changed. `public.aiSearch` remains as the owner set it (on).
+- Next safe continuation point: the owner signs in at `/dr/operations`, runs "Run all", and reviews the Sorani findings
+  (expected warnings today: public AI flag on with paid-provider keys configured; low category coverage).
+- Follow-up (owner, 2026-10-30): the privacy-safe analytics agent now reads the existing aggregated `SearchQueryDaily`
+  counters from #102 (7 days, ≤2,500 rows, read-only; no user/session/IP data exists there). The check reports searches
+  that found nothing, as a warning above 30% with at least 5 such searches. It never creates data. If the table is
+  unreadable it reports SKIPPED. Production D1 has migration `0005_search_query_daily.sql` (read-only check: 0 rows).
+  Still owner-triggered only: scheduling stays off because account-wide usage/billing cannot be verified.
+
+## Owner reference v2 + logo colours — 2026-10-30 (branch `claude/rega24-logo-colors-reference-v2`)
+
+Owner instruction (Sorani): "take colour inspiration from that logo, 100/100", with the REGA24 desktop+mobile reference image
+(deep-red world hero, red header, filterable business cards, photo category row, compact map banner, raised centre search tab)
+and the official glossy logo. Identity guard OK (REGA, www.rega24.com), based on main `b52064e`. Zero additional cost.
+
+Colours: logo sampled (`c895b39e-image.jpg`): highlight #e53832, core #c8281e–#d83020, shadows #9b1f15/#8c1c11/#6b120a.
+`--brand` #db0512 → #d42a20 (logo core, white ink 5.06:1, dark-mode ring 3.65:1); new `--brand-glow/deep/deeper/night`
+tokens. Manifest/offline `theme_color` #d42a20, viewport theme #6b120a, service-worker static cache v5. brand-colors spec
+updated to [212,42,32]. Logo artwork not recoloured. Details: [brand colors](docs/BRAND-COLORS.md).
+
+Header (all public pages): deep logo-red gradient, white nav/account/language pill, white focus ring, add-business button
+with plus icon; nav items unchanged (registry; Jobs stays disabled "until launch", no Community/favourites/notifications exist).
+Bottom bar: search is a raised logo-red circle; same five destinations.
+
+Home body: original inline-SVG hero (sunset, Earth, NY/London/Rome/Paris/Dubai/mosque silhouettes; no photo, no request),
+"Welcome to REGA24 / Find Everything You Need", white pill search q | city | real root-category select (`?category=<id>`,
+redirected to the category URL) | Search; 11 category tiles + More across the hero edge (7 + More on phones);
+Popular Businesses with Featured / Open now (browser-computed from stored hours) / Top rated (real reviews only) / New tabs;
+cards with real rating, open badge, category·city·country, Call/WhatsApp/Directions only when data exists; Explore by
+Category row (real business cover per category, otherwise icon on logo red); compact map banner → /nearby. AI entry and
+social section kept. Removed from home only: trust strip, two promo banners, stats, city grid, inline nearby list+map (all
+those pages/features remain). `getHomeData` (read-only) adds phone/whatsapp/hours, top rated and covers. 16 new `home.*`
+keys in all 11 catalogues. No schema, migration, data, auth, workflow or dependency change.
+
+Deliberate deviations: no favourites heart or notifications bell (features do not exist); no stock photos (none owned);
+hero is an original illustration; Latin face stays Inter/Vazirmatn (typography locked); header nav keeps registry items.
+
+Local verification (local PostgreSQL 16 + SEED_DEMO): typecheck, lint, unit 427 pass/4 DB skips/0 fail, D1 10/10, docs
+validation pass; screenshots en/ckb at 1440 and 390 px, no horizontal overflow. `next build --webpack` passes.
+Browser (local Chromium, desktop+mobile projects): first full pass 432 passed, 12 failed — 8 iPhone/WebKit cases cannot
+launch here (WebKit not installed in this sandbox; CI installs it), 1 caused by a too-short local AUTH_SECRET (passes with a
+valid one), 3 were tests pinned to the previous headline (fa ×2, en SEO; updated to the new copy). Re-runs: 59/59 and, after
+the tab refactor, 133/133 (figma-responsive 11 locales × 8 widths + axe, a11y, navigation, SEO, new tabs/category/map test).
+Lighthouse 12.8.2 on `/en`, same sandbox, local `next start`: desktop Perf 100 / A11y 100 / BP 96 / SEO 92; mobile Perf
+80–85 vs main baseline 83–88 (3 runs each; LCP equal ~3 s, TBT variance 240–530 ms), A11y 100. BP 96 and SEO 92 are local
+artefacts (missing e2e media server; canonical points to www.rega24.com). Fixes from this: card nodes are sent once and only
+the selected tab renders (was serialized per tab), lists cut to 4, "More" tile link gets a screen-reader suffix.
+Next: hosted CI on PR #111 → squash merge → existing CI-gated deploy → production browser check → live verification.
+
 ### REGA24 logo — release and health-check follow-up — 2026-10-30
 PR #101 squash `f5ff417` is on `main` and was deployed with `5caee06` ("Deploy to Cloudflare Workers" run 41034244928,
 success). Live check (public fetch): `/favicon.ico` is the new 5645-byte REGA24 ICO (sha256 matches the repository),

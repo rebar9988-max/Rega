@@ -39,9 +39,9 @@ export function LanguageSwitcher() {
 
   return (
     <details ref={ref} className="relative" onKeyDown={(e) => e.key === "Escape" && close(true)}>
-      {/* Design frame 204:912: language name + chevron. Fixed width so the trigger never moves between languages. */}
+      {/* Language name + chevron in a light outline pill on the red header. Fixed width so the trigger never moves between languages. */}
       <summary aria-label={`${t("language")}: ${LOCALE_META[locale as keyof typeof LOCALE_META]?.nativeName ?? locale}`}
-        className="flex min-h-11 w-[5.25rem] cursor-pointer list-none items-center justify-center gap-[5px] rounded-xl text-[13px] font-medium text-muted transition-colors hover:text-brand-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand [&::-webkit-details-marker]:hidden">
+        className="flex min-h-10 w-[5.75rem] cursor-pointer list-none items-center justify-center gap-[5px] rounded-full border border-white/25 bg-white/5 text-[13px] font-medium text-white transition-colors hover:bg-white/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white [&::-webkit-details-marker]:hidden">
         <span className="whitespace-nowrap" lang={LOCALE_META[locale as keyof typeof LOCALE_META]?.htmlLang}>{TRIGGER_LABEL[locale] ?? locale.toUpperCase()}</span>
         <svg viewBox="0 0 24 24" className="size-3 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
       </summary>
