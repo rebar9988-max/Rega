@@ -5,25 +5,27 @@ import { openStatus } from "@/lib/geo";
 import { FigmaIcon } from "@/components/home/FigmaIcon";
 
 export type TabItem = { id: string; node: ReactNode; hours?: { value: unknown; countryCode: string; regionSlug?: string | null } };
-export type BusinessTab = { key: string; label: string; icon: string; items: TabItem[]; openOnly?: boolean };
+export type BusinessTab = { key: string; label: string; icon: string; ids: string[]; openOnly?: boolean };
 
 /**
- * Featured / Open now / Top rated / New filters of the reference. Every panel is rendered on the server from real
- * records; "Open now" keeps only the cards whose stored hours say open at this moment, computed in the browser (a
- * cached page never shows a stale state). Without JavaScript the first panel is shown. WAI-ARIA tabs pattern with
- * arrow-key, Home and End navigation; the arrows follow the reading direction.
+ * Featured / Open now / Top rated / New filters of the reference, all from real records. Each card is sent once
+ * (`items`, rendered on the server) and the tabs list card ids, so a business in several tabs costs nothing extra;
+ * only the selected panel is rendered (the first one without JavaScript). "Open now" keeps only the cards whose
+ * stored hours say open at this moment, computed in the browser (a cached page never shows a stale state).
+ * WAI-ARIA tabs pattern with arrow-key, Home and End navigation; the arrows follow the reading direction.
  */
-export function HomeBusinessTabs({ tabs, label, emptyLabel }: { tabs: BusinessTab[]; label: string; emptyLabel: string }) {
+export function HomeBusinessTabs({ items, tabs, label, emptyLabel }: { items: TabItem[]; tabs: BusinessTab[]; label: string; emptyLabel: string }) {
   const base = useId();
   const [active, setActive] = useState(0);
   const [openIds, setOpenIds] = useState<Set<string> | null>(null);
   const refs = useRef<Array<HTMLButtonElement | null>>([]);
+  const byId = new Map(items.map((item) => [item.id, item]));
 
   useEffect(() => {
     const update = () => {
       const now = new Date();
       const ids = new Set<string>();
-      for (const tab of tabs) for (const item of tab.items) {
+      for (const item of items) {
         if (!item.hours) continue;
         const s = openStatus(item.hours.value, item.hours.countryCode, now, undefined, item.hours.regionSlug).status;
         if (s === "OPEN" || s === "CLOSING_SOON") ids.add(item.id);
@@ -33,7 +35,7 @@ export function HomeBusinessTabs({ tabs, label, emptyLabel }: { tabs: BusinessTa
     update();
     const timer = setInterval(update, 60_000);
     return () => clearInterval(timer);
-  }, [tabs]);
+  }, [items]);
 
   const select = (index: number) => {
     const next = (index + tabs.length) % tabs.length;
@@ -61,12 +63,13 @@ export function HomeBusinessTabs({ tabs, label, emptyLabel }: { tabs: BusinessTa
         ))}
       </div>
       {tabs.map((tab, i) => {
-        const items = tab.openOnly ? tab.items.filter((item) => openIds?.has(item.id)) : tab.items;
+        const shown = i !== active ? []
+          : tab.ids.flatMap((id) => byId.get(id) ?? []).filter((item) => !tab.openOnly || openIds?.has(item.id));
         return (
           <div key={tab.key} role="tabpanel" id={`${base}-panel-${tab.key}`} aria-labelledby={`${base}-tab-${tab.key}`} hidden={i !== active} className="rh-tabpanel">
-            {items.length > 0
-              ? <ul className="rh-bizgrid">{items.map((item) => <li key={item.id} className="rh-bizcell">{item.node}</li>)}</ul>
-              : <p className="rh-tab-empty">{emptyLabel}</p>}
+            {i === active && (shown.length > 0
+              ? <ul className="rh-bizgrid">{shown.map((item) => <li key={item.id} className="rh-bizcell">{item.node}</li>)}</ul>
+              : <p className="rh-tab-empty">{emptyLabel}</p>)}
           </div>
         );
       })}

@@ -105,14 +105,16 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const featured = (data?.featured ?? []).map(card);
   const topRated = (data?.topRated ?? []).map(card);
   const newest = (data?.latest ?? []).map(card);
+  // Each business is rendered once; the tabs list ids.
   const seen = new Set<string>();
   const all = [...featured, ...topRated, ...newest].filter((item) => !seen.has(item.id) && Boolean(seen.add(item.id)));
+  const ids = (list: { id: string }[]) => list.map((item) => item.id);
   const tabs: BusinessTab[] = [
-    { key: "featured", label: ts("featured"), icon: "star", items: featured },
-    { key: "open", label: t("openNow"), icon: "clock", items: all, openOnly: true },
-    { key: "top", label: t("tabTopRated"), icon: "trophy", items: topRated },
-    { key: "new", label: t("tabNew"), icon: "sparkles", items: newest },
-  ].filter((tab) => tab.items.length > 0) as BusinessTab[];
+    { key: "featured", label: ts("featured"), icon: "star", ids: ids(featured) },
+    { key: "open", label: t("openNow"), icon: "clock", ids: ids(all), openOnly: true },
+    { key: "top", label: t("tabTopRated"), icon: "trophy", ids: ids(topRated) },
+    { key: "new", label: t("tabNew"), icon: "sparkles", ids: ids(newest) },
+  ].filter((tab) => tab.ids.length > 0);
 
   // Photographic category row: a real cover photo from a published business of that category when one exists,
   // otherwise the category icon on the logo red. Never a stock photo.
@@ -206,7 +208,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         <section className={`${BAND} rh-section`} aria-labelledby="home-latest">
           <SectionHead id="home-latest" title={t("popularBusinesses")} href="/businesses" linkLabel={t("viewAll")} />
           {tabs.length > 0 ? (
-            <HomeBusinessTabs tabs={tabs} label={t("tabsLabel")} emptyLabel={t("tabEmpty")} />
+            <HomeBusinessTabs items={all} tabs={tabs} label={t("tabsLabel")} emptyLabel={t("tabEmpty")} />
           ) : (
             <div className="rh-empty">
               <div className="min-w-0">

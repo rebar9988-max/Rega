@@ -428,10 +428,10 @@ export const getHomeData = cache(
       prisma.business.count({ where: PUBLIC_BUSINESS }),
       prisma.service.count({ where: { status: "published", deletedAt: null, business: PUBLIC_BUSINESS } }),
       prisma.location.count({ where: { status: "active", deletedAt: null, business: PUBLIC_BUSINESS } }),
-      prisma.business.findMany({ where: { ...PUBLIC_BUSINESS, featured: true }, orderBy: [{ ratingAvg: "desc" }, { id: "asc" }], take: 8, select: homeCard }),
-      prisma.business.findMany({ where: PUBLIC_BUSINESS, orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }], take: 8, select: homeCard }),
+      prisma.business.findMany({ where: { ...PUBLIC_BUSINESS, featured: true }, orderBy: [{ ratingAvg: "desc" }, { id: "asc" }], take: 4, select: homeCard }),
+      prisma.business.findMany({ where: PUBLIC_BUSINESS, orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }], take: 4, select: homeCard }),
       // Top rated: only businesses with real reviews.
-      prisma.business.findMany({ where: { ...PUBLIC_BUSINESS, ratingCount: { gt: 0 } }, orderBy: [...businessOrder.rating, { id: "asc" }], take: 8, select: homeCard }),
+      prisma.business.findMany({ where: { ...PUBLIC_BUSINESS, ratingCount: { gt: 0 } }, orderBy: [...businessOrder.rating, { id: "asc" }], take: 4, select: homeCard }),
       // Real cover photos for the photographic category row (one per category is picked by the page).
       prisma.business.findMany({ where: { ...PUBLIC_BUSINESS, coverUrl: { not: null }, categoryId: { not: null } }, orderBy: [...businessOrder.featured, { id: "asc" }], take: 200, select: { categoryId: true, coverUrl: true } }),
       prisma.service.findMany({
