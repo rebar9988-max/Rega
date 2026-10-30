@@ -79,3 +79,12 @@ applying it. Rehearse against a disposable database,retain applied0001–0003 un
 column definitions,existing records and FK integrity. Release application code only after migration readiness.
 The similarly named PostgreSQL migration is for isolated rollback-provider tests,not active production.
 PR71 remains held for fresh recovery/security evidence and exact-head checks;see PROJECT_MEMORY.md.
+
+
+## PR71 code-only forward recovery — 2026-10-30
+
+Social0004 already exists in production(applied by another operation2026-10-29T12:58:35Z);later0005 remains intact. Owner confirmed the pre-migration recovery proof is absent:record that historical failure,never a retrospective PASS. Do NOT replay/drop/reseed either migration. Current code release uses deploy.yml without a D1 migration step.
+
+Fresh current backup+persisted-backup→separate isolated restore PASS at2026-10-30T06:37:05.391Z:41tables/2525rows,exact typed/schema/index/trigger/rowid/sequence hashes,FK0,quick_checkOK.260objects includes sqlite_sequence metadata;old259definition excluded it. Private EU unbound backup36c33223-d548-460a-875d-10f2e77cf705 and restore7761f051-2975-402c-9052-9001194b6170;older recovery assets retained. These are same-account,non-immutable logical DB copies,not an off-account/R2-media-byte backup;unsupported integrity_check is not claimed.
+
+This establishes a new pre-deployment recovery baseline for forward code release;it cannot repair historical compliance. Require fresh final-head CI,normal merge,exact-main CI,unchanged identity/production-target/D1-readiness and actual post-deploy SHA/traffic/health/browser verification. Roll back only to verified D1-compatible code while retaining current DB/additivecols/later0005/subsequentwrites. Details/evidence:PROJECT_MEMORY.md and docs/evidence/pr71-recovery-2026-10-29.json. Release is pending until those gates actually pass.

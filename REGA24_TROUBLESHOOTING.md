@@ -455,3 +455,8 @@ remainindependentgates.
 
 
 PR71 recovery update2026-10-29: private D1 logical backup0a0dd3d4… and separate restore63f99c1e… verified41 tables/2513rows at13:10UTC; both retained, no production writes. Social0004 was already applied externally at12:58UTC, so pre-migration backup provenance remains unverified. Do not replay migrations or release PR71 before gates. Exact6830 CI40874885167 passed396+11D1+8Python,423 browsers/provider,46 axe analyses with0 violations/incomplete. Preserve newer main operations-center work. See PROJECT_MEMORY and docs/evidence/pr71-recovery-2026-10-29.json.
+
+
+### Already-applied migration with absent historical recovery proof — 2026-10-30
+
+For PR71,owner confirmed pre-0004 backup/restore proof does not exist. Never call a later backup pre-migration or replay0004 to manufacture compliance. Historical gate failure remains recorded. Fresh CURRENT backup plus isolated restore can establish a new baseline for FUTURE code-only release when no migration is pending:actual2026-10-30T06:37:05.391Z copies PASS exacttyped/schema/sequence checks,FK0,quick_checkOK. Preserve both newer/older recoverycopies and all livewrites;do not use E2Efixtures on customercopies. Existing all-head/main CI/security/identity/readiness gates and actual live verification still apply. Code rollback uses previous verified D1-compatible app,never an old DB restore. See PROJECT_MEMORY.md and docs/evidence/pr71-recovery-2026-10-29.json;no retrospective100/100 or unsupported integrity_check claim.

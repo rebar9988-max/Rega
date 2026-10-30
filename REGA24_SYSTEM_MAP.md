@@ -298,3 +298,8 @@ Preview isolation/build success does not prove application readiness or producti
 
 
 PR71 recovery update2026-10-29: private D1 logical backup0a0dd3d4… and separate restore63f99c1e… verified41 tables/2513rows at13:10UTC; both retained, no production writes. Social0004 was already applied externally at12:58UTC, so pre-migration backup provenance remains unverified. Do not replay migrations or release PR71 before gates. Exact6830 CI40874885167 passed396+11D1+8Python,423 browsers/provider,46 axe analyses with0 violations/incomplete. Preserve newer main operations-center work. See PROJECT_MEMORY and docs/evidence/pr71-recovery-2026-10-29.json.
+
+
+### Private recovery inventory addition — 2026-10-30
+
+Rega24 production binding is unchanged. Two additional EU private/unbound D1 recovery assets,never app/test-fixture bindings:rega24-pr71-backup-20261030(36c33223-d548-460a-875d-10f2e77cf705) and rega24-pr71-restore-20261030(7761f051-2975-402c-9052-9001194b6170). Snapshot2026-10-30T06:37:05.391Z,41application/runtime/ledger tables/2525rows,verified typed/schema/rowid/sequence equality andFK0/quick_checkOK;260objects includes sqlite_sequence metadata. Same-account/non-immutable DB logicalcopies,R2bytes excluded;older copies retained. No Worker/domain/binding/plan change. Narrative and hashes:PROJECT_MEMORY.md and docs/evidence/pr71-recovery-2026-10-29.json.
