@@ -730,7 +730,16 @@
     "exceptionHours": "Zeiten",
     "exceptionReason": "Grund (optional, öffentlich)",
     "exceptionRemove": "Entfernen",
-    "exceptionAdd": "Schließung oder besondere Zeiten hinzufügen"
+    "exceptionAdd": "Schließung oder besondere Zeiten hinzufügen",
+    "placeSearch": "Adresse oder Stadt suchen...",
+    "placeSearchGo": "Suchen",
+    "useMyLocation": "Meinen aktuellen Standort verwenden",
+    "locatingHere": "Standort wird ermittelt …",
+    "citySuggestions": "Vorgeschlagene Städte",
+    "hereDenied": "Der Standortzugriff wurde nicht erlaubt. Suchen Sie die Adresse oder setzen Sie die Markierung auf der Karte.",
+    "hereUnavailable": "Ihr aktueller Standort konnte nicht ermittelt werden. Suchen Sie die Adresse oder setzen Sie die Markierung auf der Karte.",
+    "pinned": "Standort auf der Karte festgelegt:",
+    "notPinned": "Noch kein Standort auf der Karte festgelegt"
   },
   "contact": {
     "title": "Kontakt",

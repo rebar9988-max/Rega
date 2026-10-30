@@ -730,7 +730,16 @@
     "exceptionHours": "Saatler",
     "exceptionReason": "Neden (isteğe bağlı, herkese açık)",
     "exceptionRemove": "Kaldır",
-    "exceptionAdd": "Kapanış veya özel saat ekle"
+    "exceptionAdd": "Kapanış veya özel saat ekle",
+    "placeSearch": "Adres veya şehir ara...",
+    "placeSearchGo": "Ara",
+    "useMyLocation": "Mevcut konumumu kullan",
+    "locatingHere": "Konumunuz bulunuyor …",
+    "citySuggestions": "Önerilen şehirler",
+    "hereDenied": "Konum erişimine izin verilmedi. Adresi arayın veya işareti haritaya yerleştirin.",
+    "hereUnavailable": "Mevcut konumunuz belirlenemedi. Adresi arayın veya işareti haritaya yerleştirin.",
+    "pinned": "Konum haritada belirlendi:",
+    "notPinned": "Haritada henüz konum belirlenmedi"
   },
   "contact": {
     "title": "İletişim",

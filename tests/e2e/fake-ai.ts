@@ -87,6 +87,10 @@ export function startFakeAi(port = 3999): Promise<Server> {
       if (req.url?.startsWith("/geocode/search")) {
         const q = new URL(req.url, "http://x").searchParams;
         if (!/python|node|REGA Platform/i.test(String(req.headers["user-agent"]))) return json(403, { error: "user agent required" });
+        const text = q.get("q");
+        if (text !== null) return json(200, /poppelsdorfer allee 1.*bonn/i.test(text)
+          ? [{ lat: "50.7374012", lon: "7.0982031", addresstype: "building", display_name: "1, Poppelsdorfer Allee, 53115 Bonn, Deutschland" }]
+          : []);
         const street = q.get("street") ?? "";
         const city = (q.get("city") ?? "").toLowerCase();
         if (!street) {

@@ -94,6 +94,36 @@ test("admin adds a business: address lookup, confirmed map location, publish; it
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(name);
 });
 
+test("location picker: free-text place search, city suggestions and the device location set the coordinates", async ({ page }) => {
+  await stubBasemap(page);
+  await login(page);
+  await page.goto("/dr/businesses/new");
+  const badge = page.getByTestId("coords-badge");
+  await expect(badge).toContainText("Noch kein Standort");
+  // A. Free-text search (fake Nominatim): Enter searches and moves the pin; never submits the form.
+  await page.getByTestId("place-search").fill("Poppelsdorfer Allee 1, Bonn");
+  await page.getByTestId("place-search").press("Enter");
+  await expect(page.getByTestId("geocode-hits")).toContainText("Poppelsdorfer Allee");
+  await expect(page.getByTestId("lat")).toHaveValue("50.737401");
+  await expect(page.getByTestId("lng")).toHaveValue("7.098203");
+  await expect(badge).toContainText("50.7374, 7.0982");
+  await expect(page.getByTestId("confirm-location")).not.toBeChecked();
+  await expect(page).toHaveURL(/\/dr\/businesses\/new/);
+  // B. Known cities are suggested while typing (no network); picking one fills city and country and moves the pin.
+  await page.getByTestId("place-search").fill("Hambu");
+  await page.getByTestId("place-city-suggestions").getByRole("button", { name: /Hamburg/ }).first().click();
+  await expect(page.getByLabel("Stadt", { exact: true })).toHaveValue("Hamburg");
+  await expect(page.getByTestId("lat")).not.toHaveValue("50.737401");
+  // C. The device location (granted) sets the exact position.
+  await page.context().grantPermissions(["geolocation"]);
+  await page.context().setGeolocation({ latitude: 50.7374012, longitude: 7.0982031 });
+  await page.getByTestId("use-my-location").click();
+  await expect(page.getByTestId("lat")).toHaveValue("50.737401");
+  await expect(page.getByTestId("lng")).toHaveValue("7.098203");
+  await expect(page.getByTestId("location-picker")).toHaveAttribute("data-status", "ready", { timeout: 20_000 });
+  await expect(page.getByTestId("picker-marker")).toBeVisible();
+});
+
 test("failed address lookup: clear message, no publish without a location; invalid coordinates rejected; manual placement works", async ({ page }) => {
   await stubBasemap(page);
   await login(page);

@@ -730,7 +730,16 @@
     "exceptionHours": "Dem",
     "exceptionReason": "Sedem (vebijarkî, giştî)",
     "exceptionRemove": "Rake",
-    "exceptionAdd": "Girtin an demên taybet zêde bike"
+    "exceptionAdd": "Girtin an demên taybet zêde bike",
+    "placeSearch": "Li navnîşan an bajar bigere...",
+    "placeSearchGo": "Bigere",
+    "useMyLocation": "Cihê min ê niha diyar bike",
+    "locatingHere": "Cihê te tê dîtin …",
+    "citySuggestions": "Bajarên pêşniyarkirî",
+    "hereDenied": "Destûra cih nehat dayîn. Li navnîşanê bigere an nîşanê li ser nexşeyê deyne.",
+    "hereUnavailable": "Cihê te yê niha nehat diyarkirin. Li navnîşanê bigere an nîşanê li ser nexşeyê deyne.",
+    "pinned": "Cih li ser nexşeyê hat diyarkirin:",
+    "notPinned": "Cih hîn li ser nexşeyê nehatiye diyarkirin"
   },
   "contact": {
     "title": "Têkilî",

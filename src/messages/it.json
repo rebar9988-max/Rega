@@ -730,7 +730,16 @@
     "exceptionHours": "Orari",
     "exceptionReason": "Motivo (facoltativo, pubblico)",
     "exceptionRemove": "Rimuovi",
-    "exceptionAdd": "Aggiungi una chiusura o orari speciali"
+    "exceptionAdd": "Aggiungi una chiusura o orari speciali",
+    "placeSearch": "Cerca un indirizzo o una città...",
+    "placeSearchGo": "Cerca",
+    "useMyLocation": "Usa la mia posizione attuale",
+    "locatingHere": "Ricerca della tua posizione …",
+    "citySuggestions": "Città suggerite",
+    "hereDenied": "L’accesso alla posizione non è stato consentito. Cerca l’indirizzo o posiziona il segnaposto sulla mappa.",
+    "hereUnavailable": "Non è stato possibile determinare la tua posizione attuale. Cerca l’indirizzo o posiziona il segnaposto sulla mappa.",
+    "pinned": "Posizione impostata sulla mappa:",
+    "notPinned": "Nessuna posizione impostata sulla mappa"
   },
   "contact": {
     "title": "Contatti",

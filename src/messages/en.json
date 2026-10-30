@@ -730,7 +730,16 @@
     "exceptionHours": "Hours",
     "exceptionReason": "Reason (optional, public)",
     "exceptionRemove": "Remove",
-    "exceptionAdd": "Add a closure or special hours"
+    "exceptionAdd": "Add a closure or special hours",
+    "placeSearch": "Search for an address or city...",
+    "placeSearchGo": "Search",
+    "useMyLocation": "Use my current location",
+    "locatingHere": "Finding your location …",
+    "citySuggestions": "Suggested cities",
+    "hereDenied": "Location access was not allowed. Search for the address or place the pin on the map.",
+    "hereUnavailable": "Your current location could not be determined. Search for the address or place the pin on the map.",
+    "pinned": "Location set on the map:",
+    "notPinned": "No location set on the map yet"
   },
   "contact": {
     "title": "Contact",

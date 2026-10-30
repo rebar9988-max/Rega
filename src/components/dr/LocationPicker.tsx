@@ -76,7 +76,9 @@ export function LocationPicker({ value, fallbackCenter, onPick, label, unavailab
     } else {
       markerRef.current.setLngLat([value.lng, value.lat]);
     }
-    if (!map.getBounds().contains([value.lng, value.lat]) || map.getZoom() < 14) map.easeTo({ center: [value.lng, value.lat], zoom: Math.max(map.getZoom(), 16), duration: 400 });
+    // Far jumps (search, device location) fly; small corrections ease.
+    if (!map.getBounds().contains([value.lng, value.lat])) map.flyTo({ center: [value.lng, value.lat], zoom: Math.max(map.getZoom(), 16), speed: 1.4, curve: 1.42 });
+    else if (map.getZoom() < 14) map.easeTo({ center: [value.lng, value.lat], zoom: 16, duration: 400 });
   }, [status, value]);
 
   // Without a value, follow the chosen city.
@@ -86,7 +88,7 @@ export function LocationPicker({ value, fallbackCenter, onPick, label, unavailab
   }, [status, value, fallbackCenter]);
 
   return (
-    <div className="relative h-80 overflow-hidden rounded-[var(--radius-card)] border border-line bg-surface-2" data-testid="location-picker" data-status={status}>
+    <div className="relative h-64 overflow-hidden sm:h-80 rounded-[var(--radius-card)] border border-line bg-surface-2" data-testid="location-picker" data-status={status}>
       <div className="absolute inset-0"><div ref={box} className="size-full" role="region" aria-label={label} /></div>
       {status === "loading" && <div className="absolute inset-0 animate-pulse bg-surface-2" aria-hidden="true" />}
       {status === "failed" && <div className="absolute inset-0 z-20 grid place-items-center bg-surface-2 p-6 text-center text-sm text-muted" role="status">{unavailable}</div>}

@@ -730,7 +730,16 @@
     "exceptionHours": "Tijden",
     "exceptionReason": "Reden (optioneel, openbaar)",
     "exceptionRemove": "Verwijderen",
-    "exceptionAdd": "Sluiting of afwijkende tijden toevoegen"
+    "exceptionAdd": "Sluiting of afwijkende tijden toevoegen",
+    "placeSearch": "Zoek een adres of stad...",
+    "placeSearchGo": "Zoeken",
+    "useMyLocation": "Mijn huidige locatie gebruiken",
+    "locatingHere": "Je locatie wordt bepaald …",
+    "citySuggestions": "Voorgestelde steden",
+    "hereDenied": "Toegang tot je locatie is niet toegestaan. Zoek het adres of zet de markering op de kaart.",
+    "hereUnavailable": "Je huidige locatie kon niet worden bepaald. Zoek het adres of zet de markering op de kaart.",
+    "pinned": "Locatie op de kaart vastgelegd:",
+    "notPinned": "Nog geen locatie op de kaart vastgelegd"
   },
   "contact": {
     "title": "Contact",

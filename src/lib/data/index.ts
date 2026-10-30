@@ -8,6 +8,7 @@ import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { PUBLIC_BUSINESS, businessInCategories, businessInCity, textWhere } from "@/lib/search-where";
 import { searchTokens } from "@/lib/text";
+import { isMappableCoordinate } from "@/lib/coordinates";
 import { parseSearchIntent } from "@/lib/search-intent";
 import { buildVocabulary, correctQuery, type Vocabulary } from "@/lib/search-correction";
 import { OFFER_LIMITS, activeOfferWhere } from "@/lib/offers";
@@ -510,6 +511,8 @@ export async function nearbyBusinesses(query: NearbyQuery) {
     return { ...rest, city: cityRow ? city : null, business, category: category ?? services[0]?.category ?? null, distanceKm: Math.round(distance * 100) / 100, openNow: isOpenNow(openingHours, r.countryCode, undefined, region?.slug) };
   }
   for (const r of rows) {
+    // Legacy or damaged rows (missing or impossible coordinates) are left out instead of breaking the map.
+    if (!isMappableCoordinate(r.latitude, r.longitude)) continue;
     const item = toItem(r);
     if (item.distanceKm > query.radiusKm) continue;
     if (query.openNow && item.openNow !== true) continue;

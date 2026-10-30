@@ -13,7 +13,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { LOCALES, LOCALE_META, localeSuffix, type Locale } from "@/config/locales";
 import { isValidCoordinate } from "@/lib/coordinates";
 import type { GeocodeHit } from "@/lib/geocoder-parse";
-import { geocodeAction, saveBusinessAction, type BusinessFormState } from "@/app/dr/businesses/actions";
+import { geocodeAction, saveBusinessAction, searchPlaceAction, type BusinessFormState } from "@/app/dr/businesses/actions";
 import { WEEK, type HoursException, type WeekDay } from "@/lib/opening-hours";
 import { normalizeWhatsapp } from "@/lib/whatsapp";
 import { BusinessImageField } from "./BusinessImageField";
@@ -22,7 +22,7 @@ import { HoursExceptionsEditor } from "./HoursExceptionsEditor";
 
 const LocationPicker = dynamic(() => import("./LocationPicker").then((m) => m.LocationPicker), {
   ssr: false,
-  loading: () => <div className="h-80 animate-pulse rounded-[var(--radius-card)] bg-surface-2" aria-hidden="true" />,
+  loading: () => <div className="h-64 sm:h-80 animate-pulse rounded-[var(--radius-card)] bg-surface-2" aria-hidden="true" />,
 });
 
 export type FormCity = { id: string; name: string; names: string[]; countryCode: string; lat: number | null; lng: number | null };
@@ -76,6 +76,12 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
   const [confirmed, setConfirmed] = useState(Boolean(initial.coordsVerified));
   const [lookup, setLookup] = useState<{ status: "idle" | "hits" | "not_found" | "unavailable"; hits: GeocodeHit[] }>({ status: "idle", hits: [] });
   const [finding, startFinding] = useTransition();
+  // Place search box: known cities are suggested while typing (from the form's own city list, no network); the
+  // geocoder only runs on an explicit search (the public Nominatim policy forbids per-keystroke autocomplete).
+  const [placeQ, setPlaceQ] = useState("");
+  const [placeTyped, setPlaceTyped] = useState("");
+  const [searching, startSearching] = useTransition();
+  const [here, setHere] = useState<"idle" | "locating" | "denied" | "unavailable">("idle");
   const [, startSubmit] = useTransition();
   const bad = (f: string) => state?.fields?.includes(f) || stepErrors.includes(f) || undefined;
   /** The business as far as it is saved: a draft saved from this form carries its id, so the next save updates it. */
@@ -168,6 +174,47 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
     setLng(String(v.lng));
     setSource(how);
     setConfirmed(false); // a new position always needs a fresh confirmation
+  }
+
+  useEffect(() => {
+    const h = setTimeout(() => setPlaceTyped(placeQ.trim()), 400);
+    return () => clearTimeout(h);
+  }, [placeQ]);
+  const citySuggestions = useMemo(() => {
+    const q = placeTyped.toLocaleLowerCase();
+    if (q.length < 2) return [];
+    return cities.filter((c) => c.lat != null && c.lng != null && c.names.some((n) => n.toLocaleLowerCase().startsWith(q))).slice(0, 5);
+  }, [cities, placeTyped]);
+
+  function searchPlace() {
+    if (placeQ.trim().length < 2) return;
+    startSearching(async () => {
+      const res = await searchPlaceAction(placeQ.trim());
+      if (!res.ok) return setLookup({ status: res.reason === "not_found" ? "not_found" : "unavailable", hits: [] });
+      setLookup({ status: "hits", hits: res.hits });
+      place(res.hits.find((h) => h.precision === "address") ?? res.hits[0], "geocoded");
+    });
+  }
+
+  function pickCity(c: FormCity) {
+    setCountry(c.countryCode);
+    setCity(c.name);
+    place({ lat: c.lat!, lng: c.lng! }, "geocoded");
+    setPlaceQ("");
+  }
+
+  /** The device's own position (the person is usually at the business when they add it); still needs confirming. */
+  function useMyLocation() {
+    if (typeof navigator === "undefined" || !navigator.geolocation) return setHere("unavailable");
+    setHere("locating");
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setHere("idle");
+        place({ lat: Math.round(pos.coords.latitude * 1e6) / 1e6, lng: Math.round(pos.coords.longitude * 1e6) / 1e6 }, "manual");
+      },
+      (err) => setHere(err.code === err.PERMISSION_DENIED ? "denied" : "unavailable"),
+      { enableHighAccuracy: true, timeout: 15_000, maximumAge: 0 },
+    );
   }
 
   function find() {
@@ -354,9 +401,49 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
           )}
         </div>
 
+        <div className="grid gap-2" role="search" data-testid="place-search-box">
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <label className="relative min-w-0 flex-1">
+              <span className="sr-only">{t("placeSearch")}</span>
+              <svg viewBox="0 0 24 24" className="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2 text-muted" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5" /><path d="m20 20-4.2-4.2" /></svg>
+              <input type="search" value={placeQ} maxLength={200} placeholder={t("placeSearch")} autoComplete="off" data-testid="place-search"
+                onChange={(e) => setPlaceQ(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); searchPlace(); } }}
+                className={`${input} ps-9`} />
+            </label>
+            <button type="button" onClick={searchPlace} disabled={searching || placeQ.trim().length < 2} data-testid="place-search-go"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-brand px-4 text-sm font-bold text-brand-ink hover:bg-brand-hover disabled:opacity-50">
+              {searching ? t("finding") : t("placeSearchGo")}
+            </button>
+            <button type="button" onClick={useMyLocation} disabled={here === "locating"} data-testid="use-my-location"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border-2 border-brand px-4 text-sm font-bold text-brand-text hover:bg-brand hover:text-brand-ink disabled:opacity-50">
+              <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z" /><circle cx="12" cy="10" r="2.5" /></svg>
+              {here === "locating" ? t("locatingHere") : t("useMyLocation")}
+            </button>
+          </div>
+          {citySuggestions.length > 0 && (
+            <ul className="flex flex-wrap gap-2" aria-label={t("citySuggestions")} data-testid="place-city-suggestions">
+              {citySuggestions.map((c) => (
+                <li key={c.id}>
+                  <button type="button" onClick={() => pickCity(c)} className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-line bg-bg px-3 text-xs font-semibold hover:border-brand hover:text-brand-text">
+                    <bdi>{c.name}</bdi><span className="text-muted" dir="ltr">{c.countryCode}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+          {(here === "denied" || here === "unavailable") && (
+            <p role="alert" className="rounded-xl bg-brand-soft px-4 py-3 text-sm font-semibold text-ink" data-testid="my-location-message">{here === "denied" ? t("hereDenied") : t("hereUnavailable")}</p>
+          )}
+        </div>
+
         <p className="text-sm text-muted">{t("pickerHint")}</p>
         {/* Mounted only while its step is on screen: a map created in a hidden box would have no size. */}
         {show(1) && <LocationPicker value={value} fallbackCenter={cityCentre} onPick={(v) => place(v, "manual")} label={t("location")} unavailable={tm("unavailable")} dir={dir} />}
+        <p aria-live="polite" data-testid="coords-badge" className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold ${value ? "bg-[oklch(0.95_0.05_150)] text-[oklch(0.4_0.12_150)]" : "bg-surface-2 text-muted"}`}>
+          {value && <svg viewBox="0 0 24 24" className="size-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m5 12 4.5 4.5L19 7" /></svg>}
+          {value ? <>{t("pinned")} <bdi dir="ltr">{value.lat.toFixed(4)}, {value.lng.toFixed(4)}</bdi></> : t("notPinned")}
+        </p>
 
         <div className="grid gap-4 ">
           <label className="flex flex-col gap-1 text-sm font-semibold">{t("latitude")}

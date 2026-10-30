@@ -1235,3 +1235,27 @@ current official assets; every new probe was confirmed 200 / present against liv
 - No production data, schema, migration, secret, binding, plan or paid service was changed.
 - Next safe continuation point: merge #109/#110 (health probe), then a real-photo pass when owner-supplied images exist
   (category covers fall back to logo-red icon tiles until businesses upload covers).
+
+### Business form: exact coordinates (search, device location, badge) — 2026-10-30
+Owner scope: business schema/types, the add/edit business form's location section and the save path. Identity guard OK
+(REGA). Branch `claude/business-location-picker-20261030` from `main` 4e6e7bf (independent of the Nearby map branch).
+Audit: already in place and kept — `Location.latitude/longitude Float?` (double precision, indexed; per location, not on
+`Business`, because a business has several locations); server validation in `business-admin.ts` (both or neither,
+−90..90 / −180..180, not 0,0 via `isValidCoordinate`); MapLibre picker with map click + draggable pin; confirmation
+required to publish; server-side Nominatim address lookup with a proper User-Agent and ≤1 req/s. No schema/migration needed.
+Added:
+- `geocodeQuery(q)` (free-text Nominatim search, same throttle/User-Agent/timeout) + `searchPlaceAction` (business.write).
+- Form: search box "گەڕان بەدوای ناونیشان یان شار..." — known cities suggested while typing (400 ms debounce, from the
+  form's own city list, no network; picking one fills city + country), Nominatim only on Enter/button (public Nominatim
+  policy forbids per-keystroke autocomplete; the browser cannot set User-Agent and CSP has no Nominatim origin, so it
+  stays server-side); "دیاریکردنی شوێنی ئێستام" (high-accuracy geolocation, 6 decimals, needs confirmation like any
+  new position; denied/unavailable messages); badge "شوێن لەسەر نەخشە دیاری کرا: lat, lng" under the map.
+- `LocationPicker`: h-64 (sm:h-80); far jumps use flyTo.
+- Nearby query: rows without mappable coordinates are skipped (`isMappableCoordinate`) — nulls were already excluded by
+  the bounding-box range filter.
+- 9 new `bizForm.*` keys in 11 catalogues; fake Nominatim answers free-text `q`; new admin-business e2e test.
+Local verification: typecheck, lint, unit 427 pass/4 skip/0 fail, `build:node`; E2E disposable D1 desktop+mobile:
+admin-business/business-profile/nearby 42 passed; business-gallery/publication/visibility, completion, offers-whatsapp,
+onboarding, figma-responsive, a11y 75 passed; 0 failed (WebKit/iPhone project not runnable in this sandbox). Screenshots:
+search suggests Erbil for "هەول", device location sets 50.7374, 7.0982 and the badge; no horizontal overflow.
+Not done: PR, hosted CI, merge, deploy, live check.

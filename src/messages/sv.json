@@ -730,7 +730,16 @@
     "exceptionHours": "Tider",
     "exceptionReason": "Anledning (valfritt, offentligt)",
     "exceptionRemove": "Ta bort",
-    "exceptionAdd": "Lägg till stängning eller avvikande öppettider"
+    "exceptionAdd": "Lägg till stängning eller avvikande öppettider",
+    "placeSearch": "Sök adress eller stad...",
+    "placeSearchGo": "Sök",
+    "useMyLocation": "Använd min nuvarande plats",
+    "locatingHere": "Din plats hämtas …",
+    "citySuggestions": "Föreslagna städer",
+    "hereDenied": "Platsåtkomst tilläts inte. Sök efter adressen eller placera markören på kartan.",
+    "hereUnavailable": "Din nuvarande plats kunde inte fastställas. Sök efter adressen eller placera markören på kartan.",
+    "pinned": "Plats angiven på kartan:",
+    "notPinned": "Ingen plats angiven på kartan ännu"
   },
   "contact": {
     "title": "Kontakt",

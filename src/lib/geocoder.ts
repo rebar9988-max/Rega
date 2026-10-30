@@ -50,6 +50,33 @@ export async function geocodeAddress(input: GeocodeInput): Promise<GeocodeOutcom
   }
 }
 
+/**
+ * Free-text place search ("Poppelsdorfer Allee 1, Bonn", "Hewlêr") for the form's search box. Run on an explicit
+ * search only (Enter or the button), never per keystroke: the public Nominatim usage policy forbids autocomplete.
+ */
+export async function geocodeQuery(q: string): Promise<GeocodeOutcome> {
+  const env = serverEnv();
+  if (env.GEOCODING_PROVIDER === "none") return { ok: false, reason: "disabled" };
+  const url = searchUrl(env.GEOCODING_URL);
+  url.search = new URLSearchParams({ format: "jsonv2", limit: "5", addressdetails: "0", q }).toString();
+  try {
+    await throttle();
+    const res = await fetch(url, {
+      headers: { "user-agent": `REGA Platform (+https://${env.CANONICAL_HOST})`, accept: "application/json" },
+      signal: AbortSignal.timeout(env.GEOCODING_TIMEOUT_MS),
+    });
+    if (!res.ok) {
+      log.warn("geocode.http", { status: res.status });
+      return { ok: false, reason: "unavailable" };
+    }
+    const hits = parseNominatim(await res.json());
+    return hits.length > 0 ? { ok: true, hits } : { ok: false, reason: "not_found" };
+  } catch (error) {
+    log.warn("geocode.failed", { error: error instanceof Error ? error.name : "unknown" }); // never logs the query
+    return { ok: false, reason: "unavailable" };
+  }
+}
+
 /** Centre of a city (used to open the map picker there and for the Nearby city picker). */
 export async function geocodeCity(city: string, countryCode: string): Promise<{ lat: number; lng: number } | null> {
   const env = serverEnv();

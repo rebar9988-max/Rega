@@ -12,7 +12,7 @@ import { requirePermission } from "@/lib/auth-helpers";
 import { writeAudit } from "@/lib/audit";
 import { can, type Permission } from "@/lib/rbac";
 import { businessFormSchema, saveBusiness } from "@/lib/business-admin";
-import { geocodeAddress, type GeocodeOutcome } from "@/lib/geocoder";
+import { geocodeAddress, geocodeQuery, type GeocodeOutcome } from "@/lib/geocoder";
 import { addCreatorAsMember, assertBusinessAccess } from "@/lib/business-access";
 import { reindexBusinessTree } from "@/lib/search-index";
 import { getTranslations } from "next-intl/server";
@@ -224,4 +224,14 @@ export async function geocodeAction(input: z.input<typeof geocodeSchema>): Promi
   const parsed = geocodeSchema.safeParse(input);
   if (!parsed.success) return { ok: false, reason: "not_found" };
   return geocodeAddress(parsed.data);
+}
+
+const placeQuerySchema = z.string().trim().min(2).max(200);
+
+/** Free-text place search for the form's map picker (suggestions only; the marker still has to be confirmed). */
+export async function searchPlaceAction(q: string): Promise<GeocodeOutcome> {
+  await requirePermission("business.write");
+  const parsed = placeQuerySchema.safeParse(q);
+  if (!parsed.success) return { ok: false, reason: "not_found" };
+  return geocodeQuery(parsed.data);
 }
