@@ -27,8 +27,8 @@ export async function BusinessCard({ b, variant = "search" }: { b: BusinessCardD
   const langs = languageNames(b.languages);
 
   return (
-    <article className="rega-card group relative grid grid-cols-[6.5rem_minmax(0,1fr)] overflow-hidden sm:grid-cols-[11rem_minmax(0,1fr)_auto]">
-      <div className="relative min-h-[8.5rem] overflow-hidden bg-brand-soft sm:m-3 sm:min-h-[7.5rem] sm:rounded-lg">
+    <article className={`rega-card group relative grid grid-cols-[6.5rem_minmax(0,1fr)] overflow-hidden ${directory ? "rega-directory-card md:flex md:flex-col md:p-3" : "sm:grid-cols-[11rem_minmax(0,1fr)_auto]"}`}>
+      <div className={`relative min-h-[8.5rem] overflow-hidden rounded-xl bg-surface-2 ${directory ? "m-2 md:m-0 md:min-h-[130px]" : "sm:m-3 sm:min-h-[7.5rem]"}`}>
         {directory ? (
           !b.logoUrl && b.coverUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -74,7 +74,7 @@ export async function BusinessCard({ b, variant = "search" }: { b: BusinessCardD
         </div>
       </div>
 
-      <div className="hidden items-center p-5 sm:flex">
+      <div className={directory ? "col-start-2 flex items-center px-3 pb-4 md:mt-auto md:px-0 md:pt-4" : "hidden items-center p-5 sm:flex"}>
         <span className="inline-flex min-h-10 items-center rounded-lg border border-brand px-4 text-sm font-bold text-brand-text transition group-hover:bg-brand group-hover:text-brand-ink">
           {tc("viewDetails")}
         </span>

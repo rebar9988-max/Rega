@@ -183,7 +183,7 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
   return (
     <form
       ref={formRef}
-      className="space-y-8"
+      className="rega-business-form max-w-[800px] space-y-8"
       // The wizard checks each step itself (hidden steps would otherwise block the browser's own validation).
       noValidate={wizard}
       aria-busy={saving}
@@ -221,7 +221,7 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
 
       <div ref={panelRef} tabIndex={-1} className="grid gap-8 outline-none">
       <div hidden={!show(1)}>
-      <fieldset className="grid gap-4 rounded-[var(--radius-card)] border border-line bg-surface p-5 sm:grid-cols-2">
+      <fieldset className="grid gap-4 rounded-[var(--radius-card)] border border-line bg-surface p-5 ">
         <legend className="px-1 text-base font-bold">{t("sectionBasics")}</legend>
         <label className="flex flex-col gap-1 text-sm font-semibold">{t("name")}
           <input name="name" required minLength={2} maxLength={200} value={name} onChange={(e) => setName(e.target.value)} className={input} aria-invalid={bad("name")} />
@@ -247,14 +247,14 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
           </select>
         </label>
         </div>
-        <details className="sm:col-span-2 rounded-xl border border-line p-3"><summary className="cursor-pointer text-sm font-semibold">{t("optionalDetails")}</summary>
-        <label className="mt-3 flex flex-col gap-1 text-sm font-semibold sm:col-span-2">{t("description")}
+        <details className=" rounded-xl border border-line p-3"><summary className="cursor-pointer text-sm font-semibold">{t("optionalDetails")}</summary>
+        <label className="mt-3 flex flex-col gap-1 text-sm font-semibold ">{t("description")}
           <textarea name="description" rows={3} maxLength={8000} defaultValue={initial.description} className={`${input} py-2`} />
         </label>
-        <details className="rounded-xl border border-line px-4 py-3 sm:col-span-2" open={LOCALES.some((l) => initial.translations?.[l])}>
+        <details className="rounded-xl border border-line px-4 py-3 " open={LOCALES.some((l) => initial.translations?.[l])}>
           <summary className="cursor-pointer text-sm font-semibold">{t("translations")}</summary>
           <p className="mt-2 text-xs text-muted">{t("translationsHint")}</p>
-          <div className="mt-3 grid gap-4 sm:grid-cols-2">
+          <div className="mt-3 grid gap-4 ">
             {LOCALES.map((l) => (
               <label key={l} className="flex flex-col gap-1 text-sm font-semibold" lang={LOCALE_META[l].htmlLang}>
                 <span>{t("descriptionIn", { language: LOCALE_META[l].nativeName })}</span>
@@ -263,7 +263,7 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
             ))}
           </div>
         </details>
-        <fieldset className="sm:col-span-2">
+        <fieldset className="">
           <legend className="mb-2 text-sm font-semibold">{t("languagesSpoken")}</legend>
           <div className="flex flex-wrap gap-2">
             {LOCALES.map((l) => (
@@ -279,9 +279,9 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
       </div>
 
       <div hidden={!show(1)}>
-      <fieldset className="grid gap-4 rounded-[var(--radius-card)] border border-line bg-surface p-5 sm:grid-cols-2">
+      <fieldset className="grid gap-4 rounded-[var(--radius-card)] border border-line bg-surface p-5 ">
         <legend className="px-1 text-base font-bold">{t("sectionContact")}</legend>
-        <p className="text-xs text-muted sm:col-span-2">{t("publicContactHint")}</p>
+        <p className="text-xs text-muted ">{t("publicContactHint")}</p>
         <label className="flex flex-col gap-1 text-sm font-semibold">{t("phone")}
           <input name="phone" type="tel" dir="ltr" maxLength={50} defaultValue={initial.phone} className={input} />
         </label>
@@ -307,7 +307,7 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
       <div hidden={!show(1)} className="grid gap-8">
       <fieldset className="space-y-4 rounded-[var(--radius-card)] border border-line bg-surface p-5">
         <legend className="px-1 text-base font-bold">{t("sectionLocation")}</legend>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4  lg:grid-cols-4">
           <label className="flex flex-col gap-1 text-sm font-semibold lg:col-span-2">{t("address")}
             <input name="addressLine1" required minLength={3} maxLength={300} value={address} onChange={(e) => setAddress(e.target.value)} className={input} aria-invalid={bad("addressLine1")} />
           </label>
@@ -358,7 +358,7 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
         {/* Mounted only while its step is on screen: a map created in a hidden box would have no size. */}
         {show(1) && <LocationPicker value={value} fallbackCenter={cityCentre} onPick={(v) => place(v, "manual")} label={t("location")} unavailable={tm("unavailable")} dir={dir} />}
 
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-4 ">
           <label className="flex flex-col gap-1 text-sm font-semibold">{t("latitude")}
             <input name="latitude" inputMode="decimal" dir="ltr" value={lat} onChange={(e) => { setLat(e.target.value); setSource("manual"); setConfirmed(false); }} className={input} aria-invalid={(coordsGiven && !coordsOk) || bad("latitude")} data-testid="lat" />
           </label>
@@ -378,7 +378,7 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
       <fieldset className="mt-3 space-y-4">
         <legend className="sr-only">{t("sectionHours")}</legend>
         <p className="text-sm text-muted" id="hours-hint">{t("hoursHint")}</p>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-3  lg:grid-cols-4">
           {WEEK.map((d) => (
             <label key={d} className="flex flex-col gap-1 text-sm font-semibold">{td(d)}
               <input name={`hours_${d}`} defaultValue={initial.hours?.[d] ?? ""} dir="ltr" maxLength={120} placeholder="09:00–17:00" inputMode="text" autoComplete="off"
@@ -393,7 +393,7 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
       </div>
 
       <div hidden={!show(2)} className="grid gap-8">
-      <fieldset className="grid gap-4 rounded-[var(--radius-card)] border border-line bg-surface p-5 sm:grid-cols-2">
+      <fieldset className="grid gap-4 rounded-[var(--radius-card)] border border-line bg-surface p-5 ">
         <legend className="px-1 text-base font-bold">{t("sectionMedia")}</legend>
         <BusinessImageField name="logoUrl" label={t("logo")} initial={initial.logoUrl ?? ""} businessId={businessId} storageReady={storageReady} invalid={bad("logoUrl")} onBusyChange={onMediaBusy} onValueChange={onMediaChange} />
         <BusinessImageField name="coverUrl" label={t("cover")} initial={initial.coverUrl ?? ""} businessId={businessId} storageReady={storageReady} invalid={bad("coverUrl")} wide onBusyChange={onMediaBusy} onValueChange={onMediaChange} />
@@ -405,7 +405,7 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
       {wizard && (
         <section aria-labelledby="review-title" className="rounded-[var(--radius-card)] border border-line bg-surface p-5" data-testid="wizard-review">
           <h2 id="review-title" className="mb-3 text-base font-bold">{t("wizard.review")}</h2>
-          <dl className="grid gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
+          <dl className="grid gap-x-6 gap-y-2 text-sm ">
             <div><dt className="text-muted">{t("name")}</dt><dd className="font-semibold"><bdi>{name}</bdi></dd></div>
             <div><dt className="text-muted">{t("category")}</dt><dd className="font-semibold"><bdi>{categories.find((c) => c.id === categoryId)?.name ?? "—"}</bdi></dd></div>
             <div><dt className="text-muted">{t("address")}</dt><dd className="font-semibold"><bdi>{[address, postal, city, countries.find((c) => c.code === country)?.name].filter(Boolean).join(", ") || "—"}</bdi></dd></div>
