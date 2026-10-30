@@ -1213,3 +1213,33 @@ the manifest lists maskable 192/512, and `/brand/rega24-maskable-{192,512}.png` 
 but the header now renders `rega24-badge-*`. Follow-up PR updates that check (and the static-asset probe list) to the
 current official assets; every new probe was confirmed 200 / present against live production before the change.
 
+
+### Nearby map ("گەڕان و نزیکترین لەسەر نەخشە") — Airbnb/Apple-Maps-style upgrade — 2026-10-30
+Owner scope: only the Explore / Nearby map module. Identity guard OK (REGA). Branch `claude/nearby-map-upgrade-20261030`
+from `main` e48598c. Audit: `/nearby` already used MapLibre GL 6 + OpenFreeMap (no key, $0), haversine (`lib/geo`),
+browser geolocation, clustering and a preview card, so this upgrades it instead of rebuilding it.
+- `DiscoveryMap` (opt-in props, defaults unchanged so the business-profile `PlacesMap` looks/behaves as before):
+  `markerStyle="pill"` (store icon + name + "★ 4.8" pill with tail; selected = brand fill, scale-110, z 50),
+  `focusSelected` (flyTo the selection, lifted above the bottom card; reduced motion respected by MapLibre),
+  `toolbar` (floating controls along the top), `locate` (floating locate-me button under the zoom control),
+  `fitPadding` (fit results clear of the floating controls/cards; scaled down on small maps).
+- `NearbyDiscovery`: quick filter chips over the map (هەموو = largest radius + open off, 5/10/25 km, کراوەیە), map
+  results re-measured and ordered on the device by haversine from the search centre (rating sort keeps server order),
+  distance badge "{distance} دوورە", richer split-view list (cover, category · city, rating, open state), phone carousel
+  of the nearest 30 over the bottom of the map, redesigned preview (cover + open badge, category, city, distance,
+  rating, "بینینی پڕۆفایل", "ئاراستەی ڕێگا" → Google Maps dir URL, call icon). Phones: list/map toggle floats above the
+  bottom nav in list view; inline above the map in map view (floating there overlapped the cards — fixed).
+- 6 new `nearby.*` keys in all 11 catalogues. E2E: preview link renamed (nearby + admin-business specs), new chip,
+  locate, carousel and directions assertions.
+- Deliberate deviations from the prompt: no teal/emerald colour and no glassmorphism (CLAUDE.md §3 locks the REGA
+  palette and forbids both); REGA brand tokens are used instead. Basemap kept as the existing OpenFreeMap style (CARTO
+  was optional in the prompt and would add a new origin to the CSP).
+- No API, schema, migration, data, routing, header/footer, auth, workflow or dependency change.
+- Local verification: typecheck, lint, unit 427 pass/4 skip/0 fail. `build:node` passes. E2E on a disposable D1
+  (desktop + mobile): admin-business, business-profile, nearby, figma-responsive, navigation, business-visibility,
+  location-filter, completion, a11y — 137 passed, 0 failed. Note: `nearby` place-search needs admin-business to run
+  first (Hamburg business); a local AUTH_SECRET < 16 chars breaks admin specs. RTL screenshots (1440 px, Pixel 5): no
+  horizontal overflow. Real basemap tiles are not reachable from this sandbox (proxy policy), so screenshots used the
+  test stub style.
+- Not done here: PR, hosted CI, merge, deploy, live check. Next: open PR → CI green → squash merge → CI-gated deploy →
+  verify `/ckb/nearby` live.

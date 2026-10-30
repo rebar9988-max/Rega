@@ -586,7 +586,13 @@
     "temporarilyClosed": "Bi demkî girtî ye",
     "opensOnDate": "Di {date} de saet {time} vedibe",
     "holidayToday": "Betlaneya fermî: {name}",
-    "specialHoursToday": "Îro demên xebatê yên taybet"
+    "specialHoursToday": "Îro demên xebatê yên taybet",
+    "away": "{distance} dûr",
+    "all": "Hemû",
+    "quickFilters": "Parzûnên bilez",
+    "locateMe": "Yên herî nêzî min bibîne",
+    "viewProfile": "Profîlê bibîne",
+    "getDirections": "Rêyê nîşan bide"
   },
   "map": {
     "title": "Nexşe",

@@ -90,7 +90,7 @@ test("admin adds a business: address lookup, confirmed map location, publish; it
   // Selecting the result beside the map opens its marker preview (markers at one position may be stacked).
   await page.getByTestId("nearby-map-list").getByRole("button", { name: new RegExp(name) }).click();
   await expect(page.getByTestId("map-preview")).toContainText("Recht");
-  await page.getByTestId("map-preview").getByRole("link", { name: "Details ansehen" }).click();
+  await page.getByTestId("map-preview").getByRole("link", { name: "Profil ansehen" }).click();
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(name);
 });
 

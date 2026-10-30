@@ -5,8 +5,10 @@
  * pick or search for, or an area they move the map to. There is no default city. Coordinates are rounded to
  * ~110 m before they leave the device.
  *
- * Views: List (paginated) and Map (every match in range as clustered markers; on large screens the results sit
- * next to the map). Search, category, city, radius, open-now and sorting drive both views.
+ * Views: List (paginated) and Map (every match in range as clustered name/rating pills; on large screens the results
+ * sit next to the map, on phones they slide over its bottom edge). Search, category, city, radius, open-now and sorting
+ * drive both views; quick filters (radius, open now) float over the map. Map results are ordered by distance on the
+ * device (haversine) from the search centre, and a selected business is flown to and previewed over the map.
  */
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -14,7 +16,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { LOCALE_META, formatNumber, type Locale } from "@/i18n/locales";
 import { localize } from "@/lib/content";
-import { RADII_KM, coarsen } from "@/lib/geo";
+import { RADII_KM, coarsen, distanceKm } from "@/lib/geo";
 import { forwardGeocode, reverseGeocode, type Place } from "@/lib/geocode";
 import { getSavedLocation, saveLocation } from "@/lib/location-store";
 import { Ltr, Text } from "@/components/ui/Bidi";
@@ -45,6 +47,10 @@ type Filters = { radius: number; q: string; category: string; open: boolean; sor
 
 const field = "min-h-11 w-full rounded-xl border border-line bg-surface px-3 text-sm outline-none focus:border-brand";
 const LIST_PAGE = 20;
+/** Radii offered as one-tap chips over the map ("All" uses the largest radius). */
+const QUICK_RADII = [5, 10, 25] as const;
+const MAX_RADIUS = RADII_KM[RADII_KM.length - 1];
+const CAROUSEL_MAX = 30;
 
 /** Filters that can arrive in the URL (e.g. the home page's "Open now" link: /nearby?open=1). Location never does. */
 export type NearbyInitial = { open?: boolean; category?: string; q?: string; radius?: number; sort?: Filters["sort"] };
@@ -97,8 +103,18 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
     names: [c.nameEn, ...["nameCkb", "nameKmr", "nameDe", "nameAr", "nameTr"].map((k) => c[k]).filter((v): v is string => typeof v === "string" && v.length > 0)],
   })), [cities]);
 
+  // Map results with their distance computed here (haversine from the search centre); nearest first unless the
+  // visitor sorts by rating (then the server's order is kept).
+  const mapList = useMemo(() => {
+    const rows = (mapItems ?? []).map((it) => (center ? { ...it, distanceKm: distanceKm(center, { lat: it.latitude, lng: it.longitude }) } : it));
+    return filters.sort === "distance" ? rows.sort((a, b) => a.distanceKm - b.distanceKm) : rows;
+  }, [mapItems, center, filters.sort]);
+
   // Stable marker data: the map only re-fits when the results really change.
-  const points = useMemo(() => (mapItems ?? []).map((it) => ({ id: it.id, lat: it.latitude, lng: it.longitude, label: localize(it.business, "name", locale).text })), [mapItems, locale]);
+  const points = useMemo(() => mapList.map((it) => ({
+    id: it.id, lat: it.latitude, lng: it.longitude, label: localize(it.business, "name", locale).text,
+    badge: it.business.ratingCount > 0 ? `★ ${formatNumber(it.business.ratingAvg, locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}` : undefined,
+  })), [mapList, locale]);
 
   const locate = useCallback(() => {
     if (typeof navigator === "undefined" || !navigator.geolocation) return setStatus("unsupported");
@@ -223,9 +239,11 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
     gestures: { windows: tm("gestureWindows"), mac: tm("gestureMac"), mobile: tm("gestureMobile") },
   };
 
-  const distance = (it: Item) => it.distanceKm < 0.1
-    ? `< ${t("km", { km: formatNumber(0.1, locale) })}`
-    : t("km", { km: formatNumber(it.distanceKm, locale, { maximumFractionDigits: it.distanceKm < 10 ? 1 : 0 }) });
+  const distance = (it: Item) => t("away", {
+    distance: it.distanceKm < 0.1
+      ? `< ${t("km", { km: formatNumber(0.1, locale) })}`
+      : t("km", { km: formatNumber(it.distanceKm, locale, { maximumFractionDigits: it.distanceKm < 10 ? 1 : 0 }) }),
+  });
 
   // ---------- before a location is known: map-first discovery, without assuming the visitor's city
   if (!center) {
@@ -285,11 +303,24 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
     );
   }
 
-  const selectedItem = (mapItems ?? items).find((it) => it.id === selected) ?? null;
-  const mapList = mapItems ?? [];
+  const selectedItem = (mapItems ? mapList : items).find((it) => it.id === selected) ?? null;
+
+  const chip = (active: boolean, label: string, onClick: () => void, testId: string) => (
+    <button key={testId} type="button" aria-pressed={active} onClick={onClick} data-testid={testId}
+      className={`inline-flex min-h-9 shrink-0 items-center gap-1.5 rounded-full px-3.5 text-xs font-bold shadow-lift ring-1 transition-colors ${active ? "bg-brand text-brand-ink ring-brand" : "bg-surface text-ink ring-line hover:text-brand-text"}`}>
+      {label}
+    </button>
+  );
+  const quickFilters = (
+    <div className="flex gap-2 overflow-x-auto p-0.5 [scrollbar-width:none]" role="group" aria-label={t("quickFilters")} data-testid="nearby-quick-filters">
+      {chip(!filters.open && !(QUICK_RADII as readonly number[]).includes(filters.radius), t("all"), () => setFilters((f) => ({ ...f, open: false, radius: MAX_RADIUS })), "nearby-chip-all")}
+      {QUICK_RADII.map((r) => chip(filters.radius === r, t("km", { km: formatNumber(r, locale) }), () => setFilters((f) => ({ ...f, radius: r })), `nearby-chip-${r}`))}
+      {chip(filters.open, t("open"), () => setFilters((f) => ({ ...f, open: !f.open })), "nearby-chip-open")}
+    </div>
+  );
 
   return (
-    <section className="container-page pb-10">
+    <section className="container-page pb-28 lg:pb-10">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm font-semibold" data-testid="nearby-place">{placeName}</p>
         <div className="flex flex-wrap items-center gap-3">
@@ -345,13 +376,19 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
 
       <div className="mt-5 flex items-center justify-between gap-3">
         <p className="text-sm text-muted" aria-live="polite" data-testid="nearby-count">{status === "ready" ? t("results", { count: formatNumber(total, locale) }) : status === "loading" ? "…" : ""}</p>
-        <div className="inline-flex rounded-xl border border-line bg-surface p-1" role="group">
-          {(["list", "map"] as const).map((v) => (
-            <button key={v} type="button" aria-pressed={view === v} onClick={() => setView(v)} data-testid={`nearby-view-${v}`}
-              className={`inline-flex min-h-9 items-center gap-1.5 rounded-lg px-4 text-sm font-semibold ${view === v ? "bg-brand text-brand-ink" : "text-muted hover:text-ink"}`}>
-              {v === "list" ? <ListIcon /> : <MapIcon />}{t(v)}
-            </button>
-          ))}
+        {/* Phones, list view: a floating pill above the bottom navigation. Map view (where the cards fill the bottom of
+            the map) and large screens: inline next to the count. */}
+        <div className={view === "list"
+          ? "pointer-events-none fixed inset-x-0 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-30 flex justify-center md:bottom-6 lg:pointer-events-auto lg:static lg:z-auto lg:block"
+          : ""}>
+          <div className={`pointer-events-auto inline-flex rounded-full bg-surface p-1 ring-1 ring-line lg:rounded-xl lg:shadow-none ${view === "list" ? "shadow-lift" : ""}`} role="group" data-testid="nearby-view-toggle">
+            {(["list", "map"] as const).map((v) => (
+              <button key={v} type="button" aria-pressed={view === v} onClick={() => setView(v)} data-testid={`nearby-view-${v}`}
+                className={`inline-flex min-h-10 items-center gap-1.5 rounded-full px-4 text-sm font-semibold transition-colors lg:min-h-9 lg:rounded-lg ${view === v ? "bg-brand text-brand-ink" : "text-muted hover:text-ink"}`}>
+                {v === "list" ? <ListIcon /> : <MapIcon />}{t(v)}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -373,27 +410,40 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
       {/* ---------- map view: results beside the map on large screens, map first on phones */}
       {view === "map" && (
         <div className="mt-4 grid gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
-          <ul className="order-2 hidden max-h-[640px] space-y-3 overflow-y-auto pe-1 lg:order-1 lg:block" data-testid="nearby-map-list" aria-label={t("list")}>
-            {mapList.slice(0, mapShown).map((it) => (
-              <li key={it.id}>
-                <button type="button" onClick={() => setSelected(it.id)} aria-pressed={selected === it.id}
-                  className={`flex w-full items-center gap-3 rounded-xl border bg-surface p-3 text-start transition-colors ${selected === it.id ? "border-brand bg-brand-soft/40" : "border-line hover:border-brand/40"}`}>
-                  <Avatar name={localize(it.business, "name", locale).text} src={it.business.logoUrl} size="size-12" />
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate font-bold"><Text value={localize(it.business, "name", locale)} pageLang={pageLang} /></span>
-                    <span className="block truncate text-xs text-muted">
-                      {it.category ? <Text value={localize({ ...it.category, name: it.category.nameDe }, "name", locale)} pageLang={pageLang} /> : <Ltr>{it.addressLine1}</Ltr>}
+          {/* Large screens: nearest first beside the map (on the reading side: right in RTL). */}
+          <ul className="order-2 hidden max-h-[calc(100dvh-8rem)] min-h-[34rem] space-y-3 overflow-y-auto pe-1 lg:order-1 lg:block" data-testid="nearby-map-list" aria-label={t("list")}>
+            {mapList.slice(0, mapShown).map((it) => {
+              const image = it.business.coverUrl ?? it.business.logoUrl;
+              const name = localize(it.business, "name", locale);
+              return (
+                <li key={it.id}>
+                  <button type="button" onClick={() => setSelected(it.id)} aria-pressed={selected === it.id}
+                    className={`flex w-full items-center gap-3 rounded-[var(--radius-card)] border bg-surface p-3 text-start transition-[border-color,box-shadow] hover:shadow-card ${selected === it.id ? "border-brand shadow-card ring-2 ring-brand/20" : "border-line hover:border-brand/40"}`}>
+                    {image
+                      // eslint-disable-next-line @next/next/no-img-element
+                      ? <img src={image} alt="" width={72} height={72} loading="lazy" decoding="async" className="size-[4.5rem] shrink-0 rounded-xl bg-surface-2 object-cover" />
+                      : <Avatar name={name.text} src={null} size="size-[4.5rem]" />}
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate font-bold"><Text value={name} pageLang={pageLang} /></span>
+                      <span className="mt-0.5 block truncate text-xs text-muted">
+                        {it.category ? <Text value={localize({ ...it.category, name: it.category.nameDe }, "name", locale)} pageLang={pageLang} /> : <Ltr>{it.addressLine1}</Ltr>}
+                        {it.city && <> · <Text value={localize({ ...it.city, name: it.city.nameEn }, "name", locale)} pageLang={pageLang} /></>}
+                      </span>
+                      <span className="mt-1.5 flex flex-wrap items-center gap-2">
+                        {it.business.ratingCount > 0 && <Rating value={it.business.ratingAvg} count={it.business.ratingCount} />}
+                        {openBadge(it.openNow)}
+                      </span>
                     </span>
-                  </span>
-                  <span className="shrink-0 rounded-full bg-brand-soft px-2.5 py-0.5 text-xs font-bold text-brand-text">{distance(it)}</span>
-                </button>
-              </li>
-            ))}
+                    <span className="shrink-0 self-start rounded-full bg-brand-soft px-2.5 py-0.5 text-xs font-bold text-brand-text">{distance(it)}</span>
+                  </button>
+                </li>
+              );
+            })}
             {mapList.length > mapShown && (
               <li><button type="button" className="min-h-11 w-full rounded-xl border border-line bg-surface text-sm font-semibold hover:border-brand hover:text-brand-text" onClick={() => setMapShown((n) => n + LIST_PAGE)}>{t("loadMore")}</button></li>
             )}
           </ul>
-          <div className="order-1 h-[min(70dvh,640px)] min-h-[22rem] lg:order-2 lg:sticky lg:top-24">
+          <div className="relative order-1 h-[min(72dvh,640px)] min-h-[24rem] lg:order-2 lg:sticky lg:top-24 lg:h-[calc(100dvh-8rem)] lg:min-h-[34rem]">
             <DiscoveryMap
               className="size-full"
               center={center}
@@ -406,9 +456,43 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
               user={device}
               labels={labels}
               dir={dir}
+              markerStyle="pill"
+              focusSelected
+              fitPadding={{ top: 104, bottom: 160, x: 100 }}
+              toolbar={quickFilters}
+              locate={status !== "unsupported" ? { label: t("locateMe"), busy: status === "locating", onClick: () => { setFilters((f) => (f.sort === "distance" ? f : { ...f, sort: "distance" })); locate(); } } : undefined}
             >
               {selectedItem ? preview(selectedItem) : stack && stackList(stack)}
             </DiscoveryMap>
+            {/* Phones: nearest results as swipeable cards over the bottom of the map; a tap flies to the business. */}
+            {!selectedItem && !stack && mapList.length > 0 && (
+              <ul className="absolute inset-x-0 bottom-8 z-10 flex snap-x snap-mandatory gap-3 overflow-x-auto px-3 pb-1 [scrollbar-width:none] lg:hidden" data-testid="nearby-carousel" aria-label={t("list")}>
+                {mapList.slice(0, CAROUSEL_MAX).map((it) => {
+                  const image = it.business.coverUrl ?? it.business.logoUrl;
+                  const name = localize(it.business, "name", locale);
+                  return (
+                    <li key={it.id} className="w-[80%] max-w-xs shrink-0 snap-center">
+                      <button type="button" onClick={() => setSelected(it.id)} className="rega-shell flex w-full items-center gap-3 p-2.5 text-start shadow-lift">
+                        {image
+                          // eslint-disable-next-line @next/next/no-img-element
+                          ? <img src={image} alt="" width={56} height={56} loading="lazy" decoding="async" className="size-14 shrink-0 rounded-xl bg-surface-2 object-cover" />
+                          : <Avatar name={name.text} src={null} size="size-14" />}
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-sm font-bold"><Text value={name} pageLang={pageLang} /></span>
+                          <span className="mt-0.5 block truncate text-xs text-muted">
+                            {it.category && <Text value={localize({ ...it.category, name: it.category.nameDe }, "name", locale)} pageLang={pageLang} />}
+                          </span>
+                          <span className="mt-1 flex items-center gap-2 text-xs">
+                            <span className="font-bold text-brand-text">{distance(it)}</span>
+                            {it.business.ratingCount > 0 && <Rating value={it.business.ratingAvg} count={it.business.ratingCount} />}
+                          </span>
+                        </span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
           </div>
         </div>
       )}
@@ -501,36 +585,52 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
     const name = localize(it.business, "name", locale);
     const city = it.city ? localize({ ...it.city, name: it.city.nameEn }, "name", locale) : null;
     const image = it.business.coverUrl ?? it.business.logoUrl;
+    const close = (extra: string) => (
+      <button type="button" onClick={onClose} aria-label={tm("close")} className={`grid size-8 shrink-0 place-items-center rounded-full ${extra}`}>
+        <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
+      </button>
+    );
     return (
-      <article className="rega-shell p-4" data-testid="map-preview" aria-label={name.text}>
-        <div className="flex gap-3">
-          {image
-            // eslint-disable-next-line @next/next/no-img-element
-            ? <img src={image} alt="" width={64} height={64} loading="lazy" decoding="async" className="size-16 shrink-0 rounded-xl object-cover" />
-            : <Avatar name={name.text} src={null} size="size-16" />}
-          <div className="min-w-0 flex-1">
-            <div className="flex items-start justify-between gap-2">
-              <h3 className="min-w-0 truncate font-bold"><Text value={name} pageLang={pageLang} /></h3>
-              <button type="button" onClick={onClose} aria-label={tm("close")} className="-me-1 -mt-1 grid size-8 shrink-0 place-items-center rounded-full text-muted hover:bg-surface-2 hover:text-ink">
-                <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
-              </button>
-            </div>
-            <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted">
-              {it.category && <span className="font-semibold text-brand-text"><Text value={localize({ ...it.category, name: it.category.nameDe }, "name", locale)} pageLang={pageLang} /></span>}
-              <span>{dist}</span>
-              {it.business.verified && <VerifiedBadge />}
-            </div>
-            {it.business.ratingCount > 0 && <div className="mt-1 text-sm"><Rating value={it.business.ratingAvg} count={it.business.ratingCount} /></div>}
+      <article className="rega-shell overflow-hidden shadow-lift" data-testid="map-preview" aria-label={name.text} dir={dir}>
+        {image && (
+          <div className="relative h-28 bg-surface-2 sm:h-32">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={image} alt="" width={448} height={128} loading="lazy" decoding="async" className="size-full object-cover" />
+            <span className="absolute start-3 top-3">{openBadge(it.openNow)}</span>
+            {close("absolute end-2 top-2 bg-surface text-ink shadow-card hover:text-brand-text")}
           </div>
-        </div>
-        <address className="mt-3 text-sm not-italic text-muted">
-          <Ltr>{it.addressLine1}</Ltr>{it.postalCode && <>, <Ltr>{it.postalCode}</Ltr></>}{city && <> · <Text value={city} pageLang={pageLang} /></>}
-        </address>
-        <div className="mt-3 flex flex-wrap gap-2 text-sm font-semibold">
-          <Link className="inline-flex min-h-10 items-center rounded-xl bg-brand px-3 text-brand-ink hover:bg-brand-hover" href={`/business/${it.business.slug}`}>{tm("details")}</Link>
-          {it.phone && <a className="inline-flex min-h-10 items-center rounded-xl border border-line px-3 hover:border-brand hover:text-brand-text" href={`tel:${it.phone.replace(/[^\d+]/g, "")}`}><Ltr>{it.phone}</Ltr></a>}
-          <a className="inline-flex min-h-10 items-center rounded-xl border border-line px-3 hover:border-brand hover:text-brand-text" target="_blank" rel="noopener noreferrer"
-            href={`https://www.google.com/maps/dir/?api=1&destination=${it.latitude},${it.longitude}`}>{tm("directions")}</a>
+        )}
+        <div className="p-4">
+          <div className="flex gap-3">
+            {!image && <Avatar name={name.text} src={null} size="size-12" />}
+            <div className="min-w-0 flex-1">
+              <h3 className="truncate font-bold"><Text value={name} pageLang={pageLang} /></h3>
+              <p className="mt-0.5 truncate text-xs text-muted">
+                {it.category && <span className="font-semibold text-brand-text"><Text value={localize({ ...it.category, name: it.category.nameDe }, "name", locale)} pageLang={pageLang} /></span>}
+                {it.category && city && " · "}
+                {city && <Text value={city} pageLang={pageLang} />}
+              </p>
+              <div className="mt-1.5 flex flex-wrap items-center gap-2 text-xs">
+                {it.business.ratingCount > 0 && <Rating value={it.business.ratingAvg} count={it.business.ratingCount} />}
+                <span className="rounded-full bg-brand-soft px-2.5 py-0.5 font-bold text-brand-text">{dist}</span>
+                {!image && openBadge(it.openNow)}
+                {it.business.verified && <VerifiedBadge />}
+              </div>
+            </div>
+            {!image && close("-me-1 -mt-1 text-muted hover:bg-surface-2 hover:text-ink")}
+          </div>
+          <div className="mt-3 flex gap-2 text-sm font-semibold">
+            <Link className="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl bg-brand px-3 text-brand-ink hover:bg-brand-hover" href={`/business/${it.business.slug}`}>{t("viewProfile")}</Link>
+            <a className="inline-flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-xl border border-line px-3 hover:border-brand hover:text-brand-text" target="_blank" rel="noopener noreferrer"
+              href={`https://www.google.com/maps/dir/?api=1&destination=${it.latitude},${it.longitude}`}>
+              <DirectionsIcon />{t("getDirections")}
+            </a>
+            {it.phone && (
+              <a className="grid min-h-11 w-11 shrink-0 place-items-center rounded-xl border border-line hover:border-brand hover:text-brand-text" href={`tel:${it.phone.replace(/[^\d+]/g, "")}`} aria-label={t("call")} title={it.phone}>
+                <PhoneIcon />
+              </a>
+            )}
+          </div>
         </div>
       </article>
     );
@@ -548,4 +648,10 @@ function ListIcon() {
 }
 function MapIcon() {
   return <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Zm0 0v14m6-12v14" /></svg>;
+}
+function DirectionsIcon() {
+  return <svg viewBox="0 0 24 24" className="size-4 shrink-0 rtl:-scale-x-100" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 11 21 3l-8 18-2-8-8-2Z" /></svg>;
+}
+function PhoneIcon() {
+  return <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z" /></svg>;
 }

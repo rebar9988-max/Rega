@@ -586,7 +586,13 @@
     "temporarilyClosed": "Vorübergehend geschlossen",
     "opensOnDate": "Öffnet am {date} um {time}",
     "holidayToday": "Feiertag: {name}",
-    "specialHoursToday": "Heute besondere Öffnungszeiten"
+    "specialHoursToday": "Heute besondere Öffnungszeiten",
+    "away": "{distance} entfernt",
+    "all": "Alle",
+    "quickFilters": "Schnellfilter",
+    "locateMe": "In meiner Nähe finden",
+    "viewProfile": "Profil ansehen",
+    "getDirections": "Route planen"
   },
   "map": {
     "title": "Karte",

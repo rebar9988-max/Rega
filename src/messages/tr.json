@@ -586,7 +586,13 @@
     "temporarilyClosed": "Geçici olarak kapalı",
     "opensOnDate": "{date} tarihinde {time} saatinde açılır",
     "holidayToday": "Resmî tatil: {name}",
-    "specialHoursToday": "Bugün özel çalışma saatleri"
+    "specialHoursToday": "Bugün özel çalışma saatleri",
+    "away": "{distance} uzaklıkta",
+    "all": "Tümü",
+    "quickFilters": "Hızlı filtreler",
+    "locateMe": "Bana en yakını bul",
+    "viewProfile": "Profili görüntüle",
+    "getDirections": "Yol tarifi al"
   },
   "map": {
     "title": "Harita",

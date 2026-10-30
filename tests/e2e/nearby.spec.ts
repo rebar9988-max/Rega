@@ -50,6 +50,9 @@ test.describe("with location permission", () => {
     await page.getByTestId("nearby-view-map").click();
     const map = page.getByTestId("discovery-map");
     await expect(map).toHaveAttribute("data-status", "ready", { timeout: 20_000 });
+    // Quick filters and the locate button float over the map; the default radius chip is active.
+    await expect(page.getByTestId("nearby-chip-10")).toHaveAttribute("aria-pressed", "true");
+    await expect(page.getByTestId("map-locate")).toBeVisible();
     const pin = map.getByRole("button", { name: "Kurdistan Rechtsberatung" });
     // Nearby businesses may be clustered: open clusters until the marker itself is shown.
     for (let i = 0; i < 6 && !(await pin.isVisible()); i++) {
@@ -61,7 +64,9 @@ test.describe("with location permission", () => {
     const preview = page.getByTestId("map-preview");
     await expect(preview).toContainText("Kurdistan Rechtsberatung");
     await expect(preview).toContainText("Recht"); // category from the database
-    await expect(preview.getByRole("link", { name: "Details ansehen" })).toHaveAttribute("href", "/de/business/kurdistan-rechtsberatung");
+    await expect(preview.getByRole("link", { name: "Profil ansehen" })).toHaveAttribute("href", "/de/business/kurdistan-rechtsberatung");
+    await expect(preview.getByRole("link", { name: "Route planen" })).toHaveAttribute("href", /google\.com\/maps\/dir\/\?api=1&destination=/);
+    await expect(preview).toContainText("km entfernt");
     await expect(pin).toHaveAttribute("aria-pressed", "true");
     await page.keyboard.press("Escape");
     await expect(preview).toHaveCount(0);
@@ -77,6 +82,21 @@ test.describe("with location permission", () => {
       await expect(preview).toBeVisible();
       await page.keyboard.press("Escape");
     }
+    // Phones: the nearest results slide over the bottom of the map; a tap opens the preview.
+    if ((page.viewportSize()?.width ?? 0) < 1024) {
+      await page.getByTestId("nearby-carousel").getByRole("button", { name: /Kurdistan Rechtsberatung/ }).click();
+      await expect(preview).toContainText("Kurdistan Rechtsberatung");
+      await page.keyboard.press("Escape");
+    }
+    // Quick filter chips drive the same filters as the form (radius select, open now).
+    await page.getByTestId("nearby-chip-25").click();
+    await expect(page.getByTestId("nearby-radius")).toHaveValue("25");
+    await page.getByTestId("nearby-chip-open").click();
+    await expect(page.getByTestId("nearby-open")).toBeChecked();
+    await page.getByTestId("nearby-chip-all").click();
+    await expect(page.getByTestId("nearby-open")).not.toBeChecked();
+    await expect(page.getByTestId("nearby-radius")).toHaveValue("100");
+    await page.getByTestId("nearby-chip-10").click();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
     // Moving the map offers a new search there. (On touch screens one finger scrolls the page and two fingers move
     // the map, so this is exercised with a mouse on desktop.)

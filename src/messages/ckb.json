@@ -586,7 +586,13 @@
     "temporarilyClosed": "بە کاتی داخراوە",
     "opensOnDate": "دەکرێتەوە لە {date} کاتژمێر {time}",
     "holidayToday": "پشووی فەرمی: {name}",
-    "specialHoursToday": "ئەمڕۆ کاتی کاری تایبەت"
+    "specialHoursToday": "ئەمڕۆ کاتی کاری تایبەت",
+    "away": "{distance} دوورە",
+    "all": "هەموو",
+    "quickFilters": "پاڵاوتنی خێرا",
+    "locateMe": "دۆزینەوەی نزیکترین لە من",
+    "viewProfile": "بینینی پڕۆفایل",
+    "getDirections": "ئاراستەی ڕێگا"
   },
   "map": {
     "title": "نەخشە",
