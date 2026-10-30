@@ -1044,6 +1044,31 @@ no cookie). Not run here: PostgreSQL Worker smoke (no local Postgres; CI runs it
 Two false positives found by running the agents on the seeded database and fixed before commit: hreflang check was
 case-sensitive (React emits `hrefLang`, confirmed on live `/ckb`), and the AI message wrongly said "production" everywhere.
 
+## Official-red closure — 2026-10-29 (owner continuation; colors only)
+
+PR #99 previously released `b3ac504`; final-head CI 40847220764, exact-main CI 40852835339, deploy 40858345557,
+post-deploy health 40858345472 attempt 2 and production browser 40858943890 all passed. Its live log recorded 36 successful
+primary-red assertions. This closes the historical pending wording in the earlier candidate checkpoint; the shared Doc
+already contained the final release. Current baseline for this continuation is `ec162ff` (unrelated operations release).
+Read-only Cloudflare verification found that exact source tag at 100% on version `14592e63-ad3f-4cd4-a500-81d88935ef6a`.
+
+Owner asked to finish remaining color work. Two genuine omissions were found: the shared danger-menu class is a `.ts`
+string (`text-brand`, not covered by the earlier TSX migration), and the standalone offline HTML retained two old OKLCH
+primary colors. Correct only these colors: existing `text-brand-text` for danger labels; canonical primary/derived hover
+and black action labels offline, preserving all layout/text/logo markup. Refresh the existing static-cache version so
+installed browsers receive the updated offline page. No cache strategy, business action, role, schema, record, dependency,
+workflow or unrelated feature change. The separate held security/data work is not included or released by this branch.
+
+Real Chromium + actual compiled CSS reproduced all 24 danger-menu default/hover/focus cases below 4.5 (minimum 3.72).
+The extended application regression failed before the fix at 4.116838270266513; after the fix all 24 state cases pass,
+minimum 5.67. Local typecheck/lint, 416 unit passes (4 DB-only skips), 10 D1 tests, 6 PWA unit tests, audit 0 vulnerabilities,
+19 targeted brand/publication/operations browsers and 11 standalone-offline/PWA browsers pass. The eight offline cases
+include light/dark, RTL/LTR, 390/1366 px, primary parity, actual hover/focus contrast and axe (zero violations).
+Offline baseline/candidate geometry and typography match in 8/8 cases; screenshot inspected. Local Node build uses the
+previous test-only Noto transport because of the executor's font-network restriction; no font changes are committed.
+Evidence: [color closure QA](docs/evidence/brand-colors-closure-2026-10-29.json). Hosted final-head/main CI, existing deploy
+and fresh production color verification must pass before marking this follow-up released.
+
 ## PR #71 D1 reconciliation — 2026-10-29 (source preparation; no production release)
 
 Resumed PR71 at8d9c365 against official mainc751e6b. Verified Cloudflare mandate(section0.9),canonical Worker
@@ -1141,3 +1166,16 @@ Release remains HOLD/NOT MERGED/NOT DEPLOYED: the verified13:10 privateD1 backup
 Final mobile-test readiness review: use a scoped Pixel5 test.use override with the EXISTING page fixture rather than a raw newContext page. Every navigation, including revisiting the edit route for persistence, now uses the project's existing network-idle/React-hydration guard. All mobile touch/CRUD/reload/retained-name/category/overflow assertions are preserved; native autosave stays active, context cleanup remains the standard fixture's responsibility. No shared fixture or application change.
 
 Mobile fixture correction: CI40923570624 stopped at collection because the full device descriptor included worker-scoped defaultBrowserType inside describe. Keep only test-scoped viewport/userAgent/deviceScaleFactor/isMobile/hasTouch options; retain the Chromium worker and existing hydrated page fixture. No test/validation/assertion is skipped or weakened; rerun the complete pipeline. Application code remains identical to passing e907.
+
+
+## PR71 main reconciliation — 2026-10-30 06:25:14 UTC
+
+Resume existing PR71; do not restart or import overlapping PR100 UI. Main advanced from ec162ff to b36703f419773d7fae503c4b8af62d13bb6e88c6 (approved PR104 color-only closure). GitHub reported PR71 conflicts. Both memory changes are append-only against ec162ff; preserve every byte of both histories. Keep approved main menu/offline colors/cache version/brand regressions/browser checker byte-identical; retain PR71 social migration in generated inventory. No new feature, global redesign, dependency or database operation.
+
+Last exact PR head cb5f426069dffeca6aad5e6644e20d4e1acd336d CI40924678947/job123626897805 SUCCESS:433 unit/integration,12 nativeD1,8 Python,428 clean D1 browsers; PostgreSQL427 clean+1flaky onboarding that passed the existing retry.46axe analyses0violations/0incomplete. Lint/typecheck/audits/standardNode+Worker builds and all workerd smokes PASS. Do not hide the flake, call it428clean, change timeouts or infer a scoped application defect from a pre-input networkidle timeout. Independent QA found none demonstrated. This new two-parent reconciliation MUST pass fresh complete CI; do not reuse the old head's result as proof of the merged tree.
+
+Release HOLD remains: social0004 was externally applied2026-10-29T12:58:35Z; verified private same-account logical backup/isolated restore at13:10:32Z is POST-migration. No pre-migration backup/restore certificate in current PR100 comments or central Hub. Do not replay0004/0005,main-merge,publish or reset without resolving required recovery evidence. Retain backup0a0dd3d4-899f-427e-9b79-8d1157b29ce0 and restore63f99c1e-b559-47b1-b813-b8a401f09acc; each captures41tables/2513rows/259schemaobjects at13:10,not subsequent live writes. Owner attested both old OpenAI/xAI keys revoked/replaced; independent provider audit unavailable,no values read. PR71 remains draft/unmerged/notdeployed; live ownerCRUD/all11locales/currentLighthouse NOT VERIFIED. No100/100 claim.
+
+Identity: selected GitHub repo/branch and both canonical domains point toREGA/rega24. Local checkout is stale: its OLD identity guard rejected canonical rega24 as unknown,not an R&L resource. Actual verified current-main guard was then run unmodified in memory against the API-verified REGA repo/domain/Worker and PASS; no guard rule/test changed or bypassed. Filesystem remains read-only; Git data operations use non-force expected-head lease on this existing PR branch only. Latest canonical deployment API returned7e6d7b5e-8e9a-4a83-9adf-8779412646d6/version13360c99-2027-4b79-a064-fcc5ad4bce2b at100%; source-tag lookup was rejected,so source tag is NOT VERIFIED for that version. Both domains remain rega24/production. No deployment by this executor.
+
+Prior final Hub append was not completed (revision conflict then rejected connector call); source/PR checkpoints retained. Next: fresh current-head CI and recovery provenance,then existing authorized exact-main deployment and actual live verification. No paid service/destructive cleanup/R&L change.
