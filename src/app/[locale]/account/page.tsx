@@ -37,7 +37,14 @@ export default async function AccountPage({ params }: { params: Promise<{ locale
     <>
       <PageHeader title={t("auth.accountTitle")} />
       <div className="container-page">
-        <section aria-labelledby="profile" className="mx-auto max-w-md space-y-4 rounded-[var(--radius-card)] border border-line bg-surface p-6 shadow-card">
+        {u.role === "BUSINESS_OWNER" && <nav aria-label={t("dashboard.title")} className="mb-8 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4">
+          <NextLink href="/dr/businesses" className="rega-card flex min-h-[105px] items-center p-5 text-lg font-bold hover:text-brand-text">{t("auth.myListings")}</NextLink>
+          <NextLink href="/dr/businesses?status=pending" className="rega-card flex min-h-[105px] items-center p-5 text-lg font-bold hover:text-brand-text">{t("status.pending")}</NextLink>
+          <a href="#profile" className="rega-card flex min-h-[105px] items-center p-5 text-lg font-bold hover:text-brand-text">{t("auth.profile")}</a>
+          <form action={logout} className="rega-card flex"><button type="submit" className="min-h-[105px] w-full p-5 text-start text-lg font-bold hover:text-brand-text">{t("auth.signOut")}</button></form>
+        </nav>}
+
+        <section aria-labelledby="profile" className={`space-y-4 rounded-[14px] border border-line bg-surface p-6 ${u.role === "BUSINESS_OWNER" ? "min-h-[420px]" : "mx-auto max-w-md"}`}>
           <h2 id="profile" className="text-lg font-bold">{t("auth.profile")}</h2>
           <dl className="space-y-3 text-sm">
             <div><dt className="text-muted">{t("auth.name")}</dt><dd className="font-semibold">{u.name ?? "—"}</dd></div>
@@ -45,9 +52,8 @@ export default async function AccountPage({ params }: { params: Promise<{ locale
             <div><dt className="text-muted">{t("auth.role")}</dt><dd className="font-semibold">{t(`roles.${u.role}`)}</dd></div>
           </dl>
           {unverified && <ResendVerification unavailable={!emailEnabled()} />}
-          {u.role === "BUSINESS_OWNER" && <NextLink href="/dr/businesses" className="flex min-h-11 w-full items-center justify-center rounded-xl bg-brand text-sm font-semibold text-brand-ink hover:bg-brand-hover">{t("auth.myListings")}</NextLink>}
           {canEnterDashboard(u.role) && u.role !== "BUSINESS_OWNER" && <NextLink href="/dr" className="flex min-h-11 w-full items-center justify-center rounded-xl border border-line text-sm font-semibold hover:bg-surface-2">{t("nav.dashboard")}</NextLink>}
-          <form action={logout}><button type="submit" className="min-h-11 w-full rounded-xl border border-line text-sm font-semibold hover:bg-surface-2">{t("auth.signOut")}</button></form>
+          {u.role !== "BUSINESS_OWNER" && <form action={logout}><button type="submit" className="min-h-11 w-full rounded-xl border border-line text-sm font-semibold hover:bg-surface-2">{t("auth.signOut")}</button></form>}
         </section>
       </div>
     </>

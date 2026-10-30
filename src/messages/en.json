@@ -1,7 +1,7 @@
 {
   "meta": {
-    "title": "REGA Platform — ڕێگا | Businesses, Services & Locations",
-    "description": "REGA Platform: the Kurdish portal for Germany and Europe. Find businesses, services and places near you, with an AI assistant in eleven languages."
+    "title": "Rega24 — ڕێگا | Businesses, Services & Locations",
+    "description": "Rega24: the Kurdish portal for Germany and Europe. Find businesses, services and places near you, with an AI assistant in eleven languages."
   },
   "common": {
     "loading": "Loading ...",
@@ -116,9 +116,9 @@
       }
     ],
     "ask": "What are you looking for?",
-    "communityTitle": "Your community.",
-    "communityAccent": "Closer.",
-    "communityLead": "Discover trusted local businesses and services in Germany, powered by your community.",
+    "communityTitle": "Local services,",
+    "communityAccent": "easy to find",
+    "communityLead": "Discover Kurdish businesses and services in Germany and Europe.",
     "popularTitle": "Popular in your area",
     "lead": "Services, businesses, places and information with REGA",
     "what": "e.g. restaurant, doctor, lawyer …",
@@ -437,10 +437,10 @@
   },
   "footer": {
     "tagline": "The Kurdish portal for Germany and Europe",
-    "rights": "© {year} REGA Platform. All rights reserved.",
+    "rights": "© {year} Rega24. All rights reserved.",
     "explore": "Explore",
-    "follow": "Follow REGA Platform",
-    "about": "About REGA Platform",
+    "follow": "Follow Rega24",
+    "about": "About Rega24",
     "contact": "Contact",
     "legal": "Legal"
   },
@@ -981,11 +981,11 @@
   },
   "emails": {
     "verifySubject": "REGA: please confirm your email address",
-    "verifyBody": "Hello {name},\n\nplease confirm your email address to activate your REGA account:\n{link}\n\nThe link is valid for {hours} hours. If you did not create an account, ignore this message.\n\nREGA Platform",
+    "verifyBody": "Hello {name},\n\nplease confirm your email address to activate your REGA account:\n{link}\n\nThe link is valid for {hours} hours. If you did not create an account, ignore this message.\n\nRega24",
     "resetSubject": "REGA: reset your password",
-    "resetBody": "Hello {name},\n\na password reset was requested for your account. Open this link to set a new password:\n{link}\n\nThe link is valid for {minutes} minutes. If you did not request this, ignore this message; your password stays unchanged.\n\nREGA Platform",
+    "resetBody": "Hello {name},\n\na password reset was requested for your account. Open this link to set a new password:\n{link}\n\nThe link is valid for {minutes} minutes. If you did not request this, ignore this message; your password stays unchanged.\n\nRega24",
     "reviewSubject": "REGA: your listing needs changes",
-    "reviewBody": "Hello {name},\n\nyour listing \"{listing}\" was not published yet and has been returned for changes.\n{reason}\n\nYou can fix it in your dashboard and submit it again:\n{link}\n\nREGA Platform"
+    "reviewBody": "Hello {name},\n\nyour listing \"{listing}\" was not published yet and has been returned for changes.\n{reason}\n\nYou can fix it in your dashboard and submit it again:\n{link}\n\nRega24"
   },
   "forBusiness": {
     "title": "For businesses",
@@ -1091,32 +1091,32 @@
     "setStatus": "Change status ..."
   },
   "pageMeta": {
-    "businesses": "Kurdish businesses in Germany and Europe on REGA Platform: address, phone, opening hours and the Rega Verified badge for every listing.",
+    "businesses": "Kurdish businesses in Germany and Europe on Rega24: address, phone, opening hours and the Rega Verified badge for every listing.",
     "services": "Services from Kurdish providers in Germany and Europe: compare offers, see the prices set by each business and get in touch directly.",
     "locations": "Locations of Kurdish businesses in Germany and Europe: browse by city, see addresses and opening hours, and find the way on the map.",
     "nearby": "Find Kurdish businesses and services near you: use your location or choose a city, then browse the results on the map or as a list.",
-    "ai": "The REGA Assistant answers your questions from the real listings on REGA Platform: find Kurdish businesses in Germany and Europe.",
+    "ai": "The REGA Assistant answers your questions from the real listings on Rega24: find Kurdish businesses in Germany and Europe.",
     "about": "Discover Rega24, a multilingual platform for finding businesses and services by category, city and map, with clear information and a global vision.",
-    "search": "Search all Kurdish businesses, services and locations on REGA Platform and filter the results by type.",
-    "register": "Create a free account on REGA Platform to list your business and reach Kurds in Germany and Europe.",
-    "login": "Sign in to your REGA Platform account: manage your listings, submit them for review and change your settings.",
-    "account": "Your REGA Platform account: manage your profile, email confirmation and your listings in one place.",
-    "forgotPassword": "Reset your REGA Platform password: enter your email address and receive a link to set a new password for your account.",
-    "resetPassword": "Set a new password for your REGA Platform account: choose a strong password of at least ten characters and save it.",
-    "verifyEmail": "Confirm your email address on REGA Platform: click the button to activate your account and start listing your business.",
-    "categoryPage": "{name}: Kurdish businesses in Germany and Europe on REGA Platform, with address, phone and opening hours for every listing.",
-    "cityPage": "{name}: Kurdish businesses, services and places on REGA Platform: addresses, phone numbers and opening hours in one place.",
-    "cityCategoryPage": "{category} in {city}: Kurdish businesses on REGA Platform, with address, phone and opening hours for every listing.",
-    "businessFallback": "{name} in {place}: address, phone and opening hours of this Kurdish business on REGA Platform.",
-    "businessFallbackNoPlace": "{name}: address, phone and opening hours of this Kurdish business on REGA Platform.",
-    "serviceFallback": "{name} by {provider}: details of this Kurdish service, its price and direct contact on REGA Platform.",
-    "contact": "Contact REGA Platform by phone, email, WhatsApp or the contact form: questions, suggestions and partnerships for the Kurdish portal for Germany and Europe.",
-    "report": "Report illegal, misleading or inappropriate content on REGA Platform. Your notice is reviewed and handled under the Digital Services Act (DSA).",
-    "forBusiness": "List your business on REGA Platform for free and reach Kurds in Germany and Europe. No fees, no subscription; with review and the Rega Verified badge.",
+    "search": "Search all Kurdish businesses, services and locations on Rega24 and filter the results by type.",
+    "register": "Create a free account on Rega24 to list your business and reach Kurds in Germany and Europe.",
+    "login": "Sign in to your Rega24 account: manage your listings, submit them for review and change your settings.",
+    "account": "Your Rega24 account: manage your profile, email confirmation and your listings in one place.",
+    "forgotPassword": "Reset your Rega24 password: enter your email address and receive a link to set a new password for your account.",
+    "resetPassword": "Set a new password for your Rega24 account: choose a strong password of at least ten characters and save it.",
+    "verifyEmail": "Confirm your email address on Rega24: click the button to activate your account and start listing your business.",
+    "categoryPage": "{name}: Kurdish businesses in Germany and Europe on Rega24, with address, phone and opening hours for every listing.",
+    "cityPage": "{name}: Kurdish businesses, services and places on Rega24: addresses, phone numbers and opening hours in one place.",
+    "cityCategoryPage": "{category} in {city}: Kurdish businesses on Rega24, with address, phone and opening hours for every listing.",
+    "businessFallback": "{name} in {place}: address, phone and opening hours of this Kurdish business on Rega24.",
+    "businessFallbackNoPlace": "{name}: address, phone and opening hours of this Kurdish business on Rega24.",
+    "serviceFallback": "{name} by {provider}: details of this Kurdish service, its price and direct contact on Rega24.",
+    "contact": "Contact Rega24 by phone, email, WhatsApp or the contact form: questions, suggestions and partnerships for the Kurdish portal for Germany and Europe.",
+    "report": "Report illegal, misleading or inappropriate content on Rega24. Your notice is reviewed and handled under the Digital Services Act (DSA).",
+    "forBusiness": "List your business on Rega24 for free and reach Kurds in Germany and Europe. No fees, no subscription; with review and the Rega Verified badge.",
     "jobs": "Jobs for Kurds in Germany and Europe: find openings by city and category and apply directly with the employer.",
     "events": "Kurdish events in Germany and Europe: find Newroz celebrations, concerts and community meetings by city and date.",
     "guides": "REGA guides for life in Germany and Europe: read clear articles in several languages in one place.",
-    "entryFallback": "{title}: {kind} on REGA Platform, the Kurdish portal for Germany and Europe."
+    "entryFallback": "{title}: {kind} on Rega24, the Kurdish portal for Germany and Europe."
   },
   "seoPages": {
     "inCity": "Businesses in {city}",

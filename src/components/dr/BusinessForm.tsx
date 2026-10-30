@@ -259,7 +259,8 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
   return (
     <form
       ref={formRef}
-      className="space-y-6"
+      // One 800px column, as the Rega24 visual system frames the add-business form (#105).
+      className="rega-business-form max-w-[800px] space-y-6"
       // The wizard checks each step itself (hidden steps would otherwise block the browser's own validation).
       noValidate={wizard}
       aria-busy={saving}
@@ -319,14 +320,14 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
       {/* 1 — Business information */}
       <div hidden={!show(1)}>
       <Section icon="basics" id="sec-basics" title={t("titleBasics")}>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-4">
           <div className={fieldLabel}><span><label htmlFor="f-name">{t("name")}</label><Mark required /></span>
             <input id="f-name" name="name" required minLength={2} maxLength={200} value={name} onChange={(e) => setName(e.target.value)} className={input} aria-invalid={bad("name")} autoComplete="organization" />
           </div>
           <label className={fieldLabel}><span>{t("nameCkb")}</span>
             <input name="nameCkb" maxLength={200} defaultValue={initial.nameCkb} dir="rtl" className={input} />
           </label>
-          <div className="grid gap-2 sm:col-span-2 sm:grid-cols-2">
+          <div className="grid gap-2">
             <div className={fieldLabel}><span><label htmlFor="f-category">{t("category")}</label><Mark required /></span>
               <select id="f-category" name="categoryId" required value={categoryId} onChange={(e) => setCategoryId(e.target.value)} className={input} aria-invalid={bad("categoryId")}>
                 <option value="">{t("chooseCategory")}</option>
@@ -364,7 +365,7 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
             <details className="rounded-xl bg-surface-2 px-4 py-3" open={LOCALES.some((l) => initial.translations?.[l])}>
               <summary className="cursor-pointer text-sm font-semibold">{t("translations")}</summary>
               <p className="mt-2 text-xs text-muted">{t("translationsHint")}</p>
-              <div className="mt-3 grid gap-4 sm:grid-cols-2">
+              <div className="mt-3 grid gap-4">
                 {LOCALES.map((l) => (
                   <label key={l} className={fieldLabel} lang={LOCALE_META[l].htmlLang}>
                     <span>{t("descriptionIn", { language: LOCALE_META[l].nativeName })}</span>
@@ -392,7 +393,7 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
       {/* 2 — Contact information and social media (all optional) */}
       <div hidden={!show(2)} className="grid gap-6">
       <Section icon="contact" id="sec-contact" title={t("titleContact")} hint={t("publicContactHint")}>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-4">
           <div className={fieldLabel}><span><label htmlFor="f-phone">{t("phone")}</label><Mark optional={optional} /></span>
             <input id="f-phone" name="phone" type="tel" inputMode="tel" autoComplete="tel" dir="ltr" maxLength={50} placeholder="+49 30 1234567" value={phone} onChange={(e) => setPhone(e.target.value)} className={input} />
           </div>
@@ -460,7 +461,7 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
       {/* 3 — Location */}
       <div hidden={!show(3)}>
       <Section icon="location" id="sec-location" title={t("titleLocation")} hint={t("locationHint")}>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-4">
           <div className={fieldLabel}><span><label htmlFor="f-country">{t("country")}</label><Mark required /></span>
             <select id="f-country" name="countryCode" required value={country} onChange={(e) => setCountry(e.target.value)} className={input} aria-invalid={bad("countryCode")} autoComplete="country">
               {countries.map((c) => <option key={c.code} value={c.code}>{c.name}</option>)}
@@ -480,7 +481,7 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
             <input id="f-postalCode" name="postalCode" maxLength={20} dir="ltr" inputMode="text" value={postal} onChange={(e) => setPostal(e.target.value)} className={input} autoComplete="postal-code" />
           </div>
           <button type="button" onClick={find} disabled={finding || address.trim().length < 3 || !city.trim()} data-testid="find-location"
-            className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border-2 border-brand px-4 text-sm font-bold text-brand-text hover:bg-brand hover:text-brand-ink disabled:opacity-50 sm:col-span-2">
+            className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border-2 border-brand px-4 text-sm font-bold text-brand-text hover:bg-brand hover:text-brand-ink disabled:opacity-50">
             <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5" /><path d="m20 20-4.2-4.2" /></svg>
             {finding ? t("finding") : t("findLocation")}
           </button>
@@ -528,14 +529,14 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
 
         <details className="rounded-xl border border-line" open={canPublish || (coordsGiven && !coordsOk)}>
           <summary className="flex min-h-12 cursor-pointer items-center px-4 text-sm font-semibold">{t("advancedCoords")}</summary>
-          <div className="grid gap-4 border-t border-line p-4 sm:grid-cols-2">
+          <div className="grid gap-4 border-t border-line p-4">
             <label className={fieldLabel}>{t("latitude")}
               <input name="latitude" inputMode="decimal" dir="ltr" value={lat} onChange={(e) => { setLat(e.target.value); setSource("manual"); setConfirmed(false); }} className={input} aria-invalid={(coordsGiven && !coordsOk) || bad("latitude")} data-testid="lat" />
             </label>
             <label className={fieldLabel}>{t("longitude")}
               <input name="longitude" inputMode="decimal" dir="ltr" value={lng} onChange={(e) => { setLng(e.target.value); setSource("manual"); setConfirmed(false); }} className={input} aria-invalid={(coordsGiven && !coordsOk) || bad("longitude")} data-testid="lng" />
             </label>
-            {coordsGiven && !coordsOk && <p role="alert" className="text-sm font-semibold text-brand-text sm:col-span-2" data-testid="coords-invalid">{t("coordsInvalid")}</p>}
+            {coordsGiven && !coordsOk && <p role="alert" className="text-sm font-semibold text-brand-text" data-testid="coords-invalid">{t("coordsInvalid")}</p>}
           </div>
         </details>
       </Section>
@@ -568,7 +569,7 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
       {wizard && (
         <section aria-labelledby="review-title" className="space-y-4 rounded-[var(--radius-card)] border border-line bg-surface p-4 sm:p-6" data-testid="wizard-review">
           <h2 id="review-title" className="text-lg font-extrabold">{t("wizard.review")}</h2>
-          <dl className="grid gap-3 text-sm sm:grid-cols-2">
+          <dl className="grid gap-3 text-sm">
             {([
               [1, t("name"), name || "—"],
               [1, t("category"), categories.find((c) => c.id === categoryId)?.name ?? "—"],

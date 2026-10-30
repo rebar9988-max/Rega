@@ -129,12 +129,12 @@ export default async function BusinessPage({ params }: Props) {
 
         {/* One profile for every business: identity, actions and facts; each part only when the business has the data. */}
         {/* No overflow clipping: the directions menu opens below its button and must stay visible. */}
-        <header className="rega-shell" data-testid="business-profile">
+        <header className="rega-profile grid items-start gap-5 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]" data-testid="business-profile">
           {gallery.length > 0 && (
             // Same gallery on every screen: one main image and a row of up to three more; sizes reserved, no layout shift.
-            <div className="space-y-2 p-2 pb-0 sm:p-3 sm:pb-0" data-testid="business-gallery">
+            <div className="min-w-0 space-y-3" data-testid="business-gallery">
               <a href={gallery[0]} target="_blank" rel="noopener noreferrer" aria-label={t("businesses.openPhoto", { n: formatNumber(1, l) })}
-                className="relative block aspect-[16/9] overflow-hidden rounded-xl bg-brand-soft sm:aspect-[21/9] lg:aspect-[3/1]">
+                className="relative block aspect-[16/9] overflow-hidden rounded-xl bg-surface-2 lg:aspect-[79/39]">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={gallery[0]} alt="" width={1200} height={500} decoding="async" fetchPriority="high" className="absolute inset-0 size-full object-cover" />
                 {gallery.length > 1 && (
@@ -157,7 +157,8 @@ export default async function BusinessPage({ params }: Props) {
               )}
             </div>
           )}
-          <div className="p-4 sm:p-6">
+          {gallery.length === 0 && <div className="aspect-[79/39] rounded-[14px] border border-line bg-surface-2" aria-hidden="true" />}
+          <div className="min-w-0 rounded-[14px] bg-surface p-5 sm:p-7">
             <div className="flex items-start gap-4">
               {(b.logoUrl || gallery.length === 0) && <Avatar name={name.text} src={b.logoUrl} size="size-14 shrink-0 shadow-card sm:size-16" />}
               <div className="min-w-0 flex-1">
