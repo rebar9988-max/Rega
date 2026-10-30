@@ -1086,3 +1086,22 @@ Production remains untouched by this task. Earlier read-only Cloudflare baseline
 Figma QA continuation: corrected public batch is 94/94 PASS (including all 88 screenshot/locale-width combinations, all eight actual brand contrast cases and eight standalone offline cases). Exact application head `6cd40d5` builds successfully. Authenticated local batch: 30 passes and one intermittent upload case; the unchanged isolated upload case then passed (24.8s), so no deterministic application defect is demonstrated. Its stale-page setup opened a second active tab and never returned to the editing tab; the test now explicitly brings the editing tab to front, retaining the stale tab and every upload/permission/preview/approval/autosave assertion and timeout. Chromium background canvas encoding is a plausible cause, not independently established. A new real owner-account test passed (navigation, pending filter, four viewport screenshots, axe, sign-out and account retention). No app code changes follow `6cd40d5`; final test-only head/full CI remain mandatory. Cloudflare Billing Read returned 403 (OAuth scope unavailable), so no invoice-total/remaining-quota claim is possible; no paid resource or plan was activated.
 
 Final in-scope accessibility review adds a 2px canonical focus ring around the stretched home profile link's whole card. The old link suppresses its own outline and the low-opacity card border alone is insufficiently distinct. The eleven-locale browser matrix now explicitly checks the rendered focus indicator. This source change requires a new exact-head CI; do not merge using the preceding head's results. No security/data/workflow changes.
+
+## Digital Operations Center — release VERIFIED — 2026-10-29/30 (PR #98, squash `ec162ff`)
+
+- PR #98: final-head CI `40874691068` (verify) and both Workers Builds checks passed on `dbee6bf` after merging #99 (red
+  standard; the one `/dr/operations` finding link was moved to `text-brand-text`). Squash-merged with the head SHA pinned.
+- Exact-main chain for `ec162ff`: CI `40880938489` success → CI-gated `Deploy to Cloudflare Workers` `40887207127` success
+  (2026-10-29 14:02 UTC, identity guard + exact-SHA CI gate passed) → Production browser check `40887420432` success (attempt 2).
+- Later releases #104 (`b36703f`) and #105 (`0140487`) contain `ec162ff` and do not touch `src/lib/ops`, `src/app/dr/operations`,
+  `rbac.ts` or `nav.ts`. Current release `0140487`: CI `41018644062`, deploy `41022039957` (wrangler "Current Version ID"
+  `f38613d7-34c5-4cee-a3d7-6b5f5b213999`), Beta health `41022040086`, Production browser `41022134779` — all success.
+- Live read-only check 2026-10-30 08:02 UTC: `/api/health` ok, provider `d1`, migrations ready; anonymous `/dr/operations`
+  HTTP 200 with the sign-in form only (no agent grid), `cache-control: private, no-cache, no-store`, `x-robots-tag: noindex,
+  nofollow`, edge BYPASS; `/ckb /en /de /ar /fr /ckb/businesses /dr` 200; anonymous `/api/v1/businesses?status=draft` returned
+  only published rows.
+- Not verified: an authenticated owner run of the agents in production (needs the owner's own sign-in; no session is
+  fabricated). Version-at-100% is taken from the wrangler deploy output, not an independent Cloudflare deployments read.
+- No production data, schema, flag, secret, binding or plan was changed. `public.aiSearch` remains as the owner set it (on).
+- Next safe continuation point: the owner signs in at `/dr/operations`, runs "Run all", and reviews the Sorani findings
+  (expected warnings today: public AI flag on with paid-provider keys configured; low category coverage).
