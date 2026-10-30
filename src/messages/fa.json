@@ -233,7 +233,12 @@
     "readMore": "بیشتر بخوانید",
     "readLess": "کمتر",
     "photoCount": "{count} تصویر",
-    "openPhoto": "باز کردن تصویر {n}"
+    "openPhoto": "باز کردن تصویر {n}",
+    "tabHours": "ساعت‌ها",
+    "noAbout": "هنوز توضیحی اضافه نشده است.",
+    "hoursSoon": "ساعات کاری به‌زودی در دسترس خواهد بود.",
+    "socialLabel": "شبکه‌های اجتماعی",
+    "socialAria": "{name} در {platform}"
   },
   "services": {
     "title": "خدمات",
@@ -586,7 +591,8 @@
     "temporarilyClosed": "موقتاً بسته است",
     "opensOnDate": "در {date} ساعت {time} باز می‌شود",
     "holidayToday": "تعطیل رسمی: {name}",
-    "specialHoursToday": "ساعات کاری ویژه امروز"
+    "specialHoursToday": "ساعات کاری ویژه امروز",
+    "nearestTitle": "نزدیک‌ترین خدمات"
   },
   "map": {
     "title": "نقشه",
@@ -730,7 +736,10 @@
     "exceptionHours": "ساعات",
     "exceptionReason": "دلیل (اختیاری، عمومی)",
     "exceptionRemove": "حذف",
-    "exceptionAdd": "افزودن تعطیلی یا ساعات ویژه"
+    "exceptionAdd": "افزودن تعطیلی یا ساعات ویژه",
+    "socialTitle": "شبکه‌های اجتماعی (اختیاری)",
+    "socialHint": "پیوند صفحهٔ رسمی یا نام کاربری (@name) را وارد کنید. برای پنهان کردن دکمه خالی بگذارید.",
+    "socialInvalid": "این پیوند معتبر {platform} نیست."
   },
   "contact": {
     "title": "تماس",

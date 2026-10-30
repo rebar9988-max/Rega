@@ -233,7 +233,12 @@
     "readMore": "Zêdetir bixwîne",
     "readLess": "Kêmtir",
     "photoCount": "{count} wêne",
-    "openPhoto": "Wêneyê {n} veke"
+    "openPhoto": "Wêneyê {n} veke",
+    "tabHours": "Dem",
+    "noAbout": "Hêj ravekirinek nehatiye zêdekirin.",
+    "hoursSoon": "Agahiyên demjimêran dê di zûtirîn demê de amade bin.",
+    "socialLabel": "Medyaya civakî",
+    "socialAria": "{name} li ser {platform}"
   },
   "services": {
     "title": "Xizmet",
@@ -586,7 +591,8 @@
     "temporarilyClosed": "Bi demkî girtî ye",
     "opensOnDate": "Di {date} de saet {time} vedibe",
     "holidayToday": "Betlaneya fermî: {name}",
-    "specialHoursToday": "Îro demên xebatê yên taybet"
+    "specialHoursToday": "Îro demên xebatê yên taybet",
+    "nearestTitle": "Xizmetên herî nêzîk"
   },
   "map": {
     "title": "Nexşe",
@@ -730,7 +736,10 @@
     "exceptionHours": "Dem",
     "exceptionReason": "Sedem (vebijarkî, giştî)",
     "exceptionRemove": "Rake",
-    "exceptionAdd": "Girtin an demên taybet zêde bike"
+    "exceptionAdd": "Girtin an demên taybet zêde bike",
+    "socialTitle": "Medyaya civakî (bijarte)",
+    "socialHint": "Girêdana rûpela xwe ya fermî an navê bikarhêner (@nav) binivîse. Heke bişkok naxwazî, vala bihêle.",
+    "socialInvalid": "Ev ne girêdaneke {platform} ya derbasdar e."
   },
   "contact": {
     "title": "Têkilî",

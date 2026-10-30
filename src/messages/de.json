@@ -233,7 +233,12 @@
     "readMore": "Mehr lesen",
     "readLess": "Weniger",
     "photoCount": "{count} Bilder",
-    "openPhoto": "Bild {n} öffnen"
+    "openPhoto": "Bild {n} öffnen",
+    "tabHours": "Zeiten",
+    "noAbout": "Noch keine Beschreibung.",
+    "hoursSoon": "Öffnungszeiten folgen in Kürze.",
+    "socialLabel": "Soziale Medien",
+    "socialAria": "{name} auf {platform}"
   },
   "services": {
     "title": "Dienstleistungen",
@@ -586,7 +591,8 @@
     "temporarilyClosed": "Vorübergehend geschlossen",
     "opensOnDate": "Öffnet am {date} um {time}",
     "holidayToday": "Feiertag: {name}",
-    "specialHoursToday": "Heute besondere Öffnungszeiten"
+    "specialHoursToday": "Heute besondere Öffnungszeiten",
+    "nearestTitle": "Dienstleistungen in der Nähe"
   },
   "map": {
     "title": "Karte",
@@ -730,7 +736,10 @@
     "exceptionHours": "Zeiten",
     "exceptionReason": "Grund (optional, öffentlich)",
     "exceptionRemove": "Entfernen",
-    "exceptionAdd": "Schließung oder besondere Zeiten hinzufügen"
+    "exceptionAdd": "Schließung oder besondere Zeiten hinzufügen",
+    "socialTitle": "Soziale Medien (optional)",
+    "socialHint": "Link zur offiziellen Seite oder Benutzername (@name) eingeben. Leer lassen, wenn kein Button erscheinen soll.",
+    "socialInvalid": "Kein gültiger {platform}-Link."
   },
   "contact": {
     "title": "Kontakt",

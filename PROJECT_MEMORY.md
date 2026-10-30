@@ -1204,3 +1204,41 @@ Lighthouse 12.8.2 on `/en`, same sandbox, local `next start`: desktop Perf 100 /
 artefacts (missing e2e media server; canonical points to www.rega24.com). Fixes from this: card nodes are sent once and only
 the selected tab renders (was serialized per tab), lists cut to 4, "More" tile link gets a screen-reader suffix.
 Next: hosted CI on PR #111 → squash merge → existing CI-gated deploy → production browser check → live verification.
+
+## Business profile, directory/nearby cards and optional social links — 2026-10-30 (branch `claude/business-profile-social-links`)
+
+Owner instruction (Sorani + reference screenshots): rebuild the business directory card grid and the business profile to
+the RTL reference (cover, overlapping identity card, About / Hours / Reviews pill tabs) and put optional official
+Instagram / Facebook / TikTok / Snapchat buttons inside the phone card; "keep REGA24's main colour". Identity guard OK
+(REGA). Based on main `89a516c`. Teal/emerald of the prompt NOT used: accents are the REGA red tokens (`brand`,
+`brand-soft`, `brand-text`); the "open" / "verified" pills reuse the home card's existing green #15803d; stars `--sun`.
+
+- Data (additive only): `Business.instagram/facebook/tiktok/snapchat` (nullable TEXT). PostgreSQL migration
+  `20261030120000_business_social_links`; D1 migration `prisma/d1/migrations/0006_business_social_links.sql`.
+  **Deploy order: run `npm run db:d1:migrate` (applies 0006 only) BEFORE the release that contains this code** — deploy
+  does not run migrations, and the new code selects the columns (business page) so it would fail on the old D1 schema.
+  Rollback in the SQL file header. No existing row/column changed.
+- `src/lib/social-links.ts`: link or @username → https URL on the platform's own domain (no credentials/port/fragment);
+  refused otherwise. Re-checked at render. Admin/owner form (`BusinessForm`) has the four optional fields with inline
+  validation; server action validates again. Icons: simple-icons official marks (Instagram gradient, TikTok offset,
+  Snapchat ghost on yellow) in `components/business/SocialLinks.tsx`.
+- Profile `/[locale]/business/[slug]`: full-width cover (rounded from sm), back button (reading-start corner, → in RTL),
+  up to 3 thumbnails on the cover; identity card (-mt-8) with name/verified/category/city and rating + review count
+  opposite; actions and address/languages facts unchanged; `ProfileTabs` (WAI-ARIA tabs, all panels server-rendered):
+  About (or "no description"), Hours (open state + weekly hours + changes of the main location, else "hours soon"),
+  Reviews (score, five stars, count, link to the reviews section). Contact card: phone row (number is the link text),
+  social row with divider only when at least one link exists, then WhatsApp/e-mail/website. The single-location hours card
+  moved into the Hours tab (shown once). Breadcrumbs hidden on phones (JSON-LD trail unchanged).
+- Directory card (`BusinessCard` "directory", /businesses + category/city pages) and /nearby list: 2-column grid on
+  phones, 4:3 cover, verified pill, browser-computed "open" pill, name, category, city (+ distance on nearby), rating.
+  `businessCard` select adds primary-location `openingHours` + city region slug (read-only).
+- New keys in all 11 catalogues: `bizForm.socialTitle/socialHint/socialInvalid`, `businesses.tabHours/noAbout/hoursSoon/
+  socialLabel/socialAria`, `nearby.nearestTitle`.
+
+Local verification (PostgreSQL 16 + D1 SQLite): typecheck, lint, unit (432 pass, 0 fail; new `tests/social-links.test.ts`),
+test:d1 10/10, d1-worker-smoke, docs validation, `next build --webpack` pass. Browser (Chromium desktop+mobile): first
+run 83 passed / 2 failed (phone row reused the call button's accessible name → fixed); re-runs 68/68 (social,
+profile, catalog, figma-responsive, axe a11y) and 42/43 + rerun pass (gallery upload rate-limit step, unrelated). Without a
+cover the profile shows a short brand-soft band instead of an empty grey block. Next: hosted CI → owner applies D1 0006 →
+merge → CI-gated deploy → live check.
+Not verified: hosted CI, production D1 migration, deploy, live site.

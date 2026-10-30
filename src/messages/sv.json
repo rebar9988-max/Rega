@@ -233,7 +233,12 @@
     "readMore": "Läs mer",
     "readLess": "Visa mindre",
     "photoCount": "{count} foton",
-    "openPhoto": "Öppna foto {n}"
+    "openPhoto": "Öppna foto {n}",
+    "tabHours": "Tider",
+    "noAbout": "Ingen beskrivning ännu.",
+    "hoursSoon": "Öppettider kommer snart.",
+    "socialLabel": "Sociala medier",
+    "socialAria": "{name} på {platform}"
   },
   "services": {
     "title": "Tjänster",
@@ -586,7 +591,8 @@
     "temporarilyClosed": "Tillfälligt stängt",
     "opensOnDate": "Öppnar igen {date} kl. {time}",
     "holidayToday": "Helgdag: {name}",
-    "specialHoursToday": "Avvikande öppettider i dag"
+    "specialHoursToday": "Avvikande öppettider i dag",
+    "nearestTitle": "Närmaste tjänster"
   },
   "map": {
     "title": "Karta",
@@ -730,7 +736,10 @@
     "exceptionHours": "Tider",
     "exceptionReason": "Anledning (valfritt, offentligt)",
     "exceptionRemove": "Ta bort",
-    "exceptionAdd": "Lägg till stängning eller avvikande öppettider"
+    "exceptionAdd": "Lägg till stängning eller avvikande öppettider",
+    "socialTitle": "Sociala medier (valfritt)",
+    "socialHint": "Ange länken till din officiella sida eller ditt användarnamn (@namn). Lämna tomt för att dölja knappen.",
+    "socialInvalid": "Ingen giltig {platform}-länk."
   },
   "contact": {
     "title": "Kontakt",

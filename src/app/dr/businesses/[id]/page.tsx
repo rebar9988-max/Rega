@@ -120,7 +120,7 @@ export default async function EditBusiness({ params, searchParams }: { params: P
         key={b.updatedAt.toISOString()}
         initial={{
           id: b.id, name: b.name, nameCkb: b.nameCkb ?? undefined, categoryId: b.categoryId ?? undefined,
-          description: b.description ?? undefined, phone: b.phone ?? undefined, whatsapp: b.whatsapp ?? undefined, email: b.email ?? undefined, website: b.website ?? undefined,
+          description: b.description ?? undefined, phone: b.phone ?? undefined, whatsapp: b.whatsapp ?? undefined, email: b.email ?? undefined, website: b.website ?? undefined, instagram: b.instagram ?? undefined, facebook: b.facebook ?? undefined, tiktok: b.tiktok ?? undefined, snapchat: b.snapchat ?? undefined,
           addressLine1: loc?.addressLine1, postalCode: loc?.postalCode ?? undefined, countryCode: loc?.countryCode ?? "DE",
           city: loc?.city ? localize({ ...loc.city, name: loc.city.nameEn }, "name", locale).text : undefined,
           latitude: loc?.latitude, longitude: loc?.longitude, coordsSource: loc?.coordsSource, coordsVerified: Boolean(loc?.coordsVerifiedAt),

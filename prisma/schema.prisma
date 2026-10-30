@@ -285,6 +285,11 @@ model Business {
   /// Public business WhatsApp number in international format ("+491784228269"). Never the owner's account phone.
   whatsapp       String?
   website        String?
+  /// Optional official social profiles: https URLs on each platform's own domain (src/lib/social-links.ts). Empty = no button.
+  instagram      String?
+  facebook       String?
+  tiktok         String?
+  snapchat       String?
   logoUrl        String?
   coverUrl       String?
   status         String    @default("draft") // draft | pending (submitted for review) | published | archived

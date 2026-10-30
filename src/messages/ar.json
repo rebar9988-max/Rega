@@ -233,7 +233,12 @@
     "readMore": "اقرأ المزيد",
     "readLess": "عرض أقل",
     "photoCount": "{count} صور",
-    "openPhoto": "فتح الصورة {n}"
+    "openPhoto": "فتح الصورة {n}",
+    "tabHours": "الأوقات",
+    "noAbout": "لا يوجد وصف بعد.",
+    "hoursSoon": "ستتوفر أوقات العمل قريبًا.",
+    "socialLabel": "وسائل التواصل الاجتماعي",
+    "socialAria": "{name} على {platform}"
   },
   "services": {
     "title": "الخدمات",
@@ -586,7 +591,8 @@
     "temporarilyClosed": "مغلق مؤقتاً",
     "opensOnDate": "يفتح في {date} الساعة {time}",
     "holidayToday": "عطلة رسمية: {name}",
-    "specialHoursToday": "ساعات عمل خاصة اليوم"
+    "specialHoursToday": "ساعات عمل خاصة اليوم",
+    "nearestTitle": "أقرب الخدمات"
   },
   "map": {
     "title": "الخريطة",
@@ -730,7 +736,10 @@
     "exceptionHours": "الساعات",
     "exceptionReason": "السبب (اختياري، عام)",
     "exceptionRemove": "إزالة",
-    "exceptionAdd": "إضافة إغلاق أو ساعات خاصة"
+    "exceptionAdd": "إضافة إغلاق أو ساعات خاصة",
+    "socialTitle": "وسائل التواصل الاجتماعي (اختياري)",
+    "socialHint": "أدخل رابط صفحتك الرسمية أو اسم المستخدم (@name). اتركه فارغًا لإخفاء الزر.",
+    "socialInvalid": "هذا ليس رابط {platform} صالحًا."
   },
   "contact": {
     "title": "تواصل معنا",

@@ -233,7 +233,12 @@
     "readMore": "Devamını oku",
     "readLess": "Daha az",
     "photoCount": "{count} fotoğraf",
-    "openPhoto": "{n}. fotoğrafı aç"
+    "openPhoto": "{n}. fotoğrafı aç",
+    "tabHours": "Saatler",
+    "noAbout": "Henüz açıklama yok.",
+    "hoursSoon": "Çalışma saatleri yakında eklenecek.",
+    "socialLabel": "Sosyal medya",
+    "socialAria": "{platform} üzerinde {name}"
   },
   "services": {
     "title": "Hizmetler",
@@ -586,7 +591,8 @@
     "temporarilyClosed": "Geçici olarak kapalı",
     "opensOnDate": "{date} tarihinde {time} saatinde açılır",
     "holidayToday": "Resmî tatil: {name}",
-    "specialHoursToday": "Bugün özel çalışma saatleri"
+    "specialHoursToday": "Bugün özel çalışma saatleri",
+    "nearestTitle": "En yakın hizmetler"
   },
   "map": {
     "title": "Harita",
@@ -730,7 +736,10 @@
     "exceptionHours": "Saatler",
     "exceptionReason": "Neden (isteğe bağlı, herkese açık)",
     "exceptionRemove": "Kaldır",
-    "exceptionAdd": "Kapanış veya özel saat ekle"
+    "exceptionAdd": "Kapanış veya özel saat ekle",
+    "socialTitle": "Sosyal medya (isteğe bağlı)",
+    "socialHint": "Resmî sayfanızın bağlantısını veya kullanıcı adınızı (@ad) girin. Düğme istemiyorsanız boş bırakın.",
+    "socialInvalid": "Geçerli bir {platform} bağlantısı değil."
   },
   "contact": {
     "title": "İletişim",

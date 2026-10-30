@@ -233,7 +233,12 @@
     "readMore": "Lire la suite",
     "readLess": "Afficher moins",
     "photoCount": "{count} photos",
-    "openPhoto": "Ouvrir la photo {n}"
+    "openPhoto": "Ouvrir la photo {n}",
+    "tabHours": "Horaires",
+    "noAbout": "Pas encore de description.",
+    "hoursSoon": "Les horaires seront bientôt disponibles.",
+    "socialLabel": "Réseaux sociaux",
+    "socialAria": "{name} sur {platform}"
   },
   "services": {
     "title": "Services",
@@ -586,7 +591,8 @@
     "temporarilyClosed": "Fermé temporairement",
     "opensOnDate": "Rouvre le {date} à {time}",
     "holidayToday": "Jour férié : {name}",
-    "specialHoursToday": "Horaires spéciaux aujourd’hui"
+    "specialHoursToday": "Horaires spéciaux aujourd’hui",
+    "nearestTitle": "Services les plus proches"
   },
   "map": {
     "title": "Carte",
@@ -730,7 +736,10 @@
     "exceptionHours": "Horaires",
     "exceptionReason": "Motif (facultatif, public)",
     "exceptionRemove": "Retirer",
-    "exceptionAdd": "Ajouter une fermeture ou des horaires spéciaux"
+    "exceptionAdd": "Ajouter une fermeture ou des horaires spéciaux",
+    "socialTitle": "Réseaux sociaux (facultatif)",
+    "socialHint": "Saisissez le lien de votre page officielle ou votre nom d’utilisateur (@nom). Laissez vide pour masquer le bouton.",
+    "socialInvalid": "Ce n’est pas un lien {platform} valide."
   },
   "contact": {
     "title": "Contact",

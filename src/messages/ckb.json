@@ -233,7 +233,12 @@
     "readMore": "زیاتر بخوێنەوە",
     "readLess": "کەمتر",
     "photoCount": "{count} وێنە",
-    "openPhoto": "کردنەوەی وێنەی {n}"
+    "openPhoto": "کردنەوەی وێنەی {n}",
+    "tabHours": "کاتەکان",
+    "noAbout": "هێشتا هیچ وەسفێک زیاد نەکراوە.",
+    "hoursSoon": "زانیاری کاتژمێری لە بەردەستدایە بە زووترین کات.",
+    "socialLabel": "تۆڕە کۆمەڵایەتییەکان",
+    "socialAria": "{name} لە {platform}"
   },
   "services": {
     "title": "خزمەتگوزارییەکان",
@@ -586,7 +591,8 @@
     "temporarilyClosed": "بە کاتی داخراوە",
     "opensOnDate": "دەکرێتەوە لە {date} کاتژمێر {time}",
     "holidayToday": "پشووی فەرمی: {name}",
-    "specialHoursToday": "ئەمڕۆ کاتی کاری تایبەت"
+    "specialHoursToday": "ئەمڕۆ کاتی کاری تایبەت",
+    "nearestTitle": "نزیکترین خزمەتگوزارییەکان"
   },
   "map": {
     "title": "نەخشە",
@@ -730,7 +736,10 @@
     "exceptionHours": "کاتەکان",
     "exceptionReason": "هۆکار (ئارەزوومەندانە، گشتی)",
     "exceptionRemove": "لابردن",
-    "exceptionAdd": "زیادکردنی داخستن یان کاتی تایبەت"
+    "exceptionAdd": "زیادکردنی داخستن یان کاتی تایبەت",
+    "socialTitle": "تۆڕە کۆمەڵایەتییەکان (ئارەزوومەندانە)",
+    "socialHint": "بەستەری پەڕە فەرمییەکەت یان ناوی بەکارهێنەر (@name) بنووسە. ئەگەر دوگمەکەت ناوێت بەتاڵی بهێڵەرەوە.",
+    "socialInvalid": "ئەمە بەستەرێکی دروستی {platform} نییە."
   },
   "contact": {
     "title": "پەیوەندی",

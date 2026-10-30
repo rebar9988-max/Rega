@@ -17,6 +17,7 @@ import { BUSINESS_CATEGORY, lockBusiness, publicationSelect, businessReadiness }
 import { PUBLIC_BUSINESS } from "@/lib/search-where";
 import { ownsBusinessImages } from "@/lib/business-media";
 import { normalizeWhatsapp } from "@/lib/whatsapp";
+import { SOCIAL_PLATFORMS, normalizeSocial } from "@/lib/social-links";
 
 /** ISO 3166-1 alpha-2 codes offered in the form (plus any country already in the database). */
 export const FORM_COUNTRIES = ["DE", "AT", "CH", "NL", "BE", "LU", "FR", "GB", "IE", "DK", "SE", "NO", "FI", "IT", "ES", "PL", "CZ", "IQ", "TR", "IR", "SY", "US", "CA", "AU"] as const;
@@ -57,6 +58,11 @@ export const businessFormSchema = z.object({
   whatsapp: optionalText(50),
   email: z.union([z.literal(""), z.string().trim().email().max(200)]).optional().transform((v) => v || undefined),
   website: z.union([z.literal(""), z.string().trim().url().max(300).refine((u) => /^https?:\/\//i.test(u))]).optional().transform((v) => v || undefined),
+  /** Optional official social profiles as typed (link or @username); stored as https URLs (src/lib/social-links.ts). */
+  instagram: optionalText(300),
+  facebook: optionalText(300),
+  tiktok: optionalText(300),
+  snapchat: optionalText(300),
   addressLine1: loose(300),
   postalCode: optionalText(20),
   city: loose(120),
@@ -89,6 +95,7 @@ export const businessFormSchema = z.object({
   if (v.addressLine1 && v.addressLine1.length < 3) fail("addressLine1");
   if (v.countryCode && !/^[A-Z]{2}$/.test(v.countryCode)) fail("countryCode");
   if (v.whatsapp && !normalizeWhatsapp(v.whatsapp, v.countryCode).ok) ctx.addIssue({ code: "custom", path: ["whatsapp"], message: "invalid" });
+  for (const platform of SOCIAL_PLATFORMS) if (v[platform] && !normalizeSocial(platform, v[platform]).ok) ctx.addIssue({ code: "custom", path: [platform], message: "invalid" });
   const hasLat = v.latitude !== undefined;
   const hasLng = v.longitude !== undefined;
   if (hasLat !== hasLng) ctx.addIssue({ code: "custom", path: ["latitude"], message: "both" });
@@ -207,6 +214,7 @@ async function save(input: BusinessForm, actor: { id: string }, { canPublish, ca
       descriptionDe: input.descriptionDe ?? null, descriptionAr: input.descriptionAr ?? null, descriptionTr: input.descriptionTr ?? null,
       languages: input.languages,
       phone: input.phone ?? null, whatsapp: whatsapp?.ok ? whatsapp.value : null, email: input.email ?? null, website: input.website ?? null,
+      ...Object.fromEntries(SOCIAL_PLATFORMS.map((platform) => { const r = normalizeSocial(platform, input[platform]); return [platform, r.ok ? r.value : null]; })) as Record<(typeof SOCIAL_PLATFORMS)[number], string | null>,
       logoUrl: input.logoUrl ?? null, coverUrl: input.coverUrl ?? null, photos,
     };
     let business;

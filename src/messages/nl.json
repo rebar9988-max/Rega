@@ -233,7 +233,12 @@
     "readMore": "Lees meer",
     "readLess": "Minder tonen",
     "photoCount": "{count} foto’s",
-    "openPhoto": "Foto {n} openen"
+    "openPhoto": "Foto {n} openen",
+    "tabHours": "Tijden",
+    "noAbout": "Nog geen beschrijving.",
+    "hoursSoon": "Openingstijden volgen binnenkort.",
+    "socialLabel": "Sociale media",
+    "socialAria": "{name} op {platform}"
   },
   "services": {
     "title": "Diensten",
@@ -586,7 +591,8 @@
     "temporarilyClosed": "Tijdelijk gesloten",
     "opensOnDate": "Weer open op {date} om {time}",
     "holidayToday": "Feestdag: {name}",
-    "specialHoursToday": "Vandaag afwijkende openingstijden"
+    "specialHoursToday": "Vandaag afwijkende openingstijden",
+    "nearestTitle": "Dichtstbijzijnde diensten"
   },
   "map": {
     "title": "Kaart",
@@ -730,7 +736,10 @@
     "exceptionHours": "Tijden",
     "exceptionReason": "Reden (optioneel, openbaar)",
     "exceptionRemove": "Verwijderen",
-    "exceptionAdd": "Sluiting of afwijkende tijden toevoegen"
+    "exceptionAdd": "Sluiting of afwijkende tijden toevoegen",
+    "socialTitle": "Sociale media (optioneel)",
+    "socialHint": "Voer de link naar je officiële pagina of je gebruikersnaam (@naam) in. Laat leeg om de knop te verbergen.",
+    "socialInvalid": "Geen geldige {platform}-link."
   },
   "contact": {
     "title": "Contact",
