@@ -195,7 +195,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               <li>
                 <Link href="/businesses" className="rh-tile">
                   <FigmaIcon name="more-horizontal" className="rh-tile-icon" />
-                  <span className="rh-tile-label">{t("moreCategories")}</span>
+                  <span className="rh-tile-label">{t("moreCategories")}<span className="sr-only">: {t("allCategories")}</span></span>
                 </Link>
               </li>
             </ul>
