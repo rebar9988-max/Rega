@@ -25,7 +25,6 @@ const DERIVATIVES: [string, number, number, number][] = [
   ["public/brand/rega24-badge-96.webp", 96, 96, 6_000],
   ["public/brand/rega24-badge-192.webp", 192, 192, 15_000],
   ["public/brand/rega24-badge-384.webp", 384, 384, 40_000],
-  ["public/brand/rega24-badge-192.png", 192, 192, 50_000],
   ["public/brand/rega24-badge-512.png", 512, 512, 250_000],
   ["public/brand/rega24-maskable-192.png", 192, 192, 50_000],
   ["public/brand/rega24-maskable-512.png", 512, 512, 250_000],
@@ -61,17 +60,16 @@ function sources(dir: string): string[] {
   return readdirSync(dir, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? sources(join(dir, e.name)) : /\.tsx?$/.test(e.name) ? [join(dir, e.name)] : []));
 }
 
-test("one shared badge component; every instance has an explicit size", () => {
+test("one shared logo component renders the badge, always with explicit width and height", () => {
   const files = sources("src");
   for (const f of files) {
     const code = readFileSync(f, "utf8");
     assert.ok(!/rega-(mark|wordmark|logo)[-.]/.test(code), `${f} uses a retired logo asset`);
     if (f.endsWith("components/ui/Logo.tsx")) continue;
-    if (f.endsWith(".tsx")) assert.ok(!/rega24-badge-/.test(code), `${f} renders the badge without LogoBadge`);
-    for (const use of code.match(/<LogoBadge\b[^>]*>/g) ?? []) assert.match(use, /size=\{\d+\}/, `${f}: ${use}`);
+    if (f.endsWith(".tsx")) assert.ok(!/rega24-badge-/.test(code), `${f} renders the badge without the shared Logo component`);
   }
-  const users = files.filter((f) => /<LogoBadge\b/.test(readFileSync(f, "utf8")));
+  const users = files.filter((f) => /<(Logo|LogoMark)\b/.test(readFileSync(f, "utf8")) && !f.endsWith("components/ui/Logo.tsx"));
   assert.ok(users.length >= 6, users.join(", "));
   const logo = readFileSync("src/components/ui/Logo.tsx", "utf8");
-  assert.match(logo, /width=\{size\} height=\{size\}/);
+  for (const img of logo.match(/<img\b[^>]*>/g) ?? []) assert.match(img, /width=\{\d+\} height=\{\d+\}/, img);
 });

@@ -55,11 +55,10 @@ def square(img: Image.Image, size: int, content: float = 1.0) -> Image.Image:
 
 def main() -> None:
     master = Image.open(MASTER).convert("RGB")
-    # Badge (header, footer, admin, auth, offline/splash): WebP for the page, PNG fallback.
+    # Badge (LogoMark srcset and offline page) and the 512 PNG for the manifest and JSON-LD logo.
     for size in (64, 96, 192, 384):
         square(master, size).save(BRAND / f"rega24-badge-{size}.webp", "WEBP", quality=86, method=6)
-    for size in (192, 512):
-        square(master, size).save(BRAND / f"rega24-badge-{size}.png", "PNG", optimize=True)
+    square(master, 512).save(BRAND / "rega24-badge-512.png", "PNG", optimize=True)
     # Favicon (16/32/48), apple-touch-icon, PWA icons (any + maskable: full frame inside the 80% safe zone).
     square(master, 48).save(PUBLIC / "favicon.ico", sizes=[(16, 16), (32, 32), (48, 48)])
     square(master, 180).save(PUBLIC / "apple-icon.png", "PNG", optimize=True)

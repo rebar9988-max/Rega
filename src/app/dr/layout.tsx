@@ -17,7 +17,7 @@ import { PRIVATE_BETA } from "@/lib/private-beta";
 import { SessionRenewal } from "@/features/auth/SessionRenewal";
 import { SignInForm } from "./SignInForm";
 
-export const metadata: Metadata = { metadataBase: new URL(`https://${process.env.CANONICAL_HOST || "www.rega24.com"}`), icons: SITE_ASSETS.icons, title: { default: "REGA Platform", template: "%s · REGA Platform" }, robots: { index: false, follow: false } };
+export const metadata: Metadata = { metadataBase: new URL(`https://${process.env.CANONICAL_HOST || "www.rega24.com"}`), icons: SITE_ASSETS.icons, title: { default: "Rega24", template: "%s · Rega24" }, robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
 
 export default async function DrLayout({ children }: { children: React.ReactNode }) {

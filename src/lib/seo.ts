@@ -8,10 +8,10 @@ import { DEFAULT_LOCALE, LOCALES, LOCALE_META, type Locale } from "@/i18n/locale
 
 /**
  * Brand identity. "REGA" alone is ambiguous (Real Estate General Authority, Saudi Arabia is an unrelated
- * organisation), so the full name "REGA Platform" is used for every entity signal: <title>, og:site_name,
+ * organisation), so the official name "Rega24" is used for every entity signal: <title>, og:site_name,
  * Organization / WebSite JSON-LD, footer, social display names.
  */
-export const BRAND_NAME = "REGA Platform";
+export const BRAND_NAME = "Rega24";
 export const BRAND_NAME_KU = "ڕێگا";
 export const SITE_NAME = BRAND_NAME;
 

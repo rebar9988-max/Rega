@@ -1,19 +1,13 @@
-/**
- * Official REGA24 logo badge: the owner-supplied master artwork, resized only (scripts/generate-rega24-logo-assets.py).
- * The only logo component: header, footer, admin and auth pages all use it. It is a square badge in its own
- * container with a 1px border and the card shadow so it stays separate from light and dark page backgrounds.
- * `size` is the rendered size in px and is also written as width/height, so the badge never shifts the layout.
- * Pass `alt=""` when the badge is decorative (e.g. next to a heading); keep "REGA24" when it is the link's name.
- */
-const SOURCES = [64, 96, 192, 384] as const;
-
-export function LogoBadge({ size, alt = "REGA24", priority = false, className = "" }: { size: number; alt?: string; priority?: boolean; className?: string }) {
+/** Original owner-approved REGA24 artwork; full frame and proportions preserved. */
+export function LogoMark({ className = "size-11" }: { className?: string }) {
   return (
-    <span className={`inline-block shrink-0 overflow-hidden rounded-lg border border-line shadow-card ${className}`} style={{ width: size, height: size }} dir="ltr">
-      <picture>
-        <source type="image/webp" srcSet={SOURCES.map((w) => `/brand/rega24-badge-${w}.webp ${w}w`).join(", ")} sizes={`${size}px`} />
-        <img src="/brand/rega24-badge-192.png" alt={alt} width={size} height={size} decoding="async" fetchPriority={priority ? "high" : "auto"} loading={priority ? "eager" : "lazy"} className="block size-full" />
-      </picture>
-    </span>
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src="/brand/rega24-badge-96.webp" srcSet="/brand/rega24-badge-64.webp 64w, /brand/rega24-badge-96.webp 96w, /brand/rega24-badge-192.webp 192w, /brand/rega24-badge-384.webp 384w" sizes="48px" alt="" width={192} height={192} decoding="async" className={`${className} shrink-0 rounded-xl object-contain`} />
   );
+}
+export function Logo({ className = "", compact = false }: { className?: string; compact?: boolean }) {
+  return <span className={`inline-flex items-center gap-2 ${className}`} dir="ltr">
+    <LogoMark className={compact ? "size-8" : "size-11"} />
+    <span className="flex flex-col leading-tight"><span lang="ckb" dir="rtl" className="text-[26px] font-bold text-brand-text">ڕێگا</span><span className="text-[11px] font-bold tracking-wide text-ink">REGA24</span></span>
+  </span>;
 }

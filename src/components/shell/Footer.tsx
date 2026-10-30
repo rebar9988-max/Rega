@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
-import { LogoBadge } from "@/components/ui/Logo";
+import { Logo } from "@/components/ui/Logo";
 import { footerNav } from "./nav";
 import { SOCIAL_DISPLAY_NAME, socialProfiles } from "@/lib/seo";
 
@@ -27,8 +27,8 @@ export async function Footer() {
     <footer className="mt-12 border-t border-line bg-surface">
       <div className="container-page flex flex-col gap-5 py-5 md:flex-row md:items-center md:justify-between md:gap-8">
         <div className="max-w-sm space-y-1.5">
-          <Link href="/" className="inline-flex rounded-lg">
-            <LogoBadge size={32} />
+          <Link href="/" className="inline-flex items-center rounded-lg" aria-label="ڕێگا REGA24" dir="ltr">
+            <Logo compact />
           </Link>
           <p className="text-xs text-muted">{tf("tagline")}</p>
           {social.length > 0 && (

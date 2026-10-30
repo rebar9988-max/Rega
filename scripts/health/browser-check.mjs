@@ -22,6 +22,7 @@ const note = (ok, label, detail = "") => {
 
 /** Pages every visitor reaches without an account; [path, expected html dir]. */
 const PAGES = [
+  ["/offline.html", "ltr"],
   ["/ckb", "rtl"], ["/de", "ltr"], ["/en", "ltr"], ["/ar", "rtl"],
   ["/de/businesses", "ltr"], ["/ckb/businesses", "rtl"], ["/de/services", "ltr"], ["/de/nearby", "ltr"], ["/ckb/nearby", "rtl"],
   ["/de/search?q=a", "ltr"], ["/de/ai", "ltr"], ["/de/for-business", "ltr"], ["/de/register", "ltr"], ["/de/login", "ltr"],

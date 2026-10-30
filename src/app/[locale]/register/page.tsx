@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { auth } from "@/auth";
-import { LogoBadge } from "@/components/ui/Logo";
+import { LogoMark } from "@/components/ui/Logo";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { RegisterForm } from "@/features/auth/AuthForms";
 import { SocialButtons } from "@/features/auth/SocialButtons";
@@ -33,7 +33,7 @@ export default async function RegisterPage({ params, searchParams }: { params: P
     <>
       <PageHeader title={t("registerHeading")} subtitle={t("registerLead")} />
       <div className="container-page">
-        <div className="mx-auto mb-4 flex max-w-md justify-center"><LogoBadge size={56} alt="" priority /></div>
+        <div className="mx-auto mb-4 flex max-w-md justify-center"><LogoMark className="size-14" /></div>
         {errorKey && <p role="alert" className="mx-auto mb-4 max-w-md rounded-xl bg-brand-soft px-4 py-3 text-sm font-semibold">{t(errorKey)}</p>}
         <RegisterForm next={safeNext(next)} social={providers.length ? <SocialButtons providers={providers} intent="register" /> : undefined} />
       </div>

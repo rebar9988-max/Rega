@@ -1,13 +1,13 @@
 {
-  "name": "REGA Platform",
-  "short_name": "REGA",
-  "description": "REGA Platform (ڕێگا): businesses, services and locations.",
+  "name": "Rega24",
+  "short_name": "REGA24",
+  "description": "Rega24 (ڕێگا): businesses, services and locations.",
   "id": "/",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#fa070d",
+  "theme_color": "#db0512",
   "icons": [
     { "src": "/icon.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
     { "src": "/brand/rega24-badge-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },

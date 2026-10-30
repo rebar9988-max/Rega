@@ -19,8 +19,8 @@ for (const locale of LOCALES) {
       expect(html).toContain(`property="og:url" content="${HOST}/${locale}${path}"`);
       expect(html).toContain('name="twitter:card" content="summary_large_image"');
       expect(html).toContain('"@type":"Organization"');
-      expect(html).toContain(`property="og:site_name" content="${path === "/about" ? "Rega24" : "REGA Platform"}"`);
-      expect(html).toMatch(path === "/about" ? /<title>[^<]*Rega24[^<]*<\/title>/ : /<title>[^<]*REGA Platform[^<]*<\/title>/);
+      expect(html).toContain(`property="og:site_name" content="${path === "/about" ? "Rega24" : "Rega24"}"`);
+      expect(html).toMatch(path === "/about" ? /<title>[^<]*Rega24[^<]*<\/title>/ : /<title>[^<]*Rega24[^<]*<\/title>/);
       // every JSON-LD block parses; all @id references resolve to an entity defined on the same page
       const blocks = [...html.matchAll(/<script type="application\/ld\+json">([^<]*)<\/script>/g)].map((m) => JSON.parse(m[1]));
       const nodes = blocks.flat();
@@ -42,7 +42,7 @@ test("html lang/dir per locale, English included", async ({ page }) => {
   await page.goto("/en");
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await expect(page.locator("html")).toHaveAttribute("dir", "ltr");
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("Your community.");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Local services,");
 });
 
 test("search is noindex; sitemap lists every locale with hreflang alternates", async ({ request }) => {
@@ -68,7 +68,7 @@ test("search is noindex; sitemap lists every locale with hreflang alternates", a
 
 test("manifest identity is preserved; About uses approved global Rega24 copy", async ({ request, page }) => {
   const m = await (await request.get("/manifest.webmanifest")).json();
-  expect(m.name).toBe("REGA Platform");
+  expect(m.name).toBe("Rega24");
   await page.goto("/en/about");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("About Rega24");
   await expect(page.locator("#about-offer")).toHaveText("What Rega24 offers");
