@@ -1235,3 +1235,21 @@ current official assets; every new probe was confirmed 200 / present against liv
 - No production data, schema, migration, secret, binding, plan or paid service was changed.
 - Next safe continuation point: merge #109/#110 (health probe), then a real-photo pass when owner-supplied images exist
   (category covers fall back to logo-red icon tiles until businesses upload covers).
+
+## Premium banner header — 2026-10-30 (codex/premium-reference-header)
+
+Owner requests ONLY the header/banner, matching the supplied red/silver globe reference, removing the visible Kurdish
+wordmark there. Based on main 4e6e7bf; identity guard verified. Central Doc and GitHub read; Cloudflare baseline readback:
+rega24 deployment 881631bf-1547-481a-807b-4cdae3a0f2a8, version 750e0778-64eb-4d77-987d-cdc043bc61b2 at 100%.
+Root cause: header used a tiny whole-frame badge + text instead of the silver horizontal lockup.
+Changes: header-only horizontal official silver symbol/REGA24 wordmark derivatives (extracted from unchanged master,
+no redraw/recolour), original red/silver vector decoration with public-domain Natural Earth geography, working localized
+GET search, white language/search pill, native dialog hamburger on all sizes, existing desktop registry nav/account/add
+links retained; mobile menu retains account/add destinations. Full logo unchanged elsewhere. Master SHA remains guarded
+by existing tests. No DB/schema/auth/localization/dependency/infrastructure changes. Health probe follows actual header
+asset (retains other logo probes); browser catalog/404 selectors now scope to main because header adds a real searchbox.
+Local: lint/typecheck pass, unit 427 pass/4 existing DB skips/0 fail, D1 10/10 plus batch preservation, Node build pass.
+Initial four-locale browser pass: layout/menus/Escape/axe passed at 320/390/768/1024/1440/1920; two final assertions wrongly
+expected Latin business names on ckb/ar results. Corrected test to assert preserved query value, not untranslated copy.
+Final browser/hosted CI/deployment/live verification pending; no 100/100 claim. Shell gh credential invalid; connected
+GitHub and Cloudflare apps work. Use existing CI-gated main release path only. Production has not been changed yet.

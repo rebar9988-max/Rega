@@ -501,12 +501,41 @@
   .rega-home :is(.rh-tile, .rh-biz, .rh-biz-img, .rh-explore-media, .rh-mapbanner-cta) { transition: none; }
 }
 
-/* Public header (owner reference v2): the official logo's deep reds; the focus ring turns white on this bar. */
-.rega-header {
-  --ring: #ffffff;
-  background:
-    radial-gradient(120% 180% at 100% 0%, rgb(229 56 50 / .28), transparent 55%),
-    linear-gradient(100deg, var(--brand-night) 0%, var(--brand-deeper) 42%, var(--brand-deep) 100%);
-  box-shadow: 0 1px 0 rgb(255 255 255 / .08), 0 10px 26px -18px rgb(43 8 5 / .8);
-}
+/* Owner's red/silver banner: scoped to the public header only. */
+.rega-header { --ring: #fff; isolation: isolate; background: #920009; }
+.rega-header-art { position: absolute; inset: 0; z-index: -1; pointer-events: none; background: url('/brand/rega24-header-backdrop.svg') center / cover no-repeat; }
+.rega-header-inner { max-width: 1600px; margin: auto; padding: clamp(20px, 4vw, 60px) clamp(16px, 4vw, 64px) clamp(36px, 5vw, 76px); }
+.rega-header-row { display: flex; align-items: center; justify-content: space-between; gap: 3%; min-height: clamp(100px, 15vw, 230px); }
+.rega-header-brand { display: block; width: 49%; flex-shrink: 0; border-radius: 16px; }
+.rega-header-lockup { display: flex; align-items: center; gap: 3%; width: 100%; }
+.rega-header-symbol { width: 28%; height: auto; border-radius: 28%; mask-image: linear-gradient(transparent, #000 3%, #000 97%, transparent); }
+.rega-header-wordmark { width: 69%; height: auto; mask-image: linear-gradient(transparent, #000 14%, #000 83%, transparent); }
+.rega-header-controls { display: flex; align-items: center; gap: clamp(12px, 2vw, 30px); flex: 1; min-width: 0; }
+.rega-header-pill { display: flex; align-items: center; flex: 1; min-width: 0; height: clamp(52px, 7.5vw, 96px); border: 2px solid #ffd4d6; border-radius: 100px; color: #505056; background: linear-gradient(#fff, #f7f6f6 55%, #eadcdf); box-shadow: inset 0 -3px 7px #eaa2a8, 0 6px 18px #65000960; }
+.rega-header-search { display: flex; align-items: center; flex: 1; min-width: 0; }
+.rega-header-search button { display: grid; place-items: center; flex-shrink: 0; width: 52px; height: 48px; border-radius: 50%; }
+.rega-header-search input { width: 100%; min-width: 0; background: transparent; color: #36363b; font-size: 16px; outline-offset: -2px; border-radius: 6px; }
+.rega-header-pill details { flex-shrink: 0; margin-right: 12px; }
+.rega-header-pill summary { min-height: 44px; width: 110px; border: 0; border-left: 1px solid #d5ced0; border-radius: 0; background: transparent; color: #505056; font-size: clamp(14px, 1.7vw, 23px); gap: 10px; }
+.rega-header-pill summary:hover { background: #ece6e6; }
+.rega-header-pill :is(summary, input, button):focus-visible { outline: 2px solid #97000a; outline-offset: 2px; }
 .rega-header details > ul { --ring: var(--brand); color: var(--ink); }
+.rega-header-menu { display: grid; place-items: center; flex-shrink: 0; width: clamp(48px, 7.5vw, 96px); height: clamp(48px, 7.5vw, 96px); border-radius: 28%; border: 2px solid #ff838a; background: linear-gradient(145deg, #ff1627, #bd0010 65%, #ee1023); box-shadow: inset 0 0 12px #ff9ca380, 0 5px 14px #56000970; }
+.rega-header-menu:hover { background: #e30017; }
+.rega-header-menu svg { width: 56%; height: 56%; }
+.rega-header-secondary { display: flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 52px; }
+.rega-header-secondary nav { height: 52px; }
+.rega-header-secondary nav ul { gap: clamp(12px, 2vw, 30px); }
+.rega-header-secondary nav a > span:last-child { bottom: 2px; }
+@media (max-width: 1279px) { .rega-header-secondary { display: none; } }
+@media (max-width: 767px) {
+  .rega-header-inner { padding: 12px 16px 38px; }
+  .rega-header-row { flex-direction: column; gap: 12px; }
+  .rega-header-brand { width: 220px; }
+  .rega-header-controls { width: 100%; max-width: 460px; gap: 12px; }
+  .rega-header-pill { height: 52px; }
+  .rega-header-pill details { margin-right: 8px; }
+  .rega-header-pill summary { width: 100px; }
+  .rega-header-search button { width: 44px; height: 44px; }
+  .rega-header-menu { width: 48px; height: 48px; }
+}

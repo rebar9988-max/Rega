@@ -3,7 +3,7 @@ import { expect, test } from "./fixtures";
 test("business list shows published demo businesses and filters by text", async ({ page }) => {
   await page.goto("/de/businesses");
   await expect(page.getByRole("link", { name: "Zagros Restaurant" })).toBeVisible();
-  await page.getByRole("searchbox").first().fill("rechtsberatung");
+  await page.getByRole("main").getByRole("searchbox").first().fill("rechtsberatung");
   await page.getByRole("button", { name: "Anwenden" }).click();
   await expect(page).toHaveURL(/q=rechtsberatung/);
   await expect(page.getByRole("link", { name: "Kurdistan Rechtsberatung" })).toBeVisible();

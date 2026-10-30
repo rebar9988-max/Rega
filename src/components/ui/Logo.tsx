@@ -12,3 +12,13 @@ export function Logo({ className = "", compact = false, inverse = false }: { cla
     <span className="flex flex-col leading-tight"><span lang="ckb" dir="rtl" className={`text-[26px] font-bold ${inverse ? "text-white" : "text-brand-text"}`}>ڕێگا</span><span className={`text-[11px] font-bold tracking-wide ${inverse ? "text-white" : "text-ink"}`}>REGA24</span></span>
   </span>;
 }
+
+/** Horizontal header lockup from the official master's complete silver mark and wordmark. */
+export function HeaderLogo() {
+  return <span className="rega-header-lockup" aria-hidden="true">
+    {/* eslint-disable-next-line @next/next/no-img-element */}
+    <img src="/brand/rega24-header-symbol-240.webp" srcSet="/brand/rega24-header-symbol-240.webp 240w, /brand/rega24-header-symbol-480.webp 480w" sizes="(min-width: 768px) 15vw, 58px" alt="" width={240} height={300} decoding="async" fetchPriority="high" className="rega-header-symbol" />
+    {/* eslint-disable-next-line @next/next/no-img-element */}
+    <img src="/brand/rega24-header-wordmark-480.webp" srcSet="/brand/rega24-header-wordmark-240.webp 240w, /brand/rega24-header-wordmark-480.webp 480w, /brand/rega24-header-wordmark-805.webp 805w" sizes="(min-width: 768px) 32vw, 160px" alt="" width={805} height={195} decoding="async" className="rega-header-wordmark" />
+  </span>;
+}
