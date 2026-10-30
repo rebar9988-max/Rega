@@ -22,9 +22,9 @@ export async function GET() {
     await prisma.$queryRaw`SELECT 1`;
     database = "ok";
     if (usesD1()) {
-      const history = await prisma.$queryRaw<{ count: number }[]>`SELECT count(*) AS count FROM d1_migrations WHERE name IN ('0001_initial.sql', '0002_runtime.sql', '0003_city_slug_fold.sql')`;
+      const history = await prisma.$queryRaw<{ count: number }[]>`SELECT count(*) AS count FROM d1_migrations WHERE name IN ('0001_initial.sql', '0002_runtime.sql', '0003_city_slug_fold.sql', '0004_business_social_links.sql')`;
       const revision = await prisma.$queryRaw<{ revision: number }[]>`SELECT revision FROM "_RegaRevision" WHERE id=1`;
-      migrations = Number(history[0]?.count) === 3 && revision.length === 1;
+      migrations = Number(history[0]?.count) === 4 && revision.length === 1;
       const columns = await prisma.$queryRaw<{ table_name: string; column_name: string }[]>`
         SELECT m.name AS table_name, p.name AS column_name FROM sqlite_master m JOIN pragma_table_info(m.name) p
         WHERE m.type='table' AND m.name IN ('City','Page','PageTranslation','Listing','ListingTranslation')`;

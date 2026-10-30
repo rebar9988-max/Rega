@@ -1,60 +1,93 @@
-import test from "node:test";
+import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
-import { normalizeSocial, socialLinks, type SocialPlatform } from "../src/lib/social-links";
+import { normalizeSocialUrl, normalizeWebsite, socialLinks } from "../src/lib/social-links";
+import { dayFromStored, dayToStored } from "../src/lib/hours-form";
+import { normalizeDay } from "../src/lib/opening-hours";
 
-const ok = (platform: SocialPlatform, input: string) => {
-  const r = normalizeSocial(platform, input);
-  return r.ok ? r.value : `ERR:${r.reason}`;
-};
+const ok = (value: string | null) => ({ ok: true, value });
+const refused = { ok: false };
 
-test("usernames become the platform's own profile URL", () => {
-  assert.equal(ok("instagram", "@rega24"), "https://www.instagram.com/rega24");
-  assert.equal(ok("instagram", "rega.24_shop"), "https://www.instagram.com/rega.24_shop");
-  assert.equal(ok("tiktok", "@rega24"), "https://www.tiktok.com/@rega24");
-  assert.equal(ok("snapchat", "rega24"), "https://www.snapchat.com/add/rega24");
-  assert.equal(ok("facebook", "rega24shop"), "https://www.facebook.com/rega24shop");
-});
-
-test("links on the platform's own domain are kept as https, without fragment, port or credentials", () => {
-  assert.equal(ok("instagram", "https://www.instagram.com/rega24/"), "https://www.instagram.com/rega24/");
-  assert.equal(ok("instagram", "instagram.com/rega24"), "https://instagram.com/rega24");
-  assert.equal(ok("facebook", "http://m.facebook.com/profile.php?id=123#top"), "https://m.facebook.com/profile.php?id=123");
-  assert.equal(ok("facebook", "https://fb.com/rega24"), "https://fb.com/rega24");
-  assert.equal(ok("tiktok", "https://www.tiktok.com/@rega24?lang=de"), "https://www.tiktok.com/@rega24?lang=de");
-  assert.equal(ok("snapchat", "https://www.snapchat.com/add/rega24"), "https://www.snapchat.com/add/rega24");
-  // A domain typed alone is not mistaken for a username.
-  assert.equal(ok("instagram", "www.instagram.com"), "ERR:invalid");
-});
-
-test("foreign domains, look-alikes, other schemes and empty input are refused", () => {
-  assert.equal(ok("instagram", ""), "ERR:empty");
-  assert.equal(ok("instagram", "   "), "ERR:empty");
-  assert.equal(ok("instagram", "https://evil.example/instagram.com"), "ERR:invalid");
-  assert.equal(ok("instagram", "https://instagram.com.evil.example/rega"), "ERR:invalid");
-  assert.equal(ok("instagram", "https://notinstagram.com/rega"), "ERR:invalid");
-  assert.equal(ok("facebook", "javascript:alert(1)"), "ERR:invalid");
-  assert.equal(ok("tiktok", "https://user:pw@www.tiktok.com/@rega"), "ERR:invalid");
-  assert.equal(ok("snapchat", "https://www.snapchat.com:8443/add/rega"), "ERR:invalid");
-  assert.equal(ok("facebook", "https://www.instagram.com/rega24"), "ERR:invalid");
-  assert.equal(ok("tiktok", "two words"), "ERR:invalid");
-  assert.equal(ok("instagram", `https://www.instagram.com/${"a".repeat(400)}`), "ERR:invalid");
-});
-
-test("only stored, valid https links become buttons, in a fixed order; none means no row", () => {
-  assert.deepEqual(socialLinks({}), []);
-  assert.deepEqual(socialLinks({ instagramUrl: null, facebookUrl: "", tiktokUrl: null, snapchatUrl: null }), []);
-  const links = socialLinks({ snapchatUrl: "https://www.snapchat.com/add/rega24", instagramUrl: "https://www.instagram.com/rega24", facebookUrl: "https://evil.example/x", tiktokUrl: "@rega24" });
-  assert.deepEqual(links.map((l) => [l.platform, l.title, l.url]), [
-    ["instagram", "Instagram", "https://www.instagram.com/rega24"],
-    ["snapchat", "Snapchat", "https://www.snapchat.com/add/rega24"],
-  ]);
-});
-
-test("the columns come from the additive migrations already applied in production (D1 0004, PostgreSQL 20261024220000)", () => {
-  for (const file of ["prisma/migrations/20261024220000_business_social_links/migration.sql", "prisma/d1/migrations/0004_business_social_links.sql"]) {
-    const sql = readFileSync(file, "utf8").replace(/^--.*$/gm, "");
-    for (const column of ["instagramUrl", "facebookUrl", "tiktokUrl", "snapchatUrl"]) assert.match(sql, new RegExp(`ADD COLUMN "${column}" TEXT`));
-    assert.doesNotMatch(sql, /\b(DROP|DELETE|UPDATE|TRUNCATE)\b/i);
+test("social links: empty is allowed for every platform (all four are optional)", () => {
+  for (const p of ["facebook", "instagram", "tiktok", "snapchat"] as const) {
+    assert.deepEqual(normalizeSocialUrl(p, ""), ok(null));
+    assert.deepEqual(normalizeSocialUrl(p, "   "), ok(null));
+    assert.deepEqual(normalizeSocialUrl(p, undefined), ok(null));
   }
+});
+
+test("social links: profile URLs of the platform are stored as canonical https links", () => {
+  assert.deepEqual(normalizeSocialUrl("facebook", "https://facebook.com/kebabamin"), ok("https://www.facebook.com/kebabamin"));
+  assert.deepEqual(normalizeSocialUrl("facebook", "http://m.facebook.com/kebabamin/?ref=share#top"), ok("https://www.facebook.com/kebabamin"));
+  assert.deepEqual(normalizeSocialUrl("facebook", "facebook.com/profile.php?id=100012345"), ok("https://www.facebook.com/profile.php?id=100012345"));
+  assert.deepEqual(normalizeSocialUrl("instagram", "www.instagram.com/kebab.amin/"), ok("https://www.instagram.com/kebab.amin"));
+  assert.deepEqual(normalizeSocialUrl("tiktok", "https://www.tiktok.com/@kebabamin?lang=de"), ok("https://www.tiktok.com/@kebabamin"));
+  assert.deepEqual(normalizeSocialUrl("tiktok", "https://vm.tiktok.com/ZMabc123/"), ok("https://vm.tiktok.com/ZMabc123"));
+  assert.deepEqual(normalizeSocialUrl("snapchat", "https://snapchat.com/add/kebabamin"), ok("https://www.snapchat.com/add/kebabamin"));
+});
+
+test("social links: a bare handle becomes the platform's profile link", () => {
+  assert.deepEqual(normalizeSocialUrl("instagram", "@kebab.amin"), ok("https://www.instagram.com/kebab.amin"));
+  assert.deepEqual(normalizeSocialUrl("tiktok", "kebabamin"), ok("https://www.tiktok.com/@kebabamin"));
+  assert.deepEqual(normalizeSocialUrl("snapchat", "@kebab_amin"), ok("https://www.snapchat.com/add/kebab_amin"));
+  assert.deepEqual(normalizeSocialUrl("facebook", "kebabamin"), ok("https://www.facebook.com/kebabamin"));
+});
+
+test("social links: other sites, lookalike domains, unsafe schemes and tricks are refused", () => {
+  for (const [p, v] of [
+    ["facebook", "javascript:alert(1)"],
+    ["facebook", "JAVASCRIPT:alert(1)//facebook.com/x"],
+    ["facebook", "data:text/html,<script>alert(1)</script>"],
+    ["facebook", "https://facebook.com.evil.example/kebab"],
+    ["facebook", "https://evilfacebook.com/kebab"],
+    ["facebook", "https://facebook.com@evil.example/kebab"],
+    ["facebook", "https://user:pass@facebook.com/kebab"],
+    ["facebook", "https://facebook.com:8443/kebab"],
+    ["facebook", "https://facebook.com/"],
+    ["facebook", "https://facebook.com/profile.php?id=abc"],
+    ["facebook", "https://facebook.com/l.php?u=https://evil.example"],
+    ["instagram", "https://www.facebook.com/kebabamin"],
+    ["instagram", "https://instagram.com/%2F%2Fevil.example"],
+    ["tiktok", "https://tiktok.example.org/@rega"],
+    ["tiktok", "ftp://tiktok.com/@x"],
+    ["snapchat", "https://snapchat.com/add/<b>x</b>"],
+    ["snapchat", "https://snapchat.com/add/x y"],
+    ["snapchat", "x".repeat(400)],
+  ] as const) assert.deepEqual(normalizeSocialUrl(p, v), refused, `${p}: ${v}`);
+  // Dot segments are resolved by the URL parser and can never leave the platform's host.
+  assert.deepEqual(normalizeSocialUrl("instagram", "https://instagram.com/../../x"), ok("https://www.instagram.com/x"));
+});
+
+test("social links: the profile shows only valid saved links, in a fixed order", () => {
+  assert.deepEqual(socialLinks({ facebookUrl: null, instagramUrl: "", tiktokUrl: undefined, snapchatUrl: null }), []);
+  assert.deepEqual(socialLinks({ snapchatUrl: "https://www.snapchat.com/add/a", facebookUrl: "https://www.facebook.com/a" }), [
+    { platform: "facebook", url: "https://www.facebook.com/a" },
+    { platform: "snapchat", url: "https://www.snapchat.com/add/a" },
+  ]);
+  // A stored value that fails today's rules is simply not shown.
+  assert.deepEqual(socialLinks({ instagramUrl: "javascript:alert(1)" }), []);
+});
+
+test("website: optional, https added when missing, unsafe values refused", () => {
+  assert.deepEqual(normalizeWebsite(""), ok(null));
+  assert.deepEqual(normalizeWebsite("placejuice.com"), ok("https://placejuice.com/"));
+  assert.deepEqual(normalizeWebsite("https://www.placejuice.com/menu?x=1"), ok("https://www.placejuice.com/menu?x=1"));
+  assert.deepEqual(normalizeWebsite("http://placejuice.de"), ok("http://placejuice.de/"));
+  for (const v of ["javascript:alert(1)", "ftp://example.com", "https://user:pw@example.com", "localhost", "https://intranet", "exa mple.com", "<script>"])
+    assert.deepEqual(normalizeWebsite(v), refused, v);
+});
+
+test("opening hours editor: stored values round-trip through the controls", () => {
+  for (const stored of ["09:00–17:00", "09:00–12:00, 14:00–18:00", "20:00–02:00", "00:00–24:00", "closed", "18:00–24:00"]) {
+    assert.equal(dayToStored(dayFromStored(stored)), normalizeDay(stored), stored);
+  }
+  // An empty day (once other days are set) is a closed day, as every reader treats it.
+  assert.equal(dayToStored(dayFromStored("")), "closed");
+  // Split shift, overnight and all-day from the controls.
+  assert.equal(dayToStored({ open: true, allDay: false, ranges: [{ from: "10:00", to: "14:00" }, { from: "17:00", to: "22:00" }] }), "10:00–14:00, 17:00–22:00");
+  assert.equal(dayToStored({ open: true, allDay: false, ranges: [{ from: "20:00", to: "02:00" }] }), "20:00–02:00");
+  assert.equal(dayToStored({ open: true, allDay: false, ranges: [{ from: "18:00", to: "00:00" }] }), "18:00–24:00");
+  assert.equal(dayToStored({ open: true, allDay: true, ranges: [] }), "00:00–24:00");
+  // Incomplete or zero-length ranges are not silently saved.
+  assert.equal(dayToStored({ open: true, allDay: false, ranges: [{ from: "10:00", to: "" }] }), null);
+  assert.equal(dayToStored({ open: true, allDay: false, ranges: [{ from: "10:00", to: "10:00" }] }), null);
 });

@@ -1,5 +1,5 @@
 {
-  "schemaSha256": "44777a997b4b6c29cd668ce886524d75976d2ea6db6885b7d7890b30205b5b1b",
+  "schemaSha256": "e518e7e160b3102575569566470a014a850dd4802632a094e0b1390c56323002",
   "models": [
     {
       "name": "User",
@@ -2195,7 +2195,7 @@
           "relationToFields": []
         },
         {
-          "name": "instagramUrl",
+          "name": "facebookUrl",
           "type": "String",
           "kind": "scalar",
           "isList": false,
@@ -2207,7 +2207,7 @@
           "relationToFields": []
         },
         {
-          "name": "facebookUrl",
+          "name": "instagramUrl",
           "type": "String",
           "kind": "scalar",
           "isList": false,

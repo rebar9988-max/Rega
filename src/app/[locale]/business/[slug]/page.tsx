@@ -12,6 +12,8 @@ import { languageNames } from "@/components/cards/BusinessRow";
 import { FigmaIcon } from "@/components/home/FigmaIcon";
 import { directionsUrl, mapLinks, safeHttpUrl, safeTel } from "@/lib/urls";
 import { whatsappLink } from "@/lib/whatsapp";
+import { featuresFromTags } from "@/config/business-features";
+import { socialLinks } from "@/lib/social-links";
 import { offerTimezone } from "@/lib/offers";
 import { OfferList } from "@/components/business/OfferList";
 import { ExpandableText } from "@/components/business/ExpandableText";
@@ -35,7 +37,6 @@ import { responsiveImage } from "@/features/business-images/variants";
 import { ReviewSection } from "@/features/reviews/ReviewSection";
 import { ProfileTabs } from "@/components/business/ProfileTabs";
 import { SocialLinks } from "@/components/business/SocialLinks";
-import { socialLinks } from "@/lib/social-links";
 
 const STAR = "m12 3 2.7 5.6 6.1.8-4.5 4.3 1.1 6.1L12 16.9 6.6 19.8l1.1-6.1L3.2 9.4l6.1-.8L12 3Z";
 const StarIcon = ({ className }: { className: string }) => <svg viewBox="0 0 24 24" className={className} fill="currentColor" aria-hidden="true"><path d={STAR} /></svg>;
@@ -72,11 +73,15 @@ export default async function BusinessPage({ params }: Props) {
   const tel = safeTel(b.phone);
   // Only the business's public WhatsApp number (never an account phone), and only when it is a valid stored number.
   const whatsapp = whatsappLink(b.whatsapp);
+  // Only the profiles the business saved, each re-validated (platform host, https) before it becomes a link.
+  const social = socialLinks(b);
   const offers = b.offers.map((o) => ({ ...o, discountValue: o.discountValue == null ? null : Number(o.discountValue), startsAt: o.startsAt.toISOString(), endsAt: o.endsAt.toISOString() }));
   const category = b.categoryId ? (await getCategories()).find((c) => c.id === b.categoryId) : undefined;
   const categoryName = category ? localize({ ...category, name: category.nameDe }, "name", l) : null;
   const primaryCity = b.locations[0]?.city ? localize({ ...b.locations[0].city, name: b.locations[0].city.nameEn }, "name", l) : null;
   const langs = languageNames(b.languages);
+  // Optional category details the business ticked (config/business-features.ts); none -> nothing is shown.
+  const features = featuresFromTags(b.tags);
   // One location button for the whole page: the primary location (else the first) in the device's map app.
   const placeAddress = (loc: (typeof b.locations)[number]) => [loc.addressLine1, loc.addressLine2, [loc.postalCode, loc.city?.nameEn].filter(Boolean).join(" ")]
     .map((part) => (part ?? "").replace(/[\s,]+$/, "")).filter(Boolean).join(", ");
@@ -101,8 +106,6 @@ export default async function BusinessPage({ params }: Props) {
   const day = (date: string) => formatDate(`${date}T00:00:00Z`, locale as Locale, { timeZone: "UTC" });
   const services = b.services.map((s) => ({ ...s, cover: safeHttpUrl(s.coverUrl) }));
   const serviceCovers = services.some((s) => s.cover);
-  // Only the platforms the business entered, each re-checked against its own domain (lib/social-links.ts).
-  const social = socialLinks(b);
   const hasContact = Boolean(b.phone || whatsapp || b.email || website || social.length > 0);
   const ratingText = formatNumber(b.ratingAvg, l, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
   // Primary (red) action: directions when the place can be found, else the call; share is always possible.
@@ -157,7 +160,7 @@ export default async function BusinessPage({ params }: Props) {
     image: b.logoUrl || b.coverUrl || undefined,
     telephone: b.phone || undefined,
     email: b.email || undefined,
-    sameAs: website ? [website] : undefined,
+    sameAs: website || social.length ? [...(website ? [website] : []), ...social.map((x) => x.url)] : undefined,
     aggregateRating: b.ratingCount ? { "@type": "AggregateRating", ratingValue: b.ratingAvg, reviewCount: b.ratingCount } : undefined,
     address: b.locations[0] ? { "@type": "PostalAddress", streetAddress: b.locations[0].addressLine1, postalCode: b.locations[0].postalCode || undefined, addressCountry: b.locations[0].countryCode, addressLocality: b.locations[0].city?.nameEn } : undefined,
   };
@@ -246,7 +249,7 @@ export default async function BusinessPage({ params }: Props) {
             <ShareButton url={pageUrl} title={name.text} label={t("businesses.share")} copiedLabel={t("businesses.linkCopied")} className={actionClass("share")} />
           </div>
 
-          {(mainAddress || langs.length > 0) && (
+          {(mainAddress || langs.length > 0 || features.length > 0) && (
             <ul className="mt-4 grid grid-cols-1 gap-2 min-[380px]:grid-cols-2 lg:max-w-2xl" data-testid="business-facts">
               {mainAddress && (
                 <li className="flex min-h-14 items-center gap-3 rounded-xl border border-line bg-surface px-3 py-2 min-[380px]:col-span-2">
@@ -268,6 +271,15 @@ export default async function BusinessPage({ params }: Props) {
                   <span className="min-w-0">
                     <span className="block text-sm font-semibold">{t("bizForm.languagesSpoken")}</span>
                     <span className="block text-xs text-muted" data-testid="business-languages">{langs.join(" · ")}</span>
+                  </span>
+                </li>
+              )}
+              {features.length > 0 && (
+                <li className="flex min-h-14 items-center gap-3 rounded-xl border border-line bg-surface px-3 py-2 min-[380px]:col-span-2">
+                  <FigmaIcon name="sparkles" className="size-5 shrink-0 text-brand-text" />
+                  <span className="min-w-0">
+                    <span className="block text-sm font-semibold">{t("bizForm.features.title")}</span>
+                    <span className="mt-1 flex flex-wrap gap-1.5" data-testid="business-features">{features.map((f) => <Chip key={f}>{t(`bizForm.features.items.${f}`)}</Chip>)}</span>
                   </span>
                 </li>
               )}
@@ -357,7 +369,7 @@ export default async function BusinessPage({ params }: Props) {
               ))}
               {social.length > 0 && (
                 <div className={b.phone ? "mt-3.5 border-t border-line pt-3.5" : ""}>
-                  <SocialLinks links={social} label={t("businesses.socialLabel")} ariaLabel={(platform) => t("businesses.socialAria", { name: name.text, platform })} />
+                  <SocialLinks links={social} label={t("businesses.socialProfiles")} ariaLabel={(platform) => t("businesses.socialProfile", { platform })} />
                 </div>
               )}
               {(whatsapp || b.email || website) && (

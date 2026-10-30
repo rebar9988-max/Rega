@@ -237,8 +237,8 @@
     "tabHours": "Horaires",
     "noAbout": "Pas encore de description.",
     "hoursSoon": "Les horaires seront bientôt disponibles.",
-    "socialLabel": "Réseaux sociaux",
-    "socialAria": "{name} sur {platform}"
+    "socialProfiles": "Réseaux sociaux",
+    "socialProfile": "{platform} (nouvelle fenêtre)"
   },
   "services": {
     "title": "Services",
@@ -707,9 +707,9 @@
     "mediaInvalid": "Une photo n’a pas pu être acceptée. Téléversez-la à nouveau avec le bouton de téléversement.",
     "wizard": {
       "steps": "Étapes de l’inscription",
-      "step1": "Entreprise et emplacement",
-      "step2": "Logo et images",
-      "step3": "Vérifier et envoyer",
+      "step1": "Infos",
+      "step2": "Contact",
+      "step3": "Lieu",
       "next": "Suivant",
       "back": "Retour",
       "saveDraft": "Enregistrer le brouillon",
@@ -720,7 +720,11 @@
       "reviewHint": "Après l’envoi, l’équipe REGA vérifie votre annonce. Elle n’est publiée qu’après approbation.",
       "pinConfirmed": "Confirmé sur la carte",
       "pinMissing": "Pas encore placé",
-      "draftChanged": "Ce brouillon a déjà été envoyé ou vérifié. Rechargez la page avant de le modifier."
+      "draftChanged": "Ce brouillon a déjà été envoyé ou vérifié. Rechargez la page avant de le modifier.",
+      "step4": "Horaires",
+      "step5": "Photos et fin",
+      "stepOf": "Étape {n} sur {total} : {name}",
+      "completed": "terminée"
     },
     "categorySearch": "Rechercher une catégorie",
     "optionalDetails": "Détails facultatifs",
@@ -737,9 +741,74 @@
     "exceptionReason": "Motif (facultatif, public)",
     "exceptionRemove": "Retirer",
     "exceptionAdd": "Ajouter une fermeture ou des horaires spéciaux",
-    "socialTitle": "Réseaux sociaux (facultatif)",
-    "socialHint": "Saisissez le lien de votre page officielle ou votre nom d’utilisateur (@nom). Laissez vide pour masquer le bouton.",
-    "socialInvalid": "Ce n’est pas un lien {platform} valide."
+    "socialHint": "Tout est facultatif. Ajoutez seulement les plateformes que vous utilisez : lien du profil ou @nom.",
+    "socialInvalid": "Saisissez un lien de profil {platform} valide (https://…) ou @nom.",
+    "optional": "facultatif",
+    "titleBasics": "Informations principales",
+    "titleContact": "Coordonnées",
+    "titleSocial": "Réseaux sociaux",
+    "titleLocation": "Emplacement et adresse",
+    "titleMedia": "Logo et photos",
+    "locationHint": "Saisissez l'adresse, trouvez l'emplacement et confirmez-le sur la carte.",
+    "sameAsPhone": "Comme le téléphone",
+    "emailInvalid": "Saisissez une adresse e-mail valide, p. ex. name@example.com",
+    "websiteInvalid": "Saisissez une adresse de site valide, p. ex. example.com",
+    "socialClear": "Supprimer {platform}",
+    "pinConfirmedTitle": "Emplacement défini",
+    "pinConfirmedText": "Cette adresse est confirmée sur la carte.",
+    "advancedCoords": "Avancé : coordonnées",
+    "saving": "Enregistrement…",
+    "hoursEditor": {
+      "hint": "Choisissez ouvert ou fermé pour chaque jour et fixez les horaires. Horaires coupés (p. ex. 09:00–12:00 et 14:00–18:00) et de nuit (p. ex. 20:00–02:00) possibles.",
+      "notSet": "Pas encore d'horaires. Sans horaires, l'entreprise n'est jamais affichée « ouverte ».",
+      "add": "Ajouter les horaires",
+      "clear": "Supprimer tous les horaires",
+      "open": "Ouvert",
+      "closed": "Fermé",
+      "allDay": "Ouvert 24 h/24",
+      "from": "de",
+      "to": "à",
+      "addRange": "Ajouter une plage",
+      "removeRange": "Supprimer cette plage",
+      "copyAll": "Copier lundi sur tous les jours",
+      "copyWeekdays": "Aux jours ouvrés (lun–ven)",
+      "overnight": "Ferme le lendemain (après minuit).",
+      "invalid": "Indiquez début et fin ; ils doivent différer.",
+      "unknown": "Non indiqués"
+    },
+    "media": {
+      "hint": "1 logo et 3 photos promotionnelles. Tout est facultatif ; la photo 1 est l'image principale du profil.",
+      "uploadLogo": "Ajouter le logo",
+      "addPhoto": "Ajouter une photo",
+      "promo": "Photo promotionnelle {n}",
+      "morePhotos": "Autres photos promotionnelles",
+      "uploading": "Envoi…",
+      "dropHere": "ou glissez une photo ici"
+    },
+    "features": {
+      "title": "Détails de la catégorie",
+      "hint": "Cochez ce qui s'applique à votre entreprise. Tout est facultatif.",
+      "items": {
+        "wheelchair": "Accessible en fauteuil roulant",
+        "parking": "Parking",
+        "cardPayment": "Paiement par carte",
+        "delivery": "Livraison",
+        "takeaway": "À emporter",
+        "halal": "Halal",
+        "vegetarian": "Options végétariennes",
+        "outdoorSeating": "Terrasse",
+        "appointment": "Sur rendez-vous",
+        "homeVisits": "Visites à domicile",
+        "walkIns": "Sans rendez-vous",
+        "repairService": "Service de réparation",
+        "onlineLessons": "Cours en ligne",
+        "freeConsultation": "Première consultation gratuite",
+        "onlineAppointments": "Rendez-vous en ligne",
+        "freeQuote": "Devis gratuit",
+        "serviceAtCustomer": "Service sur place chez le client",
+        "onlineBooking": "Réservation en ligne"
+      }
+    }
   },
   "contact": {
     "title": "Contact",
@@ -1301,7 +1370,7 @@
     "moveEarlier": "Déplacer avant",
     "moveLater": "Déplacer après",
     "galleryHint": "Une image de couverture et jusqu’à 3 autres images. L’ordre est utilisé sur la page de profil.",
-    "overLimit": "Cette annonce a déjà plus de 3 images. Toutes sont conservées ; de nouvelles images pourront être ajoutées quand il en restera moins de 3."
+    "overLimit": "Cette fiche a plus de photos que d'emplacements. Toutes sont conservées ; une nouvelle photo peut être ajoutée dès qu'un emplacement est libre."
   },
   "ops": {
     "title": "Centre des opérations",

@@ -6,8 +6,8 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./rehearsal.db"
+  provider  = "sqlite"
+  url       = "file:./rehearsal.db"
 }
 
 // ----------------------------------------------------------------- Auth / RBAC
@@ -23,8 +23,8 @@ enum Role {
 }
 
 model User {
-  foldedName      String?
-  foldedEmail     String    @default("")
+  foldedName String?
+  foldedEmail String @default("")
   id              String    @id @default(cuid())
   email           String    @unique
   emailVerified   DateTime?
@@ -169,42 +169,42 @@ model RegionTranslation {
 
 model CityTranslation {
   foldedName String @default("")
-  id         String @id @default(cuid())
-  cityId     String
-  locale     String
-  name       String
-  city       City   @relation(fields: [cityId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  cityId String
+  locale String
+  name   String
+  city   City   @relation(fields: [cityId], references: [id], onDelete: Cascade)
 
   @@unique([cityId, locale])
 }
 
 model City {
-  foldedSlug    String?
-  foldedNameTr  String?
-  foldedNameAr  String?
-  foldedNameFa  String?
-  foldedNameDe  String?
+  foldedSlug String?
+  foldedNameTr String?
+  foldedNameAr String?
+  foldedNameFa String?
+  foldedNameDe String?
   foldedNameKmr String?
   foldedNameCkb String?
-  foldedNameEn  String   @default("")
-  id            String   @id @default(cuid())
-  countryId     String
-  regionId      String?
+  foldedNameEn String @default("")
+  id        String   @id @default(cuid())
+  countryId String
+  regionId  String?
   /// URL slug (/city/<slug>); seeded and generated for new cities, unique across all countries.
-  slug          String?  @unique
-  nameEn        String
-  nameCkb       String?
-  nameKmr       String?
-  nameDe        String?
-  nameFa        String?
-  nameAr        String?
-  nameTr        String?
-  sortOrder     Int      @default(0)
-  latitude      Float?
-  longitude     Float?
-  isActive      Boolean  @default(true)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  slug      String?  @unique
+  nameEn    String
+  nameCkb   String?
+  nameKmr   String?
+  nameDe    String?
+  nameFa    String?
+  nameAr    String?
+  nameTr    String?
+  sortOrder Int      @default(0)
+  latitude  Float?
+  longitude Float?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   country      Country           @relation(fields: [countryId], references: [id], onDelete: Restrict)
   region       Region?           @relation(fields: [regionId], references: [id], onDelete: SetNull)
@@ -274,7 +274,7 @@ model CategoryTranslation {
 // ----------------------------------------------------------------- Core entities
 
 model Business {
-  foldedName     String    @default("")
+  foldedName String @default("")
   id             String    @id @default(cuid())
   slug           String    @unique
   name           String
@@ -293,10 +293,9 @@ model Business {
   /// Public business WhatsApp number in international format ("+491784228269"). Never the owner's account phone.
   whatsapp       String?
   website        String?
-  /// Optional official social profiles: https URLs on each platform's own domain (src/lib/social-links.ts). Empty = no button.
-  /// Production D1 migration 0004_business_social_links (applied 2026-10-29); PostgreSQL 20261024220000.
-  instagramUrl   String?
+  /// Optional public social profiles (canonical https links validated by src/lib/social-links.ts).
   facebookUrl    String?
+  instagramUrl   String?
   tiktokUrl      String?
   snapchatUrl    String?
   logoUrl        String?
@@ -307,11 +306,11 @@ model Business {
   ratingAvg      Float     @default(0)
   ratingCount    Int       @default(0)
   viewCount      Int       @default(0)
-  tags           Json      @default("[]")
+  tags           Json  @default("[]")
   /// Languages spoken at the business (locale codes from config/locales.ts).
-  languages      Json      @default("[]")
+  languages      Json  @default("[]")
   /// Public photos of the business (REGA media URLs, in display order). Logo and cover have their own columns.
-  photos         Json      @default("[]")
+  photos         Json  @default("[]")
   searchText     String    @default("")
   publishedAt    DateTime?
   archivedAt     DateTime?
@@ -429,22 +428,22 @@ model Service {
 /// (src/lib/offers.ts), so an expired or not-yet-started offer can never look active. Money/percent rules are also
 /// enforced by CHECK constraints in the migration.
 model Offer {
-  id            String   @id @default(cuid())
+  id            String    @id @default(cuid())
   businessId    String
   title         String
   description   String?
   imageUrl      String?
   /// none = no numeric discount | percent = 1-90 % off | amount = a fixed amount off, in `currency`.
-  discountType  String   @default("none")
+  discountType  String    @default("none")
   discountValue Decimal?
   currency      String?
   startsAt      DateTime
   endsAt        DateTime
   /// Owner switch: false = deactivated.
-  isActive      Boolean  @default(true)
+  isActive      Boolean   @default(true)
   createdById   String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
 
@@ -731,14 +730,14 @@ model ListingTranslation {
 }
 
 model JobDetails {
-  listingId      String  @id
+  listingId      String   @id
   /// full_time | part_time | mini_job | apprenticeship | internship | freelance
-  employmentType String  @default("full_time")
+  employmentType String   @default("full_time")
   applyUrl       String?
   applyEmail     String?
   /// Languages required / used at work (locale codes).
-  languages      Json    @default("[]")
-  listing        Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  languages      Json @default("[]")
+  listing        Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
 }
 
 model EventDetails {

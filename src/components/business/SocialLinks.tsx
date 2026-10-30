@@ -40,22 +40,22 @@ function BrandMark({ platform }: { platform: SocialPlatform }) {
 
 /** Row of the business's own social profiles; renders only the platforms it was given (never an empty row). */
 export function SocialLinks({ links, label, ariaLabel }: {
-  links: { platform: SocialPlatform; title: string; url: string }[];
+  links: { platform: SocialPlatform; url: string }[];
   label: string;
   ariaLabel: (title: string) => string;
 }) {
   if (links.length === 0) return null;
   return (
     <ul aria-label={label} className="flex flex-wrap gap-2" data-testid="business-social">
-      {links.map(({ platform, title, url }) => (
+      {links.map(({ platform, url }) => { const title = ICON[platform].title; return (
         <li key={platform}>
-          <a href={url} target="_blank" rel="noopener noreferrer nofollow" aria-label={ariaLabel(title)} data-testid={`social-link-${platform}`}
+          <a href={url} target="_blank" rel="noopener noreferrer nofollow" aria-label={ariaLabel(title)} data-testid={`social-${platform}`}
             className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-line bg-surface py-1.5 pe-3 ps-1.5 text-sm font-semibold transition hover:border-brand/40 hover:bg-surface-2 motion-safe:active:scale-[.98]">
             <span className="grid size-8 shrink-0 place-items-center overflow-hidden rounded-lg border border-line bg-white"><BrandMark platform={platform} /></span>
             <span dir="ltr">{title}</span>
           </a>
         </li>
-      ))}
+      ); })}
     </ul>
   );
 }

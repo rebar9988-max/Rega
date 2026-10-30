@@ -237,8 +237,8 @@
     "tabHours": "Zeiten",
     "noAbout": "Noch keine Beschreibung.",
     "hoursSoon": "Öffnungszeiten folgen in Kürze.",
-    "socialLabel": "Soziale Medien",
-    "socialAria": "{name} auf {platform}"
+    "socialProfiles": "Social Media",
+    "socialProfile": "{platform} (neues Fenster)"
   },
   "services": {
     "title": "Dienstleistungen",
@@ -614,7 +614,7 @@
   },
   "bizForm": {
     "new": "Neues Unternehmen",
-    "edit": "Bearbeiten",
+    "edit": "Ändern",
     "newTitle": "Neues Unternehmen",
     "editTitle": "Unternehmen bearbeiten",
     "sectionBasics": "Unternehmen",
@@ -707,9 +707,9 @@
     "mediaInvalid": "Ein Foto konnte nicht übernommen werden. Laden Sie es erneut mit der Upload-Schaltfläche hoch.",
     "wizard": {
       "steps": "Schritte der Registrierung",
-      "step1": "Unternehmen & Standort",
-      "step2": "Logo & Bilder",
-      "step3": "Prüfen & einreichen",
+      "step1": "Grunddaten",
+      "step2": "Kontakt",
+      "step3": "Standort",
       "next": "Weiter",
       "back": "Zurück",
       "saveDraft": "Entwurf speichern",
@@ -720,7 +720,11 @@
       "reviewHint": "Nach dem Einreichen prüft das REGA-Team Ihren Eintrag. Er wird erst nach der Freigabe veröffentlicht.",
       "pinConfirmed": "Auf der Karte bestätigt",
       "pinMissing": "Noch nicht gesetzt",
-      "draftChanged": "Dieser Entwurf wurde bereits eingereicht oder geprüft. Vor dem Bearbeiten neu laden."
+      "draftChanged": "Dieser Entwurf wurde bereits eingereicht oder geprüft. Vor dem Bearbeiten neu laden.",
+      "step4": "Zeiten",
+      "step5": "Bilder & Abschluss",
+      "stepOf": "Schritt {n} von {total}: {name}",
+      "completed": "erledigt"
     },
     "categorySearch": "Kategorien suchen",
     "optionalDetails": "Optionale Angaben",
@@ -737,9 +741,74 @@
     "exceptionReason": "Grund (optional, öffentlich)",
     "exceptionRemove": "Entfernen",
     "exceptionAdd": "Schließung oder besondere Zeiten hinzufügen",
-    "socialTitle": "Soziale Medien (optional)",
-    "socialHint": "Link zur offiziellen Seite oder Benutzername (@name) eingeben. Leer lassen, wenn kein Button erscheinen soll.",
-    "socialInvalid": "Kein gültiger {platform}-Link."
+    "socialHint": "Alles optional. Nur die Plattformen eintragen, die Sie nutzen: Profil-Link oder @Name.",
+    "socialInvalid": "Bitte einen gültigen {platform}-Profil-Link (https://…) oder @Namen eingeben.",
+    "optional": "optional",
+    "titleBasics": "Grunddaten",
+    "titleContact": "Kontaktdaten",
+    "titleSocial": "Social Media",
+    "titleLocation": "Standort und Adresse",
+    "titleMedia": "Logo und Bilder",
+    "locationHint": "Adresse eingeben, Standort suchen und auf der Karte bestätigen.",
+    "sameAsPhone": "Wie Telefon",
+    "emailInvalid": "Bitte eine gültige E-Mail-Adresse eingeben, z. B. name@example.com",
+    "websiteInvalid": "Bitte eine gültige Website-Adresse eingeben, z. B. example.com",
+    "socialClear": "{platform} entfernen",
+    "pinConfirmedTitle": "Standort erfolgreich festgelegt",
+    "pinConfirmedText": "Diese Adresse ist auf der Karte bestätigt.",
+    "advancedCoords": "Erweitert: Koordinaten",
+    "saving": "Wird gespeichert…",
+    "hoursEditor": {
+      "hint": "Für jeden Tag geöffnet oder geschlossen wählen und die Zeiten festlegen. Geteilte Zeiten (z. B. 09:00–12:00 und 14:00–18:00) und über Mitternacht (z. B. 20:00–02:00) sind möglich.",
+      "notSet": "Noch keine Öffnungszeiten. Ohne sie wird das Unternehmen nie als „geöffnet“ angezeigt.",
+      "add": "Öffnungszeiten festlegen",
+      "clear": "Alle Öffnungszeiten entfernen",
+      "open": "Geöffnet",
+      "closed": "Geschlossen",
+      "allDay": "24 Stunden geöffnet",
+      "from": "von",
+      "to": "bis",
+      "addRange": "Weitere Zeit hinzufügen",
+      "removeRange": "Diese Zeit entfernen",
+      "copyAll": "Montag für alle Tage übernehmen",
+      "copyWeekdays": "Für Werktage (Mo–Fr)",
+      "overnight": "Schließt am nächsten Tag (nach Mitternacht).",
+      "invalid": "Bitte Beginn und Ende eingeben; sie dürfen nicht gleich sein.",
+      "unknown": "Nicht angegeben"
+    },
+    "media": {
+      "hint": "1 Logo und 3 Werbebilder. Alles optional; Werbebild 1 ist das Hauptbild Ihres Profils.",
+      "uploadLogo": "Logo hochladen",
+      "addPhoto": "Foto hinzufügen",
+      "promo": "Werbebild {n}",
+      "morePhotos": "Weitere Werbebilder",
+      "uploading": "Wird hochgeladen…",
+      "dropHere": "oder Bild hierher ziehen"
+    },
+    "features": {
+      "title": "Details zur Kategorie",
+      "hint": "Wählen Sie, was auf Ihr Unternehmen zutrifft. Alles optional.",
+      "items": {
+        "wheelchair": "Rollstuhlgerecht",
+        "parking": "Parkplätze",
+        "cardPayment": "Kartenzahlung",
+        "delivery": "Lieferung",
+        "takeaway": "Zum Mitnehmen",
+        "halal": "Halal",
+        "vegetarian": "Vegetarische Gerichte",
+        "outdoorSeating": "Außenbereich",
+        "appointment": "Termin nach Vereinbarung",
+        "homeVisits": "Hausbesuche",
+        "walkIns": "Ohne Termin",
+        "repairService": "Reparaturservice",
+        "onlineLessons": "Online-Unterricht",
+        "freeConsultation": "Kostenlose Erstberatung",
+        "onlineAppointments": "Online-Termine",
+        "freeQuote": "Kostenloser Kostenvoranschlag",
+        "serviceAtCustomer": "Service beim Kunden vor Ort",
+        "onlineBooking": "Online-Buchung"
+      }
+    }
   },
   "contact": {
     "title": "Kontakt",
@@ -1301,7 +1370,7 @@
     "moveEarlier": "Nach vorn",
     "moveLater": "Nach hinten",
     "galleryHint": "Ein Titelbild und bis zu 3 weitere Bilder. Die Reihenfolge gilt auch auf der Profilseite.",
-    "overLimit": "Dieser Eintrag hat bereits mehr als 3 Bilder. Alle bleiben erhalten; neue Bilder lassen sich hinzufügen, sobald weniger als 3 übrig sind."
+    "overLimit": "Dieser Eintrag hat mehr Fotos als Plätze. Alle bleiben erhalten; ein neues Foto kann hinzugefügt werden, sobald ein Platz frei ist."
   },
   "ops": {
     "title": "Operations-Center",

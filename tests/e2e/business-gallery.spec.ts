@@ -1,5 +1,5 @@
 /**
- * Business gallery and image editor in /dr, and the result on the public profile: one cover + up to three images,
+ * Business gallery and image editor in /dr, and the result on the public profile: one cover + up to two more images,
  * move / zoom buttons in the editor, reorder, replace, remove with confirmation, and the gallery on the profile.
  * Runs on desktop and on a phone (Pixel 5); every record is created by this file (local storage fake).
  */
@@ -44,7 +44,7 @@ const photoUrls = (page: Page) => page.locator("input[name=photoUrls]").evaluate
 
 test.setTimeout(240_000);
 
-test("owner manages one cover and three gallery images; the profile shows them in that order", async ({ page }, info) => {
+test("staff manage the cover and the two further promotional photos; the profile shows them in that order", async ({ page }, info) => {
   const name = `E2E Galerie ${info.project.name} ${stamp}`;
   await login(page);
   await page.goto("/dr/businesses/new");
@@ -67,41 +67,41 @@ test("owner manages one cover and three gallery images; the profile shows them i
   await editor.getByRole("button", { name: "Nach oben" }).click();
   await confirmUpload(page, async () => (await editor.count()) === 0);
 
-  // Three gallery images in one go; then adding is closed.
+  // Four image slots: logo, cover (promotional photo 1) and two gallery photos. Both photos in one go; then no free slot is left.
   await page.getByTestId("upload-photos").setInputFiles([png(0, 200, 0), png(0, 0, 200), png(200, 200, 0)]);
-  for (let i = 0; i < 3; i++) await confirmUpload(page, async () => (await photoUrls(page)).length === i + 1);
+  for (let i = 0; i < 2; i++) await confirmUpload(page, async () => (await photoUrls(page)).length === i + 1);
   await expect(page.getByTestId("image-editor")).toHaveCount(0);
-  await expect(page.getByTestId("upload-photos")).toBeDisabled();
+  expect(await photoUrls(page)).toHaveLength(2); // the third file did not fit and was not uploaded
+  await expect(page.getByTestId("upload-photos")).toHaveCount(0);
 
   // Reorder: the first moves one place later.
-  const [a, b, c] = await photoUrls(page);
+  const [a, b] = await photoUrls(page);
   await page.getByTestId("photo-item").first().getByTestId("photo-later").click();
-  expect(await photoUrls(page)).toEqual([b, a, c]);
+  expect(await photoUrls(page)).toEqual([b, a]);
 
   // Replace keeps the slot.
   await page.getByTestId("photo-item").nth(1).getByTestId("photo-replace").click();
   await page.getByTestId("replace-photo-input").setInputFiles(png(120, 0, 120));
   await confirmUpload(page, async () => (await editor.count()) === 0);
   const replaced = await photoUrls(page);
-  expect(replaced).toHaveLength(3);
+  expect(replaced).toHaveLength(2);
   expect(replaced[0]).toBe(b);
   expect(replaced[1]).not.toBe(a);
-  expect(replaced[2]).toBe(c);
 
-  // Remove asks first: dismiss keeps it, accept removes it.
+  // Remove asks first: dismiss keeps it, accept removes it and frees the slot again.
   page.once("dialog", (d) => void d.dismiss());
-  await page.getByTestId("photo-item").last().getByTestId("photo-remove").click();
-  expect(await photoUrls(page)).toHaveLength(3);
+  await page.getByTestId("photo-item").first().getByTestId("photo-remove").click();
+  expect(await photoUrls(page)).toHaveLength(2);
   page.once("dialog", (d) => void d.accept());
-  await page.getByTestId("photo-item").last().getByTestId("photo-remove").click();
-  expect(await photoUrls(page)).toEqual([b, replaced[1]]);
+  await page.getByTestId("photo-item").first().getByTestId("photo-remove").click();
+  expect(await photoUrls(page)).toEqual([replaced[1]]);
   await expect(page.getByTestId("upload-photos")).toBeEnabled();
 
   await page.getByRole("button", { name: "Speichern und veröffentlichen" }).click();
   await expect(page.getByTestId("business-status")).toHaveText("Veröffentlicht");
   const cover = await page.locator("input[name=coverUrl]").inputValue();
 
-  // Public profile: cover first, then the two images in the saved order.
+  // Public profile: cover first, then the remaining gallery photo.
   const slug = (await (await page.request.get(`/api/v1/businesses?q=${encodeURIComponent(name)}`)).json()).data[0].slug;
   await page.goto(`/de/business/${slug}`);
   const gallery = page.getByTestId("business-gallery");
@@ -109,13 +109,13 @@ test("owner manages one cover and three gallery images; the profile shows them i
   // Each stored URL announces its smaller copies (features/business-images/variants.ts): the original is the src and
   // the copies are offered in srcset, so a phone loads a copy that fits its screen.
   const plain = (u: string) => u.split("?")[0];
-  expect(shown).toEqual([cover, b, replaced[1]].map(plain));
-  for (const u of [cover, b, replaced[1]]) expect(u).toMatch(/\?v=160,480,720,960&w=1280$/);
+  expect(shown).toEqual([cover, replaced[1]].map(plain));
+  for (const u of [cover, replaced[1]]) expect(u).toMatch(/\?v=160,480,720,960&w=1280$/);
   const srcsets = await gallery.locator("img").evaluateAll((els) => els.map((e) => (e as HTMLImageElement).getAttribute("srcset") ?? ""));
   expect(srcsets[0]).toContain(`${plain(cover).replace(/\.jpg$/, "")}-w720.jpg 720w`);
   const copy = await page.request.get(`${plain(cover).replace(/\.jpg$/, "")}-w480.jpg`);
   expect(copy.ok()).toBe(true);
-  await expect(gallery).toContainText("3 Bilder");
+  await expect(gallery).toContainText("2 Bilder");
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(0);
   // Without a phone number Directions is the first action: its menu still stays on screen.
   await page.getByTestId("directions-button").click();
