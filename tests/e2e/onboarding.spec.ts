@@ -61,7 +61,7 @@ test("for-business page: free statement, steps, verified explanation, register C
 test("header 'add listing' goes to /for-business when logged out", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/de");
-  await expect(page.locator("header").locator('a[href="/de/for-business"]').first()).toBeVisible();
+  await expect(page.locator("header").locator('a[href="/de/for-business"]:visible').first()).toBeVisible();
 });
 
 test("registration validates: terms are required, passwords must match and be long enough", async ({ page }) => {
