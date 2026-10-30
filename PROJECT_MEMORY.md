@@ -1320,3 +1320,22 @@ Production D1 0004 APPLIED 2026-10-29 ~12:58 UTC after the owner's explicit appr
 FK violations 0; live health 200 (provider d1, migrations true) with the old code. PR #100 (draft PR #71 overlaps: same
 columns; PG migration made byte-identical to #71's).
 Next safe continuation point: PR #100 CI green → merge → verify deploy, health (now requires 0004) and live form/profile.
+
+### Continuation 2026-10-30 (late): #100 merged into the branch, admin audit filters + notification bell wired
+
+- Overlap check (GitHub): PR #100 (`claude/rega24-business-form-6ie7x9`, green CI, owner-approved D1 0004) and draft PR
+  #71 (origin of the 0004 columns) cover the business form and social profiles. Instead of duplicating, this branch
+  merged `main` (#109, #112) and #100: #100's form, validation (`src/lib/social-links.ts`), admin save, migrations and
+  tests are kept unchanged; this branch adds the profile/card redesign on top (social row uses #100's links, test ids
+  `social-<platform>` and labels; #100's category features shown in the identity card). Schemas = main + #100's five
+  lines. Catalogues merged three-way. Merging this PR with a merge commit also lands #100's commits.
+- Production D1: unchanged (columns already present; repo migrations 0001–0005 == production `d1_migrations`).
+- Admin: `/dr/audit` filters (action, object, user e-mail; validated URL params; pagination keeps them). Dashboard top
+  bar with the notification bell for roles that handle a queue (pending businesses, pending reviews, open reports, new
+  messages; existing permissions; no new table; failures logged and never break the page). Docs:
+  [admin audit + notifications](docs/ADMIN-AUDIT-NOTIFICATIONS.md). Browser test `admin-audit-notifications.spec.ts`.
+- Local (PostgreSQL 16): typecheck, lint, unit 445/445, test:d1 10/10, build pass. Targeted browser run (admin, social,
+  #100 form/onboarding, profile, gallery, publication, completion, catalog; desktop+mobile): 84 passed, 2 failed, 2 skipped
+  (#100's own 320-px desktop skips). Both failures were re-run: #100's social test passed 2/2; the image-editor
+  upload-retry test (unchanged code) failed 1 of 5 on mobile in this sandbox only — main's CI 41125115875 ran 447/447
+  without retries, so hosted CI on the PR is the decisive check.

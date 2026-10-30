@@ -449,7 +449,16 @@
     "messages": "نامەکان",
     "reviews": "هەڵسەنگاندنەکان",
     "operations": "ئۆپەراسیۆن",
-    "searchAnalytics": "شیکاری گەڕان"
+    "searchAnalytics": "شیکاری گەڕان",
+    "notifications": "ئاگادارکردنەوەکان",
+    "notificationsEmpty": "هیچ کارێک چاوەڕێ ناکات.",
+    "notif_pendingBusinesses": "بازرگانی چاوەڕێی پشکنین: {count}",
+    "notif_pendingReviews": "هەڵسەنگاندن بۆ پشکنین: {count}",
+    "notif_openReports": "ڕاپۆرتی کراوە: {count}",
+    "notif_newMessages": "نامەی نوێ: {count}",
+    "filterActor": "ئیمەیڵی بەکارهێنەر",
+    "filterApply": "پاڵاوتن",
+    "filterReset": "سڕینەوەی پاڵاوتن"
   },
   "form": {
     "name": "ناو",

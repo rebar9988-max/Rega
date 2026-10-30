@@ -449,7 +449,16 @@
     "messages": "پیام‌ها",
     "reviews": "نظرها",
     "operations": "عملیات",
-    "searchAnalytics": "تحلیل جست‌وجو"
+    "searchAnalytics": "تحلیل جست‌وجو",
+    "notifications": "اعلان‌ها",
+    "notificationsEmpty": "چیزی در انتظار نیست.",
+    "notif_pendingBusinesses": "کسب‌وکارهای در انتظار بررسی: {count}",
+    "notif_pendingReviews": "نظرهای در انتظار بررسی: {count}",
+    "notif_openReports": "گزارش‌های باز: {count}",
+    "notif_newMessages": "پیام‌های جدید: {count}",
+    "filterActor": "ایمیل کاربر",
+    "filterApply": "فیلتر",
+    "filterReset": "بازنشانی"
   },
   "form": {
     "name": "نام",

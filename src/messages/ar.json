@@ -449,7 +449,16 @@
     "messages": "الرسائل",
     "reviews": "التقييمات",
     "operations": "العمليات",
-    "searchAnalytics": "تحليلات البحث"
+    "searchAnalytics": "تحليلات البحث",
+    "notifications": "الإشعارات",
+    "notificationsEmpty": "لا يوجد شيء بانتظارك.",
+    "notif_pendingBusinesses": "أنشطة تجارية بانتظار المراجعة: {count}",
+    "notif_pendingReviews": "تقييمات للمراجعة: {count}",
+    "notif_openReports": "بلاغات مفتوحة: {count}",
+    "notif_newMessages": "رسائل جديدة: {count}",
+    "filterActor": "البريد الإلكتروني للمستخدم",
+    "filterApply": "تصفية",
+    "filterReset": "إعادة ضبط"
   },
   "form": {
     "name": "الاسم",

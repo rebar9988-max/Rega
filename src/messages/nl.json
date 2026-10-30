@@ -449,7 +449,16 @@
     "messages": "Berichten",
     "reviews": "Recensies",
     "operations": "Operaties",
-    "searchAnalytics": "Zoekanalyse"
+    "searchAnalytics": "Zoekanalyse",
+    "notifications": "Meldingen",
+    "notificationsEmpty": "Er wacht niets.",
+    "notif_pendingBusinesses": "Bedrijven wachten op controle: {count}",
+    "notif_pendingReviews": "Beoordelingen te modereren: {count}",
+    "notif_openReports": "Open meldingen: {count}",
+    "notif_newMessages": "Nieuwe berichten: {count}",
+    "filterActor": "E-mail van gebruiker",
+    "filterApply": "Filteren",
+    "filterReset": "Wissen"
   },
   "form": {
     "name": "Naam",

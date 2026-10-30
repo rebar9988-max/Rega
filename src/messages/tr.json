@@ -449,7 +449,16 @@
     "messages": "Mesajlar",
     "reviews": "Değerlendirmeler",
     "operations": "Operasyon",
-    "searchAnalytics": "Arama analizi"
+    "searchAnalytics": "Arama analizi",
+    "notifications": "Bildirimler",
+    "notificationsEmpty": "Bekleyen bir şey yok.",
+    "notif_pendingBusinesses": "İnceleme bekleyen işletmeler: {count}",
+    "notif_pendingReviews": "Denetlenecek yorumlar: {count}",
+    "notif_openReports": "Açık bildirimler: {count}",
+    "notif_newMessages": "Yeni mesajlar: {count}",
+    "filterActor": "Kullanıcı e-postası",
+    "filterApply": "Filtrele",
+    "filterReset": "Sıfırla"
   },
   "form": {
     "name": "Ad",

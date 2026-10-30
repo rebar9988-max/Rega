@@ -449,7 +449,16 @@
     "messages": "Messages",
     "reviews": "Reviews",
     "operations": "Operations",
-    "searchAnalytics": "Search analytics"
+    "searchAnalytics": "Search analytics",
+    "notifications": "Notifications",
+    "notificationsEmpty": "Nothing is waiting.",
+    "notif_pendingBusinesses": "Businesses waiting for review: {count}",
+    "notif_pendingReviews": "Reviews to moderate: {count}",
+    "notif_openReports": "Open reports: {count}",
+    "notif_newMessages": "New messages: {count}",
+    "filterActor": "User e-mail",
+    "filterApply": "Filter",
+    "filterReset": "Reset"
   },
   "form": {
     "name": "Name",

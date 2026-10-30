@@ -449,7 +449,16 @@
     "messages": "Meddelanden",
     "reviews": "Omdömen",
     "operations": "Drift",
-    "searchAnalytics": "Sökanalys"
+    "searchAnalytics": "Sökanalys",
+    "notifications": "Aviseringar",
+    "notificationsEmpty": "Inget väntar.",
+    "notif_pendingBusinesses": "Företag som väntar på granskning: {count}",
+    "notif_pendingReviews": "Recensioner att moderera: {count}",
+    "notif_openReports": "Öppna anmälningar: {count}",
+    "notif_newMessages": "Nya meddelanden: {count}",
+    "filterActor": "Användarens e-post",
+    "filterApply": "Filtrera",
+    "filterReset": "Återställ"
   },
   "form": {
     "name": "Namn",

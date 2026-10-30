@@ -1,6 +1,8 @@
 # Admin dashboard: audit logs and notifications (next milestone)
 
-Status 2026-10-30: **scaffold only**. Nothing below is wired into a page yet; live behaviour is unchanged.
+Status 2026-10-30: **wired** (branch `claude/business-profile-social-links`). `/dr/audit` uses the filters; the
+dashboard layout shows the notification bell in a slim top bar for roles that handle at least one queue (SUPER_ADMIN,
+ADMIN, MANAGER with `business.publish` / `review.moderate`; never EMPLOYEE or BUSINESS_OWNER). No new table.
 Accent colour is the REGA red (`brand`, `brand-soft`, `brand-text`); no new colours.
 
 ## What already exists (verified in code)
@@ -10,7 +12,7 @@ Accent colour is the REGA red (`brand`, `brand-soft`, `brand-text`); no new colo
 - Work queues that notifications can be derived from: `Business.status = "pending"`, `Review.status = "pending"`,
   `Report.status = "open"`, `ContactMessage.status = "new"`.
 
-## Scaffold added
+## Building blocks
 
 | File | Purpose |
 | --- | --- |
@@ -22,13 +24,19 @@ Accent colour is the REGA red (`brand`, `brand-soft`, `brand-text`); no new colo
 | [src/features/admin-notifications/NotificationBell.tsx](../src/features/admin-notifications/NotificationBell.tsx) | Bell with red count badge and list; Escape/outside click closes |
 | [tests/admin-scaffold.test.ts](../tests/admin-scaffold.test.ts) | Unit tests for the pure parts |
 
-## Next steps (each needs its own verification)
+## Wiring
 
-1. `/dr/audit`: use `parseAuditFilters` + `auditWhere` + `AuditLogTable` + `AuditFilters`; add filter labels
-   (`dashboard.filterApply`, `dashboard.filterReset`, …) to all 11 catalogues. Consider an index on
-   `AuditLog(action, createdAt)` only if the filtered queries are slow (that is a migration: owner approval).
-2. Notifications: render `NotificationBell` in the dashboard header (layout change: owner approval), labels in all
-   catalogues, `getAdminNotifications(role)` in the dashboard layout. Counts are cheap `count()` queries.
-3. Persistent notifications (read/unread, per user, e-mail): needs a new `Notification` table in PostgreSQL **and**
+- [src/app/dr/audit/page.tsx](../src/app/dr/audit/page.tsx): `parseAuditFilters` → `auditWhere` for count and rows;
+  pagination links keep the filters (`auditHref`). Exact match on action/entity, substring on the actor e-mail.
+- [src/app/dr/layout.tsx](../src/app/dr/layout.tsx): `getAdminNotifications(role)` (up to four `count()` queries per
+  dashboard page); labels `dashboard.notif_*` are rendered on the server. A failed count is logged
+  (`dr.notifications.failed`) and shows an empty bell; the dashboard itself never fails because of it.
+- Texts: `dashboard.notifications`, `notificationsEmpty`, `notif_*`, `filterActor`, `filterApply`, `filterReset` in all
+  11 catalogues. Browser test: [tests/e2e/admin-audit-notifications.spec.ts](../tests/e2e/admin-audit-notifications.spec.ts).
+
+## Later (needs owner approval)
+
+1. An index on `AuditLog(action, createdAt)` only if filtered queries become slow (a migration).
+2. Persistent notifications (read/unread, per user, e-mail): needs a new `Notification` table in PostgreSQL **and**
    D1. Do not add it before the owner approves the schema; production D1 migrations are applied manually
    (`npm run db:d1:migrate`) before the deploy that reads them.

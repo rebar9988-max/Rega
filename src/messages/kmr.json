@@ -449,7 +449,16 @@
     "messages": "Peyam",
     "reviews": "Nirxandin",
     "operations": "Operasyon",
-    "searchAnalytics": "Analîza lêgerînê"
+    "searchAnalytics": "Analîza lêgerînê",
+    "notifications": "Agahdarî",
+    "notificationsEmpty": "Tu kar li bendê nîne.",
+    "notif_pendingBusinesses": "Karsazî li benda kontrolê: {count}",
+    "notif_pendingReviews": "Nirxandin ji bo kontrolê: {count}",
+    "notif_openReports": "Raporên vekirî: {count}",
+    "notif_newMessages": "Peyamên nû: {count}",
+    "filterActor": "E-nameya bikarhêner",
+    "filterApply": "Parzûn",
+    "filterReset": "Parzûnê paqij bike"
   },
   "form": {
     "name": "Nav",

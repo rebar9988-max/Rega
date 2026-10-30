@@ -13,6 +13,7 @@ const COUNT: Record<NotificationKind, () => Promise<number>> = {
 
 export async function getAdminNotifications(role: Role | null | undefined) {
   const kinds = visibleKinds(role);
+  if (kinds.length === 0) return [];
   const values = await Promise.all(kinds.map((k) => COUNT[k]()));
   const counts: NotificationCounts = Object.fromEntries(kinds.map((k, i) => [k, values[i]]));
   return buildNotifications(counts, role);

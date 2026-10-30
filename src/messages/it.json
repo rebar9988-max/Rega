@@ -449,7 +449,16 @@
     "messages": "Messaggi",
     "reviews": "Recensioni",
     "operations": "Operazioni",
-    "searchAnalytics": "Analisi delle ricerche"
+    "searchAnalytics": "Analisi delle ricerche",
+    "notifications": "Notifiche",
+    "notificationsEmpty": "Niente in attesa.",
+    "notif_pendingBusinesses": "Attività in attesa di revisione: {count}",
+    "notif_pendingReviews": "Recensioni da moderare: {count}",
+    "notif_openReports": "Segnalazioni aperte: {count}",
+    "notif_newMessages": "Nuovi messaggi: {count}",
+    "filterActor": "E-mail utente",
+    "filterApply": "Filtra",
+    "filterReset": "Reimposta"
   },
   "form": {
     "name": "Nome",

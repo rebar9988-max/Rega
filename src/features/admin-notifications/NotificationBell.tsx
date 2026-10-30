@@ -7,9 +7,9 @@ import { badgeText, type AdminNotification } from "./build";
 /**
  * Bell with a REGA-red count badge and a small list of what is waiting. Data comes from the server
  * (getAdminNotifications); this component only opens and closes. Escape and outside clicks close it.
- * Not yet placed in the dashboard header: see docs/ADMIN-AUDIT-NOTIFICATIONS.md.
+ * Placed in the dashboard's top bar (app/dr/layout.tsx).
  */
-export function NotificationBell({ items, labels }: { items: AdminNotification[]; labels: { title: string; empty: string; item: (n: AdminNotification) => string } }) {
+export function NotificationBell({ items, labels }: { items: (AdminNotification & { label: string })[]; labels: { title: string; empty: string } }) {
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   const panel = useId();
@@ -39,7 +39,7 @@ export function NotificationBell({ items, labels }: { items: AdminNotification[]
               {items.map((n) => (
                 <li key={n.kind}>
                   <Link href={n.href} onClick={() => setOpen(false)} className="flex min-h-11 items-center justify-between gap-3 rounded-xl px-2 text-sm hover:bg-surface-2">
-                    <span className="min-w-0">{labels.item(n)}</span>
+                    <span className="min-w-0">{n.label}</span>
                     <span className="shrink-0 rounded-full bg-brand-soft px-2 py-0.5 text-xs font-bold text-brand-text">{n.count}</span>
                   </Link>
                 </li>

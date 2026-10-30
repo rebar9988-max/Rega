@@ -449,7 +449,16 @@
     "messages": "Messages",
     "reviews": "Avis",
     "operations": "Opérations",
-    "searchAnalytics": "Analyse des recherches"
+    "searchAnalytics": "Analyse des recherches",
+    "notifications": "Notifications",
+    "notificationsEmpty": "Rien en attente.",
+    "notif_pendingBusinesses": "Entreprises en attente de vérification : {count}",
+    "notif_pendingReviews": "Avis à modérer : {count}",
+    "notif_openReports": "Signalements ouverts : {count}",
+    "notif_newMessages": "Nouveaux messages : {count}",
+    "filterActor": "E-mail de l’utilisateur",
+    "filterApply": "Filtrer",
+    "filterReset": "Réinitialiser"
   },
   "form": {
     "name": "Nom",
