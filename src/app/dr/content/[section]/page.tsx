@@ -25,6 +25,7 @@ export default async function DrContentList({ params, searchParams }: { params: 
   const locale = (await getLocale()) as Locale;
   const t = await getTranslations();
   const canModerate = can(user.role, config.publish);
+  const now = new Date();
 
   // Owners see their own entries and those of businesses they manage; staff with global access see everything.
   const scope: Prisma.ListingWhereInput = hasGlobalBusinessAccess(user.role) ? {} : { OR: [{ createdById: user.id }, { business: managedBusinessWhere(user) }] };
@@ -33,7 +34,7 @@ export default async function DrContentList({ params, searchParams }: { params: 
     prisma.listing.count({ where }),
     prisma.listing.findMany({
       where, orderBy: { updatedAt: "desc" }, skip: (page - 1) * PER_PAGE, take: PER_PAGE,
-      select: { id: true, slug: true, status: true, verified: true, updatedAt: true, translations: { select: { locale: true, title: true, summary: true, body: true } }, business: { select: { name: true } } },
+      select: { id: true, slug: true, status: true, verified: true, updatedAt: true, expiresAt: true, translations: { select: { locale: true, title: true, summary: true, body: true } }, business: { select: { name: true } } },
     }),
   ]);
   const pages = Math.max(1, Math.ceil(total / PER_PAGE));
@@ -79,7 +80,13 @@ export default async function DrContentList({ params, searchParams }: { params: 
                   <tr key={r.id} data-testid="content-row">
                     <td className="px-4 py-3 font-semibold"><bdi>{tx?.title ?? r.slug}</bdi></td>
                     <td className="px-4 py-3 text-muted">{r.business ? <bdi>{r.business.name}</bdi> : "—"}</td>
-                    <td className="px-4 py-3"><span className="rounded-full bg-surface-2 px-2.5 py-0.5 text-xs font-semibold">{t(`status.${r.status}`)}</span></td>
+                    <td className="px-4 py-3">
+                      <span className="rounded-full bg-surface-2 px-2.5 py-0.5 text-xs font-semibold">{t(`status.${r.status}`)}</span>
+                      {/* A published job past its last day is no longer shown publicly: say so, so it can be renewed or archived. */}
+                      {section === "jobs" && r.status === "published" && r.expiresAt && r.expiresAt < now && (
+                        <span className="ms-1.5 rounded-full bg-brand-soft px-2.5 py-0.5 text-xs font-semibold text-brand" data-testid="content-expired">{t("content.expired")}</span>
+                      )}
+                    </td>
                     <td className="px-4 py-3 text-muted"><time dateTime={r.updatedAt.toISOString()}>{r.updatedAt.toLocaleDateString(locale)}</time></td>
                     <td className="px-4 py-3">
                       <div className="flex flex-wrap items-center gap-1.5">

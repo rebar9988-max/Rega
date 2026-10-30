@@ -118,7 +118,7 @@
     "ask": "Que recherchez-vous ?",
     "communityTitle": "Les services,",
     "communityAccent": "faciles à trouver",
-    "communityLead": "Découvrez les entreprises et services kurdes en Allemagne et en Europe.",
+    "communityLead": "Découvrez les entreprises et services kurdes en Irak, en Europe et dans le monde entier.",
     "popularTitle": "Populaire près de chez vous",
     "lead": "Services, entreprises, lieux et informations avec REGA",
     "what": "p. ex. restaurant, médecin, avocat …",
@@ -157,7 +157,34 @@
     "socialTitle": "Restez en contact avec REGA",
     "socialText": "Suivez les actualités, services et nouveautés de REGA sur les réseaux sociaux.",
     "socialAria": "REGA sur {platform} (s’ouvre dans un nouvel onglet)",
-    "aiEntrySub": "Obtenez des recommandations de services locaux, dans votre langue."
+    "aiEntrySub": "Obtenez des recommandations de services locaux, dans votre langue.",
+    "chipNewest": "Nouvelles entreprises",
+    "chipsLabel": "Accès rapide",
+    "trustLabel": "Pourquoi REGA24",
+    "trustReviewed": "Fiches vérifiées",
+    "trustReviewedSub": "Chaque entreprise est vérifiée avant publication",
+    "trustLanguages": "Onze langues",
+    "trustLanguagesSub": "Kurde, arabe, anglais et plus",
+    "trustGlobal": "Dans le monde entier",
+    "trustGlobalSub": "Irak, Europe et au-delà",
+    "trustFree": "Entièrement gratuit",
+    "trustFreeSub": "Sans frais ni abonnement",
+    "mainCategories": "Catégories principales",
+    "moreCategories": "Plus",
+    "viewProfile": "Voir le profil",
+    "bannerAddTitle": "Ajoutez votre entreprise gratuitement",
+    "bannerAddSub": "Faites connaître votre entreprise à plus de monde sur REGA24.",
+    "bannerAddCta": "Ajouter une entreprise",
+    "bannerGlobalTitle": "Des services en Irak, en Europe et dans le monde entier",
+    "bannerGlobalSub": "Cherchez et trouvez dans votre langue.",
+    "bannerGlobalCta": "Commencer",
+    "statsLabel": "REGA24 en chiffres",
+    "statsLanguages": "Langues",
+    "statsCategories": "Catégories",
+    "statsFree": "Gratuit",
+    "citiesHeading": "Villes populaires",
+    "allCities": "Toutes les villes",
+    "cityCount": "{count, plural, one {# entreprise} other {# entreprises}}"
   },
   "businesses": {
     "title": "Entreprises",
@@ -400,7 +427,8 @@
     "reports": "Signalements",
     "messages": "Messages",
     "reviews": "Avis",
-    "operations": "Opérations"
+    "operations": "Opérations",
+    "searchAnalytics": "Analyse des recherches"
   },
   "form": {
     "name": "Nom",
@@ -1143,7 +1171,8 @@
     "labelCloses": "Affiché jusqu’au",
     "labelStarts": "Début",
     "labelEnds": "Fin",
-    "labelReading": "Temps de lecture"
+    "labelReading": "Temps de lecture",
+    "expired": "Expirée"
   },
   "locationPicker": {
     "title": "Choisir un lieu",
@@ -1318,5 +1347,20 @@
       "analytics": "Analyse respectueuse de la vie privée",
       "aiDiscovery": "Inspecteur de la recherche IA"
     }
+  },
+  "searchAnalytics": {
+    "title": "Analyse des recherches",
+    "intro": "Ce que les visiteurs recherchent et ce qu’ils ne trouvent pas. Seuls des comptages quotidiens par texte de recherche normalisé sont enregistrés : aucun compte, aucune adresse IP, aucun appareil ni cookie ; les textes qui semblent personnels (e-mail, adresse web, longs numéros) ne sont jamais enregistrés.",
+    "last7": "7 derniers jours",
+    "last30": "30 derniers jours",
+    "searches": "Recherches",
+    "zero": "Sans résultat",
+    "zeroRate": "Part sans résultat",
+    "top": "Les plus recherchés",
+    "missing": "Recherchés mais non trouvés",
+    "perDay": "Par jour",
+    "query": "Texte recherché",
+    "day": "Jour",
+    "empty": "Aucune recherche enregistrée sur cette période pour l’instant."
   }
 }

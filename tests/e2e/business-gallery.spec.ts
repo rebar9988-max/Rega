@@ -106,7 +106,15 @@ test("owner manages one cover and three gallery images; the profile shows them i
   await page.goto(`/de/business/${slug}`);
   const gallery = page.getByTestId("business-gallery");
   const shown = await gallery.locator("img").evaluateAll((els) => els.map((e) => (e as HTMLImageElement).getAttribute("src")));
-  expect(shown).toEqual([cover, b, replaced[1]]);
+  // Each stored URL announces its smaller copies (features/business-images/variants.ts): the original is the src and
+  // the copies are offered in srcset, so a phone loads a copy that fits its screen.
+  const plain = (u: string) => u.split("?")[0];
+  expect(shown).toEqual([cover, b, replaced[1]].map(plain));
+  for (const u of [cover, b, replaced[1]]) expect(u).toMatch(/\?v=160,480,720,960&w=1280$/);
+  const srcsets = await gallery.locator("img").evaluateAll((els) => els.map((e) => (e as HTMLImageElement).getAttribute("srcset") ?? ""));
+  expect(srcsets[0]).toContain(`${plain(cover).replace(/\.jpg$/, "")}-w720.jpg 720w`);
+  const copy = await page.request.get(`${plain(cover).replace(/\.jpg$/, "")}-w480.jpg`);
+  expect(copy.ok()).toBe(true);
   await expect(gallery).toContainText("3 Bilder");
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(0);
   // Without a phone number Directions is the first action: its menu still stays on screen.

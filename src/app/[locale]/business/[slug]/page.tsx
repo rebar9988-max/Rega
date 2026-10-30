@@ -32,6 +32,7 @@ import { closedOnHolidays, hasHours, hasHoursInfo, hoursRows, upcomingExceptions
 import { timezoneFor } from "@/lib/geo";
 import { OpenState } from "@/components/ui/OpenState";
 import { preload } from "react-dom";
+import { responsiveImage } from "@/features/business-images/variants";
 import { ReviewSection } from "@/features/reviews/ReviewSection";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
@@ -81,7 +82,10 @@ export default async function BusinessPage({ params }: Props) {
   // Gallery: the cover plus up to three further images, in the owner's order (older listings may store more; they stay saved).
   const gallery = [b.coverUrl, ...b.photos.slice(0, 3)].map((u) => safeHttpUrl(u)).filter((u): u is string => Boolean(u));
   // The cover is the largest paint: announced in <head>, so the browser starts it (and the media connection) early.
-  if (gallery[0]) preload(gallery[0], { as: "image", fetchPriority: "high" });
+  // Main image: full width up to the page container (1216 px); thumbnails: a third of it, at most 144 px from sm up.
+  const coverSizes = "(min-width: 1280px) 1216px, 100vw";
+  const cover = gallery[0] ? responsiveImage(gallery[0]) : null;
+  if (cover) preload(cover.src, { as: "image", fetchPriority: "high", ...(cover.srcSet ? { imageSrcSet: cover.srcSet, imageSizes: coverSizes } : {}) });
   const showLocations = b.locations.length > 1 || mapPoints.length > 0 || b.locations.some((loc) => hasHoursInfo(loc.openingHours));
   const tm = await getTranslations("map");
   const pageUrl = `https://${process.env.CANONICAL_HOST || "www.rega24.com"}/${locale}/business/${slug}`;
@@ -129,7 +133,7 @@ export default async function BusinessPage({ params }: Props) {
               <a href={gallery[0]} target="_blank" rel="noopener noreferrer" aria-label={t("businesses.openPhoto", { n: formatNumber(1, l) })}
                 className="relative block aspect-[16/9] overflow-hidden rounded-xl bg-surface-2 lg:aspect-[79/39]">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={gallery[0]} alt="" width={1200} height={500} decoding="async" fetchPriority="high" className="absolute inset-0 size-full object-cover" />
+                <img {...cover} sizes={cover?.srcSet ? coverSizes : undefined} alt="" width={1200} height={500} decoding="async" fetchPriority="high" className="absolute inset-0 size-full object-cover" />
                 {gallery.length > 1 && (
                   <span className="absolute bottom-2 end-2 inline-flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1 text-xs font-semibold text-white">
                     <FigmaIcon name="grid-3x3" className="size-3.5" />{t("businesses.photoCount", { count: formatNumber(gallery.length, l) })}
@@ -142,7 +146,7 @@ export default async function BusinessPage({ params }: Props) {
                     <li key={src}>
                       <a href={src} target="_blank" rel="noopener noreferrer" aria-label={t("businesses.openPhoto", { n: formatNumber(i + 2, l) })} className="block overflow-hidden rounded-lg">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={src} alt="" width={400} height={300} loading="lazy" decoding="async" className="aspect-[4/3] w-full bg-surface-2 object-cover transition-transform motion-safe:hover:scale-[1.03]" />
+                        <img {...responsiveImage(src)} sizes="(min-width: 640px) 144px, 33vw" alt="" width={400} height={300} loading="lazy" decoding="async" className="aspect-[4/3] w-full bg-surface-2 object-cover transition-transform motion-safe:hover:scale-[1.03]" />
                       </a>
                     </li>
                   ))}

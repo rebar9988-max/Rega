@@ -6,6 +6,7 @@ import { Avatar } from "@/components/ui/Avatar";
 import { Stars } from "@/components/ui/Stars";
 import { Text } from "@/components/ui/Bidi";
 import { FigmaIcon } from "@/components/home/FigmaIcon";
+import { responsiveImage } from "@/features/business-images/variants";
 
 /** Native names of the languages a business lists (only real locale codes; unknown values are skipped). */
 export function languageNames(codes: readonly string[] | undefined): string[] {
@@ -27,7 +28,7 @@ export function BusinessRow({ b, locale, pageLang, category, layout, viewLabel }
       <div className={`size-[88px] shrink-0 overflow-hidden rounded-xl bg-surface-2 ${layout === "home" ? "lg:h-[148px] lg:w-full" : ""}`}>
         {b.coverUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={b.coverUrl} alt="" width={176} height={176} loading="lazy" decoding="async" className="size-full object-cover transition-transform duration-300 group-hover:scale-[1.04]" />
+          <img {...responsiveImage(b.coverUrl)} sizes="88px" alt="" width={176} height={176} loading="lazy" decoding="async" className="size-full object-cover transition-transform duration-300 group-hover:scale-[1.04]" />
         ) : (
           <div className="grid size-full place-items-center bg-surface-2">
             <Avatar name={name.text} src={b.logoUrl} size="size-12" />

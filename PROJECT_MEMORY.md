@@ -1113,6 +1113,34 @@ auth, /dr, offline and service-worker versions unchanged. This PR now only adds:
 the new 16/32/48 `favicon.ico` (main still served the old REGA favicon), maskable 192/512 PWA icons in the manifest,
 the favicon in page metadata, and `tests/logo-assets.test.ts` (adapted to `LogoMark`).
 
+## Owner reference homepage (REGA24 desktop + mobile image) — 2026-10-30 (branch `claude/rega24-reference-homepage`)
+
+Owner directive (zero cost, no Figma MCP — the Figma Starter/View seat hit its 20 calls/month limit before any design was built; empty
+file `oH5oOuppWrMIIoy2gDw3bz` left untouched): implement the attached REGA24 desktop/mobile reference image in the existing app,
+official logo kept (existing `LogoMark` badge from the pinned master; header/footer/bottom bar unchanged). Identity guard OK (REGA,
+www.rega24.com), based on main `5caee06`. Explicit owner instruction for this visual change (overrides the design freeze for the home body only).
+
+Home body rebuilt with the existing tokens (red `#db0512`, white, Vazirmatn), logical RTL/LTR geometry: hero with inline-SVG world
+artwork (globe, red connection lines, generic skyline — no photo, no landmark, no network request), headline + Iraq/Europe/worldwide lead,
+white search card (same `form[role=search]`, `q`, `CityFilter`/`#f-city-search`), four quick-link chips; trust strip (reviewed listings,
+11 languages, worldwide, free — all true); main-category grid (4/5/6/10 columns); business cards (cover or own logo, verified mark only
+when `verified`, rating only with real reviews, red "view profile"); two banners (add business → /for-business, global → /businesses);
+real figures only (published businesses, locations, 11 languages, root categories, 100 % free); popular cities Erbil, Sulaymaniyah,
+Duhok, Baghdad, Berlin, Köln, Hamburg, München via new read-only `listCitiesBySlug` (real counts). AI entry, nearby list/map and social
+section unchanged. 27 new `home.*` keys + `communityLead` in all 11 catalogues. No schema, migration, data, auth, workflow or dependency change.
+
+Deliberate deviations from the reference: no city photographs or stock business photos (none owned; no fake media); no favourites heart
+(feature does not exist); no App Store/Google Play badges (no native apps); hero art is an original illustration instead of a photo.
+
+Local verification (npm registry unreachable from this sandbox, so no `npm ci`): unit tests i18n/glossary/international/selector-cities
+16/16 pass with the global tsx; static render of the real page components (stubbed data/i18n, real CSS) screenshotted in Chromium at
+1440/768/390 px, ckb + en: no horizontal overflow in the new sections; tablet hero fixed (side-by-side layout only ≥1024 px).
+Typecheck, lint, build and Playwright run in hosted CI only. Next: PR → full CI → merge → existing deploy → production browser screenshots.
+CI run 41067658630 (head `b9fb362`): lint, typecheck, unit, D1, Node build PASS; Playwright 445 passed, 1 failed — de home overflowed
+23 px at narrow widths: the long compound "Behördenangelegenheiten" widened its category tile (`overflow-wrap: break-word` does not
+reduce min-content). Fix: grid items `min-width: 0`, label `overflow-wrap: anywhere` + `hyphens: auto`, 12 px label below 400 px.
+Local re-check of all 11 locales at 320–1024 px: no overflow from the new sections.
+
 ## Digital Operations Center — release VERIFIED — 2026-10-29/30 (PR #98, squash `ec162ff`)
 
 - PR #98: final-head CI `40874691068` (verify) and both Workers Builds checks passed on `dbee6bf` after merging #99 (red

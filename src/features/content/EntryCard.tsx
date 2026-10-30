@@ -21,6 +21,8 @@ export async function EntryCard({ entry, section, locale }: { entry: Entry; sect
   if (city) meta.push(city);
   if (entry.job) meta.push(t(`type_${entry.job.employmentType}` as never));
   if (entry.guide?.readMinutes) meta.push(t("readTime", { count: entry.guide.readMinutes }));
+  // Job seekers see how long a posting is open, without opening it.
+  if (entry.job && entry.expiresAt) meta.push(`${t("labelCloses")}: ${formatDate(entry.expiresAt, locale, { timeZone: "UTC" })}`);
 
   return (
     <article className="relative flex h-full flex-col gap-2 rounded-[var(--radius-card)] border border-line bg-surface p-5 card-lift shadow-card hover:border-brand/40" data-testid="content-card">
