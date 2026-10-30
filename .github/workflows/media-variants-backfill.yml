@@ -1,0 +1,43 @@
+name: Business image copies backfill
+
+# Manual, one-off: smaller copies of business images uploaded before copies existed (scripts/backfill-image-variants.ts).
+# Dry run unless "apply" is ticked. Additive: originals are never changed; a stored URL is only pointed at its copies
+# after every copy is publicly served with the uploaded bytes. Undo: set the URL back to the part before "?".
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "backfill" deliberately.'
+        required: true
+      apply:
+        description: "Write the copies and update the URLs (otherwise a dry run)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: media-variants-backfill
+  cancel-in-progress: false
+
+jobs:
+  backfill:
+    # Production credentials are only used from the reviewed main branch.
+    if: inputs.confirm == 'backfill' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID || secrets.CLOUDFLARE_ACCOUNT_ID || 'ee07860dbb8e61ff6915758785baf89a' }}
+    steps:
+      - uses: actions/checkout@v4
+      # P0 isolation: REGA != R&L. Read-only; fails closed before any production step below.
+      - name: Project identity guard (REGA only)
+        run: node scripts/project-identity-guard.mjs --project REGA --domain www.rega24.com --worker rega24
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - name: Backfill (${{ inputs.apply && 'apply' || 'dry run' }})
+        run: npx tsx scripts/backfill-image-variants.ts ${{ inputs.apply && '--apply' || '' }}

@@ -400,7 +400,8 @@
     "reports": "Raporan",
     "messages": "Peyam",
     "reviews": "Nirxandin",
-    "operations": "Operasyon"
+    "operations": "Operasyon",
+    "searchAnalytics": "Analîza lêgerînê"
   },
   "form": {
     "name": "Nav",
@@ -1143,7 +1144,8 @@
     "labelCloses": "Tê nîşandan heta",
     "labelStarts": "Dest pê dike",
     "labelEnds": "Dawî",
-    "labelReading": "Dema xwendinê"
+    "labelReading": "Dema xwendinê",
+    "expired": "Qediya"
   },
   "locationPicker": {
     "title": "Cihekî hilbijêre",
@@ -1318,5 +1320,20 @@
       "analytics": "Analîtîka parastina nepeniyê",
       "aiDiscovery": "Kontrolkerê vedîtina AI"
     }
+  },
+  "searchAnalytics": {
+    "title": "Analîza lêgerînê",
+    "intro": "Mêvan li çi digerin û çi nabînin. Tenê hejmarên rojane yên her nivîsa lêgerînê ya normalîzekirî tên tomarkirin: ne hesab, ne navnîşana IP, ne cîhaz, ne jî cookie; nivîsên ku kesane xuya dikin (e-name, navnîşana malperê, hejmarên dirêj) qet nayên tomarkirin.",
+    "last7": "7 rojên dawî",
+    "last30": "30 rojên dawî",
+    "searches": "Lêgerîn",
+    "zero": "Bê encam",
+    "zeroRate": "Rêjeya bê encam",
+    "top": "Herî zêde hatine lêgerîn",
+    "missing": "Hatine lêgerîn lê nehatine dîtin",
+    "perDay": "Li gorî rojê",
+    "query": "Nivîsa lêgerînê",
+    "day": "Roj",
+    "empty": "Di vê demê de hîn ti lêgerîn nehatiye tomarkirin."
   }
 }

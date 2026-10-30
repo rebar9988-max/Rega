@@ -400,7 +400,8 @@
     "reports": "Meldingen",
     "messages": "Berichten",
     "reviews": "Recensies",
-    "operations": "Operaties"
+    "operations": "Operaties",
+    "searchAnalytics": "Zoekanalyse"
   },
   "form": {
     "name": "Naam",
@@ -1143,7 +1144,8 @@
     "labelCloses": "Getoond tot",
     "labelStarts": "Begint",
     "labelEnds": "Eindigt",
-    "labelReading": "Leestijd"
+    "labelReading": "Leestijd",
+    "expired": "Verlopen"
   },
   "locationPicker": {
     "title": "Kies een locatie",
@@ -1318,5 +1320,20 @@
       "analytics": "Privacyvriendelijke analyse",
       "aiDiscovery": "AI-zoekinspecteur"
     }
+  },
+  "searchAnalytics": {
+    "title": "Zoekanalyse",
+    "intro": "Waar bezoekers naar zoeken en wat ze niet vinden. Alleen dagelijkse tellingen per genormaliseerde zoektekst worden opgeslagen: geen account, IP-adres, apparaat of cookie; teksten die persoonlijk lijken (e-mail, webadres, lange nummers) worden nooit opgeslagen.",
+    "last7": "Afgelopen 7 dagen",
+    "last30": "Afgelopen 30 dagen",
+    "searches": "Zoekopdrachten",
+    "zero": "Zonder resultaat",
+    "zeroRate": "Aandeel zonder resultaat",
+    "top": "Meest gezocht",
+    "missing": "Gezocht maar niet gevonden",
+    "perDay": "Per dag",
+    "query": "Zoektekst",
+    "day": "Dag",
+    "empty": "In deze periode zijn nog geen zoekopdrachten geregistreerd."
   }
 }

@@ -20,6 +20,7 @@ export const DR_NAV: { key: string; href: string; permission: Permission; icon: 
   { key: "messages", href: "/dr/messages", permission: "review.moderate", icon: "messages", group: "moderation" },
   { key: "users", href: "/dr/users", permission: "user.read", icon: "users", group: "system" },
   { key: "aiGateway", href: "/dr/ai", permission: "aiconfig.read", icon: "aiGateway", group: "system" },
+  { key: "searchAnalytics", href: "/dr/search-analytics", permission: "analytics.read", icon: "search", group: "system" },
   { key: "auditLogs", href: "/dr/audit", permission: "audit.read", icon: "auditLogs", group: "system" },
   { key: "operations", href: "/dr/operations", permission: "operations.manage", icon: "operations", group: "system" },
 ];

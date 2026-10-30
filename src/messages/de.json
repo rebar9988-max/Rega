@@ -400,7 +400,8 @@
     "reports": "Meldungen",
     "messages": "Nachrichten",
     "reviews": "Bewertungen",
-    "operations": "Betrieb"
+    "operations": "Betrieb",
+    "searchAnalytics": "Suchanalyse"
   },
   "form": {
     "name": "Name",
@@ -1143,7 +1144,8 @@
     "labelCloses": "Angezeigt bis",
     "labelStarts": "Beginn",
     "labelEnds": "Ende",
-    "labelReading": "Lesezeit"
+    "labelReading": "Lesezeit",
+    "expired": "Abgelaufen"
   },
   "locationPicker": {
     "title": "Ort wählen",
@@ -1318,5 +1320,20 @@
       "analytics": "Datenschutzfreundliche Analyse",
       "aiDiscovery": "KI-Suchprüfung"
     }
+  },
+  "searchAnalytics": {
+    "title": "Suchanalyse",
+    "intro": "Wonach Besucher suchen und was sie nicht finden. Gespeichert werden nur tägliche Zählungen je normalisiertem Suchtext: kein Konto, keine IP-Adresse, kein Gerät, kein Cookie; Texte, die persönlich wirken (E-Mail, Webadresse, lange Nummern), werden nie gespeichert.",
+    "last7": "Letzte 7 Tage",
+    "last30": "Letzte 30 Tage",
+    "searches": "Suchen",
+    "zero": "Ohne Ergebnis",
+    "zeroRate": "Anteil ohne Ergebnis",
+    "top": "Häufigste Suchen",
+    "missing": "Gesucht, aber nicht gefunden",
+    "perDay": "Pro Tag",
+    "query": "Suchtext",
+    "day": "Tag",
+    "empty": "In diesem Zeitraum wurden noch keine Suchen erfasst."
   }
 }

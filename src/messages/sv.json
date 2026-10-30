@@ -400,7 +400,8 @@
     "reports": "Anmälningar",
     "messages": "Meddelanden",
     "reviews": "Omdömen",
-    "operations": "Drift"
+    "operations": "Drift",
+    "searchAnalytics": "Sökanalys"
   },
   "form": {
     "name": "Namn",
@@ -1143,7 +1144,8 @@
     "labelCloses": "Visas till",
     "labelStarts": "Börjar",
     "labelEnds": "Slutar",
-    "labelReading": "Lästid"
+    "labelReading": "Lästid",
+    "expired": "Utgången"
   },
   "locationPicker": {
     "title": "Välj en plats",
@@ -1318,5 +1320,20 @@
       "analytics": "Integritetsvänlig analys",
       "aiDiscovery": "Granskare av AI-sökning"
     }
+  },
+  "searchAnalytics": {
+    "title": "Sökanalys",
+    "intro": "Vad besökare söker efter och vad de inte hittar. Endast dagliga antal per normaliserad söktext sparas: inget konto, ingen IP-adress, ingen enhet eller cookie; texter som verkar personliga (e-post, webbadress, långa nummer) sparas aldrig.",
+    "last7": "Senaste 7 dagarna",
+    "last30": "Senaste 30 dagarna",
+    "searches": "Sökningar",
+    "zero": "Utan resultat",
+    "zeroRate": "Andel utan resultat",
+    "top": "Mest sökta",
+    "missing": "Sökt men inte hittat",
+    "perDay": "Per dag",
+    "query": "Söktext",
+    "day": "Dag",
+    "empty": "Inga sökningar har registrerats under perioden än."
   }
 }

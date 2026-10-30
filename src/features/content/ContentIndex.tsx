@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { formatNumber, type Locale } from "@/config/locales";
@@ -6,7 +5,7 @@ import { localizeText } from "@/lib/content";
 import { contentShape, parseParams } from "@/lib/data/params";
 import { PageSchema } from "@/components/ui/PageSchema";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { Grid, GridSkeleton } from "@/components/ui/Grid";
+import { Grid } from "@/components/ui/Grid";
 import { Pagination } from "@/components/ui/Pagination";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { buttonClass } from "@/components/ui/Button";
@@ -77,7 +76,9 @@ export async function ContentIndex({ section, locale, searchParams }: { section:
         </div>
         {active && <div className="mt-3 text-sm"><Link href={path} className="text-brand-text hover:underline">{t("list.reset")}</Link></div>}
       </form>
-      <Suspense key={JSON.stringify(filters)} fallback={<GridSkeleton />}><Results section={section} locale={locale} filters={filters} active={active} /></Suspense>
+      {/* Not streamed: the skeleton guessed six cards while a section often has none or a few, so the footer jumped
+          (layout shift). The list query is awaited instead; the page arrives complete. */}
+      <Results section={section} locale={locale} filters={filters} active={active} />
     </>
   );
 }

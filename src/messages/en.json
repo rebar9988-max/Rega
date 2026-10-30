@@ -400,7 +400,8 @@
     "reports": "Reports",
     "messages": "Messages",
     "reviews": "Reviews",
-    "operations": "Operations"
+    "operations": "Operations",
+    "searchAnalytics": "Search analytics"
   },
   "form": {
     "name": "Name",
@@ -1143,7 +1144,8 @@
     "labelCloses": "Shown until",
     "labelStarts": "Starts",
     "labelEnds": "Ends",
-    "labelReading": "Reading time"
+    "labelReading": "Reading time",
+    "expired": "Expired"
   },
   "locationPicker": {
     "title": "Choose a location",
@@ -1318,5 +1320,20 @@
       "analytics": "Privacy-safe Analytics",
       "aiDiscovery": "AI Discovery Inspector"
     }
+  },
+  "searchAnalytics": {
+    "title": "Search analytics",
+    "intro": "What visitors search for and what they do not find. Only daily counts per normalized search text are stored: no account, IP address, device or cookie, and texts that look personal (e-mail, web address, long numbers) are never saved.",
+    "last7": "Last 7 days",
+    "last30": "Last 30 days",
+    "searches": "Searches",
+    "zero": "Without results",
+    "zeroRate": "Share without results",
+    "top": "Most searched",
+    "missing": "Searched but not found",
+    "perDay": "Per day",
+    "query": "Search text",
+    "day": "Day",
+    "empty": "No searches recorded in this period yet."
   }
 }

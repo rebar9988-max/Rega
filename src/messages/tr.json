@@ -400,7 +400,8 @@
     "reports": "Bildirimler",
     "messages": "Mesajlar",
     "reviews": "Değerlendirmeler",
-    "operations": "Operasyon"
+    "operations": "Operasyon",
+    "searchAnalytics": "Arama analizi"
   },
   "form": {
     "name": "Ad",
@@ -1143,7 +1144,8 @@
     "labelCloses": "Şu tarihe kadar gösterilir",
     "labelStarts": "Başlangıç",
     "labelEnds": "Bitiş",
-    "labelReading": "Okuma süresi"
+    "labelReading": "Okuma süresi",
+    "expired": "Süresi doldu"
   },
   "locationPicker": {
     "title": "Konum seçin",
@@ -1318,5 +1320,20 @@
       "analytics": "Gizlilik Dostu Analitik",
       "aiDiscovery": "Yapay Zekâ Keşif Denetçisi"
     }
+  },
+  "searchAnalytics": {
+    "title": "Arama analizi",
+    "intro": "Ziyaretçilerin ne aradığı ve neyi bulamadığı. Yalnızca normalleştirilmiş her arama metni için günlük sayılar saklanır: hesap, IP adresi, cihaz veya çerez yok; kişisel görünen metinler (e-posta, web adresi, uzun numaralar) asla kaydedilmez.",
+    "last7": "Son 7 gün",
+    "last30": "Son 30 gün",
+    "searches": "Aramalar",
+    "zero": "Sonuçsuz",
+    "zeroRate": "Sonuçsuz oranı",
+    "top": "En çok arananlar",
+    "missing": "Aranan ama bulunamayanlar",
+    "perDay": "Güne göre",
+    "query": "Arama metni",
+    "day": "Gün",
+    "empty": "Bu dönemde henüz arama kaydedilmedi."
   }
 }
