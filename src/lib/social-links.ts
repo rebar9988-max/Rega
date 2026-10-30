@@ -19,6 +19,10 @@ const PLATFORM: Record<SocialPlatform, { title: string; hosts: string[]; profile
 
 export const socialTitle = (platform: SocialPlatform) => PLATFORM[platform].title;
 
+/** Business column (and form field) of a platform: "instagramUrl" … (production D1 migration 0004). */
+export const socialField = <P extends SocialPlatform>(platform: P) => `${platform}Url` as `${P}Url`;
+export type SocialField = `${SocialPlatform}Url`;
+
 export type SocialResult = { ok: true; value: string } | { ok: false; reason: "empty" | "invalid" };
 
 const onPlatform = (host: string, platform: SocialPlatform) =>
@@ -45,9 +49,9 @@ export function normalizeSocial(platform: SocialPlatform, raw: string | null | u
 }
 
 /** The stored links of a business that are safe to show, in a fixed platform order. Empty when there are none. */
-export function socialLinks(b: Partial<Record<SocialPlatform, string | null>>): { platform: SocialPlatform; title: string; url: string }[] {
+export function socialLinks(b: Partial<Record<SocialField, string | null>>): { platform: SocialPlatform; title: string; url: string }[] {
   return SOCIAL_PLATFORMS.flatMap((platform) => {
-    const stored = b[platform];
+    const stored = b[socialField(platform)];
     if (!stored || !stored.startsWith("https://")) return [];
     const result = normalizeSocial(platform, stored);
     return result.ok ? [{ platform, title: PLATFORM[platform].title, url: result.value }] : [];

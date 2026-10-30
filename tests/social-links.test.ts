@@ -43,18 +43,18 @@ test("foreign domains, look-alikes, other schemes and empty input are refused", 
 
 test("only stored, valid https links become buttons, in a fixed order; none means no row", () => {
   assert.deepEqual(socialLinks({}), []);
-  assert.deepEqual(socialLinks({ instagram: null, facebook: "", tiktok: null, snapchat: null }), []);
-  const links = socialLinks({ snapchat: "https://www.snapchat.com/add/rega24", instagram: "https://www.instagram.com/rega24", facebook: "https://evil.example/x", tiktok: "@rega24" });
+  assert.deepEqual(socialLinks({ instagramUrl: null, facebookUrl: "", tiktokUrl: null, snapchatUrl: null }), []);
+  const links = socialLinks({ snapchatUrl: "https://www.snapchat.com/add/rega24", instagramUrl: "https://www.instagram.com/rega24", facebookUrl: "https://evil.example/x", tiktokUrl: "@rega24" });
   assert.deepEqual(links.map((l) => [l.platform, l.title, l.url]), [
     ["instagram", "Instagram", "https://www.instagram.com/rega24"],
     ["snapchat", "Snapchat", "https://www.snapchat.com/add/rega24"],
   ]);
 });
 
-test("the columns are added by additive migrations for PostgreSQL and D1", () => {
-  for (const file of ["prisma/migrations/20261030120000_business_social_links/migration.sql", "prisma/d1/migrations/0006_business_social_links.sql"]) {
+test("the columns come from the additive migrations already applied in production (D1 0004, PostgreSQL 20261024220000)", () => {
+  for (const file of ["prisma/migrations/20261024220000_business_social_links/migration.sql", "prisma/d1/migrations/0004_business_social_links.sql"]) {
     const sql = readFileSync(file, "utf8").replace(/^--.*$/gm, "");
-    for (const column of ["instagram", "facebook", "tiktok", "snapchat"]) assert.match(sql, new RegExp(`ALTER TABLE "Business" ADD COLUMN "${column}" TEXT;`));
+    for (const column of ["instagramUrl", "facebookUrl", "tiktokUrl", "snapchatUrl"]) assert.match(sql, new RegExp(`ADD COLUMN "${column}" TEXT`));
     assert.doesNotMatch(sql, /\b(DROP|DELETE|UPDATE|TRUNCATE)\b/i);
   }
 });

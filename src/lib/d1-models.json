@@ -1,5 +1,5 @@
 {
-  "schemaSha256": "fd20394213cec0d528f3d66d738656a089d44d118800a30bc0d924494d8f2906",
+  "schemaSha256": "44777a997b4b6c29cd668ce886524d75976d2ea6db6885b7d7890b30205b5b1b",
   "models": [
     {
       "name": "User",
@@ -2195,7 +2195,7 @@
           "relationToFields": []
         },
         {
-          "name": "instagram",
+          "name": "instagramUrl",
           "type": "String",
           "kind": "scalar",
           "isList": false,
@@ -2207,7 +2207,7 @@
           "relationToFields": []
         },
         {
-          "name": "facebook",
+          "name": "facebookUrl",
           "type": "String",
           "kind": "scalar",
           "isList": false,
@@ -2219,7 +2219,7 @@
           "relationToFields": []
         },
         {
-          "name": "tiktok",
+          "name": "tiktokUrl",
           "type": "String",
           "kind": "scalar",
           "isList": false,
@@ -2231,7 +2231,7 @@
           "relationToFields": []
         },
         {
-          "name": "snapchat",
+          "name": "snapchatUrl",
           "type": "String",
           "kind": "scalar",
           "isList": false,

@@ -1213,11 +1213,14 @@ Instagram / Facebook / TikTok / Snapchat buttons inside the phone card; "keep RE
 (REGA). Based on main `89a516c`. Teal/emerald of the prompt NOT used: accents are the REGA red tokens (`brand`,
 `brand-soft`, `brand-text`); the "open" / "verified" pills reuse the home card's existing green #15803d; stars `--sun`.
 
-- Data (additive only): `Business.instagram/facebook/tiktok/snapchat` (nullable TEXT). PostgreSQL migration
-  `20261030120000_business_social_links`; D1 migration `prisma/d1/migrations/0006_business_social_links.sql`.
-  **Deploy order: run `npm run db:d1:migrate` (applies 0006 only) BEFORE the release that contains this code** — deploy
-  does not run migrations, and the new code selects the columns (business page) so it would fail on the old D1 schema.
-  Rollback in the SQL file header. No existing row/column changed.
+- Data: uses the production columns `Business.facebookUrl/instagramUrl/tiktokUrl/snapchatUrl`. VERIFIED 2026-10-30
+  (read-only Cloudflare D1 queries on `rega24-migration` 728f792d…): they were already added by
+  `0004_business_social_links.sql` from the unmerged branch `feat/business-social-profile-20261025` (applied 2026-10-29
+  12:58 UTC, all 4 businesses NULL). This branch adopts that exact D1 file and its PostgreSQL migration
+  `20261024220000_business_social_links`; an earlier draft `0006` (columns `instagram`…) was withdrawn before any apply.
+  Repo D1 migrations 0001–0005 == production `d1_migrations`; Business columns identical (checked). So
+  `npm run db:d1:migrate` has nothing pending; NO production database change was made. (wrangler is not logged in here.)
+  When PR71 / `feat/business-social-profile-20261025` is reconciled, keep one copy of these two migration files.
 - `src/lib/social-links.ts`: link or @username → https URL on the platform's own domain (no credentials/port/fragment);
   refused otherwise. Re-checked at render. Admin/owner form (`BusinessForm`) has the four optional fields with inline
   validation; server action validates again. Icons: simple-icons official marks (Instagram gradient, TikTok offset,
@@ -1241,4 +1244,11 @@ run 83 passed / 2 failed (phone row reused the call button's accessible name →
 profile, catalog, figma-responsive, axe a11y) and 42/43 + rerun pass (gallery upload rate-limit step, unrelated). Without a
 cover the profile shows a short brand-soft band instead of an empty grey block. Next: hosted CI → owner applies D1 0006 →
 merge → CI-gated deploy → live check.
-Not verified: hosted CI, production D1 migration, deploy, live site.
+Release check 2026-10-30 (after the column alignment): typecheck, lint, unit 436/436 (twice), test:d1 10/10,
+d1-worker-smoke, preflight, build pass; full browser suite PostgreSQL desktop+mobile 437 passed / 1 failed / 4 did not
+run (iPhone/WebKit not installed here) — the failure (30 s timeout, admin-business) passed in isolated reruns (9/10 then
+10/10; the other miss was a different map test): intermittent load timing. D1-provider browser run of the business specs 70/70.
+Not verified: hosted CI, deploy, live site.
+
+Next milestone scaffold (unwired, no schema): `src/features/admin-audit/*`, `src/features/admin-notifications/*`,
+`tests/admin-scaffold.test.ts`, plan in [docs/ADMIN-AUDIT-NOTIFICATIONS.md](docs/ADMIN-AUDIT-NOTIFICATIONS.md).

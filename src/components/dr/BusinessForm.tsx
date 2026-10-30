@@ -16,7 +16,7 @@ import type { GeocodeHit } from "@/lib/geocoder-parse";
 import { geocodeAction, saveBusinessAction, type BusinessFormState } from "@/app/dr/businesses/actions";
 import { WEEK, type HoursException, type WeekDay } from "@/lib/opening-hours";
 import { normalizeWhatsapp } from "@/lib/whatsapp";
-import { SOCIAL_PLATFORMS, normalizeSocial, socialTitle, type SocialPlatform } from "@/lib/social-links";
+import { SOCIAL_PLATFORMS, normalizeSocial, socialField, socialTitle, type SocialPlatform } from "@/lib/social-links";
 import { BusinessImageField } from "./BusinessImageField";
 import { PhotosField } from "./PhotosField";
 import { HoursExceptionsEditor } from "./HoursExceptionsEditor";
@@ -29,7 +29,7 @@ const LocationPicker = dynamic(() => import("./LocationPicker").then((m) => m.Lo
 export type FormCity = { id: string; name: string; names: string[]; countryCode: string; lat: number | null; lng: number | null };
 export type FormInitial = {
   id?: string; name?: string; nameCkb?: string; categoryId?: string; description?: string; descriptionCkb?: string;
-  phone?: string; whatsapp?: string; email?: string; website?: string; instagram?: string; facebook?: string; tiktok?: string; snapchat?: string; addressLine1?: string; postalCode?: string; city?: string; countryCode?: string;
+  phone?: string; whatsapp?: string; email?: string; website?: string; instagramUrl?: string; facebookUrl?: string; tiktokUrl?: string; snapchatUrl?: string; addressLine1?: string; postalCode?: string; city?: string; countryCode?: string;
   latitude?: number | null; longitude?: number | null; coordsSource?: string | null; coordsVerified?: boolean;
   status?: string;
   hours?: Partial<Record<WeekDay, string>>; holidaysClosed?: boolean; hoursExceptions?: HoursException[]; logoUrl?: string | null; coverUrl?: string | null; photos?: string[];
@@ -66,7 +66,7 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
   const [categorySearch, setCategorySearch] = useState("");
   const [name, setName] = useState(initial.name ?? "");
   const [wa, setWa] = useState(initial.whatsapp ?? "");
-  const [social, setSocial] = useState<Record<SocialPlatform, string>>(() => Object.fromEntries(SOCIAL_PLATFORMS.map((p) => [p, initial[p] ?? ""])) as Record<SocialPlatform, string>);
+  const [social, setSocial] = useState<Record<SocialPlatform, string>>(() => Object.fromEntries(SOCIAL_PLATFORMS.map((p) => [p, initial[socialField(p)] ?? ""])) as Record<SocialPlatform, string>);
   const [categoryId, setCategoryId] = useState(initial.categoryId ?? "");
   const [country, setCountry] = useState(initial.countryCode ?? "DE");
   const [city, setCity] = useState(initial.city ?? "");
@@ -111,7 +111,7 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
       if ((address || city) && (address.length < 3 || !city)) return;
       if (Boolean(text("latitude")) !== Boolean(text("longitude"))) return;
       if (text("whatsapp") && !normalizeWhatsapp(text("whatsapp"), text("countryCode")).ok) return;
-      if (SOCIAL_PLATFORMS.some((p) => text(p) && !normalizeSocial(p, text(p)).ok)) return;
+      if (SOCIAL_PLATFORMS.some((p) => text(socialField(p)) && !normalizeSocial(p, text(socialField(p))).ok)) return;
       if ([...formRef.current.elements].some((el) => el instanceof HTMLInputElement && el.value && !el.validity.valid)) return;
       attemptedRevision.current = dirtyAt;
       data.set("intent", "draft"); data.set("draftRevision", String(dirtyAt));
@@ -130,14 +130,14 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
   const cityCentre = cityMatch?.lat != null && cityMatch.lng != null ? { lat: cityMatch.lat, lng: cityMatch.lng } : null;
 
   const waResult = wa.trim() ? normalizeWhatsapp(wa, country) : null;
-  const socialBad = SOCIAL_PLATFORMS.filter((p) => social[p].trim() && !normalizeSocial(p, social[p]).ok);
+  const socialBad: SocialPlatform[] = SOCIAL_PLATFORMS.filter((p) => social[p].trim() && !normalizeSocial(p, social[p]).ok);
 
   /** What is missing on a step (convenience only: the server checks everything again). */
   function missingOn(n: number): string[] {
     if (n === 1) return [
       ...(name.trim().length < 2 ? ["name"] : []), ...(categoryId ? [] : ["categoryId"]),
       ...(address.trim().length < 3 ? ["addressLine1"] : []), ...(cityMatch ? [] : ["city"]), ...(country ? [] : ["countryCode"]),
-      ...(coordsOk && confirmed ? [] : ["latitude"]), ...(waResult && !waResult.ok ? ["whatsapp"] : []), ...socialBad,
+      ...(coordsOk && confirmed ? [] : ["latitude"]), ...(waResult && !waResult.ok ? ["whatsapp"] : []), ...socialBad.map(socialField),
     ];
     return [];
   }
@@ -146,7 +146,7 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
     if (n === 3 && formRef.current) {
       const data = new FormData(formRef.current);
       setReviewImages([data.get("logoUrl"), data.get("coverUrl"), ...data.getAll("photoUrls")].filter((v): v is string => typeof v === "string" && v.startsWith("https://")));
-      setReviewContact([data.get("phone"),data.get("email"),data.get("whatsapp"),data.get("website"),...SOCIAL_PLATFORMS.map((p) => data.get(p))].filter((v): v is string => typeof v === "string" && Boolean(v)));
+      setReviewContact([data.get("phone"),data.get("email"),data.get("whatsapp"),data.get("website"),...SOCIAL_PLATFORMS.map((p) => data.get(socialField(p)))].filter((v): v is string => typeof v === "string" && Boolean(v)));
     }
     setStep(n);
     setStepErrors([]);
@@ -313,9 +313,9 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
               return (
                 <div key={p} className="flex flex-col gap-1">
                   <label className="flex flex-col gap-1 text-sm font-semibold"><span dir="ltr" className="self-start">{socialTitle(p)}</span>
-                    <input name={p} type="text" inputMode="url" dir="ltr" maxLength={300} autoComplete="off" spellCheck={false} placeholder={p === "tiktok" ? "@username" : `https://www.${p}.com/…`}
+                    <input name={socialField(p)} type="text" inputMode="url" dir="ltr" maxLength={300} autoComplete="off" spellCheck={false} placeholder={p === "tiktok" ? "@username" : `https://www.${p}.com/…`}
                       value={social[p]} onChange={(e) => setSocial((prev) => ({ ...prev, [p]: e.target.value }))} className={input}
-                      aria-invalid={bad(p) || (invalid ? true : undefined)} aria-describedby={invalid ? `${p}-error` : undefined} data-testid={`social-${p}`} />
+                      aria-invalid={bad(socialField(p)) || (invalid ? true : undefined)} aria-describedby={invalid ? `${p}-error` : undefined} data-testid={`social-${p}`} />
                   </label>
                   {invalid && <span id={`${p}-error`} className="text-xs font-semibold text-brand-text">{t("socialInvalid", { platform: socialTitle(p) })}</span>}
                 </div>

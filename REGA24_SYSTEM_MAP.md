@@ -139,7 +139,7 @@ flowchart TD
 
 **Database**
 
-Current production: Cloudflare D1 / SQLite, `REGA_DATABASE_PROVIDER=d1`, existing EU binding `DB`. Committed D1 migrations 0001–0003 and 0005 (VERIFIED applied) plus 0006 `business_social_links` (four nullable `Business` columns; REPORTED not yet applied — apply with `npm run db:d1:migrate` before deploying code that reads them), 36 application tables and native atomic transaction planning. Exact release and backup/restore evidence: [production cutover](docs/evidence/d1-production-cutover-2026-10-28.json). Neon is retained for recovery, with no automatic runtime fallback. The following PostgreSQL notes describe the original audit and retained provider.
+Current production: Cloudflare D1 / SQLite, `REGA_DATABASE_PROVIDER=d1`, existing EU binding `DB`. Five committed D1 migrations 0001–0005, all VERIFIED applied (0004 `business_social_links`: nullable `Business.facebookUrl/instagramUrl/tiktokUrl/snapchatUrl`), 36 application tables and native atomic transaction planning. Exact release and backup/restore evidence: [production cutover](docs/evidence/d1-production-cutover-2026-10-28.json). Neon is retained for recovery, with no automatic runtime fallback. The following PostgreSQL notes describe the original audit and retained provider.
 
 - Retained engine: PostgreSQL. Prisma 6.19 with `engineType = client` and a driver adapter ([prisma/schema.prisma](prisma/schema.prisma)).
 - 14 committed migrations, latest `20261022120000_admin_sign_in_codes` (table `AdminSignInCode`). Models and names: the inventory file.
