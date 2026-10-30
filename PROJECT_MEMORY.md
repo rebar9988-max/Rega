@@ -1159,3 +1159,8 @@ Local re-check of all 11 locales at 320–1024 px: no overflow from the new sect
 - No production data, schema, flag, secret, binding or plan was changed. `public.aiSearch` remains as the owner set it (on).
 - Next safe continuation point: the owner signs in at `/dr/operations`, runs "Run all", and reviews the Sorani findings
   (expected warnings today: public AI flag on with paid-provider keys configured; low category coverage).
+- Follow-up (owner, 2026-10-30): the privacy-safe analytics agent now reads the existing aggregated `SearchQueryDaily`
+  counters from #102 (7 days, ≤2,500 rows, read-only; no user/session/IP data exists there). The check reports searches
+  that found nothing, as a warning above 30% with at least 5 such searches. It never creates data. If the table is
+  unreadable it reports SKIPPED. Production D1 has migration `0005_search_query_daily.sql` (read-only check: 0 rows).
+  Still owner-triggered only: scheduling stays off because account-wide usage/billing cannot be verified.

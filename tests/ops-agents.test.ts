@@ -9,6 +9,8 @@ import { analyzeSecurity, type SecurityFacts } from "../src/lib/ops/analyzers/se
 import { analyzePerformance, analyzeQa, type QaTarget } from "../src/lib/ops/analyzers/web";
 import { analyzeAnalytics, analyzeContent, externalLinks, type ContentRow } from "../src/lib/ops/analyzers/content";
 import { analyzeAi, type AiFacts } from "../src/lib/ops/analyzers/ai";
+import { summarize as summarizeSearches } from "../src/lib/search-analytics-core";
+const summarize7 = (rows: Parameters<typeof summarizeSearches>[0]) => summarizeSearches(rows, 7);
 import { summarize } from "../src/lib/ops/core";
 import type { ProbeResult } from "../src/lib/ops/probe";
 import type { Inspection } from "../src/lib/ops/types";
@@ -208,11 +210,21 @@ test("content inspector: translations, stale guidance, sources, expired listings
 });
 
 test("analytics inspector: aggregated counts only, zero-result searches are not tracked", () => {
-  const i = analyzeAnalytics({ publicBusinesses: 3, totalViews: 40, viewsTop: [{ slug: "a", views: 30 }], activeCategories: 19, categoriesWithBusinesses: 2, activeCities: 2000, citiesWithBusinesses: 3, undiscoverable: [{ slug: "a", reason: "no_marker" }], reviews: { approved: 0, pending: 0 }, aiRequests7d: 5, openReports: 0 });
+  const base = { publicBusinesses: 3, totalViews: 40, viewsTop: [{ slug: "a", views: 30 }], activeCategories: 19, categoriesWithBusinesses: 2, activeCities: 2000, citiesWithBusinesses: 3, undiscoverable: [{ slug: "a", reason: "no_marker" as const }], reviews: { approved: 0, pending: 0 }, aiRequests7d: 5, openReports: 0 };
+  const i = analyzeAnalytics({ ...base, searches: null });
   assert.equal(result(i, "analytics.category_coverage"), "warn");
   assert.equal(result(i, "analytics.discovery_paths"), "warn");
-  assert.equal(result(i, "analytics.zero_result_searches"), "skip");
+  assert.equal(result(i, "analytics.zero_result_searches"), "skip", "unreadable table: not run, not guessed");
   assert.doesNotMatch(JSON.stringify(i), /@/);
+  const stats = (rows: { day: string; query: string; searches: number; zeroResults: number }[]) => ({ ...summarize7(rows), truncated: false });
+  assert.equal(result(analyzeAnalytics({ ...base, searches: stats([]) }), "analytics.zero_result_searches"), "info", "no searches yet");
+  const gaps = analyzeAnalytics({ ...base, searches: stats([{ day: "2026-10-30", query: "dentist", searches: 6, zeroResults: 6 }, { day: "2026-10-30", query: "pizza", searches: 4, zeroResults: 0 }]) });
+  const gap = gaps.checks.find((c) => c.code === "analytics.zero_result_searches")!;
+  assert.equal(gap.result, "warn", "60% of searches found nothing");
+  assert.deepEqual(gap.items, [{ label: "dentist: 6" }]);
+  assert.match(gap.action!, /هیچ داتایەک بە خۆکار دروست ناکرێت/, "never creates data itself");
+  const few = analyzeAnalytics({ ...base, searches: stats([{ day: "2026-10-30", query: "x1", searches: 2, zeroResults: 2 }]) });
+  assert.equal(result(few, "analytics.zero_result_searches"), "info", "too few searches to warn");
 });
 
 const ai = (over: Partial<AiFacts> = {}): AiFacts => ({ flag: { enabled: false, rollout: 0 }, codeDefault: false, provider: "auto", configuredProviders: [], publicFilter: { status: "published", verified: true, deletedAt: null, archivedAt: null }, nonsenseHits: 0, hiddenProbes: 2, hiddenLeaks: 0, publicProbes: 2, nonPublicHits: 0, answersScanned: 0, unsupportedLinks: 0, ...over });
