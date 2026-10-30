@@ -1,7 +1,7 @@
 {
   "meta": {
-    "title": "REGA Platform — ڕێگا | Entreprises, services et lieux",
-    "description": "REGA Platform : le portail kurde pour l’Allemagne et l’Europe. Trouvez des entreprises, des services et des lieux près de chez vous, avec un assistant IA en onze langues."
+    "title": "Rega24 — ڕێگا | Entreprises, services et lieux",
+    "description": "Rega24 : le portail kurde pour l’Allemagne et l’Europe. Trouvez des entreprises, des services et des lieux près de chez vous, avec un assistant IA en onze langues."
   },
   "common": {
     "loading": "Chargement ...",
@@ -116,9 +116,9 @@
       }
     ],
     "ask": "Que recherchez-vous ?",
-    "communityTitle": "Votre communauté.",
-    "communityAccent": "Plus proche.",
-    "communityLead": "Découvrez des entreprises et services locaux de confiance en Allemagne, portés par votre communauté.",
+    "communityTitle": "Les services,",
+    "communityAccent": "faciles à trouver",
+    "communityLead": "Découvrez les entreprises et services kurdes en Allemagne et en Europe.",
     "popularTitle": "Populaire près de chez vous",
     "lead": "Services, entreprises, lieux et informations avec REGA",
     "what": "p. ex. restaurant, médecin, avocat …",
@@ -436,10 +436,10 @@
   },
   "footer": {
     "tagline": "Le portail kurde pour l’Allemagne et l’Europe",
-    "rights": "© {year} REGA Platform. Tous droits réservés.",
+    "rights": "© {year} Rega24. Tous droits réservés.",
     "explore": "Explorer",
-    "follow": "Suivre REGA Platform",
-    "about": "À propos de REGA Platform",
+    "follow": "Suivre Rega24",
+    "about": "À propos de Rega24",
     "contact": "Contact",
     "legal": "Mentions légales"
   },
@@ -908,11 +908,11 @@
   },
   "emails": {
     "verifySubject": "REGA : veuillez confirmer votre adresse e-mail",
-    "verifyBody": "Bonjour {name},\n\nveuillez confirmer votre adresse e-mail pour activer votre compte REGA :\n{link}\n\nLe lien est valable {hours} heures. Si vous n’avez pas créé de compte, ignorez ce message.\n\nREGA Platform",
+    "verifyBody": "Bonjour {name},\n\nveuillez confirmer votre adresse e-mail pour activer votre compte REGA :\n{link}\n\nLe lien est valable {hours} heures. Si vous n’avez pas créé de compte, ignorez ce message.\n\nRega24",
     "resetSubject": "REGA : réinitialiser votre mot de passe",
-    "resetBody": "Bonjour {name},\n\nune réinitialisation du mot de passe a été demandée pour votre compte. Ouvrez ce lien pour définir un nouveau mot de passe :\n{link}\n\nLe lien est valable {minutes} minutes. Si vous n’êtes pas à l’origine de cette demande, ignorez ce message ; votre mot de passe reste inchangé.\n\nREGA Platform",
+    "resetBody": "Bonjour {name},\n\nune réinitialisation du mot de passe a été demandée pour votre compte. Ouvrez ce lien pour définir un nouveau mot de passe :\n{link}\n\nLe lien est valable {minutes} minutes. Si vous n’êtes pas à l’origine de cette demande, ignorez ce message ; votre mot de passe reste inchangé.\n\nRega24",
     "reviewSubject": "REGA : votre annonce doit être modifiée",
-    "reviewBody": "Bonjour {name},\n\nvotre annonce « {listing} » n’a pas encore été publiée et vous a été renvoyée pour modifications.\n{reason}\n\nVous pouvez la corriger dans votre tableau de bord et l’envoyer à nouveau :\n{link}\n\nREGA Platform"
+    "reviewBody": "Bonjour {name},\n\nvotre annonce « {listing} » n’a pas encore été publiée et vous a été renvoyée pour modifications.\n{reason}\n\nVous pouvez la corriger dans votre tableau de bord et l’envoyer à nouveau :\n{link}\n\nRega24"
   },
   "forBusiness": {
     "title": "Pour les entreprises",
@@ -1018,32 +1018,32 @@
     "setStatus": "Changer le statut ..."
   },
   "pageMeta": {
-    "businesses": "Entreprises kurdes en Allemagne et en Europe sur REGA Platform : adresse, téléphone, horaires et badge Rega Verified pour chaque annonce.",
+    "businesses": "Entreprises kurdes en Allemagne et en Europe sur Rega24 : adresse, téléphone, horaires et badge Rega Verified pour chaque annonce.",
     "services": "Services de prestataires kurdes en Allemagne et en Europe : comparez les offres, consultez les prix fixés par chaque entreprise et prenez contact directement.",
     "locations": "Lieux d’entreprises kurdes en Allemagne et en Europe : parcourez par ville, consultez adresses et horaires, et trouvez l’itinéraire sur la carte.",
     "nearby": "Trouvez des entreprises et services kurdes près de chez vous : utilisez votre position ou choisissez une ville, puis parcourez la carte ou la liste.",
-    "ai": "L’assistant REGA répond à vos questions à partir des vraies annonces de REGA Platform : trouvez des entreprises kurdes en Allemagne et en Europe.",
+    "ai": "L’assistant REGA répond à vos questions à partir des vraies annonces de Rega24 : trouvez des entreprises kurdes en Allemagne et en Europe.",
     "about": "Découvrez Rega24, une plateforme multilingue pour trouver entreprises et services par catégorie, ville et carte, avec des informations claires.",
-    "search": "Recherchez toutes les entreprises, tous les services et tous les lieux kurdes sur REGA Platform et filtrez les résultats par type.",
-    "register": "Créez un compte gratuit sur REGA Platform pour inscrire votre entreprise et toucher les Kurdes d’Allemagne et d’Europe.",
-    "login": "Connectez-vous à votre compte REGA Platform : gérez vos annonces, envoyez-les pour vérification et modifiez vos paramètres.",
-    "account": "Votre compte REGA Platform : gérez votre profil, la confirmation de votre e-mail et vos annonces en un seul endroit.",
-    "forgotPassword": "Réinitialisez votre mot de passe REGA Platform : saisissez votre adresse e-mail et recevez un lien pour définir un nouveau mot de passe.",
-    "resetPassword": "Définissez un nouveau mot de passe pour votre compte REGA Platform : choisissez un mot de passe fort d’au moins dix caractères.",
-    "verifyEmail": "Confirmez votre adresse e-mail sur REGA Platform : cliquez sur le bouton pour activer votre compte et inscrire votre entreprise.",
-    "categoryPage": "{name} : entreprises kurdes en Allemagne et en Europe sur REGA Platform, avec adresse, téléphone et horaires pour chaque annonce.",
-    "cityPage": "{name} : entreprises, services et lieux kurdes sur REGA Platform : adresses, numéros de téléphone et horaires au même endroit.",
-    "cityCategoryPage": "{category} à {city} : entreprises kurdes sur REGA Platform, avec adresse, téléphone et horaires pour chaque annonce.",
-    "businessFallback": "{name} à {place} : adresse, téléphone et horaires de cette entreprise kurde sur REGA Platform.",
-    "businessFallbackNoPlace": "{name} : adresse, téléphone et horaires de cette entreprise kurde sur REGA Platform.",
-    "serviceFallback": "{name} par {provider} : détails de ce service kurde, son prix et contact direct sur REGA Platform.",
-    "contact": "Contactez REGA Platform par téléphone, e-mail, WhatsApp ou formulaire : questions, suggestions et partenariats pour le portail kurde.",
-    "report": "Signalez un contenu illégal, trompeur ou inapproprié sur REGA Platform. Votre signalement est traité selon le règlement sur les services numériques (DSA).",
-    "forBusiness": "Inscrivez gratuitement votre entreprise sur REGA Platform et touchez les Kurdes d’Allemagne et d’Europe. Sans frais ni abonnement, avec vérification.",
+    "search": "Recherchez toutes les entreprises, tous les services et tous les lieux kurdes sur Rega24 et filtrez les résultats par type.",
+    "register": "Créez un compte gratuit sur Rega24 pour inscrire votre entreprise et toucher les Kurdes d’Allemagne et d’Europe.",
+    "login": "Connectez-vous à votre compte Rega24 : gérez vos annonces, envoyez-les pour vérification et modifiez vos paramètres.",
+    "account": "Votre compte Rega24 : gérez votre profil, la confirmation de votre e-mail et vos annonces en un seul endroit.",
+    "forgotPassword": "Réinitialisez votre mot de passe Rega24 : saisissez votre adresse e-mail et recevez un lien pour définir un nouveau mot de passe.",
+    "resetPassword": "Définissez un nouveau mot de passe pour votre compte Rega24 : choisissez un mot de passe fort d’au moins dix caractères.",
+    "verifyEmail": "Confirmez votre adresse e-mail sur Rega24 : cliquez sur le bouton pour activer votre compte et inscrire votre entreprise.",
+    "categoryPage": "{name} : entreprises kurdes en Allemagne et en Europe sur Rega24, avec adresse, téléphone et horaires pour chaque annonce.",
+    "cityPage": "{name} : entreprises, services et lieux kurdes sur Rega24 : adresses, numéros de téléphone et horaires au même endroit.",
+    "cityCategoryPage": "{category} à {city} : entreprises kurdes sur Rega24, avec adresse, téléphone et horaires pour chaque annonce.",
+    "businessFallback": "{name} à {place} : adresse, téléphone et horaires de cette entreprise kurde sur Rega24.",
+    "businessFallbackNoPlace": "{name} : adresse, téléphone et horaires de cette entreprise kurde sur Rega24.",
+    "serviceFallback": "{name} par {provider} : détails de ce service kurde, son prix et contact direct sur Rega24.",
+    "contact": "Contactez Rega24 par téléphone, e-mail, WhatsApp ou formulaire : questions, suggestions et partenariats pour le portail kurde.",
+    "report": "Signalez un contenu illégal, trompeur ou inapproprié sur Rega24. Votre signalement est traité selon le règlement sur les services numériques (DSA).",
+    "forBusiness": "Inscrivez gratuitement votre entreprise sur Rega24 et touchez les Kurdes d’Allemagne et d’Europe. Sans frais ni abonnement, avec vérification.",
     "jobs": "Emplois pour les Kurdes en Allemagne et en Europe : trouvez des offres par ville et catégorie et postulez directement auprès de l’employeur.",
     "events": "Événements kurdes en Allemagne et en Europe : trouvez fêtes de Newroz, concerts et rencontres communautaires par ville et par date.",
     "guides": "Guides REGA pour la vie en Allemagne et en Europe : des articles clairs en plusieurs langues, réunis au même endroit.",
-    "entryFallback": "{title} : {kind} sur REGA Platform, le portail kurde pour l’Allemagne et l’Europe."
+    "entryFallback": "{title} : {kind} sur Rega24, le portail kurde pour l’Allemagne et l’Europe."
   },
   "seoPages": {
     "inCity": "Entreprises à {city}",

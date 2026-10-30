@@ -1,7 +1,7 @@
 {
   "meta": {
-    "title": "REGA Platform — ڕێگا | Unternehmen, Dienstleistungen & Standorte",
-    "description": "REGA Platform: das kurdische Portal für Deutschland und Europa. Unternehmen, Dienstleistungen und Orte finden – mit KI-Assistent in elf Sprachen."
+    "title": "Rega24 — ڕێگا | Unternehmen, Dienstleistungen & Standorte",
+    "description": "Rega24: das kurdische Portal für Deutschland und Europa. Unternehmen, Dienstleistungen und Orte finden – mit KI-Assistent in elf Sprachen."
   },
   "common": {
     "loading": "Wird geladen ...",
@@ -116,9 +116,9 @@
       }
     ],
     "ask": "Was suchen Sie?",
-    "communityTitle": "Ihre Community.",
-    "communityAccent": "Näher.",
-    "communityLead": "Entdecken Sie vertrauenswürdige lokale Unternehmen und Dienste in Deutschland — getragen von Ihrer Community.",
+    "communityTitle": "Dienstleistungen",
+    "communityAccent": "einfach finden",
+    "communityLead": "Kurdische Unternehmen und Dienstleistungen in Deutschland und Europa entdecken.",
     "popularTitle": "Beliebt in Ihrer Nähe",
     "lead": "Dienstleistungen, Unternehmen, Orte und Informationen mit REGA",
     "what": "z. B. Restaurant, Arzt, Anwalt …",
@@ -436,10 +436,10 @@
   },
   "footer": {
     "tagline": "Das kurdische Portal für Deutschland und Europa",
-    "rights": "© {year} REGA Platform. Alle Rechte vorbehalten.",
+    "rights": "© {year} Rega24. Alle Rechte vorbehalten.",
     "explore": "Entdecken",
-    "follow": "REGA Platform folgen",
-    "about": "Über REGA Platform",
+    "follow": "Rega24 folgen",
+    "about": "Über Rega24",
     "contact": "Kontakt",
     "legal": "Rechtliches"
   },
@@ -908,11 +908,11 @@
   },
   "emails": {
     "verifySubject": "REGA: Bitte bestätigen Sie Ihre E-Mail-Adresse",
-    "verifyBody": "Hallo {name},\n\nbitte bestätigen Sie Ihre E-Mail-Adresse, um Ihr REGA-Konto zu aktivieren:\n{link}\n\nDer Link ist {hours} Stunden gültig. Wenn Sie kein Konto erstellt haben, ignorieren Sie diese Nachricht.\n\nREGA Platform",
+    "verifyBody": "Hallo {name},\n\nbitte bestätigen Sie Ihre E-Mail-Adresse, um Ihr REGA-Konto zu aktivieren:\n{link}\n\nDer Link ist {hours} Stunden gültig. Wenn Sie kein Konto erstellt haben, ignorieren Sie diese Nachricht.\n\nRega24",
     "resetSubject": "REGA: Passwort zurücksetzen",
-    "resetBody": "Hallo {name},\n\nfür Ihr Konto wurde das Zurücksetzen des Passworts angefordert. Öffnen Sie diesen Link, um ein neues Passwort festzulegen:\n{link}\n\nDer Link ist {minutes} Minuten gültig. Wenn Sie das nicht angefordert haben, ignorieren Sie diese Nachricht; Ihr Passwort bleibt unverändert.\n\nREGA Platform",
+    "resetBody": "Hallo {name},\n\nfür Ihr Konto wurde das Zurücksetzen des Passworts angefordert. Öffnen Sie diesen Link, um ein neues Passwort festzulegen:\n{link}\n\nDer Link ist {minutes} Minuten gültig. Wenn Sie das nicht angefordert haben, ignorieren Sie diese Nachricht; Ihr Passwort bleibt unverändert.\n\nRega24",
     "reviewSubject": "REGA: Ihr Eintrag braucht Änderungen",
-    "reviewBody": "Hallo {name},\n\nIhr Eintrag \"{listing}\" wurde noch nicht veröffentlicht und zur Überarbeitung zurückgegeben.\n{reason}\n\nSie können ihn im Dashboard anpassen und erneut einreichen:\n{link}\n\nREGA Platform"
+    "reviewBody": "Hallo {name},\n\nIhr Eintrag \"{listing}\" wurde noch nicht veröffentlicht und zur Überarbeitung zurückgegeben.\n{reason}\n\nSie können ihn im Dashboard anpassen und erneut einreichen:\n{link}\n\nRega24"
   },
   "forBusiness": {
     "title": "Für Unternehmen",
@@ -1018,32 +1018,32 @@
     "setStatus": "Status ändern ..."
   },
   "pageMeta": {
-    "businesses": "Kurdische Unternehmen in Deutschland und Europa auf REGA Platform: Adresse, Telefon, Öffnungszeiten und das Zeichen „Rega Verified“ zu jedem Eintrag.",
+    "businesses": "Kurdische Unternehmen in Deutschland und Europa auf Rega24: Adresse, Telefon, Öffnungszeiten und das Zeichen „Rega Verified“ zu jedem Eintrag.",
     "services": "Dienstleistungen kurdischer Anbieter in Deutschland und Europa: Angebote vergleichen, Preise der Unternehmen sehen und direkt Kontakt aufnehmen.",
     "locations": "Standorte kurdischer Unternehmen in Deutschland und Europa: nach Stadt stöbern, Adressen und Öffnungszeiten sehen und den Weg auf der Karte finden.",
     "nearby": "Kurdische Unternehmen und Dienstleistungen in Ihrer Nähe finden: Standort nutzen oder Stadt wählen und Ergebnisse auf Karte oder Liste ansehen.",
-    "ai": "Der REGA-Assistent beantwortet Fragen auf Basis der echten Einträge von REGA Platform: kurdische Unternehmen in Deutschland und Europa finden.",
+    "ai": "Der REGA-Assistent beantwortet Fragen auf Basis der echten Einträge von Rega24: kurdische Unternehmen in Deutschland und Europa finden.",
     "about": "Rega24 kennenlernen: die mehrsprachige Plattform für Unternehmen und Dienstleistungen nach Kategorie, Stadt und Karte – mit einer globalen Vision.",
-    "search": "Durchsuchen Sie alle kurdischen Unternehmen, Dienstleistungen und Standorte auf REGA Platform und filtern Sie die Ergebnisse nach Typ.",
-    "register": "Erstellen Sie ein kostenloses Konto auf REGA Platform, tragen Sie Ihr Unternehmen ein und erreichen Sie Kurden in Deutschland und Europa.",
+    "search": "Durchsuchen Sie alle kurdischen Unternehmen, Dienstleistungen und Standorte auf Rega24 und filtern Sie die Ergebnisse nach Typ.",
+    "register": "Erstellen Sie ein kostenloses Konto auf Rega24, tragen Sie Ihr Unternehmen ein und erreichen Sie Kurden in Deutschland und Europa.",
     "login": "Melden Sie sich bei Ihrem REGA-Platform-Konto an: Einträge verwalten, zur Prüfung einreichen und Ihre Einstellungen ändern.",
-    "account": "Ihr Konto bei REGA Platform: Profildaten, E-Mail-Bestätigung und Ihre Einträge verwalten, alles an einem Ort.",
-    "forgotPassword": "Passwort bei REGA Platform zurücksetzen: Geben Sie Ihre E-Mail-Adresse ein und erhalten Sie einen Link zum Festlegen eines neuen Passworts.",
+    "account": "Ihr Konto bei Rega24: Profildaten, E-Mail-Bestätigung und Ihre Einträge verwalten, alles an einem Ort.",
+    "forgotPassword": "Passwort bei Rega24 zurücksetzen: Geben Sie Ihre E-Mail-Adresse ein und erhalten Sie einen Link zum Festlegen eines neuen Passworts.",
     "resetPassword": "Neues Passwort für Ihr REGA-Platform-Konto festlegen: Wählen Sie ein starkes Passwort mit mindestens zehn Zeichen und speichern Sie es.",
-    "verifyEmail": "E-Mail-Adresse bei REGA Platform bestätigen: Klicken Sie auf die Schaltfläche, um Ihr Konto zu aktivieren und Ihr Unternehmen einzutragen.",
-    "categoryPage": "{name}: kurdische Unternehmen in Deutschland und Europa auf REGA Platform – mit Adresse, Telefon und Öffnungszeiten zu jedem Eintrag.",
-    "cityPage": "{name}: kurdische Unternehmen, Dienstleistungen und Orte auf REGA Platform – Adressen, Telefonnummern und Öffnungszeiten an einem Ort.",
-    "cityCategoryPage": "{category} in {city}: kurdische Unternehmen auf REGA Platform – mit Adresse, Telefon und Öffnungszeiten zu jedem Eintrag.",
-    "businessFallback": "{name} in {place}: Adresse, Telefon und Öffnungszeiten dieses kurdischen Unternehmens auf REGA Platform.",
-    "businessFallbackNoPlace": "{name}: Adresse, Telefon und Öffnungszeiten dieses kurdischen Unternehmens auf REGA Platform.",
-    "serviceFallback": "{name} von {provider}: Details dieser kurdischen Dienstleistung, Preis und direkter Kontakt auf REGA Platform.",
-    "contact": "Kontaktieren Sie REGA Platform per Telefon, E-Mail, WhatsApp oder Kontaktformular – für Fragen, Anregungen und Zusammenarbeit rund um das kurdische Portal für Deutschland und Europa.",
-    "report": "Melden Sie rechtswidrige, irreführende oder unpassende Inhalte auf REGA Platform. Ihre Meldung wird geprüft und nach dem Digital Services Act (DSA) bearbeitet.",
-    "forBusiness": "Tragen Sie Ihr Unternehmen kostenlos auf REGA Platform ein und erreichen Sie Kurden in Deutschland und Europa. Ohne Gebühren, mit Prüfung und „Rega Verified“.",
+    "verifyEmail": "E-Mail-Adresse bei Rega24 bestätigen: Klicken Sie auf die Schaltfläche, um Ihr Konto zu aktivieren und Ihr Unternehmen einzutragen.",
+    "categoryPage": "{name}: kurdische Unternehmen in Deutschland und Europa auf Rega24 – mit Adresse, Telefon und Öffnungszeiten zu jedem Eintrag.",
+    "cityPage": "{name}: kurdische Unternehmen, Dienstleistungen und Orte auf Rega24 – Adressen, Telefonnummern und Öffnungszeiten an einem Ort.",
+    "cityCategoryPage": "{category} in {city}: kurdische Unternehmen auf Rega24 – mit Adresse, Telefon und Öffnungszeiten zu jedem Eintrag.",
+    "businessFallback": "{name} in {place}: Adresse, Telefon und Öffnungszeiten dieses kurdischen Unternehmens auf Rega24.",
+    "businessFallbackNoPlace": "{name}: Adresse, Telefon und Öffnungszeiten dieses kurdischen Unternehmens auf Rega24.",
+    "serviceFallback": "{name} von {provider}: Details dieser kurdischen Dienstleistung, Preis und direkter Kontakt auf Rega24.",
+    "contact": "Kontaktieren Sie Rega24 per Telefon, E-Mail, WhatsApp oder Kontaktformular – für Fragen, Anregungen und Zusammenarbeit rund um das kurdische Portal für Deutschland und Europa.",
+    "report": "Melden Sie rechtswidrige, irreführende oder unpassende Inhalte auf Rega24. Ihre Meldung wird geprüft und nach dem Digital Services Act (DSA) bearbeitet.",
+    "forBusiness": "Tragen Sie Ihr Unternehmen kostenlos auf Rega24 ein und erreichen Sie Kurden in Deutschland und Europa. Ohne Gebühren, mit Prüfung und „Rega Verified“.",
     "jobs": "Jobs und Berufe für Kurden in Deutschland und Europa: Stellenangebote nach Stadt und Kategorie finden und sich direkt bewerben.",
     "events": "Kurdische Veranstaltungen in Deutschland und Europa: Newroz, Konzerte und Treffen der Community nach Stadt und Datum finden.",
     "guides": "Ratgeber von REGA für das Leben in Deutschland und Europa: verständliche Artikel in mehreren Sprachen an einem Ort lesen.",
-    "entryFallback": "{title}: {kind} auf REGA Platform, dem kurdischen Portal für Deutschland und Europa."
+    "entryFallback": "{title}: {kind} auf Rega24, dem kurdischen Portal für Deutschland und Europa."
   },
   "seoPages": {
     "inCity": "Unternehmen in {city}",

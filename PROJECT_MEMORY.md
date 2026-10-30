@@ -1043,3 +1043,46 @@ PASS. `probe()` executed inside workerd with the production compatibility date/f
 no cookie). Not run here: PostgreSQL Worker smoke (no local Postgres; CI runs it), WebKit/iPhone project.
 Two false positives found by running the agents on the seeded database and fixed before commit: hreflang check was
 case-sensitive (React emits `hrefLang`, confirmed on live `/ckb`), and the AI message wrongly said "production" everywhere.
+
+## Official-red closure — 2026-10-29 (owner continuation; colors only)
+
+PR #99 previously released `b3ac504`; final-head CI 40847220764, exact-main CI 40852835339, deploy 40858345557,
+post-deploy health 40858345472 attempt 2 and production browser 40858943890 all passed. Its live log recorded 36 successful
+primary-red assertions. This closes the historical pending wording in the earlier candidate checkpoint; the shared Doc
+already contained the final release. Current baseline for this continuation is `ec162ff` (unrelated operations release).
+Read-only Cloudflare verification found that exact source tag at 100% on version `14592e63-ad3f-4cd4-a500-81d88935ef6a`.
+
+Owner asked to finish remaining color work. Two genuine omissions were found: the shared danger-menu class is a `.ts`
+string (`text-brand`, not covered by the earlier TSX migration), and the standalone offline HTML retained two old OKLCH
+primary colors. Correct only these colors: existing `text-brand-text` for danger labels; canonical primary/derived hover
+and black action labels offline, preserving all layout/text/logo markup. Refresh the existing static-cache version so
+installed browsers receive the updated offline page. No cache strategy, business action, role, schema, record, dependency,
+workflow or unrelated feature change. The separate held security/data work is not included or released by this branch.
+
+Real Chromium + actual compiled CSS reproduced all 24 danger-menu default/hover/focus cases below 4.5 (minimum 3.72).
+The extended application regression failed before the fix at 4.116838270266513; after the fix all 24 state cases pass,
+minimum 5.67. Local typecheck/lint, 416 unit passes (4 DB-only skips), 10 D1 tests, 6 PWA unit tests, audit 0 vulnerabilities,
+19 targeted brand/publication/operations browsers and 11 standalone-offline/PWA browsers pass. The eight offline cases
+include light/dark, RTL/LTR, 390/1366 px, primary parity, actual hover/focus contrast and axe (zero violations).
+Offline baseline/candidate geometry and typography match in 8/8 cases; screenshot inspected. Local Node build uses the
+previous test-only Noto transport because of the executor's font-network restriction; no font changes are committed.
+Evidence: [color closure QA](docs/evidence/brand-colors-closure-2026-10-29.json). Hosted final-head/main CI, existing deploy
+and fresh production color verification must pass before marking this follow-up released.
+
+## Figma implementation candidate — 2026-10-30
+
+Owner directive: implement `enQ8cs8Yd2xxZ5bajyk6rI` in the existing Next.js app, consistent mobile/desktop, official ڕێگا REGA24 lockup, preserve all functional/data/security layers and spend no additional money. Identity guard passes on `codex/rega24-figma-implementation`, based on main `b36703f`; no R&L crossover.
+
+Official Figma MCP session `c7a5e263-a842-404a-80a8-32b411010efc` read the file metadata, high-fidelity context and reference screenshots: home `3:2`/`3:94`; foundations `22:2`; directory `22:46`/`22:80`; detail `22:104`/`22:116`; owner dashboard `22:128`/`22:144`; add-business `22:160`/`22:180`; handoff `28:2`. These frames contain text, primitives and dynamic-media placeholders, not an original logo image. The handoff explicitly directs reuse of approved repository artwork.
+
+Implementation: editorial white hero with existing working search/city selector; 12-category grid; responsive home/directory cards; actual owner registration CTA, actual counts and city links; existing AI/map/social functions retained below the design band. Profile media/info reflows into two desktop columns and one mobile column. Owner account exposes existing listings/pending/profile/sign-out actions as four responsive tiles, rather than inventing settings or request backends. Existing business wizard is retained with an 800px single-column visual shell; no action/validation/autosave/upload changes. Global light neutrals and the already-installed Vazirmatn replace the older home-specific Noto face. No dependency added; removing the obsolete next/font import also removes its external build-time font download.
+
+Current Figma foundations primary `#db0512` supersedes the earlier sampled `#fa070d` per the owner's source-of-truth directive. White action ink passes the actual contrast regression; the home frame's `#db0514` is standardized to the shared foundation red. Original artwork is not recolored. Updated brand/metadata/manifest/offline references use Rega24 and preserve canonical URLs. Official logo derivatives and social/icon assets are reused byte-identically from this repository's prior owner-artwork PR101 head `a0e9ad0ca778effe31f7284dee9cbb130cca06c8`; none of its application changes or unrelated PRs are merged. Header/footer/auth/admin share Logo/LogoMark. Footer keeps its 32px mark and legal/navigation links. Service-worker static cache is refreshed for the new offline artwork, without changing cache policy.
+
+Verification checkpoint (not a final-head release certificate): 416 unit passes, 4 existing DB-only skips, 0 failures after correcting one shortened Persian SEO description; native D1 10/10 and batch preservation pass; Node build, lint, TypeScript, docs validation and npm audit (0 vulnerabilities) passed on the preceding candidate. An earlier public browser batch had 77 passes and one real footer-size failure; compact logo was repaired without weakening that assertion. The corrected 94-case public/color/locale/PWA browser batch is running, including 88 persisted home screenshots (11 locales × 8 widths), home axe and eight light/dark/direction brand combinations. Account/form changes still require their final build and authenticated browser checks. A simultaneous typecheck/build briefly raced generated .next types; sequential typecheck passed; do not modify tsconfig or suppress diagnostics to hide that environment race.
+
+Production remains untouched by this task. Earlier read-only Cloudflare baseline: Worker `rega24`, deployment `8f81131b-9128-428d-8a2e-591ba342fdaa`, version `14592e63-ad3f-4cd4-a500-81d88935ef6a` at 100%; this must be rechecked before release. No schema, migrations, production data, authorization, dependencies or CI/deployment workflow changes. Existing PR71 security/data release hold is separate and is not released here. Final exact-head CI, local authenticated checks, visual review, Lighthouse and exact-main deployment/live verification are still required. No 100/100 quality or deployment is claimed. No paid service/plan was activated; billing totals are not independently observed. Continue on this branch; finish actual checks, update PR/central Hub with exact results, and release only through the existing gates.
+
+Figma QA continuation: corrected public batch is 94/94 PASS (including all 88 screenshot/locale-width combinations, all eight actual brand contrast cases and eight standalone offline cases). Exact application head `6cd40d5` builds successfully. Authenticated local batch: 30 passes and one intermittent upload case; the unchanged isolated upload case then passed (24.8s), so no deterministic application defect is demonstrated. Its stale-page setup opened a second active tab and never returned to the editing tab; the test now explicitly brings the editing tab to front, retaining the stale tab and every upload/permission/preview/approval/autosave assertion and timeout. Chromium background canvas encoding is a plausible cause, not independently established. A new real owner-account test passed (navigation, pending filter, four viewport screenshots, axe, sign-out and account retention). No app code changes follow `6cd40d5`; final test-only head/full CI remain mandatory. Cloudflare Billing Read returned 403 (OAuth scope unavailable), so no invoice-total/remaining-quota claim is possible; no paid resource or plan was activated.
+
+Final in-scope accessibility review adds a 2px canonical focus ring around the stretched home profile link's whole card. The old link suppresses its own outline and the low-opacity card border alone is insufficiently distinct. The eleven-locale browser matrix now explicitly checks the rendered focus indicator. This source change requires a new exact-head CI; do not merge using the preceding head's results. No security/data/workflow changes.

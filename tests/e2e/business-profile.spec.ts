@@ -33,7 +33,7 @@ test("small phones (320, 375, 430 px) keep every action reachable without sidewa
       await page.goto(`/${locale}/business/kurdistan-rechtsberatung`);
       expect(await overflowX(page), `${locale} @${width}`).toBeLessThanOrEqual(0);
       // In RTL an overflowing header is not scrollable but cut off at the left edge: the logo must be fully on screen.
-      const logo = await page.locator("header").getByRole("link", { name: "REGA Platform" }).boundingBox();
+      const logo = await page.locator("header").getByRole("link", { name: "ڕێگا REGA24" }).boundingBox();
       expect(logo && logo.x >= 0 && logo.x + logo.width <= width, `logo ${locale} @${width}`).toBeTruthy();
       for (const action of await page.getByTestId("business-actions").locator("a, button").all()) {
         const box = await action.boundingBox();

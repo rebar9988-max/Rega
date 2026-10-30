@@ -389,6 +389,9 @@ test("owner completes registration and real image upload; approval publishes and
   await expect(page.getByTestId("draft-saved")).toBeVisible({ timeout: 10000 });
   const stale = await page.context().newPage();
   await stale.goto(`/dr/businesses/${await page.locator("input[name=id]").inputValue()}`);
+  // Keep the stale draft open, then return to the tab where the owner edits.
+  // Background tabs can defer canvas.toBlob's encoding callback in Chromium.
+  await page.bringToFront();
   await page.getByTestId("wizard-next").click();
   await expect(page.getByTestId("wizard-step-2")).toHaveAttribute(
     "aria-current",
