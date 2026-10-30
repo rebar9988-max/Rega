@@ -43,6 +43,21 @@ export const MAJOR_CITY_SLUGS = [
   "rome",
 ] as const;
 
+/**
+ * Home page "popular cities" showcase (approved REGA24 reference): Kurdistan Region / Iraq first, then major European
+ * cities. Display only; it does not change any selector, filter or directory scope.
+ */
+export const HOME_SHOWCASE_CITY_SLUGS = [
+  "erbil",
+  "sulaymaniyah",
+  "duhok",
+  "baghdad",
+  "berlin",
+  "koeln",
+  "hamburg",
+  "muenchen",
+] as const;
+
 const majorOrder = new Map<string, number>(MAJOR_CITY_SLUGS.map((slug, index) => [slug, index]));
 
 export type RankedCity = { id: string; slug: string | null; nameEn: string; count: number; pinned?: boolean };

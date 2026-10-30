@@ -162,6 +162,24 @@ export const listSelectorCities = cache(async (scope: CityScope = {}) => {
   return rankSelectorCities([...byId.values()]);
 });
 
+/**
+ * Named showcase cities across countries (home page "popular cities"), in the given slug order, with `count` =
+ * published businesses that have an active location there. Bounded by the slug list; inactive cities/countries skipped.
+ */
+export const listCitiesBySlug = cache(async (slugs: readonly string[]) => {
+  if (slugs.length === 0) return [];
+  const rows = await prisma.city.findMany({
+    where: { isActive: true, slug: { in: [...slugs] }, country: { isActive: true } },
+    select: {
+      ...cityNameSelect,
+      country: { select: { code: true, nameEn: true, nameCkb: true, nameKmr: true, nameDe: true, nameFa: true, nameAr: true, nameTr: true } },
+      locations: { where: { status: "active", deletedAt: null, business: PUBLIC_BUSINESS }, distinct: "businessId", select: { businessId: true } },
+    },
+  });
+  const bySlug = new Map(rows.map(({ locations, ...city }) => [city.slug, { ...city, count: locations.length }] as const));
+  return slugs.flatMap((slug) => bySlug.get(slug) ?? []);
+});
+
 /** One active city by its public slug. Does not scan the full city table. */
 export const getCityBySlug = cache(async (slug: string) =>
   prisma.city.findFirst({ where: { slug, isActive: true }, select: cityNameSelect }),

@@ -2,16 +2,17 @@ import { PageSchema } from "@/components/ui/PageSchema";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { notFound } from "next/navigation";
-import { LOCALE_META, isLocale, type Locale } from "@/i18n/locales";
+import { LOCALES, LOCALE_META, formatNumber, isLocale, type Locale } from "@/i18n/locales";
 import { CATEGORY_ICON, FigmaIcon, ROW_ICON } from "@/components/home/FigmaIcon";
-import { BusinessRow } from "@/components/cards/BusinessRow";
+import { HomeHeroArt, HomeHeroSwoosh, StoreArt, WorldArt } from "@/components/home/HomeArt";
+import { HomeBusinessCard } from "@/components/home/HomeBusinessCard";
 import { SocialSection } from "@/components/home/SocialSection";
 import { Text } from "@/components/ui/Bidi";
-import { localize } from "@/lib/content";
+import { countryName, localize } from "@/lib/content";
 import { PlacesMap, type PlacePoint } from "@/components/map/PlacesMap";
 import { isValidCoordinate } from "@/lib/coordinates";
-import { DEFAULT_PUBLIC_COUNTRY_CODE, getCategories, getHomeData, listSelectorCities } from "@/lib/data";
-import { MAJOR_CITY_SLUGS } from "@/lib/selector-cities";
+import { DEFAULT_PUBLIC_COUNTRY_CODE, getCategories, getHomeData, listCitiesBySlug, listSelectorCities } from "@/lib/data";
+import { HOME_SHOWCASE_CITY_SLUGS, MAJOR_CITY_SLUGS } from "@/lib/selector-cities";
 import { CityFilter } from "@/components/ui/CityFilter";
 import { log } from "@/lib/logger";
 import { pageMetadata } from "@/lib/seo";
@@ -38,6 +39,22 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 
 export const dynamic = "force-dynamic";
 
+/** Section heading row: title at the start, red "see all" link at the end (arrow follows the reading direction). */
+function SectionHead({ id, title, sub, href, linkLabel }: { id: string; title: string; sub?: string; href: string; linkLabel: string }) {
+  return (
+    <div className="rh-head">
+      <div className="min-w-0">
+        <h2 id={id} className="rh-h2">{title}</h2>
+        {sub && <p className="rh-sub">{sub}</p>}
+      </div>
+      <Link href={href} className="rh-more">
+        {linkLabel}<span className="sr-only">: {title}</span>
+        <FigmaIcon name="arrow-right" className="rtl-flip size-4 shrink-0" />
+      </Link>
+    </div>
+  );
+}
+
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   // Pages render in parallel with the layout, so stray requests (e.g. /favicon.ico) must be rejected here too.
@@ -45,16 +62,16 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   setRequestLocale(locale);
   const t = await getTranslations("home");
   const tn = await getTranslations("nav");
-  const tc = await getTranslations("common");
   const te = await getTranslations("empty");
   const l = locale as Locale;
   const pageLang = LOCALE_META[l].htmlLang;
   let degraded = false;
   const failed = () => { degraded = true; };
-  const [data, categories, cities] = await Promise.all([
+  const [data, categories, cities, showcase] = await Promise.all([
     homeData(),
     safe(getCategories, [], failed),
     safe(() => listSelectorCities({ countryCode: DEFAULT_PUBLIC_COUNTRY_CODE }), [], failed),
+    safe(() => listCitiesBySlug(HOME_SHOWCASE_CITY_SLUGS), [], failed),
   ]);
   if (!data) degraded = true;
 
@@ -83,134 +100,211 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       : [];
   });
 
+  const chips = [
+    { href: "/businesses", icon: "layout-grid", label: tn("categories") },
+    { href: "/locations", icon: "building-2", label: tn("locations") },
+    { href: "/nearby", icon: "crosshair", label: tn("nearby") },
+    { href: "/businesses?sort=newest", icon: "store", label: t("chipNewest") },
+  ];
+  const trust = [
+    { icon: "shield-check", tone: "rh-tone-ok", title: t("trustReviewed"), sub: t("trustReviewedSub") },
+    { icon: "languages", tone: "rh-tone-brand", title: t("trustLanguages"), sub: t("trustLanguagesSub") },
+    { icon: "globe", tone: "rh-tone-geo", title: t("trustGlobal"), sub: t("trustGlobalSub") },
+    { icon: "heart", tone: "rh-tone-brand", title: t("trustFree"), sub: t("trustFreeSub") },
+  ];
+  // Every figure is real: counted published records, the registered interface languages and the free platform.
+  const stats = [
+    ...(data ? [
+      { icon: "building-2", value: formatNumber(data.stats.businesses, l), label: t("statsBusinesses") },
+      { icon: "map-pin", value: formatNumber(data.stats.locations, l), label: t("statsLocations") },
+    ] : []),
+    { icon: "languages", value: formatNumber(LOCALES.length, l), label: t("statsLanguages") },
+    ...(rootCategories.length > 0 ? [{ icon: "layout-grid", value: formatNumber(rootCategories.length, l), label: t("statsCategories") }] : []),
+    { icon: "heart", value: formatNumber(1, l, { style: "percent" }), label: t("statsFree") },
+  ];
+
   return (
     <>
       <div className="figma rega-home text-ink">
         <PageSchema name={`${t("communityTitle")} ${t("communityAccent")}`} description={t("communityLead")} />
         {degraded && <NoEdgeCache />}
 
-        <section className={`${BAND} pt-4 lg:pt-[22px]`}>
-          <div className="rega-editorial-hero relative rounded-3xl border border-line bg-surface px-[22px] py-6 lg:min-h-[410px] lg:py-7">
-            <span className="rega-hero-accent" aria-hidden="true" />
-            <h1 className="rega-display pe-4 text-[clamp(1.8rem,3.34vw,3rem)] leading-normal">
-              {t("communityTitle")}<span className="mt-3 block text-brand-text">{t("communityAccent")}</span>
-            </h1>
-            <p className="mt-6 text-[15px] leading-7 text-muted lg:text-[19px]">{t("communityLead")}</p>
-              <form action={`/${locale}/businesses`} role="search"
-                className="rega-home-search relative z-20 mt-6 grid gap-3 lg:mt-10 lg:grid-cols-[minmax(0,1fr)_minmax(11rem,.3fr)_auto] lg:gap-0 lg:rounded-[14px] lg:bg-surface-2 lg:p-2">
-                <label className="flex min-h-[58px] min-w-0 items-center gap-3 rounded-[14px] bg-surface-2 px-4 focus-within:ring-2 focus-within:ring-inset focus-within:ring-[var(--ring)]">
-                  <FigmaIcon name="search" className="size-5 shrink-0 text-brand-text" />
-                  <span className="sr-only">{t("what")}</span>
-                  <input name="q" type="search" autoComplete="off" maxLength={120} placeholder={t("searchWhat")}
-                    className="min-w-0 flex-1 bg-transparent text-[15px] text-ink outline-none placeholder:text-muted" />
-                </label>
-                <div className="flex min-h-14 min-w-0 items-center gap-2 rounded-xl bg-surface-2 px-4 focus-within:ring-2 focus-within:ring-inset focus-within:ring-[var(--ring)]">
-                  <FigmaIcon name="map-pin" className="size-4 shrink-0 text-brand-text" />
-                  <div className="min-w-0 flex-1">
-                    <CityFilter
-                      cities={cities.map((c) => { const name = cityName(c).text; return { id: c.id, label: name, name }; })}
-                      allLabel={t("anyCity")}
-                      cityLabel={t("where")}
-                      fieldClass="min-h-11 w-full text-sm text-ink outline-none"
-                      chevron={false}
-                    />
-                  </div>
-                  <FigmaIcon name="chevron-down" className="pointer-events-none size-4 shrink-0 text-muted" />
+        {/* ---------- Hero: world artwork, headline, global search, quick links ---------- */}
+        <section className="rh-hero rega-editorial-hero" aria-labelledby="home-hero-title">
+          <div className="rh-hero-art" aria-hidden="true"><HomeHeroArt className="rh-hero-svg" /></div>
+          <div className="rh-hero-fade" aria-hidden="true" />
+          <HomeHeroSwoosh className="rh-hero-swoosh" />
+          <div className={`${BAND} rh-hero-inner`}>
+            <div className="rh-hero-copy">
+              <h1 id="home-hero-title" className="rh-h1">
+                {t("communityTitle")}<span className="rh-h1-accent">{t("communityAccent")}</span>
+              </h1>
+              <p className="rh-lead">{t("communityLead")}</p>
+            </div>
+            <form action={`/${locale}/businesses`} role="search" className="rega-home-search rh-search">
+              <label className="rh-search-q">
+                <FigmaIcon name="search" className="size-5 shrink-0 text-brand-text" />
+                <span className="sr-only">{t("what")}</span>
+                <input name="q" type="search" autoComplete="off" maxLength={120} placeholder={t("searchWhat")} className="rh-search-input" />
+              </label>
+              <div className="rh-search-loc">
+                <FigmaIcon name="map-pin" className="size-5 shrink-0 text-brand-text" />
+                <div className="min-w-0 flex-1">
+                  <CityFilter
+                    cities={cities.map((c) => { const name = cityName(c).text; return { id: c.id, label: name, name }; })}
+                    allLabel={t("anyCity")}
+                    cityLabel={t("where")}
+                    fieldClass="min-h-11 w-full text-[15px] text-ink outline-none"
+                    chevron={false}
+                  />
                 </div>
-                <button type="submit" className="min-h-14 rounded-[15px] bg-brand px-8 text-[18px] font-bold text-brand-ink transition hover:bg-brand-hover">
-                  {tn("search")}
-                </button>
-              </form>
+                <FigmaIcon name="chevron-down" className="pointer-events-none size-4 shrink-0 text-muted" />
+              </div>
+              <button type="submit" className="rh-search-btn">
+                <FigmaIcon name="search" className="size-5 shrink-0" />
+                {tn("search")}
+              </button>
+            </form>
+            <nav aria-label={t("chipsLabel")} className="rh-chips-wrap">
+              <ul className="rh-chips">
+                {chips.map((c) => (
+                  <li key={c.href}>
+                    <Link href={c.href} className="rh-chip">
+                      <FigmaIcon name={c.icon} className="size-[18px] shrink-0 text-brand-text" />
+                      {c.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
           </div>
         </section>
 
-        <section className={`${BAND} mt-3`} aria-label={t("factGermany")}>
-          <ul className="flex flex-wrap items-center justify-center gap-x-8 gap-y-2 rounded-xl bg-surface px-4 py-3 text-xs font-bold text-ink sm:text-sm">
-            {[t("factFree"), t("factLang"), t("factGermany")].map((label) => (
-              <li key={label} className="inline-flex items-center gap-2">
-                <span className="size-1.5 rounded-full bg-brand" aria-hidden="true" />
-                {label}
+        {/* ---------- Trust strip ---------- */}
+        <section className={`${BAND} rh-trust-band`} aria-label={t("trustLabel")}>
+          <ul className="rh-trust">
+            {trust.map((item) => (
+              <li key={item.title} className="rh-trust-item">
+                <span className={`rh-trust-icon ${item.tone}`}><FigmaIcon name={item.icon} className="size-7" /></span>
+                <span className="min-w-0">
+                  <span className="rh-trust-title">{item.title}</span>
+                  <span className="rh-trust-sub">{item.sub}</span>
+                </span>
               </li>
             ))}
           </ul>
         </section>
 
-        {/* ---------- Categories: six clear entry points + all ---------- */}
+        {/* ---------- Main categories ---------- */}
         {rootCategories.length > 0 && (
-          <section className="" aria-labelledby="home-cats">
-            <div className={`${BAND} pt-8`}>
-              <div className="flex items-end justify-between gap-4">
-                <div className="min-w-0">
-
-                  <h2 id="home-cats" className="text-xl font-extrabold leading-tight sm:text-[28px]">{t("browseByCategory")}</h2>
-                </div>
-                <Link href="/businesses" className="shrink-0 text-sm font-bold text-brand-text hover:underline">{t("viewAll")}<span className="sr-only">: {t("browseByCategory")}</span></Link>
-              </div>
-              <nav aria-label={t("categoriesTitle")} className="mt-4">
-                <ul className="grid grid-cols-3 gap-2.5 sm:grid-cols-4 sm:gap-3 lg:grid-cols-6">
-                  {rootCategories.slice(0, 12).map((c) => (
-                    <li key={c.id} className="min-w-0">
-                      <Link href={`/businesses/${c.slug}`} className="rega-card flex h-full min-h-[94px] flex-col items-start justify-center gap-2 px-3 py-3 text-start transition-colors hover:text-brand-text">
-                        <span className="grid size-7 place-items-center">
-                          <FigmaIcon name={CATEGORY_ICON[c.slug] ?? "briefcase-business"} className="size-6 shrink-0 text-brand-text" />
-                        </span>
-                        <span className="line-clamp-2 text-[13px] font-semibold leading-snug"><Text value={categoryName(c)} pageLang={pageLang} /></span>
-                      </Link>
-                    </li>
-                  ))}
-
-                </ul>
-              </nav>
-            </div>
+          <section className={`${BAND} rh-section`} aria-labelledby="home-cats">
+            <SectionHead id="home-cats" title={t("mainCategories")} href="/businesses" linkLabel={t("allCategories")} />
+            <nav aria-label={t("categoriesTitle")}>
+              <ul className="rh-cats">
+                {rootCategories.slice(0, 19).map((c) => (
+                  <li key={c.id} className="rh-cat-item">
+                    <Link href={`/businesses/${c.slug}`} className="rh-cat">
+                      <FigmaIcon name={CATEGORY_ICON[c.slug] ?? "briefcase-business"} className="rh-cat-icon" />
+                      <span className="rh-cat-label"><Text value={categoryName(c)} pageLang={pageLang} /></span>
+                    </Link>
+                  </li>
+                ))}
+                <li>
+                  <Link href="/businesses" className="rh-cat">
+                    <FigmaIcon name="more-horizontal" className="rh-cat-icon" />
+                    <span className="rh-cat-label">{t("moreCategories")}</span>
+                  </Link>
+                </li>
+              </ul>
+            </nav>
           </section>
         )}
 
-        {/* ---------- Recently added: compact result cards ---------- */}
-        <section className="" aria-labelledby="home-latest">
-          <div className={`${BAND} pt-10`}>
-            <div className="flex items-end justify-between gap-4">
-              <div className="min-w-0">
-
-                <h2 id="home-latest" className="text-xl font-extrabold leading-tight sm:text-[28px]">{t("popularTitle")}</h2>
-                <p className="mt-1 text-sm text-muted">{t("latestSub")}</p>
-              </div>
-              {/* The hidden part names the target, so the link is descriptive for screen readers and search engines. */}
-              <Link href="/businesses?sort=newest" className="shrink-0 text-sm font-bold text-brand-text hover:underline">{t("seeMore")}<span className="sr-only">: {t("popularTitle")}</span></Link>
+        {/* ---------- Businesses ---------- */}
+        <section className={`${BAND} rh-section`} aria-labelledby="home-latest">
+          <SectionHead id="home-latest" title={t("popularTitle")} sub={t("latestSub")} href="/businesses?sort=newest" linkLabel={t("seeMore")} />
+          {latest.length > 0 ? (
+            <div className="rh-bizgrid">
+              {latest.slice(0, 4).map((b) => {
+                const c = categoryOf(b.categoryId);
+                return <HomeBusinessCard key={b.id} b={b} locale={l} pageLang={pageLang} category={c ? categoryName(c) : null} viewLabel={t("viewProfile")} />;
+              })}
             </div>
-            {latest.length > 0 ? (
-              <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-                {latest.slice(0, 4).map((b) => {
-                  const c = categoryOf(b.categoryId);
-                  return <BusinessRow layout="home" viewLabel={tc("viewDetails")} key={b.id} b={b} locale={l} pageLang={pageLang} category={c ? categoryName(c) : null} />;
-                })}
+          ) : (
+            <div className="rh-empty">
+              <div className="min-w-0">
+                <p className="text-lg font-extrabold text-ink">{t("emptyListings")}</p>
+                <p className="mt-1 max-w-lg text-sm leading-6 text-muted">{te("beFirstBody")}</p>
               </div>
-            ) : (
-              <div className="mt-4 flex flex-col items-start gap-4 rounded-2xl border border-line bg-surface px-6 py-8 sm:flex-row sm:items-center sm:justify-between">
-                <div className="min-w-0">
-                  <p className="text-lg font-extrabold text-ink">{t("emptyListings")}</p>
-                  <p className="mt-1 max-w-lg text-sm leading-6 text-muted">{te("beFirstBody")}</p>
-                </div>
-                <Link href="/for-business" className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-xl bg-brand px-5 text-sm font-bold text-brand-ink hover:bg-brand-hover" data-testid="home-be-first">{te("beFirstCta")}</Link>
-              </div>
-            )}
+              <Link href="/for-business" className="rh-btn-red" data-testid="home-be-first">{te("beFirstCta")}</Link>
+            </div>
+          )}
+        </section>
+
+        {/* ---------- Promotional banners ---------- */}
+        <section className={`${BAND} rh-section rh-banners`} aria-label={t("bannerAddTitle")}>
+          <div className="rh-banner rh-banner--red">
+            <div className="rh-banner-copy">
+              <h2 className="rh-banner-title">{t("bannerAddTitle")}</h2>
+              <p className="rh-banner-text">{t("bannerAddSub")}</p>
+              <Link href="/for-business" className="rh-banner-cta">
+                {t("bannerAddCta")}
+                <FigmaIcon name="arrow-right" className="rtl-flip size-4 shrink-0" />
+              </Link>
+            </div>
+            <StoreArt className="rh-banner-art" />
+          </div>
+          <div className="rh-banner rh-banner--soft">
+            <div className="rh-banner-copy">
+              <h2 className="rh-banner-title">{t("bannerGlobalTitle")}</h2>
+              <p className="rh-banner-text">{t("bannerGlobalSub")}</p>
+              <Link href="/businesses" className="rh-banner-cta">
+                {t("bannerGlobalCta")}
+                <FigmaIcon name="arrow-right" className="rtl-flip size-4 shrink-0" />
+              </Link>
+            </div>
+            <WorldArt className="rh-banner-art" />
           </div>
         </section>
 
-        <section className={`${BAND} pt-12`} aria-label={tn("addAd")}>
-          <div className="flex min-h-[210px] flex-col items-start justify-center gap-4 rounded-[20px] bg-brand p-6 text-brand-ink">
-            <h2 className="text-2xl font-bold lg:text-[31px]">{tn("addAd")}</h2>
-            <Link href="/for-business" className="inline-flex min-h-11 items-center rounded-xl border border-current px-5 font-bold hover:bg-surface hover:text-ink">{te("beFirstCta")}</Link>
-          </div>
-        </section>
-        {data && <dl className={`${BAND} flex flex-wrap gap-8 py-8 text-lg font-bold`}>
-          {([["statsBusinesses", data.stats.businesses], ["statsServices", data.stats.services], ["statsLocations", data.stats.locations]] as const).map(([key, value]) => <div key={key}><dd>{value.toLocaleString(l)}</dd><dt className="text-sm text-muted">{t(key)}</dt></div>)}
-        </dl>}
-        <section className={`${BAND} py-5`} aria-labelledby="home-major-cities">
-          <h2 id="home-major-cities" className="text-[22px] font-bold lg:text-[28px]">{t("citiesTitle")}</h2>
-          <ul className="mt-5 grid grid-cols-2 gap-4 md:grid-cols-4">
-            {majorCities.map((c) => <li key={c.id}><Link href={`/city/${c.slug}`} className="rega-card flex min-h-[100px] items-center p-5 font-bold lg:min-h-[120px]"><Text value={cityName(c)} pageLang={pageLang} /></Link></li>)}
+        {/* ---------- Real platform figures ---------- */}
+        <section className={`${BAND} rh-section-tight`} aria-label={t("statsLabel")}>
+          <ul className="rh-stats">
+            {stats.map((s) => (
+              <li key={s.label} className="rh-stat">
+                <span className="rh-stat-icon"><FigmaIcon name={s.icon} className="size-6" /></span>
+                <span className="min-w-0">
+                  <span className="rh-stat-value">{s.value}</span>
+                  <span className="rh-stat-label">{s.label}</span>
+                </span>
+              </li>
+            ))}
           </ul>
         </section>
+
+        {/* ---------- Popular cities (Kurdistan Region / Iraq and Europe) ---------- */}
+        {showcase.length > 0 && (
+          <section className={`${BAND} rh-section`} aria-labelledby="home-major-cities">
+            <SectionHead id="home-major-cities" title={t("citiesHeading")} href="/locations" linkLabel={t("allCities")} />
+            <ul className="rh-cities">
+              {showcase.map((c) => (
+                <li key={c.id}>
+                  <Link href={`/city/${c.slug}`} className="rh-city">
+                    <span className="rh-city-pin"><FigmaIcon name="map-pin" className="size-5" /></span>
+                    <span className="min-w-0 flex-1">
+                      <span className="rh-city-name"><Text value={cityName(c)} pageLang={pageLang} /></span>
+                      <span className="rh-city-meta">
+                        {countryName(c.country, l)}
+                        {c.count > 0 && <> · {t("cityCount", { count: c.count })}</>}
+                      </span>
+                    </span>
+                    <FigmaIcon name="arrow-right" className="rtl-flip size-4 shrink-0 text-brand-text" />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         {/* ---------- Compact AI entry ---------- */}
         <section className="" aria-label={t("ctaAI")}>
@@ -233,7 +327,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               <>
                 <div className="flex items-end justify-between gap-4">
                   <div className="min-w-0">
-
                     <h2 id="home-nearby" className="text-xl font-extrabold leading-tight sm:text-[28px]">{t("citiesTitle")}</h2>
                     <p className="mt-1 text-sm text-muted">{t("citiesSub")}</p>
                   </div>
@@ -264,7 +357,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               <>
                 <div className="flex items-end justify-between gap-4">
                   <div className="min-w-0">
-
                     <h2 id="home-nearby" className="text-xl font-extrabold leading-tight sm:text-[28px]">{t("nearTitle")}</h2>
                     <p className="mt-1 text-sm text-muted">{t("nearbySub")}</p>
                   </div>
