@@ -337,13 +337,16 @@
 /* Categories */
 .rega-home .rh-cats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
 .rega-home .rh-cat {
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; height: 100%; min-height: 94px; padding: 14px 6px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; height: 100%; min-height: 94px; padding: 14px 4px;
   border: 1px solid var(--line); border-radius: 16px; background: #fff; color: var(--ink); text-align: center;
   transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease, color .15s ease;
 }
 .rega-home .rh-cat:hover { border-color: color-mix(in srgb, var(--brand) 38%, transparent); box-shadow: var(--shadow); transform: translateY(-2px); color: var(--brand-text); }
 .rega-home .rh-cat-icon { width: 30px; height: 30px; flex-shrink: 0; color: var(--brand); }
-.rega-home .rh-cat-label { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; font-size: 13px; font-weight: 600; line-height: 1.4; overflow-wrap: break-word; }
+.rega-home .rh-cats > li, .rega-home .rh-cat { min-width: 0; }
+/* Long single words (German compounds, Sorani) hyphenate or wrap inside the tile instead of widening the grid. */
+.rega-home .rh-cat-label { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; max-width: 100%; font-size: 12px; font-weight: 600; line-height: 1.4; overflow-wrap: anywhere; hyphens: auto; }
+@media (min-width: 400px) { .rega-home .rh-cat-label { font-size: 13px; } }
 @media (max-width: 639.98px) { .rega-home .rh-cats > .rh-cat-item:nth-child(n+8) { display: none; } }
 @media (min-width: 640px) { .rega-home .rh-cats { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; } }
 @media (min-width: 640px) and (max-width: 899.98px) { .rega-home .rh-cats > .rh-cat-item:nth-child(n+10) { display: none; } }

@@ -1136,3 +1136,7 @@ Local verification (npm registry unreachable from this sandbox, so no `npm ci`):
 16/16 pass with the global tsx; static render of the real page components (stubbed data/i18n, real CSS) screenshotted in Chromium at
 1440/768/390 px, ckb + en: no horizontal overflow in the new sections; tablet hero fixed (side-by-side layout only ≥1024 px).
 Typecheck, lint, build and Playwright run in hosted CI only. Next: PR → full CI → merge → existing deploy → production browser screenshots.
+CI run 41067658630 (head `b9fb362`): lint, typecheck, unit, D1, Node build PASS; Playwright 445 passed, 1 failed — de home overflowed
+23 px at narrow widths: the long compound "Behördenangelegenheiten" widened its category tile (`overflow-wrap: break-word` does not
+reduce min-content). Fix: grid items `min-width: 0`, label `overflow-wrap: anywhere` + `hyphens: auto`, 12 px label below 400 px.
+Local re-check of all 11 locales at 320–1024 px: no overflow from the new sections.
