@@ -21,7 +21,7 @@ export const SITE_NAME = BRAND_NAME;
  * or the manifest cost a Worker invocation; Worker CPU is the platform's limit, see lib/edge-cache.ts.)
  */
 export const SITE_ASSETS = {
-  icons: { icon: [{ url: "/icon.png", type: "image/png", sizes: "192x192" }], apple: [{ url: "/apple-icon.png", sizes: "180x180" }] },
+  icons: { icon: [{ url: "/favicon.ico", sizes: "16x16 32x32 48x48" }, { url: "/icon.png", type: "image/png", sizes: "192x192" }], apple: [{ url: "/apple-icon.png", sizes: "180x180" }] },
   manifest: "/manifest.webmanifest",
   ogImage: { url: "/opengraph-image.png", width: 1200, height: 630 },
 } as const satisfies { icons: Metadata["icons"]; manifest: string; ogImage: { url: string; width: number; height: number } };
