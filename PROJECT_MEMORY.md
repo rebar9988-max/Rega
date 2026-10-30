@@ -1140,3 +1140,8 @@ CI run 41067658630 (head `b9fb362`): lint, typecheck, unit, D1, Node build PASS;
 23 px at narrow widths: the long compound "Behördenangelegenheiten" widened its category tile (`overflow-wrap: break-word` does not
 reduce min-content). Fix: grid items `min-width: 0`, label `overflow-wrap: anywhere` + `hyphens: auto`, 12 px label below 400 px.
 Local re-check of all 11 locales at 320–1024 px: no overflow from the new sections.
+Release: PR #108 squash `f3db553` — final-head CI 41071464780 PASS (all steps, both E2E suites), main CI PASS, Deploy to Cloudflare
+Workers PASS (workflow_run). Post-deploy Beta health failed only at "Official brand assets": `FAIL header logo` — a stale probe that
+greps `/ckb` for `/brand/rega-mark-256.webp`; the header has used the official badge `/brand/rega24-badge-96.webp` since the logo PRs.
+Same failure on the previous release `5caee06` (runs 41033903572, 41034245020, 41069192120) — pre-existing, not caused by #108.
+Follow-up PR updates only that probe to the current official badge (old assets still probed); Production browser check dispatched on demand.
