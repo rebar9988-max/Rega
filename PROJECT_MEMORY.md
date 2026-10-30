@@ -1164,3 +1164,43 @@ Local re-check of all 11 locales at 320–1024 px: no overflow from the new sect
   that found nothing, as a warning above 30% with at least 5 such searches. It never creates data. If the table is
   unreadable it reports SKIPPED. Production D1 has migration `0005_search_query_daily.sql` (read-only check: 0 rows).
   Still owner-triggered only: scheduling stays off because account-wide usage/billing cannot be verified.
+
+## Owner reference v2 + logo colours — 2026-10-30 (branch `claude/rega24-logo-colors-reference-v2`)
+
+Owner instruction (Sorani): "take colour inspiration from that logo, 100/100", with the REGA24 desktop+mobile reference image
+(deep-red world hero, red header, filterable business cards, photo category row, compact map banner, raised centre search tab)
+and the official glossy logo. Identity guard OK (REGA, www.rega24.com), based on main `b52064e`. Zero additional cost.
+
+Colours: logo sampled (`c895b39e-image.jpg`): highlight #e53832, core #c8281e–#d83020, shadows #9b1f15/#8c1c11/#6b120a.
+`--brand` #db0512 → #d42a20 (logo core, white ink 5.06:1, dark-mode ring 3.65:1); new `--brand-glow/deep/deeper/night`
+tokens. Manifest/offline `theme_color` #d42a20, viewport theme #6b120a, service-worker static cache v5. brand-colors spec
+updated to [212,42,32]. Logo artwork not recoloured. Details: [brand colors](docs/BRAND-COLORS.md).
+
+Header (all public pages): deep logo-red gradient, white nav/account/language pill, white focus ring, add-business button
+with plus icon; nav items unchanged (registry; Jobs stays disabled "until launch", no Community/favourites/notifications exist).
+Bottom bar: search is a raised logo-red circle; same five destinations.
+
+Home body: original inline-SVG hero (sunset, Earth, NY/London/Rome/Paris/Dubai/mosque silhouettes; no photo, no request),
+"Welcome to REGA24 / Find Everything You Need", white pill search q | city | real root-category select (`?category=<id>`,
+redirected to the category URL) | Search; 11 category tiles + More across the hero edge (7 + More on phones);
+Popular Businesses with Featured / Open now (browser-computed from stored hours) / Top rated (real reviews only) / New tabs;
+cards with real rating, open badge, category·city·country, Call/WhatsApp/Directions only when data exists; Explore by
+Category row (real business cover per category, otherwise icon on logo red); compact map banner → /nearby. AI entry and
+social section kept. Removed from home only: trust strip, two promo banners, stats, city grid, inline nearby list+map (all
+those pages/features remain). `getHomeData` (read-only) adds phone/whatsapp/hours, top rated and covers. 16 new `home.*`
+keys in all 11 catalogues. No schema, migration, data, auth, workflow or dependency change.
+
+Deliberate deviations: no favourites heart or notifications bell (features do not exist); no stock photos (none owned);
+hero is an original illustration; Latin face stays Inter/Vazirmatn (typography locked); header nav keeps registry items.
+
+Local verification (local PostgreSQL 16 + SEED_DEMO): typecheck, lint, unit 427 pass/4 DB skips/0 fail, D1 10/10, docs
+validation pass; screenshots en/ckb at 1440 and 390 px, no horizontal overflow. `next build --webpack` passes.
+Browser (local Chromium, desktop+mobile projects): first full pass 432 passed, 12 failed — 8 iPhone/WebKit cases cannot
+launch here (WebKit not installed in this sandbox; CI installs it), 1 caused by a too-short local AUTH_SECRET (passes with a
+valid one), 3 were tests pinned to the previous headline (fa ×2, en SEO; updated to the new copy). Re-runs: 59/59 and, after
+the tab refactor, 133/133 (figma-responsive 11 locales × 8 widths + axe, a11y, navigation, SEO, new tabs/category/map test).
+Lighthouse 12.8.2 on `/en`, same sandbox, local `next start`: desktop Perf 100 / A11y 100 / BP 96 / SEO 92; mobile Perf
+80–85 vs main baseline 83–88 (3 runs each; LCP equal ~3 s, TBT variance 240–530 ms), A11y 100. BP 96 and SEO 92 are local
+artefacts (missing e2e media server; canonical points to www.rega24.com). Fixes from this: card nodes are sent once and only
+the selected tab renders (was serialized per tab), lists cut to 4, "More" tile link gets a screen-reader suffix.
+Next: hosted CI on PR #111 → squash merge → existing CI-gated deploy → production browser check → live verification.

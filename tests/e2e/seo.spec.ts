@@ -42,7 +42,7 @@ test("html lang/dir per locale, English included", async ({ page }) => {
   await page.goto("/en");
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await expect(page.locator("html")).toHaveAttribute("dir", "ltr");
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("Local services,");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Find Everything");
 });
 
 test("search is noindex; sitemap lists every locale with hreflang alternates", async ({ request }) => {

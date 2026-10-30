@@ -27,6 +27,20 @@ const businessCard = {
   _count: { select: { services: { where: { status: "published", deletedAt: null } } } },
 } satisfies Prisma.BusinessSelect;
 
+/**
+ * Home card: the listing card plus what its quick actions need (public phone, public WhatsApp, the primary location's
+ * coordinates and opening hours, so "open now" is computed in the visitor's browser and never goes stale in a cache).
+ */
+const homeCard = {
+  ...businessCard,
+  phone: true, whatsapp: true,
+  locations: {
+    where: { isPrimary: true, deletedAt: null, status: "active" }, take: 1,
+    select: { city: { select: { ...cityInclude.select, region: { select: { slug: true } } } }, countryCode: true, latitude: true, longitude: true, openingHours: true, phone: true },
+  },
+} satisfies Prisma.BusinessSelect;
+export type HomeBusinessData = Prisma.BusinessGetPayload<{ select: typeof homeCard }>;
+
 // ------------------------------------------------------------------ taxonomy
 
 /**
@@ -410,12 +424,16 @@ async function listOpenBusinesses(q: string, page: number) {
 
 export const getHomeData = cache(
   async () => {
-    const [businesses, services, locations, featured, latest, newServices] = await Promise.all([
+    const [businesses, services, locations, featured, latest, topRated, covers, newServices] = await Promise.all([
       prisma.business.count({ where: PUBLIC_BUSINESS }),
       prisma.service.count({ where: { status: "published", deletedAt: null, business: PUBLIC_BUSINESS } }),
       prisma.location.count({ where: { status: "active", deletedAt: null, business: PUBLIC_BUSINESS } }),
-      prisma.business.findMany({ where: { ...PUBLIC_BUSINESS, featured: true }, orderBy: [{ ratingAvg: "desc" }], take: 6, select: businessCard }),
-      prisma.business.findMany({ where: PUBLIC_BUSINESS, orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }], take: 4, select: businessCard }),
+      prisma.business.findMany({ where: { ...PUBLIC_BUSINESS, featured: true }, orderBy: [{ ratingAvg: "desc" }, { id: "asc" }], take: 4, select: homeCard }),
+      prisma.business.findMany({ where: PUBLIC_BUSINESS, orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }], take: 4, select: homeCard }),
+      // Top rated: only businesses with real reviews.
+      prisma.business.findMany({ where: { ...PUBLIC_BUSINESS, ratingCount: { gt: 0 } }, orderBy: [...businessOrder.rating, { id: "asc" }], take: 4, select: homeCard }),
+      // Real cover photos for the photographic category row (one per category is picked by the page).
+      prisma.business.findMany({ where: { ...PUBLIC_BUSINESS, coverUrl: { not: null }, categoryId: { not: null } }, orderBy: [...businessOrder.featured, { id: "asc" }], take: 200, select: { categoryId: true, coverUrl: true } }),
       prisma.service.findMany({
         where: { status: "published", deletedAt: null, business: PUBLIC_BUSINESS },
         orderBy: [{ createdAt: "desc" }],
@@ -426,7 +444,7 @@ export const getHomeData = cache(
         },
       }),
     ]);
-    return { stats: { businesses, services, locations }, featured, latest, newServices };
+    return { stats: { businesses, services, locations }, featured, latest, topRated, covers, newServices };
   },
 );
 
