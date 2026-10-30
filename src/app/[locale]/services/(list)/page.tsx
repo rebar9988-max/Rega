@@ -3,11 +3,10 @@ import { pageMetadata } from "@/lib/seo";
 import { pageDescription } from "@/lib/seo-server";
 import { hasPublicServices } from "@/lib/indexable";
 import type { Locale } from "@/i18n/locales";
-import { Suspense } from "react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ServiceCard } from "@/components/cards/ServiceCard";
 import { FilterBar, categoryOptions, cityOptions } from "@/components/ui/FilterBar";
-import { Grid, GridSkeleton, NoResults } from "@/components/ui/Grid";
+import { Grid, NoResults } from "@/components/ui/Grid";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Pagination } from "@/components/ui/Pagination";
 import { ResultsMeta } from "@/components/ui/ResultsMeta";
@@ -39,7 +38,9 @@ export default async function ServicesPage({ params, searchParams }: { params: P
         categories={await categoryOptions(categories)} cities={await cityOptions(cities)}
         sorts={["featured", "priceAsc", "priceDesc", "newest"]}
       />
-      <Suspense key={JSON.stringify(query)} fallback={<GridSkeleton />}><Results query={query} /></Suspense>
+      {/* Not streamed: a skeleton guessed six cards while there are often none, so the footer jumped up (CLS 0.086,
+          desktop Lighthouse). One list query is awaited instead; the page arrives complete. */}
+      <Results query={query} />
     </>
   );
 }

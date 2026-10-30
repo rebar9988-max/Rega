@@ -118,7 +118,7 @@
     "ask": "Tu li çi digerî?",
     "communityTitle": "Xizmetguzariyan",
     "communityAccent": "bi hêsanî bibîne",
-    "communityLead": "Karsazî û xizmetguzariyên kurdî li Almanya û Ewropayê bibîne.",
+    "communityLead": "Karsazî û xizmetguzariyên kurdî li Iraqê, Ewropayê û li seranserê cîhanê bibîne.",
     "popularTitle": "Navdar li herêma te",
     "lead": "Xizmet, karsaz, cih û agahî bi REGA re",
     "what": "Mînak: xwaringeh, doktor, parêzer …",
@@ -157,7 +157,34 @@
     "socialTitle": "Bi REGA re bimîne",
     "socialText": "Nûçe, xizmet û agahiyên herî nû yên REGA li ser medyaya civakî bişopîne.",
     "socialAria": "REGA li ser {platform} (di tabeke nû de vedibe)",
-    "aiEntrySub": "Bi zimanê xwe pêşniyarên ji bo xizmetên herêmî bistîne."
+    "aiEntrySub": "Bi zimanê xwe pêşniyarên ji bo xizmetên herêmî bistîne.",
+    "chipNewest": "Karsaziyên nû",
+    "chipsLabel": "Lêgerîna bilez",
+    "trustLabel": "Çima REGA24",
+    "trustReviewed": "Hatine kontrolkirin",
+    "trustReviewedSub": "Her karsazî berî weşanê tê kontrolkirin",
+    "trustLanguages": "Yazdeh ziman",
+    "trustLanguagesSub": "Kurdî, erebî, îngilîzî û bêtir",
+    "trustGlobal": "Li seranserê cîhanê",
+    "trustGlobalSub": "Iraq, Ewropa û bêtir",
+    "trustFree": "Bi tevahî belaş",
+    "trustFreeSub": "Tu lêçûn tune",
+    "mainCategories": "Kategoriyên sereke",
+    "moreCategories": "Bêtir",
+    "viewProfile": "Profîlê bibîne",
+    "bannerAddTitle": "Karsaziya xwe belaş tomar bike",
+    "bannerAddSub": "Li REGA24 xwe bi bêtir mirovan bide nasîn.",
+    "bannerAddCta": "Karsazî lê zêde bike",
+    "bannerGlobalTitle": "Xizmetguzarî li Iraqê, Ewropayê û li seranserê cîhanê",
+    "bannerGlobalSub": "Bi zimanê xwe bigere û bibîne.",
+    "bannerGlobalCta": "Dest pê bike",
+    "statsLabel": "REGA24 bi hejmaran",
+    "statsLanguages": "Ziman",
+    "statsCategories": "Kategorî",
+    "statsFree": "Belaş",
+    "citiesHeading": "Bajarên navdar",
+    "allCities": "Hemû bajar",
+    "cityCount": "{count, plural, one {# karsazî} other {# karsazî}}"
   },
   "businesses": {
     "title": "Karsazî",
@@ -400,7 +427,8 @@
     "reports": "Raporan",
     "messages": "Peyam",
     "reviews": "Nirxandin",
-    "operations": "Operasyon"
+    "operations": "Operasyon",
+    "searchAnalytics": "Analîza lêgerînê"
   },
   "form": {
     "name": "Nav",
@@ -1143,7 +1171,8 @@
     "labelCloses": "Tê nîşandan heta",
     "labelStarts": "Dest pê dike",
     "labelEnds": "Dawî",
-    "labelReading": "Dema xwendinê"
+    "labelReading": "Dema xwendinê",
+    "expired": "Qediya"
   },
   "locationPicker": {
     "title": "Cihekî hilbijêre",
@@ -1318,5 +1347,20 @@
       "analytics": "Analîtîka parastina nepeniyê",
       "aiDiscovery": "Kontrolkerê vedîtina AI"
     }
+  },
+  "searchAnalytics": {
+    "title": "Analîza lêgerînê",
+    "intro": "Mêvan li çi digerin û çi nabînin. Tenê hejmarên rojane yên her nivîsa lêgerînê ya normalîzekirî tên tomarkirin: ne hesab, ne navnîşana IP, ne cîhaz, ne jî cookie; nivîsên ku kesane xuya dikin (e-name, navnîşana malperê, hejmarên dirêj) qet nayên tomarkirin.",
+    "last7": "7 rojên dawî",
+    "last30": "30 rojên dawî",
+    "searches": "Lêgerîn",
+    "zero": "Bê encam",
+    "zeroRate": "Rêjeya bê encam",
+    "top": "Herî zêde hatine lêgerîn",
+    "missing": "Hatine lêgerîn lê nehatine dîtin",
+    "perDay": "Li gorî rojê",
+    "query": "Nivîsa lêgerînê",
+    "day": "Roj",
+    "empty": "Di vê demê de hîn ti lêgerîn nehatiye tomarkirin."
   }
 }

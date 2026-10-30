@@ -118,7 +118,7 @@
     "ask": "Ne arıyorsunuz?",
     "communityTitle": "Hizmetleri",
     "communityAccent": "kolayca keşfedin",
-    "communityLead": "Almanya ve Avrupa’daki Kürt işletmelerini ve hizmetlerini keşfedin.",
+    "communityLead": "Irak’ta, Avrupa’da ve dünya genelinde Kürt işletmelerini ve hizmetlerini keşfedin.",
     "popularTitle": "Bölgende popüler",
     "lead": "REGA ile hizmetler, işletmeler, yerler ve bilgiler",
     "what": "örn. restoran, doktor, avukat …",
@@ -157,7 +157,34 @@
     "socialTitle": "REGA ile bağlantıda kalın",
     "socialText": "REGA'nın en yeni haberlerini, hizmetlerini ve bilgilerini sosyal medyada takip edin.",
     "socialAria": "{platform} üzerinde REGA (yeni sekmede açılır)",
-    "aiEntrySub": "Yerel hizmetler için kendi dilinizde öneriler alın."
+    "aiEntrySub": "Yerel hizmetler için kendi dilinizde öneriler alın.",
+    "chipNewest": "Yeni işletmeler",
+    "chipsLabel": "Hızlı erişim",
+    "trustLabel": "Neden REGA24",
+    "trustReviewed": "İncelenmiş kayıtlar",
+    "trustReviewedSub": "Her işletme yayından önce incelenir",
+    "trustLanguages": "On bir dil",
+    "trustLanguagesSub": "Kürtçe, Arapça, İngilizce ve daha fazlası",
+    "trustGlobal": "Dünya genelinde",
+    "trustGlobalSub": "Irak, Avrupa ve ötesi",
+    "trustFree": "Tamamen ücretsiz",
+    "trustFreeSub": "Ücret yok, abonelik yok",
+    "mainCategories": "Ana kategoriler",
+    "moreCategories": "Daha fazla",
+    "viewProfile": "Profili gör",
+    "bannerAddTitle": "İşletmenizi ücretsiz ekleyin",
+    "bannerAddSub": "REGA24’te işletmenizi daha fazla kişiye tanıtın.",
+    "bannerAddCta": "İşletme ekle",
+    "bannerGlobalTitle": "Irak, Avrupa ve dünya genelinde hizmetler",
+    "bannerGlobalSub": "Kendi dilinizde arayın ve bulun.",
+    "bannerGlobalCta": "Başlayın",
+    "statsLabel": "Rakamlarla REGA24",
+    "statsLanguages": "Dil",
+    "statsCategories": "Kategori",
+    "statsFree": "Ücretsiz",
+    "citiesHeading": "Popüler şehirler",
+    "allCities": "Tüm şehirler",
+    "cityCount": "{count} işletme"
   },
   "businesses": {
     "title": "İşletmeler",
@@ -400,7 +427,8 @@
     "reports": "Bildirimler",
     "messages": "Mesajlar",
     "reviews": "Değerlendirmeler",
-    "operations": "Operasyon"
+    "operations": "Operasyon",
+    "searchAnalytics": "Arama analizi"
   },
   "form": {
     "name": "Ad",
@@ -1143,7 +1171,8 @@
     "labelCloses": "Şu tarihe kadar gösterilir",
     "labelStarts": "Başlangıç",
     "labelEnds": "Bitiş",
-    "labelReading": "Okuma süresi"
+    "labelReading": "Okuma süresi",
+    "expired": "Süresi doldu"
   },
   "locationPicker": {
     "title": "Konum seçin",
@@ -1318,5 +1347,20 @@
       "analytics": "Gizlilik Dostu Analitik",
       "aiDiscovery": "Yapay Zekâ Keşif Denetçisi"
     }
+  },
+  "searchAnalytics": {
+    "title": "Arama analizi",
+    "intro": "Ziyaretçilerin ne aradığı ve neyi bulamadığı. Yalnızca normalleştirilmiş her arama metni için günlük sayılar saklanır: hesap, IP adresi, cihaz veya çerez yok; kişisel görünen metinler (e-posta, web adresi, uzun numaralar) asla kaydedilmez.",
+    "last7": "Son 7 gün",
+    "last30": "Son 30 gün",
+    "searches": "Aramalar",
+    "zero": "Sonuçsuz",
+    "zeroRate": "Sonuçsuz oranı",
+    "top": "En çok arananlar",
+    "missing": "Aranan ama bulunamayanlar",
+    "perDay": "Güne göre",
+    "query": "Arama metni",
+    "day": "Gün",
+    "empty": "Bu dönemde henüz arama kaydedilmedi."
   }
 }

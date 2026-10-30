@@ -592,6 +592,22 @@ model AiUsageDaily {
   @@unique([day, provider, model])
 }
 
+/// Search analytics: how often a normalized search text was searched per day and language, and how often it found
+/// nothing. No user, session, IP or device data; texts that look personal are never stored (lib/search-analytics.ts).
+/// Written by one atomic UPSERT per search, never through a read-modify-write transaction.
+model SearchQueryDaily {
+  id          String @id
+  /// UTC day, YYYY-MM-DD.
+  day         String
+  locale      String
+  query       String
+  searches    Int    @default(0)
+  zeroResults Int    @default(0)
+
+  @@unique([day, locale, query])
+  @@index([day])
+}
+
 // ----------------------------------------------------------------- Legal, trust & communication
 
 /// Notice-and-action reports (Digital Services Act): anyone can report a page or listing.

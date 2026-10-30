@@ -118,7 +118,7 @@
     "ask": "Che cosa cerchi?",
     "communityTitle": "Servizi locali,",
     "communityAccent": "facili da trovare",
-    "communityLead": "Scopri attività e servizi curdi in Germania e in Europa.",
+    "communityLead": "Scopri attività e servizi curdi in Iraq, in Europa e in tutto il mondo.",
     "popularTitle": "Popolari nella tua zona",
     "lead": "Servizi, attività, luoghi e informazioni con REGA",
     "what": "ad es. ristorante, medico, avvocato …",
@@ -157,7 +157,34 @@
     "socialTitle": "Resta in contatto con REGA",
     "socialText": "Segui le ultime notizie, i servizi e gli aggiornamenti di REGA sui social media.",
     "socialAria": "REGA su {platform} (si apre in una nuova scheda)",
-    "aiEntrySub": "Ricevi consigli su servizi locali, nella tua lingua."
+    "aiEntrySub": "Ricevi consigli su servizi locali, nella tua lingua.",
+    "chipNewest": "Nuove attività",
+    "chipsLabel": "Accesso rapido",
+    "trustLabel": "Perché REGA24",
+    "trustReviewed": "Schede verificate",
+    "trustReviewedSub": "Ogni attività viene verificata prima della pubblicazione",
+    "trustLanguages": "Undici lingue",
+    "trustLanguagesSub": "Curdo, arabo, inglese e altre",
+    "trustGlobal": "In tutto il mondo",
+    "trustGlobalSub": "Iraq, Europa e oltre",
+    "trustFree": "Completamente gratuito",
+    "trustFreeSub": "Nessun costo, nessun abbonamento",
+    "mainCategories": "Categorie principali",
+    "moreCategories": "Altro",
+    "viewProfile": "Vedi profilo",
+    "bannerAddTitle": "Aggiungi la tua attività gratis",
+    "bannerAddSub": "Fai conoscere la tua attività a più persone su REGA24.",
+    "bannerAddCta": "Aggiungi attività",
+    "bannerGlobalTitle": "Servizi in Iraq, in Europa e in tutto il mondo",
+    "bannerGlobalSub": "Cerca e trova nella tua lingua.",
+    "bannerGlobalCta": "Inizia ora",
+    "statsLabel": "REGA24 in cifre",
+    "statsLanguages": "Lingue",
+    "statsCategories": "Categorie",
+    "statsFree": "Gratis",
+    "citiesHeading": "Città popolari",
+    "allCities": "Tutte le città",
+    "cityCount": "{count, plural, one {# attività} other {# attività}}"
   },
   "businesses": {
     "title": "Attività",
@@ -400,7 +427,8 @@
     "reports": "Segnalazioni",
     "messages": "Messaggi",
     "reviews": "Recensioni",
-    "operations": "Operazioni"
+    "operations": "Operazioni",
+    "searchAnalytics": "Analisi delle ricerche"
   },
   "form": {
     "name": "Nome",
@@ -1143,7 +1171,8 @@
     "labelCloses": "Visibile fino al",
     "labelStarts": "Inizio",
     "labelEnds": "Fine",
-    "labelReading": "Tempo di lettura"
+    "labelReading": "Tempo di lettura",
+    "expired": "Scaduta"
   },
   "locationPicker": {
     "title": "Scegli un luogo",
@@ -1318,5 +1347,20 @@
       "analytics": "Analisi rispettosa della privacy",
       "aiDiscovery": "Ispettore della ricerca IA"
     }
+  },
+  "searchAnalytics": {
+    "title": "Analisi delle ricerche",
+    "intro": "Che cosa cercano i visitatori e che cosa non trovano. Vengono salvati solo conteggi giornalieri per testo di ricerca normalizzato: nessun account, indirizzo IP, dispositivo o cookie; i testi che sembrano personali (e-mail, indirizzo web, numeri lunghi) non vengono mai salvati.",
+    "last7": "Ultimi 7 giorni",
+    "last30": "Ultimi 30 giorni",
+    "searches": "Ricerche",
+    "zero": "Senza risultati",
+    "zeroRate": "Quota senza risultati",
+    "top": "Più cercati",
+    "missing": "Cercati ma non trovati",
+    "perDay": "Per giorno",
+    "query": "Testo cercato",
+    "day": "Giorno",
+    "empty": "Nessuna ricerca registrata in questo periodo per ora."
   }
 }
