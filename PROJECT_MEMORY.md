@@ -1339,3 +1339,23 @@ Next safe continuation point: PR #100 CI green → merge → verify deploy, heal
   (#100's own 320-px desktop skips). Both failures were re-run: #100's social test passed 2/2; the image-editor
   upload-retry test (unchanged code) failed 1 of 5 on mobile in this sandbox only — main's CI 41125115875 ran 447/447
   without retries, so hosted CI on the PR is the decisive check.
+## Premium banner header — 2026-10-30 (codex/premium-reference-header)
+
+Owner requests ONLY the header/banner, matching the supplied red/silver globe reference, removing the visible Kurdish
+wordmark there. Based on main 4e6e7bf; identity guard verified. Central Doc and GitHub read; Cloudflare baseline readback:
+rega24 deployment 881631bf-1547-481a-807b-4cdae3a0f2a8, version 750e0778-64eb-4d77-987d-cdc043bc61b2 at 100%.
+Root cause: header used a tiny whole-frame badge + text instead of the silver horizontal lockup.
+Changes: header-only horizontal official silver symbol/REGA24 wordmark derivatives (extracted from unchanged master,
+no redraw/recolour), original red/silver vector decoration with public-domain Natural Earth geography, working localized
+GET search, white language/search pill, native dialog hamburger on all sizes, existing desktop registry nav/account/add
+links retained; mobile menu retains account/add destinations. Full logo unchanged elsewhere. Master SHA remains guarded
+by existing tests. No DB/schema/auth/localization/dependency/infrastructure changes. Health probe follows actual header
+asset (retains other logo probes); browser catalog/404 selectors now scope to main because header adds a real searchbox.
+Local: lint/typecheck pass, unit 427 pass/4 existing DB skips/0 fail, D1 10/10 plus batch preservation, Node build pass.
+Initial four-locale browser pass: layout/menus/Escape/axe passed at 320/390/768/1024/1440/1920; two final assertions wrongly
+expected Latin business names on ckb/ar results. Corrected test to assert preserved query value, not untranslated copy.
+Final browser/hosted CI/deployment/live verification pending; no 100/100 claim. Shell gh credential invalid; connected
+GitHub and Cloudflare apps work. Use existing CI-gated main release path only. Production has not been changed yet.
+
+### PR113 resume — 2026-10-31
+Recovered exact application head ef7ca4936de5fd9b02815b2b26e07499ad82021e; hosted verify41136379925 passed (462 browser cases on each of disposable D1 and PostgreSQL, both Cloudflare checks successful). Local clean D1 created exclusively with init-local-d1 --test: unchanged language-switcher suite52/52 desktop+mobile PASS against ef7ca49 Node build. Controlled disposable-only experiment: set one demo cover URL to a missing in-memory media object; unchanged ckb→de case fails precisely at console-error assertion with two404s. Original24-failure database/logs are absent in this resumed environment, so their exact provenance cannot be certified; stale media mechanism reproduced, no product defect demonstrated. No console suppression/assertion weakening. Original DB/production untouched. Latest main e60db4f premium header integrated; only PROJECT_MEMORY conflict, both histories retained. Combined source lint/unit441pass4existing skips/D110pass+batch preservation/docs PASS. Final combined-head hosted CI and production release verification still mandatory. Cloudflare readback baseline: deployment9b59b8bd-d1fb-4859-8daf-5c0f49b86fd4/version37560b7a-5d53-4c52-92fc-67495510443c at100%. Shell production access blocked by proxy403; connectors available. No paid resources activated.

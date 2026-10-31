@@ -3,11 +3,12 @@
 import { useLocale, useTranslations } from "next-intl";
 import { dirOf } from "@/i18n/locales";
 import { useRef } from "react";
+import NextLink from "next/link";
 import { Link, usePathname } from "@/i18n/routing";
 import type { NavItem } from "./nav";
 
 /** Full-height sheet built on native <dialog>: focus trap, Escape and inert background for free. */
-export function MobileNav({ items }: { items: NavItem[] }) {
+export function MobileNav({ items, signedIn = false }: { items: NavItem[]; signedIn?: boolean }) {
   const t = useTranslations("nav");
   const tc = useTranslations("common");
   const pathname = usePathname();
@@ -17,7 +18,7 @@ export function MobileNav({ items }: { items: NavItem[] }) {
   return (
     <>
       <button type="button" aria-label={t("menu")} aria-haspopup="dialog" onClick={() => dialog.current?.showModal()}
-        className="grid size-11 place-items-center rounded-xl text-white hover:bg-white/10 xl:hidden">
+        className="rega-header-menu">
         <svg viewBox="0 0 24 24" className="size-6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
       </button>
       <dialog ref={dialog} aria-label={t("menu")}
@@ -32,15 +33,17 @@ export function MobileNav({ items }: { items: NavItem[] }) {
         <nav aria-label={t("primary")} dir={contentDir}>
           <ul className="flex flex-col gap-1">
             {/* Registry order (home first); login before contact, and contact always last. */}
-            {[...items.filter((i) => i.key !== "contact"), { key: "login", href: "/login" }, ...items.filter((i) => i.key === "contact")].map((item) => (
+            {[...items.filter((i) => i.key !== "contact"), { key: signedIn ? "account" : "login", href: signedIn ? "/account" : "/login" }, ...(signedIn ? [{ key: "addAd", href: "/dr/businesses/new" }] : []), ...items.filter((i) => i.key === "contact")].map((item) => {
+              const NavLink = item.href.startsWith("/dr/") ? NextLink : Link;
+              return (
               <li key={item.key}>
-                <Link href={item.href} onClick={() => dialog.current?.close()}
+                <NavLink href={item.href} onClick={() => dialog.current?.close()}
                   aria-current={pathname === item.href ? "page" : undefined}
                   className={`flex min-h-12 items-center rounded-xl px-4 text-base font-semibold hover:bg-surface-2 ${pathname === item.href ? "bg-brand-soft text-brand-text" : ""}`}>
                   {t(item.key)}
-                </Link>
+                </NavLink>
               </li>
-            ))}
+            ); })}
           </ul>
         </nav>
       </dialog>
