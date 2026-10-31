@@ -68,7 +68,7 @@ test("unknown pages return a real 404 inside the shell", async ({ page }) => {
   expect(res?.status()).toBe(404);
   await expect(page.getByRole("heading", { name: "Seite nicht gefunden" })).toBeVisible();
   // The 404 offers search and the main sections.
-  await expect(page.getByRole("search").getByRole("searchbox")).toBeVisible();
+  await expect(page.getByRole("main").getByRole("search").getByRole("searchbox")).toBeVisible();
   await expect(page.getByRole("main").getByRole("link", { name: "Unternehmen", exact: true })).toBeVisible();
   const biz = await page.goto("/de/businesses/does-not-exist");
   expect(biz?.status()).toBe(404);

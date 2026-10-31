@@ -1214,6 +1214,7 @@ but the header now renders `rega24-badge-*`. Follow-up PR updates that check (an
 current official assets; every new probe was confirmed 200 / present against live production before the change.
 
 
+
 ### Nearby map ("گەڕان و نزیکترین لەسەر نەخشە") — Airbnb/Apple-Maps-style upgrade — 2026-10-30
 Owner scope: only the Explore / Nearby map module. Identity guard OK (REGA). Branch `claude/nearby-map-upgrade-20261030`
 from `main` e48598c. Audit: `/nearby` already used MapLibre GL 6 + OpenFreeMap (no key, $0), haversine (`lib/geo`),
@@ -1243,3 +1244,44 @@ browser geolocation, clustering and a preview card, so this upgrades it instead 
   test stub style.
 - Not done here: PR, hosted CI, merge, deploy, live check. Next: open PR → CI green → squash merge → CI-gated deploy →
   verify `/ckb/nearby` live.
+
+## Owner reference v2 + logo colours — release VERIFIED — 2026-10-30 (PR #111, squash `89a516c`)
+
+- PR #111: final-head `verify` CI on `80341e7` passed (17:58–18:44 UTC; lint, typecheck, unit, D1, full Playwright on
+  D1 and PostgreSQL, Worker build) plus both Workers Builds checks. Identity guard OK; squash-merged with the head SHA pinned.
+- Exact-main chain for `89a516c`: CI `41111803716` success → CI-gated `Deploy to Cloudflare Workers` `41117708805` success
+  (19:46:38 UTC; identity guard, exact-SHA CI gate and D1 snapshot gate passed; wrangler "Current Version ID"
+  `3ea28e82-c67c-40fe-9ae7-941b4af48090`, Worker `rega24`, D1 `rega24-migration`).
+- Production browser check `41118297909` (manual dispatch, attempt 2; attempt 1 was cancelled by the workflow's own
+  `cancel-in-progress` concurrency, not a test failure): success, no FAIL lines. Desktop 1366 px and Pixel 5: 19 public
+  pages HTTP 200, correct dir, 0 px horizontal scroll, served `--brand` `#d42a20` everywhere (incl. /offline.html); new
+  hero headlines live on /ckb /de /en /ar; home search form, AI entry, mobile tab bar, header links, location selector,
+  business profile and /dr sign-in protection pass. Screenshots: artifact `13007371734` (14 days).
+- Post-deploy Beta health `41118353053`: health/D1, routes, canonical redirects/SEO, legal, security headers and access
+  control pass. Only step 9 fails: it greps the header HTML for the retired `/brand/rega-mark-256.webp`, but the header has
+  used the `rega24-badge-*.webp` LogoMark since #105 (already failing on `b52064e` before this release). Open PRs #109/#110
+  update that probe; not changed here. Because Beta health fails, the browser check does not auto-trigger; dispatch it.
+- Info only (pre-existing, not from this release): the mobile browser check's diagnosis lists `/de/businesses` filter chips
+  extending past 393 px inside their own horizontal scroller; page horizontal scroll is 0 px.
+- No production data, schema, migration, secret, binding, plan or paid service was changed.
+- Next safe continuation point: merge #109/#110 (health probe), then a real-photo pass when owner-supplied images exist
+  (category covers fall back to logo-red icon tiles until businesses upload covers).
+
+## Premium banner header — 2026-10-30 (codex/premium-reference-header)
+
+Owner requests ONLY the header/banner, matching the supplied red/silver globe reference, removing the visible Kurdish
+wordmark there. Based on main 4e6e7bf; identity guard verified. Central Doc and GitHub read; Cloudflare baseline readback:
+rega24 deployment 881631bf-1547-481a-807b-4cdae3a0f2a8, version 750e0778-64eb-4d77-987d-cdc043bc61b2 at 100%.
+Root cause: header used a tiny whole-frame badge + text instead of the silver horizontal lockup.
+Changes: header-only horizontal official silver symbol/REGA24 wordmark derivatives (extracted from unchanged master,
+no redraw/recolour), original red/silver vector decoration with public-domain Natural Earth geography, working localized
+GET search, white language/search pill, native dialog hamburger on all sizes, existing desktop registry nav/account/add
+links retained; mobile menu retains account/add destinations. Full logo unchanged elsewhere. Master SHA remains guarded
+by existing tests. No DB/schema/auth/localization/dependency/infrastructure changes. Health probe follows actual header
+asset (retains other logo probes); browser catalog/404 selectors now scope to main because header adds a real searchbox.
+Local: lint/typecheck pass, unit 427 pass/4 existing DB skips/0 fail, D1 10/10 plus batch preservation, Node build pass.
+Initial four-locale browser pass: layout/menus/Escape/axe passed at 320/390/768/1024/1440/1920; two final assertions wrongly
+expected Latin business names on ckb/ar results. Corrected test to assert preserved query value, not untranslated copy.
+Final browser/hosted CI/deployment/live verification pending; no 100/100 claim. Shell gh credential invalid; connected
+GitHub and Cloudflare apps work. Use existing CI-gated main release path only. Production has not been changed yet.
+
