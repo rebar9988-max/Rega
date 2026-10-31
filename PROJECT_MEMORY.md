@@ -1214,6 +1214,37 @@ but the header now renders `rega24-badge-*`. Follow-up PR updates that check (an
 current official assets; every new probe was confirmed 200 / present against live production before the change.
 
 
+
+### Nearby map ("گەڕان و نزیکترین لەسەر نەخشە") — Airbnb/Apple-Maps-style upgrade — 2026-10-30
+Owner scope: only the Explore / Nearby map module. Identity guard OK (REGA). Branch `claude/nearby-map-upgrade-20261030`
+from `main` e48598c. Audit: `/nearby` already used MapLibre GL 6 + OpenFreeMap (no key, $0), haversine (`lib/geo`),
+browser geolocation, clustering and a preview card, so this upgrades it instead of rebuilding it.
+- `DiscoveryMap` (opt-in props, defaults unchanged so the business-profile `PlacesMap` looks/behaves as before):
+  `markerStyle="pill"` (store icon + name + "★ 4.8" pill with tail; selected = brand fill, scale-110, z 50),
+  `focusSelected` (flyTo the selection, lifted above the bottom card; reduced motion respected by MapLibre),
+  `toolbar` (floating controls along the top), `locate` (floating locate-me button under the zoom control),
+  `fitPadding` (fit results clear of the floating controls/cards; scaled down on small maps).
+- `NearbyDiscovery`: quick filter chips over the map (هەموو = largest radius + open off, 5/10/25 km, کراوەیە), map
+  results re-measured and ordered on the device by haversine from the search centre (rating sort keeps server order),
+  distance badge "{distance} دوورە", richer split-view list (cover, category · city, rating, open state), phone carousel
+  of the nearest 30 over the bottom of the map, redesigned preview (cover + open badge, category, city, distance,
+  rating, "بینینی پڕۆفایل", "ئاراستەی ڕێگا" → Google Maps dir URL, call icon). Phones: list/map toggle floats above the
+  bottom nav in list view; inline above the map in map view (floating there overlapped the cards — fixed).
+- 6 new `nearby.*` keys in all 11 catalogues. E2E: preview link renamed (nearby + admin-business specs), new chip,
+  locate, carousel and directions assertions.
+- Deliberate deviations from the prompt: no teal/emerald colour and no glassmorphism (CLAUDE.md §3 locks the REGA
+  palette and forbids both); REGA brand tokens are used instead. Basemap kept as the existing OpenFreeMap style (CARTO
+  was optional in the prompt and would add a new origin to the CSP).
+- No API, schema, migration, data, routing, header/footer, auth, workflow or dependency change.
+- Local verification: typecheck, lint, unit 427 pass/4 skip/0 fail. `build:node` passes. E2E on a disposable D1
+  (desktop + mobile): admin-business, business-profile, nearby, figma-responsive, navigation, business-visibility,
+  location-filter, completion, a11y — 137 passed, 0 failed. Note: `nearby` place-search needs admin-business to run
+  first (Hamburg business); a local AUTH_SECRET < 16 chars breaks admin specs. RTL screenshots (1440 px, Pixel 5): no
+  horizontal overflow. Real basemap tiles are not reachable from this sandbox (proxy policy), so screenshots used the
+  test stub style.
+- Not done here: PR, hosted CI, merge, deploy, live check. Next: open PR → CI green → squash merge → CI-gated deploy →
+  verify `/ckb/nearby` live.
+
 ## Owner reference v2 + logo colours — release VERIFIED — 2026-10-30 (PR #111, squash `89a516c`)
 
 - PR #111: final-head `verify` CI on `80341e7` passed (17:58–18:44 UTC; lint, typecheck, unit, D1, full Playwright on
@@ -1253,3 +1284,18 @@ Initial four-locale browser pass: layout/menus/Escape/axe passed at 320/390/768/
 expected Latin business names on ckb/ar results. Corrected test to assert preserved query value, not untranslated copy.
 Final browser/hosted CI/deployment/live verification pending; no 100/100 claim. Shell gh credential invalid; connected
 GitHub and Cloudflare apps work. Use existing CI-gated main release path only. Production has not been changed yet.
+
+
+
+### Nearby continuation — Codex — 2026-10-31
+Recovered actual Claude checkpoint `f81ddfe3003cd6bf4591e048123e4da5cbf460f9` on `claude/nearby-map-upgrade-20261030`; no PR existed (GitHub search). Original workspace was clean. Git switch failed and left the recovered tree staged on `work`; preserved patch at `/workspace/scratch/rega-recovery/recovered-staged.patch`. Continued in isolated worktree `/workspace/rega-nearby` on the original branch, merged main `e60db4f` preserving both memory entries. No completed implementation rebuilt.
+
+Implemented checkpoint: existing MapLibre/OpenFreeMap, permission-triggered geolocation and states, haversine/sort/radii/category/open filters, clustering and keyboard buttons, synchronized selection, profile/directions preview, desktop RTL pane, mobile carousel/toggle, all 11 catalogues. Codex adds selected-marker list reveal/scroll respecting reduced motion and focus; Nearby-only use of existing coordinate validator excludes placeholders/invalid positions while general profiles/discovery remain intact. Shared data file change is confined to `nearbyBusinesses`. Added targeted browser regressions.
+
+Local checks: generated missing Prisma clients (no schema changes), typecheck/lint PASS, unit 427 PASS/4 DB skips/0 FAIL, D1 10/10 PASS and docs validation PASS. First Node build PASS; rebuilding after final coordinate guard. Browser checks, hosted CI, merge, deploy and live feature verification remain pending. Claude historical browser counts are REPORTED, not repeated yet.
+Cloudflare read-only deployment check: rega24 deployment `9b59b8bd-d1fb-4859-8daf-5c0f49b86fd4`, version `37560b7a-5d53-4c52-92fc-67495510443c` at 100%; Nearby upgrade NOT deployed. Shell GitHub API and public www.rega24.com access return proxy 403; connected GitHub/Cloudflare work. No paid resources created. No production data/schema/auth/global layout changes.
+Next action: finish final Node build and local desktop/mobile Nearby regression on disposable D1, push original branch, open PR (only if still absent), require full exact-head CI before merge and established exact-main deploy. Verify live map including real basemap tiles and RTL/LTR; no quality score claimed.
+
+Final release hold — 2026-10-31: code head `a3e4338ac55d46d25fbb3be17d10a46740ea0e8e`; draft PR #115 https://github.com/rebar9988-max/Rega/pull/115. Final Node build, sequential typecheck/lint PASS. Disposable D1 browser run with system Chromium: **31/31 PASS** (Nearby desktop/mobile plus existing admin-business setup; RTL/LTR, clustering, keyboard selection, preview/directions, radius/open filters, permission denied/unavailable/unsupported, invalid coordinates and map outage). Real tiles remain NOT VERIFIED (test stub). Unit 427 PASS/4 skips, D1 10/10, docs PASS.
+Hosted CI `41167623723` **FAIL** at dependency audit before app checks. Logs and independent local npm audit: **18 moderate** vulnerabilities; minimatch `<11.0.1` GHSA-g3hv-75wg-m249 and glob `3.0.0–14.0.1` GHSA-3g3m-2fjr-6pw4 propagate through global ESLint/OpenNext build dependencies. Both dependency manifests are byte-identical to main; this task introduced none. npm proposes `audit fix --force` with a breaking OpenNext downgrade to 0.3.0; not applied. Fixing the global toolchain is outside the owner's strict Nearby-only scope. **Merge/deploy BLOCKED**, protections unchanged. No failed CI bypass, force push or production release.
+Exact next action: separately scope and compatibility-test dependency security remediation, merge that fix through required CI, merge updated main into this original branch, rerun all exact-head checks, then remove draft/merge via approved workflow, await exact-main gated deploy and verify actual production map including real basemap requests. Production browsing from the workspace is additionally blocked by proxy 403; no connected interactive Browser js tool was exposed. Current Cloudflare release remains the previous version above. Central Hub and PR retain this blocker; no 100/100 claim.

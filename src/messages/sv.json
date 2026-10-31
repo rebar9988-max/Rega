@@ -586,7 +586,13 @@
     "temporarilyClosed": "Tillfälligt stängt",
     "opensOnDate": "Öppnar igen {date} kl. {time}",
     "holidayToday": "Helgdag: {name}",
-    "specialHoursToday": "Avvikande öppettider i dag"
+    "specialHoursToday": "Avvikande öppettider i dag",
+    "away": "{distance} bort",
+    "all": "Alla",
+    "quickFilters": "Snabbfilter",
+    "locateMe": "Hitta närmast mig",
+    "viewProfile": "Visa profil",
+    "getDirections": "Vägbeskrivning"
   },
   "map": {
     "title": "Karta",

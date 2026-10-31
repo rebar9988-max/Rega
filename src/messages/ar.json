@@ -586,7 +586,13 @@
     "temporarilyClosed": "مغلق مؤقتاً",
     "opensOnDate": "يفتح في {date} الساعة {time}",
     "holidayToday": "عطلة رسمية: {name}",
-    "specialHoursToday": "ساعات عمل خاصة اليوم"
+    "specialHoursToday": "ساعات عمل خاصة اليوم",
+    "away": "على بُعد {distance}",
+    "all": "الكل",
+    "quickFilters": "فلاتر سريعة",
+    "locateMe": "اعثر على الأقرب إليّ",
+    "viewProfile": "عرض الملف",
+    "getDirections": "الاتجاهات"
   },
   "map": {
     "title": "الخريطة",

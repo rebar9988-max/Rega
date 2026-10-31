@@ -586,7 +586,13 @@
     "temporarilyClosed": "Temporarily closed",
     "opensOnDate": "Reopens {date} at {time}",
     "holidayToday": "Public holiday: {name}",
-    "specialHoursToday": "Special hours today"
+    "specialHoursToday": "Special hours today",
+    "away": "{distance} away",
+    "all": "All",
+    "quickFilters": "Quick filters",
+    "locateMe": "Find nearest to me",
+    "viewProfile": "View profile",
+    "getDirections": "Get directions"
   },
   "map": {
     "title": "Map",

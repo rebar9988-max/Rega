@@ -586,7 +586,13 @@
     "temporarilyClosed": "Tijdelijk gesloten",
     "opensOnDate": "Weer open op {date} om {time}",
     "holidayToday": "Feestdag: {name}",
-    "specialHoursToday": "Vandaag afwijkende openingstijden"
+    "specialHoursToday": "Vandaag afwijkende openingstijden",
+    "away": "{distance} verderop",
+    "all": "Alles",
+    "quickFilters": "Snelle filters",
+    "locateMe": "Dichtstbij zoeken",
+    "viewProfile": "Profiel bekijken",
+    "getDirections": "Routebeschrijving"
   },
   "map": {
     "title": "Kaart",
