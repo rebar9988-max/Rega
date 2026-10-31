@@ -7,6 +7,10 @@ root = Path(__file__).resolve().parent.parent
 db = sqlite3.connect(":memory:")
 db.execute("PRAGMA foreign_keys=ON")
 db.executescript((root / "prisma/d1/migrations/0001_initial.sql").read_text())
+# Later additive migrations (0004+) add source-schema columns; 0002/0003 add internal runtime columns only.
+for later in sorted((root / "prisma/d1/migrations").glob("0*.sql")):
+    if later.name[:4] >= "0004":
+        db.executescript(later.read_text())
 source = (root / "prisma/schema.prisma").read_text()
 models = re.findall(r"model (\w+) \{(.*?)\n\}", source, re.S)
 scalars = {"String", "DateTime", "Int", "Float", "Decimal", "Boolean", "Json", "Role"}

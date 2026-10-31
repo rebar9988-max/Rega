@@ -22,7 +22,7 @@ export function useOpenNow(hours: unknown, countryCode: string, regionSlug?: str
  * Green "Open now" pill of the reference card. Computed in the browser from the stored hours, so a cached page never
  * shows a stale state; renders nothing while closed, unknown or before hydration (never a guessed status).
  */
-export function OpenBadge({ hours, countryCode, regionSlug, label }: { hours: unknown; countryCode: string; regionSlug?: string | null; label: string }) {
+export function OpenBadge({ hours, countryCode, regionSlug, label, className = "rh-open" }: { hours: unknown; countryCode: string; regionSlug?: string | null; label: string; className?: string }) {
   const open = useOpenNow(hours, countryCode, regionSlug);
-  return open ? <span className="rh-open">{label}</span> : null;
+  return open ? <span className={className} data-testid="open-badge">{label}</span> : null;
 }

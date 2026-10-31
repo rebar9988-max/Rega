@@ -16,6 +16,10 @@ import { DrSidebar, type DrNavItem } from "@/components/dr/DrSidebar";
 import { PRIVATE_BETA } from "@/lib/private-beta";
 import { SessionRenewal } from "@/features/auth/SessionRenewal";
 import { SignInForm } from "./SignInForm";
+import { NotificationBell } from "@/features/admin-notifications/NotificationBell";
+import { getAdminNotifications } from "@/features/admin-notifications/sources";
+import { visibleKinds } from "@/features/admin-notifications/build";
+import { log } from "@/lib/logger";
 
 export const metadata: Metadata = { metadataBase: new URL(`https://${process.env.CANONICAL_HOST || "www.rega24.com"}`), icons: SITE_ASSETS.icons, title: { default: "Rega24", template: "%s · Rega24" }, robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
@@ -38,6 +42,13 @@ export default async function DrLayout({ children }: { children: React.ReactNode
   if (PRIVATE_BETA && user?.role !== "SUPER_ADMIN") redirect("/owner-login?next=%2Fdr");
   // A revoked account can still have a cached session: it reaches the existing forbidden state below
   // rather than bouncing between /dr and login (login sends an already signed-in session back to /dr).
+
+  // Work waiting in the existing queues, only the kinds this role may handle; a failed count never breaks the dashboard.
+  const showBell = Boolean(user && canEnterDashboard(user.role) && visibleKinds(user.role).length > 0);
+  const notifications = showBell
+    ? (await getAdminNotifications(user!.role).catch((error: unknown) => { log.error("dr.notifications.failed", { error: String(error) }); return []; }))
+      .map((n) => ({ ...n, label: t(`notif_${n.kind}`, { count: n.count }) }))
+    : [];
 
   return (
     <html lang={meta.htmlLang} dir={meta.dir} suppressHydrationWarning>
@@ -65,7 +76,14 @@ export default async function DrLayout({ children }: { children: React.ReactNode
                 labels={{ nav: t("title"), menu: ta("menu"), close: ta("closeMenu"), signedIn: t("signed"), site: t("back") }}
                 siteHref={`/${locale}`}
               />
-              <main className="mx-auto w-full min-w-0 max-w-[90rem] px-4 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-8">{children}</main>
+              <main className="mx-auto w-full min-w-0 max-w-[90rem] px-4 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
+                {showBell && (
+                  <div className="mb-4 flex justify-end" data-testid="dr-topbar">
+                    <NotificationBell items={notifications} labels={{ title: t("notifications"), empty: t("notificationsEmpty") }} />
+                  </div>
+                )}
+                {children}
+              </main>
             </div>
           )}
         </NextIntlClientProvider>

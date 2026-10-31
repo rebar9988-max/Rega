@@ -233,7 +233,12 @@
     "readMore": "Read more",
     "readLess": "Show less",
     "photoCount": "{count} photos",
-    "openPhoto": "Open photo {n}"
+    "openPhoto": "Open photo {n}",
+    "tabHours": "Hours",
+    "noAbout": "No description yet.",
+    "hoursSoon": "Opening hours will be available soon.",
+    "socialProfiles": "Social media",
+    "socialProfile": "{platform} (opens in a new window)"
   },
   "services": {
     "title": "Services",
@@ -444,7 +449,16 @@
     "messages": "Messages",
     "reviews": "Reviews",
     "operations": "Operations",
-    "searchAnalytics": "Search analytics"
+    "searchAnalytics": "Search analytics",
+    "notifications": "Notifications",
+    "notificationsEmpty": "Nothing is waiting.",
+    "notif_pendingBusinesses": "Businesses waiting for review: {count}",
+    "notif_pendingReviews": "Reviews to moderate: {count}",
+    "notif_openReports": "Open reports: {count}",
+    "notif_newMessages": "New messages: {count}",
+    "filterActor": "User e-mail",
+    "filterApply": "Filter",
+    "filterReset": "Reset"
   },
   "form": {
     "name": "Name",
@@ -586,7 +600,8 @@
     "temporarilyClosed": "Temporarily closed",
     "opensOnDate": "Reopens {date} at {time}",
     "holidayToday": "Public holiday: {name}",
-    "specialHoursToday": "Special hours today"
+    "specialHoursToday": "Special hours today",
+    "nearestTitle": "Nearest services"
   },
   "map": {
     "title": "Map",
@@ -701,9 +716,9 @@
     "mediaInvalid": "A photo could not be accepted. Upload it again with the upload button.",
     "wizard": {
       "steps": "Registration steps",
-      "step1": "Business & location",
-      "step2": "Logo & images",
-      "step3": "Review & submit",
+      "step1": "Basics",
+      "step2": "Contact",
+      "step3": "Location",
       "next": "Next",
       "back": "Back",
       "saveDraft": "Save draft",
@@ -714,7 +729,11 @@
       "reviewHint": "After you submit, the REGA team checks your listing. It is published only after approval.",
       "pinConfirmed": "Confirmed on the map",
       "pinMissing": "Not set yet",
-      "draftChanged": "This draft has already been submitted or reviewed. Reload before editing."
+      "draftChanged": "This draft has already been submitted or reviewed. Reload before editing.",
+      "step4": "Hours",
+      "step5": "Photos & finish",
+      "stepOf": "Step {n} of {total}: {name}",
+      "completed": "completed"
     },
     "categorySearch": "Search categories",
     "optionalDetails": "Optional details",
@@ -730,7 +749,75 @@
     "exceptionHours": "Hours",
     "exceptionReason": "Reason (optional, public)",
     "exceptionRemove": "Remove",
-    "exceptionAdd": "Add a closure or special hours"
+    "exceptionAdd": "Add a closure or special hours",
+    "socialHint": "All optional. Add only the platforms you use: a profile link or @name.",
+    "socialInvalid": "Enter a valid {platform} profile link (https://…) or @name.",
+    "optional": "optional",
+    "titleBasics": "Business information",
+    "titleContact": "Contact information",
+    "titleSocial": "Social media",
+    "titleLocation": "Location and address",
+    "titleMedia": "Logo and photos",
+    "locationHint": "Enter the address, find the location and confirm it on the map.",
+    "sameAsPhone": "Same as phone",
+    "emailInvalid": "Enter a valid e-mail address, e.g. name@example.com",
+    "websiteInvalid": "Enter a valid website address, e.g. example.com",
+    "socialClear": "Remove {platform}",
+    "pinConfirmedTitle": "Location set successfully",
+    "pinConfirmedText": "This address is confirmed on the map.",
+    "advancedCoords": "Advanced: coordinates",
+    "saving": "Saving…",
+    "hoursEditor": {
+      "hint": "Choose open or closed for each day and set the times. Split hours (e.g. 09:00–12:00 and 14:00–18:00) and overnight hours (e.g. 20:00–02:00) are supported.",
+      "notSet": "No opening hours yet. Without them the business is never shown as “open”.",
+      "add": "Add opening hours",
+      "clear": "Remove all opening hours",
+      "open": "Open",
+      "closed": "Closed",
+      "allDay": "Open 24 hours",
+      "from": "from",
+      "to": "to",
+      "addRange": "Add another time range",
+      "removeRange": "Remove this time range",
+      "copyAll": "Copy Monday to all days",
+      "copyWeekdays": "To weekdays (Mon–Fri)",
+      "overnight": "Closes the next day (after midnight).",
+      "invalid": "Enter a start and end time; they must differ.",
+      "unknown": "Not set"
+    },
+    "media": {
+      "hint": "1 logo and 3 promotional photos. All optional; promotional photo 1 is the main image of your profile.",
+      "uploadLogo": "Upload logo",
+      "addPhoto": "Add photo",
+      "promo": "Promotional photo {n}",
+      "morePhotos": "More promotional photos",
+      "uploading": "Uploading…",
+      "dropHere": "or drag a photo here"
+    },
+    "features": {
+      "title": "Category details",
+      "hint": "Tick what applies to your business. All optional.",
+      "items": {
+        "wheelchair": "Wheelchair accessible",
+        "parking": "Parking",
+        "cardPayment": "Card payment",
+        "delivery": "Delivery",
+        "takeaway": "Takeaway",
+        "halal": "Halal",
+        "vegetarian": "Vegetarian options",
+        "outdoorSeating": "Outdoor seating",
+        "appointment": "By appointment",
+        "homeVisits": "Home visits",
+        "walkIns": "Walk-ins welcome",
+        "repairService": "Repair service",
+        "onlineLessons": "Online lessons",
+        "freeConsultation": "Free first consultation",
+        "onlineAppointments": "Online appointments",
+        "freeQuote": "Free quote",
+        "serviceAtCustomer": "Service at your location",
+        "onlineBooking": "Online booking"
+      }
+    }
   },
   "contact": {
     "title": "Contact",
@@ -1292,7 +1379,7 @@
     "moveEarlier": "Move earlier",
     "moveLater": "Move later",
     "galleryHint": "One cover image and up to 3 more images. The order is used on the profile page.",
-    "overLimit": "This listing already has more than 3 images. All are kept; new images can be added once fewer than 3 remain."
+    "overLimit": "This listing has more photos than slots. All are kept; a new photo can be added once a slot is free."
   },
   "ops": {
     "title": "Operations Center",

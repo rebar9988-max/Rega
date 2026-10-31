@@ -381,11 +381,6 @@ test("owner completes registration and real image upload; approval publishes and
   await page
     .getByRole("combobox", { name: "Kategorie", exact: true })
     .selectOption({ label: "Recht" });
-  await page.getByLabel("Straße und Hausnummer").fill("Street 12");
-  await page.getByLabel("Stadt", { exact: true }).fill("Berlin");
-  await page.getByTestId("lat").fill("52.5");
-  await page.getByTestId("lng").fill("13.4");
-  await page.getByTestId("confirm-location").check();
   await expect(page.getByTestId("draft-saved")).toBeVisible({ timeout: 10000 });
   const stale = await page.context().newPage();
   await stale.goto(`/dr/businesses/${await page.locator("input[name=id]").inputValue()}`);
@@ -400,6 +395,19 @@ test("owner completes registration and real image upload; approval publishes and
   await page.getByTestId("wizard-back").click();
   await expect(page.getByLabel("Name", { exact: true })).toHaveValue(name);
   await page.getByTestId("wizard-next").click();
+  await page.getByTestId("wizard-next").click();
+  await expect(page.getByTestId("wizard-step-3")).toHaveAttribute("aria-current", "step");
+  await page.getByLabel("Straße und Hausnummer").fill("Street 12");
+  await page.getByLabel("Stadt", { exact: true }).fill("Berlin");
+  // Coordinates stay available under "advanced" for people who have them.
+  await page.getByText("Erweitert: Koordinaten", { exact: true }).click();
+  await page.getByTestId("lat").fill("52.5");
+  await page.getByTestId("lng").fill("13.4");
+  await page.getByTestId("confirm-location").check();
+  await page.getByTestId("wizard-next").click();
+  await expect(page.getByTestId("wizard-step-4")).toHaveAttribute("aria-current", "step");
+  await page.getByTestId("wizard-next").click();
+  await expect(page.getByTestId("wizard-step-5")).toHaveAttribute("aria-current", "step");
   const image = Buffer.from(encode({ width: 2, height: 1, data: new Uint8Array([255,0,0,255,0,0,255,255]) }));
   await page.getByTestId("upload-logoUrl").setInputFiles({name:"owner.png",mimeType:"image/png",buffer:image});
   await page.getByTestId("image-editor").getByRole("button", {name:"Bild bestätigen"}).click();
@@ -422,7 +430,6 @@ test("owner completes registration and real image upload; approval publishes and
   const photo = await page.locator("input[name=photoUrls]").inputValue();
   // The stored URL announces its smaller copies in its query (features/business-images/variants.ts); the Media row holds the plain URL.
   expect((await db.media.findFirstOrThrow({where:{url:photo.split("?")[0]}})).mimeType).toBe("image/jpeg");
-  await page.getByTestId("wizard-next").click();
   await expect(page.getByTestId("wizard-review")).toContainText(name);
   await page.getByTestId("submit-review").click();
   await expect(page.getByTestId("business-status")).toHaveText("Ausstehend");

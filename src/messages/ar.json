@@ -233,7 +233,12 @@
     "readMore": "اقرأ المزيد",
     "readLess": "عرض أقل",
     "photoCount": "{count} صور",
-    "openPhoto": "فتح الصورة {n}"
+    "openPhoto": "فتح الصورة {n}",
+    "tabHours": "الأوقات",
+    "noAbout": "لا يوجد وصف بعد.",
+    "hoursSoon": "ستتوفر أوقات العمل قريبًا.",
+    "socialProfiles": "وسائل التواصل الاجتماعي",
+    "socialProfile": "{platform} (نافذة جديدة)"
   },
   "services": {
     "title": "الخدمات",
@@ -444,7 +449,16 @@
     "messages": "الرسائل",
     "reviews": "التقييمات",
     "operations": "العمليات",
-    "searchAnalytics": "تحليلات البحث"
+    "searchAnalytics": "تحليلات البحث",
+    "notifications": "الإشعارات",
+    "notificationsEmpty": "لا يوجد شيء بانتظارك.",
+    "notif_pendingBusinesses": "أنشطة تجارية بانتظار المراجعة: {count}",
+    "notif_pendingReviews": "تقييمات للمراجعة: {count}",
+    "notif_openReports": "بلاغات مفتوحة: {count}",
+    "notif_newMessages": "رسائل جديدة: {count}",
+    "filterActor": "البريد الإلكتروني للمستخدم",
+    "filterApply": "تصفية",
+    "filterReset": "إعادة ضبط"
   },
   "form": {
     "name": "الاسم",
@@ -586,7 +600,8 @@
     "temporarilyClosed": "مغلق مؤقتاً",
     "opensOnDate": "يفتح في {date} الساعة {time}",
     "holidayToday": "عطلة رسمية: {name}",
-    "specialHoursToday": "ساعات عمل خاصة اليوم"
+    "specialHoursToday": "ساعات عمل خاصة اليوم",
+    "nearestTitle": "أقرب الخدمات"
   },
   "map": {
     "title": "الخريطة",
@@ -701,9 +716,9 @@
     "mediaInvalid": "تعذّر قبول إحدى الصور. ارفعها مجددًا باستخدام زر الرفع.",
     "wizard": {
       "steps": "خطوات التسجيل",
-      "step1": "النشاط والموقع",
-      "step2": "الشعار والصور",
-      "step3": "المراجعة والإرسال",
+      "step1": "المعلومات",
+      "step2": "التواصل",
+      "step3": "الموقع",
       "next": "التالي",
       "back": "رجوع",
       "saveDraft": "حفظ المسودة",
@@ -714,7 +729,11 @@
       "reviewHint": "بعد الإرسال يراجع فريق REGA إدراجك. ولا يُنشر إلا بعد الموافقة.",
       "pinConfirmed": "تم التأكيد على الخريطة",
       "pinMissing": "لم يتم التحديد بعد",
-      "draftChanged": "تم إرسال هذه المسودة أو مراجعتها. أعد تحميل الصفحة قبل التعديل."
+      "draftChanged": "تم إرسال هذه المسودة أو مراجعتها. أعد تحميل الصفحة قبل التعديل.",
+      "step4": "الساعات",
+      "step5": "الصور والإنهاء",
+      "stepOf": "الخطوة {n} من {total}: {name}",
+      "completed": "مكتملة"
     },
     "categorySearch": "البحث في الفئات",
     "optionalDetails": "تفاصيل اختيارية",
@@ -730,7 +749,75 @@
     "exceptionHours": "الساعات",
     "exceptionReason": "السبب (اختياري، عام)",
     "exceptionRemove": "إزالة",
-    "exceptionAdd": "إضافة إغلاق أو ساعات خاصة"
+    "exceptionAdd": "إضافة إغلاق أو ساعات خاصة",
+    "socialHint": "كلها اختيارية. أضف فقط المنصات التي تستخدمها: رابط الملف الشخصي أو ‎@الاسم.",
+    "socialInvalid": "أدخل رابط ملف {platform} صالحًا (⁦https://…⁩) أو ‎@الاسم.",
+    "optional": "اختياري",
+    "titleBasics": "المعلومات الأساسية",
+    "titleContact": "معلومات الاتصال",
+    "titleSocial": "وسائل التواصل الاجتماعي",
+    "titleLocation": "الموقع والعنوان",
+    "titleMedia": "الشعار والصور",
+    "locationHint": "اكتب العنوان، ابحث عن الموقع وأكّده على الخريطة.",
+    "sameAsPhone": "مثل الهاتف",
+    "emailInvalid": "أدخل بريدًا إلكترونيًا صالحًا، مثل ⁦name@example.com⁩",
+    "websiteInvalid": "أدخل عنوان موقع صالحًا، مثل ⁦example.com⁩",
+    "socialClear": "حذف {platform}",
+    "pinConfirmedTitle": "تم تحديد الموقع بنجاح",
+    "pinConfirmedText": "تم تأكيد هذا العنوان على الخريطة.",
+    "advancedCoords": "متقدم: الإحداثيات",
+    "saving": "جارٍ الحفظ…",
+    "hoursEditor": {
+      "hint": "اختر مفتوح أو مغلق لكل يوم وحدّد الأوقات. الفترات المقسّمة (مثل ⁦09:00–12:00⁩ و⁦14:00–18:00⁩) والليلية (مثل ⁦20:00–02:00⁩) مدعومة.",
+      "notSet": "لم تُحدَّد ساعات العمل بعد. بدونها لا يظهر النشاط أبدًا كـ«مفتوح».",
+      "add": "إضافة ساعات العمل",
+      "clear": "حذف كل الساعات",
+      "open": "مفتوح",
+      "closed": "مغلق",
+      "allDay": "مفتوح 24 ساعة",
+      "from": "من",
+      "to": "إلى",
+      "addRange": "إضافة فترة أخرى",
+      "removeRange": "حذف هذه الفترة",
+      "copyAll": "نسخ الاثنين لكل الأيام",
+      "copyWeekdays": "لأيام العمل (الاثنين–الجمعة)",
+      "overnight": "الإغلاق في اليوم التالي (بعد منتصف الليل).",
+      "invalid": "أدخل وقت البدء والانتهاء؛ يجب ألا يتطابقا.",
+      "unknown": "غير محددة"
+    },
+    "media": {
+      "hint": "شعار واحد و3 صور ترويجية. كلها اختيارية؛ الصورة الترويجية 1 هي الصورة الرئيسية للملف.",
+      "uploadLogo": "رفع الشعار",
+      "addPhoto": "إضافة صورة",
+      "promo": "صورة ترويجية {n}",
+      "morePhotos": "صور ترويجية أخرى",
+      "uploading": "جارٍ الرفع…",
+      "dropHere": "أو اسحب الصورة إلى هنا"
+    },
+    "features": {
+      "title": "تفاصيل الفئة",
+      "hint": "اختر ما ينطبق على نشاطك. كلها اختيارية.",
+      "items": {
+        "wheelchair": "مناسب للكراسي المتحركة",
+        "parking": "موقف سيارات",
+        "cardPayment": "الدفع بالبطاقة",
+        "delivery": "توصيل",
+        "takeaway": "سفري",
+        "halal": "حلال",
+        "vegetarian": "خيارات نباتية",
+        "outdoorSeating": "جلسات خارجية",
+        "appointment": "بموعد مسبق",
+        "homeVisits": "زيارات منزلية",
+        "walkIns": "بدون موعد",
+        "repairService": "خدمة إصلاح",
+        "onlineLessons": "دروس عبر الإنترنت",
+        "freeConsultation": "استشارة أولى مجانية",
+        "onlineAppointments": "مواعيد عبر الإنترنت",
+        "freeQuote": "عرض سعر مجاني",
+        "serviceAtCustomer": "خدمة في موقع العميل",
+        "onlineBooking": "حجز عبر الإنترنت"
+      }
+    }
   },
   "contact": {
     "title": "تواصل معنا",
@@ -1292,7 +1379,7 @@
     "moveEarlier": "تقديم",
     "moveLater": "تأخير",
     "galleryHint": "صورة غلاف واحدة وحتى 3 صور إضافية. يُستخدم الترتيب في صفحة النشاط.",
-    "overLimit": "لهذا النشاط أكثر من 3 صور بالفعل. تُحفظ كلها؛ يمكن إضافة صور جديدة عندما يتبقى أقل من 3."
+    "overLimit": "لهذا الإدراج صور أكثر من الخانات. تُحفظ كلها؛ يمكن إضافة صورة جديدة عند توفر خانة فارغة."
   },
   "ops": {
     "title": "مركز العمليات",

@@ -1205,6 +1205,54 @@ artefacts (missing e2e media server; canonical points to www.rega24.com). Fixes 
 the selected tab renders (was serialized per tab), lists cut to 4, "More" tile link gets a screen-reader suffix.
 Next: hosted CI on PR #111 → squash merge → existing CI-gated deploy → production browser check → live verification.
 
+## Business profile, directory/nearby cards and optional social links — 2026-10-30 (branch `claude/business-profile-social-links`)
+
+Owner instruction (Sorani + reference screenshots): rebuild the business directory card grid and the business profile to
+the RTL reference (cover, overlapping identity card, About / Hours / Reviews pill tabs) and put optional official
+Instagram / Facebook / TikTok / Snapchat buttons inside the phone card; "keep REGA24's main colour". Identity guard OK
+(REGA). Based on main `89a516c`. Teal/emerald of the prompt NOT used: accents are the REGA red tokens (`brand`,
+`brand-soft`, `brand-text`); the "open" / "verified" pills reuse the home card's existing green #15803d; stars `--sun`.
+
+- Data: uses the production columns `Business.facebookUrl/instagramUrl/tiktokUrl/snapchatUrl`. VERIFIED 2026-10-30
+  (read-only Cloudflare D1 queries on `rega24-migration` 728f792d…): they were already added by
+  `0004_business_social_links.sql` from the unmerged branch `feat/business-social-profile-20261025` (applied 2026-10-29
+  12:58 UTC, all 4 businesses NULL). This branch adopts that exact D1 file and its PostgreSQL migration
+  `20261024220000_business_social_links`; an earlier draft `0006` (columns `instagram`…) was withdrawn before any apply.
+  Repo D1 migrations 0001–0005 == production `d1_migrations`; Business columns identical (checked). So
+  `npm run db:d1:migrate` has nothing pending; NO production database change was made. (wrangler is not logged in here.)
+  When PR71 / `feat/business-social-profile-20261025` is reconciled, keep one copy of these two migration files.
+- `src/lib/social-links.ts`: link or @username → https URL on the platform's own domain (no credentials/port/fragment);
+  refused otherwise. Re-checked at render. Admin/owner form (`BusinessForm`) has the four optional fields with inline
+  validation; server action validates again. Icons: simple-icons official marks (Instagram gradient, TikTok offset,
+  Snapchat ghost on yellow) in `components/business/SocialLinks.tsx`.
+- Profile `/[locale]/business/[slug]`: full-width cover (rounded from sm), back button (reading-start corner, → in RTL),
+  up to 3 thumbnails on the cover; identity card (-mt-8) with name/verified/category/city and rating + review count
+  opposite; actions and address/languages facts unchanged; `ProfileTabs` (WAI-ARIA tabs, all panels server-rendered):
+  About (or "no description"), Hours (open state + weekly hours + changes of the main location, else "hours soon"),
+  Reviews (score, five stars, count, link to the reviews section). Contact card: phone row (number is the link text),
+  social row with divider only when at least one link exists, then WhatsApp/e-mail/website. The single-location hours card
+  moved into the Hours tab (shown once). Breadcrumbs hidden on phones (JSON-LD trail unchanged).
+- Directory card (`BusinessCard` "directory", /businesses + category/city pages) and /nearby list: 2-column grid on
+  phones, 4:3 cover, verified pill, browser-computed "open" pill, name, category, city (+ distance on nearby), rating.
+  `businessCard` select adds primary-location `openingHours` + city region slug (read-only).
+- New keys in all 11 catalogues: `bizForm.socialTitle/socialHint/socialInvalid`, `businesses.tabHours/noAbout/hoursSoon/
+  socialLabel/socialAria`, `nearby.nearestTitle`.
+
+Local verification (PostgreSQL 16 + D1 SQLite): typecheck, lint, unit (432 pass, 0 fail; new `tests/social-links.test.ts`),
+test:d1 10/10, d1-worker-smoke, docs validation, `next build --webpack` pass. Browser (Chromium desktop+mobile): first
+run 83 passed / 2 failed (phone row reused the call button's accessible name → fixed); re-runs 68/68 (social,
+profile, catalog, figma-responsive, axe a11y) and 42/43 + rerun pass (gallery upload rate-limit step, unrelated). Without a
+cover the profile shows a short brand-soft band instead of an empty grey block. Next: hosted CI → owner applies D1 0006 →
+merge → CI-gated deploy → live check.
+Release check 2026-10-30 (after the column alignment): typecheck, lint, unit 436/436 (twice), test:d1 10/10,
+d1-worker-smoke, preflight, build pass; full browser suite PostgreSQL desktop+mobile 437 passed / 1 failed / 4 did not
+run (iPhone/WebKit not installed here) — the failure (30 s timeout, admin-business) passed in isolated reruns (9/10 then
+10/10; the other miss was a different map test): intermittent load timing. D1-provider browser run of the business specs 70/70.
+Not verified: hosted CI, deploy, live site.
+
+Next milestone scaffold (unwired, no schema): `src/features/admin-audit/*`, `src/features/admin-notifications/*`,
+`tests/admin-scaffold.test.ts`, plan in [docs/ADMIN-AUDIT-NOTIFICATIONS.md](docs/ADMIN-AUDIT-NOTIFICATIONS.md).
+
 ### REGA24 logo — release and health-check follow-up — 2026-10-30
 PR #101 squash `f5ff417` is on `main` and was deployed with `5caee06` ("Deploy to Cloudflare Workers" run 41034244928,
 success). Live check (public fetch): `/favicon.ico` is the new 5645-byte REGA24 ICO (sha256 matches the repository),
@@ -1236,6 +1284,61 @@ current official assets; every new probe was confirmed 200 / present against liv
 - Next safe continuation point: merge #109/#110 (health probe), then a real-photo pass when owner-supplied images exist
   (category covers fall back to logo-red icon tiles until businesses upload covers).
 
+## Business registration & editing upgrade — 2026-10-29 (branch `claude/rega24-business-form-6ie7x9`)
+
+Owner brief "REGA24 — premium business registration & editing" + global requirement "one shared form for all permitted
+categories with optional category-specific fields". Identity guard OK (REGA) before work.
+
+Audit (existing, reused): one `BusinessForm` (/dr/businesses/new and /[id]) for every category; owners = wizard, staff
+(business.publish) = single page; server action `saveBusinessAction` → `saveBusiness` (zod `businessFormSchema`); drafts,
+duplicate-create guard, moderation (draft → pending → staff publish) unchanged. Images: logoUrl, coverUrl, photos[]
+(R2 via /api/v1/media/business-image). Hours: `Location.openingHours` text format (lib/opening-hours.ts). No social columns existed.
+
+Changes:
+- Wizard 3 → 5 steps (basics, contact + social, location, hours, photos & review); completed steps reachable; Back keeps data.
+- E-mail, website, phone, WhatsApp and Facebook/Instagram/TikTok/Snapchat all optional. `src/lib/social-links.ts`: website
+  gets https when typed without scheme; social links only on the platform's own hosts (exact match), no credentials/port/
+  redirect scripts, stored canonical; profile shows only valid saved links (`rel=noopener noreferrer nofollow`).
+- Opening hours editor (`OpeningHoursEditor`, `src/lib/hours-form.ts`): switch per day, time pickers, split shifts,
+  overnight, 24 h, copy Monday to all / to weekdays; writes the unchanged stored format. No hours → still "unknown".
+- Images: logo + 3 promotional photos (promo 1 = cover/hero, promos 2–3 = `photos`). `GALLERY_PHOTOS` 3 → 2 for new
+  additions; older listings keep every stored photo and may replace without growing. Localized upload cards, drag & drop.
+- Location: coordinates under "advanced" for owners (open for staff); confirmation banner.
+- Category details (`src/config/business-features.ts`): universal (wheelchair, parking, card payment) + per top-level
+  category; sub-categories and future categories inherit (unknown → universal only). Stored as `feature:<id>` in the
+  existing `Business.tags`; other tags kept; server drops ids the category does not offer. Shown as chips on the profile.
+- DB: ADDITIVE migration — 4 nullable TEXT columns on Business (`facebookUrl`, `instagramUrl`, `tiktokUrl`, `snapchatUrl`):
+  PostgreSQL `20261024220000_business_social_links` (byte-identical to draft PR #71, so the columns are never added twice), D1 `0004_business_social_links.sql`. Health now requires 0004.
+  Production D1 must have 0004 applied BEFORE the merge deploys (new code reads the columns).
+
+Tests (local, this container): lint, typecheck, `npm test` 389 pass / 0 fail / 4 DB-only skips (new: social-links,
+business-features), `npm run test:d1` 10/10, verify-d1-schema PASS; Playwright on disposable D1, Chromium desktop + Pixel 5:
+full suite 412/412 before the category-details addition, then 42/42 affected specs after it. Not run locally: WebKit
+(iPhone project — browser not installed here; CI runs it), PostgreSQL e2e (CI), Lighthouse.
+Production D1 0004 APPLIED 2026-10-29 ~12:58 UTC after the owner's explicit approval («بەڵێ جێبەجێی بکە»), identity guard OK:
+4 nullable columns added to Business, d1_migrations row 4; readback: Business 3 / Location 3 unchanged, non-null social 0,
+FK violations 0; live health 200 (provider d1, migrations true) with the old code. PR #100 (draft PR #71 overlaps: same
+columns; PG migration made byte-identical to #71's).
+Next safe continuation point: PR #100 CI green → merge → verify deploy, health (now requires 0004) and live form/profile.
+
+### Continuation 2026-10-30 (late): #100 merged into the branch, admin audit filters + notification bell wired
+
+- Overlap check (GitHub): PR #100 (`claude/rega24-business-form-6ie7x9`, green CI, owner-approved D1 0004) and draft PR
+  #71 (origin of the 0004 columns) cover the business form and social profiles. Instead of duplicating, this branch
+  merged `main` (#109, #112) and #100: #100's form, validation (`src/lib/social-links.ts`), admin save, migrations and
+  tests are kept unchanged; this branch adds the profile/card redesign on top (social row uses #100's links, test ids
+  `social-<platform>` and labels; #100's category features shown in the identity card). Schemas = main + #100's five
+  lines. Catalogues merged three-way. Merging this PR with a merge commit also lands #100's commits.
+- Production D1: unchanged (columns already present; repo migrations 0001–0005 == production `d1_migrations`).
+- Admin: `/dr/audit` filters (action, object, user e-mail; validated URL params; pagination keeps them). Dashboard top
+  bar with the notification bell for roles that handle a queue (pending businesses, pending reviews, open reports, new
+  messages; existing permissions; no new table; failures logged and never break the page). Docs:
+  [admin audit + notifications](docs/ADMIN-AUDIT-NOTIFICATIONS.md). Browser test `admin-audit-notifications.spec.ts`.
+- Local (PostgreSQL 16): typecheck, lint, unit 445/445, test:d1 10/10, build pass. Targeted browser run (admin, social,
+  #100 form/onboarding, profile, gallery, publication, completion, catalog; desktop+mobile): 84 passed, 2 failed, 2 skipped
+  (#100's own 320-px desktop skips). Both failures were re-run: #100's social test passed 2/2; the image-editor
+  upload-retry test (unchanged code) failed 1 of 5 on mobile in this sandbox only — main's CI 41125115875 ran 447/447
+  without retries, so hosted CI on the PR is the decisive check.
 ## Premium banner header — 2026-10-30 (codex/premium-reference-header)
 
 Owner requests ONLY the header/banner, matching the supplied red/silver globe reference, removing the visible Kurdish
@@ -1253,3 +1356,6 @@ Initial four-locale browser pass: layout/menus/Escape/axe passed at 320/390/768/
 expected Latin business names on ckb/ar results. Corrected test to assert preserved query value, not untranslated copy.
 Final browser/hosted CI/deployment/live verification pending; no 100/100 claim. Shell gh credential invalid; connected
 GitHub and Cloudflare apps work. Use existing CI-gated main release path only. Production has not been changed yet.
+
+### PR113 resume — 2026-10-31
+Recovered exact application head ef7ca4936de5fd9b02815b2b26e07499ad82021e; hosted verify41136379925 passed (462 browser cases on each of disposable D1 and PostgreSQL, both Cloudflare checks successful). Local clean D1 created exclusively with init-local-d1 --test: unchanged language-switcher suite52/52 desktop+mobile PASS against ef7ca49 Node build. Controlled disposable-only experiment: set one demo cover URL to a missing in-memory media object; unchanged ckb→de case fails precisely at console-error assertion with two404s. Original24-failure database/logs are absent in this resumed environment, so their exact provenance cannot be certified; stale media mechanism reproduced, no product defect demonstrated. No console suppression/assertion weakening. Original DB/production untouched. Latest main e60db4f premium header integrated; only PROJECT_MEMORY conflict, both histories retained. Combined source lint/unit441pass4existing skips/D110pass+batch preservation/docs PASS. Final combined-head hosted CI and production release verification still mandatory. Cloudflare readback baseline: deployment9b59b8bd-d1fb-4859-8daf-5c0f49b86fd4/version37560b7a-5d53-4c52-92fc-67495510443c at100%. Shell production access blocked by proxy403; connectors available. No paid resources activated.

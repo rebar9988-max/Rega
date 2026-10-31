@@ -233,7 +233,12 @@
     "readMore": "Leggi di più",
     "readLess": "Mostra meno",
     "photoCount": "{count} foto",
-    "openPhoto": "Apri la foto {n}"
+    "openPhoto": "Apri la foto {n}",
+    "tabHours": "Orari",
+    "noAbout": "Ancora nessuna descrizione.",
+    "hoursSoon": "Gli orari saranno disponibili a breve.",
+    "socialProfiles": "Social media",
+    "socialProfile": "{platform} (nuova finestra)"
   },
   "services": {
     "title": "Servizi",
@@ -444,7 +449,16 @@
     "messages": "Messaggi",
     "reviews": "Recensioni",
     "operations": "Operazioni",
-    "searchAnalytics": "Analisi delle ricerche"
+    "searchAnalytics": "Analisi delle ricerche",
+    "notifications": "Notifiche",
+    "notificationsEmpty": "Niente in attesa.",
+    "notif_pendingBusinesses": "Attività in attesa di revisione: {count}",
+    "notif_pendingReviews": "Recensioni da moderare: {count}",
+    "notif_openReports": "Segnalazioni aperte: {count}",
+    "notif_newMessages": "Nuovi messaggi: {count}",
+    "filterActor": "E-mail utente",
+    "filterApply": "Filtra",
+    "filterReset": "Reimposta"
   },
   "form": {
     "name": "Nome",
@@ -586,7 +600,8 @@
     "temporarilyClosed": "Chiuso temporaneamente",
     "opensOnDate": "Riapre il {date} alle {time}",
     "holidayToday": "Giorno festivo: {name}",
-    "specialHoursToday": "Orari speciali oggi"
+    "specialHoursToday": "Orari speciali oggi",
+    "nearestTitle": "Servizi più vicini"
   },
   "map": {
     "title": "Mappa",
@@ -701,9 +716,9 @@
     "mediaInvalid": "Una foto non è stata accettata. Caricala di nuovo con il pulsante di caricamento.",
     "wizard": {
       "steps": "Passaggi della registrazione",
-      "step1": "Attività e posizione",
-      "step2": "Logo e immagini",
-      "step3": "Controlla e invia",
+      "step1": "Dati",
+      "step2": "Contatti",
+      "step3": "Posizione",
       "next": "Avanti",
       "back": "Indietro",
       "saveDraft": "Salva bozza",
@@ -714,7 +729,11 @@
       "reviewHint": "Dopo l’invio, il team REGA controlla il tuo annuncio. Viene pubblicato solo dopo l’approvazione.",
       "pinConfirmed": "Confermato sulla mappa",
       "pinMissing": "Non ancora impostato",
-      "draftChanged": "Questa bozza è già stata inviata o revisionata. Ricarica la pagina prima di modificarla."
+      "draftChanged": "Questa bozza è già stata inviata o revisionata. Ricarica la pagina prima di modificarla.",
+      "step4": "Orari",
+      "step5": "Foto e fine",
+      "stepOf": "Passo {n} di {total}: {name}",
+      "completed": "completato"
     },
     "categorySearch": "Cerca categorie",
     "optionalDetails": "Dettagli facoltativi",
@@ -730,7 +749,75 @@
     "exceptionHours": "Orari",
     "exceptionReason": "Motivo (facoltativo, pubblico)",
     "exceptionRemove": "Rimuovi",
-    "exceptionAdd": "Aggiungi una chiusura o orari speciali"
+    "exceptionAdd": "Aggiungi una chiusura o orari speciali",
+    "socialHint": "Tutto facoltativo. Aggiungi solo le piattaforme che usi: link al profilo o @nome.",
+    "socialInvalid": "Inserisci un link al profilo {platform} valido (https://…) o @nome.",
+    "optional": "facoltativo",
+    "titleBasics": "Informazioni principali",
+    "titleContact": "Contatti",
+    "titleSocial": "Social media",
+    "titleLocation": "Posizione e indirizzo",
+    "titleMedia": "Logo e foto",
+    "locationHint": "Inserisci l'indirizzo, trova la posizione e confermala sulla mappa.",
+    "sameAsPhone": "Come il telefono",
+    "emailInvalid": "Inserisci un'e-mail valida, ad es. name@example.com",
+    "websiteInvalid": "Inserisci un indirizzo web valido, ad es. example.com",
+    "socialClear": "Rimuovi {platform}",
+    "pinConfirmedTitle": "Posizione impostata",
+    "pinConfirmedText": "Questo indirizzo è confermato sulla mappa.",
+    "advancedCoords": "Avanzate: coordinate",
+    "saving": "Salvataggio…",
+    "hoursEditor": {
+      "hint": "Scegli aperto o chiuso per ogni giorno e imposta gli orari. Sono supportati orari spezzati (es. 09:00–12:00 e 14:00–18:00) e notturni (es. 20:00–02:00).",
+      "notSet": "Nessun orario ancora. Senza orari l'attività non appare mai «aperta».",
+      "add": "Aggiungi orari",
+      "clear": "Rimuovi tutti gli orari",
+      "open": "Aperto",
+      "closed": "Chiuso",
+      "allDay": "Aperto 24 ore",
+      "from": "dalle",
+      "to": "alle",
+      "addRange": "Aggiungi un'altra fascia",
+      "removeRange": "Rimuovi questa fascia",
+      "copyAll": "Copia lunedì su tutti i giorni",
+      "copyWeekdays": "Ai giorni feriali (lun–ven)",
+      "overnight": "Chiude il giorno dopo (dopo mezzanotte).",
+      "invalid": "Inserisci inizio e fine; devono essere diversi.",
+      "unknown": "Non impostati"
+    },
+    "media": {
+      "hint": "1 logo e 3 foto promozionali. Tutto facoltativo; la foto 1 è l'immagine principale del profilo.",
+      "uploadLogo": "Carica logo",
+      "addPhoto": "Aggiungi foto",
+      "promo": "Foto promozionale {n}",
+      "morePhotos": "Altre foto promozionali",
+      "uploading": "Caricamento…",
+      "dropHere": "o trascina qui una foto"
+    },
+    "features": {
+      "title": "Dettagli della categoria",
+      "hint": "Seleziona ciò che vale per la tua attività. Tutto facoltativo.",
+      "items": {
+        "wheelchair": "Accessibile in sedia a rotelle",
+        "parking": "Parcheggio",
+        "cardPayment": "Pagamento con carta",
+        "delivery": "Consegna",
+        "takeaway": "Da asporto",
+        "halal": "Halal",
+        "vegetarian": "Opzioni vegetariane",
+        "outdoorSeating": "Posti all'aperto",
+        "appointment": "Su appuntamento",
+        "homeVisits": "Visite a domicilio",
+        "walkIns": "Senza appuntamento",
+        "repairService": "Servizio riparazioni",
+        "onlineLessons": "Lezioni online",
+        "freeConsultation": "Prima consulenza gratuita",
+        "onlineAppointments": "Appuntamenti online",
+        "freeQuote": "Preventivo gratuito",
+        "serviceAtCustomer": "Servizio a domicilio",
+        "onlineBooking": "Prenotazione online"
+      }
+    }
   },
   "contact": {
     "title": "Contatti",
@@ -1292,7 +1379,7 @@
     "moveEarlier": "Sposta prima",
     "moveLater": "Sposta dopo",
     "galleryHint": "Un’immagine di copertina e fino ad altre 3 immagini. L’ordine viene usato nella pagina del profilo.",
-    "overLimit": "Questo annuncio ha già più di 3 immagini. Vengono tutte conservate; potrai aggiungerne di nuove quando ne resteranno meno di 3."
+    "overLimit": "Questa scheda ha più foto degli spazi. Tutte restano salvate; una nuova foto si può aggiungere quando uno spazio è libero."
   },
   "ops": {
     "title": "Centro operativo",

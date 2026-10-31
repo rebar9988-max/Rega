@@ -23,7 +23,7 @@ const businessCard = {
   id: true, slug: true, name: true, nameCkb: true, nameKmr: true, nameAr: true, nameTr: true,
   description: true, descriptionCkb: true, descriptionKmr: true, descriptionDe: true, descriptionAr: true, descriptionTr: true,
   logoUrl: true, coverUrl: true, verified: true, featured: true, ratingAvg: true, ratingCount: true, categoryId: true, languages: true,
-  locations: { where: { isPrimary: true, deletedAt: null, status: "active" }, take: 1, select: { city: cityInclude, countryCode: true, latitude: true, longitude: true } },
+  locations: { where: { isPrimary: true, deletedAt: null, status: "active" }, take: 1, select: { city: { select: { ...cityInclude.select, region: { select: { slug: true } } } }, countryCode: true, latitude: true, longitude: true, openingHours: true } },
   _count: { select: { services: { where: { status: "published", deletedAt: null } } } },
 } satisfies Prisma.BusinessSelect;
 
@@ -238,7 +238,7 @@ export const getBusiness = cache(async (slug: string) =>
   prisma.business.findFirst({
     where: { slug, ...PUBLIC_BUSINESS },
     select: {
-      ...businessCard, email: true, phone: true, whatsapp: true, photos: true, website: true, coverUrl: true, tags: true, updatedAt: true,
+      ...businessCard, email: true, phone: true, whatsapp: true, photos: true, website: true, facebookUrl: true, instagramUrl: true, tiktokUrl: true, snapchatUrl: true, coverUrl: true, tags: true, updatedAt: true,
       // Only offers that are running right now (switch on, started, not ended); the page also re-checks the clock in the browser.
       offers: {
         where: activeOfferWhere(new Date()),

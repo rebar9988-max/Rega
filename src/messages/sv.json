@@ -233,7 +233,12 @@
     "readMore": "Läs mer",
     "readLess": "Visa mindre",
     "photoCount": "{count} foton",
-    "openPhoto": "Öppna foto {n}"
+    "openPhoto": "Öppna foto {n}",
+    "tabHours": "Tider",
+    "noAbout": "Ingen beskrivning ännu.",
+    "hoursSoon": "Öppettider kommer snart.",
+    "socialProfiles": "Sociala medier",
+    "socialProfile": "{platform} (nytt fönster)"
   },
   "services": {
     "title": "Tjänster",
@@ -444,7 +449,16 @@
     "messages": "Meddelanden",
     "reviews": "Omdömen",
     "operations": "Drift",
-    "searchAnalytics": "Sökanalys"
+    "searchAnalytics": "Sökanalys",
+    "notifications": "Aviseringar",
+    "notificationsEmpty": "Inget väntar.",
+    "notif_pendingBusinesses": "Företag som väntar på granskning: {count}",
+    "notif_pendingReviews": "Recensioner att moderera: {count}",
+    "notif_openReports": "Öppna anmälningar: {count}",
+    "notif_newMessages": "Nya meddelanden: {count}",
+    "filterActor": "Användarens e-post",
+    "filterApply": "Filtrera",
+    "filterReset": "Återställ"
   },
   "form": {
     "name": "Namn",
@@ -586,7 +600,8 @@
     "temporarilyClosed": "Tillfälligt stängt",
     "opensOnDate": "Öppnar igen {date} kl. {time}",
     "holidayToday": "Helgdag: {name}",
-    "specialHoursToday": "Avvikande öppettider i dag"
+    "specialHoursToday": "Avvikande öppettider i dag",
+    "nearestTitle": "Närmaste tjänster"
   },
   "map": {
     "title": "Karta",
@@ -608,7 +623,7 @@
   },
   "bizForm": {
     "new": "Nytt företag",
-    "edit": "Redigera",
+    "edit": "Ändra",
     "newTitle": "Nytt företag",
     "editTitle": "Redigera företag",
     "sectionBasics": "Företag",
@@ -701,9 +716,9 @@
     "mediaInvalid": "Ett foto kunde inte godtas. Ladda upp det igen med uppladdningsknappen.",
     "wizard": {
       "steps": "Registreringssteg",
-      "step1": "Företag och plats",
-      "step2": "Logotyp och bilder",
-      "step3": "Granska och skicka",
+      "step1": "Grunddata",
+      "step2": "Kontakt",
+      "step3": "Plats",
       "next": "Nästa",
       "back": "Tillbaka",
       "saveDraft": "Spara utkast",
@@ -714,7 +729,11 @@
       "reviewHint": "När du har skickat granskar REGA-teamet din annons. Den publiceras först efter godkännande.",
       "pinConfirmed": "Bekräftad på kartan",
       "pinMissing": "Inte satt ännu",
-      "draftChanged": "Det här utkastet har redan skickats eller granskats. Ladda om sidan innan du redigerar."
+      "draftChanged": "Det här utkastet har redan skickats eller granskats. Ladda om sidan innan du redigerar.",
+      "step4": "Tider",
+      "step5": "Bilder & klart",
+      "stepOf": "Steg {n} av {total}: {name}",
+      "completed": "klart"
     },
     "categorySearch": "Sök kategorier",
     "optionalDetails": "Valfria uppgifter",
@@ -730,7 +749,75 @@
     "exceptionHours": "Tider",
     "exceptionReason": "Anledning (valfritt, offentligt)",
     "exceptionRemove": "Ta bort",
-    "exceptionAdd": "Lägg till stängning eller avvikande öppettider"
+    "exceptionAdd": "Lägg till stängning eller avvikande öppettider",
+    "socialHint": "Allt är valfritt. Lägg bara till plattformarna du använder: profillänk eller @namn.",
+    "socialInvalid": "Ange en giltig {platform}-profillänk (https://…) eller @namn.",
+    "optional": "valfritt",
+    "titleBasics": "Grunduppgifter",
+    "titleContact": "Kontaktuppgifter",
+    "titleSocial": "Sociala medier",
+    "titleLocation": "Plats och adress",
+    "titleMedia": "Logotyp och bilder",
+    "locationHint": "Ange adressen, hitta platsen och bekräfta den på kartan.",
+    "sameAsPhone": "Samma som telefon",
+    "emailInvalid": "Ange en giltig e-postadress, t.ex. name@example.com",
+    "websiteInvalid": "Ange en giltig webbadress, t.ex. example.com",
+    "socialClear": "Ta bort {platform}",
+    "pinConfirmedTitle": "Platsen är fastställd",
+    "pinConfirmedText": "Adressen är bekräftad på kartan.",
+    "advancedCoords": "Avancerat: koordinater",
+    "saving": "Sparar…",
+    "hoursEditor": {
+      "hint": "Välj öppet eller stängt för varje dag och ange tiderna. Delade tider (t.ex. 09:00–12:00 och 14:00–18:00) och över midnatt (t.ex. 20:00–02:00) stöds.",
+      "notSet": "Inga öppettider ännu. Utan dem visas företaget aldrig som ”öppet”.",
+      "add": "Lägg till öppettider",
+      "clear": "Ta bort alla öppettider",
+      "open": "Öppet",
+      "closed": "Stängt",
+      "allDay": "Öppet dygnet runt",
+      "from": "från",
+      "to": "till",
+      "addRange": "Lägg till ett tidsintervall",
+      "removeRange": "Ta bort intervallet",
+      "copyAll": "Kopiera måndag till alla dagar",
+      "copyWeekdays": "Till vardagar (mån–fre)",
+      "overnight": "Stänger nästa dag (efter midnatt).",
+      "invalid": "Ange start- och sluttid; de måste skilja sig.",
+      "unknown": "Ej angivet"
+    },
+    "media": {
+      "hint": "1 logotyp och 3 reklambilder. Allt är valfritt; reklambild 1 är profilens huvudbild.",
+      "uploadLogo": "Ladda upp logotyp",
+      "addPhoto": "Lägg till bild",
+      "promo": "Reklambild {n}",
+      "morePhotos": "Fler reklambilder",
+      "uploading": "Laddar upp…",
+      "dropHere": "eller dra en bild hit"
+    },
+    "features": {
+      "title": "Kategoridetaljer",
+      "hint": "Markera det som gäller ditt företag. Allt är valfritt.",
+      "items": {
+        "wheelchair": "Rullstolsanpassat",
+        "parking": "Parkering",
+        "cardPayment": "Kortbetalning",
+        "delivery": "Leverans",
+        "takeaway": "Avhämtning",
+        "halal": "Halal",
+        "vegetarian": "Vegetariska alternativ",
+        "outdoorSeating": "Uteservering",
+        "appointment": "Tidsbokning",
+        "homeVisits": "Hembesök",
+        "walkIns": "Drop-in",
+        "repairService": "Reparationer",
+        "onlineLessons": "Lektioner online",
+        "freeConsultation": "Gratis första konsultation",
+        "onlineAppointments": "Möten online",
+        "freeQuote": "Gratis offert",
+        "serviceAtCustomer": "Service hos kunden",
+        "onlineBooking": "Bokning online"
+      }
+    }
   },
   "contact": {
     "title": "Kontakt",
@@ -1292,7 +1379,7 @@
     "moveEarlier": "Flytta tidigare",
     "moveLater": "Flytta senare",
     "galleryHint": "En omslagsbild och upp till 3 bilder till. Ordningen används på profilsidan.",
-    "overLimit": "Den här annonsen har redan fler än 3 bilder. Alla sparas; nya bilder kan läggas till när färre än 3 återstår."
+    "overLimit": "Annonsen har fler bilder än platser. Alla sparas; en ny bild kan läggas till när en plats är ledig."
   },
   "ops": {
     "title": "Driftcenter",

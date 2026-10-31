@@ -21,6 +21,7 @@ import { Ltr, Text } from "@/components/ui/Bidi";
 import { Rating } from "@/components/ui/Rating";
 import { VerifiedBadge } from "@/components/ui/Badge";
 import { Avatar } from "@/components/ui/Avatar";
+import { responsiveImage } from "@/features/business-images/variants";
 import { DEFAULT_MAP_STYLE_URL, mapStyleUrl } from "@/lib/map-config";
 import type { MapLabels } from "@/components/map/DiscoveryMap";
 
@@ -52,6 +53,8 @@ export type NearbyInitial = { open?: boolean; category?: string; q?: string; rad
 export function NearbyDiscovery({ cities, categories, initial }: { cities: NearbyCity[]; categories: NearbyCategory[]; initial?: NearbyInitial }) {
   const t = useTranslations("nearby");
   const tm = useTranslations("map");
+  const tc = useTranslations("common");
+  const tb = useTranslations("businesses");
   const locale = useLocale() as Locale;
   const pageLang = LOCALE_META[locale].htmlLang;
   const dir = LOCALE_META[locale].dir;
@@ -421,37 +424,62 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
       )}
 
       {view === "list" && items.length > 0 && (
-        <ul className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3" data-testid="nearby-results">
-          {items.map((it) => {
-            const name = localize(it.business, "name", locale);
-            const city = it.city ? localize({ ...it.city, name: it.city.nameEn }, "name", locale) : null;
-            return (
-              <li key={it.id} className="rega-card relative flex flex-col gap-3 p-5">
-                <div className="flex items-start justify-between gap-3">
-                  <h3 className="min-w-0 text-base font-bold">
-                    <Link href={`/business/${it.business.slug}`} className="hover:underline"><Text value={name} pageLang={pageLang} /></Link>
-                  </h3>
-                  <span className="shrink-0 rounded-full bg-brand-soft px-2.5 py-0.5 text-xs font-bold text-brand-text" data-testid="nearby-distance">{distance(it)}</span>
-                </div>
-                <div className="flex flex-wrap items-center gap-2 text-sm">
-                  <Rating value={it.business.ratingAvg} count={it.business.ratingCount} />
-                  {it.business.verified && <VerifiedBadge />}
-                  {openBadge(it.openNow)}
-                </div>
-                <address className="text-sm not-italic text-muted">
-                  <Ltr>{it.addressLine1}</Ltr>{it.postalCode && <>, <Ltr>{it.postalCode}</Ltr></>}{city && <> · <Text value={city} pageLang={pageLang} /></>}
-                </address>
-                <div className="mt-auto flex flex-wrap gap-2 pt-1 text-sm font-semibold">
-                  <button type="button" className="inline-flex min-h-10 items-center gap-1.5 rounded-xl border border-line px-3 hover:border-brand hover:text-brand-text" onClick={() => { setView("map"); setSelected(it.id); }}>
-                    <MapIcon />{t("showOnMap")}
-                  </button>
-                  {it.phone && <a className="inline-flex min-h-10 items-center rounded-xl border border-line px-3 hover:border-brand hover:text-brand-text" href={`tel:${it.phone.replace(/[^\d+]/g, "")}`}>{t("call")}</a>}
-                  <Link className="inline-flex min-h-10 items-center rounded-xl bg-brand px-3 text-brand-ink hover:bg-brand-hover" href={`/business/${it.business.slug}`}>{t("details")}</Link>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
+        <section aria-labelledby="nearby-nearest" className="mt-6">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <h2 id="nearby-nearest" className="text-lg font-bold sm:text-xl">{t("nearestTitle")}</h2>
+            <Link href="/businesses" className="inline-flex min-h-10 items-center text-sm font-semibold text-brand-text hover:underline">{tc("all")}</Link>
+          </div>
+          <ul className="grid grid-cols-2 gap-3 min-[400px]:gap-4 lg:grid-cols-3" data-testid="nearby-results">
+            {items.map((it) => {
+              const name = localize(it.business, "name", locale);
+              const city = it.city ? localize({ ...it.city, name: it.city.nameEn }, "name", locale) : null;
+              const category = it.category ? localize({ ...it.category, name: it.category.nameDe }, "name", locale) : null;
+              return (
+                <li key={it.id} className="group relative flex min-w-0 flex-col overflow-hidden rounded-2xl border border-line bg-surface shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-hover)]">
+                  {/* Cover photo, else the business's own logo / initial (never a stock photo). */}
+                  <div className="relative aspect-[4/3] overflow-hidden bg-brand-soft">
+                    {it.business.coverUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img {...responsiveImage(it.business.coverUrl)} sizes="(min-width: 1024px) 33vw, 50vw" alt="" width={480} height={360} loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
+                    ) : (
+                      <div className="absolute inset-0 grid place-items-center"><Avatar name={name.text} src={it.business.logoUrl} size="size-14" /></div>
+                    )}
+                    {it.business.verified && (
+                      <span className="absolute end-2.5 top-2.5 inline-flex min-h-7 max-w-[calc(100%-4rem)] items-center gap-1 rounded-full bg-white px-2.5 text-xs font-bold text-[#15803d] shadow-sm">
+                        <svg viewBox="0 0 24 24" className="size-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden="true"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z" /><path d="m9 12 2 2 4-4" /></svg>
+                        <span className="truncate">{tb("verified")}</span>
+                      </span>
+                    )}
+                    {it.openNow === true && <span className="absolute bottom-2.5 start-2.5 inline-flex min-h-7 items-center rounded-full bg-[#15803d] px-3 text-xs font-bold text-white shadow-sm">{t("open")}</span>}
+                    <button type="button" aria-label={`${t("showOnMap")} – ${name.text}`} title={t("showOnMap")} onClick={() => { setView("map"); setSelected(it.id); }}
+                      className="absolute start-2.5 top-2.5 z-10 grid size-9 place-items-center rounded-full bg-white text-slate-900 shadow-sm hover:text-brand-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand">
+                      <MapIcon />
+                    </button>
+                  </div>
+                  <div className="flex min-w-0 flex-1 flex-col p-3 sm:p-4">
+                    <h3 className="line-clamp-2 text-base font-bold leading-snug [overflow-wrap:anywhere]">
+                      <Link href={`/business/${it.business.slug}`} className="after:absolute after:inset-0 after:content-[''] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand"><Text value={name} pageLang={pageLang} /></Link>
+                    </h3>
+                    {category && <p className="mt-0.5 truncate text-sm text-muted"><Text value={category} pageLang={pageLang} /></p>}
+                    <div className="mt-auto flex items-center justify-between gap-2 pt-3 text-sm">
+                      <span className="inline-flex min-w-0 items-center gap-1 text-muted">
+                        <svg viewBox="0 0 24 24" className="size-4 shrink-0 text-brand-text" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z" /><circle cx="12" cy="10" r="2.5" /></svg>
+                        <span className="truncate">{city && <><Text value={city} pageLang={pageLang} /> · </>}<span data-testid="nearby-distance">{distance(it)}</span></span>
+                      </span>
+                      {it.business.ratingCount > 0 && (
+                        <span className="inline-flex shrink-0 items-center gap-1 font-bold" title={tb("reviewsCount", { count: formatNumber(it.business.ratingCount, locale) })}>
+                          <bdi>{formatNumber(it.business.ratingAvg, locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}</bdi>
+                          <svg viewBox="0 0 24 24" className="size-4 text-sun" fill="currentColor" aria-hidden="true"><path d="m12 3 2.7 5.6 6.1.8-4.5 4.3 1.1 6.1L12 16.9 6.6 19.8l1.1-6.1L3.2 9.4l6.1-.8L12 3Z" /></svg>
+                          <span className="sr-only">{tb("reviewsCount", { count: formatNumber(it.business.ratingCount, locale) })}</span>
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
       )}
 
       {view === "list" && status === "ready" && page < pages && (
@@ -462,14 +490,6 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
       <p className="mt-6 text-xs text-muted">{t("privacy")}</p>
     </section>
   );
-
-  function openBadge(value: boolean | null) {
-    return (
-      <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${value === true ? "bg-[oklch(0.95_0.05_150)] text-[oklch(0.4_0.12_150)]" : "bg-surface-2 text-muted"}`}>
-        {value === true ? t("open") : value === false ? t("closed") : t("hoursUnknown")}
-      </span>
-    );
-  }
 
   function stackList(ids: string[]) {
     const rows = mapList.filter((it) => ids.includes(it.id));

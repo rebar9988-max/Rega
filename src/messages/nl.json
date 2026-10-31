@@ -233,7 +233,12 @@
     "readMore": "Lees meer",
     "readLess": "Minder tonen",
     "photoCount": "{count} foto’s",
-    "openPhoto": "Foto {n} openen"
+    "openPhoto": "Foto {n} openen",
+    "tabHours": "Tijden",
+    "noAbout": "Nog geen beschrijving.",
+    "hoursSoon": "Openingstijden volgen binnenkort.",
+    "socialProfiles": "Sociale media",
+    "socialProfile": "{platform} (nieuw venster)"
   },
   "services": {
     "title": "Diensten",
@@ -444,7 +449,16 @@
     "messages": "Berichten",
     "reviews": "Recensies",
     "operations": "Operaties",
-    "searchAnalytics": "Zoekanalyse"
+    "searchAnalytics": "Zoekanalyse",
+    "notifications": "Meldingen",
+    "notificationsEmpty": "Er wacht niets.",
+    "notif_pendingBusinesses": "Bedrijven wachten op controle: {count}",
+    "notif_pendingReviews": "Beoordelingen te modereren: {count}",
+    "notif_openReports": "Open meldingen: {count}",
+    "notif_newMessages": "Nieuwe berichten: {count}",
+    "filterActor": "E-mail van gebruiker",
+    "filterApply": "Filteren",
+    "filterReset": "Wissen"
   },
   "form": {
     "name": "Naam",
@@ -586,7 +600,8 @@
     "temporarilyClosed": "Tijdelijk gesloten",
     "opensOnDate": "Weer open op {date} om {time}",
     "holidayToday": "Feestdag: {name}",
-    "specialHoursToday": "Vandaag afwijkende openingstijden"
+    "specialHoursToday": "Vandaag afwijkende openingstijden",
+    "nearestTitle": "Dichtstbijzijnde diensten"
   },
   "map": {
     "title": "Kaart",
@@ -608,7 +623,7 @@
   },
   "bizForm": {
     "new": "Nieuw bedrijf",
-    "edit": "Bewerken",
+    "edit": "Wijzigen",
     "newTitle": "Nieuw bedrijf",
     "editTitle": "Bedrijf bewerken",
     "sectionBasics": "Bedrijf",
@@ -701,9 +716,9 @@
     "mediaInvalid": "Een foto kon niet worden geaccepteerd. Upload hem opnieuw met de uploadknop.",
     "wizard": {
       "steps": "Registratiestappen",
-      "step1": "Bedrijf en locatie",
-      "step2": "Logo en afbeeldingen",
-      "step3": "Controleren en indienen",
+      "step1": "Gegevens",
+      "step2": "Contact",
+      "step3": "Locatie",
       "next": "Volgende",
       "back": "Terug",
       "saveDraft": "Concept opslaan",
@@ -714,7 +729,11 @@
       "reviewHint": "Na het indienen controleert het REGA-team je vermelding. Ze wordt pas na goedkeuring gepubliceerd.",
       "pinConfirmed": "Bevestigd op de kaart",
       "pinMissing": "Nog niet geplaatst",
-      "draftChanged": "Dit concept is al ingediend of gecontroleerd. Laad de pagina opnieuw voordat je bewerkt."
+      "draftChanged": "Dit concept is al ingediend of gecontroleerd. Laad de pagina opnieuw voordat je bewerkt.",
+      "step4": "Tijden",
+      "step5": "Foto's & afronden",
+      "stepOf": "Stap {n} van {total}: {name}",
+      "completed": "voltooid"
     },
     "categorySearch": "Categorieën zoeken",
     "optionalDetails": "Optionele gegevens",
@@ -730,7 +749,75 @@
     "exceptionHours": "Tijden",
     "exceptionReason": "Reden (optioneel, openbaar)",
     "exceptionRemove": "Verwijderen",
-    "exceptionAdd": "Sluiting of afwijkende tijden toevoegen"
+    "exceptionAdd": "Sluiting of afwijkende tijden toevoegen",
+    "socialHint": "Alles is optioneel. Voeg alleen de platforms toe die u gebruikt: profiellink of @naam.",
+    "socialInvalid": "Vul een geldige {platform}-profiellink (https://…) of @naam in.",
+    "optional": "optioneel",
+    "titleBasics": "Basisgegevens",
+    "titleContact": "Contactgegevens",
+    "titleSocial": "Sociale media",
+    "titleLocation": "Locatie en adres",
+    "titleMedia": "Logo en foto's",
+    "locationHint": "Vul het adres in, zoek de locatie en bevestig die op de kaart.",
+    "sameAsPhone": "Zelfde als telefoon",
+    "emailInvalid": "Vul een geldig e-mailadres in, bijv. name@example.com",
+    "websiteInvalid": "Vul een geldig websiteadres in, bijv. example.com",
+    "socialClear": "{platform} verwijderen",
+    "pinConfirmedTitle": "Locatie vastgelegd",
+    "pinConfirmedText": "Dit adres is op de kaart bevestigd.",
+    "advancedCoords": "Geavanceerd: coördinaten",
+    "saving": "Opslaan…",
+    "hoursEditor": {
+      "hint": "Kies per dag open of gesloten en stel de tijden in. Gesplitste tijden (bijv. 09:00–12:00 en 14:00–18:00) en tot na middernacht (bijv. 20:00–02:00) zijn mogelijk.",
+      "notSet": "Nog geen openingstijden. Zonder tijden wordt het bedrijf nooit als ‘open’ getoond.",
+      "add": "Openingstijden toevoegen",
+      "clear": "Alle openingstijden verwijderen",
+      "open": "Open",
+      "closed": "Gesloten",
+      "allDay": "24 uur open",
+      "from": "van",
+      "to": "tot",
+      "addRange": "Nog een tijdvak toevoegen",
+      "removeRange": "Dit tijdvak verwijderen",
+      "copyAll": "Maandag naar alle dagen kopiëren",
+      "copyWeekdays": "Naar werkdagen (ma–vr)",
+      "overnight": "Sluit de volgende dag (na middernacht).",
+      "invalid": "Vul begin- en eindtijd in; ze moeten verschillen.",
+      "unknown": "Niet ingesteld"
+    },
+    "media": {
+      "hint": "1 logo en 3 promotiefoto's. Alles optioneel; promotiefoto 1 is de hoofdafbeelding van uw profiel.",
+      "uploadLogo": "Logo uploaden",
+      "addPhoto": "Foto toevoegen",
+      "promo": "Promotiefoto {n}",
+      "morePhotos": "Meer promotiefoto's",
+      "uploading": "Uploaden…",
+      "dropHere": "of sleep een foto hierheen"
+    },
+    "features": {
+      "title": "Categoriedetails",
+      "hint": "Vink aan wat op uw bedrijf van toepassing is. Alles is optioneel.",
+      "items": {
+        "wheelchair": "Rolstoeltoegankelijk",
+        "parking": "Parkeren",
+        "cardPayment": "Pinbetaling",
+        "delivery": "Bezorging",
+        "takeaway": "Afhalen",
+        "halal": "Halal",
+        "vegetarian": "Vegetarische opties",
+        "outdoorSeating": "Terras",
+        "appointment": "Op afspraak",
+        "homeVisits": "Huisbezoeken",
+        "walkIns": "Zonder afspraak",
+        "repairService": "Reparatieservice",
+        "onlineLessons": "Online lessen",
+        "freeConsultation": "Gratis eerste consult",
+        "onlineAppointments": "Online afspraken",
+        "freeQuote": "Gratis offerte",
+        "serviceAtCustomer": "Service op locatie",
+        "onlineBooking": "Online boeken"
+      }
+    }
   },
   "contact": {
     "title": "Contact",
@@ -1292,7 +1379,7 @@
     "moveEarlier": "Naar voren",
     "moveLater": "Naar achteren",
     "galleryHint": "Eén omslagafbeelding en maximaal 3 andere afbeeldingen. De volgorde wordt op de profielpagina gebruikt.",
-    "overLimit": "Deze vermelding heeft al meer dan 3 afbeeldingen. Ze blijven allemaal bewaard; nieuwe afbeeldingen kunnen worden toegevoegd zodra er minder dan 3 over zijn."
+    "overLimit": "Deze vermelding heeft meer foto's dan plaatsen. Alle blijven bewaard; een nieuwe foto kan worden toegevoegd zodra er een plaats vrij is."
   },
   "ops": {
     "title": "Operatiecentrum",
