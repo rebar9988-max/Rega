@@ -110,6 +110,25 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
     return filters.sort === "distance" ? rows.sort((a, b) => a.distanceKm - b.distanceKm) : rows;
   }, [mapItems, center, filters.sort]);
 
+  const mapListRef = useRef<HTMLUListElement>(null);
+  useEffect(() => {
+    if (!selected || view !== "map") return;
+    const index = mapList.findIndex((item) => item.id === selected);
+    if (index < 0) return;
+    if (index >= mapShown) {
+      setMapShown(Math.ceil((index + 1) / LIST_PAGE) * LIST_PAGE);
+      return;
+    }
+    const list = mapListRef.current;
+    const row = list?.children[index] as HTMLElement | undefined;
+    if (!list || !row || list.clientHeight === 0) return;
+    // Scroll only this pane; selecting a marker must not move the whole page or steal keyboard focus.
+    const offset = row.getBoundingClientRect().top - list.getBoundingClientRect().top;
+    if (offset < 0 || offset + row.offsetHeight > list.clientHeight) {
+      list.scrollTo({ top: list.scrollTop + offset, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
+    }
+  }, [selected, view, mapList, mapShown]);
+
   // Stable marker data: the map only re-fits when the results really change.
   const points = useMemo(() => mapList.map((it) => ({
     id: it.id, lat: it.latitude, lng: it.longitude, label: localize(it.business, "name", locale).text,
@@ -411,7 +430,7 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
       {view === "map" && (
         <div className="mt-4 grid gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
           {/* Large screens: nearest first beside the map (on the reading side: right in RTL). */}
-          <ul className="order-2 hidden max-h-[calc(100dvh-8rem)] min-h-[34rem] space-y-3 overflow-y-auto pe-1 lg:order-1 lg:block" data-testid="nearby-map-list" aria-label={t("list")}>
+          <ul ref={mapListRef} className="order-2 hidden max-h-[calc(100dvh-8rem)] min-h-[34rem] space-y-3 overflow-y-auto pe-1 lg:order-1 lg:block" data-testid="nearby-map-list" aria-label={t("list")}>
             {mapList.slice(0, mapShown).map((it) => {
               const image = it.business.coverUrl ?? it.business.logoUrl;
               const name = localize(it.business, "name", locale);

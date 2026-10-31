@@ -1285,3 +1285,13 @@ expected Latin business names on ckb/ar results. Corrected test to assert preser
 Final browser/hosted CI/deployment/live verification pending; no 100/100 claim. Shell gh credential invalid; connected
 GitHub and Cloudflare apps work. Use existing CI-gated main release path only. Production has not been changed yet.
 
+
+
+### Nearby continuation — Codex — 2026-10-31
+Recovered actual Claude checkpoint `f81ddfe3003cd6bf4591e048123e4da5cbf460f9` on `claude/nearby-map-upgrade-20261030`; no PR existed (GitHub search). Original workspace was clean. Git switch failed and left the recovered tree staged on `work`; preserved patch at `/workspace/scratch/rega-recovery/recovered-staged.patch`. Continued in isolated worktree `/workspace/rega-nearby` on the original branch, merged main `e60db4f` preserving both memory entries. No completed implementation rebuilt.
+
+Implemented checkpoint: existing MapLibre/OpenFreeMap, permission-triggered geolocation and states, haversine/sort/radii/category/open filters, clustering and keyboard buttons, synchronized selection, profile/directions preview, desktop RTL pane, mobile carousel/toggle, all 11 catalogues. Codex adds selected-marker list reveal/scroll respecting reduced motion and focus; Nearby-only use of existing coordinate validator excludes placeholders/invalid positions while general profiles/discovery remain intact. Shared data file change is confined to `nearbyBusinesses`. Added targeted browser regressions.
+
+Local checks: generated missing Prisma clients (no schema changes), typecheck/lint PASS, unit 427 PASS/4 DB skips/0 FAIL, D1 10/10 PASS and docs validation PASS. First Node build PASS; rebuilding after final coordinate guard. Browser checks, hosted CI, merge, deploy and live feature verification remain pending. Claude historical browser counts are REPORTED, not repeated yet.
+Cloudflare read-only deployment check: rega24 deployment `9b59b8bd-d1fb-4859-8daf-5c0f49b86fd4`, version `37560b7a-5d53-4c52-92fc-67495510443c` at 100%; Nearby upgrade NOT deployed. Shell GitHub API and public www.rega24.com access return proxy 403; connected GitHub/Cloudflare work. No paid resources created. No production data/schema/auth/global layout changes.
+Next action: finish final Node build and local desktop/mobile Nearby regression on disposable D1, push original branch, open PR (only if still absent), require full exact-head CI before merge and established exact-main deploy. Verify live map including real basemap tiles and RTL/LTR; no quality score claimed.

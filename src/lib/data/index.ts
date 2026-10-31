@@ -468,6 +468,7 @@ export const NEARBY_MAP_MAX = 500;
  */
 export async function nearbyBusinesses(query: NearbyQuery) {
   const { boundingBox, distanceKm, isOpenNow } = await import("@/lib/geo");
+  const { isMappableCoordinate } = await import("@/lib/coordinates");
   const box = boundingBox(query, query.radiusKm);
   const tokens = searchTokens(query.q);
   const cats = await categoryIds(query.category);
@@ -510,6 +511,7 @@ export async function nearbyBusinesses(query: NearbyQuery) {
     return { ...rest, city: cityRow ? city : null, business, category: category ?? services[0]?.category ?? null, distanceKm: Math.round(distance * 100) / 100, openNow: isOpenNow(openingHours, r.countryCode, undefined, region?.slug) };
   }
   for (const r of rows) {
+    if (!isMappableCoordinate(r.latitude, r.longitude)) continue;
     const item = toItem(r);
     if (item.distanceKm > query.radiusKm) continue;
     if (query.openNow && item.openNow !== true) continue;
