@@ -266,9 +266,11 @@ export function DiscoveryMap({
     el.setAttribute("role", "img");
     el.setAttribute("aria-label", labels.you);
     el.className = "relative size-5";
-    el.innerHTML = '<span class="absolute inset-0 animate-ping rounded-full bg-brand/40"></span><span class="absolute inset-0 rounded-full border-[3px] border-white bg-ink shadow-lift"></span>';
+    el.innerHTML = markerStyle === "pill"
+      ? '<span class="absolute inset-0 animate-ping rounded-full bg-blue-500/40 motion-reduce:animate-none"></span><span class="absolute inset-0 rounded-full border-[3px] border-white bg-blue-600 shadow-lift"></span>'
+      : '<span class="absolute inset-0 animate-ping rounded-full bg-brand/40"></span><span class="absolute inset-0 rounded-full border-[3px] border-white bg-ink shadow-lift"></span>';
     userMarker.current = new lib.Marker({ element: el }).setLngLat([user.lng, user.lat]).addTo(map);
-  }, [status, user, labels.you]);
+  }, [status, user, labels.you, markerStyle]);
 
   // ---- Escape closes the open preview, wherever focus is
   useEffect(() => {
@@ -350,13 +352,13 @@ function emptyFc(): GeoJSON.FeatureCollection {
   return { type: "FeatureCollection", features: [] };
 }
 
-// Pill marker colours, swapped as a whole when it is selected (REGA tokens only).
+// Nearby pill colours, swapped as a whole when selected. Teal 700 keeps white text legible.
 const PILL_IDLE = "border-line bg-surface text-ink";
-const PILL_ON = "scale-110 border-brand bg-brand text-brand-ink";
-const PILL_ICON_IDLE = "bg-brand text-brand-ink";
-const PILL_ICON_ON = "bg-brand-ink text-brand";
+const PILL_ON = "scale-110 border-teal-700 bg-teal-700 text-white";
+const PILL_ICON_IDLE = "bg-teal-700 text-white";
+const PILL_ICON_ON = "bg-white text-teal-700";
 const PILL_TAIL_IDLE = "text-surface";
-const PILL_TAIL_ON = "text-brand";
+const PILL_TAIL_ON = "text-teal-700";
 
 function swap(el: Element | null, off: string, on: string, active: boolean) {
   if (!el) return;
