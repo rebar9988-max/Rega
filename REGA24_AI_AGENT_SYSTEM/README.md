@@ -1,37 +1,26 @@
 # REGA24 AI AGENT SYSTEM
 
-Permanent AI & Agent governance and documentation area for **Rega24**.
+**The one and only official AI architecture, central agent system, and single source of truth for Rega24.**
 
-> Status: Foundation documentation only. This folder does not activate agents, change runtime behavior, add dependencies, or alter production services.
+> Foundation and governance documentation. Runtime orchestration and registry implementation status must be verified by repository audit; this documentation alone does not activate agents or change production behavior.
 
-## Mission
+## Absolute rule
+ONE PROJECT. ONE ARCHITECTURE. ONE CENTRAL AI SYSTEM. ONE ORCHESTRATOR. ONE REGISTRY. ONE SOURCE OF TRUTH. ZERO DUPLICATION. €0 ADDITIONAL COST.
 
-Continuously identify, evaluate, document, and safely deliver useful AI/Agent improvements that make Rega24 more helpful, reliable, accessible, secure, and easy to use.
-
-## Non-negotiable principles
-
-- **€0 budget / 100% free operation:** no paid APIs, subscriptions, hosted agents, or services. Prefer existing infrastructure and genuinely free/local/open-source options. Re-check free-tier limits and terms before adoption; never assume a service is free.
-- **Audit first, incremental delivery:** inspect the existing system and evidence before proposing or changing anything.
-- **No rebuild:** preserve the current architecture, data, authentication, RBAC, APIs, routes, localization, RTL/LTR behavior, and production behavior.
-- **No duplication:** extend existing AI gateway, services, jobs, tools, and patterns where suitable; do not create parallel or competing systems.
-- **Human control:** agents may recommend and prepare changes, but must not perform privileged, destructive, financial, public, or production-impacting actions without explicit authorization and existing permission checks.
-- **Security and privacy by default:** least privilege, validated inputs, secret isolation, minimal data access, auditability, rate limits, and safe failure.
-- **Evidence-based quality:** tests, logs, measurable outcomes, and clear PASS / FAIL / BLOCKED reports. Never claim unverified success.
+Every specialist agent, skill, workflow, tool integration, and AI capability is a coordinated module under this central system—not an independent system.
 
 ## Start here
-
 1. [Permanent charter](CHARTER.md)
-2. [Architecture and integration rules](ARCHITECTURE.md)
-3. [Governance and safety](GOVERNANCE.md)
-4. [Roadmap and evaluation process](ROADMAP.md)
-5. [Decision records](DECISIONS.md)
+2. [Unified architecture](ARCHITECTURE.md)
+3. [Governance, security, and reporting](GOVERNANCE.md)
+4. [Central agent registry](AGENT_REGISTRY.md)
+5. [Roadmap](ROADMAP.md)
+6. [Central architecture decisions](DECISIONS.md)
 
-## Existing-system integration
+## Existing infrastructure
+The current repository documents a provider-neutral AI gateway under `src/lib/ai/`. Audit actual files and behavior before changing or extending it. Reuse existing auth/RBAC, business isolation, routes, tools, retrieval, configuration, monitoring, and deployment patterns. Do not create parallel infrastructure.
 
-The repository already contains a provider-neutral AI gateway under `src/lib/ai/`, including provider contracts, routing, fallback, circuit breaking, runtime configuration, and safety controls. Any future work must audit and reuse this implementation before proposing additional infrastructure.
+## Operating rules
+Every capability must be registered before activation and identify its owner, bounded responsibility, inputs/outputs, tools, permission boundary, data scope, central orchestrator integration, €0 verification, monitoring/evaluation, fallback, tests, and rollback/disable method.
 
-This documentation is not permission to enable paid providers. The €0 rule in this charter takes precedence for new AI/Agent work.
-
-## Change process
-
-Every proposed change must state: current evidence, user problem, existing code reused, proposed scope, cost (€0), data and permission boundaries, risks, tests, rollback plan, and verification result. Production changes require the repository's normal review and deployment process plus explicit owner authorization where applicable.
+No paid APIs/services, no rebuild, no destructive changes, no privilege escalation, and no production action without required authorization. Report only evidence-backed PASS / FAIL / BLOCKED / NOT IMPLEMENTED / NOT RUN.
