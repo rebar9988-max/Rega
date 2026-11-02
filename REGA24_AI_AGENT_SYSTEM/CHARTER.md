@@ -1,47 +1,55 @@
 # Permanent Charter — REGA24 AI AGENT SYSTEM
 
-## Identity
-
+## Official identity and single source of truth
 - Project: **Rega24**
 - Repository: `rebar9988-max/Rega`
 - Production identity: `https://www.rega24.com`
-- This folder is the permanent home for AI & Agent principles, architecture notes, evaluations, decisions, and progress records.
+- Official central system: **REGA24 AI AGENT SYSTEM**
+- Authoritative documentation directory: `REGA24_AI_AGENT_SYSTEM/`
+
+## ABSOLUTE ARCHITECTURE RULE — ONE CENTRAL SYSTEM
+Rega24 must have exactly ONE official AI architecture, ONE central AI Agent system, ONE central orchestrator, and ONE authoritative system directory. **REGA24 AI AGENT SYSTEM** is the single source of truth for all AI and Agent operations.
+
+### Mandatory invariants
+1. One central architecture only.
+2. One central orchestrator only.
+3. One official agent registry only: [AGENT_REGISTRY.md](AGENT_REGISTRY.md).
+4. One central configuration and governance layer.
+5. One centralized monitoring and reporting system.
+6. One centralized AI security and permission model.
+7. One centralized research and update process.
+8. All specialist agents operate as coordinated modules under the central orchestrator.
+9. All AI documentation, skills, workflows, and integrations must be registered in or linked from this central system.
+10. Reuse existing infrastructure and implementations before adding anything.
+
+### Prohibited duplication
+Never create a second AI architecture, orchestrator, control center, independent agent system, duplicate registry, monitoring system, update engine, or competing AI directory. Before introducing an agent, framework, service, skill, or workflow, verify whether its responsibility already exists. Improve existing components inside the central architecture.
+
+Every component must have a named owner, bounded responsibility, explicit permission boundary, and documented integration with the central system. Specialist modules are not independent systems and cannot own separate authority, governance, credentials, or control planes.
+
+If centralization creates a technical limitation, document and evaluate it before changing the architecture. Never silently create another system. Any proposal violating this rule is REJECTED by default; if a genuine unavoidable limitation exists, mark BLOCKED and obtain explicit owner approval before any architecture change.
+
+The central orchestrator coordinates agents but must never bypass existing Rega24 authentication, RBAC, BusinessMember isolation, or owner permissions.
 
 ## Mission
+Deliver useful, reliable, accessible AI capabilities that help people find services quickly, understand information, communicate across supported languages, and trust directory information.
 
-Make Rega24 progressively more useful through safe, practical AI and agent capabilities. Prioritize improvements that help people find services quickly, understand information, communicate across supported languages, and trust the accuracy of directory information.
+## Absolute operating constraints
+- **€0 additional cost:** no paid APIs, paid model endpoints, subscriptions, metered services, or services requiring a credit card. Verify current terms and limits; if zero cost cannot be guaranteed, mark BLOCKED.
+- Preserve existing application architecture, data, authentication/RBAC, APIs, routes, localization, RTL/LTR, and production behavior.
+- No rebuild, parallel architecture, destructive database operation, breaking change, or production-impacting action without explicit approval.
+- Reuse the existing AI gateway, tools, retrieval, jobs, monitoring, configuration, and shared utilities.
+- Never commit secrets or private user data.
+- Agents cannot elevate privileges, bypass authorization, or act as SUPER_ADMIN.
+- Consequential writes, publishing, messaging, payments, account changes, and deployments require explicit authorization and existing safeguards.
+- Preserve accessibility, performance, privacy, and graceful fallback.
+- Report truthfully using PASS / FAIL / BLOCKED / NOT RUN with evidence.
 
-## Absolute constraints
+## Required workflow
+`DISCOVER → AUDIT → REGISTER → DESIGN → RISK REVIEW → IMPLEMENT (approved scope only) → TEST → REVIEW → DEPLOY (authorized only) → VERIFY → DOCUMENT`
 
-1. **Zero budget:** target and maintain €0 additional spend. Do not introduce paid APIs, paid model endpoints, subscriptions, metered services, or services that require a credit card. If a free tier has quotas, expiry, or changing terms, document them and design graceful degradation. If €0 cannot be guaranteed, mark the proposal BLOCKED and ask the owner.
-2. **Preserve the existing platform:** no rewrite, rebuild, framework replacement, broad refactor, or parallel architecture.
-3. **Preserve data and behavior:** no destructive database operations, data loss, breaking API changes, route changes, auth/RBAC weakening, or production behavior changes without explicit approval.
-4. **Reuse before adding:** inspect existing AI gateway, retrieval, providers, rate limits, audit logs, feature flags, scheduled jobs, and shared utilities before creating anything.
-5. **No secrets in source:** never commit API keys, tokens, credentials, private user data, or production environment values.
-6. **No autonomous privilege escalation:** agents cannot grant roles, bypass authorization, access another business's private data, or act as SUPER_ADMIN.
-7. **No unapproved external actions:** no publishing, messaging, payments, account changes, destructive operations, or production deployment without explicit authorization and existing safeguards.
-8. **Localization is mandatory:** preserve all existing locales, translation workflows, script handling, and RTL/LTR behavior. Do not hardcode user-facing language.
-9. **Accessibility and performance:** maintain keyboard access, semantic UI, responsive behavior, low latency, and graceful behavior when AI is unavailable.
-10. **Truthful reporting:** distinguish implemented, tested, deployed, and production-verified states. Use PASS / FAIL / BLOCKED with evidence.
+## Required proposal record
+Problem and user benefit; evidence; existing component inspected/reused; registry entry; system integration; owner; responsibility; tools and permissions; verified €0 cost; security/privacy risks; tests and acceptance criteria; rollback/disable plan; status.
 
-## Operating sequence
-
-`DISCOVER → AUDIT → DEFINE → DESIGN → RISK REVIEW → IMPLEMENT (approved scope only) → TEST → REVIEW → DEPLOY (authorized only) → VERIFY → DOCUMENT`
-
-## Required proposal template
-
-- Problem and user benefit
-- Evidence and current behavior
-- Existing modules inspected and reused
-- Proposed minimal change
-- Why an agent is needed (or why deterministic code is better)
-- Estimated cost: must be €0
-- Data accessed and permission boundary
-- Security, privacy, abuse, and failure analysis
-- Tests and measurable acceptance criteria
-- Rollback / disable strategy
-- Status: PASS / FAIL / BLOCKED
-
-## Quality target
-
-Aim for production-grade quality, not a numerical promise. A feature is not 100/100 merely because code was written. It must meet documented acceptance criteria, pass relevant tests, preserve existing behavior, and be verified in the environment where it is claimed to work.
+## Quality rule
+Aim for production-grade quality. Never claim 100/100 without acceptance evidence, relevant tests, preserved behavior, and verification in the environment where the claim is made.
