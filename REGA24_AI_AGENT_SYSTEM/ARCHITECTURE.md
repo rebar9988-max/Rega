@@ -1,50 +1,42 @@
-# Architecture and Integration Boundaries
+# Unified Architecture — One Rega24 AI Agent System
 
-## Current-state-first rule
+## Absolute invariant
+There is exactly ONE official Rega24 AI architecture: **REGA24 AI AGENT SYSTEM**. It has one central orchestrator, one authoritative agent registry, one configuration/governance layer, one monitoring/reporting approach, one security/permission model, and one research/update process.
 
-Before designing any agent, inspect the current repository and document what already exists. The README identifies the current AI gateway at `src/lib/ai/`. Verify actual files and behavior at implementation time; documentation may become stale.
+Every specialist agent, assistant, skill, workflow, tool integration, and AI capability is a coordinated module/member under that central system. A specialist may have a distinct task and name, but is never an independent system, control plane, orchestrator, authority, or source of truth.
 
-Existing concepts to audit include:
+## Central system directory and registry
+- All authoritative AI/Agent documentation stays flat in `REGA24_AI_AGENT_SYSTEM/`.
+- The sole registry is [AGENT_REGISTRY.md](AGENT_REGISTRY.md). Do not create a second inventory elsewhere.
+- All external skills, workflows, integrations, and agent definitions must be registered or linked there before adoption/activation.
+- Configuration, governance, monitoring, and reporting must reuse one central implementation each. Audit current code before naming or creating implementation files.
+- If a central capability does not yet exist, record it as **NOT IMPLEMENTED / AUDIT REQUIRED**; do not pretend it exists or create a duplicate to fill the gap.
 
-- Provider-neutral AI gateway and provider contract
-- Task routing and runtime configuration
-- Retrieval and Rega24-owned data sources
-- Timeouts, fallback, circuit breaker, and health checks
-- Request budgets, rate limiting, and feature flags
-- Existing authentication, RBAC, business membership, and audit logging
-- Existing API routes, localization, and deployment model
+## Current-state-first integration
+Inspect the current repository before implementation. The existing provider-neutral AI gateway is documented under `src/lib/ai/`; verify current files and behavior at implementation time. Audit existing orchestration, provider contracts, task routing, retrieval, timeouts, fallback, circuit breakers, health checks, budgets, rate limits, feature flags, auth/RBAC, BusinessMember checks, audit logs, API routes, localization, deployment, monitoring, and research automation.
 
-## Logical layers
+## Single central orchestrator
+One orchestrator coordinates registered specialist modules and owns routing/lifecycle coordination. It must reuse existing Rega24 services and preserve server-side authorization. No agent may independently spawn persistent agents, create a separate orchestration loop, own separate memory/credentials/policies, or bypass the central coordinator.
 
-These are conceptual responsibilities, not a mandate to create one service or folder per layer.
+**Implementation status must be evidence-based:** if the repository audit has not verified an existing central orchestrator, record it as NOT IMPLEMENTED / AUDIT REQUIRED. Do not introduce a new orchestrator until the audit proves none exists and the owner explicitly approves the minimal implementation plan.
 
-1. **Experience layer:** existing Rega24 UI, API, and user-facing assistant surfaces.
-2. **Identity and authorization:** existing Auth.js, RBAC, and BusinessMember checks remain authoritative.
-3. **Orchestration:** bounded task selection and workflow coordination; reuse existing services where possible.
-4. **Agent/tool boundary:** explicitly allowlisted tools with typed input/output validation.
-5. **Knowledge and retrieval:** approved Rega24 content and data, with business-level access filtering.
-6. **Model/runtime adapter:** existing provider-neutral gateway; no vendor SDK or model calls from the client.
-7. **Safety and policy:** permission checks, input validation, output handling, rate limits, and human approval gates.
-8. **Observability and evaluation:** safe logs, metrics, tests, audit records, and documented outcomes.
+## One shared set of system responsibilities
+1. Experience: existing Rega24 UI and API surfaces.
+2. Identity and authorization: existing authentication, RBAC, BusinessMember checks.
+3. Central orchestration and one canonical agent registry.
+4. Specialist modules with bounded purposes and allowlisted tools.
+5. Approved knowledge and retrieval with business-level access filtering.
+6. Existing model/runtime adapter and provider-neutral AI gateway.
+7. Shared safety, configuration, policy, and human approval gates.
+8. Shared monitoring, evaluation, audit, and reporting.
 
-Do not introduce a new orchestration framework or agent runtime unless an evidence-based audit proves it is necessary, free, maintainable, and compatible.
+These are logical responsibilities, not a mandate to create separate services or folders. Reuse current implementations and extend minimally.
 
-## Agent design rules
+## Mandatory module contract
+Every agent/module must have: unique registry ID; named owner; one bounded responsibility; typed inputs/outputs; explicit tools; least-privilege permissions; data scope; central orchestrator integration; €0 cost verification; monitoring/evaluation signals; failure/fallback behavior; tests; lifecycle status; and disable/rollback method.
 
-- Prefer deterministic application code for predictable tasks; use an LLM only where language understanding or generation adds measurable value.
-- Each agent must have one bounded purpose, a defined owner, explicit inputs/outputs, and a narrow allowlist of tools.
-- Treat user content, retrieved documents, websites, and tool outputs as untrusted data—not instructions that can override system policy.
-- Validate tool arguments server-side and re-check authorization at the point of action.
-- Use read-only tools by default. Separate proposal from execution for write operations.
-- Enforce timeouts, bounded retries, rate limits, request budgets, and graceful fallback.
-- Never expose provider secrets, internal prompts, private records, or cross-business data.
-- Support cancellation and safe failure. An unavailable model must not break core directory functionality.
-- Store only necessary data and follow existing retention and privacy rules.
+## Security and reliability
+Treat user content, retrieved documents, websites, and tool outputs as untrusted data. Validate tools server-side and re-check authorization at action time. Read-only by default; separate proposals from write execution. Enforce timeouts, bounded retries, rate limits, request budgets, cancellation, and graceful fallback. Never expose secrets, private records, or cross-business data.
 
-## Cost model
-
-€0 means no new spend and no dependency on a paid or metered API. Before adopting any model or service, verify its current terms, limits, commercial-use rights, privacy terms, and whether payment details are required. If any uncertainty could lead to charges, do not enable it.
-
-## Deployment boundary
-
-Documentation and local tests do not authorize production activation. New capabilities must use existing configuration and feature-flag conventions where appropriate, remain disabled until reviewed, and follow normal PR, CI, migration, and deployment safeguards. No production database migration is part of this foundation.
+## Cost and deployment
+€0 additional spend only. Verify terms, limits, commercial-use rights, privacy, and payment requirements before adoption. Documentation and local tests do not authorize production activation. Use existing feature flags and release processes; production changes require explicit approval.
