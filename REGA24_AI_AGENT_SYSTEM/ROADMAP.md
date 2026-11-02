@@ -1,64 +1,35 @@
-# Roadmap and Continuous Improvement
+# Roadmap — One Central AI Agent System
 
-This roadmap is intentionally staged. It does not authorize implementation or production activation.
+This roadmap evolves one system only. It does not authorize a parallel platform or production activation.
 
-## Phase 0 — Baseline audit
+## Phase 0 — Audit the existing single system
+- Map existing AI gateway, orchestration, agents, tools, registry/inventory, configuration, governance, monitoring, research/update jobs, routes, providers, retrieval, feature flags, tests, secrets, and costs.
+- Identify every agent-like capability already in the repository and integrations.
+- Map data sensitivity, permissions, and BusinessMember boundaries.
+- Mark each central responsibility EXISTING / PARTIAL / NOT IMPLEMENTED / BLOCKED with file paths and evidence.
+- Do not create missing components until the audit and minimal design are reviewed.
 
-- Inventory current AI gateway, routes, providers, retrieval, feature flags, tests, secrets, logs, and costs.
-- Identify existing agent-like automation before proposing new agents.
-- Map data sensitivity and authorization boundaries.
-- Record baseline latency, reliability, failure modes, and test coverage where measurable.
-- Output: evidence-based audit with PASS / FAIL / BLOCKED findings.
+## Phase 1 — Establish the one source of truth
+- Maintain only `REGA24_AI_AGENT_SYSTEM/AGENT_REGISTRY.md` as the official agent registry.
+- Register existing agents and specialist modules; unknown/unverified items remain explicitly marked pending audit.
+- Link all skills, workflows, integrations, documentation, and ownership records from this central directory.
+- Keep documentation flat; no nested competing AI directories.
 
-## Phase 1 — Prioritize useful opportunities
+## Phase 2 — Integrate and improve, never duplicate
+- Improve existing orchestration, gateway, policy, configuration, monitoring, and reporting in place.
+- Every new specialist capability must be a module registered in the central registry and coordinated by the one orchestrator.
+- Prefer deterministic application logic when it is more reliable.
+- Keep experiments disabled and isolated from production.
 
-Evaluate opportunities by user value, frequency, reliability, accessibility, privacy, security, maintenance burden, and guaranteed €0 cost.
-
-Potential areas to evaluate (not approved implementations):
-
-- Better multilingual service discovery and query understanding
-- Search assistance and spelling/term normalization
-- Business listing completeness and quality suggestions
-- Duplicate or stale listing detection with human review
-- Safe content translation support with user review
-- Internal developer/QA assistance that cannot access production secrets
-
-## Phase 2 — Small, isolated prototypes
-
-- Choose one measurable problem.
-- Prefer existing infrastructure and deterministic logic.
-- Use synthetic or appropriately sanitized test data.
-- Keep prototypes disabled from production.
-- Demonstrate €0 cost and safe fallback.
-
-## Phase 3 — Verification and review
-
-- Unit, integration, and end-to-end tests
-- Authorization and cross-business isolation tests
-- Prompt-injection and tool-abuse tests where applicable
-- Performance, accessibility, and localization checks
-- Security, privacy, licensing, and cost review
-- Owner approval before consequential changes
+## Phase 3 — Verify
+- Unit/integration/E2E tests; permission and cross-business isolation tests; prompt-injection/tool-abuse tests; performance, accessibility, localization, privacy, licensing, and €0 cost checks.
+- Verify that no duplicate orchestrator, registry, configuration, monitoring, security, or update process was introduced.
+- Owner review and approval for consequential changes.
 
 ## Phase 4 — Controlled release
-
 - Use existing feature flags and deployment process.
-- Start disabled or in a non-production environment.
-- Roll out only after explicit authorization.
-- Monitor errors, latency, cost (must remain €0), and user outcomes.
-- Maintain a tested disable/rollback path.
+- Deploy only after explicit authorization.
+- Monitor centrally and maintain a tested disable/rollback path.
 
-## Weekly review format
-
-For each review, record:
-
-1. Date and scope
-2. New evidence or changes in the ecosystem relevant to Rega24
-3. Current-system audit findings
-4. Top three opportunities ranked by user benefit
-5. €0 feasibility and terms verification
-6. Security/privacy and maintenance risks
-7. Recommended next small step
-8. PASS / FAIL / BLOCKED / NOT RUN status
-
-Focus on practical improvements to Rega24—not generic AI news, hype, or feature count. Do not implement merely because a new model or framework exists.
+## Central weekly research and update report
+One process, one report, one source of truth. Record date, verified developments relevant to Rega24, current-system evidence, ranked user-benefit opportunities, €0 feasibility, security/privacy risks, recommended next step, and PASS / FAIL / BLOCKED / NOT RUN. Do not add a separate update engine or duplicate reporting destination.
