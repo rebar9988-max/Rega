@@ -43,3 +43,13 @@ On suspected data exposure, unauthorized action, cost risk, or unsafe behavior, 
 - NOT RUN: check was not executed.
 
 Never claim a capability is deployed or production-verified based only on documentation, local tests, or a merged PR.
+
+
+## Verified implementation boundary — 2026-11-02
+
+- The existing `operations.manage` permission and server-side checks protect the ten deterministic, read-only inspectors under `src/lib/ops/`. Their reports reuse the existing `AuditLog`; scheduled runs remain off.
+- The Operations runner (`src/lib/ops/engine.ts`) is scoped to those inspectors only. The AI model gateway (`src/lib/ai/gateway.ts`) only routes provider calls. Neither is the general-purpose central AI orchestrator.
+- A global agent orchestrator and one cross-module tool authorization contract are **NOT IMPLEMENTED / AUDIT REQUIRED**. Future integration must reuse the existing auth/RBAC and business isolation; it must not introduce another permission authority.
+- The seven model provider adapters can be selected automatically when keys exist because `AI_PROVIDER` defaults to `auto`. The request-count budget does not enforce a euro spend ceiling. Do not claim strict €0 or activate new model routes until provider entitlements, billing behavior, and Cloudflare AI usage are verified.
+- The optional Python Worker is a subordinate semantic service protected by a server-to-server token; it is not an independent agent system or orchestrator. Its Cloudflare AI binding cost must be verified before claiming €0.
+- These are source-level findings only. Production secrets, live provider balances, account-wide Cloudflare usage, and current billing settings are not visible from the repository. No production configuration has been changed.
