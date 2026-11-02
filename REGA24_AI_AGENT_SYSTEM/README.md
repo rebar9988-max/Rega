@@ -24,7 +24,7 @@ Continuously identify, evaluate, document, and safely deliver useful AI/Agent im
 2. [Architecture and integration rules](ARCHITECTURE.md)
 3. [Governance and safety](GOVERNANCE.md)
 4. [Roadmap and evaluation process](ROADMAP.md)
-5. [Decision records](decisions/)
+5. [Decision records](DECISIONS.md)
 
 ## Existing-system integration
 
