@@ -1,52 +1,45 @@
-# Governance, Security, and Safety
+# Central Governance, Security, and Reporting
+
+## Single governance authority
+All AI and Agent components are governed exclusively by **REGA24 AI AGENT SYSTEM**. One central configuration/governance layer and one security/permission model apply to every specialist module. No agent may define independent policies, credentials, permissions, monitoring, memory governance, or approval paths.
+
+## Centralized controls
+- One authoritative registry: [AGENT_REGISTRY.md](AGENT_REGISTRY.md).
+- One central orchestrator coordinates registered agents.
+- One shared configuration and policy authority.
+- One shared authentication/RBAC and business-isolation model.
+- One shared monitoring, evaluation, audit, and reporting approach.
+- One shared research and update process.
+- Reuse existing Rega24 implementations; if any central control is missing, record NOT IMPLEMENTED / AUDIT REQUIRED rather than silently creating a competing service.
 
 ## Permission model
-
-- Existing authentication and RBAC are the source of truth.
-- Every tool call must enforce authorization server-side, for the current user and relevant business.
-- Business data access must respect the existing BusinessMember relationship and business scope.
+- Existing authentication and RBAC remain authoritative.
+- Every tool call enforces authorization server-side for the current user and relevant business.
+- Business data access respects existing BusinessMember relationships and business scope.
 - No agent receives SUPER_ADMIN privileges or inherits permissions from a prompt.
-- Never rely on model-generated claims that a user is authorized.
+- The central orchestrator coordinates only; it cannot grant privileges or bypass owner permissions.
+- Re-check authorization immediately before every sensitive operation.
 
 ## Approval gates
+Explicit owner/authorized-user approval is required for production deployment/configuration changes; migrations, destructive writes, bulk edits, deletion; public publishing/outbound messages; account/role/permission/security changes; financial, billing, advertising, subscription, or payment operations; and adding dependencies/services with cost, licensing, privacy, or operational implications.
 
-Explicit owner or authorized-user approval is required before:
+## Security controls
+Treat retrieved/tool content as untrusted. Use strict schemas, allowlists, output validation, least privilege, rate limits, request budgets, timeouts, bounded retries, secret redaction, and deterministic fallback. Require human confirmation for consequential actions. Test prompt injection, data exfiltration, cross-business access, tool misuse, denial of service, and supply-chain risks.
 
-- Production deployment or production configuration changes
-- Database migrations, destructive writes, bulk edits, or data deletion
-- Public publishing, outbound messages, or changes to user/business accounts
-- Financial, billing, advertising, subscription, or payment-related operations
-- Changing roles, permissions, security settings, or access boundaries
-- Adding any dependency or external service with cost, licensing, privacy, or operational implications
+## Monitoring and reporting
+All modules report through the central monitoring/reporting approach. Do not create per-agent competing dashboards, logs, alerting systems, or update pipelines. Reuse existing telemetry and audit logs; verify what exists before implementation. Logs must minimize personal data and redact secrets.
 
-## Threat handling
-
-Consider prompt injection, malicious user content, poisoned retrieval sources, tool misuse, data exfiltration, cross-tenant access, denial of service, hallucinated facts, unsafe generated code, and dependency/supply-chain risks.
-
-Controls should include:
-
-- Treat retrieved and tool-returned content as untrusted.
-- Keep system policy separate from user/retrieved content.
-- Use strict schemas, allowlists, output validation, and bounded tool permissions.
-- Re-check authorization immediately before every sensitive operation.
-- Redact secrets and personal data from logs; never log prompts or credentials unnecessarily.
-- Apply rate limits, request budgets, timeouts, and bounded retries.
-- Require human confirmation for consequential actions.
-- Provide a deterministic fallback when AI is unavailable or uncertain.
-
-## Evaluation
-
-Each agent or AI feature needs tests for normal behavior, invalid input, prompt injection, permission denial, cross-business isolation, rate limits, timeouts, provider failure, localization, accessibility, and regression risk as relevant.
+## Research and updates
+One centrally coordinated process evaluates AI/Agent developments for Rega24. It must prioritize verified user value, compatibility, €0 cost, privacy, and security—not generic news or hype. Findings and decisions are recorded in this directory and registry.
 
 ## Incident response
+On suspected data exposure, unauthorized action, cost risk, or unsafe behavior, use existing safe controls to disable the affected module, preserve non-sensitive evidence, notify the owner, assess impact, and do not silently resume. No destructive remediation without approval.
 
-On suspected data exposure, unauthorized action, cost risk, or unsafe behavior: disable the affected feature using the existing safe control, preserve relevant non-sensitive evidence, notify the owner, assess impact, and do not silently resume. Do not make destructive remediation changes without approval.
+## Status vocabulary
+- PASS: criteria met with evidence.
+- FAIL: required criterion failed.
+- BLOCKED: missing approval, evidence, or dependency prevents safe progress.
+- NOT IMPLEMENTED / AUDIT REQUIRED: capability is not yet verified as existing.
+- NOT RUN: check was not executed.
 
-## Reporting vocabulary
-
-- **PASS:** acceptance criteria met and supported by test/verification evidence.
-- **FAIL:** a required criterion failed.
-- **BLOCKED:** verification or safe implementation is prevented by missing access, approval, evidence, or a dependency.
-- **NOT RUN:** a check was not executed.
-
-Never describe a change as deployed or production-verified based only on a local test or merged pull request.
+Never claim a capability is deployed or production-verified based only on documentation, local tests, or a merged PR.
