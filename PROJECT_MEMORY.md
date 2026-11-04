@@ -1317,3 +1317,13 @@ Verification: same environment limitation as above — this sandbox cannot reach
 typecheck, unit and E2E are NOT VERIFIED locally. CI must confirm before merge.
 Still not done without further owner sign-off: merge to `main` or deploy (explicitly withheld this time too).
 Next safe continuation point: CI green on the updated push → owner review → merge (owner action).
+
+## CI audit gate — owner decision 2026-11-04 (branch `claude/ci-audit-prod-chain`)
+Root cause: new moderate advisories GHSA-3g3m-2fjr-6pw4 (glob ≤14.0.1) and GHSA-g3hv-75wg-m249 (minimatch <11.0.1)
+made `npm audit --audit-level=low` fail on main (CI 41874005626, d6a6a49) and every PR. Fix: scoped overrides give
+`glob@^14.0.3` (minimatch ^11.0.2) to `@opennextjs/cloudflare` and `@node-minify/core` (replaces `glob@10.3.3` override);
+production audit now 0. eslint plugins (eslintrc, import, react, jsx-a11y) still require minimatch ^3 upstream, and a
+global minimatch 11 override breaks lint, so the owner chose: CI gates `npm audit --omit=dev --audit-level=low` plus
+`npm audit --audit-level=high` (14 moderate dev-only findings tolerated until upstream fixes). Verified locally: lint,
+typecheck, npm test 431/431 with PostgreSQL 16, test:d1 10/10, OpenNext Worker build + wrangler dry-run, 4 Worker smoke
+scripts. Restore `--audit-level=low` on all dependencies once the eslint chain moves to minimatch ≥11.0.1.
