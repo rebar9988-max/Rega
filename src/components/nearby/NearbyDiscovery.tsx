@@ -46,6 +46,22 @@ type Filters = { radius: number; q: string; category: string; open: boolean; sor
 const field = "min-h-11 w-full rounded-xl border border-line bg-surface px-3 text-sm outline-none focus:border-brand";
 const LIST_PAGE = 20;
 
+/**
+ * Whether the visitor's last explicit location choice on this page was "use my location" (not a city). Kept
+ * separately from the shared city preference (location-store.ts) so this page-local memory never changes what
+ * other pages (home, business lists) read as the saved place. Never written to from anywhere but this file.
+ */
+const DEVICE_CHOICE_KEY = "rega-nearby-device";
+function rememberDeviceChoice() {
+  try { window.localStorage.setItem(DEVICE_CHOICE_KEY, "1"); } catch { /* storage blocked: only this visit remembers */ }
+}
+function forgetDeviceChoice() {
+  try { window.localStorage.removeItem(DEVICE_CHOICE_KEY); } catch { /* nothing to remove */ }
+}
+function hadDeviceChoice(): boolean {
+  try { return window.localStorage.getItem(DEVICE_CHOICE_KEY) === "1"; } catch { return false; }
+}
+
 /** Filters that can arrive in the URL (e.g. the home page's "Open now" link: /nearby?open=1). Location never does. */
 export type NearbyInitial = { open?: boolean; category?: string; q?: string; radius?: number; sort?: Filters["sort"] };
 
@@ -56,6 +72,8 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
   const pageLang = LOCALE_META[locale].htmlLang;
   const dir = LOCALE_META[locale].dir;
   const [center, setCenter] = useState<Center | null>(null);
+  const centerRef = useRef(center);
+  centerRef.current = center;
   const [device, setDevice] = useState<{ lat: number; lng: number } | null>(null);
   const [status, setStatus] = useState<Status>("idle");
   const [items, setItems] = useState<Item[]>([]);
@@ -108,6 +126,9 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
         const here = { lat: coarsen(pos.coords.latitude), lng: coarsen(pos.coords.longitude) };
         setDevice(here);
         setCenter({ ...here, label: { kind: "device" } });
+        // The visitor explicitly chose "use my location": remember that choice, the same way a chosen city is
+        // remembered, so a returning visitor who is still permitted is not asked to choose again.
+        rememberDeviceChoice();
       },
       (err) => setStatus(err.code === err.PERMISSION_DENIED ? "denied" : "unavailable"),
       { enableHighAccuracy: false, timeout: 10_000, maximumAge: 5 * 60_000 },
@@ -120,6 +141,8 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
       setCenter({ lat: c.latitude, lng: c.longitude, label: { kind: "city", id } });
       // The same place is then offered on the home page and the business lists (saved in this browser only).
       saveLocation({ cityId: id, countryCode: c.country?.code ?? null });
+      // An explicit city pick replaces any earlier "use my location" choice: it must not be overridden automatically.
+      forgetDeviceChoice();
     }
   }
 
@@ -131,6 +154,22 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
     const lng = city?.longitude;
     if (city && lat != null && lng != null) setCenter((current) => current ?? { lat, lng, label: { kind: "city", id: city.id } });
   }, [cities]);
+
+  // Smart automatic geolocation: only for a returning visitor whose last explicit choice on this page was "use my
+  // location", and only while the browser still shows that permission as already granted (no prompt is ever shown
+  // here; a revoked or still-undecided permission silently falls back to the normal choice screen). A visitor who
+  // has never used this, or who later picked a city instead, is never auto-located.
+  useEffect(() => {
+    if (!hadDeviceChoice()) return;
+    if (typeof navigator === "undefined" || !navigator.geolocation || !navigator.permissions?.query) return;
+    let cancelled = false;
+    navigator.permissions.query({ name: "geolocation" }).then((result) => {
+      // Re-checked here (not only on effect entry): a saved city, or the visitor's own pick, may have set a
+      // center while this permission check was in flight, and that choice must win.
+      if (!cancelled && result.state === "granted" && !centerRef.current) locate();
+    }).catch(() => undefined);
+    return () => { cancelled = true; };
+  }, [locate]);
 
   // Keep the filters in the address bar (never the location), so refresh, back/forward and shared links keep them.
   useEffect(() => {
@@ -294,8 +333,9 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
         <p className="text-sm font-semibold" data-testid="nearby-place">{placeName}</p>
         <div className="flex flex-wrap items-center gap-3">
           {center.label.kind !== "device" && status !== "unsupported" && (
-            <button type="button" className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-text hover:underline" onClick={locate}>
-              <LocateIcon className="size-4" />{t("useLocation")}
+            <button type="button" className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-text hover:underline"
+              onClick={locate} disabled={status === "locating"} aria-busy={status === "locating"} data-testid="nearby-locate-link">
+              <LocateIcon className="size-4" />{status === "locating" ? t("locating") : t("useLocation")}
             </button>
           )}
           <button type="button" className="text-sm font-semibold text-muted hover:text-ink hover:underline" onClick={() => { setCenter(null); setStatus("idle"); setItems([]); setMapItems(null); }}>

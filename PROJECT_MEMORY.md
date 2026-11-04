@@ -1253,3 +1253,31 @@ Initial four-locale browser pass: layout/menus/Escape/axe passed at 320/390/768/
 expected Latin business names on ckb/ar results. Corrected test to assert preserved query value, not untranslated copy.
 Final browser/hosted CI/deployment/live verification pending; no 100/100 claim. Shell gh credential invalid; connected
 GitHub and Cloudflare apps work. Use existing CI-gated main release path only. Production has not been changed yet.
+
+## Nearby: remember "use my location" across visits — 2026-11-04 (feature/nearby-smart-geolocation)
+
+Owner task: smart automatic geolocation + premium GPS control for /nearby, non-destructive, existing architecture only.
+Audit: Nearby never auto-locates on open by design ("no default city"; comment + 2 E2E suites enforce this). No
+floating GPS control exists on the map; only a text "use my location" link above it. Root cause of the gap: a chosen
+city is remembered (`location-store.ts`, shared across pages) but "use my location" never is, so a returning visitor
+who already granted permission is asked again every time.
+Decision: implemented the non-visual half only. Did NOT add automatic geolocation for a visitor who has never used
+it (would silently remove the deliberate, tested "no default location on first visit" guarantee — scope-exceeding
+per the task's own rule 12, reported as a blocker, not built) and did NOT build a new floating circular GPS control
+(new overlay UI/icon/shadow — blocked by the owner's standing non-visual-scope rule; reported, not auto-fixed).
+Changes (`src/components/nearby/NearbyDiscovery.tsx` only): a page-local `rega-nearby-device` localStorage flag,
+separate from the shared city preference, set when "use my location" succeeds and cleared when a city is picked
+instead; a new effect that, only when that flag is set, checks `navigator.permissions.query({name:"geolocation"})`
+and silently re-locates if (and only if) still "granted" and no center was already set by a saved city — never
+prompts, never overrides a manual pick. Existing "use my location" link gets `disabled`/`aria-busy` while locating
+(reused `t("locating")` string, no new classes/colours/icons). Added 2 Playwright cases to `tests/e2e/nearby.spec.ts`
+(returning-visitor auto-locate + first-visit unchanged; city pick forgets the device choice).
+Verification: this sandbox's egress proxy rejects `registry.npmjs.org` for this session (`connect_rejected`), so
+`npm ci` could not complete here — lint/typecheck/unit/E2E are NOT VERIFIED locally (environment limitation, not a
+code failure; same class of gap as the WebKit container limit noted elsewhere in this file). Pushed on
+`feature/nearby-smart-geolocation` as PR for CI (which has registry access) to verify before merge. No schema,
+auth, routing, header/footer, branding or dependency change; no deploy.
+Next safe continuation point: CI green → owner review of the PR → merge. Separately, owner decision needed on (1)
+whether first-time auto-geolocation should override the "no default city" guarantee, and (2) whether to approve a
+new floating GPS recenter control's visual design (colours/icon/shadow already exist in the design system; only a
+net-new overlay element needs owner sign-off under the non-visual-scope rule).
