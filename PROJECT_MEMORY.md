@@ -1253,3 +1253,22 @@ Initial four-locale browser pass: layout/menus/Escape/axe passed at 320/390/768/
 expected Latin business names on ckb/ar results. Corrected test to assert preserved query value, not untranslated copy.
 Final browser/hosted CI/deployment/live verification pending; no 100/100 claim. Shell gh credential invalid; connected
 GitHub and Cloudflare apps work. Use existing CI-gated main release path only. Production has not been changed yet.
+
+## Digital Operations Center — first owner runs in production — 2026-11-01 (verified read-only 2026-11-04)
+
+- D1 `AuditLog` (`action=ops.report`) shows two owner "Run all" executions on 2026-11-01 (17:45 and 17:49 UTC):
+  all 10 agents ran each time, 0 FAIL, 0 BLOCKED, every agent < 3.5 s. Latest: PASS = business, QA, performance,
+  category, translation, content; WARN = security (2), location (1), analytics (1), AI discovery (2).
+- The loop works end to end: the location agent flagged active city `wien` under the deactivated region
+  `seed_region_at_wien` (deactivated 2026-10-22); the owner re-activated the region at 17:51:22 UTC (AuditLog
+  `region.activate`). Read-only check 2026-11-04: city, region and country AT all active.
+- Open warnings need owner decisions, not code changes (agents never change them):
+  1. `ai.public_flag` + `ai.paid_providers`: public AI on with 4 provider keys (gemini, grok, openai, groq) → possible
+     cost. Owner: switch off in `/dr/ai` or set `AI_PROVIDER=disabled` if €0 must be guaranteed.
+  2. `security.auth_secret`: production `AUTH_SECRET` is 16–31 chars (≥32 recommended). Rotation signs everyone out;
+     owner-scheduled secret change in Cloudflare only.
+  3. `security.stored_super_admin`: one non-owner account still stores SUPER_ADMIN (acts as USER). Owner: demote in `/dr/users`.
+  4. `analytics.category_coverage`: 2 of 19 active categories have public businesses — needs real listings, not code.
+- Beta health is green again since #109 (logo probe updated); scheduled runs on `e60db4f` succeed (2026-11-03/04).
+- Not built (needs explicit owner approval, see report): a business-discovery agent that writes drafts from web
+  sources, and a ChatGPT/MCP connector (new authenticated write surface). No production data was changed by agents.
