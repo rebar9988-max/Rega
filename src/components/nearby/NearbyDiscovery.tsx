@@ -307,7 +307,7 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
               {notice && <p role="alert" data-testid="nearby-notice" className="mt-4 rounded-xl bg-brand-soft px-4 py-3 text-sm text-ink">{notice}</p>}
               <div className="mt-6 grid gap-3">
                 {status !== "unsupported" && (
-                  <button type="button" onClick={locate} disabled={status === "locating"} data-testid="nearby-locate"
+                  <button type="button" onClick={() => locate()} disabled={status === "locating"} data-testid="nearby-locate"
                     className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-brand px-5 text-sm font-bold text-brand-ink shadow-sm transition hover:bg-brand-hover disabled:opacity-60">
                     <LocateIcon />
                     {status === "locating" ? t("locating") : t("useLocation")}
@@ -360,7 +360,7 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
         <div className="flex flex-wrap items-center gap-3">
           {center.label.kind !== "device" && status !== "unsupported" && (
             <button type="button" className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-text hover:underline"
-              onClick={locate} disabled={status === "locating"} aria-busy={status === "locating"} data-testid="nearby-locate-link">
+              onClick={() => locate()} disabled={status === "locating"} aria-busy={status === "locating"} data-testid="nearby-locate-link">
               <LocateIcon className="size-4" />{status === "locating" ? t("locating") : t("useLocation")}
             </button>
           )}
