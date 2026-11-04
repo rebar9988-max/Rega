@@ -173,3 +173,55 @@ REPORTED or UNKNOWN. Never invent system information. Never store credentials or
 ### Canonical target and isolated previews — 2026-10-26
 
 The verified existing Rega24 web Worker is `rega24` (stable tag `7b845cda2ee749c89c4f9b83490609b4`), not retired `rega-platform`. This supersedes older REGA Worker labels above; R&L identifiers are unchanged. Candidate release configuration reconciles the guard, deployment, diagnostics and runtime secret targets and adds the read-only `scripts/production-target.mjs` gate. Web releases tag their exact GitHub SHA. Branch previews are deliberately non-ready and block all application/provider/data handlers; `/__preview-health` proves isolation only. Real application/database/browser validation stays in CI with disposable PostgreSQL. Never mistake a green preview upload for a production-ready app. No automatic Neon resource creation/deletion is needed for these PR tests.
+
+## 7. Master Engineering & Token Efficiency Directive (owner instruction, 2026-11-04)
+
+Applies to every Claude Code (and Codex) session working in this repository. Adds to, and never replaces, sections 0–6 above; where it repeats an existing rule, the existing rule still governs.
+
+### 7.1 Non-negotiable rules
+1. Never rebuild Rega24 from scratch. Never replace the existing architecture or create a duplicate system.
+2. Preserve existing code, database, authentication, RBAC, APIs, routes, services, localization, and RTL/LTR support, and existing production behavior.
+3. Audit first. Read only files directly relevant to the requested task. Never scan or reread the entire repository without a proven technical necessity.
+4. Use targeted searches, existing documentation, verified findings, and the smallest relevant code sections.
+5. Minimize token consumption: avoid unnecessary explanations, repeated context, duplicate tool calls, lengthy reports, and irrelevant reasoning output.
+6. Work incrementally. Make the smallest safe change that completely solves the requested problem.
+7. Stay strictly within the requested scope. No unrelated refactoring, redesign, feature expansion, or speculative implementation.
+8. Reuse existing components, utilities, APIs, services, infrastructure, agents, skills, and configurations. Do not create duplicates.
+9. Never invent project status, test results, file contents, deployment results, or technical evidence.
+10. Never perform destructive migrations, delete data, expose secrets, alter production infrastructure, or make risky production changes without explicit authorization.
+11. Maintain Rega24's €0 additional-cost policy. Prefer existing infrastructure and free services. No paid APIs, subscriptions, or services without explicit approval. (Consistent with the owner's standing zero-additional-cost rule.)
+12. Keep all live payment, billing, advertising, and monetization functionality disabled unless explicitly authorized by the project owner.
+13. Preserve the official Rega24 identity, existing design system, localization, and user experience (see section 3, Design preservation).
+14. Do not stop at analysis when implementation is clearly requested and safely possible. Implement, verify, and report.
+15. If a critical blocker, missing permission, or safety risk prevents progress, stop only the affected action and report the exact blocker. Never fabricate a workaround.
+
+### 7.2 Execution protocol
+**Phase 1 — Targeted audit:** identify the exact requested outcome; inspect the minimum relevant files and existing implementation; determine the root cause using evidence; identify the smallest safe implementation; do not produce a lengthy audit report.
+
+**Phase 2 — Implementation:** modify only necessary files; reuse existing patterns and architecture; avoid duplicate logic, unnecessary dependencies, and speculative code; preserve backward compatibility and existing behavior; do not make unrelated changes.
+
+**Phase 3 — Verification:** run the most relevant available tests and checks using existing test infrastructure; verify the actual changed behavior; check for regressions within the affected scope; do not claim success without evidence; do not rerun successful checks without a technical reason.
+
+**Phase 4 — Completion:** review the final diff; remove accidental or unrelated changes; confirm the requested outcome is achieved; report only verified results.
+
+### 7.3 Token optimization
+Minimum necessary context, minimum relevant file reads, minimum safe code changes, minimum tool calls, maximum reuse of verified information, maximum relevant test coverage, no unnecessary long-form output — without sacrificing correctness, security, reliability, or verification.
+
+### 7.4 Quality standard
+Target production-grade quality across: correctness, security, reliability, maintainability, performance, accessibility, localization, compatibility, testability, zero unnecessary complexity. "100/100" is a quality target, not permission to claim perfection without evidence (consistent with section 0.9's reporting standard).
+
+### 7.5 Final response format
+For tasks run under this directive, close with:
+```
+STATUS: PASS / FAIL / BLOCKED
+IMPLEMENTED:
+- Briefly state what changed.
+VERIFICATION:
+- List actual tests and results.
+REMAINING:
+- List only unresolved issues or blockers. Write NONE when no known issues remain.
+```
+Keep this concise — no lengthy explanations unless explicitly requested.
+
+### 7.6 Final authority
+The existing Rega24 system is the source of truth. Preserve it, understand it, improve it incrementally. Never rebuild it from scratch, never invent facts, never expand scope without authorization, never waste tokens on unnecessary work.
