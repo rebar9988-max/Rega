@@ -23,6 +23,34 @@ test("nearby API: distance-sorted, radius-bounded, validated", async ({ request 
 
 test.describe("with location permission", () => {
   test.use({ geolocation: BERLIN, permissions: ["geolocation"] });
+
+  test("a returning visitor who previously used their location is taken straight to results; a first-time visitor still chooses", async ({ page }) => {
+    // First-time visit: nothing remembered yet, so the choice screen still shows, same as before this change.
+    await page.goto("/de/nearby");
+    await expect(page.getByTestId("nearby-locate")).toBeVisible();
+    await expect(page.getByTestId("nearby-results")).toHaveCount(0);
+    await page.getByTestId("nearby-locate").click();
+    await expect(page.getByTestId("nearby-results")).toContainText("Kurdistan Rechtsberatung");
+    // Simulate a later visit: the page-local "used my location" memory this click just wrote is still there, and
+    // the browser still reports the permission as granted, so the page goes straight to results without a click.
+    await page.goto("/de/nearby");
+    await expect(page.getByTestId("nearby-results")).toContainText("Kurdistan Rechtsberatung");
+    await expect(page.getByTestId("nearby-place")).toContainText("Ihrem Standort");
+  });
+
+  test("picking a city instead forgets the earlier 'use my location' choice", async ({ page }) => {
+    await page.goto("/de/nearby");
+    await page.getByTestId("nearby-locate").click();
+    await expect(page.getByTestId("nearby-results")).toContainText("Kurdistan Rechtsberatung");
+    expect(await page.evaluate(() => localStorage.getItem("rega-nearby-device"))).toBe("1");
+    await page.getByTestId("nearby-city-filter").selectOption({ label: "Hamburg" });
+    await expect(page.getByTestId("nearby-place")).toContainText("Hamburg");
+    expect(await page.evaluate(() => localStorage.getItem("rega-nearby-device"))).toBeNull();
+    // Returning later: the saved city wins, GPS is not re-offered automatically, even though permission is granted.
+    await page.goto("/de/nearby");
+    await expect(page.getByTestId("nearby-place")).toContainText("Hamburg");
+  });
+
   test("Near Me finds nearby businesses with distance, filters and map/list views", async ({ page }) => {
     await page.goto("/de/nearby");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("In der Nähe");
