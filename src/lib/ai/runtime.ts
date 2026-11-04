@@ -9,7 +9,9 @@ import { createGateway, type Gateway } from "./gateway";
 import { createAnthropic } from "./providers/anthropic";
 import { createGemini } from "./providers/gemini";
 import { createDeepSeek, createGrok, createGroq, createOpenAi, createOpenRouter } from "./providers/openai-compatible";
-import { activeProviderIds, configWarnings, resolveRouting } from "./routing";
+import { prisma } from "@/lib/db";
+import { BUDGET_KEYS, BUDGET_PROVIDER, rerankLimit, reserve, type UsageCounter } from "./budget";
+import { WORKERS_AI, configWarnings, costDecision, parseIdList, permittedProviderIds, resolveRouting, type CostPolicy } from "./routing";
 import type { AiProvider } from "./types";
 
 /**
@@ -38,15 +40,50 @@ export function providerCatalog() {
   return catalog().map(({ id, label, model, hasKey }) => ({ id, label, model, hasKey }));
 }
 
-function buildProviders(): AiProvider[] {
-  return catalog().filter((c) => c.hasKey).map((c) => c.build());
+/** The owner's zero-cost policy (provider ids only; never secrets). */
+export function costPolicy(): CostPolicy {
+  const env = serverEnv();
+  return { approvedFree: parseIdList(env.AI_FREE_TIER_APPROVED), approvedPaid: parseIdList(env.AI_PAID_APPROVED) };
 }
 
-/** AI_PROVIDER: disabled | auto (all configured, with fallback) | <provider id> (only that one, no fallback). */
+/**
+ * AI_PROVIDER (disabled | auto | <id>) selects among providers with a key; the zero-cost policy then drops every
+ * provider the owner has not approved. Only the remaining ones are built, so routing, fallback and probes cannot reach
+ * a blocked provider.
+ */
 function activeProviders(): AiProvider[] {
-  const all = buildProviders();
-  const active = new Set(activeProviderIds(serverEnv().AI_PROVIDER, all.map((p) => p.id)));
-  return all.filter((p) => active.has(p.id));
+  const keyed = catalog().filter((c) => c.hasKey);
+  const { active } = permittedProviderIds(serverEnv().AI_PROVIDER, keyed.map((c) => c.id), costPolicy());
+  return keyed.filter((c) => active.includes(c.id)).map((c) => c.build());
+}
+
+/** Atomic daily counter in AiUsageDaily (provider "_budget"): one statement, no read-modify-write (D1 and Postgres). */
+export const usageCounter: UsageCounter = {
+  async increment(day, key) {
+    const rows = await prisma.$queryRaw<{ requests: number | bigint }[]>`INSERT INTO "AiUsageDaily" ("id", "day", "provider", "model", "requests", "tokensIn", "tokensOut")
+      VALUES (${crypto.randomUUID()}, ${day}, ${BUDGET_PROVIDER}, ${key}, 1, 0, 0)
+      ON CONFLICT ("day", "provider", "model") DO UPDATE SET "requests" = "AiUsageDaily"."requests" + 1
+      RETURNING "requests"`;
+    const used = Number(rows[0]?.requests);
+    if (!Number.isFinite(used)) throw new Error("ai_budget_counter_invalid");
+    return used;
+  },
+};
+
+/** One model attempt (any provider, fallback or probe) against AI_DAILY_LIMIT. */
+export function reserveModelAttempt(): Promise<boolean> {
+  return reserve(usageCounter, BUDGET_KEYS.modelAttempts, serverEnv().AI_DAILY_LIMIT);
+}
+
+/** Workers AI is used only when the owner approved `workers-ai`; calls are capped below the verified free allowance. */
+export function workersAiAllowed(): boolean {
+  return costDecision(WORKERS_AI, costPolicy()).allowed;
+}
+export function rerankDailyLimit(): number {
+  return rerankLimit(serverEnv().AI_RERANK_DAILY_LIMIT);
+}
+export function reserveRerank(): Promise<boolean> {
+  return reserve(usageCounter, BUDGET_KEYS.workersAiRerank, rerankDailyLimit());
 }
 
 let gateway: Gateway | null = null;
@@ -57,11 +94,14 @@ export function getGateway(): Gateway {
   const routing = resolveRouting({ order: env.AI_PROVIDER_ORDER, json: env.AI_ROUTING });
   // Once per instance: say which setting is wrong (names only) instead of failing silently later.
   for (const w of configWarnings({ routing, catalog: catalog(), aiProvider: env.AI_PROVIDER })) log.warn(w.event, w.meta);
+  const { blocked } = permittedProviderIds(env.AI_PROVIDER, catalog().filter((c) => c.hasKey).map((c) => c.id), costPolicy());
+  if (blocked.length) log.warn("ai.cost.providers_blocked", { blocked: blocked.map((b) => `${b.id}:${b.reason}`) });
   gateway = createGateway({
     providers: activeProviders(),
     routing,
     timeoutMs: env.AI_TIMEOUT_MS,
     logger: log,
+    reserve: () => reserveModelAttempt(),
   });
   return gateway;
 }

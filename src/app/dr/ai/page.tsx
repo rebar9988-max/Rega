@@ -4,6 +4,7 @@ import { requireDr } from "@/lib/dr-auth";
 import { can } from "@/lib/rbac";
 import { serverEnv } from "@/lib/env";
 import { getGateway, providerCatalog } from "@/lib/ai";
+import { BUDGET_PROVIDER } from "@/lib/ai/budget";
 import { formatNumber, type Locale } from "@/i18n/locales";
 import { Ltr } from "@/components/ui/Bidi";
 import { probeProvider, setAssistantEnabled } from "./actions";
@@ -17,7 +18,7 @@ export default async function DrAi() {
   const day = new Date(new Date().toISOString().slice(0, 10));
   const [flag, usage, probes] = await Promise.all([
     prisma.featureFlag.findUnique({ where: { key: "public.aiSearch" }, select: { enabled: true } }),
-    prisma.aiUsageDaily.aggregate({ where: { day }, _sum: { requests: true } }),
+    prisma.aiUsageDaily.aggregate({ where: { day, provider: { not: BUDGET_PROVIDER } }, _sum: { requests: true } }),
     prisma.auditLog.findMany({ where: { action: "ai.probe" }, orderBy: { createdAt: "desc" }, take: 40, select: { entityId: true, after: true } }),
   ]);
   // Latest probe per provider (audit rows hold only ok/kind/latency, never content).

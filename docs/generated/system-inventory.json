@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-04T17:24:14.677Z",
+  "generatedAt": "2026-11-04T17:41:23.529Z",
   "package": {
     "name": "rega-platform",
     "version": "0.1.0",
@@ -257,8 +257,11 @@
   ],
   "envSchemaKeys": [
     "AI_DAILY_LIMIT",
+    "AI_FREE_TIER_APPROVED",
+    "AI_PAID_APPROVED",
     "AI_PROVIDER",
     "AI_PROVIDER_ORDER",
+    "AI_RERANK_DAILY_LIMIT",
     "AI_ROUTING",
     "AI_SERVICE_TIMEOUT_MS",
     "AI_SERVICE_TOKEN",
@@ -334,6 +337,8 @@
   ],
   "envExampleKeys": [
     "AI_DAILY_LIMIT",
+    "AI_FREE_TIER_APPROVED",
+    "AI_PAID_APPROVED",
     "AI_PROVIDER",
     "AI_SERVICE_TIMEOUT_MS",
     "AI_SERVICE_TOKEN",
@@ -405,6 +410,7 @@
   ],
   "schemaOnly": [
     "AI_PROVIDER_ORDER",
+    "AI_RERANK_DAILY_LIMIT",
     "AI_ROUTING",
     "ANTHROPIC_BASE_URL",
     "APP_ENV",
@@ -475,8 +481,11 @@
   ],
   "schemaKeysNotNamedInWorkflows": [
     "AI_DAILY_LIMIT",
+    "AI_FREE_TIER_APPROVED",
+    "AI_PAID_APPROVED",
     "AI_PROVIDER",
     "AI_PROVIDER_ORDER",
+    "AI_RERANK_DAILY_LIMIT",
     "AI_ROUTING",
     "AI_SERVICE_TIMEOUT_MS",
     "AI_SERVICE_TOKEN",

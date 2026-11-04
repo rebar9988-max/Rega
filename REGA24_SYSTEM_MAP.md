@@ -296,3 +296,7 @@ The control plane (ops engine, agent registry, LLM gateway, usage accounting, go
 ## PM-01 €0 AI audit — 2026-11-04
 
 Live health reported `aiProviders: 4` (count only): at least two configured keys belong to paid-only providers, and `AI_PROVIDER` defaults to `auto` (fallback to every keyed provider). €0 is not enforced by code; agent 10 now reports `ai.paid_providers`, `ai.daily_budget` and `ai.workers_ai_rerank`. Details and owner actions: [docs/AI_AGENT_SYSTEM.md](docs/AI_AGENT_SYSTEM.md) section 7.
+
+## PM-01 zero-cost guarantee — 2026-11-04
+
+AI fails closed: a provider serves only when the owner lists it in `AI_FREE_TIER_APPROVED` (free tier, no billing) or `AI_PAID_APPROVED`; paid fallback is impossible without approval. Every model attempt and Workers AI rerank reserves one unit atomically (`AiUsageDaily` provider `_budget`, no schema change); Workers AI is capped at 250 calls/day (≤ 85 % of the verified 10,000 free Neurons). After deploy without approvals the assistant returns 503 `ai_not_configured`; health stays `ok`. Details: [docs/AI_AGENT_SYSTEM.md](docs/AI_AGENT_SYSTEM.md) section 7.

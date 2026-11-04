@@ -14,6 +14,11 @@ export type GatewayOptions = {
   cooldownMs?: number;
   logger?: GatewayLogger;
   now?: () => number;
+  /**
+   * Zero-cost budget: called before EVERY provider call (fallbacks and probes included). false = no call is made and the
+   * request ends with `budget_exceeded`. Omitted only in unit tests of routing behaviour.
+   */
+  reserve?: (providerId: string) => Promise<boolean>;
 };
 
 type Health = { failures: number; openUntil: number; lastKind?: string; lastAt?: number };
@@ -33,6 +38,7 @@ export function createGateway(options: GatewayOptions) {
   const cooldownMs = options.cooldownMs ?? 30_000;
   const log = options.logger ?? NOOP;
   const now = options.now ?? Date.now;
+  const reserve = options.reserve ?? (async () => true);
   const byId = new Map(options.providers.map((p) => [p.id, p]));
   const health = new Map<string, Health>();
   const h = (id: string): Health => health.get(id) ?? (health.set(id, { failures: 0, openUntil: 0 }), health.get(id)!);
@@ -66,6 +72,10 @@ export function createGateway(options: GatewayOptions) {
     for (const provider of list) {
       const remaining = deadline - now();
       if (remaining <= 0) break;
+      if (!(await reserve(provider.id))) {
+        log.warn("ai.gateway.budget_exhausted", { task: request.task, provider: provider.id, attempts: attempts.length });
+        throw new GatewayError("budget_exceeded", attempts);
+      }
       const started = now();
       // Own controller + timer (instead of AbortSignal.timeout) so the timer is cleared as soon as the call ends.
       const controller = new AbortController();
@@ -110,6 +120,7 @@ export function createGateway(options: GatewayOptions) {
   async function probe(id: string): Promise<{ ok: boolean; kind?: string; latencyMs: number }> {
     const provider = byId.get(id);
     if (!provider) return { ok: false, kind: "not_configured", latencyMs: 0 };
+    if (!(await reserve(provider.id))) return { ok: false, kind: "budget_exceeded", latencyMs: 0 };
     const started = now();
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(Object.assign(new Error("timeout"), { name: "TimeoutError" })), timeoutMs);

@@ -36,6 +36,43 @@ export const PROVIDER_BILLING: Readonly<Record<string, "free-tier" | "paid">> = 
   anthropic: "paid",
 });
 
+/** Id of Cloudflare Workers AI (the rega-ai-python rerank) in the zero-cost approval list. Not a gateway provider. */
+export const WORKERS_AI = "workers-ai";
+
+/**
+ * Zero-cost policy (PM-01). Nothing is assumed free: a provider may serve only when the owner has approved it.
+ *  - approvedFree (AI_FREE_TIER_APPROVED): free-tier providers (and `workers-ai`) whose account the owner confirmed has
+ *    no billing enabled, so exceeding the free quota fails (429) instead of charging.
+ *  - approvedPaid (AI_PAID_APPROVED): paid providers the owner explicitly accepts charges for. Empty by default.
+ * A provider that is not approved is never built, so neither routing nor fallback nor a /dr/ai probe can reach it.
+ */
+export type CostPolicy = { approvedFree: readonly string[]; approvedPaid: readonly string[] };
+export type CostReason = "approved_free_tier" | "approved_paid" | "free_tier_not_approved" | "paid_not_approved";
+
+export function parseIdList(value: string | undefined): string[] {
+  return [...new Set((value ?? "").split(",").map((s) => s.trim().toLowerCase()).filter((s) => ID.test(s)))];
+}
+
+/** Unknown providers count as paid (fail closed). A paid id in the free list is NOT approved. */
+export function costDecision(id: string, policy: CostPolicy): { allowed: boolean; reason: CostReason } {
+  if (id === WORKERS_AI || PROVIDER_BILLING[id] === "free-tier") {
+    return policy.approvedFree.includes(id) ? { allowed: true, reason: "approved_free_tier" } : { allowed: false, reason: "free_tier_not_approved" };
+  }
+  return policy.approvedPaid.includes(id) ? { allowed: true, reason: "approved_paid" } : { allowed: false, reason: "paid_not_approved" };
+}
+
+/** What the gateway may use: AI_PROVIDER selection, then the zero-cost policy. */
+export function permittedProviderIds(aiProvider: string, configured: readonly string[], policy: CostPolicy): { active: string[]; blocked: { id: string; reason: CostReason }[] } {
+  const active: string[] = [];
+  const blocked: { id: string; reason: CostReason }[] = [];
+  for (const id of activeProviderIds(aiProvider, configured)) {
+    const d = costDecision(id, policy);
+    if (d.allowed) active.push(id);
+    else blocked.push({ id, reason: d.reason });
+  }
+  return { active, blocked };
+}
+
 /** AI_PROVIDER: disabled = none · auto = every provider with a key (fallback order from routing) · <id> = that one only. */
 export function activeProviderIds(aiProvider: string, configured: readonly string[]): string[] {
   if (aiProvider === "disabled") return [];

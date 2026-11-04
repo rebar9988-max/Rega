@@ -46,6 +46,13 @@ const serverSchema = z.object({
   AI_ROUTING: z.string().max(1000).optional(),
   AI_TIMEOUT_MS: z.coerce.number().int().min(2_000).max(60_000).default(20_000),
   AI_DAILY_LIMIT: z.coerce.number().int().min(1).default(5_000),
+  // Zero-cost policy (PM-01, owner-controlled Cloudflare variables). Comma-separated provider ids. Nothing is assumed
+  // free: an AI provider serves only when listed. AI_FREE_TIER_APPROVED: free-tier providers (gemini, groq) and
+  // workers-ai whose account has NO billing enabled. AI_PAID_APPROVED: paid providers the owner accepts charges for.
+  AI_FREE_TIER_APPROVED: z.string().max(200).optional(),
+  AI_PAID_APPROVED: z.string().max(200).optional(),
+  // Workers AI rerank calls per UTC day; can only lower the verified cap (RERANK_DAILY_CAP in src/lib/ai/budget.ts).
+  AI_RERANK_DAILY_LIMIT: z.coerce.number().int().min(0).optional(),
   // Optional internal Python AI engine. It is server-to-server only and failure-isolated from the normal AI gateway.
   AI_SERVICE_URL: z.string().url().optional(),
   AI_SERVICE_TOKEN: z.string().min(24).optional(),

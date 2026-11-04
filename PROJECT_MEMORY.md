@@ -1276,3 +1276,18 @@ Cloudflare var access; secrets-sync never ran). Change (report-only, no public b
 shared activeProviderIds (src/lib/ai/routing.ts, runtime uses it), agent 10 checks ai.paid_providers (FAIL/WARN/INFO/
 PASS), ai.daily_budget, ai.workers_ai_rerank; tests; docs section 7. Owner: run agent 10; set AI_PROVIDER=disabled or a
 free-tier provider and delete paid keys; confirm plan. Not merged/deployed.
+
+## PM-01 zero-cost guarantee — 2026-11-04 (branch `claude/ai-agent-system-inventory`)
+Root cause fixed in code: AI used every keyed provider (`AI_PROVIDER=auto`) with paid fallback; budget counted only
+successes via non-atomic D1 read-modify-write (`d1-transaction.ts` increment). Change: providers serve only when the
+owner lists them in `AI_FREE_TIER_APPROVED` (gemini/groq/workers-ai, account without billing) or `AI_PAID_APPROVED`
+(empty default) — blocked providers are never built, so no paid fallback or probe; unknown = paid. Gateway reserves one
+`AI_DAILY_LIMIT` unit before EVERY attempt (fallbacks, /dr/ai probes) via one atomic INSERT…ON CONFLICT…RETURNING row in
+AiUsageDaily (provider `_budget`, no schema change); counter error = no call. Workers AI rerank gated by approval and
+capped at 250/day (34 Neurons worst case, ≤ 85 % of the verified 10,000 free Neurons/day, CF pricing page updated
+2026-10-20). `_budget` rows excluded from /dr/ai and analytics totals; agent 10 reports policy, blocks and usage. e2e
+env approves its local fakes only. Tests: npm test 449 (445 pass, 4 DB skips, 0 fail) incl. tests/ai-cost-guard.test.ts;
+test:d1 10/10; typecheck/lint pass; docs validation pass; local PG16: 60 concurrent reservations → unique 1..60, one row;
+e2e ai.spec 12/12 on PostgreSQL and 12/12 on D1 SQLite (45 reservations vs 20 answers). Not merged/deployed. After
+deploy without approvals: assistant 503 `ai_not_configured` (no-match answers still work), health stays ok. Owner: set
+approvals only for billing-free accounts, remove paid keys, confirm Workers plan (allowance is account-wide).

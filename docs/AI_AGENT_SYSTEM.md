@@ -56,7 +56,8 @@ tests, and a row above.
 | Permission enforcement | IMPLEMENTED | `operations.manage` held only by SUPER_ADMIN |
 | Model inventory, routing, fallback, circuit breaker | IMPLEMENTED | `providerCatalog`, `DEFAULT_ROUTING`, `createGateway` |
 | Model request accounting (requests, tokens, latency per day/provider/model) | IMPLEMENTED | `AiUsageDaily`, `AiMessage` |
-| Shared daily request budget, fail-closed when accounting is down | IMPLEMENTED | `budgetAllows` in `chat.ts`, `AI_DAILY_LIMIT` |
+| Zero-cost policy: only owner-approved providers exist; no paid fallback | IMPLEMENTED | `permittedProviderIds` in `src/lib/ai/routing.ts` (section 7) |
+| Atomic daily budget per attempt (fallbacks, probes), Workers AI cap, fail-closed | IMPLEMENTED | `src/lib/ai/budget.ts`, gateway `reserve` hook |
 | Secrets never logged | IMPLEMENTED | `scrub` in `src/lib/ai/errors.ts`; names-only config warnings |
 | Conditional/parallel multi-step workflows between agents | NOT REQUIRED | agents are independent read-only inspectors; no task needs chaining |
 | Financial cost in currency | BLOCKED | account billing is not readable from the Worker or repository |
@@ -110,7 +111,7 @@ R2). Product priorities: reliable listings and search, data quality, localizatio
 
 | ID | Item | Priority | Acceptance criteria | Status |
 | --- | --- | --- | --- | --- |
-| PM-01 | €0 AI audit (section 7) | P1 (cost) | Code audit + `ai.paid_providers` check done; owner runs agent 10 and sets `AI_PROVIDER` / removes paid keys | PARTIAL — owner action required |
+| PM-01 | €0 AI guarantee (section 7) | P1 (cost) | Fail-closed policy, atomic per-attempt budget and Workers AI cap in code and tested; owner sets approvals and verifies accounts | IMPLEMENTED in branch — merge + owner verification pending |
 | PM-02 | Weekly improvement report | P2 | Owner approves a schedule; report reuses ops agents, no new workflow if an existing one fits | BLOCKED (owner approval) |
 | PM-03 | README drift (Next.js version, `src/lib/ai.ts`) | P3 | README matches `package.json` and `src/lib/ai/` | PROPOSED |
 | PM-04 | Secret sync gaps (model overrides, Python AI URL, flags) | P2 | `worker-secrets-sync.yml` list reviewed with owner | BLOCKED (secrets change) |
@@ -125,15 +126,27 @@ No user analytics are claimed beyond these.
 
 ## 7. PM-01 — €0 AI audit (2026-11-04)
 
-**Request flow (source-traced).** `POST /api/v1/ai/chat` → flag `public.aiSearch` (code default `false`; stored value
-in D1 unknown here) → body ≤ 64 KB, schema → rate limits (12/min per session in-isolate, 30/min per IP shared via
-`AI_LIMITER` 20/60 s) → retrieval (`searchService`) → optional Workers AI rerank (`rega-ai-python`, only when
-`AI_SERVICE_URL` + `AI_SERVICE_TOKEN` are set; failure returns the original order) → **no hits: answered without a
-model (€0)** → `budgetAllows` (`AI_DAILY_LIMIT`, default 5,000 requests/day; fail-closed when accounting is down) →
-gateway: providers selected by `AI_PROVIDER` (`activeProviderIds`, default `auto` = every provider with a key),
-ordered by `DEFAULT_ROUTING`, 20 s per call, 40 s total, breaker after 3 failures → `AiMessage` + `AiUsageDaily`.
+**Request flow (source-traced, after this change).** `POST /api/v1/ai/chat` → flag `public.aiSearch` (code default
+`false`) → body ≤ 64 KB, schema → rate limits (12/min per session, 30/min per IP via `AI_LIMITER`) → retrieval →
+Workers AI rerank only if `workers-ai` is approved, the payload is within the cap's bounds and an atomic rerank unit is
+reserved (otherwise the Postgres order is kept) → **no hits: answered without a model (€0)** → per-instance pre-check
+→ gateway with **only permitted providers** → **before every provider call (fallbacks and `/dr/ai` probes too) one
+atomic unit of `AI_DAILY_LIMIT` is reserved**; refused or unreadable counter = `budget_exceeded` (HTTP 429), no call.
 
-**Providers and billing class** (`PROVIDER_BILLING` in `src/lib/ai/routing.ts`; default models in `src/lib/env.ts`):
+**Zero-cost policy (owner-controlled Cloudflare variables, ids only, never secrets).**
+
+| Variable | Meaning | Default |
+| --- | --- | --- |
+| `AI_FREE_TIER_APPROVED` | free-tier providers (`gemini`, `groq`) and `workers-ai` whose account has **no billing enabled** | empty → no model, no rerank |
+| `AI_PAID_APPROVED` | paid providers the owner explicitly accepts charges for | empty → every paid provider blocked |
+| `AI_RERANK_DAILY_LIMIT` | lowers the Workers AI cap; cannot exceed `RERANK_DAILY_CAP` (250) | 250 |
+| `AI_DAILY_LIMIT` | model attempts per UTC day, all providers together | 5,000 |
+
+A key alone activates nothing. Unknown providers count as paid. A paid id in the free list is not approved. Pinning
+`AI_PROVIDER` to a blocked provider leaves AI off. Blocked providers are never built, so routing, fallback and probes
+cannot reach them; the gateway logs `ai.cost.providers_blocked` (ids and reasons only).
+
+**Providers and billing class** (`PROVIDER_BILLING`; default models in `src/lib/env.ts`):
 
 | Provider | Default model | Billing class |
 | --- | --- | --- |
@@ -144,28 +157,37 @@ ordered by `DEFAULT_ROUTING`, 20 s per call, 40 s total, breaker after 3 failure
 | `deepseek` | `deepseek-flash` | paid (prepaid balance) |
 | `openrouter` | `google/gemini-3.5-flash-lite` | paid (not a `:free` model) |
 | `anthropic` | `claude-haiku-4-5-20251001` | paid |
-| Workers AI (`rega-ai-python`) | `@cf/baai/bge-reranker-base`, `@cf/baai/bge-m3` | daily free allocation; overage billed only on Workers Paid |
+| Workers AI (`rega-ai-python`) | `@cf/baai/bge-reranker-base` | free allocation (below) |
+
+Vendor classes for the six external providers come from their public pricing models and were not re-read in this
+session; that is why free-tier providers also require the owner's approval.
+
+**Workers AI cap (verified).** developers.cloudflare.com/workers-ai/platform/pricing/ (updated 2026-10-20, read
+2026-11-04): 10,000 Neurons per account per UTC day free; beyond it Workers Free fails, Workers Paid bills $0.011 per
+1,000 Neurons; `bge-reranker-base` = 283 Neurons per million input tokens. Worst REGA call: 12 × (4,000 + 1,000) chars
+× 2 tokens/char = 120,000 tokens = 34 Neurons; cap = floor(85 % × 10,000 / 34) = **250 calls/day** (≤ 8,500
+Neurons). `bge-m3` embeddings are not called by the app.
+
+**Budget accounting.** Reservations are rows of `AiUsageDaily` with `provider = "_budget"` (`model-attempts`,
+`workers-ai-rerank`), written by one `INSERT … ON CONFLICT DO UPDATE … RETURNING` statement (Prisma `increment` is a
+read-modify-write on D1, `src/lib/d1-transaction.ts`). No schema change. They are excluded from `/dr/ai` and analytics
+request totals; agent 10 reports them. Per-provider success statistics are unchanged.
+
+**Agent 10** reports `ai.paid_providers` (PASS none approved · INFO free-tier only · WARN owner-approved paid),
+`ai.cost_blocked`, `ai.daily_budget` (WARN when exhausted) and `ai.workers_ai_rerank`. Ops agents never call a model
+(test-enforced).
 
 **Evidence.** Live `GET https://www.rega24.com/api/v1/health` at 2026-11-04T17:22:45Z: `ai: true`, `aiProviders: 4`
-(count only). Four keys among seven providers, of which only two are free-tier, means **at least two configured keys
-belong to paid providers**. Which four, the `AI_PROVIDER` value, the stored flag, the Cloudflare plan and each vendor
-account's billing state are UNKNOWN from this session (no Cloudflare variable access; `worker-secrets-sync.yml` has
-never run, so keys were set directly in Cloudflare).
+(count only): at least two keys belong to paid providers. Which ones, `AI_PROVIDER`, the stored flag, the Cloudflare
+plan and vendor billing states remain UNKNOWN here (no Cloudflare variable access). Tests: `tests/ai-cost-guard.test.ts`
+(paid blocking, no paid fallback, quota exhaustion, concurrency, day reset, outage, probes, Workers AI cap, atomic SQL on
+the real D1 table, background agents).
 
-**Findings.**
-1. €0 is **not technically enforced**; it currently depends on the flag being off. With `AI_PROVIDER=auto`, fallback
-   reaches every keyed provider, paid ones included, whenever the free ones fail or rate-limit.
-2. The budget counts requests, not money or tokens. Only successful answers are counted; failed fallback attempts,
-   `/dr/ai` probes and Workers AI rerank calls are not. Check-then-increment allows a small overshoot under concurrency.
-3. No currency cost tracking (vendor billing is not readable from the Worker).
-4. Governance is sound: keys are server-only, logs are scrubbed, only the owner can switch the flag or probe.
+**Production effect after merge + deploy.** With the approval variables unset, the assistant answers only the no-match
+case and otherwise returns 503 `ai_not_configured`; `/api/v1/health` keeps `ok: true` (it does not depend on AI) and
+reports `ai: false`. This is the intended fail-safe state.
 
-**Implemented (report-only, no runtime change).** Agent 10 (`ai-discovery-inspector`) now reports
-`ai.paid_providers` from the providers the gateway would really use: FAIL if a paid provider is active and the
-assistant is on, WARN if active and off, INFO if only free-tier providers are active, PASS if none. It also reports
-`ai.daily_budget` and `ai.workers_ai_rerank`. The gateway and the agent share `activeProviderIds`.
-
-**Owner actions (BLOCKED here).** (a) Run agent 10 in `/dr/operations` to see which providers are active. (b) For a
-guaranteed €0, set `AI_PROVIDER=disabled`, or `AI_PROVIDER=gemini`/`groq` with a key from an account without billing,
-and delete the paid keys in Cloudflare. (c) Confirm the Cloudflare plan (Workers AI overage). PROPOSED, needs approval:
-count every provider attempt against the budget and add a code-level opt-in before paid providers can be used.
+**Remaining limits (owner).** (1) Set `AI_FREE_TIER_APPROVED` only for accounts verified to have billing disabled.
+(2) Remove unused paid keys in Cloudflare. (3) The Workers AI allowance is account-wide; other Workers on the same
+account are not visible here; on Workers Free overage fails instead of billing, so confirm the plan. (4) Vendor-side
+billing state cannot be read by code; €0 rests on (1)–(3).
