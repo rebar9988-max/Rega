@@ -1344,8 +1344,15 @@ branch, resolved the append conflict (kept both entries, no logic change), repo-
 pushed (commit 5755d75), then used `gh workflow run ci.yml --ref feature/nearby-smart-geolocation` (workflow_dispatch)
 to get a real lint/typecheck/test/build signal independent of the stalled pull_request trigger. Did not touch
 Cloudflare, `main`, or any other PR. No merge to `main`, no deploy.
-Next safe continuation point: read the workflow_dispatch run result (owner or next session); if green, that is the
-real code-quality signal (the Cloudflare preview-build failure still needs a human with dashboard access — flagged
-to the owner, not guessed at); if PR synchronize still won't auto-trigger CI on new pushes, that's worth a
-separate, narrow investigation (webhook delivery settings for this PR) before relying on "CI" as an automatic gate
-for this branch going forward.
+The workflow_dispatch run (41924662155, commit 5755d75) came back red — not an infra false alarm: `tsc --noEmit`
+genuinely failed, `src/components/nearby/NearbyDiscovery.tsx(310,41)` and `(363,15)`, TS2322: `onClick={locate}`
+no longer type-checks now that `locate` takes an optional `{ ifEmpty?: boolean }` (added this same PR), because
+`MouseEventHandler` requires the handler's parameter to accept a `MouseEvent`. This is very likely also why the
+Cloudflare "Workers Builds: rega24" check failed in 0s on 15abb57 (its build also runs a type-checked `next build`,
+which would reject the same two lines immediately) — so that failure is now explained, not an unrelated Cloudflare
+outage. Fix (commit bfeba6b): wrap both as `onClick={() => locate()}`, matching the pattern already used for the
+new recenter control; no behavior change. Re-dispatched `ci.yml` on bfeba6b (run 41925059770) to confirm green
+before telling the owner CI passed — see this run's own conclusion, not the earlier red one, as the state of record.
+Next safe continuation point: once that run is green, PR #121 is ready for the owner's own review/merge decision;
+merge to `main` and deploy remain explicitly withheld pending separate owner approval. The PR-synchronize-not-
+triggering-CI anomaly noted above is still unexplained and worth a narrow follow-up if it recurs on other PRs.
