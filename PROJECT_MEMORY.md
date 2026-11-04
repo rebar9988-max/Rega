@@ -1266,3 +1266,13 @@ orchestrator, table, migration, workflow, binding, dependency or cost. Tests: do
 (430 pass, 4 existing DB skips, 0 fail); typecheck pass; eslint on new test pass. Not merged/deployed; no production
 impact. BLOCKED for owner: which billing AI keys are set (PM-01), weekly scheduled report (PM-02), secret-sync list
 (PM-04). Google Doc not updated from this session.
+
+## PM-01 €0 AI audit — 2026-11-04 (branch `claude/ai-agent-system-inventory`)
+Root cause: €0 is assumed, not enforced. AI_PROVIDER defaults to `auto` (every keyed provider, fallback included);
+budget = AI_DAILY_LIMIT successful requests/day (no token/money cap; failed attempts, /dr/ai probes and Workers AI rerank
+uncounted). Evidence: live /api/v1/health 2026-11-04T17:22:45Z `ai:true`, `aiProviders:4` → ≥2 paid-provider keys
+(only gemini/groq have free tiers). Which keys, AI_PROVIDER value, stored flag, Cloudflare plan: UNKNOWN (no
+Cloudflare var access; secrets-sync never ran). Change (report-only, no public behavior change): PROVIDER_BILLING +
+shared activeProviderIds (src/lib/ai/routing.ts, runtime uses it), agent 10 checks ai.paid_providers (FAIL/WARN/INFO/
+PASS), ai.daily_budget, ai.workers_ai_rerank; tests; docs section 7. Owner: run agent 10; set AI_PROVIDER=disabled or a
+free-tier provider and delete paid keys; confirm plan. Not merged/deployed.

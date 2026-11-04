@@ -110,7 +110,7 @@ R2). Product priorities: reliable listings and search, data quality, localizatio
 
 | ID | Item | Priority | Acceptance criteria | Status |
 | --- | --- | --- | --- | --- |
-| PM-01 | Confirm which AI provider keys are set and whether any bill | P1 (cost) | Owner lists configured keys in Cloudflare; paid ones removed or approved | BLOCKED (owner, Cloudflare access) |
+| PM-01 | €0 AI audit (section 7) | P1 (cost) | Code audit + `ai.paid_providers` check done; owner runs agent 10 and sets `AI_PROVIDER` / removes paid keys | PARTIAL — owner action required |
 | PM-02 | Weekly improvement report | P2 | Owner approves a schedule; report reuses ops agents, no new workflow if an existing one fits | BLOCKED (owner approval) |
 | PM-03 | README drift (Next.js version, `src/lib/ai.ts`) | P3 | README matches `package.json` and `src/lib/ai/` | PROPOSED |
 | PM-04 | Secret sync gaps (model overrides, Python AI URL, flags) | P2 | `worker-secrets-sync.yml` list reviewed with owner | BLOCKED (secrets change) |
@@ -122,3 +122,50 @@ R2). Product priorities: reliable listings and search, data quality, localizatio
 Search success and zero-result queries (`SearchQueryDaily`, analytics-inspector), AI requests/tokens/latency
 (`AiUsageDaily`), ops findings over time (`AuditLog ops.report`), CI and production-browser workflow results.
 No user analytics are claimed beyond these.
+
+## 7. PM-01 — €0 AI audit (2026-11-04)
+
+**Request flow (source-traced).** `POST /api/v1/ai/chat` → flag `public.aiSearch` (code default `false`; stored value
+in D1 unknown here) → body ≤ 64 KB, schema → rate limits (12/min per session in-isolate, 30/min per IP shared via
+`AI_LIMITER` 20/60 s) → retrieval (`searchService`) → optional Workers AI rerank (`rega-ai-python`, only when
+`AI_SERVICE_URL` + `AI_SERVICE_TOKEN` are set; failure returns the original order) → **no hits: answered without a
+model (€0)** → `budgetAllows` (`AI_DAILY_LIMIT`, default 5,000 requests/day; fail-closed when accounting is down) →
+gateway: providers selected by `AI_PROVIDER` (`activeProviderIds`, default `auto` = every provider with a key),
+ordered by `DEFAULT_ROUTING`, 20 s per call, 40 s total, breaker after 3 failures → `AiMessage` + `AiUsageDaily`.
+
+**Providers and billing class** (`PROVIDER_BILLING` in `src/lib/ai/routing.ts`; default models in `src/lib/env.ts`):
+
+| Provider | Default model | Billing class |
+| --- | --- | --- |
+| `gemini` | `gemini-3.5-flash-lite` | free-tier (billed only if billing is on for that Google project) |
+| `groq` | `openai/gpt-oss-120b` | free-tier (billed only on a paid Groq plan) |
+| `openai` | `gpt-4.1-mini` | paid |
+| `grok` | `grok-4.7` | paid |
+| `deepseek` | `deepseek-flash` | paid (prepaid balance) |
+| `openrouter` | `google/gemini-3.5-flash-lite` | paid (not a `:free` model) |
+| `anthropic` | `claude-haiku-4-5-20251001` | paid |
+| Workers AI (`rega-ai-python`) | `@cf/baai/bge-reranker-base`, `@cf/baai/bge-m3` | daily free allocation; overage billed only on Workers Paid |
+
+**Evidence.** Live `GET https://www.rega24.com/api/v1/health` at 2026-11-04T17:22:45Z: `ai: true`, `aiProviders: 4`
+(count only). Four keys among seven providers, of which only two are free-tier, means **at least two configured keys
+belong to paid providers**. Which four, the `AI_PROVIDER` value, the stored flag, the Cloudflare plan and each vendor
+account's billing state are UNKNOWN from this session (no Cloudflare variable access; `worker-secrets-sync.yml` has
+never run, so keys were set directly in Cloudflare).
+
+**Findings.**
+1. €0 is **not technically enforced**; it currently depends on the flag being off. With `AI_PROVIDER=auto`, fallback
+   reaches every keyed provider, paid ones included, whenever the free ones fail or rate-limit.
+2. The budget counts requests, not money or tokens. Only successful answers are counted; failed fallback attempts,
+   `/dr/ai` probes and Workers AI rerank calls are not. Check-then-increment allows a small overshoot under concurrency.
+3. No currency cost tracking (vendor billing is not readable from the Worker).
+4. Governance is sound: keys are server-only, logs are scrubbed, only the owner can switch the flag or probe.
+
+**Implemented (report-only, no runtime change).** Agent 10 (`ai-discovery-inspector`) now reports
+`ai.paid_providers` from the providers the gateway would really use: FAIL if a paid provider is active and the
+assistant is on, WARN if active and off, INFO if only free-tier providers are active, PASS if none. It also reports
+`ai.daily_budget` and `ai.workers_ai_rerank`. The gateway and the agent share `activeProviderIds`.
+
+**Owner actions (BLOCKED here).** (a) Run agent 10 in `/dr/operations` to see which providers are active. (b) For a
+guaranteed €0, set `AI_PROVIDER=disabled`, or `AI_PROVIDER=gemini`/`groq` with a key from an account without billing,
+and delete the paid keys in Cloudflare. (c) Confirm the Cloudflare plan (Workers AI overage). PROPOSED, needs approval:
+count every provider attempt against the budget and add a code-level opt-in before paid providers can be used.

@@ -292,3 +292,7 @@ VERIFIED release of the Digital Operations Center: PR #98 squash `ec162ff` → e
 ## AI agent system inventory — 2026-11-04
 
 The control plane (ops engine, agent registry, LLM gateway, usage accounting, governance) and the product backlog are indexed in [docs/AI_AGENT_SYSTEM.md](docs/AI_AGENT_SYSTEM.md). Documentation only: no new agent, orchestrator, table, workflow, binding or dependency. `tests/ai-agent-system-doc.test.ts` keeps it in step with `AGENT_IDS` and the AI routing.
+
+## PM-01 €0 AI audit — 2026-11-04
+
+Live health reported `aiProviders: 4` (count only): at least two configured keys belong to paid-only providers, and `AI_PROVIDER` defaults to `auto` (fallback to every keyed provider). €0 is not enforced by code; agent 10 now reports `ai.paid_providers`, `ai.daily_budget` and `ai.workers_ai_rerank`. Details and owner actions: [docs/AI_AGENT_SYSTEM.md](docs/AI_AGENT_SYSTEM.md) section 7.

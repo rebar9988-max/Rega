@@ -257,6 +257,7 @@ async function aiDiscoveryInspector(): Promise<Inspection> {
   return analyzeAi({
     flag, codeDefault: FLAG_DEFAULTS["public.aiSearch"], provider: env.AI_PROVIDER,
     configuredProviders: providerCatalog().filter((p) => p.hasKey).map((p) => p.id),
+    dailyLimit: env.AI_DAILY_LIMIT, rerankService: Boolean(env.AI_SERVICE_URL && env.AI_SERVICE_TOKEN),
     publicFilter: PUBLIC_BUSINESS, nonsenseHits: nonsense.length,
     hiddenProbes: hiddenRows.length, hiddenLeaks, publicProbes: samples.length, nonPublicHits,
     answersScanned: answers.length, unsupportedLinks: unsupported,

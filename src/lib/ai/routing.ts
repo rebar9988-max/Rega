@@ -19,6 +19,29 @@ export const DEFAULT_ROUTING: Routing = {
   classify: ["groq", "grok", "gemini", "openai", "deepseek", "openrouter", "anthropic"],
 };
 
+/**
+ * Billing model of each provider's API for its configured default model (vendor pricing pages; account state is not
+ * readable from code, so the owner still verifies each account):
+ *  - free-tier: the vendor offers a no-cost quota; charges start only if billing is enabled on that vendor account.
+ *  - paid: no standing free quota for the default model; every answer is billed against credits or a card.
+ * tests/ai-agent-system-doc.test.ts fails if a routed provider has no entry here.
+ */
+export const PROVIDER_BILLING: Readonly<Record<string, "free-tier" | "paid">> = Object.freeze({
+  gemini: "free-tier",
+  groq: "free-tier",
+  openai: "paid",
+  grok: "paid",
+  deepseek: "paid",
+  openrouter: "paid",
+  anthropic: "paid",
+});
+
+/** AI_PROVIDER: disabled = none · auto = every provider with a key (fallback order from routing) · <id> = that one only. */
+export function activeProviderIds(aiProvider: string, configured: readonly string[]): string[] {
+  if (aiProvider === "disabled") return [];
+  return aiProvider === "auto" ? [...configured] : configured.filter((id) => id === aiProvider);
+}
+
 const ID = /^[a-z0-9_-]{1,32}$/;
 
 /** Builds routing from env values. Unknown/invalid input falls back to the defaults, never throws. */

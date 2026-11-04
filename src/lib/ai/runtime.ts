@@ -9,7 +9,7 @@ import { createGateway, type Gateway } from "./gateway";
 import { createAnthropic } from "./providers/anthropic";
 import { createGemini } from "./providers/gemini";
 import { createDeepSeek, createGrok, createGroq, createOpenAi, createOpenRouter } from "./providers/openai-compatible";
-import { configWarnings, resolveRouting } from "./routing";
+import { activeProviderIds, configWarnings, resolveRouting } from "./routing";
 import type { AiProvider } from "./types";
 
 /**
@@ -44,10 +44,9 @@ function buildProviders(): AiProvider[] {
 
 /** AI_PROVIDER: disabled | auto (all configured, with fallback) | <provider id> (only that one, no fallback). */
 function activeProviders(): AiProvider[] {
-  const env = serverEnv();
-  if (env.AI_PROVIDER === "disabled") return [];
   const all = buildProviders();
-  return env.AI_PROVIDER === "auto" ? all : all.filter((p) => p.id === env.AI_PROVIDER);
+  const active = new Set(activeProviderIds(serverEnv().AI_PROVIDER, all.map((p) => p.id)));
+  return all.filter((p) => active.has(p.id));
 }
 
 let gateway: Gateway | null = null;
