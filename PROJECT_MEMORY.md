@@ -1327,3 +1327,25 @@ global minimatch 11 override breaks lint, so the owner chose: CI gates `npm audi
 `npm audit --audit-level=high` (14 moderate dev-only findings tolerated until upstream fixes). Verified locally: lint,
 typecheck, npm test 431/431 with PostgreSQL 16, test:d1 10/10, OpenNext Worker build + wrangler dry-run, 4 Worker smoke
 scripts. Restore `--audit-level=low` on all dependencies once the eslint chain moves to minimatch ≥11.0.1.
+
+### PR #121 CI verification gap found and worked around — 2026-11-04 (feature/nearby-smart-geolocation)
+After pushing round-2 (commit 15abb57), `gh api .../commits/15abb57/check-runs` showed `Workers Builds: rega24`
+(Cloudflare's GitHub App check) as `failure` with 0s duration (started_at == completed_at) — anomalous for a real
+`next build`; its log lives only in the Cloudflare dashboard (`dash.cloudflare.com/.../builds/6933c091-...`), which
+this session cannot reach (same class of gap as the Cloudflare-access limitation noted earlier in this file: a
+WebFetch attempt got a client_error, no login). Separately, no GitHub Actions "CI" run (lint/typecheck/test/build)
+had fired for either 15abb57 or a later merge commit, even though `ci.yml` triggers on `pull_request` and other PRs'
+runs were firing normally in the same window — root cause not confirmed (possibly tied to this repo's recent
+`rebar9988-max/rega` → `rebar9988-max/Rega` casing move: every push here still prints "This repository moved" even
+after `git remote set-url` to the canonical capitalized URL, though the push itself always lands correctly).
+Also found PR #121 `mergeable_state: dirty` against current `main` (a pure append conflict in this same file with
+main's unrelated "CI audit gate" entry above). Fixed what's in this session's control: merged `main` into the
+branch, resolved the append conflict (kept both entries, no logic change), repo-identity-guard re-verified REGA,
+pushed (commit 5755d75), then used `gh workflow run ci.yml --ref feature/nearby-smart-geolocation` (workflow_dispatch)
+to get a real lint/typecheck/test/build signal independent of the stalled pull_request trigger. Did not touch
+Cloudflare, `main`, or any other PR. No merge to `main`, no deploy.
+Next safe continuation point: read the workflow_dispatch run result (owner or next session); if green, that is the
+real code-quality signal (the Cloudflare preview-build failure still needs a human with dashboard access — flagged
+to the owner, not guessed at); if PR synchronize still won't auto-trigger CI on new pushes, that's worth a
+separate, narrow investigation (webhook delivery settings for this PR) before relying on "CI" as an automatic gate
+for this branch going forward.
