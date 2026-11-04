@@ -1253,3 +1253,16 @@ Initial four-locale browser pass: layout/menus/Escape/axe passed at 320/390/768/
 expected Latin business names on ckb/ar results. Corrected test to assert preserved query value, not untranslated copy.
 Final browser/hosted CI/deployment/live verification pending; no 100/100 claim. Shell gh credential invalid; connected
 GitHub and Cloudflare apps work. Use existing CI-gated main release path only. Production has not been changed yet.
+
+## AI agent system inventory + product backlog — 2026-11-04 (branch `claude/ai-agent-system-inventory`)
+Task: owner's "REGA24 AI Agent System / Control Plane / Product Management" directive. Audit result: no separate
+"REGA24 AI AGENT SYSTEM" folder exists; the system is the `/dr/operations` engine (`src/lib/ops`, 10 read-only agents,
+idempotency/locks/quotas/timeouts, reports in AuditLog) plus the AI gateway (`src/lib/ai`, routing/fallback/circuit
+breaker, AiUsageDaily token+request accounting, shared daily budget) and `services/ai-python`. Gap: no single
+inventory, governance matrix, roadmap or backlog. Change (docs + test only): `docs/AI_AGENT_SYSTEM.md` (inventory,
+CONET/Agent0 comparison, approval matrix, backlog PM-01..06), link in REGA24_SYSTEM_MAP.md, regenerated inventory,
+`tests/ai-agent-system-doc.test.ts` (doc must list every AGENT_ID, routed provider and AI task). No new agent,
+orchestrator, table, migration, workflow, binding, dependency or cost. Tests: docs validation pass; `npm test` 434
+(430 pass, 4 existing DB skips, 0 fail); typecheck pass; eslint on new test pass. Not merged/deployed; no production
+impact. BLOCKED for owner: which billing AI keys are set (PM-01), weekly scheduled report (PM-02), secret-sync list
+(PM-04). Google Doc not updated from this session.
