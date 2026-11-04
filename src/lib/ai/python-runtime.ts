@@ -3,6 +3,8 @@ import { serverEnv } from "@/lib/env";
 import { log } from "@/lib/logger";
 import type { SearchHit } from "@/lib/search/types";
 import { rerankWithService, type PythonAiClientConfig } from "./python-client";
+import { reserveRerank, workersAiAllowed } from "./runtime";
+import { WORKERS_AI_LIMITS } from "./budget";
 
 function config(): PythonAiClientConfig | null {
   const env = serverEnv();
@@ -19,9 +21,18 @@ function config(): PythonAiClientConfig | null {
  * Any Python error returns the candidates unchanged, so the AI engine can never make the REGA assistant unavailable.
  */
 export async function rerankWithPython(query: string, hits: SearchHit[]): Promise<SearchHit[]> {
+  // Zero-cost gate (PM-01): Workers AI only when the owner approved it, within the bounds its daily cap was derived
+  // from, and after an atomic reservation. Otherwise the Postgres order is returned unchanged.
+  const cfg = config();
+  if (!cfg || hits.length < 2 || !query.trim()) return hits;
+  if (!workersAiAllowed() || hits.length > WORKERS_AI_LIMITS.maxItems || query.length > WORKERS_AI_LIMITS.maxQueryChars) return hits;
+  if (!(await reserveRerank())) {
+    log.warn("ai.python.rerank_budget_exhausted");
+    return hits;
+  }
   const started = Date.now();
   const ranked = await rerankWithService(
-    config(),
+    cfg,
     query,
     hits,
     (hit) => ({

@@ -1254,6 +1254,43 @@ expected Latin business names on ckb/ar results. Corrected test to assert preser
 Final browser/hosted CI/deployment/live verification pending; no 100/100 claim. Shell gh credential invalid; connected
 GitHub and Cloudflare apps work. Use existing CI-gated main release path only. Production has not been changed yet.
 
+## AI agent system inventory + product backlog — 2026-11-04 (branch `claude/ai-agent-system-inventory`)
+Task: owner's "REGA24 AI Agent System / Control Plane / Product Management" directive. Audit result: no separate
+"REGA24 AI AGENT SYSTEM" folder exists; the system is the `/dr/operations` engine (`src/lib/ops`, 10 read-only agents,
+idempotency/locks/quotas/timeouts, reports in AuditLog) plus the AI gateway (`src/lib/ai`, routing/fallback/circuit
+breaker, AiUsageDaily token+request accounting, shared daily budget) and `services/ai-python`. Gap: no single
+inventory, governance matrix, roadmap or backlog. Change (docs + test only): `docs/AI_AGENT_SYSTEM.md` (inventory,
+CONET/Agent0 comparison, approval matrix, backlog PM-01..06), link in REGA24_SYSTEM_MAP.md, regenerated inventory,
+`tests/ai-agent-system-doc.test.ts` (doc must list every AGENT_ID, routed provider and AI task). No new agent,
+orchestrator, table, migration, workflow, binding, dependency or cost. Tests: docs validation pass; `npm test` 434
+(430 pass, 4 existing DB skips, 0 fail); typecheck pass; eslint on new test pass. Not merged/deployed; no production
+impact. BLOCKED for owner: which billing AI keys are set (PM-01), weekly scheduled report (PM-02), secret-sync list
+(PM-04). Google Doc not updated from this session.
+
+## PM-01 €0 AI audit — 2026-11-04 (branch `claude/ai-agent-system-inventory`)
+Root cause: €0 is assumed, not enforced. AI_PROVIDER defaults to `auto` (every keyed provider, fallback included);
+budget = AI_DAILY_LIMIT successful requests/day (no token/money cap; failed attempts, /dr/ai probes and Workers AI rerank
+uncounted). Evidence: live /api/v1/health 2026-11-04T17:22:45Z `ai:true`, `aiProviders:4` → ≥2 paid-provider keys
+(only gemini/groq have free tiers). Which keys, AI_PROVIDER value, stored flag, Cloudflare plan: UNKNOWN (no
+Cloudflare var access; secrets-sync never ran). Change (report-only, no public behavior change): PROVIDER_BILLING +
+shared activeProviderIds (src/lib/ai/routing.ts, runtime uses it), agent 10 checks ai.paid_providers (FAIL/WARN/INFO/
+PASS), ai.daily_budget, ai.workers_ai_rerank; tests; docs section 7. Owner: run agent 10; set AI_PROVIDER=disabled or a
+free-tier provider and delete paid keys; confirm plan. Not merged/deployed.
+
+## PM-01 zero-cost guarantee — 2026-11-04 (branch `claude/ai-agent-system-inventory`)
+Root cause fixed in code: AI used every keyed provider (`AI_PROVIDER=auto`) with paid fallback; budget counted only
+successes via non-atomic D1 read-modify-write (`d1-transaction.ts` increment). Change: providers serve only when the
+owner lists them in `AI_FREE_TIER_APPROVED` (gemini/groq/workers-ai, account without billing) or `AI_PAID_APPROVED`
+(empty default) — blocked providers are never built, so no paid fallback or probe; unknown = paid. Gateway reserves one
+`AI_DAILY_LIMIT` unit before EVERY attempt (fallbacks, /dr/ai probes) via one atomic INSERT…ON CONFLICT…RETURNING row in
+AiUsageDaily (provider `_budget`, no schema change); counter error = no call. Workers AI rerank gated by approval and
+capped at 250/day (34 Neurons worst case, ≤ 85 % of the verified 10,000 free Neurons/day, CF pricing page updated
+2026-10-20). `_budget` rows excluded from /dr/ai and analytics totals; agent 10 reports policy, blocks and usage. e2e
+env approves its local fakes only. Tests: npm test 449 (445 pass, 4 DB skips, 0 fail) incl. tests/ai-cost-guard.test.ts;
+test:d1 10/10; typecheck/lint pass; docs validation pass; local PG16: 60 concurrent reservations → unique 1..60, one row;
+e2e ai.spec 12/12 on PostgreSQL and 12/12 on D1 SQLite (45 reservations vs 20 answers). Not merged/deployed. After
+deploy without approvals: assistant 503 `ai_not_configured` (no-match answers still work), health stays ok. Owner: set
+approvals only for billing-free accounts, remove paid keys, confirm Workers plan (allowance is account-wide).
 ## CI audit gate — owner decision 2026-11-04 (branch `claude/ci-audit-prod-chain`)
 Root cause: new moderate advisories GHSA-3g3m-2fjr-6pw4 (glob ≤14.0.1) and GHSA-g3hv-75wg-m249 (minimatch <11.0.1)
 made `npm audit --audit-level=low` fail on main (CI 41874005626, d6a6a49) and every PR. Fix: scoped overrides give

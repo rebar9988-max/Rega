@@ -288,3 +288,15 @@ Later live readback shows documentation release caac065 active at 100% as versio
 Owner-only `/dr/operations` (permission `operations.manage`, held only by SUPER_ADMIN = `rebar9988@gmail.com`). Ten logical agents share the existing `rega24` Worker, D1 database and search code: no new Worker, binding, cron trigger, queue, table, migration, dependency or paid service. Engine guards ([src/lib/ops/core.ts](src/lib/ops/core.ts)): execution-id idempotency, 100 runs/UTC day with throttling from 80, 60 s (then 15 min) cool-down per agent, one lock per agent (`Setting` key `ops.lock.<agent>`, 2 min TTL), 25 s timeout, one retry, 12 HTTP probes and 2,500 rows per query. Reports are `AuditLog` rows (`action=ops.report`, `entity=ops:<agent>`). Agents never approve, reject, publish, delete, merge or change configuration; the public AI flag is reported, not changed. Repository-side checks (catalogue parity, tracked-file secret scan) run in the existing `npm test` CI step. Scheduled execution stays OFF: account-wide Cloudflare usage and billing are not readable from the repository or Worker.
 
 VERIFIED release of the Digital Operations Center: PR #98 squash `ec162ff` → exact-main CI `40880938489`, deploy `40887207127`, Production browser `40887420432` (all success). Live 2026-10-30 (release `0140487`, version `f38613d7-34c5-4cee-a3d7-6b5f5b213999` per deploy output): anonymous `/dr/operations` serves only the sign-in form with `no-store` and `noindex`; health `d1`/ok. Authenticated owner runs in production not yet observed.
+
+## AI agent system inventory — 2026-11-04
+
+The control plane (ops engine, agent registry, LLM gateway, usage accounting, governance) and the product backlog are indexed in [docs/AI_AGENT_SYSTEM.md](docs/AI_AGENT_SYSTEM.md). Documentation only: no new agent, orchestrator, table, workflow, binding or dependency. `tests/ai-agent-system-doc.test.ts` keeps it in step with `AGENT_IDS` and the AI routing.
+
+## PM-01 €0 AI audit — 2026-11-04
+
+Live health reported `aiProviders: 4` (count only): at least two configured keys belong to paid-only providers, and `AI_PROVIDER` defaults to `auto` (fallback to every keyed provider). €0 is not enforced by code; agent 10 now reports `ai.paid_providers`, `ai.daily_budget` and `ai.workers_ai_rerank`. Details and owner actions: [docs/AI_AGENT_SYSTEM.md](docs/AI_AGENT_SYSTEM.md) section 7.
+
+## PM-01 zero-cost guarantee — 2026-11-04
+
+AI fails closed: a provider serves only when the owner lists it in `AI_FREE_TIER_APPROVED` (free tier, no billing) or `AI_PAID_APPROVED`; paid fallback is impossible without approval. Every model attempt and Workers AI rerank reserves one unit atomically (`AiUsageDaily` provider `_budget`, no schema change); Workers AI is capped at 250 calls/day (≤ 85 % of the verified 10,000 free Neurons). After deploy without approvals the assistant returns 503 `ai_not_configured`; health stays `ok`. Details: [docs/AI_AGENT_SYSTEM.md](docs/AI_AGENT_SYSTEM.md) section 7.
