@@ -24,25 +24,21 @@ test("nearby API: distance-sorted, radius-bounded, validated", async ({ request 
 test.describe("with location permission", () => {
   test.use({ geolocation: BERLIN, permissions: ["geolocation"] });
 
-  test("a returning visitor who previously used their location is taken straight to results; a first-time visitor still chooses", async ({ page }) => {
-    // First-time visit: nothing remembered yet, so the choice screen still shows, same as before this change.
+  test("first visit: permission already granted takes the visitor straight to results, no click needed", async ({ page }) => {
     await page.goto("/de/nearby");
-    await expect(page.getByTestId("nearby-locate")).toBeVisible();
-    await expect(page.getByTestId("nearby-results")).toHaveCount(0);
-    await page.getByTestId("nearby-locate").click();
-    await expect(page.getByTestId("nearby-results")).toContainText("Kurdistan Rechtsberatung");
-    // Simulate a later visit: the page-local "used my location" memory this click just wrote is still there, and
-    // the browser still reports the permission as granted, so the page goes straight to results without a click.
-    await page.goto("/de/nearby");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("In der Nähe");
     await expect(page.getByTestId("nearby-results")).toContainText("Kurdistan Rechtsberatung");
     await expect(page.getByTestId("nearby-place")).toContainText("Ihrem Standort");
+    expect(await page.evaluate(() => localStorage.getItem("rega-nearby-asked"))).toBe("1");
+    expect(await page.evaluate(() => localStorage.getItem("rega-nearby-device"))).toBe("1");
   });
 
-  test("picking a city instead forgets the earlier 'use my location' choice", async ({ page }) => {
+  test("returning visit stays automatic; picking a city instead forgets the earlier 'use my location' choice", async ({ page }) => {
     await page.goto("/de/nearby");
-    await page.getByTestId("nearby-locate").click();
     await expect(page.getByTestId("nearby-results")).toContainText("Kurdistan Rechtsberatung");
-    expect(await page.evaluate(() => localStorage.getItem("rega-nearby-device"))).toBe("1");
+    // A later visit: still automatic (the "asked once" flag is irrelevant once a location choice is remembered).
+    await page.goto("/de/nearby");
+    await expect(page.getByTestId("nearby-place")).toContainText("Ihrem Standort");
     await page.getByTestId("nearby-city-filter").selectOption({ label: "Hamburg" });
     await expect(page.getByTestId("nearby-place")).toContainText("Hamburg");
     expect(await page.evaluate(() => localStorage.getItem("rega-nearby-device"))).toBeNull();
@@ -51,10 +47,25 @@ test.describe("with location permission", () => {
     await expect(page.getByTestId("nearby-place")).toContainText("Hamburg");
   });
 
+  test("premium map recenter control: accessible, reflects busy state, re-centers on click", async ({ page }) => {
+    await stubBasemap(page);
+    await page.goto("/de/nearby");
+    await expect(page.getByTestId("nearby-results")).toContainText("Kurdistan Rechtsberatung");
+    await page.getByTestId("nearby-view-map").click();
+    await expect(page.getByTestId("discovery-map")).toHaveAttribute("data-status", "ready", { timeout: 20_000 });
+    const button = page.getByTestId("map-recenter");
+    await expect(button).toBeVisible();
+    await expect(button).toHaveAccessibleName("Meinen Standort verwenden");
+    const box = (await button.boundingBox())!;
+    expect(Math.min(box.width, box.height)).toBeGreaterThanOrEqual(44); // accessible touch target
+    await button.click();
+    await expect(button).toHaveAttribute("aria-busy", "true");
+    await expect(button).toHaveAttribute("aria-busy", "false", { timeout: 15_000 });
+  });
+
   test("Near Me finds nearby businesses with distance, filters and map/list views", async ({ page }) => {
     await page.goto("/de/nearby");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("In der Nähe");
-    await page.getByTestId("nearby-locate").click();
     await expect(page.getByTestId("nearby-place")).toContainText("Ihrem Standort");
     const results = page.getByTestId("nearby-results");
     await expect(results).toContainText("Kurdistan Rechtsberatung");
@@ -73,7 +84,6 @@ test.describe("with location permission", () => {
   test("map view: accessible markers, preview card, list selection, Escape, search this area", async ({ page }) => {
     await stubBasemap(page);
     await page.goto("/de/nearby");
-    await page.getByTestId("nearby-locate").click();
     await expect(page.getByTestId("nearby-results")).toContainText("Kurdistan Rechtsberatung");
     await page.getByTestId("nearby-view-map").click();
     const map = page.getByTestId("discovery-map");
@@ -123,7 +133,6 @@ test.describe("with location permission", () => {
   test("map fallback: a basemap outage shows a clean message and the list keeps working", async ({ page }) => {
     await page.route("https://tiles.openfreemap.org/**", (r) => r.abort());
     await page.goto("/de/nearby");
-    await page.getByTestId("nearby-locate").click();
     await expect(page.getByTestId("nearby-results")).toContainText("Kurdistan Rechtsberatung");
     await page.getByTestId("nearby-view-map").click();
     await expect(page.getByTestId("map-fallback")).toContainText("Karte konnte nicht geladen werden", { timeout: 25_000 });

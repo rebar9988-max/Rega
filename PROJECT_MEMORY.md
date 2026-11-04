@@ -1281,3 +1281,39 @@ Next safe continuation point: CI green → owner review of the PR → merge. Sep
 whether first-time auto-geolocation should override the "no default city" guarantee, and (2) whether to approve a
 new floating GPS recenter control's visual design (colours/icon/shadow already exist in the design system; only a
 net-new overlay element needs owner sign-off under the non-visual-scope rule).
+
+### Follow-up: owner explicitly authorized both previously-blocked items — 2026-11-04 (same PR #121)
+
+Owner message explicitly authorized (1) first-visit automatic geolocation and (2) a new premium floating GPS
+recenter control, with concrete constraints (never bypass the browser's own permission flow, manual city always
+overrides GPS, reuse the existing red/white/shadow tokens, no new brand identity). Implemented both, still on
+`feature/nearby-smart-geolocation`.
+
+1. First-visit discovery (`NearbyDiscovery.tsx`): new `rega-nearby-asked` localStorage flag. On mount, only when
+   nothing at all is known (no saved city, no remembered "use my location" choice, never asked before), calls the
+   same `navigator.geolocation.getCurrentPosition` the manual button already used — the browser's own native
+   prompt, never bypassed — and records "asked" regardless of outcome, so it is offered at most once per browser,
+   ever. `locate()` now takes an `ifEmpty` option used by both automatic call sites (this one and the existing
+   returning-visitor one); the manual button still calls it unguarded, so an explicit tap always overrides GPS
+   or a saved city, exactly as required.
+2. Premium GPS recenter control (`DiscoveryMap.tsx`, new exported `RecenterControl` prop, opt-in — the
+   business-detail page's map usage does not pass it, so it is unaffected): a round `size-11` (44 px) button,
+   bottom-start corner of the map (clear of the zoom control, attribution and the existing "search this area"
+   pill), `bg-surface` + `text-brand-text` + `shadow-lift` + `ring-1 ring-line` — all existing design tokens, no
+   new colour. Hover (`hover:bg-brand-soft`), focus (`focus-visible:outline-brand`, the site-wide convention) and
+   pressed (`motion-safe:active:scale-95`, respects reduced motion) states reuse exactly the classes already used
+   elsewhere in this codebase; the icon is the same glyph as the existing "use my location" control (duplicated
+   locally since `DiscoveryMap.tsx` must not import from a page component). `NearbyDiscovery.tsx` wires it to the
+   same `locate()`/`status` already driving the text link, reusing the same `t("useLocation")`/`t("locating")`
+   strings — no new translation keys.
+Tests: rewrote the "with location permission" Playwright suite (permission is granted at the test-context level,
+so every page load there now auto-locates immediately — the old manual `nearby-locate` click in 4 existing tests
+would have raced a control that may already be gone) to assert the automatic outcome directly instead of clicking;
+added a focused case for first-visit automatic discovery (asserts both new localStorage flags) and one for the
+recenter control (accessible name, 44 px target, `aria-busy` while locating). The three "no permission" tests
+(denied / position-unavailable / no geolocation API) were re-checked by hand: the new first-visit effect bails out
+or reaches the same existing error path in each case, so none needed changes.
+Verification: same environment limitation as above — this sandbox cannot reach `registry.npmjs.org`, so lint,
+typecheck, unit and E2E are NOT VERIFIED locally. CI must confirm before merge.
+Still not done without further owner sign-off: merge to `main` or deploy (explicitly withheld this time too).
+Next safe continuation point: CI green on the updated push → owner review → merge (owner action).

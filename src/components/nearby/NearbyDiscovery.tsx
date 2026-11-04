@@ -62,6 +62,16 @@ function hadDeviceChoice(): boolean {
   try { return window.localStorage.getItem(DEVICE_CHOICE_KEY) === "1"; } catch { return false; }
 }
 
+/** Whether the first-visit automatic location request (below) has already run once, successful or not — so it
+ * is asked at most once ever per browser, never repeated on later visits. */
+const ASKED_KEY = "rega-nearby-asked";
+function markAsked() {
+  try { window.localStorage.setItem(ASKED_KEY, "1"); } catch { /* only this visit remembers */ }
+}
+function hadAskedBefore(): boolean {
+  try { return window.localStorage.getItem(ASKED_KEY) === "1"; } catch { return false; }
+}
+
 /** Filters that can arrive in the URL (e.g. the home page's "Open now" link: /nearby?open=1). Location never does. */
 export type NearbyInitial = { open?: boolean; category?: string; q?: string; radius?: number; sort?: Filters["sort"] };
 
@@ -118,11 +128,15 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
   // Stable marker data: the map only re-fits when the results really change.
   const points = useMemo(() => (mapItems ?? []).map((it) => ({ id: it.id, lat: it.latitude, lng: it.longitude, label: localize(it.business, "name", locale).text })), [mapItems, locale]);
 
-  const locate = useCallback(() => {
+  // `ifEmpty`: for the two automatic call sites below, so a center a visitor set in the meantime (a saved city, or
+  // their own manual pick while this was in flight) is never silently overwritten. The manual "use my location"
+  // control never passes it: an explicit tap always wins, exactly as before.
+  const locate = useCallback((opts?: { ifEmpty?: boolean }) => {
     if (typeof navigator === "undefined" || !navigator.geolocation) return setStatus("unsupported");
     setStatus("locating");
     navigator.geolocation.getCurrentPosition(
       (pos) => {
+        if (opts?.ifEmpty && centerRef.current) return;
         const here = { lat: coarsen(pos.coords.latitude), lng: coarsen(pos.coords.longitude) };
         setDevice(here);
         setCenter({ ...here, label: { kind: "device" } });
@@ -164,11 +178,23 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
     if (typeof navigator === "undefined" || !navigator.geolocation || !navigator.permissions?.query) return;
     let cancelled = false;
     navigator.permissions.query({ name: "geolocation" }).then((result) => {
-      // Re-checked here (not only on effect entry): a saved city, or the visitor's own pick, may have set a
-      // center while this permission check was in flight, and that choice must win.
-      if (!cancelled && result.state === "granted" && !centerRef.current) locate();
+      // locate's own ifEmpty guard re-checks at success time: a saved city, or the visitor's own pick, may have
+      // set a center while this permission check was in flight, and that choice must win.
+      if (!cancelled && result.state === "granted") locate({ ifEmpty: true });
     }).catch(() => undefined);
     return () => { cancelled = true; };
+  }, [locate]);
+
+  // First-visit intelligent discovery: when nothing at all is known yet (no saved city, no earlier "use my
+  // location" choice on this page, never asked before), ask through the browser's own permission flow once — the
+  // same native prompt the manual button would trigger, just offered immediately instead of waiting for a tap.
+  // A denial, timeout or unavailable position falls back to the ordinary city-choice screen, exactly as a manual
+  // tap already does, and this is never repeated: asked is recorded regardless of the outcome.
+  useEffect(() => {
+    if (centerRef.current || getSavedLocation() || hadDeviceChoice() || hadAskedBefore()) return;
+    if (typeof navigator === "undefined" || !navigator.geolocation) return;
+    markAsked();
+    locate({ ifEmpty: true });
   }, [locate]);
 
   // Keep the filters in the address bar (never the location), so refresh, back/forward and shared links keep them.
@@ -446,6 +472,7 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
               user={device}
               labels={labels}
               dir={dir}
+              recenter={status !== "unsupported" ? { onClick: () => locate(), busy: status === "locating", disabled: status === "locating", label: t("useLocation"), busyLabel: t("locating") } : undefined}
             >
               {selectedItem ? preview(selectedItem) : stack && stackList(stack)}
             </DiscoveryMap>

@@ -20,6 +20,10 @@ export type MapLabels = {
   cluster: (count: number) => string; zoomIn: string; zoomOut: string;
   gestures: { windows: string; mac: string; mobile: string };
 };
+/** The floating "recenter on my location" control. Rendered only when a page opts in (e.g. Nearby, not the
+ * business-detail map): the page owns the geolocation call and its permission/error states, this component only
+ * shows the button and its busy/disabled state. */
+export type RecenterControl = { onClick: () => void; busy: boolean; disabled: boolean; label: string; busyLabel: string };
 type LatLng = { lat: number; lng: number };
 
 /** Beyond this zoom markers are never clustered, except ones at (nearly) identical coordinates. */
@@ -27,11 +31,11 @@ const CLUSTER_MAX_ZOOM = 16;
 const STORE_ICON = '<svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9 5.5 4h13L20 9M4 9v11h16V9M4 9a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0A2.7 2.7 0 0 0 20 9"/></svg>';
 
 export function DiscoveryMap({
-  center, radiusKm, points, selectedId, onSelect, onSelectMany, onSearchArea, user, labels, dir, className = "", children,
+  center, radiusKm, points, selectedId, onSelect, onSelectMany, onSearchArea, user, labels, dir, className = "", children, recenter,
 }: {
   center: LatLng; radiusKm?: number; points: MapPoint[]; selectedId: string | null;
   onSelect: (id: string | null) => void; onSelectMany?: (ids: string[]) => void; onSearchArea?: (c: LatLng) => void; user?: LatLng | null;
-  labels: MapLabels; dir: "rtl" | "ltr"; className?: string; children?: ReactNode;
+  labels: MapLabels; dir: "rtl" | "ltr"; className?: string; children?: ReactNode; recenter?: RecenterControl;
 }) {
   const box = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MlMap | null>(null);
@@ -273,6 +277,16 @@ export function DiscoveryMap({
           </button>
         </div>
       )}
+      {status === "ready" && recenter && (
+        <div className={`absolute bottom-3 z-10 ${dir === "rtl" ? "right-3" : "left-3"}`}>
+          <button type="button" onClick={recenter.onClick} disabled={recenter.disabled} aria-busy={recenter.busy}
+            aria-label={recenter.busy ? recenter.busyLabel : recenter.label} title={recenter.busy ? recenter.busyLabel : recenter.label}
+            data-testid="map-recenter"
+            className="grid size-11 place-items-center rounded-full bg-surface text-brand-text shadow-lift ring-1 ring-line transition hover:bg-brand-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:opacity-60 motion-safe:active:scale-95">
+            <LocateIcon className={recenter.busy ? "size-5 animate-pulse" : "size-5"} />
+          </button>
+        </div>
+      )}
       {children && (
         <div className="pointer-events-none absolute inset-x-3 bottom-3 z-10 flex justify-center">
           <div className="pointer-events-auto w-full max-w-md">{children}</div>
@@ -284,6 +298,12 @@ export function DiscoveryMap({
 
 function emptyFc(): GeoJSON.FeatureCollection {
   return { type: "FeatureCollection", features: [] };
+}
+
+// Same glyph already used for this exact action in NearbyDiscovery.tsx; kept here too (not imported across the
+// page/map boundary) so this map component has no dependency on a specific page.
+function LocateIcon({ className = "size-5" }: { className?: string }) {
+  return <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3" /><path d="M12 2v3M12 19v3M2 12h3M19 12h3" /><circle cx="12" cy="12" r="8" /></svg>;
 }
 
 function paintSelected(el: HTMLElement, selectedId: string | null) {
