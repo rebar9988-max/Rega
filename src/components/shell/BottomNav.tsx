@@ -33,7 +33,10 @@ export function BottomNav() {
                   (Worker CPU is the platform's limit, see lib/edge-cache.ts); a tap still navigates instantly enough. */}
               <Link href={item.href} prefetch={false} aria-current={active ? "page" : undefined}
                 className={`flex h-full flex-col items-center justify-center gap-1 px-1 text-[11px] leading-tight transition-colors ${active ? "font-bold text-brand-text" : "font-medium text-muted hover:text-ink"}`}>
-                <FigmaIcon name={item.icon} className="size-[22px] shrink-0" />
+                {item.href === "/search"
+                  // Reference v2: search is the raised logo-red button in the middle of the bar.
+                  ? <span className="-mt-7 grid size-14 shrink-0 place-items-center rounded-full bg-brand text-brand-ink shadow-[0_10px_22px_-8px_var(--brand-glow)] ring-4 ring-surface"><FigmaIcon name={item.icon} className="size-6" /></span>
+                  : <FigmaIcon name={item.icon} className="size-[22px] shrink-0" />}
                 {"short" in item
                   ? <><span aria-hidden="true" dir="ltr" className="max-w-full truncate">{item.short}</span><span className="sr-only">{tn(item.key)}</span></>
                   : <span className="max-w-full truncate">{item.ns === "nav" ? tn(item.key) : tc(item.key)}</span>}

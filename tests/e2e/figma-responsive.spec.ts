@@ -48,3 +48,36 @@ test("editorial search submits real query and keeps city selector interactive", 
   await expect(page).toHaveURL(/\/en\/businesses\?.*q=Zagros/);
   await expect(page.getByRole("heading", { name: /Zagros/i })).toBeVisible();
 });
+
+test("reference v2: category filter, business tabs and the compact map banner", async ({ page }) => {
+  await page.goto("/en");
+  const hero = page.locator(".rega-editorial-hero");
+  // The hero's category filter submits the real category id; /businesses redirects to the readable category URL.
+  const select = hero.locator('select[name="category"]');
+  const value = await select.locator("option").nth(1).getAttribute("value");
+  expect(value).toBeTruthy();
+  await select.selectOption(value!);
+  await hero.locator('button[type="submit"]').click();
+  await expect(page).toHaveURL(/\/en\/businesses\/[a-z0-9-]+/);
+
+  await page.goto("/en");
+  const tabs = page.getByRole("tablist");
+  await expect(tabs).toBeVisible();
+  const first = tabs.getByRole("tab").first();
+  await expect(first).toHaveAttribute("aria-selected", "true");
+  await first.focus();
+  await page.keyboard.press("ArrowRight");
+  const second = tabs.getByRole("tab").nth(1);
+  await expect(second).toHaveAttribute("aria-selected", "true");
+  await expect(second).toBeFocused();
+  await expect(page.locator(`#${await second.getAttribute("aria-controls")}`)).toBeVisible();
+  // Every rating shown on a card is a real review count; no card shows a rating without reviews.
+  for (const label of await page.locator(".rh-rating").evaluateAll((els) => els.map((el) => el.getAttribute("aria-label")))) {
+    expect(label).toMatch(/\d/);
+  }
+
+  const map = page.getByRole("link", { name: "Open Map" });
+  await expect(map).toHaveAttribute("href", "/en/nearby");
+  // The homepage itself no longer embeds an interactive map; it opens from the banner.
+  await expect(page.locator(".rega-home .maplibregl-map")).toHaveCount(0);
+});

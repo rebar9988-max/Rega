@@ -1,240 +1,187 @@
 /**
- * Decorative artwork of the approved REGA24 home reference (owner image, 2026-10-30), drawn as inline SVG: no photo,
- * no network request, no real landmark (globally neutral: generic skyline, globe, red connection lines).
- * Every piece is aria-hidden. Ids are prefixed "rh" and each graphic is rendered once per page.
+ * Original inline artwork for the home page of the approved REGA24 reference (no photograph, no network request):
+ * a sunset over the Earth's curve with a world skyline (New York, London, Rome, Paris, Dubai, a mosque, a palm) in
+ * the official logo's reds. Decorative only: every SVG here is aria-hidden.
  */
 
-const deg = Math.PI / 180;
-const GX = 700, GY = 250, GR = 190;
-
-/** Latitude ellipses and meridians of the globe (computed once, plain numbers in the markup). */
-const latitudes = [-60, -35, -12, 12, 35, 60].map((lat) => ({ cy: GY - GR * Math.sin(lat * deg), rx: GR * Math.cos(lat * deg), ry: 26 * Math.cos(lat * deg) }));
-const meridians = [22, 48, 72].map((lon) => GR * Math.sin(lon * deg));
-
-/** Skyline silhouettes: [x, width, height, roof] — roof: "flat" | "spire" | "dome" | "minaret" | "step". */
-type Roof = "flat" | "spire" | "dome" | "minaret" | "step";
-const BACK: [number, number, number, Roof][] = [
-  [250, 34, 120, "flat"], [290, 26, 165, "spire"], [322, 40, 140, "step"], [370, 30, 190, "flat"], [406, 48, 150, "dome"],
-  [460, 22, 210, "minaret"], [490, 44, 175, "flat"], [540, 36, 230, "spire"], [582, 52, 160, "step"], [640, 30, 200, "flat"],
-  [676, 46, 245, "spire"], [728, 38, 180, "flat"], [772, 54, 150, "dome"], [832, 28, 215, "minaret"], [866, 44, 190, "step"], [916, 44, 170, "flat"],
+/** Deterministic window lights (no Math.random: server and client must render the same markup). */
+const WINDOWS: Array<[number, number]> = [
+  [606, 420], [618, 452], [606, 488], [640, 360], [646, 400], [640, 446], [668, 430], [684, 462], [672, 500], [708, 392],
+  [716, 430], [708, 470], [734, 452], [740, 488], [1160, 470], [1172, 500], [1190, 440], [1202, 480], [1318, 410],
+  [1328, 450], [1318, 492], [1346, 470], [1270, 300], [1262, 400], [1274, 520], [1250, 600], [822, 500], [834, 530],
 ];
-const FRONT: [number, number, number, Roof][] = [
-  [230, 46, 70, "flat"], [282, 34, 96, "step"], [322, 58, 82, "dome"], [386, 30, 120, "flat"], [422, 44, 104, "spire"],
-  [472, 62, 90, "flat"], [540, 32, 132, "step"], [578, 50, 100, "flat"], [634, 26, 150, "minaret"], [666, 58, 112, "dome"],
-  [730, 40, 128, "flat"], [776, 52, 96, "step"], [834, 36, 140, "spire"], [876, 84, 104, "flat"],
+const CITY_LIGHTS: Array<[number, number, number]> = [
+  [640, 637, 2.2], [700, 592, 1.6], [760, 574, 2], [830, 532, 1.4], [905, 518, 2.4], [980, 493, 1.6], [1060, 491, 2.2], [1130, 511, 1.4], [1210, 499, 2], [1290, 522, 1.6], [1370, 534, 2.2], [1440, 570, 1.4], [880, 570, 1.6], [1010, 535, 2], [1160, 552, 1.6], [1320, 574, 2], [760, 634, 1.4], [1090, 580, 1.2], [1500, 614, 1.6], [1560, 641, 1.2],
 ];
-
-function building([x, w, h, roof]: [number, number, number, Roof], base: number): string {
-  const top = base - h;
-  const body = `M${x} ${base}V${top}H${x + w}V${base}Z`;
-  const cx = x + w / 2;
-  switch (roof) {
-    case "spire": return `${body}M${x + w * 0.2} ${top}L${cx} ${top - h * 0.28}L${x + w * 0.8} ${top}Z`;
-    case "dome": return `${body}M${x} ${top}A${w / 2} ${w / 2.2} 0 0 1 ${x + w} ${top}Z`;
-    case "minaret": return `${body}M${cx - 3} ${top}V${top - h * 0.35}H${cx + 3}V${top}ZM${cx} ${top - h * 0.35 - 7}a5 5 0 1 0 .01 0Z`;
-    case "step": return `${body}M${x + w * 0.18} ${top}V${top - 16}H${x + w * 0.82}V${top}Z`;
-    default: return body;
-  }
-}
-
-const sized = ([x, w, h, r]: [number, number, number, Roof], k: number): [number, number, number, Roof] => [x, w, Math.round(h * k), r];
-const backPath = BACK.map((b) => building(sized(b, 0.78), 560)).join("");
-const frontPath = FRONT.map((b) => building(sized(b, 0.82), 560)).join("");
-
-/** Points on the globe (approximate places: Americas, Europe, Kurdistan/Iraq, Gulf, Asia). */
-const PINS: [number, number][] = [[618, 196], [676, 150], [742, 214], [806, 262], [700, 300]];
-const ARCS: [number, number, number, number, number, number][] = [
-  [618, 196, 640, 120, 676, 150], [676, 150, 720, 150, 742, 214], [742, 214, 790, 214, 806, 262], [618, 196, 640, 290, 700, 300], [700, 300, 770, 320, 806, 262],
+const STARS: Array<[number, number, number]> = [
+  [720, 60, 1.2], [820, 110, .9], [930, 46, 1.4], [1040, 96, 1], [1150, 40, 1.1], [1330, 70, 1.3], [1450, 130, .9],
+  [1540, 52, 1.2], [870, 180, .8], [1390, 200, .9], [1210, 150, .8], [990, 210, .7], [1500, 260, .8],
 ];
+const COLOSSEUM_ARCHES = Array.from({ length: 3 }, (_, row) => Array.from({ length: 8 }, (_, col) => [868 + col * 16.5, 500 + row * 30] as const)).flat();
 
-function Pin({ x, y, scale = 1 }: { x: number; y: number; scale?: number }) {
+export function HeroWorldArt({ className = "" }: { className?: string }) {
   return (
-    <g transform={`translate(${x} ${y}) scale(${scale})`}>
-      <ellipse cx="0" cy="2" rx="9" ry="3" fill="#000" opacity=".35" />
-      <path d="M0 0C-7-9-14-15-14-24a14 14 0 0 1 28 0C14-15 7-9 0 0Z" fill="#e11220" stroke="#ff6b74" strokeWidth="1" />
-      <circle cx="0" cy="-24" r="5.5" fill="#fff" />
-    </g>
-  );
-}
-
-export function HomeHeroArt({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 960 560" preserveAspectRatio="xMaxYMax slice" className={className} aria-hidden="true" focusable="false">
+    <svg viewBox="0 0 1600 720" preserveAspectRatio="xMidYMax slice" className={className} aria-hidden="true" focusable="false">
       <defs>
-        <linearGradient id="rhSky" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#0b1430" />
-          <stop offset=".42" stopColor="#1c1b40" />
-          <stop offset=".7" stopColor="#4e1430" />
-          <stop offset=".88" stopColor="#a8172c" />
-          <stop offset="1" stopColor="#e2452f" />
+        <linearGradient id="rh-sky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#1c0503" />
+          <stop offset=".45" stopColor="#4a0d07" />
+          <stop offset=".75" stopColor="#9b1f15" />
+          <stop offset="1" stopColor="#d4452a" />
         </linearGradient>
-        <radialGradient id="rhHorizon" cx=".62" cy="1" r=".6">
-          <stop offset="0" stopColor="#ff8a5c" stopOpacity=".75" />
-          <stop offset=".55" stopColor="#ff3b3b" stopOpacity=".18" />
-          <stop offset="1" stopColor="#ff3b3b" stopOpacity="0" />
+        <radialGradient id="rh-sun" cx=".5" cy=".62" r=".5">
+          <stop offset="0" stopColor="#ffe0bd" />
+          <stop offset=".14" stopColor="#ff9a66" />
+          <stop offset=".38" stopColor="#e53832" stopOpacity=".85" />
+          <stop offset=".7" stopColor="#9b1f15" stopOpacity=".35" />
+          <stop offset="1" stopColor="#6b120a" stopOpacity="0" />
         </radialGradient>
-        <radialGradient id="rhGlobe" cx=".36" cy=".3" r=".85">
-          <stop offset="0" stopColor="#3f7bd1" />
-          <stop offset=".38" stopColor="#173a73" />
-          <stop offset=".8" stopColor="#081631" />
-          <stop offset="1" stopColor="#040a18" />
-        </radialGradient>
-        <radialGradient id="rhAtmos" cx=".5" cy=".5" r=".5">
-          <stop offset=".86" stopColor="#7fb2ff" stopOpacity="0" />
-          <stop offset=".94" stopColor="#9cc3ff" stopOpacity=".38" />
-          <stop offset="1" stopColor="#9cc3ff" stopOpacity="0" />
-        </radialGradient>
-        <linearGradient id="rhBack" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#3b1028" />
-          <stop offset="1" stopColor="#1d0914" />
+        <linearGradient id="rh-city" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#3d0c07" />
+          <stop offset="1" stopColor="#140302" />
         </linearGradient>
-        <pattern id="rhWin" width="12" height="17" patternUnits="userSpaceOnUse">
-          <rect x="4" y="5" width="2.4" height="3.4" fill="#ffcf8a" opacity=".38" />
-        </pattern>
-        <linearGradient id="rhFront" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#2a0b17" />
-          <stop offset="1" stopColor="#10050a" />
+        <radialGradient id="rh-globe" cx=".5" cy="0" r="1">
+          <stop offset="0" stopColor="#6b1a0f" />
+          <stop offset=".18" stopColor="#3a0b06" />
+          <stop offset=".5" stopColor="#1c0503" />
+          <stop offset="1" stopColor="#0e0201" />
+        </radialGradient>
+        <linearGradient id="rh-arc" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stopColor="#ffd2a8" stopOpacity="0" />
+          <stop offset=".5" stopColor="#ffd2a8" />
+          <stop offset="1" stopColor="#e53832" stopOpacity=".2" />
         </linearGradient>
-        <clipPath id="rhGlobeClip"><circle cx={GX} cy={GY} r={GR} /></clipPath>
-        <filter id="rhSoft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="5" /></filter>
+        <filter id="rh-glow" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="6" /></filter>
+        <filter id="rh-soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.2" /></filter>
+        <clipPath id="rh-globe-clip"><circle cx="1100" cy="1290" r="820" /></clipPath>
       </defs>
 
-      <rect width="960" height="560" fill="url(#rhSky)" />
-      <rect width="960" height="560" fill="url(#rhHorizon)" />
+      <rect width="1600" height="720" fill="url(#rh-sky)" />
+      <ellipse cx="1110" cy="470" rx="780" ry="430" fill="url(#rh-sun)" />
       <g fill="#fff">
-        {[[520, 40, .7], [590, 88, .45], [880, 60, .6], [930, 140, .4], [470, 120, .35], [840, 20, .5], [560, 170, .3], [910, 230, .35]].map(([x, y, o]) => (
-          <circle key={`${x}-${y}`} cx={x} cy={y} r="1.3" opacity={o} />
-        ))}
+        {STARS.map(([x, y, r]) => <circle key={`${x}-${y}`} cx={x} cy={y} r={r} opacity=".55" />)}
+      </g>
+      {/* Thin sunset clouds */}
+      <g fill="#ffb98f" opacity=".14" filter="url(#rh-glow)">
+        <ellipse cx="900" cy="300" rx="190" ry="10" />
+        <ellipse cx="1280" cy="250" rx="240" ry="12" />
+        <ellipse cx="1120" cy="350" rx="160" ry="7" />
       </g>
 
-      {/* Globe */}
-      <circle cx={GX} cy={GY} r={GR + 22} fill="url(#rhAtmos)" />
-      <circle cx={GX} cy={GY} r={GR} fill="url(#rhGlobe)" />
-      <g clipPath="url(#rhGlobeClip)" fill="none" stroke="#9cc3ff" strokeOpacity=".22" strokeWidth="1">
-        {latitudes.map((l) => <ellipse key={l.cy} cx={GX} cy={l.cy} rx={l.rx} ry={l.ry} />)}
-        <ellipse cx={GX} cy={GY} rx={GR} ry="30" />
-        <path d={`M${GX} ${GY - GR}V${GY + GR}`} />
-        {meridians.map((rx) => <ellipse key={rx} cx={GX} cy={GY} rx={rx} ry={GR} />)}
-        {/* City lights */}
-        <g fill="#ffd9a0" stroke="none" opacity=".75">
-          {[[640, 180], [660, 170], [690, 160], [710, 182], [735, 205], [752, 222], [770, 236], [600, 230], [628, 248], [690, 262], [722, 280], [790, 290], [812, 250], [668, 214]].map(([x, y]) => (
-            <circle key={`${x}-${y}`} cx={x} cy={y} r="1.6" />
-          ))}
-        </g>
+      {/* Skyline on the Earth's curve: bases run behind the globe. */}
+      <g transform="translate(289 -72) scale(.78)">
+      <g fill="url(#rh-city)">
+        {/* New York: Statue of Liberty and towers */}
+        <rect x="535" y="560" width="50" height="340" />
+        <rect x="528" y="545" width="64" height="20" />
+        <path d="M545 545 548 470 546 430 552 420h16l6 10-2 40 3 75Z" />
+        <circle cx="560" cy="408" r="9" />
+        <path d="m548 404-6-10 9 6 1-12 5 10 3-11 3 11 5-10 1 12 9-6-6 10Z" />
+        <path d="M566 424 578 352l8 1-10 75Z" />
+        <path d="M577 352h12l-2-8h-8Z" />
+        <rect x="598" y="380" width="30" height="520" />
+        <rect x="628" y="340" width="30" height="560" />
+        <rect x="634" y="310" width="18" height="40" />
+        <rect x="640" y="270" width="6" height="45" />
+        <rect x="642" y="236" width="2" height="40" />
+        <rect x="660" y="400" width="36" height="500" />
+        <rect x="698" y="360" width="26" height="540" />
+        <rect x="726" y="430" width="24" height="470" />
+        {/* London: Elizabeth Tower and parliament */}
+        <rect x="752" y="470" width="20" height="430" />
+        <rect x="774" y="330" width="32" height="570" />
+        <rect x="770" y="298" width="40" height="46" />
+        <rect x="776" y="280" width="28" height="20" />
+        <path d="M772 282 790 228l18 54Z" />
+        <rect x="789" y="210" width="2" height="22" />
+        <rect x="808" y="460" width="44" height="440" />
+        <path d="m808 462 6-16 6 16Zm16 0 6-16 6 16Zm16 0 6-16 6 16Z" />
+        {/* Rome: Colosseum */}
+        <path d="M858 900V495q0-25 72-29 72 4 72 29v405Z" />
+        {/* Paris: Eiffel Tower */}
+        <path d="m1090 196 4 44 4 90 10 90 16 100 26 200h-32q-28-80-56 0h-32l26-200 16-100 10-90 4-90Z" />
+        <rect x="1089" y="176" width="2" height="22" />
+        <rect x="1140" y="440" width="34" height="460" />
+        <rect x="1176" y="400" width="30" height="500" />
+        <rect x="1208" y="470" width="20" height="430" />
+        {/* Dubai: Burj Khalifa */}
+        <path d="M1263 110h4l1 70 6 2 2 78 7 2 3 98 8 2 3 108 9 2 2 248h-86l2-248 9-2 3-108 8-2 3-98 7-2 2-78 6-2Z" />
+        <rect x="1310" y="380" width="30" height="520" />
+        <rect x="1342" y="440" width="22" height="460" />
+        {/* Mosque: dome and two minarets */}
+        <rect x="1370" y="470" width="80" height="430" />
+        <path d="M1374 470q0-68 36-78 36 10 36 78Z" />
+        <rect x="1409" y="376" width="2" height="18" />
+        <rect x="1356" y="360" width="8" height="540" />
+        <path d="m1355 362 5-22 5 22Z" />
+        <rect x="1456" y="360" width="8" height="540" />
+        <path d="m1455 362 5-22 5 22Z" />
       </g>
-      <circle cx={GX} cy={GY} r={GR} fill="none" stroke="#cfe0ff" strokeOpacity=".28" strokeWidth="1.5" />
-
-      {/* Connection lines */}
-      <g fill="none" strokeLinecap="round">
-        {ARCS.map(([x1, y1, cx, cy, x2, y2]) => (
-          <g key={`${x1}-${y1}-${x2}`}>
-            <path d={`M${x1} ${y1 - 24}Q${cx} ${cy - 30} ${x2} ${y2 - 24}`} stroke="#ff2a3a" strokeWidth="6" opacity=".35" filter="url(#rhSoft)" />
-            <path d={`M${x1} ${y1 - 24}Q${cx} ${cy - 30} ${x2} ${y2 - 24}`} stroke="#ff4652" strokeWidth="1.8" strokeDasharray="1 0" />
-          </g>
-        ))}
+      {/* Palm */}
+      <g fill="none" stroke="#1a0402" strokeLinecap="round">
+        <path d="M1520 900q10-220-8-396" strokeWidth="7" />
+        <path d="M1512 504q-40-20-74 6M1512 504q-30-34-66-30M1512 504q4-40 40-52M1512 504q40-14 70 12M1512 504q30 8 44 46M1512 504q-26 10-40 46" strokeWidth="5" />
       </g>
-      {PINS.map(([x, y], i) => <Pin key={`${x}-${y}`} x={x} y={y} scale={i === 2 ? 1.25 : 0.9} />)}
+      {/* Lights: windows, clock face, torch, arches */}
+      <g fill="#ffb37a">
+        {WINDOWS.map(([x, y]) => <rect key={`${x}-${y}`} x={x} y={y} width="3" height="5" opacity=".55" />)}
+        {COLOSSEUM_ARCHES.map(([x, y]) => <path key={`${x}-${y}`} d={`M${x} ${y + 18}v-11a5 5 0 0 1 10 0v11Z`} opacity=".22" />)}
+      </g>
+      <circle cx="790" cy="321" r="11" fill="#ffe0bd" opacity=".9" />
+      <path d="M583 344c-4-6-2-12 0-16 2 4 4 10 0 16Z" fill="#ffd2a8" />
+      <circle cx="583" cy="338" r="9" fill="#ff9a66" opacity=".45" filter="url(#rh-soft)" />
+      </g>
 
-      {/* Skyline */}
-      <path d={backPath} fill="url(#rhBack)" opacity=".92" />
-      <path d={frontPath} fill="url(#rhFront)" />
-      <path d={frontPath} fill="url(#rhWin)" />
-      <rect y="530" width="960" height="30" fill="#10050a" />
+      {/* Earth */}
+      <circle cx="1100" cy="1290" r="832" fill="none" stroke="#ff7a52" strokeWidth="14" opacity=".45" filter="url(#rh-glow)" />
+      <circle cx="1100" cy="1290" r="820" fill="url(#rh-globe)" />
+      <g clipPath="url(#rh-globe-clip)" fill="none" stroke="#ff8f66" strokeWidth="1" opacity=".16">
+        <circle cx="1100" cy="1290" r="780" />
+        <circle cx="1100" cy="1290" r="730" />
+        <circle cx="1100" cy="1290" r="670" />
+        <ellipse cx="1100" cy="1290" rx="200" ry="820" />
+        <ellipse cx="1100" cy="1290" rx="430" ry="820" />
+        <ellipse cx="1100" cy="1290" rx="640" ry="820" />
+      </g>
+      <circle cx="1100" cy="1290" r="820" fill="none" stroke="#ffc49a" strokeWidth="1.6" opacity=".8" />
+      {/* Connected places: arcs between city lights */}
+      <g fill="none" stroke="url(#rh-arc)" strokeWidth="1.6" strokeLinecap="round">
+        <path d="M700 592Q840 329 980 493" />
+        <path d="M980 493Q1135 309 1290 522" />
+        <path d="M905 518Q1032 362 1160 552" />
+        <path d="M1210 499Q1325 357 1440 570" />
+      </g>
+      <g fill="#ffd2a8">
+        {CITY_LIGHTS.map(([x, y, r]) => <circle key={`${x}-${y}`} cx={x} cy={y} r={r} opacity=".85" />)}
+      </g>
+      <g fill="#ff9a66" opacity=".55" filter="url(#rh-soft)">
+        <circle cx="980" cy="493" r="6" /><circle cx="1290" cy="522" r="5" /><circle cx="700" cy="592" r="5" />
+      </g>
     </svg>
   );
 }
 
-/** Red light lines along the lower edge of the hero, as on the official artwork's background. */
-export function HomeHeroSwoosh({ className }: { className?: string }) {
+/** Dotted world pattern for the compact map banner (abstract, decorative). */
+export function MapBannerArt({ className = "" }: { className?: string }) {
   return (
-    <svg viewBox="0 0 1440 160" preserveAspectRatio="none" className={className} aria-hidden="true" focusable="false">
+    <svg viewBox="0 0 600 200" preserveAspectRatio="xMidYMid slice" className={className} aria-hidden="true" focusable="false">
       <defs>
-        <linearGradient id="rhSwoosh" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0" stopColor="#db0512" stopOpacity=".95" />
-          <stop offset=".45" stopColor="#ff2a36" stopOpacity=".55" />
-          <stop offset="1" stopColor="#ff2a36" stopOpacity="0" />
-        </linearGradient>
-        <linearGradient id="rhSwooshFill" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0" stopColor="#db0512" stopOpacity=".9" />
-          <stop offset=".5" stopColor="#db0512" stopOpacity=".25" />
-          <stop offset="1" stopColor="#db0512" stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <path d="M0 160V96C240 60 470 120 720 132S1180 150 1440 118V160Z" fill="url(#rhSwooshFill)" opacity=".55" />
-      <g fill="none" stroke="url(#rhSwoosh)" strokeLinecap="round">
-        <path d="M0 104C260 62 520 112 780 124S1200 136 1440 104" strokeWidth="2.4" />
-        <path d="M0 126C300 92 560 138 820 142S1220 146 1440 128" strokeWidth="1.4" opacity=".8" />
-        <path d="M0 82C220 52 420 86 640 104" strokeWidth="1" opacity=".7" />
-      </g>
-    </svg>
-  );
-}
-
-/** Awning: six red/white stripes from the 188px top edge to the 172px bottom edge, with a scalloped hem. */
-const AWNING = [0, 2, 4, 6, 8, 10].map((i) => {
-  const t = (k: number) => 26 + (188 / 12) * k, b = (k: number) => 34 + (172 / 12) * k;
-  return `M${t(i)} 58H${t(i + 1)}L${b(i + 1)} 88H${b(i)}Z`;
-});
-const SCALLOP = `M34 88${Array.from({ length: 6 }, () => "a14.33 10 0 0 0 28.67 0").join("")}Z`;
-
-/** Banner art: a shop with a large location pin (business registration banner, on red). */
-export function StoreArt({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 240 190" className={className} aria-hidden="true" focusable="false">
-      <ellipse cx="120" cy="178" rx="104" ry="9" fill="#000" opacity=".16" />
-      <rect x="34" y="78" width="172" height="98" rx="6" fill="#fff" />
-      <rect x="34" y="78" width="172" height="12" fill="#f3f4f6" />
-      <path d="M26 58h188l-8 30H34Z" fill="#fff" />
-      {AWNING.map((d) => <path key={d} d={d} fill="#ffc9cd" />)}
-      <path d={SCALLOP} fill="#fff" />
-      <rect x="54" y="112" width="58" height="40" rx="4" fill="#ffe4e6" />
-      <path d="M54 132h58M83 112v40" stroke="#fff" strokeWidth="3" />
-      <rect x="132" y="112" width="48" height="64" rx="4" fill="#ffe4e6" />
-      <circle cx="170" cy="146" r="3" fill="#db0512" />
-      <rect x="40" y="166" width="18" height="10" rx="3" fill="#2f9e5a" />
-      <circle cx="49" cy="160" r="9" fill="#38b26a" />
-      <circle cx="198" cy="160" r="9" fill="#38b26a" />
-      <rect x="189" y="166" width="18" height="10" rx="3" fill="#2f9e5a" />
-      <g transform="translate(120 52)">
-        <ellipse cx="0" cy="4" rx="16" ry="5" fill="#000" opacity=".18" />
-        <path d="M0 0C-13-15-26-26-26-44a26 26 0 0 1 52 0C26-26 13-15 0 0Z" fill="#fff" />
-        <path d="M0-8C-9-19-19-28-19-44a19 19 0 0 1 38 0C19-28 9-19 0-8Z" fill="#db0512" />
-        <circle cx="0" cy="-44" r="8" fill="#fff" />
-      </g>
-    </svg>
-  );
-}
-
-/** Banner art: a world sphere with red places and connections (global discovery banner, on soft red). */
-export function WorldArt({ className }: { className?: string }) {
-  const lat = [-50, -20, 10, 40].map((a) => ({ cy: 95 - 78 * Math.sin(a * deg), rx: 78 * Math.cos(a * deg), ry: 12 * Math.cos(a * deg) }));
-  return (
-    <svg viewBox="0 0 240 190" className={className} aria-hidden="true" focusable="false">
-      <defs>
-        <radialGradient id="rhWorld" cx=".38" cy=".32" r=".8">
-          <stop offset="0" stopColor="#fff" />
-          <stop offset="1" stopColor="#ffd6d9" />
+        <pattern id="rh-dots" width="9" height="9" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.6" fill="#fff" /></pattern>
+        <radialGradient id="rh-dots-fade" cx=".5" cy=".5" r=".55">
+          <stop offset="0" stopColor="#fff" stopOpacity=".9" />
+          <stop offset="1" stopColor="#fff" stopOpacity="0" />
         </radialGradient>
+        <mask id="rh-dots-mask">
+          <rect width="600" height="200" fill="url(#rh-dots-fade)" />
+        </mask>
+        {/* Simplified continents (abstract silhouettes) */}
+        <clipPath id="rh-land">
+          <path d="M40 60q30-30 80-24t70 20q10 30-20 44t-40 40q-20 10-30-10t-30-30q-40-10-30-40ZM150 120q30 0 36 30t-14 46q-16-10-20-36t-2-40ZM250 40q40-20 80-6 20 10 10 24-30 6-40 20t-34 0q-30-16-16-38ZM270 92q30-6 44 14t4 50q-14 30-30 20t-20-44q-6-30 2-40ZM330 40q60-26 140-12 60 10 80 36-10 24-50 22t-40 30q-30 10-50-10t-50-20q-40-6-30-46ZM470 130q30-6 46 10t-6 30q-26 6-40-10t0-30Z" />
+        </clipPath>
       </defs>
-      <ellipse cx="128" cy="180" rx="84" ry="7" fill="#db0512" opacity=".1" />
-      <circle cx="128" cy="95" r="78" fill="url(#rhWorld)" stroke="#f3a9ae" strokeWidth="1.5" />
-      <g fill="none" stroke="#f3a9ae" strokeWidth="1">
-        {lat.map((l) => <ellipse key={l.cy} cx="128" cy={l.cy} rx={l.rx} ry={l.ry} />)}
-        <ellipse cx="128" cy="95" rx="30" ry="78" />
-        <ellipse cx="128" cy="95" rx="60" ry="78" />
-        <path d="M128 17v156" />
+      <g mask="url(#rh-dots-mask)">
+        <rect width="600" height="200" fill="url(#rh-dots)" clipPath="url(#rh-land)" opacity=".5" />
       </g>
-      <g fill="none" stroke="#db0512" strokeWidth="1.6" strokeDasharray="3 4" strokeLinecap="round">
-        <path d="M92 70Q110 40 140 62" />
-        <path d="M140 62Q170 70 168 108" />
-        <path d="M92 70Q96 118 132 126" />
-      </g>
-      {[[92, 70, 1], [140, 62, 1.25], [168, 108, 1], [132, 126, .9]].map(([x, y, s]) => (
-        <g key={`${x}-${y}`} transform={`translate(${x} ${y}) scale(${s})`}>
-          <path d="M0 0C-5-6-10-10-10-17a10 10 0 0 1 20 0C10-10 5-6 0 0Z" fill="#db0512" />
-          <circle cx="0" cy="-17" r="3.6" fill="#fff" />
-        </g>
-      ))}
     </svg>
   );
 }

@@ -17,11 +17,11 @@ export function NavLinks({ dir, items }: { dir: "rtl" | "ltr"; items: NavItem[] 
         const active = (item.href === "/" ? pathname === "/" : pathname === item.href || pathname.startsWith(`${item.href}/`));
         return (
           <li key={item.key}>
-            {/* Approved concept: vertically centred label, a short red bar under the current section. */}
+            {/* Reference v2: white label on the logo-red bar, a bright logo-red bar under the current section. */}
             <Link href={item.href} dir={dir} aria-current={active ? "page" : undefined}
-              className={`relative flex h-full items-center whitespace-nowrap text-[14px] transition-colors hover:text-brand-text ${active ? "font-bold text-brand-text" : "font-medium text-ink"}`}>
+              className={`relative flex h-full items-center whitespace-nowrap text-[14px] text-white transition-colors hover:text-white ${active ? "font-bold" : "font-medium text-white/85"}`}>
               <span>{t(item.key)}</span>
-              <span aria-hidden="true" className={`absolute inset-x-0 bottom-0 h-[3px] rounded-t-full ${active ? "bg-brand" : "bg-transparent"}`} />
+              <span aria-hidden="true" className={`absolute inset-x-0 bottom-5 h-[3px] rounded-full ${active ? "bg-brand-glow" : "bg-transparent"}`} />
             </Link>
           </li>
         );

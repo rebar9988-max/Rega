@@ -1164,3 +1164,92 @@ Local re-check of all 11 locales at 320–1024 px: no overflow from the new sect
   that found nothing, as a warning above 30% with at least 5 such searches. It never creates data. If the table is
   unreadable it reports SKIPPED. Production D1 has migration `0005_search_query_daily.sql` (read-only check: 0 rows).
   Still owner-triggered only: scheduling stays off because account-wide usage/billing cannot be verified.
+
+## Owner reference v2 + logo colours — 2026-10-30 (branch `claude/rega24-logo-colors-reference-v2`)
+
+Owner instruction (Sorani): "take colour inspiration from that logo, 100/100", with the REGA24 desktop+mobile reference image
+(deep-red world hero, red header, filterable business cards, photo category row, compact map banner, raised centre search tab)
+and the official glossy logo. Identity guard OK (REGA, www.rega24.com), based on main `b52064e`. Zero additional cost.
+
+Colours: logo sampled (`c895b39e-image.jpg`): highlight #e53832, core #c8281e–#d83020, shadows #9b1f15/#8c1c11/#6b120a.
+`--brand` #db0512 → #d42a20 (logo core, white ink 5.06:1, dark-mode ring 3.65:1); new `--brand-glow/deep/deeper/night`
+tokens. Manifest/offline `theme_color` #d42a20, viewport theme #6b120a, service-worker static cache v5. brand-colors spec
+updated to [212,42,32]. Logo artwork not recoloured. Details: [brand colors](docs/BRAND-COLORS.md).
+
+Header (all public pages): deep logo-red gradient, white nav/account/language pill, white focus ring, add-business button
+with plus icon; nav items unchanged (registry; Jobs stays disabled "until launch", no Community/favourites/notifications exist).
+Bottom bar: search is a raised logo-red circle; same five destinations.
+
+Home body: original inline-SVG hero (sunset, Earth, NY/London/Rome/Paris/Dubai/mosque silhouettes; no photo, no request),
+"Welcome to REGA24 / Find Everything You Need", white pill search q | city | real root-category select (`?category=<id>`,
+redirected to the category URL) | Search; 11 category tiles + More across the hero edge (7 + More on phones);
+Popular Businesses with Featured / Open now (browser-computed from stored hours) / Top rated (real reviews only) / New tabs;
+cards with real rating, open badge, category·city·country, Call/WhatsApp/Directions only when data exists; Explore by
+Category row (real business cover per category, otherwise icon on logo red); compact map banner → /nearby. AI entry and
+social section kept. Removed from home only: trust strip, two promo banners, stats, city grid, inline nearby list+map (all
+those pages/features remain). `getHomeData` (read-only) adds phone/whatsapp/hours, top rated and covers. 16 new `home.*`
+keys in all 11 catalogues. No schema, migration, data, auth, workflow or dependency change.
+
+Deliberate deviations: no favourites heart or notifications bell (features do not exist); no stock photos (none owned);
+hero is an original illustration; Latin face stays Inter/Vazirmatn (typography locked); header nav keeps registry items.
+
+Local verification (local PostgreSQL 16 + SEED_DEMO): typecheck, lint, unit 427 pass/4 DB skips/0 fail, D1 10/10, docs
+validation pass; screenshots en/ckb at 1440 and 390 px, no horizontal overflow. `next build --webpack` passes.
+Browser (local Chromium, desktop+mobile projects): first full pass 432 passed, 12 failed — 8 iPhone/WebKit cases cannot
+launch here (WebKit not installed in this sandbox; CI installs it), 1 caused by a too-short local AUTH_SECRET (passes with a
+valid one), 3 were tests pinned to the previous headline (fa ×2, en SEO; updated to the new copy). Re-runs: 59/59 and, after
+the tab refactor, 133/133 (figma-responsive 11 locales × 8 widths + axe, a11y, navigation, SEO, new tabs/category/map test).
+Lighthouse 12.8.2 on `/en`, same sandbox, local `next start`: desktop Perf 100 / A11y 100 / BP 96 / SEO 92; mobile Perf
+80–85 vs main baseline 83–88 (3 runs each; LCP equal ~3 s, TBT variance 240–530 ms), A11y 100. BP 96 and SEO 92 are local
+artefacts (missing e2e media server; canonical points to www.rega24.com). Fixes from this: card nodes are sent once and only
+the selected tab renders (was serialized per tab), lists cut to 4, "More" tile link gets a screen-reader suffix.
+Next: hosted CI on PR #111 → squash merge → existing CI-gated deploy → production browser check → live verification.
+
+### REGA24 logo — release and health-check follow-up — 2026-10-30
+PR #101 squash `f5ff417` is on `main` and was deployed with `5caee06` ("Deploy to Cloudflare Workers" run 41034244928,
+success). Live check (public fetch): `/favicon.ico` is the new 5645-byte REGA24 ICO (sha256 matches the repository),
+the manifest lists maskable 192/512, and `/brand/rega24-maskable-{192,512}.png` return 200. Root cause of the red
+"Beta health" runs since #105: `production-health.yml` still required `/brand/rega-mark-256.webp` in the `/ckb` header,
+but the header now renders `rega24-badge-*`. Follow-up PR updates that check (and the static-asset probe list) to the
+current official assets; every new probe was confirmed 200 / present against live production before the change.
+
+
+## Owner reference v2 + logo colours — release VERIFIED — 2026-10-30 (PR #111, squash `89a516c`)
+
+- PR #111: final-head `verify` CI on `80341e7` passed (17:58–18:44 UTC; lint, typecheck, unit, D1, full Playwright on
+  D1 and PostgreSQL, Worker build) plus both Workers Builds checks. Identity guard OK; squash-merged with the head SHA pinned.
+- Exact-main chain for `89a516c`: CI `41111803716` success → CI-gated `Deploy to Cloudflare Workers` `41117708805` success
+  (19:46:38 UTC; identity guard, exact-SHA CI gate and D1 snapshot gate passed; wrangler "Current Version ID"
+  `3ea28e82-c67c-40fe-9ae7-941b4af48090`, Worker `rega24`, D1 `rega24-migration`).
+- Production browser check `41118297909` (manual dispatch, attempt 2; attempt 1 was cancelled by the workflow's own
+  `cancel-in-progress` concurrency, not a test failure): success, no FAIL lines. Desktop 1366 px and Pixel 5: 19 public
+  pages HTTP 200, correct dir, 0 px horizontal scroll, served `--brand` `#d42a20` everywhere (incl. /offline.html); new
+  hero headlines live on /ckb /de /en /ar; home search form, AI entry, mobile tab bar, header links, location selector,
+  business profile and /dr sign-in protection pass. Screenshots: artifact `13007371734` (14 days).
+- Post-deploy Beta health `41118353053`: health/D1, routes, canonical redirects/SEO, legal, security headers and access
+  control pass. Only step 9 fails: it greps the header HTML for the retired `/brand/rega-mark-256.webp`, but the header has
+  used the `rega24-badge-*.webp` LogoMark since #105 (already failing on `b52064e` before this release). Open PRs #109/#110
+  update that probe; not changed here. Because Beta health fails, the browser check does not auto-trigger; dispatch it.
+- Info only (pre-existing, not from this release): the mobile browser check's diagnosis lists `/de/businesses` filter chips
+  extending past 393 px inside their own horizontal scroller; page horizontal scroll is 0 px.
+- No production data, schema, migration, secret, binding, plan or paid service was changed.
+- Next safe continuation point: merge #109/#110 (health probe), then a real-photo pass when owner-supplied images exist
+  (category covers fall back to logo-red icon tiles until businesses upload covers).
+
+## Premium banner header — 2026-10-30 (codex/premium-reference-header)
+
+Owner requests ONLY the header/banner, matching the supplied red/silver globe reference, removing the visible Kurdish
+wordmark there. Based on main 4e6e7bf; identity guard verified. Central Doc and GitHub read; Cloudflare baseline readback:
+rega24 deployment 881631bf-1547-481a-807b-4cdae3a0f2a8, version 750e0778-64eb-4d77-987d-cdc043bc61b2 at 100%.
+Root cause: header used a tiny whole-frame badge + text instead of the silver horizontal lockup.
+Changes: header-only horizontal official silver symbol/REGA24 wordmark derivatives (extracted from unchanged master,
+no redraw/recolour), original red/silver vector decoration with public-domain Natural Earth geography, working localized
+GET search, white language/search pill, native dialog hamburger on all sizes, existing desktop registry nav/account/add
+links retained; mobile menu retains account/add destinations. Full logo unchanged elsewhere. Master SHA remains guarded
+by existing tests. No DB/schema/auth/localization/dependency/infrastructure changes. Health probe follows actual header
+asset (retains other logo probes); browser catalog/404 selectors now scope to main because header adds a real searchbox.
+Local: lint/typecheck pass, unit 427 pass/4 existing DB skips/0 fail, D1 10/10 plus batch preservation, Node build pass.
+Initial four-locale browser pass: layout/menus/Escape/axe passed at 320/390/768/1024/1440/1920; two final assertions wrongly
+expected Latin business names on ckb/ar results. Corrected test to assert preserved query value, not untranslated copy.
+Final browser/hosted CI/deployment/live verification pending; no 100/100 claim. Shell gh credential invalid; connected
+GitHub and Cloudflare apps work. Use existing CI-gated main release path only. Production has not been changed yet.

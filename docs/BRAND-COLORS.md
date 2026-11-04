@@ -1,6 +1,8 @@
 # REGA24 brand colors
 
-The current Figma foundations (file `enQ8cs8Yd2xxZ5bajyk6rI`, node `22:6`) set `--brand: #db0512` in `src/app/globals.css`. The owner's Figma implementation directive supersedes the earlier attachment-sampled `#fa070d`. The home frame uses the near-identical `#db0514`; the shared foundation token keeps all routes consistent. Original logo artwork is preserved without recoloring.
+Since 2026-10-30 the palette is taken from the official REGA24 logo (owner instruction: "take the colours from the logo"). `--brand: #d42a20` in `src/app/globals.css` is the logo's core red (hue ≈ 3°); white action ink meets AA at 5.06:1. Four logo tones complete the scale: `--brand-glow #e53832` (logo highlight; decoration and large text on deep red only), `--brand-deep #9b1f15`, `--brand-deeper #6b120a` and `--brand-night #2b0805` (logo shadows; header, hero and banners). This supersedes the Figma foundation `#db0512` and the earlier sampled `#fa070d`. Original logo artwork is preserved without recoloring.
+
+The public header uses the deep logo reds with white navigation; its focus ring is white (`.rega-header`). The browser theme colour is `#6b120a`, the manifest `theme_color` and the standalone offline page use `#d42a20`.
 
 ## Semantic use
 
@@ -12,6 +14,7 @@ The current Figma foundations (file `enQ8cs8Yd2xxZ5bajyk6rI`, node `22:6`) set `
 | `brand-text` | Accessible red text on content surfaces; darker in light mode, lighter in dark mode |
 | `brand-soft` | Derived selected/empty-state backgrounds |
 | `brand-control` | Canonical red for native controls and contrasting thumbs |
+| `brand-glow`, `brand-deep`, `brand-deeper`, `brand-night` | Logo highlight and shadow tones for the header, home hero, cards fallback and banners |
 | `ring` | Canonical red focus indicator |
 | `logo-surface` | Asset-matching backing for retained legacy artwork |
 
