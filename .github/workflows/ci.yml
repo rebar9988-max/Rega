@@ -47,8 +47,12 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - name: Audit dependencies (all severities)
-        run: npm audit --audit-level=low
+      # Owner decision 2026-11-04: production dependencies stay gated at every severity; dev tooling at high/critical.
+      # The eslint plugin chain still requires minimatch 3 (GHSA-g3hv-75wg-m249, moderate) with no upstream fix yet.
+      - name: Audit production dependencies (all severities)
+        run: npm audit --omit=dev --audit-level=low
+      - name: Audit all dependencies (high and critical)
+        run: npm audit --audit-level=high
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
