@@ -1253,3 +1253,13 @@ Initial four-locale browser pass: layout/menus/Escape/axe passed at 320/390/768/
 expected Latin business names on ckb/ar results. Corrected test to assert preserved query value, not untranslated copy.
 Final browser/hosted CI/deployment/live verification pending; no 100/100 claim. Shell gh credential invalid; connected
 GitHub and Cloudflare apps work. Use existing CI-gated main release path only. Production has not been changed yet.
+
+## CI audit gate — owner decision 2026-11-04 (branch `claude/ci-audit-prod-chain`)
+Root cause: new moderate advisories GHSA-3g3m-2fjr-6pw4 (glob ≤14.0.1) and GHSA-g3hv-75wg-m249 (minimatch <11.0.1)
+made `npm audit --audit-level=low` fail on main (CI 41874005626, d6a6a49) and every PR. Fix: scoped overrides give
+`glob@^14.0.3` (minimatch ^11.0.2) to `@opennextjs/cloudflare` and `@node-minify/core` (replaces `glob@10.3.3` override);
+production audit now 0. eslint plugins (eslintrc, import, react, jsx-a11y) still require minimatch ^3 upstream, and a
+global minimatch 11 override breaks lint, so the owner chose: CI gates `npm audit --omit=dev --audit-level=low` plus
+`npm audit --audit-level=high` (14 moderate dev-only findings tolerated until upstream fixes). Verified locally: lint,
+typecheck, npm test 431/431 with PostgreSQL 16, test:d1 10/10, OpenNext Worker build + wrangler dry-run, 4 Worker smoke
+scripts. Restore `--audit-level=low` on all dependencies once the eslint chain moves to minimatch ≥11.0.1.
