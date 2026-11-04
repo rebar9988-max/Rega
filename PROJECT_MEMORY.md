@@ -1300,3 +1300,11 @@ global minimatch 11 override breaks lint, so the owner chose: CI gates `npm audi
 `npm audit --audit-level=high` (14 moderate dev-only findings tolerated until upstream fixes). Verified locally: lint,
 typecheck, npm test 431/431 with PostgreSQL 16, test:d1 10/10, OpenNext Worker build + wrangler dry-run, 4 Worker smoke
 scripts. Restore `--audit-level=low` on all dependencies once the eslint chain moves to minimatch ≥11.0.1.
+
+## PM-01 zero-cost AI — release VERIFIED — 2026-11-04 (#119 `5a1fd81`, #118 `0f67c7f`)
+#119: push CI 41890763223 → Deploy 41898064590 → Beta health 41898064618 → Production browser 41898307115 (all success).
+#118: PR verify 41891184538 → squash `0f67c7f` → push CI 41924305435 → Deploy 41930856219 → Beta health 41930856345 →
+Production browser 41931067177 (all success). Live `GET /api/v1/health` 2026-11-04T23:11:26Z: `ok:true`, `ai:false`,
+`aiProviders:4` (before, 17:22Z: `ai:true`). So production calls no AI model: approval variables are empty by owner
+decision (strict €0). Still open (owner, Cloudflare dashboard): delete unused paid AI keys on Worker `rega24`; set
+`AI_FREE_TIER_APPROVED` only for billing-free accounts if AI is wanted later. Google Doc not updated from this session.
