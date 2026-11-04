@@ -16,9 +16,11 @@ test("both Workers have preview config and isolate inherited production credenti
   }
 });
 
-test("CI audits every dependency severity and retains real disposable database validation", () => {
+test("CI audits production dependencies at every severity, all dependencies at high, and retains real disposable database validation", () => {
   const ci = read(".github/workflows/ci.yml");
-  assert.match(ci, /npm audit --audit-level=low/);
+  assert.match(ci, /run: npm audit --omit=dev --audit-level=low/);
+  assert.match(ci, /run: npm audit --audit-level=high/);
+  assert.doesNotMatch(ci, /npm audit[^\n]*--audit-level=(moderate|critical)|npm audit[^\n]*\|\| true/, "no weaker or bypassed audit gate");
   assert.match(ci, /image: postgres:16/);
   assert.match(ci, /prisma migrate deploy/);
   assert.match(ci, /npm run e2e/);

@@ -73,7 +73,12 @@
   "overrides": {
     "postcss": "^8.5.28",
     "deepmerge-ts": "^8.0.2",
-    "glob@10.3.3": "^10.5.0",
-    "undici@7.29.1": "^7.30.1"
+    "undici@7.29.1": "^7.30.1",
+    "@opennextjs/cloudflare": {
+      "glob": "^14.0.3"
+    },
+    "@node-minify/core": {
+      "glob": "^14.0.3"
+    }
   }
 }
