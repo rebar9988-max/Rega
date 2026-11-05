@@ -143,8 +143,8 @@ test("OpenAI: bearer auth, max_completion_tokens, no custom temperature", async 
   assert.equal(b.max_completion_tokens, 77); assert.ok(!("temperature" in b)); assert.ok(!("max_tokens" in b));
 });
 
-test("default routing lists all seven providers (no single point of failure), and any subset of keys still works", async () => {
-  for (const task of ["chat", "translate", "summarize", "classify"] as const) assert.deepEqual([...DEFAULT_ROUTING[task]].sort(), ["anthropic", "deepseek", "gemini", "grok", "groq", "openai", "openrouter"]);
+test("default routing lists all eight providers (no single point of failure), and any subset of keys still works", async () => {
+  for (const task of ["chat", "translate", "summarize", "classify"] as const) assert.deepEqual([...DEFAULT_ROUTING[task]].sort(), ["anthropic", "deepseek", "gemini", "grok", "groq", "openai", "openrouter", "workers-ai"]);
   const gw = createGateway({ providers: [fake("openai", ok("only openai"))], routing: DEFAULT_ROUTING });
   assert.equal((await gw.generate(req)).provider, "openai");
 });
@@ -231,10 +231,10 @@ test("a provider out of credit (402) trips the breaker instead of being called o
 test("full chain: every direct vendor down -> DeepSeek, then DeepSeek down too -> OpenRouter answers", async () => {
   const order = DEFAULT_ROUTING.chat;
   const build = (down: string[]) => order.map((id) => fake(id, down.includes(id) ? fail("server", 500) : ok(`from ${id}`)));
-  const r1 = await createGateway({ providers: build(["gemini", "openai", "grok", "groq"]), routing: DEFAULT_ROUTING }).generate(req);
-  assert.equal(r1.provider, "deepseek"); assert.deepEqual(r1.attempts.map((a) => a.provider), ["gemini", "openai", "grok", "groq", "deepseek"]);
-  const r2 = await createGateway({ providers: build(["gemini", "openai", "grok", "groq", "deepseek"]), routing: DEFAULT_ROUTING }).generate(req);
-  assert.equal(r2.provider, "openrouter"); assert.equal(r2.attempts.length, 6);
+  const r1 = await createGateway({ providers: build(["gemini", "openai", "grok", "groq", "workers-ai"]), routing: DEFAULT_ROUTING }).generate(req);
+  assert.equal(r1.provider, "deepseek"); assert.deepEqual(r1.attempts.map((a) => a.provider), ["gemini", "openai", "grok", "groq", "workers-ai", "deepseek"]);
+  const r2 = await createGateway({ providers: build(["gemini", "openai", "grok", "groq", "workers-ai", "deepseek"]), routing: DEFAULT_ROUTING }).generate(req);
+  assert.equal(r2.provider, "openrouter"); assert.equal(r2.attempts.length, 7);
 });
 
 test("scrub removes DeepSeek-style (sk-) and OpenRouter (sk-or-v1-) keys", () => {
@@ -337,7 +337,12 @@ test("every routed provider is registered in the runtime catalog, env schema, AI
   const env = readFileSync("src/lib/env.ts", "utf8");
   const example = readFileSync(".env.example", "utf8");
   const routed = new Set(Object.values(DEFAULT_ROUTING).flat());
-  assert.deepEqual([...routed].sort(), Object.keys(PROVIDER_ENV).sort(), "routing covers exactly the seven providers");
+  assert.deepEqual([...routed].sort(), [...Object.keys(PROVIDER_ENV), "workers-ai"].sort(), "routing covers the seven key providers and Workers AI");
+  // Workers AI has no key: it exists only through the Worker binding, with its model in the env schema and a free default.
+  assert.match(runtime, /id: "workers-ai",.*model: env\.WORKERS_AI_MODEL, hasKey: Boolean\(service\),.*generateWithService\(service!, model, input\).*reserveNeurons: reserveWorkersAiNeurons/);
+  assert.match(env, /^\s+WORKERS_AI_MODEL: z\.string\(\)\.min\(1\)\.default\("@cf\/google\/gemma-4-26b-a4b-it"\),/m);
+  assert.match(env, /AI_PROVIDER: z\.enum\(\[[^\]]*"workers-ai"/, "AI_PROVIDER accepts workers-ai");
+  assert.doesNotMatch(readFileSync("wrangler.jsonc", "utf8"), /"ai":/, "no AI binding on rega24: Workers AI stays in rega-ai-python");
   const aiProvider = env.match(/AI_PROVIDER: z\.enum\(\[([^\]]+)\]\)/)?.[1] ?? "";
   for (const [id, [key, model, base]] of Object.entries(PROVIDER_ENV)) {
     assert.match(runtime, new RegExp(`id: "${id}",.*hasKey: Boolean\\(env\\.${key}\\).*model: env\\.${model}, baseUrl: env\\.${base}`), `${id} in catalog`);
@@ -419,7 +424,7 @@ test("every provider key is synced to the Worker and nothing else AI-related is 
 });
 
 test("configWarnings names a routed id that is not a provider, a pinned provider without key, and auto without any key", () => {
-  const catalog = Object.entries(PROVIDER_ENV).map(([id, [keyEnv]]) => ({ id, keyEnv, hasKey: id === "deepseek" }));
+  const catalog = [...Object.entries(PROVIDER_ENV).map(([id, [keyEnv]]) => ({ id, keyEnv, hasKey: id === "deepseek" })), { id: "workers-ai", keyEnv: "AI_SERVICE_URL + AI_SERVICE_TOKEN", hasKey: false }];
   assert.deepEqual(configWarnings({ routing: DEFAULT_ROUTING, catalog, aiProvider: "auto" }), []);
   const typo = configWarnings({ routing: resolveRouting({ order: "gemini,mistral" }), catalog, aiProvider: "auto" });
   assert.equal(typo.length, 1); assert.equal(typo[0].event, "ai.config.unknown_provider_in_routing"); assert.deepEqual(typo[0].meta.ids, ["mistral"]);

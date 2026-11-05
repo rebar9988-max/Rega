@@ -194,3 +194,31 @@ reports `ai: false`. This is the intended fail-safe state.
 (2) Remove unused paid keys in Cloudflare. (3) The Workers AI allowance is account-wide; other Workers on the same
 account are not visible here; on Workers Free overage fails instead of billing, so confirm the plan. (4) Vendor-side
 billing state cannot be read by code; €0 rests on (1)–(3).
+
+## 8. Free Cloudflare capabilities in the one control plane (2026-11-05)
+
+One control plane: the existing gateway (`src/lib/ai/gateway.ts`), policy (`routing.ts`), budget (`budget.ts`), Agent 10
+and `/dr/ai`. No second gateway, Worker, database or binding: Workers AI runs through the existing `rega-ai-python`
+Worker, which already owns the `AI` binding.
+
+| Cloudflare capability | Free terms (verified) | In the control plane | Decision |
+| --- | --- | --- | --- |
+| Workers AI chat (`workers-ai`, `@cf/google/gemma-4-26b-a4b-it`) | 10,000 Neurons/account/day free; Workers Free fails beyond it, Workers Paid bills; model stays on Workers Free (changelog 2026-07-28); 9,091 / 27,273 Neurons per M input / output tokens | 8th gateway provider; `rega-ai-python` `/v1/generate` (existing binding, token, 128 KB body limit; accepts only verified free models); free fallback after gemini and groq; approval `workers-ai` + verified free model + `AI_SERVICE_URL/TOKEN` required | ADOPTED (off until approved) |
+| Workers AI rerank (`rega-ai-python`) | same allocation; 283 Neurons/M tokens | approval `workers-ai`; ≤ 250 calls/day | EXISTED; now also draws from the shared budget |
+| One Workers AI Neuron budget | — | `WORKERS_AI_NEURON_BUDGET` = 8,500/day (85 %), atomic, worst case reserved before every call (chat and rerank) | ADOPTED |
+| Rate Limiting binding (`AI_LIMITER`) | included | 20 req/60 s per IP before the gateway | EXISTED |
+| D1 (`AiUsageDaily`) | included | atomic counters, usage history | EXISTED |
+| Workers Observability | included | `ai.*` structured logs | EXISTED |
+| AI Gateway (Cloudflare) | core free, log retention limited | would duplicate our gateway, breaker, budget and logs | NOT REQUIRED |
+| Vectorize / embeddings (`bge-m3`) | free tier limits apply | no embedding pipeline in the product today | NOT REQUIRED |
+
+**Residual cost risk (owner):** the 10,000 Neurons are per Cloudflare account. Other Workers on the same account are not
+visible to Rega24; on Workers Paid their usage plus Rega24's could exceed the free allocation. Approve `workers-ai` only
+after confirming the plan (Workers Free: overage fails, never bills) or that no other Worker uses Workers AI.
+
+**Why not an `AI` binding on `rega24`:** with any AI binding, OpenNext's deploy step opens a remote Cloudflare session,
+which needs an API token; the credential-free CI check (`cf:dry-run`) would fail. The existing `rega-ai-python` binding
+avoids that and any duplicate binding.
+
+**To enable (owner):** `AI_FREE_TIER_APPROVED=gemini,groq,workers-ai` (or a subset); `AI_SERVICE_URL` and
+`AI_SERVICE_TOKEN` must be set on `rega24` (the rerank already uses them). Nothing else changes.

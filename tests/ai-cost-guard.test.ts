@@ -9,7 +9,9 @@ import { join } from "node:path";
 import { createGateway } from "../src/lib/ai/gateway";
 import { GatewayError, ProviderError } from "../src/lib/ai/errors";
 import { DEFAULT_ROUTING, FREE_TIER_MODELS, PROVIDER_BILLING, WORKERS_AI, costDecision, parseIdList, permittedProviderIds, type CostPolicy } from "../src/lib/ai/routing";
-import { BUDGET_KEYS, RERANK_DAILY_CAP, RERANK_WORST_NEURONS, WORKERS_AI_LIMITS, rerankLimit, reserve, type UsageCounter } from "../src/lib/ai/budget";
+import { BUDGET_KEYS, RERANK_DAILY_CAP, RERANK_WORST_NEURONS, WORKERS_AI_CHAT, WORKERS_AI_LIMITS, WORKERS_AI_NEURON_BUDGET, chatWorstNeurons, rerankLimit, reserve, type UsageCounter } from "../src/lib/ai/budget";
+import { createWorkersAi, workersAiError } from "../src/lib/ai/providers/workers-ai";
+import { generateWithService } from "../src/lib/ai/python-client";
 import type { AiProvider, Task } from "../src/lib/ai/types";
 
 const ALL = Object.keys(PROVIDER_BILLING);
@@ -22,11 +24,11 @@ function memoryCounter(): UsageCounter & { calls: number } {
   const values = new Map<string, number>();
   return {
     calls: 0,
-    async increment(day, key) {
+    async increment(day, key, amount) {
       this.calls++;
       await Promise.resolve();
       const k = `${day.toISOString().slice(0, 10)}:${key}`;
-      const next = (values.get(k) ?? 0) + 1;
+      const next = (values.get(k) ?? 0) + (amount ?? 1);
       values.set(k, next);
       return next;
     },
@@ -87,7 +89,10 @@ test("free-tier approval serves only verified free models (no paid model via GEM
     assert.equal(r.blocked[0].reason, "model_not_verified_free");
   }
   assert.deepEqual(permittedProviderIds("auto", ["gemini"], FREE, {}).active, [], "unknown model = blocked");
-  assert.equal(costDecision(WORKERS_AI, { approvedFree: [WORKERS_AI], approvedPaid: [] }, {}).allowed, true, "Workers AI has its own Neuron cap");
+  const wai = { approvedFree: [WORKERS_AI], approvedPaid: [] };
+  assert.equal(costDecision(WORKERS_AI, wai).allowed, true, "rerank (no model map): its model and Neuron cost are fixed in budget.ts");
+  assert.equal(costDecision(WORKERS_AI, wai, { "workers-ai": "@cf/google/gemma-4-26b-a4b-it" }).allowed, true, "chat with the verified free model");
+  assert.equal(costDecision(WORKERS_AI, wai, { "workers-ai": "@cf/moonshotai/kimi-k2.6" }).reason, "model_not_verified_free", "a Workers-Paid-only model is blocked");
   for (const [id, models] of Object.entries(FREE_TIER_MODELS)) {
     assert.equal(PROVIDER_BILLING[id], "free-tier", `${id} allow-list belongs to a free-tier provider`);
     assert.ok(models.length > 0);
@@ -196,7 +201,7 @@ test("Workers AI quota: the rerank cap holds under concurrency", async () => {
 test("the reservation SQL is atomic on the real D1 schema", async () => {
   const runtime = readFileSync("src/lib/ai/runtime.ts", "utf8");
   const raw = runtime.match(/\$queryRaw<[^`]*>`([^`]+)`/)?.[1];
-  assert.ok(raw && /ON CONFLICT \("day", "provider", "model"\) DO UPDATE SET "requests" = "AiUsageDaily"\."requests" \+ 1/.test(raw) && /RETURNING "requests"/.test(raw));
+  assert.ok(raw && /ON CONFLICT \("day", "provider", "model"\) DO UPDATE SET "requests" = "AiUsageDaily"\."requests" \+ \$\{amount\}/.test(raw) && /RETURNING "requests"/.test(raw));
   const sql = raw.replace(/\$\{[^}]+\}/g, "?");
   const { DatabaseSync } = await import("node:sqlite");
   const db = new DatabaseSync(":memory:");
@@ -205,9 +210,12 @@ test("the reservation SQL is atomic on the real D1 schema", async () => {
   db.exec(ddl.match(/CREATE UNIQUE INDEX "AiUsageDaily_day_provider_model_key"[^;]+;/)![0]);
   const day = Date.UTC(2026, 10, 4);
   const stmt = db.prepare(sql);
-  const values = Array.from({ length: 30 }, (_, i) => Number((stmt.get(`id-${i}`, day, "_budget", "model-attempts") as { requests: number }).requests));
+  const values = Array.from({ length: 30 }, (_, i) => Number((stmt.get(`id-${i}`, day, "_budget", "model-attempts", 1, 1) as { requests: number }).requests));
   assert.deepEqual(values, Array.from({ length: 30 }, (_, i) => i + 1), "each statement returns its own unique count");
-  assert.equal(Number((db.prepare('SELECT COUNT(*) AS n FROM "AiUsageDaily"').get() as { n: number }).n), 1);
+  // Neuron reservations add their amount in the same single statement.
+  const neurons = [34, 120, 34].map((n, i) => Number((stmt.get(`n-${i}`, day, "_budget", "workers-ai-neurons", n, n) as { requests: number }).requests));
+  assert.deepEqual(neurons, [34, 154, 188]);
+  assert.equal(Number((db.prepare('SELECT COUNT(*) AS n FROM "AiUsageDaily"').get() as { n: number }).n), 2, "one row per counter key");
 });
 
 test("wiring: runtime reserves every attempt, rerank is gated, budget rows stay out of statistics", () => {
@@ -233,4 +241,66 @@ test("background agents never call a model or Workers AI", () => {
   walk("src/lib/ops");
   for (const f of files) assert.doesNotMatch(readFileSync(f, "utf8"), /getGateway|\.generate\(|rerankWithPython|rerankWithService|reserveModelAttempt|reserveRerank/, f);
   assert.doesNotMatch(readFileSync(".github/workflows/production-health.yml", "utf8"), /api\/v1\/ai\/chat/, "scheduled health check does not call the assistant");
+});
+
+test("Workers AI: one shared Neuron budget, worst case reserved before every call, fail closed", async () => {
+  assert.equal(WORKERS_AI_NEURON_BUDGET, 8_500);
+  assert.equal(chatWorstNeurons(0, 1024), Math.ceil((1024 * WORKERS_AI_CHAT.neuronsPerMillionOutput) / 1e6));
+  assert.equal(chatWorstNeurons(10_000, 1024), Math.ceil((20_000 * 9_091 + 1024 * 27_273) / 1e6));
+  const counter = memoryCounter();
+  let runs = 0;
+  const provider = createWorkersAi({
+    model: WORKERS_AI_CHAT.model,
+    run: async () => { runs++; return { response: " antwort ", usage: { prompt_tokens: 10, completion_tokens: 2 } }; },
+    reserveNeurons: (n) => reserve(counter, BUDGET_KEYS.workersAiNeurons, WORKERS_AI_NEURON_BUDGET, new Date(), n),
+    worstNeurons: chatWorstNeurons,
+  });
+  const signal = new AbortController().signal;
+  const out = await provider.generate(ask, { signal });
+  assert.deepEqual(out, { content: "antwort", model: WORKERS_AI_CHAT.model, usage: { tokensIn: 10, tokensOut: 2 } });
+  // Rerank and chat draw from the same budget concurrently; the total never passes it.
+  const per = chatWorstNeurons(ask.system.length + 1, 1024);
+  const results = await Promise.allSettled(Array.from({ length: 400 }, (_, i) => i % 2 ? provider.generate(ask, { signal }) : reserve(counter, BUDGET_KEYS.workersAiNeurons, WORKERS_AI_NEURON_BUDGET, new Date(), RERANK_WORST_NEURONS)));
+  const chats = results.filter((r, i) => i % 2 && r.status === "fulfilled").length;
+  const reranks = results.filter((r, i) => !(i % 2) && r.status === "fulfilled" && r.value === true).length;
+  assert.ok(per + chats * per + reranks * RERANK_WORST_NEURONS <= WORKERS_AI_NEURON_BUDGET, "spent ≤ budget");
+  assert.equal(runs, 1 + chats, "no model call without a reservation");
+  // Exhausted or unreadable budget: quota error, binding never called.
+  const before = runs;
+  const refused = createWorkersAi({ model: WORKERS_AI_CHAT.model, run: async () => { runs++; return { response: "x" }; }, reserveNeurons: async () => false, worstNeurons: chatWorstNeurons });
+  await assert.rejects(refused.generate(ask, { signal }), (e: unknown) => e instanceof ProviderError && e.kind === "quota");
+  assert.equal(runs, before);
+});
+
+test("Workers AI: errors map to safe kinds, empty answers and timeouts end the attempt", async () => {
+  assert.equal(workersAiError(new Error("4006: you have used up your daily free allocation of 10,000 neurons")).kind, "quota");
+  assert.equal(workersAiError(new Error("3040: Capacity temporarily exceeded")).kind, "rate_limit");
+  assert.equal(workersAiError(new Error("5035: model requires the Workers Paid plan")).kind, "auth");
+  assert.equal(workersAiError(new Error("boom")).kind, "server");
+  const base = { model: WORKERS_AI_CHAT.model, reserveNeurons: async () => true, worstNeurons: chatWorstNeurons };
+  await assert.rejects(createWorkersAi({ ...base, run: async () => ({ response: "  " }) }).generate(ask, { signal: new AbortController().signal }), (e: unknown) => e instanceof ProviderError && e.kind === "empty");
+  const ctrl = new AbortController();
+  const slow = createWorkersAi({ ...base, run: () => new Promise((r) => setTimeout(() => r({ response: "late" }), 1000)) }).generate(ask, { signal: ctrl.signal });
+  ctrl.abort();
+  await assert.rejects(slow, (e: unknown) => e instanceof Error && e.name === "TimeoutError");
+  // OpenAI-style answers from newer models are read too.
+  const chat = await createWorkersAi({ ...base, run: async () => ({ choices: [{ message: { content: "ok" } }] }) }).generate(ask, { signal: new AbortController().signal });
+  assert.equal(chat.content, "ok");
+});
+
+test("Workers AI via rega-ai-python: token-authenticated call, only status and code surface on failure", async () => {
+  let url = ""; let init: RequestInit = {};
+  const ok = (async (u: string, i: RequestInit) => { url = u; init = i; return new Response(JSON.stringify({ ok: true, model: WORKERS_AI_CHAT.model, content: "silav", usage: { tokensIn: 5, tokensOut: 1 } }), { status: 200 }); }) as unknown as typeof fetch;
+  const cfg = { baseUrl: "https://ai.internal/", token: "t".repeat(32), timeoutMs: 1000 };
+  const out = await generateWithService({ ...cfg, fetchImpl: ok }, WORKERS_AI_CHAT.model, { messages: [{ role: "user", content: "hi" }], max_tokens: 64 });
+  assert.deepEqual(out, { response: "silav", usage: { prompt_tokens: 5, completion_tokens: 1 } });
+  assert.equal(url, "https://ai.internal/v1/generate");
+  assert.equal((init.headers as Record<string, string>).authorization, `Bearer ${"t".repeat(32)}`);
+  assert.equal(JSON.parse(init.body as string).model, WORKERS_AI_CHAT.model);
+  const quota = (async () => new Response(JSON.stringify({ ok: false, error: { code: "quota" } }), { status: 429 })) as unknown as typeof fetch;
+  const err = await generateWithService({ ...cfg, fetchImpl: quota }, WORKERS_AI_CHAT.model, {}).catch((e: unknown) => e);
+  assert.equal(workersAiError(err).kind, "quota");
+  const html = (async () => new Response("<html>bad gateway</html>", { status: 502 })) as unknown as typeof fetch;
+  const bad = await generateWithService({ ...cfg, fetchImpl: html }, WORKERS_AI_CHAT.model, {}).catch((e: unknown) => e);
+  assert.equal((bad as Error).message, "502 generate_failed", "no body text leaks");
 });

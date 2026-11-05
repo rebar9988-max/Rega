@@ -113,3 +113,29 @@ export async function rerankWithService<T>(
     return { items: [...candidates], used: false };
   }
 }
+
+/**
+ * Workers AI chat through the existing rega-ai-python service (it owns the Workers AI binding; no second binding on
+ * rega24). Returns the binding-shaped result the workers-ai provider reads; failures throw with status and code only.
+ */
+export async function generateWithService(
+  config: PythonAiClientConfig,
+  model: string,
+  input: Record<string, unknown>,
+): Promise<{ response: string; usage?: { prompt_tokens: number; completion_tokens: number } }> {
+  const doFetch = config.fetchImpl ?? fetch;
+  const response = await doFetch(`${cleanBaseUrl(config.baseUrl)}/v1/generate`, {
+    method: "POST",
+    headers: { "content-type": "application/json", authorization: `Bearer ${config.token}` },
+    body: JSON.stringify({ model, ...input }),
+  });
+  let body: { ok?: boolean; content?: unknown; usage?: { tokensIn?: number; tokensOut?: number }; error?: { code?: string } } = {};
+  try {
+    body = await response.json();
+  } catch {
+    /* non-JSON answer */
+  }
+  if (!response.ok || body.ok !== true || typeof body.content !== "string") throw new Error(`${response.status} ${body.error?.code ?? "generate_failed"}`);
+  const usage = typeof body.usage?.tokensIn === "number" ? { prompt_tokens: body.usage.tokensIn, completion_tokens: body.usage.tokensOut ?? 0 } : undefined;
+  return { response: body.content, usage };
+}

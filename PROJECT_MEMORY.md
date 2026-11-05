@@ -1340,3 +1340,12 @@ Google pricing "Free of charge"; groq openai/gpt-oss-120b, Groq free-plan limits
 override to a paid or unknown model fails closed (`model_not_verified_free`); agent 10 reports it. Production state is
 unchanged (AI off: approval variables empty). Owner steps before enabling: Google project without billing,
 `AI_FREE_TIER_APPROVED=gemini`, `AI_DAILY_LIMIT=500`, `AI_PAID_APPROVED` empty, no GEMINI_MODEL/GEMINI_BASE_URL override.
+
+## Free Cloudflare AI in one control plane — 2026-11-05 (branch `claude/cf-free-ai-control-plane`, on #125)
+Workers AI added to the existing gateway as provider `workers-ai`, executed by the existing rega-ai-python Worker
+(`/v1/generate`, its AI binding; an AI binding on rega24 would make OpenNext's credential-free dry-run need a token);
+model @cf/google/gemma-4-26b-a4b-it (Workers Free per CF changelog 2026-07-28; 9,091/27,273 Neurons per M tokens).
+One shared Workers AI Neuron budget (8,500/day) for chat and rerank, reserved atomically at worst case before every
+call (counter now adds `amount`); refused/unreadable = no call. Approval `workers-ai` + verified free model required.
+Agent 10 reports `ai.workers_ai_budget`. AI Gateway and Vectorize: NOT REQUIRED (duplication / no use). Risk: Neuron
+allocation is account-wide (other Workers invisible). Production unchanged until merge + owner approval.
