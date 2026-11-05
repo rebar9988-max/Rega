@@ -14,8 +14,9 @@ import { LOCALES, LOCALE_META, localeSuffix, type Locale } from "@/config/locale
 import { isValidCoordinate } from "@/lib/coordinates";
 import type { GeocodeHit } from "@/lib/geocoder-parse";
 import { geocodeAction, saveBusinessAction, type BusinessFormState } from "@/app/dr/businesses/actions";
-import { WEEK, type HoursException, type WeekDay } from "@/lib/opening-hours";
+import { HOURS_MODES, WEEK, type HoursException, type HoursMode, type WeekDay } from "@/lib/opening-hours";
 import { normalizeWhatsapp } from "@/lib/whatsapp";
+import { FigmaIcon } from "@/components/home/FigmaIcon";
 import { BusinessImageField } from "./BusinessImageField";
 import { PhotosField } from "./PhotosField";
 import { HoursExceptionsEditor } from "./HoursExceptionsEditor";
@@ -31,7 +32,7 @@ export type FormInitial = {
   phone?: string; whatsapp?: string; email?: string; website?: string; addressLine1?: string; postalCode?: string; city?: string; countryCode?: string;
   latitude?: number | null; longitude?: number | null; coordsSource?: string | null; coordsVerified?: boolean;
   status?: string;
-  hours?: Partial<Record<WeekDay, string>>; holidaysClosed?: boolean; hoursExceptions?: HoursException[]; logoUrl?: string | null; coverUrl?: string | null; photos?: string[];
+  hours?: Partial<Record<WeekDay, string>>; hoursMode?: HoursMode; holidaysClosed?: boolean; hoursExceptions?: HoursException[]; logoUrl?: string | null; coverUrl?: string | null; photos?: string[];
   /** Description per language (key = locale code; field name is description<Suffix>). */
   translations?: Partial<Record<Locale, string>>;
   languages?: string[];
@@ -75,6 +76,20 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
   const [source, setSource] = useState(initial.coordsSource ?? "");
   const [confirmed, setConfirmed] = useState(Boolean(initial.coordsVerified));
   const [lookup, setLookup] = useState<{ status: "idle" | "hits" | "not_found" | "unavailable"; hits: GeocodeHit[] }>({ status: "idle", hits: [] });
+  // Business hours: which of the four options is selected, the per-day values (kept even while a different option is
+  // shown, so switching back loses nothing before save), and the five-day quick-pick helper state.
+  const [hoursMode, setHoursMode] = useState<HoursMode>(initial.hoursMode ?? "custom");
+  const [hoursByDay, setHoursByDay] = useState<Record<WeekDay, string>>(() => Object.fromEntries(WEEK.map((d) => [d, initial.hours?.[d] ?? ""])) as Record<WeekDay, string>);
+  const [fiveDayDays, setFiveDayDays] = useState<Record<WeekDay, boolean>>(() => {
+    const defaults: Record<WeekDay, boolean> = { mon: true, tue: true, wed: true, thu: true, fri: true, sat: false, sun: false };
+    if (initial.hoursMode !== "five_day") return defaults;
+    return Object.fromEntries(WEEK.map((d) => [d, Boolean(initial.hours?.[d]) && initial.hours?.[d] !== "closed"])) as Record<WeekDay, boolean>;
+  });
+  const [fiveDayShared, setFiveDayShared] = useState(() => {
+    if (initial.hoursMode !== "five_day") return "";
+    const v = (["mon", "tue", "wed", "thu", "fri"] as const).map((d) => initial.hours?.[d]).find((x) => x && x !== "closed");
+    return v ?? "";
+  });
   const [finding, startFinding] = useTransition();
   const [, startSubmit] = useTransition();
   const bad = (f: string) => state?.fields?.includes(f) || stepErrors.includes(f) || undefined;
@@ -179,6 +194,19 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
       place(best, "geocoded");
     });
   }
+
+  // The per-day grid: identical inputs for "custom" (always visible) and "five_day" (behind "customize days"), so one
+  // definition stays the single source of truth.
+  const dayGrid = (
+    <div className="grid gap-3 lg:grid-cols-4">
+      {WEEK.map((d) => (
+        <label key={d} className="flex flex-col gap-1 text-sm font-semibold">{td(d)}
+          <input name={`hours_${d}`} value={hoursByDay[d]} onChange={(e) => setHoursByDay((p) => ({ ...p, [d]: e.target.value }))} dir="ltr" maxLength={120} placeholder="09:00–17:00" inputMode="text" autoComplete="off"
+            className={input} aria-invalid={bad(`hours_${d}`)} aria-describedby="hours-hint" data-testid={`hours-${d}`} />
+        </label>
+      ))}
+    </div>
+  );
 
   return (
     <form
@@ -377,16 +405,67 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
       <details open={canPublish} className="rounded-[var(--radius-card)] border border-line bg-surface p-5"><summary className="cursor-pointer text-sm font-semibold">{t("sectionHours")}</summary>
       <fieldset className="mt-3 space-y-4">
         <legend className="sr-only">{t("sectionHours")}</legend>
-        <p className="text-sm text-muted" id="hours-hint">{t("hoursHint")}</p>
-        <div className="grid gap-3  lg:grid-cols-4">
-          {WEEK.map((d) => (
-            <label key={d} className="flex flex-col gap-1 text-sm font-semibold">{td(d)}
-              <input name={`hours_${d}`} defaultValue={initial.hours?.[d] ?? ""} dir="ltr" maxLength={120} placeholder="09:00–17:00" inputMode="text" autoComplete="off"
-                className={input} aria-invalid={bad(`hours_${d}`)} aria-describedby="hours-hint" data-testid={`hours-${d}`} />
+        <p className="text-sm text-muted" id="hours-mode-hint">{t("hoursModeHint")}</p>
+        <div className="grid gap-2 sm:grid-cols-2" role="radiogroup" aria-label={t("sectionHours")} aria-describedby="hours-mode-hint">
+          {HOURS_MODES.map((m) => (
+            <label key={m} className={`flex min-h-14 cursor-pointer items-start gap-3 rounded-xl border p-3 text-sm ${hoursMode === m ? "border-brand bg-brand-soft" : "border-line bg-surface hover:border-brand/40"}`}>
+              <input type="radio" name="hoursMode" value={m} checked={hoursMode === m} onChange={() => setHoursMode(m)} className="mt-0.5 size-5 accent-brand-control" data-testid={`hours-mode-${m}`} />
+              <span className="min-w-0"><span className="block font-semibold">{t(`hoursMode_${m}`)}</span><span className="block text-xs text-muted">{t(`hoursMode_${m}Sub`)}</span></span>
             </label>
           ))}
         </div>
-        <HoursExceptionsEditor initial={initial.hoursExceptions ?? []} holidaysClosed={Boolean(initial.holidaysClosed)} invalid={bad("hoursExceptions")} />
+
+        {hoursMode === "always_open" && (
+          <div className="flex items-start gap-3 rounded-xl bg-surface-2 p-3 text-sm" data-testid="hours-always-open-note">
+            <FigmaIcon name="badge-check" className="mt-0.5 size-5 shrink-0 text-brand-text" />
+            <span><span className="font-semibold">{t("hoursModeAlwaysOpenConfirm")}</span><br /><span className="text-muted">{t("hoursModeAlwaysOpenNote")}</span></span>
+          </div>
+        )}
+
+        {hoursMode === "appointment" && (
+          <div className="flex items-start gap-3 rounded-xl bg-surface-2 p-3 text-sm" data-testid="hours-appointment-note">
+            <FigmaIcon name="badge-check" className="mt-0.5 size-5 shrink-0 text-brand-text" />
+            <span><span className="font-semibold">{t("hoursModeAppointmentConfirm")}</span><br /><span className="text-muted">{t("hoursModeAppointmentNote")}</span></span>
+          </div>
+        )}
+
+        {hoursMode === "five_day" && (
+          <div className="space-y-3" data-testid="hours-five-day">
+            <fieldset className="flex flex-wrap gap-2">
+              <legend className="sr-only">{t("fiveDayWorkingDays")}</legend>
+              {WEEK.map((d) => (
+                <label key={d} className={`flex min-h-11 items-center gap-1.5 rounded-full border px-3 text-sm font-semibold ${fiveDayDays[d] ? "border-brand bg-brand-soft" : "border-line bg-surface"}`}>
+                  <input type="checkbox" checked={fiveDayDays[d]} onChange={(e) => setFiveDayDays((p) => ({ ...p, [d]: e.target.checked }))} className="size-4 accent-brand-control" data-testid={`five-day-${d}`} />
+                  {td(d)}
+                </label>
+              ))}
+            </fieldset>
+            <div className="flex flex-wrap items-end gap-3">
+              <label className="flex flex-col gap-1 text-sm font-semibold">{t("fiveDaySharedHours")}
+                <input value={fiveDayShared} onChange={(e) => setFiveDayShared(e.target.value)} dir="ltr" maxLength={120} placeholder="09:00–17:00" inputMode="text" autoComplete="off"
+                  className={input} data-testid="five-day-shared" />
+              </label>
+              <button type="button" onClick={() => setHoursByDay((prev) => { const next = { ...prev }; for (const d of WEEK) next[d] = fiveDayDays[d] ? fiveDayShared : "closed"; return next; })}
+                className="min-h-11 rounded-xl border border-line bg-surface px-4 text-sm font-semibold hover:border-brand hover:text-brand-text" data-testid="five-day-apply">{t("fiveDayApply")}</button>
+            </div>
+            <details className="rounded-xl border border-line p-3">
+              <summary className="cursor-pointer text-sm font-semibold">{t("fiveDayCustomizeDays")}</summary>
+              <div className="mt-3">
+                <p className="mb-3 text-sm text-muted" id="hours-hint">{t("hoursHint")}</p>
+                {dayGrid}
+              </div>
+            </details>
+            <HoursExceptionsEditor initial={initial.hoursExceptions ?? []} holidaysClosed={Boolean(initial.holidaysClosed)} invalid={bad("hoursExceptions")} />
+          </div>
+        )}
+
+        {hoursMode === "custom" && (
+          <div className="space-y-4" data-testid="hours-custom">
+            <p className="text-sm text-muted" id="hours-hint">{t("hoursHint")}</p>
+            {dayGrid}
+            <HoursExceptionsEditor initial={initial.hoursExceptions ?? []} holidaysClosed={Boolean(initial.holidaysClosed)} invalid={bad("hoursExceptions")} />
+          </div>
+        )}
       </fieldset>
       </details>
 

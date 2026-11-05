@@ -13,10 +13,19 @@ export type WeekDay = (typeof WEEK)[number];
  */
 export type HoursException = { from: string; to: string; hours: string; reason?: string };
 /**
- * Stored in Location.openingHours. The weekday keys are the long-standing format; `holidays: "closed"` (closed on
- * official public holidays, see lib/holidays.ts) and `exceptions` are optional additions that older readers ignore.
+ * Which of the four owner-facing hours modes produced the stored weekly data (registration/edit form only; purely a
+ * UI hint for re-selecting the right option on reload). `always_open` = every day 00:00–24:00; `appointment` = no
+ * weekly hours by design (not "not filled in yet"); `five_day`/`custom` both store ordinary per-day hours and differ
+ * only in which form controls were shown. Older/legacy records have no `mode` key; see `guessHoursMode`.
  */
-export type OpeningHours = Partial<Record<WeekDay, string>> & { holidays?: "closed"; exceptions?: HoursException[] };
+export const HOURS_MODES = ["always_open", "five_day", "custom", "appointment"] as const;
+export type HoursMode = (typeof HOURS_MODES)[number];
+/**
+ * Stored in Location.openingHours. The weekday keys are the long-standing format; `holidays: "closed"` (closed on
+ * official public holidays, see lib/holidays.ts), `exceptions` and `mode` are optional additions that older readers
+ * ignore.
+ */
+export type OpeningHours = Partial<Record<WeekDay, string>> & { holidays?: "closed"; exceptions?: HoursException[]; mode?: HoursMode };
 
 /** Limits for date exceptions: entries per location, days per entry, reason length. */
 export const EXCEPTION_LIMITS = { max: 30, maxDays: 366, reason: 120 } as const;
@@ -126,17 +135,46 @@ export function closedOnHolidays(stored: unknown): boolean {
   return Boolean(stored && typeof stored === "object" && !Array.isArray(stored) && (stored as Record<string, unknown>).holidays === "closed");
 }
 
-/** Weekly hours plus the optional holiday setting and exceptions, in the stored form; null when nothing at all is set. */
-export function composeOpeningHours(weekly: OpeningHours | null, holidaysClosed: boolean, exceptions: HoursException[]): OpeningHours | null {
+/** Tolerant reader for the stored `mode` hint (see `HoursMode`); null when absent, foreign or unreadable. */
+export function openingHoursMode(stored: unknown): HoursMode | null {
+  const v = stored && typeof stored === "object" && !Array.isArray(stored) ? (stored as Record<string, unknown>).mode : undefined;
+  return typeof v === "string" && (HOURS_MODES as readonly string[]).includes(v) ? (v as HoursMode) : null;
+}
+
+/** True when the business is explicitly appointment-only (no fixed hours by design, not "not filled in yet"). */
+export function isAppointmentOnly(stored: unknown): boolean {
+  return openingHoursMode(stored) === "appointment";
+}
+
+/**
+ * Which hours-mode radio to pre-select when (re)opening the form: the stored hint when present, otherwise a best
+ * guess from legacy weekly data (every day 00:00–24:00 -> always_open; Mon–Fri identical and Sat/Sun closed or
+ * empty -> five_day), defaulting to "custom" — never "appointment", since unset legacy data means "not filled in
+ * yet", not "appointment-only".
+ */
+export function guessHoursMode(stored: unknown): HoursMode {
+  const explicit = openingHoursMode(stored);
+  if (explicit) return explicit;
+  const rows = hoursRows(stored);
+  if (rows.every((r) => r.value === "00:00–24:00")) return "always_open";
+  const [mon, tue, wed, thu, fri, sat, sun] = rows.map((r) => r.value);
+  const weekdays = [mon, tue, wed, thu, fri];
+  if (weekdays[0] && weekdays.every((v) => v === weekdays[0]) && (sat === "" || sat === "closed") && (sun === "" || sun === "closed")) return "five_day";
+  return "custom";
+}
+
+/** Weekly hours plus the optional holiday setting, exceptions and mode hint, in the stored form; null when nothing at all is set. */
+export function composeOpeningHours(weekly: OpeningHours | null, holidaysClosed: boolean, exceptions: HoursException[], mode?: HoursMode): OpeningHours | null {
   const out: OpeningHours = { ...(weekly ?? {}) };
   if (holidaysClosed) out.holidays = "closed";
   if (exceptions.length) out.exceptions = exceptions;
+  if (mode) out.mode = mode;
   return Object.keys(out).length ? out : null;
 }
 
-/** Anything to show about hours: weekly hours, the holiday setting or date exceptions. */
+/** Anything to show about hours: weekly hours, the holiday setting, date exceptions, or an explicit appointment-only status. */
 export function hasHoursInfo(stored: unknown): boolean {
-  return hasHours(stored) || closedOnHolidays(stored) || hoursExceptions(stored).length > 0;
+  return hasHours(stored) || closedOnHolidays(stored) || hoursExceptions(stored).length > 0 || isAppointmentOnly(stored);
 }
 
 /** Exceptions that have not ended yet on `today` ("YYYY-MM-DD", the location's local date), soonest first. */
