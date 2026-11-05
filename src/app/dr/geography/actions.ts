@@ -20,6 +20,16 @@ const citySchema = z.object({
   lat: num(-90, 90), lng: num(-180, 180), sortOrder: z.coerce.number().int().min(0).max(100_000).default(0),
 });
 
+/** Where to return after a geography action: a /dr/geography view (tab and filters) named by the form, else the list. */
+function geoBack(formData: FormData, param: "saved" | "error", value: string): string {
+  const url = new URL(String(formData.get("back") ?? ""), "https://rega.invalid");
+  const safe = url.origin === "https://rega.invalid" && url.pathname === "/dr/geography" ? url : new URL("/dr/geography", "https://rega.invalid");
+  safe.searchParams.delete("saved");
+  safe.searchParams.delete("error");
+  safe.searchParams.set(param, value);
+  return safe.pathname + safe.search;
+}
+
 /** Names of a country or city for the launch languages (columns name<Locale>); English is `nameEn`. */
 function localizedNames(formData: FormData, locales: readonly string[]) {
   return Object.fromEntries(locales.flatMap((l) => {
@@ -31,22 +41,22 @@ function localizedNames(formData: FormData, locales: readonly string[]) {
 export async function saveCountryAction(formData: FormData): Promise<void> {
   const user = await requirePermission("category.write");
   const parsed = countrySchema.safeParse(Object.fromEntries(formData));
-  if (!parsed.success) redirect("/dr/geography?error=invalid");
+  if (!parsed.success) redirect(geoBack(formData, "error", "invalid"));
   const { code, nameEn, lat, lng } = parsed.data;
-  if (await prisma.country.findUnique({ where: { code }, select: { id: true } })) redirect("/dr/geography?error=exists");
+  if (await prisma.country.findUnique({ where: { code }, select: { id: true } })) redirect(geoBack(formData, "error", "exists"));
   const created = await prisma.country.create({ data: { code, nameEn, latitude: lat ?? null, longitude: lng ?? null, ...localizedNames(formData, COLUMN_LOCALES) } });
   await writeAudit({ actorId: user.id, actorEmail: user.email, action: "country.create", entity: "Country", entityId: created.id, after: { code } });
   revalidatePath("/", "layout");
-  redirect("/dr/geography?saved=1");
+  redirect(geoBack(formData, "saved", "1"));
 }
 
 export async function saveRegionAction(formData: FormData): Promise<void> {
   const user = await requirePermission("category.write");
   const parsed = regionSchema.safeParse(Object.fromEntries(formData));
-  if (!parsed.success) redirect("/dr/geography?error=invalid");
+  if (!parsed.success) redirect(geoBack(formData, "error", "invalid"));
   const { countryId, nameEn } = parsed.data;
   const regionSlug = parsed.data.slug ?? slugify(nameEn);
-  if (await prisma.region.findUnique({ where: { countryId_slug: { countryId, slug: regionSlug } }, select: { id: true } })) redirect("/dr/geography?error=exists");
+  if (await prisma.region.findUnique({ where: { countryId_slug: { countryId, slug: regionSlug } }, select: { id: true } })) redirect(geoBack(formData, "error", "exists"));
   const region = await prisma.region.create({ data: { countryId, slug: regionSlug, nameEn } });
   // Translations in rows keyed by locale (any language, no schema change).
   await prisma.regionTranslation.create({ data: { regionId: region.id, locale: "en", name: nameEn } });
@@ -56,7 +66,7 @@ export async function saveRegionAction(formData: FormData): Promise<void> {
   }
   await writeAudit({ actorId: user.id, actorEmail: user.email, action: "region.create", entity: "Region", entityId: region.id, after: { slug: regionSlug } });
   revalidatePath("/", "layout");
-  redirect("/dr/geography?saved=1");
+  redirect(geoBack(formData, "saved", "1"));
 }
 
 /** Create or update a city. The slug (/city/<slug>) is unique across all countries. */
@@ -103,4 +113,5 @@ export async function setGeoActive(formData: FormData): Promise<void> {
   else await prisma.city.update({ where: { id }, data: { isActive } });
   await writeAudit({ actorId: user.id, actorEmail: user.email, action: `${entity}.${isActive ? "activate" : "deactivate"}`, entity, entityId: id, after: { isActive } });
   revalidatePath("/", "layout");
+  redirect(geoBack(formData, "saved", isActive ? "activated" : "deactivated"));
 }

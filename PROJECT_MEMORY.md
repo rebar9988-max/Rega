@@ -1309,6 +1309,24 @@ Production browser 41931067177 (all success). Live `GET /api/v1/health` 2026-11-
 decision (strict €0). Still open (owner, Cloudflare dashboard): delete unused paid AI keys on Worker `rega24`; set
 `AI_FREE_TIER_APPROVED` only for billing-free accounts if AI is wanted later. Google Doc not updated from this session.
 
+## Admin geography workspace (/dr/geography) — 2026-11-04 (branch `claude/geography-admin-workspace-20261104`, merged to `main` as #120 `10d5d82`)
+Task: modernise the staff Countries / Regions / Cities screen only. Root cause of the problem: `/dr/geography` rendered every
+country with all its cities (2,066 seeded) and three buttons per row in one page — 146,549 px tall on a 390 px phone; one tap
+deactivated a record without confirmation.
+Changes (UI only; no schema, migration, data, route, API, RBAC or public-site change): `src/app/dr/geography/page.tsx` is a
+workspace with Countries / Regions / Cities tabs (default Cities), country → region filter (regions only for the chosen country),
+status filter, debounced search (`GeoFilters.tsx`, URL-driven, plain GET form without JS), 25-row server pagination for cities
+(stable order sortOrder, nameEn, id), compact table/mobile rows, per-row `ActionMenu` and `ConfirmAction` for activate/deactivate.
+City search uses only D1-folded columns (`d1-fold-fields.json`); country/region lists are short and filtered in memory, so no new
+D1 fold mapping is needed. `actions.ts`: the same server actions and permission (`category.write`) and audit entries; they now return
+to the view named by a hidden `back` field (validated to `/dr/geography` only) and `setGeoActive` shows an activated/deactivated
+notice. 26 new `geo.*` keys in all 11 catalogues. New E2E `tests/e2e/admin-geography.spec.ts`.
+Verified locally: typecheck, lint, `npm test` (431/427 pass, 0 fail), docs validation; E2E admin-geography + admin-growth 7/7 on
+PostgreSQL and 7/7 on local D1 SQLite; no horizontal overflow at 320/375/390/430/768/1280 px in de (LTR) and ckb (RTL);
+Lighthouse on the signed-in page: accessibility 100 (mobile, desktop), best practices 100, performance 100 desktop / 91 mobile,
+CLS 0; SEO 58 only because `/dr` is deliberately noindex. Mobile height 146,549 px → 3,945 px.
+Merged to `main` via #120 (`10d5d82`); CI and Cloudflare deployment for that merge are tracked separately, not by this entry.
+
 ## Business hours: four one-tap options — CI VERIFIED, awaiting owner merge/deploy — 2026-11-05 (PR #123, branch `feature/business-hours-four-modes`)
 Task: owner's P0 directive ("REGA24 — PREMIUM BUSINESS HOURS SYSTEM 2026") — replace the plain per-day hours editor
 with four mutually-exclusive, one-tap modes on the registration/edit form: Always Open (24/7), Five Days a Week
