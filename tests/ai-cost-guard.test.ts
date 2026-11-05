@@ -97,6 +97,11 @@ test("free-tier approval serves only verified free models (no paid model via GEM
   assert.match(readFileSync("src/lib/ops/analyzers/ai.ts", "utf8"), /permittedProviderIds\(f\.provider, f\.configuredProviders, policy, f\.models\)/);
 });
 
+test("the daily model-attempt limit defaults to 500", () => {
+  assert.match(readFileSync("src/lib/env.ts", "utf8"), /AI_DAILY_LIMIT: z\.coerce\.number\(\)\.int\(\)\.min\(1\)\.default\(500\)/);
+  assert.match(readFileSync(".env.example", "utf8"), /^AI_DAILY_LIMIT=500$/m);
+});
+
 test("missing or invalid configuration fails closed", () => {
   assert.deepEqual(parseIdList(undefined), []);
   assert.deepEqual(parseIdList(" Gemini , , groq;drop, gemini, ${x} "), ["gemini"], "malformed ids are ignored, duplicates removed");
