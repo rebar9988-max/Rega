@@ -1340,3 +1340,32 @@ Google pricing "Free of charge"; groq openai/gpt-oss-120b, Groq free-plan limits
 override to a paid or unknown model fails closed (`model_not_verified_free`); agent 10 reports it. Production state is
 unchanged (AI off: approval variables empty). Owner steps before enabling: Google project without billing,
 `AI_FREE_TIER_APPROVED=gemini`, `AI_DAILY_LIMIT=500`, `AI_PAID_APPROVED` empty, no GEMINI_MODEL/GEMINI_BASE_URL override.
+
+## Default-language fix: Kurdish Sorani over browser Accept-Language — 2026-11-05 (branch `claude/default-locale-ckb-fix`)
+Task (owner): www.rega24.com opened in English for visitors instead of Kurdish Sorani (ckb), even though
+`DEFAULT_LOCALE` in `src/config/locales.ts` was already `"ckb"`. Strict scope: locale initialization only.
+Root cause: `src/middleware.ts` created the next-intl middleware with `localeDetection: true`. For any unprefixed
+request (`/`), next-intl's own resolution order is: (1) URL locale prefix, (2) its `NEXT_LOCALE` cookie, (3) the
+browser's `Accept-Language` header matched against the configured locale list, (4) `defaultLocale`. Because `en` is
+one of the 11 configured locales, a browser sending `Accept-Language: en-...` matched at step 3 and won over the
+step-4 Kurdish default, for every first-time visitor (confirmed against next-intl's published `resolveLocale.js`).
+Fix (`src/middleware.ts` only, ~15 lines): `localeDetection: false` turns step 3 (and step 2) off entirely, so an
+unprefixed request with no evidence of a prior choice now resolves to `defaultLocale` (ckb), regardless of the
+browser's language. To avoid losing a returning visitor's own saved choice (step 2), `middleware()` now checks the
+existing `REGA_LOCALE` cookie itself, before calling the next-intl handler, and redirects an unprefixed request to
+that saved locale when the cookie holds one; this cookie is already set on every locale-prefixed response and is
+unaffected by this change. A request that already has a locale prefix (`/en/...`) is untouched either way — path
+always wins over both the cookie and the header. No other file changed; no routing, design, business-logic, schema
+or dependency change.
+Verification: `src/middleware.ts` is not imported anywhere else (`grep` across `src`/`tests`); a standalone, dependency-
+free simulation of the new branch (8 cases: no cookie, saved `en`/`de`/`ckb`, invalid cookie, prefixed path with and
+without a conflicting cookie) matched the intended table in every case. next-intl's `resolveLocale` priority order was
+confirmed against its published source (unpkg `next-intl@4.8.2`), not assumed. `tsc --noEmit` on the changed file shows
+only the same `next`/`next-intl`/`@types/node` module-resolution gaps present on every other file in this session — not
+caused by this change — because `npm ci` could not complete: `registry.npmjs.org` was not resolvable from this sandbox
+(ENOTFOUND on every package, confirmed not proxy/policy-blocked). Environment limitation, not a code failure: full
+`npm run typecheck`, `npm test`, `npm run build` and the Playwright e2e suite could not be executed locally this
+session. GitHub Actions CI (which has normal network access) is the actual gate before merge; this entry will be
+updated once it reports.
+Not merged or deployed. Next safe continuation point: open the PR, let CI run `typecheck`/`lint`/`npm test`/build, then
+merge per the standing autonomous-execution authorization once it is green.
