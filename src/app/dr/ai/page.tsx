@@ -46,19 +46,19 @@ export default async function DrAi() {
         )}
       </div>
       <div className="overflow-x-auto rounded-[var(--radius-card)] border border-line bg-surface">
-        <table className="w-full min-w-[36rem] text-sm">
-          <thead className="bg-surface-2 text-muted"><tr>{[t("provider"), t("model"), t("status"), t("circuit"), t("test"), tc("actions")].map((c) => <th key={c} scope="col" className="px-4 py-3 text-start font-semibold">{c}</th>)}</tr></thead>
-          <tbody className="divide-y divide-line">
+        <table className="block w-full text-sm md:table md:min-w-[36rem]">
+          <thead className="hidden bg-surface-2 text-muted md:table-header-group"><tr>{[t("provider"), t("model"), t("status"), t("circuit"), t("test"), tc("actions")].map((c) => <th key={c} scope="col" className="px-4 py-3 text-start font-semibold">{c}</th>)}</tr></thead>
+          <tbody className="block divide-y divide-line md:table-row-group">
             {providers.map(({ id, model, hasKey }) => {
               const s = active.get(id);
               return (
-                <tr key={id}>
-                  <td className="px-4 py-3 font-semibold"><Ltr>{id}</Ltr></td>
-                  <td className="px-4 py-3"><Ltr>{model}</Ltr></td>
-                  <td className="px-4 py-3">{hasKey ? t("configured") : t("notConfigured")}</td>
-                  <td className="px-4 py-3">{s ? (s.circuit === "open" ? t("circuitOpen") : t("circuitClosed")) : "—"}</td>
-                  <td className="px-4 py-3" data-testid={`probe-${id}`}>{lastProbe.has(id) ? (lastProbe.get(id)!.ok ? `${t("testOk")} · ${lastProbe.get(id)!.latencyMs}ms` : `${t("testFail")} · ${lastProbe.get(id)!.kind ?? ""}`) : "—"}</td>
-                  <td className="px-4 py-3">{s && can(user.role, "aiconfig.write") && (
+                <tr key={id} className="block p-3 md:table-row md:p-0">
+                  <td className="flex min-w-0 items-start justify-between gap-3 md:table-cell px-4 py-3 font-semibold"><span className="shrink-0 font-semibold text-muted md:hidden">{t("provider")}</span><Ltr>{id}</Ltr></td>
+                  <td className="flex min-w-0 items-start justify-between gap-3 md:table-cell px-4 py-3"><span className="shrink-0 font-semibold text-muted md:hidden">{t("model")}</span><span className="min-w-0 break-all"><Ltr>{model}</Ltr></span></td>
+                  <td className="flex min-w-0 items-start justify-between gap-3 md:table-cell px-4 py-3"><span className="shrink-0 font-semibold text-muted md:hidden">{t("status")}</span>{hasKey ? t("configured") : t("notConfigured")}</td>
+                  <td className="flex min-w-0 items-start justify-between gap-3 md:table-cell px-4 py-3"><span className="shrink-0 font-semibold text-muted md:hidden">{t("circuit")}</span>{s ? (s.circuit === "open" ? t("circuitOpen") : t("circuitClosed")) : "—"}</td>
+                  <td className="flex min-w-0 items-start justify-between gap-3 md:table-cell px-4 py-3" data-testid={`probe-${id}`}><span className="shrink-0 font-semibold text-muted md:hidden">{t("test")}</span>{lastProbe.has(id) ? (lastProbe.get(id)!.ok ? `${t("testOk")} · ${lastProbe.get(id)!.latencyMs}ms` : `${t("testFail")} · ${lastProbe.get(id)!.kind ?? ""}`) : "—"}</td>
+                  <td className="flex min-w-0 items-start justify-between gap-3 md:table-cell px-4 py-3"><span className="shrink-0 font-semibold text-muted md:hidden">{tc("actions")}</span>{s && can(user.role, "aiconfig.write") && (
                     <form action={probeProvider}><input type="hidden" name="id" value={id} /><button type="submit" className={btn}>{t("test")}</button></form>
                   )}</td>
                 </tr>
