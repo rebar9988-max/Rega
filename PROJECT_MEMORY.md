@@ -1325,5 +1325,10 @@ Verified locally: typecheck, lint, `npm test` (431/427 pass, 0 fail), docs valid
 PostgreSQL and 7/7 on local D1 SQLite; no horizontal overflow at 320/375/390/430/768/1280 px in de (LTR) and ckb (RTL);
 Lighthouse on the signed-in page: accessibility 100 (mobile, desktop), best practices 100, performance 100 desktop / 91 mobile,
 CLS 0; SEO 58 only because `/dr` is deliberately noindex. Mobile height 146,549 px → 3,945 px.
-Not verified: GitHub CI and Cloudflare deployment (no merge/deploy done). Next safe continuation point: review the PR, let CI pass,
-merge through the normal protected flow.
+Release (owner authorized merge + deploy, 2026-11-05): PR #120 squash-merged as `10d5d82`. First PR CI run was cancelled by the
+60-min job timeout (Playwright browser install took 27 min on the runner; D1 E2E 454/454 passed); one re-run passed. On `main`:
+CI 41967066452 success; Deploy to Cloudflare Workers 41971027676 success (identity guard, exact-SHA CI gate, verified production
+Worker and domains, deploy); Beta health 41971026609 success; Production browser check 41971142466 (live, read-only) success.
+Environment limitation: this session could not fetch www.rega24.com (proxy 403 / DNS) and had no Cloudflare dashboard access, so the
+active Worker version at 100% is REPORTED by the workflows, not independently verified. Next safe continuation point: owner opens
+www.rega24.com/dr/geography signed in and checks tabs, filters, paging and a deactivate/activate round trip.
