@@ -11,7 +11,7 @@ import { SUPER_ADMIN_EMAILS, isSuperAdminEmail } from "@/lib/rbac";
 import { locationAudit } from "@/lib/business-admin";
 import { FLAG_DEFAULTS } from "@/lib/flags";
 import { costPolicy, providerCatalog, rerankDailyLimit } from "@/lib/ai";
-import { BUDGET_KEYS, BUDGET_PROVIDER, utcDay } from "@/lib/ai/budget";
+import { BUDGET_KEYS, BUDGET_PROVIDER, WORKERS_AI_NEURON_BUDGET, utcDay } from "@/lib/ai/budget";
 import { searchService } from "@/lib/search/postgres";
 import { summarize as summarizeSearches } from "@/lib/search-analytics-core";
 import { DEFAULT_LOCALE, LOCALES, LOCALE_META, type Locale } from "@/config/locales";
@@ -266,6 +266,7 @@ async function aiDiscoveryInspector(): Promise<Inspection> {
     dailyLimit: env.AI_DAILY_LIMIT, rerankService: Boolean(env.AI_SERVICE_URL && env.AI_SERVICE_TOKEN),
     approvedFree: [...policy.approvedFree], approvedPaid: [...policy.approvedPaid], rerankLimit: rerankDailyLimit(),
     modelAttemptsToday: reserved(BUDGET_KEYS.modelAttempts), rerankCallsToday: reserved(BUDGET_KEYS.workersAiRerank),
+    workersAiNeuronsToday: reserved(BUDGET_KEYS.workersAiNeurons), workersAiNeuronBudget: WORKERS_AI_NEURON_BUDGET,
     publicFilter: PUBLIC_BUSINESS, nonsenseHits: nonsense.length,
     hiddenProbes: hiddenRows.length, hiddenLeaks, publicProbes: samples.length, nonPublicHits,
     answersScanned: answers.length, unsupportedLinks: unsupported,

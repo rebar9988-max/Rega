@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-05T06:02:53.291Z",
+  "generatedAt": "2026-11-05T10:39:41.905Z",
   "package": {
     "name": "rega-platform",
     "version": "0.1.0",
@@ -333,6 +333,7 @@
     "STORAGE_ENDPOINT",
     "STORAGE_REGION",
     "STORAGE_SECRET_ACCESS_KEY",
+    "WORKERS_AI_MODEL",
     "XAI_API_KEY"
   ],
   "envExampleKeys": [
@@ -395,6 +396,7 @@
     "STORAGE_BUCKET",
     "STORAGE_ENDPOINT",
     "STORAGE_SECRET_ACCESS_KEY",
+    "WORKERS_AI_MODEL",
     "XAI_API_KEY"
   ],
   "envExampleOnly": [
@@ -529,6 +531,7 @@
     "OPENROUTER_MODEL",
     "REGA_DATABASE_PROVIDER",
     "SECTIONS_DISABLED",
-    "SECTIONS_ENABLED"
+    "SECTIONS_ENABLED",
+    "WORKERS_AI_MODEL"
   ]
 }

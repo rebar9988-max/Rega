@@ -8,15 +8,16 @@ import { TASKS, type Routing, type Task } from "./types";
  *  - classify: Groq, then Grok (short, latency-sensitive), then Gemini and OpenAI.
  *  - every task then falls back to DeepSeek (low cost), then OpenRouter (one key reaching many vendors' models,
  *    independent of the direct vendor accounts above).
+ *  - Cloudflare Workers AI (binding, no key) follows the other free-tier providers; it shares one Neuron budget with rerank.
  *  - Anthropic Claude is the last fallback for every task, so adding its key never changes who serves first.
  * Override without code changes: AI_ROUTING='{"chat":["openai","gemini"]}' (JSON, per task) or
  * AI_PROVIDER_ORDER="gemini,grok" (same order for every task).
  */
 export const DEFAULT_ROUTING: Routing = {
-  chat: ["gemini", "openai", "grok", "groq", "deepseek", "openrouter", "anthropic"],
-  translate: ["gemini", "openai", "grok", "groq", "deepseek", "openrouter", "anthropic"],
-  summarize: ["groq", "gemini", "openai", "grok", "deepseek", "openrouter", "anthropic"],
-  classify: ["groq", "grok", "gemini", "openai", "deepseek", "openrouter", "anthropic"],
+  chat: ["gemini", "openai", "grok", "groq", "workers-ai", "deepseek", "openrouter", "anthropic"],
+  translate: ["gemini", "openai", "grok", "groq", "workers-ai", "deepseek", "openrouter", "anthropic"],
+  summarize: ["groq", "gemini", "openai", "grok", "workers-ai", "deepseek", "openrouter", "anthropic"],
+  classify: ["groq", "grok", "gemini", "openai", "workers-ai", "deepseek", "openrouter", "anthropic"],
 };
 
 /**
@@ -29,6 +30,7 @@ export const DEFAULT_ROUTING: Routing = {
 export const PROVIDER_BILLING: Readonly<Record<string, "free-tier" | "paid">> = Object.freeze({
   gemini: "free-tier",
   groq: "free-tier",
+  "workers-ai": "free-tier",
   openai: "paid",
   grok: "paid",
   deepseek: "paid",
@@ -59,6 +61,8 @@ export type CostReason = "approved_free_tier" | "approved_paid" | "free_tier_not
 export const FREE_TIER_MODELS: Readonly<Record<string, readonly string[]>> = Object.freeze({
   gemini: Object.freeze(["gemini-3.5-flash-lite", "gemini-3.1-flash-lite"]),
   groq: Object.freeze(["openai/gpt-oss-120b"]),
+  // developers.cloudflare.com: stays on the Workers Free plan (Jul 28 2026 changelog); Neurons from the 10,000/day free allocation.
+  "workers-ai": Object.freeze(["@cf/google/gemma-4-26b-a4b-it"]),
 });
 
 export function parseIdList(value: string | undefined): string[] {
@@ -73,7 +77,8 @@ export function parseIdList(value: string | undefined): string[] {
 export function costDecision(id: string, policy: CostPolicy, models?: Readonly<Record<string, string>>): { allowed: boolean; reason: CostReason } {
   if (id === WORKERS_AI || PROVIDER_BILLING[id] === "free-tier") {
     if (!policy.approvedFree.includes(id)) return { allowed: false, reason: "free_tier_not_approved" };
-    if (models && id !== WORKERS_AI && !(FREE_TIER_MODELS[id] ?? []).includes(models[id] ?? "")) return { allowed: false, reason: "model_not_verified_free" };
+    // Rerank asks without `models` (its model and Neuron cap are fixed in budget.ts); every chat provider is model-checked.
+    if (models && !(FREE_TIER_MODELS[id] ?? []).includes(models[id] ?? "")) return { allowed: false, reason: "model_not_verified_free" };
     return { allowed: true, reason: "approved_free_tier" };
   }
   return policy.approvedPaid.includes(id) ? { allowed: true, reason: "approved_paid" } : { allowed: false, reason: "paid_not_approved" };

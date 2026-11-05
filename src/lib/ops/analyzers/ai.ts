@@ -26,6 +26,9 @@ export type AiFacts = {
   /** Today's atomic reservations (AiUsageDaily provider "_budget"). */
   modelAttemptsToday: number;
   rerankCallsToday: number;
+  /** Today's Neurons reserved from the one shared Workers AI budget (rerank + chat), and that budget. */
+  workersAiNeuronsToday: number;
+  workersAiNeuronBudget: number;
   publicFilter: { status?: unknown; verified?: unknown; deletedAt?: unknown; archivedAt?: unknown };
   nonsenseHits: number;
   /** Retrieval for names of listings that are NOT public: how many of them came back. */
@@ -64,10 +67,12 @@ export function analyzeAi(f: AiFacts): Inspection {
   checks.push(f.modelAttemptsToday >= f.dailyLimit
     ? { code: "ai.daily_budget", result: "warn", message: `سنووری ڕۆژانە گەیشت: ${f.modelAttemptsToday}/${f.dailyLimit} هەوڵی مۆدێل. تا نیوەشەوی UTC هیچ مۆدێلێک بانگ ناکرێت.` }
     : check.info("ai.daily_budget", `ئەمڕۆ ${f.modelAttemptsToday}/${f.dailyLimit} هەوڵی مۆدێل (هەموو هەوڵێک، fallback و پشکنینی /dr/ai یش، پێش بانگکردن بە شێوەی atomic دەژمێردرێت).`));
-  const rerankOn = f.rerankService && costDecision(WORKERS_AI, policy).allowed;
-  checks.push(rerankOn
-    ? check.info("ai.workers_ai_rerank", `Workers AI پەسەندکراوە: ئەمڕۆ ${f.rerankCallsToday}/${f.rerankLimit} بانگکردن (سنوور ≤ 85٪ی 10,000 Neuronی خۆڕایی ڕۆژانە). بەشەکە بۆ هەموو هەژمارەکەیە؛ Workerی تر لە هەمان هەژمار نابینرێن.`)
-    : check.pass("ai.workers_ai_rerank", f.rerankService ? "Workers AI پەسەند نەکراوە: ڕیزبەندی ناکرێت (تێچووی سفر)." : "خزمەتگوزاریی Python/Workers AI ڕێکنەخراوە."));
+  const workersAiOn = costDecision(WORKERS_AI, policy).allowed;
+  checks.push(workersAiOn
+    ? (f.workersAiNeuronsToday >= f.workersAiNeuronBudget
+      ? { code: "ai.workers_ai_budget", result: "warn", message: `بودجەی Workers AI گەیشت: ${f.workersAiNeuronsToday}/${f.workersAiNeuronBudget} Neuron. تا نیوەشەوی UTC هیچ بانگکردنێکی Workers AI ناکرێت.` }
+      : check.info("ai.workers_ai_budget", `Workers AI پەسەندکراوە (ڕیزبەندی ${f.rerankService ? "و" : "نییە،"} گفتوگۆ): ئەمڕۆ ${f.workersAiNeuronsToday}/${f.workersAiNeuronBudget} Neuron لە یەک بودجەی هاوبەش (≤ 85٪ی 10,000ی خۆڕایی). ڕیزبەندی ${f.rerankCallsToday}/${f.rerankLimit}. بەشەکە بۆ هەموو هەژمارەکەیە؛ Workerی تر لە هەمان هەژمار نابینرێن.`))
+    : check.pass("ai.workers_ai_budget", "Workers AI پەسەند نەکراوە: نە ڕیزبەندی، نە گفتوگۆ (تێچووی سفر)."));
   const filterOk = f.publicFilter.status === "published" && f.publicFilter.verified === true && f.publicFilter.deletedAt === null && f.publicFilter.archivedAt === null;
   checks.push(filterOk
     ? check.pass("ai.published_only_filter", "دۆزینەوە تەنها بازرگانیی بڵاوکراو، پشتڕاستکراو و نەسڕاوە بەکاردەهێنێت (PUBLIC_BUSINESS).")
