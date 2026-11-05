@@ -132,7 +132,10 @@ test("opening hours: validated input, shown on the detail page; 'Open now' keeps
   await page.getByTestId("hours-tue").fill("00:00-24:00");
   await page.getByRole("button", { name: "Speichern und veröffentlichen" }).click();
   await expect(page.getByTestId("business-status")).toHaveText("Veröffentlicht");
-  await expect(page.getByTestId("hours-mon")).toHaveValue("00:00–24:00"); // stored in the normalized form
+  // The redirect to the edit page remounts the form; every day being 00:00–24:00 is recognized as "always open",
+  // so that option (not the raw per-day grid) is what's shown back.
+  await expect(page.getByTestId("hours-mode-always_open")).toBeChecked();
+  await expect(page.getByTestId("hours-always-open-note")).toBeVisible();
 
   const slug = (await (await page.request.get(`/api/v1/businesses?q=${encodeURIComponent(name)}`)).json()).data[0].slug;
   await page.goto(`/de/businesses/${slug}`);
@@ -158,6 +161,32 @@ test("opening hours: validated input, shown on the detail page; 'Open now' keeps
   await page.getByTestId("nearby-locate").click();
   await expect(page.getByTestId("nearby-open")).toBeChecked();
   await expect(page.getByTestId("nearby-results")).toContainText(name);
+});
+
+test("appointment only: no weekly-hours fields shown or required; public profile says 'by appointment', kept on reload", async ({ page }) => {
+  await stubBasemap(page);
+  await german(page);
+  const name = `E2E Nur Termin ${stamp}`;
+  await page.goto("/dr/businesses/new");
+  await page.getByLabel("Name", { exact: true }).fill(name);
+  await page.getByRole("combobox", { name: "Kategorie", exact: true }).selectOption({ label: "Recht" });
+  await page.getByLabel("Straße und Hausnummer").fill("Domkloster 4");
+  await page.locator('select[name="countryCode"]').selectOption("DE");
+  await page.getByLabel("Stadt", { exact: true }).fill("Köln");
+  await page.getByTestId("lat").fill("50.9413");
+  await page.getByTestId("lng").fill("6.9583");
+  await page.getByTestId("confirm-location").check();
+  await page.getByTestId("hours-mode-appointment").check();
+  await expect(page.getByTestId("hours-mon")).toHaveCount(0); // no weekly fields for this option
+  await page.getByRole("button", { name: "Speichern und veröffentlichen" }).click();
+  await expect(page.getByTestId("business-status")).toHaveText("Veröffentlicht");
+  // The redirect to the edit page remounts the form; the stored mode hint brings the same option back.
+  await expect(page.getByTestId("hours-mode-appointment")).toBeChecked();
+  await expect(page.getByTestId("hours-appointment-note")).toBeVisible();
+
+  const slug = (await (await page.request.get(`/api/v1/businesses?q=${encodeURIComponent(name)}`)).json()).data[0].slug;
+  await page.goto(`/de/businesses/${slug}`);
+  await expect(page.getByTestId("open-state")).toHaveText("Nur nach Vereinbarung");
 });
 
 test("temporary closures, special hours and public holidays: validated, kept when the form is reopened, shown publicly", async ({ page }) => {

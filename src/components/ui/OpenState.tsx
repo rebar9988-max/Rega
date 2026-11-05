@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { formatDate, type Locale } from "@/config/locales";
 import { openStatus, type OpenStatusResult } from "@/lib/geo";
+import { isAppointmentOnly } from "@/lib/opening-hours";
 import { Chip } from "@/components/ui/Badge";
 
 /**
@@ -22,7 +23,12 @@ export function OpenState({ hours, countryCode, regionSlug, className = "mt-3" }
     const timer = setInterval(update, 60_000);
     return () => clearInterval(timer);
   }, [hours, countryCode, regionSlug]);
-  if (!state || state.status === "HOURS_UNKNOWN") return null;
+  if (!state) return null;
+  if (state.status === "HOURS_UNKNOWN") {
+    // Appointment-only businesses have no weekly hours by design: say so instead of showing nothing.
+    if (!isAppointmentOnly(hours)) return null;
+    return <p data-testid="open-state" data-status="APPOINTMENT_ONLY"><Chip>{t("appointmentOnly")}</Chip></p>;
+  }
   const open = state.status === "OPEN" || state.status === "CLOSING_SOON";
   const label = { OPEN: t("open"), CLOSING_SOON: t("closingSoon"), OPENS_SOON: t("opensSoon"), CLOSED: t("closed"), TEMPORARILY_CLOSED: t("temporarilyClosed") }[state.status];
   const next = state.next;
