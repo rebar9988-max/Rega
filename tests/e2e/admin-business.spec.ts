@@ -82,7 +82,7 @@ test("admin adds a business: address lookup, confirmed map location, publish; it
   await page.context().grantPermissions(["geolocation"]);
   await page.context().setGeolocation({ latitude: 52.5025, longitude: 13.4182 });
   await page.goto("/de/nearby");
-  await page.getByTestId("nearby-locate").click();
+  // Permission is already granted, so the page locates automatically; no click needed.
   await page.getByTestId("nearby-radius").selectOption("1");
   await expect(page.getByTestId("nearby-results")).toContainText(name);
   await page.getByTestId("nearby-view-map").click();
@@ -198,7 +198,7 @@ test("businesses at the very same position: the map offers them as a list", asyn
   await page.context().grantPermissions(["geolocation"]);
   await page.context().setGeolocation({ latitude: 52.5025, longitude: 13.4182 });
   await page.goto("/de/nearby");
-  await page.getByTestId("nearby-locate").click();
+  // Permission is already granted, so the page locates automatically; no click needed.
   await page.getByTestId("nearby-radius").selectOption("1");
   await page.getByTestId("nearby-view-map").click();
   const map = page.getByTestId("discovery-map");

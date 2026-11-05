@@ -145,8 +145,7 @@ test("opening hours: validated input, shown on the detail page; 'Open now' keeps
   // (The home page of design frame 204:912 has no "Open now" shortcut; the filter link itself is tested.)
   await page.goto("/de/nearby?open=1");
   await expect(page).toHaveURL(/\/de\/nearby\?open=1$/);
-  // The filters appear once a location is chosen; the requested filter is already on.
-  await page.getByTestId("nearby-locate").click();
+  // Permission is already granted, so the page locates automatically; the filter is already on.
   await expect(page.getByTestId("nearby-open")).toBeChecked();
   await page.getByTestId("nearby-radius").selectOption("1");
   await expect(page.getByTestId("nearby-results")).toContainText(name);
@@ -155,7 +154,7 @@ test("opening hours: validated input, shown on the detail page; 'Open now' keeps
   await page.reload();
   await expect(page).toHaveURL(/open=1/);
   await expect(page).toHaveURL(/radius=1/);
-  await page.getByTestId("nearby-locate").click();
+  // A returning visit with permission still granted re-locates automatically; no click needed.
   await expect(page.getByTestId("nearby-open")).toBeChecked();
   await expect(page.getByTestId("nearby-results")).toContainText(name);
 });
