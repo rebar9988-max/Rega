@@ -1308,3 +1308,22 @@ Production browser 41931067177 (all success). Live `GET /api/v1/health` 2026-11-
 `aiProviders:4` (before, 17:22Z: `ai:true`). So production calls no AI model: approval variables are empty by owner
 decision (strict €0). Still open (owner, Cloudflare dashboard): delete unused paid AI keys on Worker `rega24`; set
 `AI_FREE_TIER_APPROVED` only for billing-free accounts if AI is wanted later. Google Doc not updated from this session.
+
+## Admin geography workspace (/dr/geography) — 2026-11-04 (branch `claude/geography-admin-workspace-20261104`)
+Task: modernise the staff Countries / Regions / Cities screen only. Root cause of the problem: `/dr/geography` rendered every
+country with all its cities (2,066 seeded) and three buttons per row in one page — 146,549 px tall on a 390 px phone; one tap
+deactivated a record without confirmation.
+Changes (UI only; no schema, migration, data, route, API, RBAC or public-site change): `src/app/dr/geography/page.tsx` is a
+workspace with Countries / Regions / Cities tabs (default Cities), country → region filter (regions only for the chosen country),
+status filter, debounced search (`GeoFilters.tsx`, URL-driven, plain GET form without JS), 25-row server pagination for cities
+(stable order sortOrder, nameEn, id), compact table/mobile rows, per-row `ActionMenu` and `ConfirmAction` for activate/deactivate.
+City search uses only D1-folded columns (`d1-fold-fields.json`); country/region lists are short and filtered in memory, so no new
+D1 fold mapping is needed. `actions.ts`: the same server actions and permission (`category.write`) and audit entries; they now return
+to the view named by a hidden `back` field (validated to `/dr/geography` only) and `setGeoActive` shows an activated/deactivated
+notice. 26 new `geo.*` keys in all 11 catalogues. New E2E `tests/e2e/admin-geography.spec.ts`.
+Verified locally: typecheck, lint, `npm test` (431/427 pass, 0 fail), docs validation; E2E admin-geography + admin-growth 7/7 on
+PostgreSQL and 7/7 on local D1 SQLite; no horizontal overflow at 320/375/390/430/768/1280 px in de (LTR) and ckb (RTL);
+Lighthouse on the signed-in page: accessibility 100 (mobile, desktop), best practices 100, performance 100 desktop / 91 mobile,
+CLS 0; SEO 58 only because `/dr` is deliberately noindex. Mobile height 146,549 px → 3,945 px.
+Not verified: GitHub CI and Cloudflare deployment (no merge/deploy done). Next safe continuation point: review the PR, let CI pass,
+merge through the normal protected flow.
