@@ -12,6 +12,8 @@ export type AiFacts = {
   provider: string;
   /** Provider ids with a configured key (booleans only, never the key). */
   configuredProviders: string[];
+  /** Provider id → configured model name (for the verified free-model check). */
+  models: Record<string, string>;
   /** AI_DAILY_LIMIT: shared model requests per UTC day. */
   dailyLimit: number;
   /** AI_SERVICE_URL and AI_SERVICE_TOKEN are both set (Workers AI rerank via rega-ai-python). Presence only. */
@@ -48,7 +50,7 @@ export function analyzeAi(f: AiFacts): Inspection {
     : { code: "ai.default_off", result: "fail", message: "بەهای بنەڕەتی public.aiSearch لە کۆددا false نییە.", action: "src/lib/flags.ts ڕاست بکەرەوە." });
   // €0 guarantee (PM-01): the exact providers the gateway builds (AI_PROVIDER, then the owner's zero-cost approvals).
   const policy = { approvedFree: f.approvedFree, approvedPaid: f.approvedPaid };
-  const { active, blocked } = permittedProviderIds(f.provider, f.configuredProviders, policy);
+  const { active, blocked } = permittedProviderIds(f.provider, f.configuredProviders, policy, f.models);
   const paid = active.filter((id) => PROVIDER_BILLING[id] !== "free-tier");
   const free = active.filter((id) => PROVIDER_BILLING[id] === "free-tier");
   checks.push(paid.length

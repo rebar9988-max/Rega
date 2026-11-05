@@ -40,6 +40,11 @@ export function providerCatalog() {
   return catalog().map(({ id, label, model, hasKey }) => ({ id, label, model, hasKey }));
 }
 
+/** Provider id → configured model (model names only; used by the free-model check). */
+export function configuredModels(): Record<string, string> {
+  return Object.fromEntries(catalog().map((c) => [c.id, c.model]));
+}
+
 /** The owner's zero-cost policy (provider ids only; never secrets). */
 export function costPolicy(): CostPolicy {
   const env = serverEnv();
@@ -53,7 +58,7 @@ export function costPolicy(): CostPolicy {
  */
 function activeProviders(): AiProvider[] {
   const keyed = catalog().filter((c) => c.hasKey);
-  const { active } = permittedProviderIds(serverEnv().AI_PROVIDER, keyed.map((c) => c.id), costPolicy());
+  const { active } = permittedProviderIds(serverEnv().AI_PROVIDER, keyed.map((c) => c.id), costPolicy(), configuredModels());
   return keyed.filter((c) => active.includes(c.id)).map((c) => c.build());
 }
 
@@ -94,7 +99,7 @@ export function getGateway(): Gateway {
   const routing = resolveRouting({ order: env.AI_PROVIDER_ORDER, json: env.AI_ROUTING });
   // Once per instance: say which setting is wrong (names only) instead of failing silently later.
   for (const w of configWarnings({ routing, catalog: catalog(), aiProvider: env.AI_PROVIDER })) log.warn(w.event, w.meta);
-  const { blocked } = permittedProviderIds(env.AI_PROVIDER, catalog().filter((c) => c.hasKey).map((c) => c.id), costPolicy());
+  const { blocked } = permittedProviderIds(env.AI_PROVIDER, catalog().filter((c) => c.hasKey).map((c) => c.id), costPolicy(), configuredModels());
   if (blocked.length) log.warn("ai.cost.providers_blocked", { blocked: blocked.map((b) => `${b.id}:${b.reason}`) });
   gateway = createGateway({
     providers: activeProviders(),

@@ -8,7 +8,7 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { createGateway } from "../src/lib/ai/gateway";
 import { GatewayError, ProviderError } from "../src/lib/ai/errors";
-import { DEFAULT_ROUTING, PROVIDER_BILLING, WORKERS_AI, costDecision, parseIdList, permittedProviderIds, type CostPolicy } from "../src/lib/ai/routing";
+import { DEFAULT_ROUTING, FREE_TIER_MODELS, PROVIDER_BILLING, WORKERS_AI, costDecision, parseIdList, permittedProviderIds, type CostPolicy } from "../src/lib/ai/routing";
 import { BUDGET_KEYS, RERANK_DAILY_CAP, RERANK_WORST_NEURONS, WORKERS_AI_LIMITS, rerankLimit, reserve, type UsageCounter } from "../src/lib/ai/budget";
 import type { AiProvider, Task } from "../src/lib/ai/types";
 
@@ -76,6 +76,25 @@ test("free-tier providers also need approval (nothing is assumed free)", () => {
   assert.equal(costDecision("gemini", NONE).reason, "free_tier_not_approved");
   assert.equal(costDecision(WORKERS_AI, NONE).allowed, false);
   assert.equal(costDecision(WORKERS_AI, { approvedFree: [WORKERS_AI], approvedPaid: [] }).allowed, true);
+});
+
+test("free-tier approval serves only verified free models (no paid model via GEMINI_MODEL / GROQ_MODEL)", () => {
+  const verified = { gemini: "gemini-3.5-flash-lite", groq: "openai/gpt-oss-120b" };
+  assert.deepEqual(permittedProviderIds("auto", ["gemini", "groq"], FREE, verified).active, ["gemini", "groq"]);
+  for (const model of ["gemini-3.8-pro", "gemini-3.6-flash", "", "GEMINI-3.5-FLASH-LITE"]) {
+    const r = permittedProviderIds("auto", ["gemini"], FREE, { gemini: model });
+    assert.deepEqual(r.active, [], `${model || "(empty)"} blocked`);
+    assert.equal(r.blocked[0].reason, "model_not_verified_free");
+  }
+  assert.deepEqual(permittedProviderIds("auto", ["gemini"], FREE, {}).active, [], "unknown model = blocked");
+  assert.equal(costDecision(WORKERS_AI, { approvedFree: [WORKERS_AI], approvedPaid: [] }, {}).allowed, true, "Workers AI has its own Neuron cap");
+  for (const [id, models] of Object.entries(FREE_TIER_MODELS)) {
+    assert.equal(PROVIDER_BILLING[id], "free-tier", `${id} allow-list belongs to a free-tier provider`);
+    assert.ok(models.length > 0);
+  }
+  // The runtime and agent 10 always pass the configured models (the check cannot be skipped in production).
+  assert.match(readFileSync("src/lib/ai/runtime.ts", "utf8"), /permittedProviderIds\(serverEnv\(\)\.AI_PROVIDER, keyed\.map\(\(c\) => c\.id\), costPolicy\(\), configuredModels\(\)\)/);
+  assert.match(readFileSync("src/lib/ops/analyzers/ai.ts", "utf8"), /permittedProviderIds\(f\.provider, f\.configuredProviders, policy, f\.models\)/);
 });
 
 test("missing or invalid configuration fails closed", () => {
