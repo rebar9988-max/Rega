@@ -140,9 +140,12 @@ atomic unit of `AI_DAILY_LIMIT` is reserved**; refused or unreadable counter = `
 | `AI_FREE_TIER_APPROVED` | free-tier providers (`gemini`, `groq`) and `workers-ai` whose account has **no billing enabled** | empty → no model, no rerank |
 | `AI_PAID_APPROVED` | paid providers the owner explicitly accepts charges for | empty → every paid provider blocked |
 | `AI_RERANK_DAILY_LIMIT` | lowers the Workers AI cap; cannot exceed `RERANK_DAILY_CAP` (250) | 250 |
-| `AI_DAILY_LIMIT` | model attempts per UTC day, all providers together | 5,000 |
+| `AI_DAILY_LIMIT` | model attempts per UTC day, all providers together | 500 |
 
-A key alone activates nothing. Unknown providers count as paid. A paid id in the free list is not approved. Pinning
+A key alone activates nothing. Unknown providers count as paid. A free-tier approval also requires a **verified
+free model** (`FREE_TIER_MODELS` in `src/lib/ai/routing.ts`: gemini `gemini-3.5-flash-lite`, `gemini-3.1-flash-lite`
+per ai.google.dev pricing "Free of charge"; groq `openai/gpt-oss-120b` per console.groq.com free-plan limits; read
+2026-11-05). A `GEMINI_MODEL` / `GROQ_MODEL` override to any other model is blocked (`model_not_verified_free`). A paid id in the free list is not approved. Pinning
 `AI_PROVIDER` to a blocked provider leaves AI off. Blocked providers are never built, so routing, fallback and probes
 cannot reach them; the gateway logs `ai.cost.providers_blocked` (ids and reasons only).
 

@@ -1332,3 +1332,11 @@ Worker and domains, deploy); Beta health 41971026609 success; Production browser
 Environment limitation: this session could not fetch www.rega24.com (proxy 403 / DNS) and had no Cloudflare dashboard access, so the
 active Worker version at 100% is REPORTED by the workflows, not independently verified. Next safe continuation point: owner opens
 www.rega24.com/dr/geography signed in and checks tabs, filters, paging and a deactivate/activate round trip.
+
+## AI free-model lock — 2026-11-05 (branch `claude/ai-free-model-lock`)
+Goal (owner): REGA24 AI = Gemini free only, hard limits, no paid fallback, €0. Remaining code gap closed: a free-tier
+approval now also requires a verified free model (`FREE_TIER_MODELS`: gemini-3.5-flash-lite / gemini-3.1-flash-lite,
+Google pricing "Free of charge"; groq openai/gpt-oss-120b, Groq free-plan limits), so a GEMINI_MODEL/GROQ_MODEL
+override to a paid or unknown model fails closed (`model_not_verified_free`); agent 10 reports it. Production state is
+unchanged (AI off: approval variables empty). Owner steps before enabling: Google project without billing,
+`AI_FREE_TIER_APPROVED=gemini`, `AI_DAILY_LIMIT=500`, `AI_PAID_APPROVED` empty, no GEMINI_MODEL/GEMINI_BASE_URL override.

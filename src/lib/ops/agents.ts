@@ -262,6 +262,7 @@ async function aiDiscoveryInspector(): Promise<Inspection> {
   return analyzeAi({
     flag, codeDefault: FLAG_DEFAULTS["public.aiSearch"], provider: env.AI_PROVIDER,
     configuredProviders: providerCatalog().filter((p) => p.hasKey).map((p) => p.id),
+    models: Object.fromEntries(providerCatalog().map((p) => [p.id, p.model])),
     dailyLimit: env.AI_DAILY_LIMIT, rerankService: Boolean(env.AI_SERVICE_URL && env.AI_SERVICE_TOKEN),
     approvedFree: [...policy.approvedFree], approvedPaid: [...policy.approvedPaid], rerankLimit: rerankDailyLimit(),
     modelAttemptsToday: reserved(BUDGET_KEYS.modelAttempts), rerankCallsToday: reserved(BUDGET_KEYS.workersAiRerank),

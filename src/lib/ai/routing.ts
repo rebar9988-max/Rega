@@ -47,26 +47,44 @@ export const WORKERS_AI = "workers-ai";
  * A provider that is not approved is never built, so neither routing nor fallback nor a /dr/ai probe can reach it.
  */
 export type CostPolicy = { approvedFree: readonly string[]; approvedPaid: readonly string[] };
-export type CostReason = "approved_free_tier" | "approved_paid" | "free_tier_not_approved" | "paid_not_approved";
+export type CostReason = "approved_free_tier" | "approved_paid" | "free_tier_not_approved" | "paid_not_approved" | "model_not_verified_free";
+
+/**
+ * Models verified to run on the vendor's free tier (no billing account), read 2026-11-05:
+ *  - gemini: ai.google.dev/gemini-api/docs/pricing ("Free of charge" input and output on the Free Tier).
+ *  - groq: console.groq.com/docs/rate-limits (free-plan limits listed for the model).
+ * A free-tier approval serves only these models, so a GEMINI_MODEL / GROQ_MODEL override to a paid or unverified
+ * model fails closed. Add a model only with the vendor's page as evidence.
+ */
+export const FREE_TIER_MODELS: Readonly<Record<string, readonly string[]>> = Object.freeze({
+  gemini: Object.freeze(["gemini-3.5-flash-lite", "gemini-3.1-flash-lite"]),
+  groq: Object.freeze(["openai/gpt-oss-120b"]),
+});
 
 export function parseIdList(value: string | undefined): string[] {
   return [...new Set((value ?? "").split(",").map((s) => s.trim().toLowerCase()).filter((s) => ID.test(s)))];
 }
 
 /** Unknown providers count as paid (fail closed). A paid id in the free list is NOT approved. */
-export function costDecision(id: string, policy: CostPolicy): { allowed: boolean; reason: CostReason } {
+/**
+ * `models` (provider id → configured model) enables the free-model check; production callers (runtime, agent 10)
+ * always pass it. A free-tier provider whose model is not in FREE_TIER_MODELS is blocked (fail closed).
+ */
+export function costDecision(id: string, policy: CostPolicy, models?: Readonly<Record<string, string>>): { allowed: boolean; reason: CostReason } {
   if (id === WORKERS_AI || PROVIDER_BILLING[id] === "free-tier") {
-    return policy.approvedFree.includes(id) ? { allowed: true, reason: "approved_free_tier" } : { allowed: false, reason: "free_tier_not_approved" };
+    if (!policy.approvedFree.includes(id)) return { allowed: false, reason: "free_tier_not_approved" };
+    if (models && id !== WORKERS_AI && !(FREE_TIER_MODELS[id] ?? []).includes(models[id] ?? "")) return { allowed: false, reason: "model_not_verified_free" };
+    return { allowed: true, reason: "approved_free_tier" };
   }
   return policy.approvedPaid.includes(id) ? { allowed: true, reason: "approved_paid" } : { allowed: false, reason: "paid_not_approved" };
 }
 
 /** What the gateway may use: AI_PROVIDER selection, then the zero-cost policy. */
-export function permittedProviderIds(aiProvider: string, configured: readonly string[], policy: CostPolicy): { active: string[]; blocked: { id: string; reason: CostReason }[] } {
+export function permittedProviderIds(aiProvider: string, configured: readonly string[], policy: CostPolicy, models?: Readonly<Record<string, string>>): { active: string[]; blocked: { id: string; reason: CostReason }[] } {
   const active: string[] = [];
   const blocked: { id: string; reason: CostReason }[] = [];
   for (const id of activeProviderIds(aiProvider, configured)) {
-    const d = costDecision(id, policy);
+    const d = costDecision(id, policy, models);
     if (d.allowed) active.push(id);
     else blocked.push({ id, reason: d.reason });
   }

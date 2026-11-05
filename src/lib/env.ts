@@ -45,7 +45,8 @@ const serverSchema = z.object({
   AI_PROVIDER_ORDER: z.string().max(200).optional(),
   AI_ROUTING: z.string().max(1000).optional(),
   AI_TIMEOUT_MS: z.coerce.number().int().min(2_000).max(60_000).default(20_000),
-  AI_DAILY_LIMIT: z.coerce.number().int().min(1).default(5_000),
+  // Model attempts per UTC day, all providers together (zero-cost default; the owner may set another value).
+  AI_DAILY_LIMIT: z.coerce.number().int().min(1).default(500),
   // Zero-cost policy (PM-01, owner-controlled Cloudflare variables). Comma-separated provider ids. Nothing is assumed
   // free: an AI provider serves only when listed. AI_FREE_TIER_APPROVED: free-tier providers (gemini, groq) and
   // workers-ai whose account has NO billing enabled. AI_PAID_APPROVED: paid providers the owner accepts charges for.
