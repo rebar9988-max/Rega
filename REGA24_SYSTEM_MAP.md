@@ -231,7 +231,7 @@ Latest observed Beta health before this documentation change: run `40217513295`,
 5. **Neon preview branches.** PROJECT_MEMORY reports `Create Neon Branch` failing because the Neon free plan hit its branch limit. Not re-tested. Do not open a documentation pull request solely to create another Neon branch.
 6. **Health latency.** One sample reported `latencyMs: 1692` while `database` was `ok`. A single sample is not a benchmark. See the performance runbook before changing pools or Hyperdrive.
 7. **Secret sync is partial.** Model overrides, the Python AI URL, section flags, and legal fields are not in the bulk sync list. An empty GitHub secret is skipped; the workflow does not delete a Worker secret.
-8. **Docs-only skip fails open** on an empty diff (merge commits). A normal single-parent docs commit skips the Worker. A merge that Git cannot diff still deploys. That is intentional.
+8. **Docs-only skip compares with the live release.** The deploy reads the `workers/tag` (exact GitHub SHA) of the version live on `rega24` and skips only if every change since then is documentation. A missing token, live tag or fetchable SHA, or an empty diff, fails open and deploys. Before 2026-11-05 it compared with `HEAD^` only, so #127 was skipped by the docs commit #128 that followed it (fixed; `tests/deploy-docs-skip.test.ts`).
 9. **Full CI still runs** for a docs commit on `main`. That spends Actions minutes and does a Workers dry-run. It does not call `wrangler deploy`.
 10. **Jobs and events** are off in source and 404 in production. Turning them on is `SECTIONS_ENABLED` or a code change, not a DNS change.
 11. **R&L** must not be modified. The identity guard is [scripts/project-identity-guard.mjs](scripts/project-identity-guard.mjs).
