@@ -132,10 +132,9 @@ test("opening hours: validated input, shown on the detail page; 'Open now' keeps
   await page.getByTestId("hours-tue").fill("00:00-24:00");
   await page.getByRole("button", { name: "Speichern und veröffentlichen" }).click();
   await expect(page.getByTestId("business-status")).toHaveText("Veröffentlicht");
-  // The redirect to the edit page remounts the form; every day being 00:00–24:00 is recognized as "always open",
-  // so that option (not the raw per-day grid) is what's shown back.
-  await expect(page.getByTestId("hours-mode-always_open")).toBeChecked();
-  await expect(page.getByTestId("hours-always-open-note")).toBeVisible();
+  // The redirect to the edit page remounts the form; the radio was never touched so the mode stays "custom"
+  // (stored explicitly), which is what keeps showing the per-day grid with the normalized value back.
+  await expect(page.getByTestId("hours-mon")).toHaveValue("00:00–24:00");
 
   const slug = (await (await page.request.get(`/api/v1/businesses?q=${encodeURIComponent(name)}`)).json()).data[0].slug;
   await page.goto(`/de/businesses/${slug}`);
