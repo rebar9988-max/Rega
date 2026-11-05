@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { formatDate, type Locale } from "@/config/locales";
 import { openStatus, type OpenStatusResult } from "@/lib/geo";
+import { hoursMode } from "@/lib/opening-hours";
 import { Chip } from "@/components/ui/Badge";
 
 /**
@@ -13,6 +14,7 @@ import { Chip } from "@/components/ui/Badge";
  */
 export function OpenState({ hours, countryCode, regionSlug, className = "mt-3" }: { hours: unknown; countryCode: string; regionSlug?: string | null; className?: string }) {
   const t = useTranslations("nearby");
+  const th = useTranslations("bizForm");
   const tDays = useTranslations("days");
   const locale = useLocale() as Locale;
   const [state, setState] = useState<OpenStatusResult | null>(null);
@@ -22,6 +24,7 @@ export function OpenState({ hours, countryCode, regionSlug, className = "mt-3" }
     const timer = setInterval(update, 60_000);
     return () => clearInterval(timer);
   }, [hours, countryCode, regionSlug]);
+  if (hoursMode(hours) === "appointment") return <p className={className}><Chip>{th("modeAppointment")}</Chip></p>;
   if (!state || state.status === "HOURS_UNKNOWN") return null;
   const open = state.status === "OPEN" || state.status === "CLOSING_SOON";
   const label = { OPEN: t("open"), CLOSING_SOON: t("closingSoon"), OPENS_SOON: t("opensSoon"), CLOSED: t("closed"), TEMPORARILY_CLOSED: t("temporarilyClosed") }[state.status];

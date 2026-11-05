@@ -14,10 +14,11 @@ import { LOCALES, LOCALE_META, localeSuffix, type Locale } from "@/config/locale
 import { isValidCoordinate } from "@/lib/coordinates";
 import type { GeocodeHit } from "@/lib/geocoder-parse";
 import { geocodeAction, saveBusinessAction, type BusinessFormState } from "@/app/dr/businesses/actions";
-import { WEEK, type HoursException, type WeekDay } from "@/lib/opening-hours";
+import { type HoursMode, type HoursException, type WeekDay } from "@/lib/opening-hours";
 import { normalizeWhatsapp } from "@/lib/whatsapp";
 import { BusinessImageField } from "./BusinessImageField";
 import { PhotosField } from "./PhotosField";
+import { BusinessHoursEditor } from "./BusinessHoursEditor";
 import { HoursExceptionsEditor } from "./HoursExceptionsEditor";
 
 const LocationPicker = dynamic(() => import("./LocationPicker").then((m) => m.LocationPicker), {
@@ -31,7 +32,7 @@ export type FormInitial = {
   phone?: string; whatsapp?: string; email?: string; website?: string; addressLine1?: string; postalCode?: string; city?: string; countryCode?: string;
   latitude?: number | null; longitude?: number | null; coordsSource?: string | null; coordsVerified?: boolean;
   status?: string;
-  hours?: Partial<Record<WeekDay, string>>; holidaysClosed?: boolean; hoursExceptions?: HoursException[]; logoUrl?: string | null; coverUrl?: string | null; photos?: string[];
+  hoursMode?: HoursMode; hours?: Partial<Record<WeekDay, string>>; holidaysClosed?: boolean; hoursExceptions?: HoursException[]; logoUrl?: string | null; coverUrl?: string | null; photos?: string[];
   /** Description per language (key = locale code; field name is description<Suffix>). */
   translations?: Partial<Record<Locale, string>>;
   languages?: string[];
@@ -44,7 +45,6 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
   cities: FormCity[]; canPublish: boolean; storageReady: boolean; maxPhotos: number;
 }) {
   const t = useTranslations("bizForm");
-  const td = useTranslations("days");
   const tm = useTranslations("map");
   const locale = useLocale() as Locale;
   const dir = LOCALE_META[locale].dir;
@@ -377,15 +377,7 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
       <details open={canPublish} className="rounded-[var(--radius-card)] border border-line bg-surface p-5"><summary className="cursor-pointer text-sm font-semibold">{t("sectionHours")}</summary>
       <fieldset className="mt-3 space-y-4">
         <legend className="sr-only">{t("sectionHours")}</legend>
-        <p className="text-sm text-muted" id="hours-hint">{t("hoursHint")}</p>
-        <div className="grid gap-3  lg:grid-cols-4">
-          {WEEK.map((d) => (
-            <label key={d} className="flex flex-col gap-1 text-sm font-semibold">{td(d)}
-              <input name={`hours_${d}`} defaultValue={initial.hours?.[d] ?? ""} dir="ltr" maxLength={120} placeholder="09:00–17:00" inputMode="text" autoComplete="off"
-                className={input} aria-invalid={bad(`hours_${d}`)} aria-describedby="hours-hint" data-testid={`hours-${d}`} />
-            </label>
-          ))}
-        </div>
+        <BusinessHoursEditor initial={initial.hours} mode={initial.hoursMode} invalid={bad} />
         <HoursExceptionsEditor initial={initial.hoursExceptions ?? []} holidaysClosed={Boolean(initial.holidaysClosed)} invalid={bad("hoursExceptions")} />
       </fieldset>
       </details>

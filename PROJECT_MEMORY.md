@@ -1360,3 +1360,29 @@ Workers Builds `rega24` and `rega-ai-python` success. On `main`: Deploy to Cloud
 42025787697 success; Production browser check 42023338457 success. Active Worker version at 100% is REPORTED by the workflows,
 not verified in the Cloudflare dashboard from this session. Production impact: none (no app code). Blockers: none.
 Next safe continuation point: no follow-up needed; new sessions load section 8 automatically.
+## Business hours modes — 2026-11-05 (local work, not released)
+
+Scope: shared registration/edit BusinessForm hours only. Added four radio modes (24/7,
+Mon–Fri preset with editable weekdays, custom, appointment), shared hours application,
+daily overrides, existing overnight/multi-interval support. Same Location.openingHours
+JSON with optional mode metadata; no migrations or production writes. Appointment keeps
+weekly data but suppresses open-now and weekly public display. Existing holidays/exceptions
+remain stored. Unknown hours still never mean open. New copy translated in ckb/de/en;
+other catalogues currently use English for new keys (localization remains incomplete).
+Identity guard passed for rebar9988-max/Rega on work. GitHub repository verified;
+Cloudflare read-only baseline rega24 deployment 8a22c9b5-135a-415f-8b8e-483f23195707,
+version 2e12cb77-b90d-407a-94f1-0badb91041d4 at 100%. No deployment performed.
+Validation: 430 unit passes, 4 existing skips; lint/typecheck/Node build passed.
+Initial typecheck/unit setup lacked generated @rega/d1-client; db:generate fixed it.
+Dedicated browser test passed on disposable local D1: all four modes, overnight override,
+appointment save/reload, desktop and 390px mobile, ckb RTL, no page overflow, axe on radio
+selection. After screenshots: /workspace/rega-hours-evidence. Before screenshots absent.
+Full WCAG, iOS/Android devices, public-profile browser round trip, all-mode save/reload,
+registration regression, hosted CI and release remain NOT VERIFIED. Existing admin-business
+suite initially failed at address lookup (unavailable, before any hours interaction);
+rerun with explicit test GEOCODING_PROVIDER=nominatim pending. No assertions bypassed.
+Central Doc update pending. Continue by completing localized copy, expanding browser
+coverage, recording regression outcome, then review/CI and owner-authorized release.
+Final regression readback: admin-business 5/5 PASS after enabling the local fake geocoder
+with GEOCODING_PROVIDER=nominatim. The initial disabled-provider environment issue required
+no product changes. Documentation validator and git diff --check PASS. Changes remain local.
