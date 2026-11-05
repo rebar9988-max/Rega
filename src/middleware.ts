@@ -12,10 +12,16 @@ const intlMiddleware = createMiddleware({
   locales: [...LOCALES],
   defaultLocale: DEFAULT_LOCALE,
   localePrefix: "always",
-  localeDetection: true,
+  // Off: next-intl's own detection would otherwise let the browser's Accept-Language
+  // header pick a different locale (e.g. "en") for a visitor with no saved preference,
+  // overriding the Kurdish Sorani default below. A returning visitor's own saved
+  // preference is restored from REGA_LOCALE in middleware() below instead, before
+  // next-intl runs, so that preference still takes precedence over the default.
+  localeDetection: false,
 });
 
 const LOCALE_SET = new Set<string>(LOCALES as readonly string[]);
+const LOCALE_COOKIE = "REGA_LOCALE";
 
 /** Category id -> slug, fetched from the public categories API and kept for ten minutes (the middleware cannot reach the database). */
 let slugById = new Map<string, string>();
@@ -66,12 +72,25 @@ export default async function middleware(request: NextRequest) {
   const moved = await redirectOldCategoryUrl(request);
   if (moved) return moved;
 
+  // Unprefixed request (e.g. "/"): restore a returning visitor's saved locale ourselves
+  // before next-intl runs, since localeDetection is off above. A prefixed request (e.g.
+  // "/en/...") always keeps that locale regardless of this check or of localeDetection.
+  const firstSegment = pathname.split("/")[1];
+  if (!firstSegment || !LOCALE_SET.has(firstSegment)) {
+    const saved = request.cookies.get(LOCALE_COOKIE)?.value;
+    if (saved && LOCALE_SET.has(saved)) {
+      const url = request.nextUrl.clone();
+      url.pathname = `/${saved}${pathname === "/" ? "" : pathname}`;
+      return NextResponse.redirect(url, 307);
+    }
+  }
+
   const response = intlMiddleware(request);
 
   // Persist the visitor's language choice so the account, AI answers and emails follow it too.
   const segment = pathname.split("/")[1];
   if (segment && LOCALE_SET.has(segment)) {
-    response.cookies.set("REGA_LOCALE", segment, {
+    response.cookies.set(LOCALE_COOKIE, segment, {
       path: "/",
       maxAge: 60 * 60 * 24 * 365,
       sameSite: "lax",
