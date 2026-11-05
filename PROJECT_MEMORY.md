@@ -1360,3 +1360,12 @@ Workers Builds `rega24` and `rega-ai-python` success. On `main`: Deploy to Cloud
 42025787697 success; Production browser check 42023338457 success. Active Worker version at 100% is REPORTED by the workflows,
 not verified in the Cloudflare dashboard from this session. Production impact: none (no app code). Blockers: none.
 Next safe continuation point: no follow-up needed; new sessions load section 8 automatically.
+
+## Deploy docs-only skip now compares with the live release — 2026-11-05 (branch `claude/deploy-docs-skip-since-last-release`)
+Root cause: deploy.yml judged "documentation-only" from `HEAD^..HEAD`. #127 (`e60efae`, code) was followed by #128
+(`1552fd3`, CLAUDE.md only); e60efae's deploys were stopped by the gate (CI not yet green, then main had moved) and
+1552fd3's deploy run 100 skipped the Worker as docs-only, so #127 never reached rega24. Immediate repair: manual
+workflow_dispatch of deploy.yml on main (run 101, all gates kept). Fix: the skip now diffs against the `workers/tag`
+of the version live on Cloudflare; anything unknown fails open and deploys. Tests: tests/deploy-docs-skip.test.ts
+runs the real step script (code-then-docs deploys; docs-only skips; no token / API down / untagged / unfetchable /
+empty diff deploy).
