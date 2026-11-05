@@ -1361,7 +1361,7 @@ Workers Builds `rega24` and `rega-ai-python` success. On `main`: Deploy to Cloud
 not verified in the Cloudflare dashboard from this session. Production impact: none (no app code). Blockers: none.
 Next safe continuation point: no follow-up needed; new sessions load section 8 automatically.
 
-## Deploy docs-only skip now compares with the live release — 2026-11-05 (branch `claude/deploy-docs-skip-since-last-release`)
+## Deploy docs-only skip now compares with the live release — 2026-11-05 (PR #132, squash `e563a66`; status: MERGED and DEPLOYED)
 Root cause: deploy.yml judged "documentation-only" from `HEAD^..HEAD`. #127 (`e60efae`, code) was followed by #128
 (`1552fd3`, CLAUDE.md only); e60efae's deploys were stopped by the gate (CI not yet green, then main had moved) and
 1552fd3's deploy run 100 skipped the Worker as docs-only, so #127 never reached rega24. Immediate repair: manual
@@ -1369,3 +1369,7 @@ workflow_dispatch of deploy.yml on main (run 101, all gates kept). Fix: the skip
 of the version live on Cloudflare; anything unknown fails open and deploys. Tests: tests/deploy-docs-skip.test.ts
 runs the real step script (code-then-docs deploys; docs-only skips; no token / API down / untagged / unfetchable /
 empty diff deploy).
+Release: main CI 42072373797 success; Deploy to Cloudflare Workers run 103 (42078824923) did NOT skip (code changed since
+the live release) and ran `wrangler deploy --tag e563a66…` (rega24 version 8fc19964-1034-4d83-a39f-471f4ee0ef24, as
+REPORTED by wrangler); Beta health and Production browser check success. Live /api/v1/health 18:10 UTC: ok:true,
+database ok (d1), ai:false, aiProviders 5. Blocker (owner-only): AI_FREE_TIER_APPROVED in Cloudflare to enable AI.
