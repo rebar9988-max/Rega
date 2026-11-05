@@ -1308,3 +1308,34 @@ Production browser 41931067177 (all success). Live `GET /api/v1/health` 2026-11-
 `aiProviders:4` (before, 17:22Z: `ai:true`). So production calls no AI model: approval variables are empty by owner
 decision (strict €0). Still open (owner, Cloudflare dashboard): delete unused paid AI keys on Worker `rega24`; set
 `AI_FREE_TIER_APPROVED` only for billing-free accounts if AI is wanted later. Google Doc not updated from this session.
+
+## Business hours: four one-tap options — CI VERIFIED, awaiting owner merge/deploy — 2026-11-05 (PR #123, branch `feature/business-hours-four-modes`)
+Task: owner's P0 directive ("REGA24 — PREMIUM BUSINESS HOURS SYSTEM 2026") — replace the plain per-day hours editor
+with four mutually-exclusive, one-tap modes on the registration/edit form: Always Open (24/7), Five Days a Week
+(Mon–Fri default, Sat/Sun auto-closed, editable), Custom Hours (existing per-day entry, unchanged), Appointment Only
+(no weekly-hours fields, preserves no data loss). Mobile-first, RTL+LTR, REGA's existing design tokens only (no new
+colors/CSS per CLAUDE.md §3), no schema change, missing data never implies 24/7 or appointment-only.
+Changes: `src/lib/opening-hours.ts` (new `HOURS_MODES`/`HoursMode`, `openingHoursMode`, `isAppointmentOnly`,
+`guessHoursMode` — explicit stored `mode` always wins over the heuristic, which exists only for legacy records with
+no `mode` key), `src/lib/business-admin.ts` (`hoursMode` in the form schema, `formHours` computes always_open/
+appointment server-side regardless of hidden fields), `src/components/dr/BusinessForm.tsx` (new 4-option radiogroup +
+conditional panels, five-day day/hours editor with bulk-apply), `src/app/dr/businesses/[id]/page.tsx` (passes
+`guessHoursMode` into the form), `src/components/ui/OpenState.tsx` (shows "by appointment" instead of nothing), all
+11 `src/messages/*.json` locale files (17 new i18n keys), `tests/opening-hours.test.ts` (unit coverage for the mode
+logic), `tests/e2e/completion.spec.ts` (new appointment-only e2e test). `Location.openingHours` stays `Json?` — no
+migration. No schema, routing, or visual-identity change.
+CI history: first push `e1d243e` → `verify` failed on one e2e assertion (not a product bug): the existing
+all-24/7-days test never touches the new mode radio, so the form correctly stores an explicit `mode: "custom"`
+(the default) rather than switching to "always_open" — `guessHoursMode` is designed to always honor an explicit
+stored hint over its own always_open/five_day heuristic. The test's assertion was wrong, not the feature; fixed in
+`c9f099e` by reverting to the original (pre-existing) assertion that the per-day grid round-trips its normalized
+value. No production code touched by that fix.
+Verified green on `c9f099e`: `verify` (unit tests + full Playwright e2e suite, desktop/mobile projects, SQLite and
+PostgreSQL providers, all 11 locales incl. ckb/ar/fa RTL, Cloudflare Worker-runtime route/D1/image-codec exercises)
+— success; `Workers Builds: rega24` — success; `Workers Builds: rega-ai-python` — success. Local `npm install`/lint/
+typecheck could not be run in that session (sandbox network policy blocked `registry.npmjs.org`, documented
+transparently in the PR instead of claimed) — CI is the only verification for that work, and CI is now green.
+PR #123 updated with the CI-green status and the explanation of the one fix. **Not merged, not deployed** — owner's
+directive and CLAUDE.md §6/§7 require explicit owner authorization for both; this is a decision point, not a bug.
+Next safe continuation point: owner reviews PR #123 (https://github.com/rebar9988-max/Rega/pull/123) on
+`feature/business-hours-four-modes` → `main`, and explicitly says to merge/deploy (or asks for changes first).
