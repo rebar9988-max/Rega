@@ -90,9 +90,9 @@ export function RegisterForm({ next, social }: { next?: string; social?: React.R
       <fieldset className="space-y-2">
         <legend className="mb-1 text-sm font-semibold">{t("accountType")}</legend>
         {(["user", "owner"] as const).map((v) => (
-          <label key={v} className="flex min-h-12 cursor-pointer items-start gap-3 rounded-xl border border-line px-3 py-2 has-[:checked]:border-brand has-[:checked]:bg-brand-soft">
+          <label key={v} className="group flex min-h-12 cursor-pointer items-start gap-3 rounded-xl border border-line px-3 py-2 has-[:checked]:border-brand has-[:checked]:bg-brand-soft">
             <input type="radio" name="accountType" value={v} defaultChecked={v === "owner"} className="mt-1 size-5 accent-brand-control" />
-            <span><span className="block text-sm font-semibold">{t(v === "user" ? "typeUser" : "typeOwner")}</span><span className="block text-xs text-muted">{t(v === "user" ? "typeUserHint" : "typeOwnerHint")}</span></span>
+            <span><span className="block text-sm font-semibold">{t(v === "user" ? "typeUser" : "typeOwner")}</span><span className="block text-xs text-muted group-has-[:checked]:text-ink">{t(v === "user" ? "typeUserHint" : "typeOwnerHint")}</span></span>
           </label>
         ))}
       </fieldset>
