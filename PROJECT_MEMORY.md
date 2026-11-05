@@ -1349,3 +1349,14 @@ One shared Workers AI Neuron budget (8,500/day) for chat and rerank, reserved at
 call (counter now adds `amount`); refused/unreadable = no call. Approval `workers-ai` + verified free model required.
 Agent 10 reports `ai.workers_ai_budget`. AI Gateway and Vectorize: NOT REQUIRED (duplication / no use). Risk: Neuron
 allocation is account-wide (other Workers invisible). Production unchanged until merge + owner approval.
+
+## REGA24 master directive in CLAUDE.md — 2026-11-05 (PR #128, squash `1552fd3`; status: MERGED, deploy workflows green)
+Task (owner): make the REGA24 Master Engineering & Operational Directive permanent for every session. Change: `CLAUDE.md`
+section 8 (8.1–8.11), documentation only; sections 0–7 still govern where stricter. Owner gave standing authorization
+(2026-11-05) to merge in-scope PRs after all required checks pass, create branches/commits/PRs and fix CI, within the
+safety limits (no secrets, €0, no destructive production/database, billing or ownership changes, no bypassing CI or protection).
+Tests: `validate-system-docs` pass; identity guard OK (REGA); `tests/project-identity-guard.test.ts` 13/13; PR CI `verify`,
+Workers Builds `rega24` and `rega-ai-python` success. On `main`: Deploy to Cloudflare Workers 42025787851 success; Beta health
+42025787697 success; Production browser check 42023338457 success. Active Worker version at 100% is REPORTED by the workflows,
+not verified in the Cloudflare dashboard from this session. Production impact: none (no app code). Blockers: none.
+Next safe continuation point: no follow-up needed; new sessions load section 8 automatically.
