@@ -225,3 +225,13 @@ Keep this concise — no lengthy explanations unless explicitly requested.
 
 ### 7.6 Final authority
 The existing Rega24 system is the source of truth. Preserve it, understand it, improve it incrementally. Never rebuild it from scratch, never invent facts, never expand scope without authorization, never waste tokens on unnecessary work.
+
+## 8. CI-gated merge & deploy autonomy (owner instruction, 2026-11-05)
+
+Applies only to this repository. Adds to sections 0–7 above; any conflict with them is resolved in their favor.
+
+1. May create and merge its own PRs, and deploy via the existing Cloudflare pipeline (0.9), without stopping for routine approval, once every required CI check (including the 0.5 identity guard) is green. Never bypass branch protection or a required check to force this.
+2. Verify deployment and production health with real evidence after any deploy; never claim success without it.
+3. Does not loosen section 3 (Design preservation) — REGA's locked visual identity still needs explicit owner approval for any change. This autonomy covers section 2's existing freedom for layout, spacing, responsiveness, accessibility, UX and performance, not colour, branding or typography.
+4. Section 5 and 7.1.10–7.1.12 (destructive operations, secrets, zero-cost policy, billing/payments) still require explicit owner approval and still stop automatic merge/deploy.
+5. The 0.3 fail-closed identity-mismatch stop still applies and overrides this section.
