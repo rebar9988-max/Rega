@@ -1360,3 +1360,15 @@ Workers Builds `rega24` and `rega-ai-python` success. On `main`: Deploy to Cloud
 42025787697 success; Production browser check 42023338457 success. Active Worker version at 100% is REPORTED by the workflows,
 not verified in the Cloudflare dashboard from this session. Production impact: none (no app code). Blockers: none.
 Next safe continuation point: no follow-up needed; new sessions load section 8 automatically.
+
+## Codex autonomous execution directive — 2026-11-05
+
+Owner requested persistent Codex instructions in root AGENTS.md. Existing entry point delegated all rules to
+CLAUDE.md; now it also carries the Codex delivery authority, cost/safety boundaries and exact final format,
+referencing shared policies without changing CLAUDE.md. No application, schema, dependency or workflow changes.
+Baseline: origin/main `915dfa8`; identity guard OK; connected GitHub permissions verified. Cloudflare readback:
+rega24 deployment `8a22c9b5-135a-415f-8b8e-483f23195707`, version `2e12cb77-b90d-407a-94f1-0badb91041d4` at 100%.
+Checks: documentation validator pass; identity guard tests 13/13; git diff --check pass. Full app checks left to
+existing PR CI for this documentation-only change. Shell GH_TOKEN invalid; connected GitHub app used instead.
+Delivery branch: `codex/autonomous-engineering-directive`. CI/merge pending at this checkpoint; follow its PR.
+Production impact: none; retain DOCS_ONLY_SKIP, do not manually deploy. No paid resources introduced.
