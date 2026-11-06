@@ -317,3 +317,12 @@ test("OpenRouter serves only verified :free models (price 0); any paid OpenRoute
   }
   assert.equal(costDecision("openrouter", FREE, { openrouter: "google/gemma-4-31b-it:free" }).reason, "free_tier_not_approved", "needs the owner's approval");
 });
+
+test("/dr/ai labels inactive paid providers as blocked and hides their stale probe results", () => {
+  const page = readFileSync("src/app/dr/ai/page.tsx", "utf8");
+  assert.match(page, /blockedPaid = hasKey && !s && PROVIDER_BILLING\[id\] !== "free-tier"/);
+  assert.match(page, /const probe = s \? lastProbe\.get\(id\) : undefined/);
+  for (const l of ["ar", "ckb", "de", "en", "fa", "fr", "it", "kmr", "nl", "sv", "tr"]) {
+    assert.ok(JSON.parse(readFileSync(`src/messages/${l}.json`, "utf8")).dashboard.blockedPaid, `blockedPaid missing in ${l}`);
+  }
+});

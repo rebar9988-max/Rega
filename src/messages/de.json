@@ -424,6 +424,7 @@
     "circuit": "Verbindungsstatus",
     "circuitOpen": "Pausiert (vorübergehend)",
     "circuitClosed": "Normal",
+    "blockedPaid": "Gesperrt: kostenpflichtig (€0-Regel)",
     "test": "Verbindung testen",
     "enableAssistant": "Assistent aktivieren",
     "disableAssistant": "Assistent deaktivieren",

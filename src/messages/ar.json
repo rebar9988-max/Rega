@@ -424,6 +424,7 @@
     "circuit": "حالة الاتصال",
     "circuitOpen": "متوقف مؤقتًا",
     "circuitClosed": "طبيعي",
+    "blockedPaid": "محظور: مدفوع (سياسة €0)",
     "test": "اختبار الاتصال",
     "enableAssistant": "تفعيل المساعد",
     "disableAssistant": "إيقاف المساعد",
