@@ -398,7 +398,7 @@ test("model defaults: one value per provider, identical in env.ts and .env.examp
   const example = readFileSync(".env.example", "utf8");
   const expected: Record<string, string> = {
     GEMINI_MODEL: "gemini-3.5-flash-lite", GROK_MODEL: "grok-4.7", OPENAI_MODEL: "gpt-4.1-mini", GROQ_MODEL: "openai/gpt-oss-120b",
-    DEEPSEEK_MODEL: "deepseek-flash", OPENROUTER_MODEL: "google/gemini-3.5-flash-lite", ANTHROPIC_MODEL: "claude-haiku-4-5-20251001",
+    DEEPSEEK_MODEL: "deepseek-flash", OPENROUTER_MODEL: "google/gemma-4-31b-it:free", ANTHROPIC_MODEL: "claude-haiku-4-5-20251001",
   };
   assert.deepEqual(Object.keys(expected).sort(), Object.values(PROVIDER_ENV).map(([, model]) => model).sort());
   for (const [name, value] of Object.entries(expected)) {

@@ -34,7 +34,9 @@ export const PROVIDER_BILLING: Readonly<Record<string, "free-tier" | "paid">> = 
   openai: "paid",
   grok: "paid",
   deepseek: "paid",
-  openrouter: "paid",
+  // Only `:free` model ids (OpenRouter bills them at $0 and never upgrades them to a paid endpoint); FREE_TIER_MODELS
+  // lists the verified ones, so a paid OPENROUTER_MODEL fails closed.
+  openrouter: "free-tier",
   anthropic: "paid",
 });
 
@@ -63,6 +65,8 @@ export const FREE_TIER_MODELS: Readonly<Record<string, readonly string[]>> = Obj
   groq: Object.freeze(["openai/gpt-oss-120b"]),
   // developers.cloudflare.com: stays on the Workers Free plan (Jul 28 2026 changelog); Neurons from the 10,000/day free allocation.
   "workers-ai": Object.freeze(["@cf/google/gemma-4-26b-a4b-it"]),
+  // openrouter.ai/api/v1/models?max_price=0 (read 2026-11-06): prompt and completion price "0" for these `:free` ids.
+  openrouter: Object.freeze(["google/gemma-4-31b-it:free", "google/gemma-4-26b-a4b-it:free", "nvidia/nemotron-3-ultra-550b-a55b:free"]),
 });
 
 export function parseIdList(value: string | undefined): string[] {

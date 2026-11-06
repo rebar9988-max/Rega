@@ -158,7 +158,7 @@ cannot reach them; the gateway logs `ai.cost.providers_blocked` (ids and reasons
 | `openai` | `gpt-4.1-mini` | paid |
 | `grok` | `grok-4.7` | paid |
 | `deepseek` | `deepseek-flash` | paid (prepaid balance) |
-| `openrouter` | `google/gemini-3.5-flash-lite` | paid (not a `:free` model) |
+| `openrouter` | `google/gemma-4-31b-it:free` | free-tier: only verified `:free` models (price 0, read 2026-11-06) |
 | `anthropic` | `claude-haiku-4-5-20251001` | paid |
 | Workers AI (`rega-ai-python`) | `@cf/baai/bge-reranker-base` | free allocation (below) |
 

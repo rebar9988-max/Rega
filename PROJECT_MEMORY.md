@@ -1373,3 +1373,12 @@ Release: main CI 42072373797 success; Deploy to Cloudflare Workers run 103 (4207
 the live release) and ran `wrangler deploy --tag e563a66…` (rega24 version 8fc19964-1034-4d83-a39f-471f4ee0ef24, as
 REPORTED by wrangler); Beta health and Production browser check success. Live /api/v1/health 18:10 UTC: ok:true,
 database ok (d1), ai:false, aiProviders 5. Blocker (owner-only): AI_FREE_TIER_APPROVED in Cloudflare to enable AI.
+
+## OpenRouter :free models as a zero-cost provider — 2026-11-06 (branch `claude/openrouter-free-models`)
+Owner request: add more $0 AI models. Owner activated AI on 2026-11-05/06 (live /api/v1/health `ai:true`, gemini + groq
+probes OK on /dr/ai). Change: `openrouter` is now free-tier, but only for the verified `:free` ids in
+`FREE_TIER_MODELS.openrouter` (google/gemma-4-31b-it:free default, google/gemma-4-26b-a4b-it:free,
+nvidia/nemotron-3-ultra-550b-a55b:free; price 0 per openrouter.ai/api/v1/models?max_price=0, read 2026-11-06). Any other
+OpenRouter model fails closed (`model_not_verified_free`). The adapter sends only `model` (no `models`/`route` fallback).
+Activation (owner, Cloudflare): add `openrouter` to AI_FREE_TIER_APPROVED; leave OPENROUTER_MODEL unset (or a listed id).
+OpenRouter free endpoints have low daily limits and some may log/train on prompts (OpenRouter privacy settings).
