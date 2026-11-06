@@ -38,3 +38,29 @@ test("open now: never falsely open; unknown stays unknown", () => {
   assert.equal(isOpenNow([], "DE", wedNoonBerlin), null);
   assert.equal(isOpenNow({}, "DE", wedNoonBerlin), null);
 });
+
+
+test("appointment mode survives parsing and never advertises retained hours as open", () => {
+  const parsed = parseOpeningHours({ mode: "appointment", mon: "00:00–24:00" });
+  assert.equal(parsed.ok, true);
+  if (!parsed.ok) return;
+  assert.equal(parsed.value?.mon, "00:00–24:00");
+  assert.equal(parsed.value?.mode, "appointment");
+  assert.equal(isOpenNow(parsed.value, "DE", new Date("2026-11-02T12:00:00Z")), null);
+  assert.equal(parseOpeningHours({ mode: "invalid" }).ok, false);
+});
+
+test("24/7 is open on every day in both business timezones", () => {
+  const hours = Object.fromEntries(["mon", "tue", "wed", "thu", "fri", "sat", "sun"].map(d => [d, "00:00–24:00"]));
+  for (const country of ["DE", "IQ"]) for (let d = 1; d <= 7; d++) {
+    assert.equal(isOpenNow(hours, country, new Date(`2026-11-0${d}T23:30:00Z`)), true);
+  }
+});
+
+test("five-day metadata preserves weekday overrides and closed weekends", () => {
+  const parsed = parseOpeningHours({ mode: "five", mon: "20:00-02:00", tue: "09:00-17:00", sat: "closed", sun: "closed" });
+  assert.equal(parsed.ok, true);
+  if (!parsed.ok) return;
+  assert.equal(isOpenNow(parsed.value, "IQ", new Date("2026-11-02T22:30:00Z")), true);
+  assert.equal(isOpenNow(parsed.value, "IQ", new Date("2026-11-07T10:00:00Z")), false);
+});

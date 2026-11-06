@@ -614,6 +614,16 @@
     "otherApp": "Annan kartapp"
   },
   "bizForm": {
+    "modeAlways": "Alltid öppet",
+    "modeAlwaysHint": "24 timmar om dygnet, 7 dagar i veckan",
+    "modeFive": "Öppet fem dagar i veckan",
+    "modeCustom": "Anpassade öppettider",
+    "modeAppointment": "Endast efter tidsbokning",
+    "modeAppointmentHint": "Efter tidsbokning. Ditt veckoschema sparas.",
+    "hoursApply": "Använd för valda dagar",
+    "hoursStart": "Öppningstid",
+    "hoursEnd": "Stängningstid",
+    "hoursInvalid": "Välj arbetsdagar och två giltiga, olika tider.",
     "new": "Nytt företag",
     "edit": "Redigera",
     "newTitle": "Nytt företag",

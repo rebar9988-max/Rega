@@ -614,6 +614,16 @@
     "otherApp": "Andere kaart-app"
   },
   "bizForm": {
+    "modeAlways": "Altijd open",
+    "modeAlwaysHint": "24 uur per dag, 7 dagen per week",
+    "modeFive": "Vijf dagen per week open",
+    "modeCustom": "Aangepaste openingstijden",
+    "modeAppointment": "Alleen op afspraak",
+    "modeAppointmentHint": "Op afspraak. Je weekschema blijft bewaard.",
+    "hoursApply": "Toepassen op geselecteerde dagen",
+    "hoursStart": "Openingstijd",
+    "hoursEnd": "Sluitingstijd",
+    "hoursInvalid": "Selecteer werkdagen en twee geldige, verschillende tijden.",
     "new": "Nieuw bedrijf",
     "edit": "Bewerken",
     "newTitle": "Nieuw bedrijf",

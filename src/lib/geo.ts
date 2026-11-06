@@ -1,3 +1,4 @@
+import { hoursMode } from "./opening-hours";
 /**
  * Geo helpers for Nearby Discovery. Pure (no I/O): safe for tests, server and client.
  * Location-agnostic: nothing here assumes a country or city; timezones come from the location's country code.
@@ -142,6 +143,7 @@ const hhmm = (min: number) => `${String(Math.floor(min / 60) % 24).padStart(2, "
  * overnight range belongs to the date it starts on. A business is never reported open on a guess.
  */
 export function openStatus(hours: unknown, countryCode: string | null | undefined, now = new Date(), soonMinutes = SOON_MINUTES, regionSlug?: string | null): OpenStatusResult {
+  if (hoursMode(hours) === "appointment") return { status: "HOURS_UNKNOWN" };
   if (!hours || typeof hours !== "object" || Array.isArray(hours)) return { status: "HOURS_UNKNOWN" };
   const table = hours as Record<string, unknown>;
   const exceptions = hoursExceptions(table);
