@@ -1445,3 +1445,16 @@ circuit and no test button, i.e. every provider blocked by the zero-cost policy 
 variables (likely AI_FREE_TIER_APPROVED typed with the Kurdish comma `،` or quotes, which the old comma-only parser
 dropped). Fix: parseIdList also splits on `،`, `;`, whitespace and strips quotes (an unknown id still never activates);
 health adds `aiBlocked` = counts per reason code (no names) so the cause is visible from outside.
+
+## Layout-preserving visual refinement — 2026-11-06 (codex/preserved-layout-visual-refinement)
+Resumed main `0443339`; existing banner release #114 already implements pearl search/language controls.
+User authorizes visual refinement and existing CI-gated release, preserving all geometry and protected assets.
+Shared Button primary/secondary and home search/CTA/card actions now reuse restrained red/pearl surface treatments
+and pressed depth. Existing palette, header, logo, layout, data, handlers and semantic colors unchanged.
+Evidence: `docs/evidence/visual-refinement-2026-11-06.json`. Lint/typecheck/Node build PASS; units 448 pass,
+4 existing DB skips, 0 fail; D1 10 pass; production dependency audit 0. CSS preview: 18 paired route/viewport/locale
+comparisons preserve geometry and header pixels, no horizontal overflow; login scoped WCAG-tagged axe checks
+have no violations in en/ckb light/dark. Control probes verify focus/disabled/reduced motion and pressed geometry.
+Baseline Cloudflare: rega24 version `59df17da-b26b-4394-afe2-e3662874fc96` at 100% read directly; no production mutation.
+Screenshots and detailed local logs: `/workspace/scratch/rega-visual`. Hosted CI/release/live candidate checks pending.
+No full WCAG or 100/100 claim. Keep concurrent geography, hours, AI and Nearby PRs separate.

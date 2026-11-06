@@ -1,0 +1,249 @@
+{
+  "date": "2026-11-06",
+  "baseline": "044333959c26832fc7bd24182564792a791cdbc3",
+  "method": "Compiled candidate CSS applied in browser to live pages; shared Button classes substituted to match candidate source. Same-document paired geometry and banner PNG comparisons. This is a CSS preview, not a deployed release or full application E2E.",
+  "visual": [
+    {
+      "key": "ckb-home-320",
+      "geometry": "PASS",
+      "bannerPixels": "IDENTICAL",
+      "overflow": 0
+    },
+    {
+      "key": "ckb-home-390",
+      "geometry": "PASS",
+      "bannerPixels": "IDENTICAL",
+      "overflow": 0
+    },
+    {
+      "key": "ckb-home-1440",
+      "geometry": "PASS",
+      "bannerPixels": "IDENTICAL",
+      "overflow": 0
+    },
+    {
+      "key": "ckb-search-320",
+      "geometry": "PASS",
+      "bannerPixels": "IDENTICAL",
+      "overflow": 0
+    },
+    {
+      "key": "ckb-search-390",
+      "geometry": "PASS",
+      "bannerPixels": "IDENTICAL",
+      "overflow": 0
+    },
+    {
+      "key": "ckb-search-1440",
+      "geometry": "PASS",
+      "bannerPixels": "IDENTICAL",
+      "overflow": 0
+    },
+    {
+      "key": "ckb-login-320",
+      "geometry": "PASS",
+      "bannerPixels": "IDENTICAL",
+      "overflow": 0
+    },
+    {
+      "key": "ckb-login-390",
+      "geometry": "PASS",
+      "bannerPixels": "IDENTICAL",
+      "overflow": 0
+    },
+    {
+      "key": "ckb-login-1440",
+      "geometry": "PASS",
+      "bannerPixels": "IDENTICAL",
+      "overflow": 0
+    },
+    {
+      "key": "en-home-320",
+      "geometry": "PASS",
+      "bannerPixels": "IDENTICAL",
+      "overflow": 0
+    },
+    {
+      "key": "en-home-390",
+      "geometry": "PASS",
+      "bannerPixels": "IDENTICAL",
+      "overflow": 0
+    },
+    {
+      "key": "en-home-1440",
+      "geometry": "PASS",
+      "bannerPixels": "IDENTICAL",
+      "overflow": 0
+    },
+    {
+      "key": "en-search-320",
+      "geometry": "PASS",
+      "bannerPixels": "IDENTICAL",
+      "overflow": 0
+    },
+    {
+      "key": "en-search-390",
+      "geometry": "PASS",
+      "bannerPixels": "IDENTICAL",
+      "overflow": 0
+    },
+    {
+      "key": "en-search-1440",
+      "geometry": "PASS",
+      "bannerPixels": "IDENTICAL",
+      "overflow": 0
+    },
+    {
+      "key": "en-login-320",
+      "geometry": "PASS",
+      "bannerPixels": "IDENTICAL",
+      "overflow": 0
+    },
+    {
+      "key": "en-login-390",
+      "geometry": "PASS",
+      "bannerPixels": "IDENTICAL",
+      "overflow": 0
+    },
+    {
+      "key": "en-login-1440",
+      "geometry": "PASS",
+      "bannerPixels": "IDENTICAL",
+      "overflow": 0
+    }
+  ],
+  "accessibility": [
+    {
+      "locale": "ckb",
+      "theme": "light",
+      "before": [],
+      "after": []
+    },
+    {
+      "locale": "ckb",
+      "theme": "dark",
+      "before": [],
+      "after": []
+    },
+    {
+      "locale": "en",
+      "theme": "light",
+      "before": [],
+      "after": []
+    },
+    {
+      "locale": "en",
+      "theme": "dark",
+      "before": [],
+      "after": []
+    }
+  ],
+  "controls": [
+    {
+      "theme": "light",
+      "dir": "ltr",
+      "values": [
+        {
+          "variant": "primary",
+          "background": "linear-gradient(color(srgb 0.814745 0.161412 0.12298), rgb(155, 31, 21))",
+          "color": "rgb(255, 255, 255)",
+          "transition": "1e-05s"
+        },
+        {
+          "variant": "secondary",
+          "background": "linear-gradient(rgb(255, 255, 255), rgb(247, 247, 248))",
+          "color": "oklab(0.23621 -0.00612836 -0.021772)",
+          "transition": "1e-05s"
+        }
+      ],
+      "geometry": "PASS",
+      "focus": "PASS",
+      "disabled": "PASS"
+    },
+    {
+      "theme": "light",
+      "dir": "rtl",
+      "values": [
+        {
+          "variant": "primary",
+          "background": "linear-gradient(color(srgb 0.814745 0.161412 0.12298), rgb(155, 31, 21))",
+          "color": "rgb(255, 255, 255)",
+          "transition": "1e-05s"
+        },
+        {
+          "variant": "secondary",
+          "background": "linear-gradient(rgb(255, 255, 255), rgb(247, 247, 248))",
+          "color": "color(srgb 0.648471 0.128471 0.0978824)",
+          "transition": "1e-05s"
+        }
+      ],
+      "geometry": "PASS",
+      "focus": "PASS",
+      "disabled": "PASS"
+    },
+    {
+      "theme": "dark",
+      "dir": "ltr",
+      "values": [
+        {
+          "variant": "primary",
+          "background": "linear-gradient(rgb(212, 42, 32), rgb(155, 31, 21))",
+          "color": "rgb(255, 255, 255)",
+          "transition": "1e-05s"
+        },
+        {
+          "variant": "secondary",
+          "background": "linear-gradient(oklch(0.2 0.014 265), oklch(0.245 0.015 265))",
+          "color": "color(srgb 0.898824 0.498824 0.475294)",
+          "transition": "1e-05s"
+        }
+      ],
+      "geometry": "PASS",
+      "focus": "PASS",
+      "disabled": "PASS"
+    },
+    {
+      "theme": "dark",
+      "dir": "rtl",
+      "values": [
+        {
+          "variant": "primary",
+          "background": "linear-gradient(rgb(212, 42, 32), rgb(155, 31, 21))",
+          "color": "rgb(255, 255, 255)",
+          "transition": "1e-05s"
+        },
+        {
+          "variant": "secondary",
+          "background": "linear-gradient(oklch(0.2 0.014 265), oklch(0.245 0.015 265))",
+          "color": "oklab(0.707925 0.115628 0.0522423)",
+          "transition": "1e-05s"
+        }
+      ],
+      "geometry": "PASS",
+      "focus": "PASS",
+      "disabled": "PASS"
+    }
+  ],
+  "checks": {
+    "lint": "PASS",
+    "typecheck": "PASS",
+    "unit": {
+      "pass": 448,
+      "fail": 0,
+      "skip": 4
+    },
+    "d1": {
+      "pass": 10,
+      "fail": 0
+    },
+    "nodeBuild": "PASS",
+    "productionDependencyAudit": "0 vulnerabilities",
+    "brandAssets": "all public/brand SHA256 unchanged"
+  },
+  "limitations": [
+    "No separate pearl-control reference supplied; existing header is the verified reference.",
+    "Admin/authenticated flows and real business-card data not covered by these previews.",
+    "No Lighthouse score measured. No 100/100 or full WCAG claim.",
+    "Hosted CI, merge, deployment and live candidate verification pending."
+  ]
+}

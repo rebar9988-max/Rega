@@ -32,6 +32,11 @@
   --ring: var(--brand);
   --shadow: 0 1px 2px rgb(17 24 39 / 0.05), 0 10px 26px -16px rgb(17 24 39 / 0.18);
   --shadow-hover: 0 2px 4px rgb(17 24 39 / 0.07), 0 18px 36px -18px color-mix(in srgb, var(--brand) 24%, transparent);
+  --action-gradient: linear-gradient(180deg, var(--brand), var(--brand-deep));
+  --action-gradient-hover: linear-gradient(180deg, var(--brand-hover), var(--brand-deep));
+  --action-shadow: inset 0 1px 0 rgb(255 255 255 / .18), 0 4px 12px -6px color-mix(in srgb, var(--brand) 45%, transparent);
+  --action-shadow-pressed: inset 0 2px 4px rgb(0 0 0 / .18);
+  --control-highlight: inset 0 1px 0 rgb(255 255 255 / .55);
   color-scheme: light;
 }
 :root[data-theme="dark"] {
@@ -46,6 +51,7 @@
   --sun: oklch(0.82 0.14 82);
   --shadow: 0 1px 2px oklch(0 0 0 / 0.3), 0 10px 28px -12px oklch(0 0 0 / 0.55);
   --shadow-hover: 0 2px 4px oklch(0 0 0 / 0.35), 0 18px 36px -14px color-mix(in srgb, var(--brand) 40%, transparent);
+  --control-highlight: inset 0 1px 0 rgb(255 255 255 / .08);
   color-scheme: dark;
 }
 
@@ -92,6 +98,20 @@
   input[type="checkbox"], input[type="radio"] { accent-color: var(--brand-control); }
 }
 
+@layer components {
+  .rega-control-primary {
+    background-image: var(--action-gradient);
+    box-shadow: var(--action-shadow);
+  }
+  .rega-control-primary:hover { background-image: var(--action-gradient-hover); }
+  .rega-control-primary:active { box-shadow: var(--action-shadow-pressed); }
+  .rega-control-secondary {
+    background-image: linear-gradient(180deg, var(--surface), var(--surface-2));
+    box-shadow: var(--control-highlight), var(--shadow);
+  }
+  .rega-control-secondary:active { box-shadow: var(--action-shadow-pressed); }
+}
+
 @layer utilities {
   .container-page { width: 100%; max-width: 90rem; margin-inline: auto; padding-inline: 1rem; }
   @media (min-width: 640px) { .container-page { padding-inline: 1.5rem; } }
@@ -131,6 +151,7 @@
 .figma { font-family: "Inter Variable", "Vazirmatn Variable", system-ui, sans-serif; line-height: normal; --placeholder: #a7abb1; --map: #e9edf0; }
 /* The approved concept is a light red/white surface. Keep it even when the phone is in dark mode. */
 .figma {
+  --control-highlight: inset 0 1px 0 rgb(255 255 255 / .55);
   --brand-text: var(--brand-text-light);
   --brand-soft: color-mix(in srgb, var(--brand) 6%, white);
   --ink: #171f29; --muted: #5c6168; --line: #e6e7eb; --surface: #ffffff; --surface-2: #f6f7f8; --bg: #ffffff;
@@ -300,10 +321,11 @@
 .rega-home .rh-search-input::placeholder { color: #80858c; }
 .rega-home .rh-search-btn {
   grid-area: btn; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 52px; padding-inline: 18px;
-  border-radius: 999px; background: var(--brand); color: var(--brand-ink); font-size: 16px; font-weight: 700;
-  box-shadow: 0 10px 22px -12px color-mix(in srgb, var(--brand) 85%, transparent); transition: background-color .15s ease, box-shadow .15s ease;
+  border-radius: 999px; background: var(--action-gradient); color: var(--brand-ink); font-size: 16px; font-weight: 700;
+  box-shadow: var(--action-shadow); transition: background-color .15s ease, box-shadow .15s ease;
 }
-.rega-home .rh-search-btn:hover { background: var(--brand-hover); box-shadow: 0 12px 26px -10px color-mix(in srgb, var(--brand-glow) 90%, transparent); }
+.rega-home .rh-search-btn:hover { background: var(--action-gradient-hover); box-shadow: var(--action-shadow); }
+.rega-home :is(.rh-search-btn, .rh-btn-red, .rh-act):active { box-shadow: var(--action-shadow-pressed); }
 
 @media (min-width: 768px) {
   .rega-home .rh-hero { padding-block: 64px 120px; }
@@ -421,7 +443,7 @@
 .rega-home .rh-biz-actions { position: relative; z-index: 2; display: flex; gap: 6px; margin-top: auto; padding-top: 10px; }
 .rega-home .rh-act {
   display: inline-flex; flex: 1 1 0; min-width: 0; align-items: center; justify-content: center; gap: 5px; min-height: 36px; padding-inline: 6px;
-  border: 1px solid var(--line); border-radius: 999px; background: #fff; color: var(--ink); font-size: 12.5px; font-weight: 600; white-space: nowrap;
+  border: 1px solid var(--line); border-radius: 999px; background: linear-gradient(180deg, var(--surface), var(--surface-2)); box-shadow: var(--control-highlight); color: var(--ink); font-size: 12.5px; font-weight: 600; white-space: nowrap;
   transition: border-color .15s ease, color .15s ease;
 }
 .rega-home .rh-act:hover { border-color: color-mix(in srgb, var(--brand) 45%, transparent); color: var(--brand-text); }
@@ -488,8 +510,8 @@
   display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding: 22px;
   border: 1px solid var(--line); border-radius: 16px; background: #fff;
 }
-.rega-home .rh-btn-red { display: inline-flex; flex-shrink: 0; align-items: center; justify-content: center; min-height: 44px; padding-inline: 20px; border-radius: 12px; background: var(--brand); color: var(--brand-ink); font-size: 14px; font-weight: 700; }
-.rega-home .rh-btn-red:hover { background: var(--brand-hover); }
+.rega-home .rh-btn-red { display: inline-flex; flex-shrink: 0; align-items: center; justify-content: center; min-height: 44px; padding-inline: 20px; border-radius: 12px; background: var(--action-gradient); color: var(--brand-ink); font-size: 14px; font-weight: 700; box-shadow: var(--action-shadow); }
+.rega-home .rh-btn-red:hover { background: var(--action-gradient-hover); }
 @media (min-width: 768px) {
   .rega-home .rh-tabs, .rega-home .rh-scroll-row { margin-inline: -32px; padding-inline: 32px; scroll-padding-inline: 32px; }
 }
