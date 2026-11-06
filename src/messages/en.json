@@ -537,6 +537,7 @@
     "quote": "Rega24 — discover services, connect locally, think globally."
   },
   "nearby": {
+    "fullscreen": "Fullscreen",
     "title": "Nearby",
     "subtitle": "Businesses and services around you, sorted by distance.",
     "useLocation": "Use my location",

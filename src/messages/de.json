@@ -537,6 +537,7 @@
     "quote": "Rega24 – Dienstleistungen entdecken, lokal verbinden, global denken."
   },
   "nearby": {
+    "fullscreen": "Vollbild",
     "title": "In der Nähe",
     "subtitle": "Unternehmen und Dienstleistungen in Ihrer Umgebung, nach Entfernung sortiert.",
     "useLocation": "Meinen Standort verwenden",

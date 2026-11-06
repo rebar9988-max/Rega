@@ -3,15 +3,17 @@ import { expect, test } from "./fixtures";
 
 const BERLIN = { latitude: 52.5201, longitude: 13.4049 };
 
-test("nearby excludes placeholder coordinates without hiding the business profile", async ({ request }) => {
+test("nearby excludes placeholder coordinates without hiding the business profile", async ({ request, page, context }) => {
   const db = testDatabaseClient();
   const location = await db.location.findFirstOrThrow({ where: { business: { slug: "kurdistan-rechtsberatung" }, isPrimary: true } });
   try {
     await db.location.update({ where: { id: location.id }, data: { latitude: 0, longitude: 0 } });
-    const response = await request.get("/api/v1/nearby?lat=0.001&lng=0.001&radius=5");
-    expect(response.status()).toBe(200);
-    const body = await response.json();
-    expect(body.data.map((item: { id: string }) => item.id)).not.toContain(location.id);
+    await context.grantPermissions(["geolocation"]);
+    await context.setGeolocation({ latitude: 0.001, longitude: 0.001 });
+    await stubBasemap(page);
+    await page.goto("/de/nearby");
+    await page.getByTestId("nearby-locate").click();
+    await expect(page.getByTestId("nearby-empty")).toBeVisible();
     expect((await request.get("/de/business/kurdistan-rechtsberatung")).status()).toBe(200);
   } finally {
     await db.location.update({ where: { id: location.id }, data: { latitude: location.latitude, longitude: location.longitude } });
@@ -40,6 +42,7 @@ test("nearby API: distance-sorted, radius-bounded, validated", async ({ request 
 test.describe("with location permission", () => {
   test.use({ geolocation: BERLIN, permissions: ["geolocation"] });
   test("Near Me finds nearby businesses with distance, filters and map/list views", async ({ page }) => {
+    await stubBasemap(page);
     await page.goto("/de/nearby");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("In der Nähe");
     await page.getByTestId("nearby-locate").click();
@@ -80,7 +83,7 @@ test.describe("with location permission", () => {
     const preview = page.getByTestId("map-preview");
     await expect(preview).toContainText("Kurdistan Rechtsberatung");
     await expect(preview).toContainText("Recht"); // category from the database
-    await expect(preview.getByRole("link", { name: "Profil ansehen" })).toHaveAttribute("href", "/de/business/kurdistan-rechtsberatung");
+    await expect(preview.getByRole("link", { name: "Details ansehen" })).toHaveAttribute("href", "/de/business/kurdistan-rechtsberatung");
     await expect(preview.getByRole("link", { name: "Route planen" })).toHaveAttribute("href", /google\.com\/maps\/dir\/\?api=1&destination=/);
     await expect(preview).toContainText("km entfernt");
     await expect(pin).toHaveAttribute("aria-pressed", "true");

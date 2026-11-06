@@ -537,6 +537,7 @@
     "quote": "Rega24 — upptäck tjänster, knyt kontakter lokalt, tänk globalt."
   },
   "nearby": {
+    "fullscreen": "Helskärm",
     "title": "I närheten",
     "subtitle": "Företag och tjänster omkring dig, sorterade efter avstånd.",
     "useLocation": "Använd min position",

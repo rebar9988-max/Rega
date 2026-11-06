@@ -24,9 +24,9 @@ import { Rating } from "@/components/ui/Rating";
 import { VerifiedBadge } from "@/components/ui/Badge";
 import { Avatar } from "@/components/ui/Avatar";
 import { DEFAULT_MAP_STYLE_URL, mapStyleUrl } from "@/lib/map-config";
-import type { MapLabels } from "@/components/map/DiscoveryMap";
+import type { MapLabels } from "@/components/nearby/NearbyMap";
 
-const DiscoveryMap = dynamic(() => import("@/components/map/DiscoveryMap").then((m) => m.DiscoveryMap), {
+const DiscoveryMap = dynamic(() => import("@/components/nearby/NearbyMap").then((m) => m.DiscoveryMap), {
   ssr: false,
   loading: () => <div className="size-full animate-pulse rounded-[var(--radius-card)] bg-surface-2" aria-hidden="true" />,
 });
@@ -45,17 +45,17 @@ type Center = { lat: number; lng: number; label: { kind: "device" } | { kind: "c
 type Status = "idle" | "locating" | "denied" | "unavailable" | "unsupported" | "loading" | "ready" | "error";
 type Filters = { radius: number; q: string; category: string; open: boolean; sort: "distance" | "rating" };
 
-const field = "min-h-11 w-full rounded-xl border border-line bg-surface px-3 text-sm outline-none focus:border-brand";
+const field = "min-h-11 min-w-0 w-full rounded-xl border border-line bg-surface px-3 text-sm outline-none focus:border-brand";
 const LIST_PAGE = 20;
 /** Radii offered as one-tap chips over the map ("All" uses the largest radius). */
-const QUICK_RADII = [5, 10, 25] as const;
+const QUICK_RADII = [1, 5, 10, 25] as const;
 const MAX_RADIUS = RADII_KM[RADII_KM.length - 1];
 const CAROUSEL_MAX = 30;
 
 /** Filters that can arrive in the URL (e.g. the home page's "Open now" link: /nearby?open=1). Location never does. */
 export type NearbyInitial = { open?: boolean; category?: string; q?: string; radius?: number; sort?: Filters["sort"] };
 
-export function NearbyDiscovery({ cities, categories, initial }: { cities: NearbyCity[]; categories: NearbyCategory[]; initial?: NearbyInitial }) {
+export function NearbyDiscovery({ cities, categories, initial, radiusLabels }: { cities: NearbyCity[]; categories: NearbyCategory[]; initial?: NearbyInitial; radiusLabels: Record<number, string> }) {
   const t = useTranslations("nearby");
   const tm = useTranslations("map");
   const locale = useLocale() as Locale;
@@ -68,7 +68,7 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);
-  const [view, setView] = useState<"list" | "map">("list");
+  const [view, setView] = useState<"list" | "map">("map");
   // Before a location is known the page shows a still picture of the start map (public/maps); the live map replaces it
   // at the visitor's first interaction (or at once with a custom map style, which the picture would not match).
   const [liveIntroMap, setLiveIntroMap] = useState(() => mapStyleUrl() !== DEFAULT_MAP_STYLE_URL);
@@ -82,7 +82,6 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
     events.forEach((e) => window.addEventListener(e, start, { passive: true }));
     return () => events.forEach((e) => window.removeEventListener(e, start));
   }, [liveIntroMap]);
-  const [mapItems, setMapItems] = useState<Item[] | null>(null);
   const [mapShown, setMapShown] = useState(LIST_PAGE);
   const [selected, setSelected] = useState<string | null>(null);
   const [stack, setStack] = useState<string[] | null>(null); // businesses sharing one position
@@ -95,7 +94,8 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
   }));
   const [q, setQ] = useState(initial?.q ?? "");
   const request = useRef(0);
-  const mapRequest = useRef(0);
+  const locationRequest = useRef(0);
+
 
   const cityName = useCallback((c: NearbyCity) => localize({ ...c, name: c.nameEn }, "name", locale).text, [locale]);
   const places = useMemo<Place[]>(() => cities.filter((c) => c.latitude != null && c.longitude != null).map((c) => ({
@@ -106,9 +106,9 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
   // Map results with their distance computed here (haversine from the search centre); nearest first unless the
   // visitor sorts by rating (then the server's order is kept).
   const mapList = useMemo(() => {
-    const rows = (mapItems ?? []).map((it) => (center ? { ...it, distanceKm: distanceKm(center, { lat: it.latitude, lng: it.longitude }) } : it));
+    const rows = items.map((it) => (center ? { ...it, distanceKm: distanceKm(center, { lat: it.latitude, lng: it.longitude }) } : it));
     return filters.sort === "distance" ? rows.sort((a, b) => a.distanceKm - b.distanceKm) : rows;
-  }, [mapItems, center, filters.sort]);
+  }, [items, center, filters.sort]);
 
   const mapListRef = useRef<HTMLUListElement>(null);
   useEffect(() => {
@@ -137,19 +137,22 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
 
   const locate = useCallback(() => {
     if (typeof navigator === "undefined" || !navigator.geolocation) return setStatus("unsupported");
+    const locationVersion = ++locationRequest.current;
     setStatus("locating");
     navigator.geolocation.getCurrentPosition(
       (pos) => {
+        if (locationVersion !== locationRequest.current) return;
         const here = { lat: coarsen(pos.coords.latitude), lng: coarsen(pos.coords.longitude) };
         setDevice(here);
         setCenter({ ...here, label: { kind: "device" } });
       },
-      (err) => setStatus(err.code === err.PERMISSION_DENIED ? "denied" : "unavailable"),
+      (err) => { if (locationVersion === locationRequest.current) setStatus(err.code === err.PERMISSION_DENIED ? "denied" : "unavailable"); },
       { enableHighAccuracy: false, timeout: 10_000, maximumAge: 5 * 60_000 },
     );
   }, []);
 
   function pickCity(id: string) {
+    ++locationRequest.current;
     const c = cities.find((x) => x.id === id);
     if (c?.latitude != null && c.longitude != null) {
       setCenter({ lat: c.latitude, lng: c.longitude, label: { kind: "city", id } });
@@ -197,13 +200,15 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
     const id = ++request.current;
     setStatus("loading");
     try {
-      const res = await fetch(`/api/v1/nearby?${params(c, { page: String(p) })}`, { headers: { accept: "application/json" } });
+      const res = await fetch(`/api/v1/nearby?${params(c, { mode: "map" })}`, { headers: { accept: "application/json" } });
       const body = await res.json();
       if (id !== request.current) return; // a newer request superseded this one
       if (!res.ok || !body.ok) throw new Error(body?.error?.code ?? String(res.status));
-      setItems((prev) => (p === 1 ? body.data : [...prev, ...body.data]));
-      setTotal(body.meta.total);
-      setPages(body.meta.pages);
+      const rows: Item[] = body.data.filter((it: Item) => Number.isFinite(it.latitude) && Number.isFinite(it.longitude) && Math.abs(it.latitude) < 90 && Math.abs(it.longitude) < 180 && (it.latitude !== 0 || it.longitude !== 0));
+      setItems(rows);
+      setMapShown(LIST_PAGE);
+      setTotal(rows.length);
+      setPages(Math.max(1, Math.ceil(rows.length / LIST_PAGE)));
       setPage(p);
       setStatus("ready");
     } catch {
@@ -211,23 +216,14 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
     }
   }, [params]);
 
-  // Map view: every match in range in one request (markers are clustered), refreshed with the filters.
-  const loadMap = useCallback(async (c: Center) => {
-    const id = ++mapRequest.current;
-    try {
-      const res = await fetch(`/api/v1/nearby?${params(c, { mode: "map" })}`, { headers: { accept: "application/json" } });
-      const body = await res.json();
-      if (id !== mapRequest.current) return;
-      if (!res.ok || !body.ok) throw new Error(String(res.status));
-      setMapItems(body.data);
-      setMapShown(LIST_PAGE);
-    } catch {
-      if (id === mapRequest.current) setMapItems(null);
-    }
-  }, [params]);
-
-  useEffect(() => { if (center) { setSelected(null); setStack(null); void load(center, 1); } }, [center, load]);
-  useEffect(() => { if (center && view === "map") void loadMap(center); else setMapItems(null); }, [center, view, loadMap]);
+  useEffect(() => {
+    ++request.current;
+    setSelected(null); setStack(null); setItems([]);
+    if (center) void load(center, 1);
+    const versions = request;
+    const locations = locationRequest;
+    return () => { ++versions.current; ++locations.current; };
+  }, [center, load]);
 
   const placeName = (() => {
     if (!center) return "";
@@ -253,7 +249,7 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
   );
 
   const labels: MapLabels = {
-    map: tm("title"), searchArea: tm("searchArea"), unavailable: tm("unavailable"), unavailableHint: tm("unavailableHint"), you: tm("you"),
+    fullscreen: t("fullscreen"), closeFullscreen: tm("close"), map: tm("title"), searchArea: tm("searchArea"), unavailable: tm("unavailable"), unavailableHint: tm("unavailableHint"), you: tm("you"),
     cluster: (count) => tm("cluster", { count: formatNumber(count, locale) }), zoomIn: tm("zoomIn"), zoomOut: tm("zoomOut"),
     gestures: { windows: tm("gestureWindows"), mac: tm("gestureMac"), mobile: tm("gestureMobile") },
   };
@@ -269,44 +265,45 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
     const notice = { denied: t("permissionDenied"), unavailable: t("unavailable"), unsupported: t("unsupported") }[status as "denied" | "unavailable" | "unsupported"];
     const germany = { lat: 51.1657, lng: 10.4515 };
     return (
-      <section className="container-page pb-10" aria-live="polite">
+      <section className="container-page pb-6" aria-live="polite">
         <div className="rega-shell overflow-hidden">
-          <div className="grid lg:grid-cols-[minmax(19rem,0.9fr)_minmax(0,1.6fr)]">
-            <div className="order-2 p-5 sm:p-7 lg:order-1 lg:p-8">
-              <div className="mb-5 inline-flex size-11 items-center justify-center rounded-2xl bg-brand-soft text-brand-text"><LocateIcon /></div>
-              <h2 className="text-xl font-bold tracking-tight">{t("title")}</h2>
-              <p className="mt-2 max-w-xl text-sm leading-7 text-muted">{t("start")}</p>
+          <div className="grid lg:grid-cols-[minmax(0,45fr)_minmax(0,55fr)]">
+            <div className="order-1 p-3 lg:p-4">
+              <p className="mb-3 text-sm text-muted">{t("start")}</p>
               {notice && <p role="alert" data-testid="nearby-notice" className="mt-4 rounded-xl bg-brand-soft px-4 py-3 text-sm text-ink">{notice}</p>}
-              <div className="mt-6 grid gap-3">
+              <div className="grid grid-cols-2 gap-2">
                 {status !== "unsupported" && (
                   <button type="button" onClick={locate} disabled={status === "locating"} data-testid="nearby-locate"
-                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-brand px-5 text-sm font-bold text-brand-ink shadow-sm transition hover:bg-brand-hover disabled:opacity-60">
+                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-brand px-3 text-sm font-bold text-brand-ink shadow-sm transition hover:bg-brand-hover disabled:opacity-60">
                     <LocateIcon />
                     {status === "locating" ? t("locating") : t("useLocation")}
                   </button>
                 )}
                 {cities.length > 0 && (
-                  <label className="flex flex-col gap-1.5 text-sm">
-                    <span className="font-semibold">{t("chooseCity")}</span>
+                  <label className="flex min-w-0 flex-col gap-1.5 text-sm">
+                    <span className="sr-only">{t("chooseCity")}</span>
                     {citySelect("nearby-city")}
                   </label>
                 )}
               </div>
-              <p className="mt-5 text-xs leading-5 text-muted">{t("privacy")}</p>
+              <div className="mt-3 flex gap-2" role="group" aria-label={t("radius")}>
+                {QUICK_RADII.map((r) => <button type="button" key={r} aria-pressed={filters.radius === r} onClick={() => setFilters((f) => ({ ...f, radius: r }))} className={`min-h-11 min-w-11 rounded-full border px-3 text-xs ${filters.radius === r ? "border-brand bg-brand text-brand-ink" : "border-line"}`}>{radiusLabels[r]}</button>)}
+              </div>
+              <details className="mt-2 text-xs text-muted"><summary aria-label={t("privacy")} className="flex size-11 cursor-pointer items-center justify-center">ℹ</summary><p>{t("privacy")}</p></details>
             </div>
-            <div className="order-1 h-[42dvh] min-h-[20rem] border-b border-line lg:order-2 lg:h-[34rem] lg:border-b-0 lg:border-s">
+            <div className="order-2 h-[260px] border-t border-line lg:h-[28rem] lg:border-t-0 lg:border-s">
               {!liveIntroMap ? (
                 // Same view as the live map below (style, centre, zoom and radius), as a still picture: MapLibre is
                 // only loaded once the visitor interacts with the page, so a first visit does not pay for it.
                 <div className="relative isolate size-full overflow-hidden rounded-[var(--radius-card)] border border-line bg-surface-2 shadow-card" data-testid="discovery-map" data-status="preview">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src="/maps/nearby-intro-de@1x.webp" srcSet="/maps/nearby-intro-de@1x.webp 1x, /maps/nearby-intro-de@2x.webp 2x" alt="" width={800} height={560}
-                    decoding="async" fetchPriority="low" className="absolute left-1/2 top-1/2 h-[560px] w-[800px] max-w-none -translate-x-1/2 -translate-y-1/2" />
+                    decoding="async" fetchPriority="high" className="absolute left-1/2 top-1/2 h-[560px] w-[800px] max-w-none -translate-x-1/2 -translate-y-1/2" />
                 </div>
               ) : <DiscoveryMap
                 className="size-full"
                 center={germany}
-                radiusKm={250}
+                radiusKm={filters.radius}
                 points={[]}
                 selectedId={null}
                 onSelect={() => undefined}
@@ -322,18 +319,18 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
     );
   }
 
-  const selectedItem = (mapItems ? mapList : items).find((it) => it.id === selected) ?? null;
+  const selectedItem = mapList.find((it) => it.id === selected) ?? null;
 
   const chip = (active: boolean, label: string, onClick: () => void, testId: string) => (
     <button key={testId} type="button" aria-pressed={active} onClick={onClick} data-testid={testId}
-      className={`inline-flex min-h-9 shrink-0 items-center gap-1.5 rounded-full px-3.5 text-xs font-bold shadow-lift ring-1 transition-colors ${active ? "bg-brand text-brand-ink ring-brand" : "bg-surface text-ink ring-line hover:text-brand-text"}`}>
+      className={`inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-full px-3.5 text-xs font-bold shadow-lift ring-1 transition-colors ${active ? "bg-brand text-brand-ink ring-brand" : "bg-surface text-ink ring-line hover:text-brand-text"}`}>
       {label}
     </button>
   );
   const quickFilters = (
     <div className="flex gap-2 overflow-x-auto p-0.5 [scrollbar-width:none]" role="group" aria-label={t("quickFilters")} data-testid="nearby-quick-filters">
       {chip(!filters.open && !(QUICK_RADII as readonly number[]).includes(filters.radius), t("all"), () => setFilters((f) => ({ ...f, open: false, radius: MAX_RADIUS })), "nearby-chip-all")}
-      {QUICK_RADII.map((r) => chip(filters.radius === r, t("km", { km: formatNumber(r, locale) }), () => setFilters((f) => ({ ...f, radius: r })), `nearby-chip-${r}`))}
+      {QUICK_RADII.map((r) => chip(filters.radius === r, radiusLabels[r], () => setFilters((f) => ({ ...f, radius: r })), `nearby-chip-${r}`))}
       {chip(filters.open, t("open"), () => setFilters((f) => ({ ...f, open: !f.open })), "nearby-chip-open")}
     </div>
   );
@@ -343,19 +340,20 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm font-semibold" data-testid="nearby-place">{placeName}</p>
         <div className="flex flex-wrap items-center gap-3">
-          {center.label.kind !== "device" && status !== "unsupported" && (
-            <button type="button" className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-text hover:underline" onClick={locate}>
-              <LocateIcon className="size-4" />{t("useLocation")}
-            </button>
-          )}
-          <button type="button" className="text-sm font-semibold text-muted hover:text-ink hover:underline" onClick={() => { setCenter(null); setStatus("idle"); setItems([]); setMapItems(null); }}>
+          <button type="button" className="text-sm font-semibold text-muted hover:text-ink hover:underline" onClick={() => { ++request.current; setCenter(null); setStatus("idle"); setItems([]); }}>
             {t("changeLocation")}
           </button>
         </div>
       </div>
 
-      <form className="rega-search-shell grid grid-cols-2 gap-2 p-3 md:grid-cols-3 lg:grid-cols-[2fr_1fr_1fr_1fr_1fr_auto]" onSubmit={(e) => e.preventDefault()} role="search">
-        <div className="col-span-2 md:col-span-3 lg:col-span-1">
+      {(status === "denied" || status === "unavailable" || status === "unsupported") && <p role="alert" data-testid="nearby-notice" className="mb-3 rounded-xl bg-brand-soft p-3 text-sm">{status === "denied" ? t("permissionDenied") : status === "unsupported" ? t("unsupported") : t("unavailable")}</p>}
+      <form className="rega-search-shell grid grid-cols-[44px_minmax(0,1fr)_90px] gap-2 p-3 lg:grid-cols-[44px_minmax(8rem,1fr)_90px_minmax(12rem,2fr)_minmax(10rem,1fr)]" onSubmit={(e) => e.preventDefault()} role="search">
+        <button type="button" onClick={locate} disabled={status === "locating" || status === "unsupported"} aria-label={t("useLocation")} title={t("useLocation")} className="grid size-11 place-items-center rounded-xl bg-brand text-brand-ink disabled:opacity-60"><LocateIcon /></button>
+        {cities.length > 0 && citySelect("nearby-city-filter")}
+        <select className={field} value={filters.radius} onChange={(e) => setFilters((f) => ({ ...f, radius: Number(e.target.value) }))} aria-label={t("radius")} data-testid="nearby-radius">
+          {RADII_KM.map((r) => <option key={r} value={r}>{radiusLabels[r]}</option>)}
+        </select>
+        <div className="col-span-3 lg:col-span-1">
           <label className="sr-only" htmlFor="nearby-q">{t("searchPlaceholder")}</label>
           <div className="relative">
             <svg viewBox="0 0 24 24" className="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2 text-muted" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5" /><path d="m20 20-4.2-4.2" /></svg>
@@ -375,13 +373,12 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
             </div>
           )}
         </div>
-        {cities.length > 0 && citySelect("nearby-city-filter")}
+        <details className="col-span-3 rounded-xl lg:col-span-1 border border-line px-3">
+          <summary className="flex min-h-11 cursor-pointer items-center text-sm font-semibold">{t("quickFilters")}</summary>
+          <div className="grid gap-2 pb-3 sm:grid-cols-3">
         <select className={field} value={filters.category} onChange={(e) => setFilters((f) => ({ ...f, category: e.target.value }))} aria-label={t("category")}>
           <option value="">{t("allCategories")}</option>
           {categories.map((c) => <option key={c.id} value={c.id}>{localize({ ...c, name: c.nameDe }, "name", locale).text}</option>)}
-        </select>
-        <select className={field} value={filters.radius} onChange={(e) => setFilters((f) => ({ ...f, radius: Number(e.target.value) }))} aria-label={t("radius")} data-testid="nearby-radius">
-          {RADII_KM.map((r) => <option key={r} value={r}>{t("km", { km: formatNumber(r, locale) })}</option>)}
         </select>
         <select className={field} value={filters.sort} onChange={(e) => setFilters((f) => ({ ...f, sort: e.target.value as Filters["sort"] }))} aria-label={t("sort")}>
           <option value="distance">{t("sortDistance")}</option>
@@ -391,6 +388,8 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
           <input type="checkbox" className="size-5 accent-brand-control" checked={filters.open} onChange={(e) => setFilters((f) => ({ ...f, open: e.target.checked }))} data-testid="nearby-open" />
           {t("openNow")}
         </label>
+          </div>
+        </details>
       </form>
 
       <div className="mt-5 flex items-center justify-between gap-3">
@@ -403,7 +402,7 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
           <div className={`pointer-events-auto inline-flex rounded-full bg-surface p-1 ring-1 ring-line lg:rounded-xl lg:shadow-none ${view === "list" ? "shadow-lift" : ""}`} role="group" data-testid="nearby-view-toggle">
             {(["list", "map"] as const).map((v) => (
               <button key={v} type="button" aria-pressed={view === v} onClick={() => setView(v)} data-testid={`nearby-view-${v}`}
-                className={`inline-flex min-h-10 items-center gap-1.5 rounded-full px-4 text-sm font-semibold transition-colors lg:min-h-9 lg:rounded-lg ${view === v ? "bg-brand text-brand-ink" : "text-muted hover:text-ink"}`}>
+                className={`inline-flex min-h-11 items-center gap-1.5 rounded-full px-4 text-sm font-semibold transition-colors lg:min-h-9 lg:rounded-lg ${view === v ? "bg-brand text-brand-ink" : "text-muted hover:text-ink"}`}>
                 {v === "list" ? <ListIcon /> : <MapIcon />}{t(v)}
               </button>
             ))}
@@ -426,9 +425,11 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
         </div>
       )}
 
+      <div className="mt-3">{quickFilters}</div>
+
       {/* ---------- map view: results beside the map on large screens, map first on phones */}
       {view === "map" && (
-        <div className="mt-4 grid gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+        <div className="mt-4 grid gap-5 lg:grid-cols-[minmax(0,45fr)_minmax(0,55fr)]">
           {/* Large screens: nearest first beside the map (on the reading side: right in RTL). */}
           <ul ref={mapListRef} className="order-2 hidden max-h-[calc(100dvh-8rem)] min-h-[34rem] space-y-3 overflow-y-auto pe-1 lg:order-1 lg:block" data-testid="nearby-map-list" aria-label={t("list")}>
             {mapList.slice(0, mapShown).map((it) => {
@@ -436,7 +437,7 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
               const name = localize(it.business, "name", locale);
               return (
                 <li key={it.id}>
-                  <button type="button" onClick={() => setSelected(it.id)} aria-pressed={selected === it.id}
+                  <button type="button" onMouseEnter={() => setSelected(it.id)} onFocus={() => setSelected(it.id)} onClick={() => setSelected(it.id)} aria-pressed={selected === it.id}
                     className={`flex w-full items-center gap-3 rounded-[var(--radius-card)] border bg-surface p-3 text-start transition-[border-color,box-shadow] hover:shadow-card ${selected === it.id ? "border-brand shadow-card ring-2 ring-brand/20" : "border-line hover:border-brand/40"}`}>
                     {image
                       // eslint-disable-next-line @next/next/no-img-element
@@ -459,10 +460,10 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
               );
             })}
             {mapList.length > mapShown && (
-              <li><button type="button" className="min-h-11 w-full rounded-xl border border-line bg-surface text-sm font-semibold hover:border-brand hover:text-brand-text" onClick={() => setMapShown((n) => n + LIST_PAGE)}>{t("loadMore")}</button></li>
+              <li><button type="button" className="min-h-11 min-w-0 w-full rounded-xl border border-line bg-surface text-sm font-semibold hover:border-brand hover:text-brand-text" onClick={() => setMapShown((n) => n + LIST_PAGE)}>{t("loadMore")}</button></li>
             )}
           </ul>
-          <div className="relative order-1 h-[min(72dvh,640px)] min-h-[24rem] lg:order-2 lg:sticky lg:top-24 lg:h-[calc(100dvh-8rem)] lg:min-h-[34rem]">
+          <div className="relative order-1 h-[260px] lg:order-2 lg:sticky lg:top-24 lg:h-[calc(100dvh-8rem)] lg:min-h-[34rem]">
             <DiscoveryMap
               className="size-full"
               center={center}
@@ -477,15 +478,20 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
               dir={dir}
               markerStyle="pill"
               focusSelected
-              fitPadding={{ top: 104, bottom: 160, x: 100 }}
-              toolbar={quickFilters}
+              fitPadding={{ top: 64, bottom: 40, x: 48 }}
               locate={status !== "unsupported" ? { label: t("locateMe"), busy: status === "locating", onClick: () => { setFilters((f) => (f.sort === "distance" ? f : { ...f, sort: "distance" })); locate(); } } : undefined}
             >
-              {selectedItem ? preview(selectedItem) : stack && stackList(stack)}
+
             </DiscoveryMap>
+
+          </div>
+        </div>
+      )}
+
+      {view === "map" && <div className="mt-3 lg:fixed lg:bottom-8 lg:end-8 lg:z-30 lg:w-96">{selectedItem ? preview(selectedItem) : stack && stackList(stack)}</div>}
             {/* Phones: nearest results as swipeable cards over the bottom of the map; a tap flies to the business. */}
-            {!selectedItem && !stack && mapList.length > 0 && (
-              <ul className="absolute inset-x-0 bottom-8 z-10 flex snap-x snap-mandatory gap-3 overflow-x-auto px-3 pb-1 [scrollbar-width:none] lg:hidden" data-testid="nearby-carousel" aria-label={t("list")}>
+            {view === "map" && !selectedItem && !stack && mapList.length > 0 && (
+              <ul className="mt-3 flex snap-x snap-mandatory gap-3 overflow-x-auto px-3 pb-1 [scrollbar-width:none] lg:hidden" data-testid="nearby-carousel" aria-label={t("list")}>
                 {mapList.slice(0, CAROUSEL_MAX).map((it) => {
                   const image = it.business.coverUrl ?? it.business.logoUrl;
                   const name = localize(it.business, "name", locale);
@@ -501,7 +507,7 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
                           <span className="mt-0.5 block truncate text-xs text-muted">
                             {it.category && <Text value={localize({ ...it.category, name: it.category.nameDe }, "name", locale)} pageLang={pageLang} />}
                           </span>
-                          <span className="mt-1 flex items-center gap-2 text-xs">
+                          <span className="mt-1 flex flex-wrap items-center gap-2 text-xs">
                             <span className="font-bold text-brand-text">{distance(it)}</span>
                             {it.business.ratingCount > 0 && <Rating value={it.business.ratingAvg} count={it.business.ratingCount} />}
                           </span>
@@ -512,20 +518,16 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
                 })}
               </ul>
             )}
-          </div>
-        </div>
-      )}
-
       {/* ---------- list view */}
-      {view === "list" && status === "loading" && items.length === 0 && (
+      {status === "loading" && items.length === 0 && (
         <ul className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-hidden="true">
           {Array.from({ length: 6 }, (_, i) => <li key={i} className="h-40 animate-pulse rounded-[var(--radius-card)] bg-surface-2" />)}
         </ul>
       )}
 
-      {view === "list" && items.length > 0 && (
-        <ul className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3" data-testid="nearby-results">
-          {items.map((it) => {
+      {items.length > 0 && (
+        <ul className={`mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 ${view === "map" ? "lg:hidden" : "lg:grid-cols-3"}`} data-testid="nearby-results">
+          {mapList.slice(0, page * LIST_PAGE).map((it) => {
             const name = localize(it.business, "name", locale);
             const city = it.city ? localize({ ...it.city, name: it.city.nameEn }, "name", locale) : null;
             return (
@@ -541,15 +543,17 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
                   {it.business.verified && <VerifiedBadge />}
                   {openBadge(it.openNow)}
                 </div>
+                {it.category && <p className="text-xs font-semibold text-brand-text"><Text value={localize({ ...it.category, name: it.category.nameDe }, "name", locale)} pageLang={pageLang} /></p>}
                 <address className="text-sm not-italic text-muted">
                   <Ltr>{it.addressLine1}</Ltr>{it.postalCode && <>, <Ltr>{it.postalCode}</Ltr></>}{city && <> · <Text value={city} pageLang={pageLang} /></>}
                 </address>
                 <div className="mt-auto flex flex-wrap gap-2 pt-1 text-sm font-semibold">
-                  <button type="button" className="inline-flex min-h-10 items-center gap-1.5 rounded-xl border border-line px-3 hover:border-brand hover:text-brand-text" onClick={() => { setView("map"); setSelected(it.id); }}>
+                  <button type="button" className="inline-flex min-h-11 items-center gap-1.5 rounded-xl border border-line px-3 hover:border-brand hover:text-brand-text" onClick={() => { setView("map"); setSelected(it.id); }}>
                     <MapIcon />{t("showOnMap")}
                   </button>
-                  {it.phone && <a className="inline-flex min-h-10 items-center rounded-xl border border-line px-3 hover:border-brand hover:text-brand-text" href={`tel:${it.phone.replace(/[^\d+]/g, "")}`}>{t("call")}</a>}
-                  <Link className="inline-flex min-h-10 items-center rounded-xl bg-brand px-3 text-brand-ink hover:bg-brand-hover" href={`/business/${it.business.slug}`}>{t("details")}</Link>
+                  <a className="inline-flex min-h-11 items-center rounded-xl border border-line px-3 text-brand-text" href={`https://www.google.com/maps/dir/?api=1&destination=${it.latitude},${it.longitude}`} target="_blank" rel="noopener noreferrer">{t("getDirections")}</a>
+                  {it.phone && <a className="inline-flex min-h-11 items-center rounded-xl border border-line px-3 hover:border-brand hover:text-brand-text" href={`tel:${it.phone.replace(/[^\d+]/g, "")}`}>{t("call")}</a>}
+                  <Link className="inline-flex min-h-11 items-center rounded-xl bg-brand px-3 text-brand-ink hover:bg-brand-hover" href={`/business/${it.business.slug}`}>{t("details")}</Link>
                 </div>
               </li>
             );
@@ -557,9 +561,9 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
         </ul>
       )}
 
-      {view === "list" && status === "ready" && page < pages && (
+      {status === "ready" && page < pages && (
         <div className="mt-6 text-center">
-          <button type="button" className="min-h-11 rounded-xl border border-line bg-surface px-6 text-sm font-semibold hover:border-brand hover:text-brand-text" onClick={() => load(center, page + 1)}>{t("loadMore")}</button>
+          <button type="button" className="min-h-11 rounded-xl border border-line bg-surface px-6 text-sm font-semibold hover:border-brand hover:text-brand-text" onClick={() => setPage((p) => p + 1)}>{t("loadMore")}</button>
         </div>
       )}
       <p className="mt-6 text-xs text-muted">{t("privacy")}</p>
@@ -568,7 +572,7 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
 
   function openBadge(value: boolean | null) {
     return (
-      <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${value === true ? "bg-[oklch(0.95_0.05_150)] text-[oklch(0.4_0.12_150)]" : "bg-surface-2 text-muted"}`}>
+      <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${value === true ? "bg-[oklch(0.95_0.05_150)] text-[oklch(0.4_0.12_150)]" : "bg-surface-2 text-ink"}`}>
         {value === true ? t("open") : value === false ? t("closed") : t("hoursUnknown")}
       </span>
     );
@@ -580,7 +584,7 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
       <article className="rega-shell max-h-72 overflow-y-auto p-3" data-testid="map-stack">
         <div className="mb-2 flex items-center justify-between gap-2 px-1">
           <p className="text-sm font-bold">{t("results", { count: formatNumber(rows.length, locale) })}</p>
-          <button type="button" onClick={() => setStack(null)} aria-label={tm("close")} className="grid size-8 place-items-center rounded-full text-muted hover:bg-surface-2 hover:text-ink">
+          <button type="button" onClick={() => setStack(null)} aria-label={tm("close")} className="grid size-11 place-items-center rounded-full text-muted hover:bg-surface-2 hover:text-ink">
             <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
           </button>
         </div>
@@ -605,7 +609,7 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
     const city = it.city ? localize({ ...it.city, name: it.city.nameEn }, "name", locale) : null;
     const image = it.business.coverUrl ?? it.business.logoUrl;
     const close = (extra: string) => (
-      <button type="button" onClick={onClose} aria-label={tm("close")} className={`grid size-8 shrink-0 place-items-center rounded-full ${extra}`}>
+      <button type="button" onClick={onClose} aria-label={tm("close")} className={`grid size-11 shrink-0 place-items-center rounded-full ${extra}`}>
         <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
       </button>
     );
@@ -639,7 +643,7 @@ export function NearbyDiscovery({ cities, categories, initial }: { cities: Nearb
             {!image && close("-me-1 -mt-1 text-muted hover:bg-surface-2 hover:text-ink")}
           </div>
           <div className="mt-3 flex gap-2 text-sm font-semibold">
-            <Link className="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl bg-brand px-3 text-brand-ink hover:bg-brand-hover" href={`/business/${it.business.slug}`}>{t("viewProfile")}</Link>
+            <Link className="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl bg-brand px-3 text-brand-ink hover:bg-brand-hover" href={`/business/${it.business.slug}`}>{tm("details")}</Link>
             <a className="inline-flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-xl border border-line px-3 hover:border-brand hover:text-brand-text" target="_blank" rel="noopener noreferrer"
               href={`https://www.google.com/maps/dir/?api=1&destination=${it.latitude},${it.longitude}`}>
               <DirectionsIcon />{t("getDirections")}
