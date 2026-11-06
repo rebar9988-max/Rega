@@ -1384,6 +1384,11 @@
     "sev_fail": "Hata",
     "sev_skip": "Burada çalışmadı",
     "reportLanguage": "Bulgular Kürtçe (Sorani) yazılmıştır.",
+    "engTitle": "Mühendislik ajanları (kod)",
+    "engSubtitle": "Bu depodaki Claude Code ve Codex oturumları için on rol profili. Asla Worker içinde çalışmaz, birleştirme veya dağıtım yapmaz; bu adımlar sahipte kalır.",
+    "engUses": "Kullandığı denetçiler",
+    "engGates": "Birleştirmeden önce sahip onayı",
+    "engRuns": "Yönlendirme sonuçları (GitHub Actions)",
     "agents": {
       "business": "İşletme Denetçisi",
       "security": "Güvenlik Denetçisi",

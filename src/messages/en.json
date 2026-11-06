@@ -1384,6 +1384,11 @@
     "sev_fail": "Failure",
     "sev_skip": "Not run here",
     "reportLanguage": "Findings are written in Kurdish (Sorani).",
+    "engTitle": "Engineering agents (code)",
+    "engSubtitle": "Ten role profiles for Claude Code and Codex sessions on this repository. They never run in the Worker and never merge or deploy; those steps stay with the owner.",
+    "engUses": "Reuses inspectors",
+    "engGates": "Owner approval before merge",
+    "engRuns": "Routing results (GitHub Actions)",
     "agents": {
       "business": "Business Inspector",
       "security": "Security Inspector",

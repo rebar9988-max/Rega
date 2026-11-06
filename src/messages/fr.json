@@ -1384,6 +1384,11 @@
     "sev_fail": "Échec",
     "sev_skip": "Non exécuté ici",
     "reportLanguage": "Les constats sont rédigés en kurde (sorani).",
+    "engTitle": "Agents d’ingénierie (code)",
+    "engSubtitle": "Dix profils de rôle pour les sessions Claude Code et Codex sur ce dépôt. Ils ne s’exécutent jamais dans le Worker et ne fusionnent ni ne déploient ; ces étapes restent au propriétaire.",
+    "engUses": "Inspecteurs réutilisés",
+    "engGates": "Accord du propriétaire avant fusion",
+    "engRuns": "Résultats du routage (GitHub Actions)",
     "agents": {
       "business": "Inspecteur des entreprises",
       "security": "Inspecteur de sécurité",

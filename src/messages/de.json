@@ -1384,6 +1384,11 @@
     "sev_fail": "Fehler",
     "sev_skip": "Hier nicht ausgeführt",
     "reportLanguage": "Befunde sind auf Kurdisch (Sorani) verfasst.",
+    "engTitle": "Engineering-Agenten (Code)",
+    "engSubtitle": "Zehn Rollenprofile für Claude-Code- und Codex-Sitzungen in diesem Repository. Sie laufen nie im Worker und führen weder Merge noch Deploy aus; diese Schritte bleiben beim Inhaber.",
+    "engUses": "Nutzt Inspektoren",
+    "engGates": "Zustimmung des Inhabers vor dem Merge",
+    "engRuns": "Routing-Ergebnisse (GitHub Actions)",
     "agents": {
       "business": "Unternehmensprüfung",
       "security": "Sicherheitsprüfung",
