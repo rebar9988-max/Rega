@@ -424,7 +424,6 @@
     "circuit": "Anslutningsstatus",
     "circuitOpen": "Pausad (tillfälligt)",
     "circuitClosed": "Normal",
-    "blockedPaid": "Blockerad: betald (€0-policy)",
     "test": "Testa anslutningen",
     "enableAssistant": "Aktivera assistenten",
     "disableAssistant": "Inaktivera assistenten",

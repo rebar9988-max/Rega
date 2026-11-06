@@ -53,12 +53,8 @@ export type Owner = Record<OwnerField, string> & { missing: OwnerField[] };
 function configuredAiProviders(env: Env): string {
   const providers = [
     ["gemini", "GEMINI_API_KEY", "Google Gemini"],
-    ["grok", "XAI_API_KEY", "xAI Grok"],
-    ["openai", "OPENAI_API_KEY", "OpenAI"],
     ["groq", "GROQ_API_KEY", "Groq"],
-    ["deepseek", "DEEPSEEK_API_KEY", "DeepSeek"],
     ["openrouter", "OPENROUTER_API_KEY", "OpenRouter"],
-    ["anthropic", "ANTHROPIC_API_KEY", "Anthropic Claude"],
   ] as const;
   const mode = (env.AI_PROVIDER?.trim().toLowerCase() || "auto");
   if (mode === "disabled") return "";

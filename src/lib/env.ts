@@ -15,33 +15,21 @@ const serverSchema = z.object({
   DIRECT_DATABASE_URL: z.string().optional(),
   AUTH_SECRET: z.string().min(16, "AUTH_SECRET must be at least 16 chars"),
   AUTH_URL: z.string().url().optional(),
-  // disabled | auto (default: every provider whose API key is set, with fallback) | gemini | grok | openai | groq | deepseek |
-  // openrouter | anthropic (that provider only). Public use is additionally gated by the admin-controlled feature flag
+  // disabled | auto (default: every provider whose API key is set, with fallback) | gemini | groq | openrouter |
+  // workers-ai (that provider only). Only zero-cost providers exist in REGA (owner instruction 2026-11-06). Public use is additionally gated by the admin-controlled feature flag
   // "public.aiSearch" (/dr/ai).
-  AI_PROVIDER: z.enum(["disabled", "auto", "gemini", "grok", "openai", "groq", "deepseek", "openrouter", "anthropic", "workers-ai"]).default("auto"),
+  AI_PROVIDER: z.enum(["disabled", "auto", "gemini", "groq", "openrouter", "workers-ai"]).default("auto"),
   // Model defaults: vendor-listed, non-deprecated ids, checked against each vendor's models/deprecations page on
   // 2026-10-01 (see README "AI Gateway"). Any *_MODEL variable overrides its default without a code change.
   GEMINI_API_KEY: z.string().optional(),
   GEMINI_MODEL: z.string().min(1).default("gemini-3.5-flash-lite"),
   GEMINI_BASE_URL: z.string().url().optional(),
-  XAI_API_KEY: z.string().optional(),
-  GROK_MODEL: z.string().min(1).default("grok-4.7"),
-  GROK_BASE_URL: z.string().url().optional(),
-  OPENAI_API_KEY: z.string().optional(),
-  OPENAI_MODEL: z.string().min(1).default("gpt-4.1-mini"),
-  OPENAI_BASE_URL: z.string().url().optional(),
   GROQ_API_KEY: z.string().optional(),
   GROQ_MODEL: z.string().min(1).default("openai/gpt-oss-120b"),
   GROQ_BASE_URL: z.string().url().optional(),
-  DEEPSEEK_API_KEY: z.string().optional(),
-  DEEPSEEK_MODEL: z.string().min(1).default("deepseek-flash"),
-  DEEPSEEK_BASE_URL: z.string().url().optional(),
   OPENROUTER_API_KEY: z.string().optional(),
   OPENROUTER_MODEL: z.string().min(1).default("google/gemma-4-31b-it:free"),
   OPENROUTER_BASE_URL: z.string().url().optional(),
-  ANTHROPIC_API_KEY: z.string().optional(),
-  ANTHROPIC_MODEL: z.string().min(1).default("claude-haiku-4-5-20251001"),
-  ANTHROPIC_BASE_URL: z.string().url().optional(),
   // Cloudflare Workers AI chat model, run by rega-ai-python (AI_SERVICE_URL/TOKEN; no key). Serves only if `workers-ai` is approved and the model
   // is on the verified free list (src/lib/ai/routing.ts FREE_TIER_MODELS).
   WORKERS_AI_MODEL: z.string().min(1).default("@cf/google/gemma-4-26b-a4b-it"),
@@ -51,10 +39,9 @@ const serverSchema = z.object({
   // Model attempts per UTC day, all providers together (zero-cost default; the owner may set another value).
   AI_DAILY_LIMIT: z.coerce.number().int().min(1).default(500),
   // Zero-cost policy (PM-01, owner-controlled Cloudflare variables). Comma-separated provider ids. Nothing is assumed
-  // free: an AI provider serves only when listed. AI_FREE_TIER_APPROVED: free-tier providers (gemini, groq) and
-  // workers-ai whose account has NO billing enabled. AI_PAID_APPROVED: paid providers the owner accepts charges for.
+  // free: an AI provider serves only when listed. AI_FREE_TIER_APPROVED: gemini, groq, openrouter (:free models only)
+  // and workers-ai whose account has NO billing enabled. Paid providers were removed from the code (2026-11-06).
   AI_FREE_TIER_APPROVED: z.string().max(200).optional(),
-  AI_PAID_APPROVED: z.string().max(200).optional(),
   // Workers AI rerank calls per UTC day; can only lower the verified cap (RERANK_DAILY_CAP in src/lib/ai/budget.ts).
   AI_RERANK_DAILY_LIMIT: z.coerce.number().int().min(0).optional(),
   // Optional internal Python AI engine. It is server-to-server only and failure-isolated from the normal AI gateway.

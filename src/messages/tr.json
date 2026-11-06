@@ -424,7 +424,6 @@
     "circuit": "Bağlantı durumu",
     "circuitOpen": "Duraklatıldı (geçici)",
     "circuitClosed": "Normal",
-    "blockedPaid": "Engellendi: ücretli (€0 politikası)",
     "test": "Bağlantıyı test et",
     "enableAssistant": "Asistanı etkinleştir",
     "disableAssistant": "Asistanı devre dışı bırak",
