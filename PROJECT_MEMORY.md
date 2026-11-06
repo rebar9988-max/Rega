@@ -1445,3 +1445,14 @@ circuit and no test button, i.e. every provider blocked by the zero-cost policy 
 variables (likely AI_FREE_TIER_APPROVED typed with the Kurdish comma `،` or quotes, which the old comma-only parser
 dropped). Fix: parseIdList also splits on `،`, `;`, whitespace and strips quotes (an unknown id still never activates);
 health adds `aiBlocked` = counts per reason code (no names) so the cause is visible from outside.
+
+## AI Operations Center — 10 engineering agents (Hybrid, €0) — 2026-11-06 (PR #143, branch `ops/engineering-agents`)
+Owner plan "REGA24 — AI Operations Center" (attachment, 10 agents, Hybrid, €0). Audit: runtime half already existed
+(10 read-only inspectors, guarded engine, /dr/operations, audit trail, €0 gateway) → reused. Gap = engineering roles.
+Added: registry + deterministic router `src/lib/ops/engineering.ts`; Claude Code profiles `.claude/agents/rega24-*.md`
+(read/propose tiers have no Edit/Write/Bash; no profile can start an agent); `scripts/agent-audit.mjs` + workflow
+`rega24-agent-audit.yml` (PR/manual/weekly repo-only, read-only, no secrets, no AI, 5 min, one run per PR, guard
+first); owner panel section on /dr/operations; 5 `ops.eng*` keys × 11 locales; docs/AI_AGENT_SYSTEM.md §9.
+Tests: `tests/engineering-agents.test.ts` 13/13 locally; first live router run on #143 PASS (7 agents, 1 approval gate,
+oversized flag). Not built: Worker/AI-API execution (paid → rejected), live GitHub queue in /dr (needs token secret →
+owner). Merge = production deploy via deploy.yml → owner. Next safe point: after merge, verify deploy + /dr/operations.
