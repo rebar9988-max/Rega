@@ -1,55 +1,49 @@
 import { TASKS, type Routing, type Task } from "./types";
 
 /**
- * Default task routing. Order = preference; later entries are fallbacks. Every task lists ALL providers, so no
- * single vendor is a point of failure, and a provider without a configured key is simply skipped.
- *  - chat / translate: Gemini first (strongest Kurdish/Arabic script handling), then OpenAI, Grok and Groq.
- *  - summarize: Groq first (fastest, cheapest), Gemini and OpenAI behind it.
- *  - classify: Groq, then Grok (short, latency-sensitive), then Gemini and OpenAI.
- *  - every task then falls back to DeepSeek (low cost), then OpenRouter (one key reaching many vendors' models,
- *    independent of the direct vendor accounts above).
- *  - Cloudflare Workers AI (binding, no key) follows the other free-tier providers; it shares one Neuron budget with rerank.
- *  - Anthropic Claude is the last fallback for every task, so adding its key never changes who serves first.
- * Override without code changes: AI_ROUTING='{"chat":["openai","gemini"]}' (JSON, per task) or
- * AI_PROVIDER_ORDER="gemini,grok" (same order for every task).
+ * Default task routing. Order = preference; later entries are fallbacks. Every task lists every provider, so no single
+ * vendor is a point of failure, and a provider without a configured key is simply skipped.
+ * REGA has ONLY zero-cost providers (owner instruction 2026-11-06): paid vendors (OpenAI, xAI Grok, DeepSeek,
+ * Anthropic) were removed from the code, so no setting can route to them.
+ *  - chat / translate: Gemini first (strongest Kurdish/Arabic script handling), then Groq.
+ *  - summarize / classify: Groq first (fastest), then Gemini.
+ *  - Cloudflare Workers AI (no key) and OpenRouter (`:free` models only) follow as further free fallbacks.
+ * Override without code changes: AI_ROUTING='{"chat":["groq","gemini"]}' (JSON, per task) or
+ * AI_PROVIDER_ORDER="gemini,groq" (same order for every task). Unknown ids are skipped.
  */
 export const DEFAULT_ROUTING: Routing = {
-  chat: ["gemini", "openai", "grok", "groq", "workers-ai", "deepseek", "openrouter", "anthropic"],
-  translate: ["gemini", "openai", "grok", "groq", "workers-ai", "deepseek", "openrouter", "anthropic"],
-  summarize: ["groq", "gemini", "openai", "grok", "workers-ai", "deepseek", "openrouter", "anthropic"],
-  classify: ["groq", "grok", "gemini", "openai", "workers-ai", "deepseek", "openrouter", "anthropic"],
+  chat: ["gemini", "groq", "workers-ai", "openrouter"],
+  translate: ["gemini", "groq", "workers-ai", "openrouter"],
+  summarize: ["groq", "gemini", "workers-ai", "openrouter"],
+  classify: ["groq", "gemini", "workers-ai", "openrouter"],
 };
 
 /**
- * Billing model of each provider's API for its configured default model (vendor pricing pages; account state is not
- * readable from code, so the owner still verifies each account):
- *  - free-tier: the vendor offers a no-cost quota; charges start only if billing is enabled on that vendor account.
- *  - paid: no standing free quota for the default model; every answer is billed against credits or a card.
- * tests/ai-agent-system-doc.test.ts fails if a routed provider has no entry here.
+ * Billing model of each provider (vendor pricing pages; account state is not readable from code, so the owner still
+ * approves each account in AI_FREE_TIER_APPROVED). Every provider in REGA is free-tier: it has a no-cost quota and
+ * fails (429) instead of charging while billing stays off. tests/ai-agent-system-doc.test.ts fails if a routed
+ * provider has no entry here.
  */
-export const PROVIDER_BILLING: Readonly<Record<string, "free-tier" | "paid">> = Object.freeze({
+export const PROVIDER_BILLING: Readonly<Record<string, "free-tier">> = Object.freeze({
   gemini: "free-tier",
   groq: "free-tier",
   "workers-ai": "free-tier",
-  openai: "paid",
-  grok: "paid",
-  deepseek: "paid",
-  openrouter: "paid",
-  anthropic: "paid",
+  // Only `:free` model ids (OpenRouter bills them at $0 and never upgrades them to a paid endpoint); FREE_TIER_MODELS
+  // lists the verified ones, so any other OPENROUTER_MODEL fails closed.
+  openrouter: "free-tier",
 });
 
 /** Id of Cloudflare Workers AI (the rega-ai-python rerank) in the zero-cost approval list. Not a gateway provider. */
 export const WORKERS_AI = "workers-ai";
 
 /**
- * Zero-cost policy (PM-01). Nothing is assumed free: a provider may serve only when the owner has approved it.
- *  - approvedFree (AI_FREE_TIER_APPROVED): free-tier providers (and `workers-ai`) whose account the owner confirmed has
- *    no billing enabled, so exceeding the free quota fails (429) instead of charging.
- *  - approvedPaid (AI_PAID_APPROVED): paid providers the owner explicitly accepts charges for. Empty by default.
+ * Zero-cost policy (PM-01). Nothing is assumed free: a provider may serve only when the owner has approved it in
+ * AI_FREE_TIER_APPROVED (an account the owner confirmed has no billing enabled, so exceeding the free quota fails with
+ * 429 instead of charging) AND its configured model is on the verified free list. There is no paid path at all.
  * A provider that is not approved is never built, so neither routing nor fallback nor a /dr/ai probe can reach it.
  */
-export type CostPolicy = { approvedFree: readonly string[]; approvedPaid: readonly string[] };
-export type CostReason = "approved_free_tier" | "approved_paid" | "free_tier_not_approved" | "paid_not_approved" | "model_not_verified_free";
+export type CostPolicy = { approvedFree: readonly string[] };
+export type CostReason = "approved_free_tier" | "free_tier_not_approved" | "model_not_verified_free" | "not_a_free_provider";
 
 /**
  * Models verified to run on the vendor's free tier (no billing account), read 2026-11-05:
@@ -63,25 +57,30 @@ export const FREE_TIER_MODELS: Readonly<Record<string, readonly string[]>> = Obj
   groq: Object.freeze(["openai/gpt-oss-120b"]),
   // developers.cloudflare.com: stays on the Workers Free plan (Jul 28 2026 changelog); Neurons from the 10,000/day free allocation.
   "workers-ai": Object.freeze(["@cf/google/gemma-4-26b-a4b-it"]),
+  // openrouter.ai/api/v1/models?max_price=0 (read 2026-11-06): prompt and completion price "0" for these `:free` ids.
+  openrouter: Object.freeze(["google/gemma-4-31b-it:free", "google/gemma-4-26b-a4b-it:free", "nvidia/nemotron-3-ultra-550b-a55b:free"]),
 });
 
+/**
+ * Owner-typed id lists (Cloudflare dashboard). Separators: comma, Arabic/Kurdish comma (،), semicolon, whitespace or
+ * newline; surrounding quotes are ignored. Anything that is not a plain id is dropped, and an id only matters if it is
+ * a free provider (costDecision), so a lenient separator can never approve something new.
+ */
 export function parseIdList(value: string | undefined): string[] {
-  return [...new Set((value ?? "").split(",").map((s) => s.trim().toLowerCase()).filter((s) => ID.test(s)))];
+  return [...new Set((value ?? "").replace(/["'`]/g, "").split(/[,،;\s]+/u).map((s) => s.trim().toLowerCase()).filter((s) => ID.test(s)))];
 }
 
-/** Unknown providers count as paid (fail closed). A paid id in the free list is NOT approved. */
+/** Unknown providers are never allowed (fail closed), even if listed in AI_FREE_TIER_APPROVED. */
 /**
  * `models` (provider id → configured model) enables the free-model check; production callers (runtime, agent 10)
  * always pass it. A free-tier provider whose model is not in FREE_TIER_MODELS is blocked (fail closed).
  */
 export function costDecision(id: string, policy: CostPolicy, models?: Readonly<Record<string, string>>): { allowed: boolean; reason: CostReason } {
-  if (id === WORKERS_AI || PROVIDER_BILLING[id] === "free-tier") {
-    if (!policy.approvedFree.includes(id)) return { allowed: false, reason: "free_tier_not_approved" };
-    // Rerank asks without `models` (its model and Neuron cap are fixed in budget.ts); every chat provider is model-checked.
-    if (models && !(FREE_TIER_MODELS[id] ?? []).includes(models[id] ?? "")) return { allowed: false, reason: "model_not_verified_free" };
-    return { allowed: true, reason: "approved_free_tier" };
-  }
-  return policy.approvedPaid.includes(id) ? { allowed: true, reason: "approved_paid" } : { allowed: false, reason: "paid_not_approved" };
+  if (id !== WORKERS_AI && PROVIDER_BILLING[id] !== "free-tier") return { allowed: false, reason: "not_a_free_provider" };
+  if (!policy.approvedFree.includes(id)) return { allowed: false, reason: "free_tier_not_approved" };
+  // Rerank asks without `models` (its model and Neuron cap are fixed in budget.ts); every chat provider is model-checked.
+  if (models && !(FREE_TIER_MODELS[id] ?? []).includes(models[id] ?? "")) return { allowed: false, reason: "model_not_verified_free" };
+  return { allowed: true, reason: "approved_free_tier" };
 }
 
 /** What the gateway may use: AI_PROVIDER selection, then the zero-cost policy. */

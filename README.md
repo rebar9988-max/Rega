@@ -89,7 +89,7 @@ Variables and Secrets; *not* the Build section, which is invisible to the runnin
 | --- | --- | --- |
 | `DATABASE_URL` | yes | PostgreSQL connection (or a `HYPERDRIVE` binding in `wrangler.jsonc`) |
 | `AUTH_SECRET` | yes | Auth.js session signing (≥ 16 chars) |
-| `GEMINI_API_KEY`, `XAI_API_KEY`, `OPENAI_API_KEY`, `GROQ_API_KEY`, `DEEPSEEK_API_KEY`, `OPENROUTER_API_KEY`, `ANTHROPIC_API_KEY`, `AI_PROVIDER=auto` | optional | AI assistant; only configured providers are used |
+| `GEMINI_API_KEY`, `GROQ_API_KEY`, `OPENROUTER_API_KEY`, `AI_FREE_TIER_APPROVED`, `AI_PROVIDER=auto` | optional | AI assistant; only zero-cost providers exist, each used only when its key is set and the owner approved it |
 
 `GET /api/v1/health` lists the **names** of missing required variables (never values). Optional GitHub Actions helpers
 (manual `workflow_dispatch`, values stay in GitHub Secrets and are masked):
@@ -125,14 +125,15 @@ calls `gateway.generate({ task, ... })`; it never talks to a vendor directly.
 | Task → provider order (env-overridable) | `routing.ts` |
 | Env wiring + daily budget | `runtime.ts` (the only file that reads secrets) |
 
-**Configure** (host environment / secret manager only, never git): `AI_PROVIDER=auto`, `GEMINI_API_KEY`, `XAI_API_KEY`, `OPENAI_API_KEY`, `GROQ_API_KEY`,
-`DEEPSEEK_API_KEY`, `OPENROUTER_API_KEY`, `ANTHROPIC_API_KEY`, optionally `GEMINI_MODEL`, `GROK_MODEL`, `OPENAI_MODEL`, `GROQ_MODEL`,
-`DEEPSEEK_MODEL`, `OPENROUTER_MODEL` (`vendor/model`), `ANTHROPIC_MODEL`, `AI_PROVIDER_ORDER`, `AI_ROUTING`. Then enable the assistant in
+**Configure** (host environment / secret manager only, never git): `AI_PROVIDER=auto`, `GEMINI_API_KEY`, `GROQ_API_KEY`,
+`OPENROUTER_API_KEY`, `AI_FREE_TIER_APPROVED` (e.g. `gemini,groq,workers-ai,openrouter`), optionally `GEMINI_MODEL`, `GROQ_MODEL`,
+`OPENROUTER_MODEL` (a verified `:free` id), `WORKERS_AI_MODEL`, `AI_PROVIDER_ORDER`, `AI_ROUTING`. REGA has **only zero-cost
+providers**: paid vendors (OpenAI, xAI Grok, DeepSeek, Anthropic) were removed from the code on 2026-11-06. Then enable the assistant in
 `/dr/ai` (or the `public.aiSearch` feature flag) and use *Test connection* to verify each key.
 
-Default order: each task's preferred direct vendors first, then DeepSeek (low cost), then OpenRouter, and Anthropic Claude
-as the final fallback.
-HTTP 402 (no balance / credits, as DeepSeek and OpenRouter report it) counts as `quota`: the request falls back to the
+Default order: Gemini first for chat/translate and Groq first for summarize/classify, then Workers AI, then OpenRouter
+(`:free` models only).
+HTTP 402 (no balance / credits) counts as `quota`: the request falls back to the
 next provider, and like auth, rate-limit, timeout and server errors it counts towards that provider's circuit breaker
 (3 consecutive failures → skipped for 30 s), so an exhausted account is not called on every request.
 
@@ -143,14 +144,10 @@ connection* in `/dr/ai`; an unknown model fails with HTTP 400/404 and the reques
 | Provider | Default model | Endpoint | Checked 2026-10-01 against |
 | --- | --- | --- | --- |
 | Gemini | `gemini-3.5-flash-lite` | `generativelanguage.googleapis.com/v1beta` | Gemini models + deprecations pages (2.5 models: access limited to earlier users; recommended for new projects) |
-| xAI Grok | `grok-4.7` (`reasoning_effort: "low"`) | `api.x.ai/v1` | xAI models page; `grok-4` / `grok-4-0709` retired 2026-05-15 (requests redirected and billed as the successor) |
-| OpenAI | `gpt-4.1-mini` | `api.openai.com/v1` | OpenAI deprecations page (not listed) |
 | Groq | `openai/gpt-oss-120b` (`reasoning_effort: "low"`) | `api.groq.com/openai/v1` | Groq models + deprecations pages (`llama-3.3-70b-versatile` left the free/developer tiers 2026-08-16) |
-| DeepSeek | `deepseek-flash` | `api.deepseek.com` | DeepSeek models & pricing page |
-| OpenRouter | `google/gemini-3.5-flash-lite` | `openrouter.ai/api/v1` | OpenRouter model pages (`google/gemini-2.5-flash` goes away 2026-10-20) |
-| Anthropic | `claude-haiku-4-5-20251001` | `api.anthropic.com/v1` | Anthropic models list |
+| OpenRouter | `google/gemma-4-31b-it:free` | `openrouter.ai/api/v1` | OpenRouter model API, price 0 (`:free` ids only, read 2026-11-06) |
 
-`reasoning_effort` is sent only to model ids whose vendor documents it (Grok 4.5+, Groq `openai/gpt-oss-*`); a custom
+`reasoning_effort` is sent only to model ids whose vendor documents it (Groq `openai/gpt-oss-*`); a custom
 `*_MODEL` outside those families gets the plain request. At start-up the gateway logs (names only, never values) a
 routing entry that is not a registered provider, `AI_PROVIDER` pinned to a provider without its key, and
 `AI_PROVIDER=auto` with no key at all.

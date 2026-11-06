@@ -6,9 +6,8 @@ import "server-only";
 import { serverEnv } from "@/lib/env";
 import { log } from "@/lib/logger";
 import { createGateway, type Gateway } from "./gateway";
-import { createAnthropic } from "./providers/anthropic";
 import { createGemini } from "./providers/gemini";
-import { createDeepSeek, createGrok, createGroq, createOpenAi, createOpenRouter } from "./providers/openai-compatible";
+import { createGroq, createOpenRouter } from "./providers/openai-compatible";
 import { createWorkersAi } from "./providers/workers-ai";
 import { generateWithService } from "./python-client";
 import { prisma } from "@/lib/db";
@@ -34,14 +33,10 @@ function catalog() {
   const service = env.AI_SERVICE_URL && env.AI_SERVICE_TOKEN ? { baseUrl: env.AI_SERVICE_URL, token: env.AI_SERVICE_TOKEN, timeoutMs: env.AI_TIMEOUT_MS } : null;
   return [
     { id: "gemini", label: "Google Gemini", model: env.GEMINI_MODEL, hasKey: Boolean(env.GEMINI_API_KEY), build: () => createGemini({ apiKey: env.GEMINI_API_KEY!, model: env.GEMINI_MODEL, baseUrl: env.GEMINI_BASE_URL }), keyEnv: "GEMINI_API_KEY" },
-    { id: "grok", label: "xAI Grok", model: env.GROK_MODEL, hasKey: Boolean(env.XAI_API_KEY), build: () => createGrok({ apiKey: env.XAI_API_KEY!, model: env.GROK_MODEL, baseUrl: env.GROK_BASE_URL }), keyEnv: "XAI_API_KEY" },
-    { id: "openai", label: "OpenAI", model: env.OPENAI_MODEL, hasKey: Boolean(env.OPENAI_API_KEY), build: () => createOpenAi({ apiKey: env.OPENAI_API_KEY!, model: env.OPENAI_MODEL, baseUrl: env.OPENAI_BASE_URL }), keyEnv: "OPENAI_API_KEY" },
     { id: "groq", label: "Groq", model: env.GROQ_MODEL, hasKey: Boolean(env.GROQ_API_KEY), build: () => createGroq({ apiKey: env.GROQ_API_KEY!, model: env.GROQ_MODEL, baseUrl: env.GROQ_BASE_URL }), keyEnv: "GROQ_API_KEY" },
-    { id: "deepseek", label: "DeepSeek", model: env.DEEPSEEK_MODEL, hasKey: Boolean(env.DEEPSEEK_API_KEY), build: () => createDeepSeek({ apiKey: env.DEEPSEEK_API_KEY!, model: env.DEEPSEEK_MODEL, baseUrl: env.DEEPSEEK_BASE_URL }), keyEnv: "DEEPSEEK_API_KEY" },
     { id: "openrouter", label: "OpenRouter", model: env.OPENROUTER_MODEL, hasKey: Boolean(env.OPENROUTER_API_KEY), build: () => createOpenRouter({ apiKey: env.OPENROUTER_API_KEY!, model: env.OPENROUTER_MODEL, baseUrl: env.OPENROUTER_BASE_URL, siteUrl: `https://${env.CANONICAL_HOST}` }), keyEnv: "OPENROUTER_API_KEY" },
     // Workers AI through the existing rega-ai-python service (its AI binding); no key and no binding on rega24.
     { id: "workers-ai", label: "Cloudflare Workers AI", model: env.WORKERS_AI_MODEL, hasKey: Boolean(service), build: () => createWorkersAi({ model: env.WORKERS_AI_MODEL, run: (model, input) => generateWithService(service!, model, input), reserveNeurons: reserveWorkersAiNeurons, worstNeurons: chatWorstNeurons }), keyEnv: "AI_SERVICE_URL + AI_SERVICE_TOKEN" },
-    { id: "anthropic", label: "Anthropic Claude", model: env.ANTHROPIC_MODEL, hasKey: Boolean(env.ANTHROPIC_API_KEY), build: () => createAnthropic({ apiKey: env.ANTHROPIC_API_KEY!, model: env.ANTHROPIC_MODEL, baseUrl: env.ANTHROPIC_BASE_URL }), keyEnv: "ANTHROPIC_API_KEY" },
   ];
 }
 
@@ -58,7 +53,7 @@ export function configuredModels(): Record<string, string> {
 /** The owner's zero-cost policy (provider ids only; never secrets). */
 export function costPolicy(): CostPolicy {
   const env = serverEnv();
-  return { approvedFree: parseIdList(env.AI_FREE_TIER_APPROVED), approvedPaid: parseIdList(env.AI_PAID_APPROVED) };
+  return { approvedFree: parseIdList(env.AI_FREE_TIER_APPROVED) };
 }
 
 /**
@@ -120,6 +115,18 @@ export function getGateway(): Gateway {
     reserve: () => reserveModelAttempt(),
   });
   return gateway;
+}
+
+/**
+ * Why keyed providers are not serving, as counts per reason code only (no provider names, no values), so an
+ * outside health check can tell "not approved" from "model not on the free list" without exposing configuration.
+ */
+export function blockedReasonCounts(): Record<string, number> {
+  const env = serverEnv();
+  const { blocked } = permittedProviderIds(env.AI_PROVIDER, catalog().filter((c) => c.hasKey).map((c) => c.id), costPolicy(), configuredModels());
+  const out: Record<string, number> = {};
+  for (const b of blocked) out[b.reason] = (out[b.reason] ?? 0) + 1;
+  return out;
 }
 
 export function isAiConfigured(): boolean {

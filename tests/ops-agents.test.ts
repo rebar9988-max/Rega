@@ -227,7 +227,7 @@ test("analytics inspector: aggregated counts only, zero-result searches are not 
   assert.equal(result(few, "analytics.zero_result_searches"), "info", "too few searches to warn");
 });
 
-const ai = (over: Partial<AiFacts> = {}): AiFacts => ({ flag: { enabled: false, rollout: 0 }, codeDefault: false, provider: "auto", configuredProviders: [], models: { gemini: "gemini-3.5-flash-lite", groq: "openai/gpt-oss-120b", openai: "gpt-4.1-mini", anthropic: "claude-haiku-4-5-20251001" }, dailyLimit: 5000, rerankService: false, approvedFree: [], approvedPaid: [], rerankLimit: 250, modelAttemptsToday: 0, rerankCallsToday: 0, workersAiNeuronsToday: 0, workersAiNeuronBudget: 8500, publicFilter: { status: "published", verified: true, deletedAt: null, archivedAt: null }, nonsenseHits: 0, hiddenProbes: 2, hiddenLeaks: 0, publicProbes: 2, nonPublicHits: 0, answersScanned: 0, unsupportedLinks: 0, ...over });
+const ai = (over: Partial<AiFacts> = {}): AiFacts => ({ flag: { enabled: false, rollout: 0 }, codeDefault: false, provider: "auto", configuredProviders: [], models: { gemini: "gemini-3.5-flash-lite", groq: "openai/gpt-oss-120b", openrouter: "google/gemma-4-31b-it:free" }, dailyLimit: 5000, rerankService: false, approvedFree: [], rerankLimit: 250, modelAttemptsToday: 0, rerankCallsToday: 0, workersAiNeuronsToday: 0, workersAiNeuronBudget: 8500, publicFilter: { status: "published", verified: true, deletedAt: null, archivedAt: null }, nonsenseHits: 0, hiddenProbes: 2, hiddenLeaks: 0, publicProbes: 2, nonPublicHits: 0, answersScanned: 0, unsupportedLinks: 0, ...over });
 
 test("AI discovery inspector: disabled by default, published-only retrieval, no model call", async () => {
   const { FLAG_DEFAULTS } = await import("../src/lib/flags").catch(() => ({ FLAG_DEFAULTS: null as null | Record<string, boolean> }));
@@ -246,7 +246,6 @@ test("AI discovery inspector: disabled by default, published-only retrieval, no 
   const on2 = { flag: { enabled: true, rollout: 100 } };
   assert.equal(result(analyzeAi(ai({ ...on2, configuredProviders: ["gemini", "openai"], approvedFree: ["gemini"] })), "ai.paid_providers"), "info", "only approved free tier serves");
   assert.equal(result(analyzeAi(ai({ ...on2, configuredProviders: ["openai"], approvedFree: ["openai"] })), "ai.paid_providers"), "pass", "a paid id in the free list is not approved");
-  assert.equal(result(analyzeAi(ai({ ...on2, configuredProviders: ["openai"], approvedPaid: ["openai"] })), "ai.paid_providers"), "warn", "owner-approved paid provider is reported");
   assert.equal(result(analyzeAi(ai({ ...on2, provider: "disabled", configuredProviders: ["gemini"], approvedFree: ["gemini"] })), "ai.paid_providers"), "pass");
   assert.equal(result(analyzeAi(ai({ modelAttemptsToday: 5000 })), "ai.daily_budget"), "warn");
   // A GEMINI_MODEL override to an unverified (possibly paid) model is blocked and reported.

@@ -51,13 +51,15 @@ export default async function DrAi() {
           <tbody className="divide-y divide-line">
             {providers.map(({ id, model, hasKey }) => {
               const s = active.get(id);
+              // Only active providers show a probe result; an old result of an inactive one would only mislead.
+              const probe = s ? lastProbe.get(id) : undefined;
               return (
                 <tr key={id}>
                   <td className="px-4 py-3 font-semibold"><Ltr>{id}</Ltr></td>
                   <td className="px-4 py-3"><Ltr>{model}</Ltr></td>
                   <td className="px-4 py-3">{hasKey ? t("configured") : t("notConfigured")}</td>
                   <td className="px-4 py-3">{s ? (s.circuit === "open" ? t("circuitOpen") : t("circuitClosed")) : "—"}</td>
-                  <td className="px-4 py-3" data-testid={`probe-${id}`}>{lastProbe.has(id) ? (lastProbe.get(id)!.ok ? `${t("testOk")} · ${lastProbe.get(id)!.latencyMs}ms` : `${t("testFail")} · ${lastProbe.get(id)!.kind ?? ""}`) : "—"}</td>
+                  <td className="px-4 py-3" data-testid={`probe-${id}`}>{probe ? (probe.ok ? `${t("testOk")} · ${probe.latencyMs}ms` : `${t("testFail")} · ${probe.kind ?? ""}`) : "—"}</td>
                   <td className="px-4 py-3">{s && can(user.role, "aiconfig.write") && (
                     <form action={probeProvider}><input type="hidden" name="id" value={id} /><button type="submit" className={btn}>{t("test")}</button></form>
                   )}</td>

@@ -537,6 +537,7 @@
     "quote": "Rega24 — اكتشف الخدمات، تواصل محلياً، وانطلق برؤية عالمية."
   },
   "nearby": {
+    "fullscreen": "ملء الشاشة",
     "title": "بالقرب مني",
     "subtitle": "الأعمال والخدمات من حولك، مرتبة حسب المسافة.",
     "useLocation": "استخدم موقعي",
@@ -586,7 +587,13 @@
     "temporarilyClosed": "مغلق مؤقتاً",
     "opensOnDate": "يفتح في {date} الساعة {time}",
     "holidayToday": "عطلة رسمية: {name}",
-    "specialHoursToday": "ساعات عمل خاصة اليوم"
+    "specialHoursToday": "ساعات عمل خاصة اليوم",
+    "away": "على بُعد {distance}",
+    "all": "الكل",
+    "quickFilters": "فلاتر سريعة",
+    "locateMe": "اعثر على الأقرب إليّ",
+    "viewProfile": "عرض الملف",
+    "getDirections": "الاتجاهات"
   },
   "map": {
     "title": "الخريطة",

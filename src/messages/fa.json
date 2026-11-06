@@ -537,6 +537,7 @@
     "quote": "Rega24 — خدمات را بیابید، ارتباط محلی بسازید، جهانی بیندیشید."
   },
   "nearby": {
+    "fullscreen": "تمام‌صفحه",
     "title": "نزدیک من",
     "subtitle": "کسب‌وکارها و خدمات اطراف شما، مرتب‌شده بر اساس فاصله.",
     "useLocation": "استفاده از موقعیت من",
@@ -586,7 +587,13 @@
     "temporarilyClosed": "موقتاً بسته است",
     "opensOnDate": "در {date} ساعت {time} باز می‌شود",
     "holidayToday": "تعطیل رسمی: {name}",
-    "specialHoursToday": "ساعات کاری ویژه امروز"
+    "specialHoursToday": "ساعات کاری ویژه امروز",
+    "away": "{distance} فاصله",
+    "all": "همه",
+    "quickFilters": "فیلترهای سریع",
+    "locateMe": "نزدیک‌ترین‌ها به من",
+    "viewProfile": "مشاهده پروفایل",
+    "getDirections": "مسیریابی"
   },
   "map": {
     "title": "نقشه",

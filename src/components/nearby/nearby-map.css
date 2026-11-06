@@ -1,0 +1,5 @@
+.nearby-map .maplibregl-ctrl-group button { width: 44px; height: 44px; }
+.nearby-map .maplibregl-ctrl-group button:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .nearby-map * { animation: none !important; transition: none !important; } }
+
+.nearby-map button { min-width: 44px; min-height: 44px; }

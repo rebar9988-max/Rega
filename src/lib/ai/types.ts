@@ -34,7 +34,7 @@ export interface AiProvider {
   generate(request: GenerateRequest, options: CallOptions): Promise<ProviderOutput>;
 }
 
-/** `quota`: the account has no balance/credits left (HTTP 402, e.g. DeepSeek, OpenRouter). */
+/** `quota`: the account has no balance/credits left (HTTP 402, e.g. OpenRouter). */
 export type FailureKind = "timeout" | "rate_limit" | "auth" | "quota" | "bad_request" | "server" | "network" | "blocked" | "empty";
 
 export type Attempt = { provider: string; ok: boolean; kind?: FailureKind; status?: number; latencyMs: number };

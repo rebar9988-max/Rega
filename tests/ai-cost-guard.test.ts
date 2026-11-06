@@ -15,9 +15,11 @@ import { generateWithService } from "../src/lib/ai/python-client";
 import type { AiProvider, Task } from "../src/lib/ai/types";
 
 const ALL = Object.keys(PROVIDER_BILLING);
-const PAID = ALL.filter((id) => PROVIDER_BILLING[id] === "paid");
-const NONE: CostPolicy = { approvedFree: [], approvedPaid: [] };
-const FREE: CostPolicy = { approvedFree: ["gemini", "groq"], approvedPaid: [] };
+/** The paid vendors removed from REGA (owner, 2026-11-06): they must never be accepted under any setting. */
+function statSafe(p: string): boolean { try { statSync(p); return true; } catch { return false; } }
+const PAID = ["openai", "grok", "deepseek", "anthropic"];
+const NONE: CostPolicy = { approvedFree: [] };
+const FREE: CostPolicy = { approvedFree: ["gemini", "groq"] };
 
 /** In-memory atomic counter (a single synchronous step per increment, like one SQL statement). */
 function memoryCounter(): UsageCounter & { calls: number } {
@@ -62,22 +64,27 @@ function gatewayFor(keyed: Fake[], policy: CostPolicy, opts: { aiProvider?: stri
 }
 const ask = { task: "chat" as const, system: "s", messages: [{ role: "user" as const, content: "q" }] };
 
-test("paid providers are blocked unless the owner approves them explicitly", () => {
+test("REGA has only free-tier providers; removed paid vendors are refused under every setting", () => {
+  assert.deepEqual(ALL.sort(), ["gemini", "groq", "openrouter", "workers-ai"]);
+  for (const id of ALL) assert.equal(PROVIDER_BILLING[id], "free-tier");
+  for (const r of Object.values(DEFAULT_ROUTING)) assert.deepEqual([...r].sort(), ["gemini", "groq", "openrouter", "workers-ai"]);
   assert.deepEqual(permittedProviderIds("auto", ALL, NONE).active, [], "keys alone activate nothing");
   assert.deepEqual(permittedProviderIds("auto", ALL, FREE).active.sort(), ["gemini", "groq"]);
-  for (const id of PAID) {
-    assert.equal(costDecision(id, FREE).allowed, false, `${id} blocked`);
-    assert.equal(costDecision(id, { approvedFree: [id], approvedPaid: [] }).reason, "paid_not_approved", `${id} cannot be smuggled in as free tier`);
-    assert.equal(costDecision(id, { approvedFree: [], approvedPaid: [id] }).allowed, true, `${id} only with explicit paid approval`);
+  for (const id of [...PAID, "unknown-vendor"]) {
+    assert.equal(costDecision(id, { approvedFree: [id] }).reason, "not_a_free_provider", `${id} cannot be approved`);
   }
-  assert.equal(costDecision("unknown-vendor", { approvedFree: ["unknown-vendor"], approvedPaid: [] }).allowed, false, "unknown billing = paid");
-  assert.deepEqual(permittedProviderIds("openai", ALL, FREE).active, [], "pinning a paid provider does not bypass the policy");
+  assert.deepEqual(permittedProviderIds("auto", PAID, { approvedFree: PAID }).active, [], "even listed, a paid id stays blocked");
+  // No code path for paid providers remains: no adapter, no env key, no paid approval variable.
+  assert.equal(statSafe("src/lib/ai/providers/anthropic.ts"), false);
+  const env = readFileSync("src/lib/env.ts", "utf8");
+  for (const name of ["AI_PAID_APPROVED", "OPENAI_API_KEY", "XAI_API_KEY", "DEEPSEEK_API_KEY", "ANTHROPIC_API_KEY"]) assert.doesNotMatch(env, new RegExp(`\\b${name}\\b`), name);
+  assert.doesNotMatch(readFileSync("src/lib/ai/providers/openai-compatible.ts", "utf8"), /createOpenAi\b|createGrok\b|createDeepSeek\b/);
 });
 
 test("free-tier providers also need approval (nothing is assumed free)", () => {
   assert.equal(costDecision("gemini", NONE).reason, "free_tier_not_approved");
   assert.equal(costDecision(WORKERS_AI, NONE).allowed, false);
-  assert.equal(costDecision(WORKERS_AI, { approvedFree: [WORKERS_AI], approvedPaid: [] }).allowed, true);
+  assert.equal(costDecision(WORKERS_AI, { approvedFree: [WORKERS_AI] }).allowed, true);
 });
 
 test("free-tier approval serves only verified free models (no paid model via GEMINI_MODEL / GROQ_MODEL)", () => {
@@ -89,7 +96,7 @@ test("free-tier approval serves only verified free models (no paid model via GEM
     assert.equal(r.blocked[0].reason, "model_not_verified_free");
   }
   assert.deepEqual(permittedProviderIds("auto", ["gemini"], FREE, {}).active, [], "unknown model = blocked");
-  const wai = { approvedFree: [WORKERS_AI], approvedPaid: [] };
+  const wai = { approvedFree: [WORKERS_AI] };
   assert.equal(costDecision(WORKERS_AI, wai).allowed, true, "rerank (no model map): its model and Neuron cost are fixed in budget.ts");
   assert.equal(costDecision(WORKERS_AI, wai, { "workers-ai": "@cf/google/gemma-4-26b-a4b-it" }).allowed, true, "chat with the verified free model");
   assert.equal(costDecision(WORKERS_AI, wai, { "workers-ai": "@cf/moonshotai/kimi-k2.6" }).reason, "model_not_verified_free", "a Workers-Paid-only model is blocked");
@@ -109,7 +116,12 @@ test("the daily model-attempt limit defaults to 500", () => {
 
 test("missing or invalid configuration fails closed", () => {
   assert.deepEqual(parseIdList(undefined), []);
-  assert.deepEqual(parseIdList(" Gemini , , groq;drop, gemini, ${x} "), ["gemini"], "malformed ids are ignored, duplicates removed");
+  assert.deepEqual(parseIdList(" Gemini , , groq;drop, gemini, ${x} "), ["gemini", "groq", "drop"], "malformed ids are ignored, duplicates removed");
+  // Typed in the Cloudflare dashboard with a Kurdish/Arabic keyboard, quotes, spaces or new lines.
+  for (const raw of ["gemini،groq، workers-ai،openrouter", '"gemini,groq,workers-ai,openrouter"', "gemini groq\nworkers-ai\topenrouter", "gemini; groq; workers-ai; openrouter"]) {
+    assert.deepEqual(parseIdList(raw), ["gemini", "groq", "workers-ai", "openrouter"], raw);
+  }
+  assert.deepEqual(permittedProviderIds("auto", ["drop"], { approvedFree: parseIdList("drop") }).active, [], "an unknown id never activates");
   assert.deepEqual(permittedProviderIds("disabled", ALL, FREE).active, []);
   assert.throws(() => { throw new GatewayError("no_provider"); });
 });
@@ -303,4 +315,29 @@ test("Workers AI via rega-ai-python: token-authenticated call, only status and c
   const html = (async () => new Response("<html>bad gateway</html>", { status: 502 })) as unknown as typeof fetch;
   const bad = await generateWithService({ ...cfg, fetchImpl: html }, WORKERS_AI_CHAT.model, {}).catch((e: unknown) => e);
   assert.equal((bad as Error).message, "502 generate_failed", "no body text leaks");
+});
+
+test("OpenRouter serves only verified :free models (price 0); any paid OpenRouter model fails closed", () => {
+  const free = { approvedFree: ["openrouter"] };
+  assert.equal(PROVIDER_BILLING.openrouter, "free-tier");
+  for (const m of FREE_TIER_MODELS.openrouter) {
+    assert.match(m, /:free$/, `${m} is a :free variant`);
+    assert.equal(costDecision("openrouter", free, { openrouter: m }).allowed, true, m);
+  }
+  for (const m of ["google/gemini-3.5-flash-lite", "google/gemma-4-31b-it", "openrouter/auto", "anthropic/claude-haiku-4.5"]) {
+    assert.equal(costDecision("openrouter", free, { openrouter: m }).reason, "model_not_verified_free", `${m} blocked`);
+  }
+  assert.equal(costDecision("openrouter", FREE, { openrouter: "google/gemma-4-31b-it:free" }).reason, "free_tier_not_approved", "needs the owner's approval");
+});
+
+test("/dr/ai shows probe results only for active providers", () => {
+  const page = readFileSync("src/app/dr/ai/page.tsx", "utf8");
+  assert.match(page, /const probe = s \? lastProbe\.get\(id\) : undefined/);
+});
+
+test("health reports blocked providers as reason counts only (no names, no values)", () => {
+  const health = readFileSync("src/app/api/v1/health/route.ts", "utf8");
+  assert.match(health, /aiBlocked: safe\(blockedReasonCounts, \{\}\)/);
+  const runtime = readFileSync("src/lib/ai/runtime.ts", "utf8");
+  assert.match(runtime, /out\[b\.reason\] = \(out\[b\.reason\] \?\? 0\) \+ 1/, "keys are reason codes, never provider ids");
 });

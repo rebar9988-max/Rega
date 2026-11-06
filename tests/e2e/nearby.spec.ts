@@ -3,6 +3,24 @@ import { expect, test } from "./fixtures";
 
 const BERLIN = { latitude: 52.5201, longitude: 13.4049 };
 
+test("nearby excludes placeholder coordinates without hiding the business profile", async ({ request, page, context }) => {
+  const db = testDatabaseClient();
+  const location = await db.location.findFirstOrThrow({ where: { business: { slug: "kurdistan-rechtsberatung" }, isPrimary: true } });
+  try {
+    await db.location.update({ where: { id: location.id }, data: { latitude: 0, longitude: 0 } });
+    await context.grantPermissions(["geolocation"]);
+    await context.setGeolocation({ latitude: 0.001, longitude: 0.001 });
+    await stubBasemap(page);
+    await page.goto("/de/nearby");
+    await page.getByTestId("nearby-locate").click();
+    await expect(page.getByTestId("nearby-empty")).toBeVisible();
+    expect((await request.get("/de/business/kurdistan-rechtsberatung")).status()).toBe(200);
+  } finally {
+    await db.location.update({ where: { id: location.id }, data: { latitude: location.latitude, longitude: location.longitude } });
+    await db.$disconnect();
+  }
+});
+
 test("nearby API: distance-sorted, radius-bounded, validated", async ({ request }) => {
   const res = await request.get("/api/v1/nearby?lat=52.52&lng=13.405&radius=10");
   expect(res.status()).toBe(200);
@@ -24,6 +42,7 @@ test("nearby API: distance-sorted, radius-bounded, validated", async ({ request 
 test.describe("with location permission", () => {
   test.use({ geolocation: BERLIN, permissions: ["geolocation"] });
   test("Near Me finds nearby businesses with distance, filters and map/list views", async ({ page }) => {
+    await stubBasemap(page);
     await page.goto("/de/nearby");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("In der Nähe");
     await page.getByTestId("nearby-locate").click();
@@ -50,6 +69,9 @@ test.describe("with location permission", () => {
     await page.getByTestId("nearby-view-map").click();
     const map = page.getByTestId("discovery-map");
     await expect(map).toHaveAttribute("data-status", "ready", { timeout: 20_000 });
+    // Quick filters and the locate button float over the map; the default radius chip is active.
+    await expect(page.getByTestId("nearby-chip-10")).toHaveAttribute("aria-pressed", "true");
+    await expect(page.getByTestId("map-locate")).toBeVisible();
     const pin = map.getByRole("button", { name: "Kurdistan Rechtsberatung" });
     // Nearby businesses may be clustered: open clusters until the marker itself is shown.
     for (let i = 0; i < 6 && !(await pin.isVisible()); i++) {
@@ -62,7 +84,14 @@ test.describe("with location permission", () => {
     await expect(preview).toContainText("Kurdistan Rechtsberatung");
     await expect(preview).toContainText("Recht"); // category from the database
     await expect(preview.getByRole("link", { name: "Details ansehen" })).toHaveAttribute("href", "/de/business/kurdistan-rechtsberatung");
+    await expect(preview.getByRole("link", { name: "Route planen" })).toHaveAttribute("href", /google\.com\/maps\/dir\/\?api=1&destination=/);
+    await expect(preview).toContainText("km entfernt");
     await expect(pin).toHaveAttribute("aria-pressed", "true");
+    if ((page.viewportSize()?.width ?? 0) >= 1024) {
+      const selectedCard = page.getByTestId("nearby-map-list").getByRole("button", { name: /Kurdistan Rechtsberatung/ });
+      await expect(selectedCard).toHaveAttribute("aria-pressed", "true");
+      await expect(selectedCard).toBeInViewport();
+    }
     await page.keyboard.press("Escape");
     await expect(preview).toHaveCount(0);
     // Keyboard: the marker is a real button.
@@ -77,6 +106,21 @@ test.describe("with location permission", () => {
       await expect(preview).toBeVisible();
       await page.keyboard.press("Escape");
     }
+    // Phones: the nearest results slide over the bottom of the map; a tap opens the preview.
+    if ((page.viewportSize()?.width ?? 0) < 1024) {
+      await page.getByTestId("nearby-carousel").getByRole("button", { name: /Kurdistan Rechtsberatung/ }).click();
+      await expect(preview).toContainText("Kurdistan Rechtsberatung");
+      await page.keyboard.press("Escape");
+    }
+    // Quick filter chips drive the same filters as the form (radius select, open now).
+    await page.getByTestId("nearby-chip-25").click();
+    await expect(page.getByTestId("nearby-radius")).toHaveValue("25");
+    await page.getByTestId("nearby-chip-open").click();
+    await expect(page.getByTestId("nearby-open")).toBeChecked();
+    await page.getByTestId("nearby-chip-all").click();
+    await expect(page.getByTestId("nearby-open")).not.toBeChecked();
+    await expect(page.getByTestId("nearby-radius")).toHaveValue("100");
+    await page.getByTestId("nearby-chip-10").click();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
     // Moving the map offers a new search there. (On touch screens one finger scrolls the page and two fingers move
     // the map, so this is exercised with a mouse on desktop.)

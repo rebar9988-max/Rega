@@ -537,6 +537,7 @@
     "quote": "Rega24 — diensten ontdekken, lokaal verbinden, wereldwijd denken."
   },
   "nearby": {
+    "fullscreen": "Volledig scherm",
     "title": "In de buurt",
     "subtitle": "Bedrijven en diensten om je heen, gesorteerd op afstand.",
     "useLocation": "Mijn locatie gebruiken",
@@ -586,7 +587,13 @@
     "temporarilyClosed": "Tijdelijk gesloten",
     "opensOnDate": "Weer open op {date} om {time}",
     "holidayToday": "Feestdag: {name}",
-    "specialHoursToday": "Vandaag afwijkende openingstijden"
+    "specialHoursToday": "Vandaag afwijkende openingstijden",
+    "away": "{distance} verderop",
+    "all": "Alles",
+    "quickFilters": "Snelle filters",
+    "locateMe": "Dichtstbij zoeken",
+    "viewProfile": "Profiel bekijken",
+    "getDirections": "Routebeschrijving"
   },
   "map": {
     "title": "Kaart",

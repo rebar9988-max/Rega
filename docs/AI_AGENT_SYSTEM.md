@@ -66,8 +66,9 @@ tests, and a row above.
 
 AI tasks routed by the gateway: `chat`, `summarize`, `translate`, `classify`.
 
-AI providers in the catalog (used only when the matching key is set; order per task in `src/lib/ai/routing.ts`):
-`gemini`, `openai`, `grok`, `groq`, `deepseek`, `openrouter`, `anthropic`.
+AI providers in the catalog (zero-cost only; used only when the key is set and the owner approved it; order per task in
+`src/lib/ai/routing.ts`): `gemini`, `groq`, `workers-ai`, `openrouter`. Paid vendors (OpenAI, xAI Grok, DeepSeek,
+Anthropic) were removed from the code on 2026-11-06 (owner instruction).
 
 ## 4. Reference comparison (read 2026-11-04)
 
@@ -137,15 +138,14 @@ atomic unit of `AI_DAILY_LIMIT` is reserved**; refused or unreadable counter = `
 
 | Variable | Meaning | Default |
 | --- | --- | --- |
-| `AI_FREE_TIER_APPROVED` | free-tier providers (`gemini`, `groq`) and `workers-ai` whose account has **no billing enabled** | empty → no model, no rerank |
-| `AI_PAID_APPROVED` | paid providers the owner explicitly accepts charges for | empty → every paid provider blocked |
+| `AI_FREE_TIER_APPROVED` | providers (`gemini`, `groq`, `workers-ai`, `openrouter`) whose account has **no billing enabled** | empty → no model, no rerank |
 | `AI_RERANK_DAILY_LIMIT` | lowers the Workers AI cap; cannot exceed `RERANK_DAILY_CAP` (250) | 250 |
 | `AI_DAILY_LIMIT` | model attempts per UTC day, all providers together | 500 |
 
-A key alone activates nothing. Unknown providers count as paid. A free-tier approval also requires a **verified
+`AI_FREE_TIER_APPROVED` accepts commas, the Kurdish/Arabic comma `،`, semicolons, spaces or new lines; quotes are ignored. `/api/v1/health` shows `aiBlocked` (reason codes with counts, no provider names) when keyed providers are blocked. A key alone activates nothing. There is no paid path: an id that is not a free provider is refused even when listed. A free-tier approval also requires a **verified
 free model** (`FREE_TIER_MODELS` in `src/lib/ai/routing.ts`: gemini `gemini-3.5-flash-lite`, `gemini-3.1-flash-lite`
 per ai.google.dev pricing "Free of charge"; groq `openai/gpt-oss-120b` per console.groq.com free-plan limits; read
-2026-11-05). A `GEMINI_MODEL` / `GROQ_MODEL` override to any other model is blocked (`model_not_verified_free`). A paid id in the free list is not approved. Pinning
+2026-11-05). A `GEMINI_MODEL` / `GROQ_MODEL` override to any other model is blocked (`model_not_verified_free`). Pinning
 `AI_PROVIDER` to a blocked provider leaves AI off. Blocked providers are never built, so routing, fallback and probes
 cannot reach them; the gateway logs `ai.cost.providers_blocked` (ids and reasons only).
 
@@ -155,15 +155,11 @@ cannot reach them; the gateway logs `ai.cost.providers_blocked` (ids and reasons
 | --- | --- | --- |
 | `gemini` | `gemini-3.5-flash-lite` | free-tier (billed only if billing is on for that Google project) |
 | `groq` | `openai/gpt-oss-120b` | free-tier (billed only on a paid Groq plan) |
-| `openai` | `gpt-4.1-mini` | paid |
-| `grok` | `grok-4.7` | paid |
-| `deepseek` | `deepseek-flash` | paid (prepaid balance) |
-| `openrouter` | `google/gemini-3.5-flash-lite` | paid (not a `:free` model) |
-| `anthropic` | `claude-haiku-4-5-20251001` | paid |
+| `openrouter` | `google/gemma-4-31b-it:free` | free-tier: only verified `:free` models (price 0, read 2026-11-06) |
 | Workers AI (`rega-ai-python`) | `@cf/baai/bge-reranker-base` | free allocation (below) |
 
-Vendor classes for the six external providers come from their public pricing models and were not re-read in this
-session; that is why free-tier providers also require the owner's approval.
+Vendor classes come from the vendors' public pricing pages; account billing state is not readable from code, which is
+why every provider also requires the owner's approval.
 
 **Workers AI cap (verified).** developers.cloudflare.com/workers-ai/platform/pricing/ (updated 2026-10-20, read
 2026-11-04): 10,000 Neurons per account per UTC day free; beyond it Workers Free fails, Workers Paid bills $0.011 per

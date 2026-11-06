@@ -29,7 +29,7 @@ type ChatCompletion = {
 
 /**
  * Generic client for the OpenAI-style `/chat/completions` protocol.
- * OpenAI, xAI Grok, Groq, DeepSeek and OpenRouter all speak it, so each of them is a config object, not new code.
+ * Groq and OpenRouter speak it, so each of them is a config object, not new code.
  */
 export function createOpenAiCompatible(config: OpenAiCompatibleConfig): AiProvider {
   const doFetch = config.fetchImpl ?? fetch;
@@ -68,28 +68,8 @@ export function createOpenAiCompatible(config: OpenAiCompatibleConfig): AiProvid
   };
 }
 
-/**
- * xAI documents `reasoning_effort` (default "high") for grok-4.5 and later; older or unknown ids get no parameter,
- * so a custom GROK_MODEL is never sent a field it may reject. Pure; exported for tests.
- */
-export const grokReasoningEffort = (model: string) => (/^grok-4\.[5-9](?![0-9])/.test(model) ? ("low" as const) : undefined);
-
 /** Groq's gpt-oss models are reasoning models that accept `reasoning_effort`; other Groq models do not. */
 export const groqReasoningEffort = (model: string) => (model.startsWith("openai/gpt-oss-") ? ("low" as const) : undefined);
-
-/** xAI Grok. */
-export const createGrok = (c: { apiKey: string; model: string; baseUrl?: string; fetchImpl?: typeof fetch }) =>
-  createOpenAiCompatible({
-    id: "grok", label: "xAI Grok", baseUrl: c.baseUrl ?? "https://api.x.ai/v1", apiKey: c.apiKey, model: c.model,
-    reasoningEffort: grokReasoningEffort(c.model), fetchImpl: c.fetchImpl,
-  });
-
-/** OpenAI. Model-agnostic request shape: no custom temperature, `max_completion_tokens`. */
-export const createOpenAi = (c: { apiKey: string; model: string; baseUrl?: string; fetchImpl?: typeof fetch }) =>
-  createOpenAiCompatible({
-    id: "openai", label: "OpenAI", baseUrl: c.baseUrl ?? "https://api.openai.com/v1", apiKey: c.apiKey, model: c.model,
-    tokenParam: "max_completion_tokens", sendTemperature: false, fetchImpl: c.fetchImpl,
-  });
 
 /** Groq (very fast open-weight models). Plain OpenAI-compatible protocol. */
 export const createGroq = (c: { apiKey: string; model: string; baseUrl?: string; fetchImpl?: typeof fetch }) =>
@@ -97,10 +77,6 @@ export const createGroq = (c: { apiKey: string; model: string; baseUrl?: string;
     id: "groq", label: "Groq", baseUrl: c.baseUrl ?? "https://api.groq.com/openai/v1", apiKey: c.apiKey, model: c.model,
     reasoningEffort: groqReasoningEffort(c.model), fetchImpl: c.fetchImpl,
   });
-
-/** DeepSeek (low-cost). OpenAI-compatible protocol with classic `max_tokens`; an empty balance answers HTTP 402. */
-export const createDeepSeek = (c: { apiKey: string; model: string; baseUrl?: string; fetchImpl?: typeof fetch }) =>
-  createOpenAiCompatible({ id: "deepseek", label: "DeepSeek", baseUrl: c.baseUrl ?? "https://api.deepseek.com", apiKey: c.apiKey, model: c.model, fetchImpl: c.fetchImpl });
 
 /**
  * OpenRouter (one key, many vendors' models; `model` is "vendor/model"). OpenAI-compatible protocol.
