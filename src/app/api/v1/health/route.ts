@@ -2,7 +2,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { isStorageConfigured } from "@/lib/env";
-import { isAiConfigured, providerCatalog } from "@/lib/ai";
+import { blockedReasonCounts, isAiConfigured, providerCatalog } from "@/lib/ai";
 import { emailEnabled } from "@/lib/email";
 import { contentColumnsReady } from "@/lib/schema-readiness";
 import { schemaRecoveryReport } from "@/lib/schema-recovery-report";
@@ -78,6 +78,8 @@ export async function GET() {
       email: safe(emailEnabled, false),
       missingEnv,
       aiProviders: safe(() => providerCatalog().filter((p) => p.hasKey).length, 0), // count only, never names or keys
+      // Keyed providers that the zero-cost policy blocks, counted per reason code (no names, no values).
+      aiBlocked: safe(blockedReasonCounts, {}),
     },
   };
 

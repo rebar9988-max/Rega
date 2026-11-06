@@ -1438,3 +1438,10 @@ workers-ai, openrouter (`:free` only). `costDecision` now refuses any id that is
 (`not_a_free_provider`). E2E chain: Gemini down -> Groq -> OpenRouter -> clean 502 (no paid fallback).
 Owner follow-up (Cloudflare/GitHub, cannot be done from code): delete the Worker secrets OPENAI_API_KEY, XAI_API_KEY,
 DEEPSEEK_API_KEY, ANTHROPIC_API_KEY and the variable AI_PAID_APPROVED; delete the same GitHub Actions secrets.
+
+## AI approvals: tolerant list parsing + public blocked-reason counts — 2026-11-06 (branch `claude/ai-approval-robust`)
+Symptom (live, 09:38 UTC): /api/v1/health `aiProviders: 4` but `ai: false`; /dr/ai showed four keyed providers with no
+circuit and no test button, i.e. every provider blocked by the zero-cost policy right after the owner edited Cloudflare
+variables (likely AI_FREE_TIER_APPROVED typed with the Kurdish comma `،` or quotes, which the old comma-only parser
+dropped). Fix: parseIdList also splits on `،`, `;`, whitespace and strips quotes (an unknown id still never activates);
+health adds `aiBlocked` = counts per reason code (no names) so the cause is visible from outside.

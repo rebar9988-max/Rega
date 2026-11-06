@@ -142,7 +142,7 @@ atomic unit of `AI_DAILY_LIMIT` is reserved**; refused or unreadable counter = `
 | `AI_RERANK_DAILY_LIMIT` | lowers the Workers AI cap; cannot exceed `RERANK_DAILY_CAP` (250) | 250 |
 | `AI_DAILY_LIMIT` | model attempts per UTC day, all providers together | 500 |
 
-A key alone activates nothing. There is no paid path: an id that is not a free provider is refused even when listed. A free-tier approval also requires a **verified
+`AI_FREE_TIER_APPROVED` accepts commas, the Kurdish/Arabic comma `،`, semicolons, spaces or new lines; quotes are ignored. `/api/v1/health` shows `aiBlocked` (reason codes with counts, no provider names) when keyed providers are blocked. A key alone activates nothing. There is no paid path: an id that is not a free provider is refused even when listed. A free-tier approval also requires a **verified
 free model** (`FREE_TIER_MODELS` in `src/lib/ai/routing.ts`: gemini `gemini-3.5-flash-lite`, `gemini-3.1-flash-lite`
 per ai.google.dev pricing "Free of charge"; groq `openai/gpt-oss-120b` per console.groq.com free-plan limits; read
 2026-11-05). A `GEMINI_MODEL` / `GROQ_MODEL` override to any other model is blocked (`model_not_verified_free`). Pinning
