@@ -1384,6 +1384,11 @@
     "sev_fail": "Errore",
     "sev_skip": "Non eseguito qui",
     "reportLanguage": "I rilievi sono scritti in curdo (sorani).",
+    "engTitle": "Agenti di ingegneria (codice)",
+    "engSubtitle": "Dieci profili di ruolo per le sessioni Claude Code e Codex su questo repository. Non vengono mai eseguiti nel Worker e non eseguono merge né deploy; questi passaggi restano al proprietario.",
+    "engUses": "Ispettori riutilizzati",
+    "engGates": "Approvazione del proprietario prima del merge",
+    "engRuns": "Risultati dell’instradamento (GitHub Actions)",
     "agents": {
       "business": "Ispettore delle attività",
       "security": "Ispettore della sicurezza",

@@ -1384,6 +1384,11 @@
     "sev_fail": "Têkçûn",
     "sev_skip": "Li vir nehat kirin",
     "reportLanguage": "Dîtin bi kurdiya soranî hatine nivîsîn.",
+    "engTitle": "Ajanên endezyariyê (kod)",
+    "engSubtitle": "Deh profîlên rolê ji bo danişînên Claude Code û Codex li ser vê repoyê. Ew qet di Workerê de naxebitin û merge an deploy nakin; ev gav li cem xwedî dimînin.",
+    "engUses": "Kontrolkerên ku bi kar tîne",
+    "engGates": "Erêkirina xwedî berî merge",
+    "engRuns": "Encamên rêvebirinê (GitHub Actions)",
     "agents": {
       "business": "Kontrolkerê karsaziyan",
       "security": "Kontrolkerê ewlehiyê",

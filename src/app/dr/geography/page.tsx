@@ -127,7 +127,7 @@ export default async function GeographyPage({ searchParams }: { searchParams: Pr
       confirmLabel={active ? t("deactivate") : t("activate")} cancelLabel={tr("common.cancel")} />
   );
   const pill = (active: boolean) => <StatusPill status={active ? "published" : "draft"} label={active ? t("active") : t("inactive")} />;
-  const row = "grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1.5 px-4 py-3 transition-colors md:table-row md:p-0 md:hover:bg-surface-2/60";
+  const row = "grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-2 px-4 py-3.5 transition-colors md:table-row md:p-0 md:hover:bg-surface-2/60";
   const th = "px-3 py-3 text-start";
   const cell = "hidden px-3 py-3 text-ink/80 md:table-cell";
   const nameCell = "col-start-1 row-start-1 min-w-0 md:px-4 md:py-3";
@@ -138,7 +138,8 @@ export default async function GeographyPage({ searchParams }: { searchParams: Pr
     <label key={l} className="flex flex-col gap-1 text-xs font-semibold" lang={LOCALE_META[l].htmlLang}>{t("nameIn", { language: LOCALE_META[l].nativeName })}
       <input name={`name${localeSuffix(l)}`} dir={LOCALE_META[l].dir} maxLength={120} className={input} data-prefix={prefix} /></label>
   ));
-  const formBox = "space-y-3 rounded-xl border border-line bg-surface p-4 shadow-card";
+  const formBox = "space-y-4 rounded-xl border border-line bg-surface p-4 shadow-card";
+  const formTitle = "border-b border-line pb-3 text-base font-bold";
   const submit = <button type="submit" className="min-h-11 w-full rounded-xl bg-brand px-4 text-sm font-bold text-brand-ink transition hover:bg-brand-hover">{t("add")}</button>;
   const translationsBox = (prefix: string) => <details className="rounded-lg"><summary className="flex min-h-10 cursor-pointer items-center text-xs font-semibold">{t("translations")}</summary><div className="mt-2 grid gap-2">{names(prefix)}</div></details>;
 
@@ -159,11 +160,11 @@ export default async function GeographyPage({ searchParams }: { searchParams: Pr
 
       {/* Country → region → city: one tab per level; the country filter travels with the tab. */}
       <nav aria-label={t("title")} className="mb-4" data-testid="geo-tabs">
-        <ul className="grid grid-cols-3 gap-1 rounded-xl border border-line bg-surface-2 p-1">
+        <ul className="grid grid-cols-3 gap-1.5 rounded-xl border border-line bg-surface-2 p-1.5">
           {tabs.map((x) => (
             <li key={x.key} className="min-w-0">
               <Link href={link({ tab: x.key === "cities" ? undefined : x.key, country: x.key === "countries" ? undefined : country?.id })} aria-current={tab === x.key ? "page" : undefined} data-testid={`geo-tab-${x.key}`}
-                className={`flex min-h-12 min-w-0 flex-col items-center justify-center gap-0.5 rounded-lg px-1.5 py-1.5 text-center transition sm:flex-row sm:gap-2 ${tab === x.key ? "bg-surface text-ink shadow-card ring-1 ring-line" : "text-ink/75 hover:bg-surface/60 hover:text-ink"}`}>
+                className={`flex min-h-12 min-w-0 flex-col items-center justify-center gap-1 rounded-lg px-1.5 py-1.5 text-center transition sm:flex-row sm:gap-2 ${tab === x.key ? "bg-surface text-ink shadow-card ring-1 ring-line" : "text-ink/75 hover:bg-surface/60 hover:text-ink"}`}>
                 <span className="flex min-w-0 items-center gap-1.5 text-sm font-semibold"><DrIcon name={x.icon} className={`hidden size-4 shrink-0 sm:block ${tab === x.key ? "text-brand-text" : ""}`} /><span className="truncate">{x.label}</span></span>
                 <span className={`rounded-full px-2 text-xs font-bold tabular-nums ${tab === x.key ? "bg-brand-soft text-brand-text" : "bg-surface/70"}`}>{num(x.n)}</span>
               </Link>
@@ -175,7 +176,7 @@ export default async function GeographyPage({ searchParams }: { searchParams: Pr
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div className="min-w-0">
           <GeoFilters label={tr("common.search")} pendingLabel={t("loading")}
-            className="group mb-3 grid grid-cols-2 gap-2 rounded-xl border border-line bg-surface p-2 xl:flex xl:flex-wrap xl:items-center">
+            className="group mb-4 grid grid-cols-2 gap-3 rounded-xl border border-line bg-surface p-3 xl:flex xl:flex-wrap xl:items-center">
             {tab !== "cities" && <input type="hidden" name="tab" value={tab} />}
             <div className="relative col-span-2 min-w-0 xl:min-w-56 xl:flex-1">
               <label htmlFor="geo-q" className="sr-only">{tr("common.search")}</label>
@@ -389,7 +390,7 @@ export default async function GeographyPage({ searchParams }: { searchParams: Pr
           {tab === "countries" && (
             <form action={saveCountryAction} className={formBox} data-testid="country-form">
               <input type="hidden" name="back" value={link({ tab: "countries" })} />
-              <h2 className="text-base font-bold">{t("addCountry")}</h2>
+              <h2 className={formTitle}>{t("addCountry")}</h2>
               <label className="flex flex-col gap-1 text-xs font-semibold">{t("code")}<input name="code" required maxLength={2} dir="ltr" className={input} /></label>
               <label className="flex flex-col gap-1 text-xs font-semibold">{t("nameEn")}<input name="nameEn" required maxLength={120} dir="ltr" className={input} /></label>
               {translationsBox("country")}
@@ -399,8 +400,8 @@ export default async function GeographyPage({ searchParams }: { searchParams: Pr
           {tab === "regions" && (
             <form action={saveRegionAction} className={formBox} data-testid="region-form">
               <input type="hidden" name="back" value={link({ tab: "regions", country: country?.id })} />
-              <h2 className="text-base font-bold">{t("addRegion")}</h2>
-              <label className="flex flex-col gap-1 text-xs font-semibold">{t("country")}<select name="countryId" required defaultValue={country?.id} className={input}>{countries.map((c) => <option key={c.id} value={c.id}>{c.nameEn}</option>)}</select></label>
+              <h2 className={formTitle}>{t("addRegion")}</h2>
+              <label className="flex flex-col gap-1 text-xs font-semibold">{t("country")}<select name="countryId" required defaultValue={country?.id} className={select}>{countries.map((c) => <option key={c.id} value={c.id}>{c.nameEn}</option>)}</select></label>
               <label className="flex flex-col gap-1 text-xs font-semibold">{t("nameEn")}<input name="nameEn" required maxLength={120} dir="ltr" className={input} /></label>
               {translationsBox("region")}
               {submit}
@@ -408,9 +409,11 @@ export default async function GeographyPage({ searchParams }: { searchParams: Pr
           )}
           {tab === "cities" && (
             <form action={saveCityAction} className={formBox} data-testid="city-form">
-              <h2 className="text-base font-bold">{t("addCity")}</h2>
-              <label className="flex flex-col gap-1 text-xs font-semibold">{t("country")}<select name="countryId" required defaultValue={country?.id} className={input}>{countries.map((c) => <option key={c.id} value={c.id}>{c.nameEn}</option>)}</select></label>
-              <label className="flex flex-col gap-1 text-xs font-semibold">{t("region")}<select name="regionId" defaultValue={region?.id ?? ""} className={input}><option value="">—</option>{countries.flatMap((c) => regions.filter((r) => r.countryId === c.id).map((r) => <option key={r.id} value={r.id}>{c.code} · {r.nameEn}</option>))}</select></label>
+              <h2 className={formTitle}>{t("addCity")}</h2>
+              <div className="grid grid-cols-2 gap-2">
+                <label className="flex flex-col gap-1 text-xs font-semibold">{t("country")}<select name="countryId" required defaultValue={country?.id} className={select}>{countries.map((c) => <option key={c.id} value={c.id}>{c.nameEn}</option>)}</select></label>
+                <label className="flex flex-col gap-1 text-xs font-semibold">{t("region")}<select name="regionId" defaultValue={region?.id ?? ""} className={select}><option value="">—</option>{countries.flatMap((c) => regions.filter((r) => r.countryId === c.id).map((r) => <option key={r.id} value={r.id}>{c.code} · {r.nameEn}</option>))}</select></label>
+              </div>
               <label className="flex flex-col gap-1 text-xs font-semibold">{t("nameEn")}<input name="nameEn" required maxLength={120} dir="ltr" className={input} /></label>
               <div className="grid grid-cols-2 gap-2">
                 <label className="flex flex-col gap-1 text-xs font-semibold">{t("lat")}<input name="lat" inputMode="decimal" dir="ltr" className={input} /></label>
