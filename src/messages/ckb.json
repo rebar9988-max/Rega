@@ -424,6 +424,7 @@
     "circuit": "دۆخی پەیوەندی",
     "circuitOpen": "ڕاگیراو (کاتی)",
     "circuitClosed": "ئاسایی",
+    "blockedPaid": "داخراوە: پارەدارە (سیاسەتی €0)",
     "test": "تاقیکردنەوەی پەیوەندی",
     "enableAssistant": "چالاککردنی یاریدەدەر",
     "disableAssistant": "ناچالاککردنی یاریدەدەر",

@@ -424,6 +424,7 @@
     "circuit": "Stato della connessione",
     "circuitOpen": "In pausa (temporanea)",
     "circuitClosed": "Normale",
+    "blockedPaid": "Bloccato: a pagamento (regola €0)",
     "test": "Prova la connessione",
     "enableAssistant": "Attiva l’assistente",
     "disableAssistant": "Disattiva l’assistente",

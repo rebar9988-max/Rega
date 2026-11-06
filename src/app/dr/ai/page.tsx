@@ -5,6 +5,7 @@ import { can } from "@/lib/rbac";
 import { serverEnv } from "@/lib/env";
 import { getGateway, providerCatalog } from "@/lib/ai";
 import { BUDGET_PROVIDER } from "@/lib/ai/budget";
+import { PROVIDER_BILLING } from "@/lib/ai/routing";
 import { formatNumber, type Locale } from "@/i18n/locales";
 import { Ltr } from "@/components/ui/Bidi";
 import { probeProvider, setAssistantEnabled } from "./actions";
@@ -51,13 +52,16 @@ export default async function DrAi() {
           <tbody className="divide-y divide-line">
             {providers.map(({ id, model, hasKey }) => {
               const s = active.get(id);
+              // A paid provider is never active under the €0 policy; an old probe result would only mislead.
+              const blockedPaid = hasKey && !s && PROVIDER_BILLING[id] !== "free-tier";
+              const probe = s ? lastProbe.get(id) : undefined;
               return (
                 <tr key={id}>
                   <td className="px-4 py-3 font-semibold"><Ltr>{id}</Ltr></td>
                   <td className="px-4 py-3"><Ltr>{model}</Ltr></td>
-                  <td className="px-4 py-3">{hasKey ? t("configured") : t("notConfigured")}</td>
+                  <td className="px-4 py-3">{blockedPaid ? t("blockedPaid") : hasKey ? t("configured") : t("notConfigured")}</td>
                   <td className="px-4 py-3">{s ? (s.circuit === "open" ? t("circuitOpen") : t("circuitClosed")) : "—"}</td>
-                  <td className="px-4 py-3" data-testid={`probe-${id}`}>{lastProbe.has(id) ? (lastProbe.get(id)!.ok ? `${t("testOk")} · ${lastProbe.get(id)!.latencyMs}ms` : `${t("testFail")} · ${lastProbe.get(id)!.kind ?? ""}`) : "—"}</td>
+                  <td className="px-4 py-3" data-testid={`probe-${id}`}>{probe ? (probe.ok ? `${t("testOk")} · ${probe.latencyMs}ms` : `${t("testFail")} · ${probe.kind ?? ""}`) : "—"}</td>
                   <td className="px-4 py-3">{s && can(user.role, "aiconfig.write") && (
                     <form action={probeProvider}><input type="hidden" name="id" value={id} /><button type="submit" className={btn}>{t("test")}</button></form>
                   )}</td>

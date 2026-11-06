@@ -424,6 +424,7 @@
     "circuit": "Verbindingsstatus",
     "circuitOpen": "Gepauzeerd (tijdelijk)",
     "circuitClosed": "Normaal",
+    "blockedPaid": "Geblokkeerd: betaald (€0-beleid)",
     "test": "Verbinding testen",
     "enableAssistant": "Assistent inschakelen",
     "disableAssistant": "Assistent uitschakelen",

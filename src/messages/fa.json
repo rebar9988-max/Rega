@@ -424,6 +424,7 @@
     "circuit": "وضعیت اتصال",
     "circuitOpen": "متوقف (موقت)",
     "circuitClosed": "عادی",
+    "blockedPaid": "مسدود: پولی (سیاست €0)",
     "test": "آزمون اتصال",
     "enableAssistant": "فعال‌سازی دستیار",
     "disableAssistant": "غیرفعال‌سازی دستیار",

@@ -424,6 +424,7 @@
     "circuit": "Rewşa girêdanê",
     "circuitOpen": "Rawestî (demkî)",
     "circuitClosed": "Normal",
+    "blockedPaid": "Girtî: bi pere (siyaseta €0)",
     "test": "Girêdanê test bike",
     "enableAssistant": "Alîkar çalak bike",
     "disableAssistant": "Alîkar neçalak bike",
