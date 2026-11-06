@@ -1,13 +1,13 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { NearbyDiscovery, type NearbyCategory, type NearbyCity, type NearbyInitial } from "@/components/nearby/NearbyDiscovery";
-import { PageHeader } from "@/components/ui/PageHeader";
 import { PageSchema } from "@/components/ui/PageSchema";
-import { isLocale } from "@/i18n/locales";
+import { formatNumber, isLocale } from "@/i18n/locales";
 import { getCategories, getNearbyCities } from "@/lib/data";
 import { log } from "@/lib/logger";
 import { pageMetadata } from "@/lib/seo";
 import { pageDescription } from "@/lib/seo-server";
+import { RADII_KM } from "@/lib/geo";
 import { NoEdgeCache } from "@/components/ui/NoEdgeCache";
 
 export const dynamic = "force-dynamic";
@@ -36,6 +36,8 @@ export default async function NearbyPage({ params, searchParams }: { params: Pro
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
   const t = await getTranslations();
+  // Serialize labels once: browser and server ICU may choose different numerals for Sorani.
+  const radiusLabels = Object.fromEntries(RADII_KM.map((radius) => [radius, t("nearby.km", { km: formatNumber(radius, locale) })]));
   // The manual city fallback must never take the page down: without it, device location still works.
   let degraded = false;
   const [cities, categories] = await Promise.all([
@@ -46,8 +48,11 @@ export default async function NearbyPage({ params, searchParams }: { params: Pro
     <>
       {degraded && <NoEdgeCache />}
       <PageSchema name={t("nearby.title")} description={t("nearby.subtitle")} path="/nearby" crumbs={[{ name: t("nearby.title"), path: "/nearby" }]} />
-      <PageHeader title={t("nearby.title")} subtitle={t("nearby.subtitle")} crumbs={[{ label: t("nav.home"), href: "/" }, { label: t("nearby.title") }]} />
-      <NearbyDiscovery cities={cities as unknown as NearbyCity[]} categories={categories.filter((c) => !c.parentId) as unknown as NearbyCategory[]} initial={initial} />
+      <header className="container-page mb-4">
+        <h1 className="text-xl font-bold tracking-tight sm:text-2xl">{t("nearby.title")}</h1>
+        <p className="mt-1 text-sm text-muted">{t("nearby.subtitle")}</p>
+      </header>
+      <NearbyDiscovery radiusLabels={radiusLabels} cities={cities as unknown as NearbyCity[]} categories={categories.filter((c) => !c.parentId) as unknown as NearbyCategory[]} initial={initial} />
     </>
   );
 }

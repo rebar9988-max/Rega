@@ -537,6 +537,7 @@
     "quote": "Rega24 — upptäck tjänster, knyt kontakter lokalt, tänk globalt."
   },
   "nearby": {
+    "fullscreen": "Helskärm",
     "title": "I närheten",
     "subtitle": "Företag och tjänster omkring dig, sorterade efter avstånd.",
     "useLocation": "Använd min position",
@@ -586,7 +587,13 @@
     "temporarilyClosed": "Tillfälligt stängt",
     "opensOnDate": "Öppnar igen {date} kl. {time}",
     "holidayToday": "Helgdag: {name}",
-    "specialHoursToday": "Avvikande öppettider i dag"
+    "specialHoursToday": "Avvikande öppettider i dag",
+    "away": "{distance} bort",
+    "all": "Alla",
+    "quickFilters": "Snabbfilter",
+    "locateMe": "Hitta närmast mig",
+    "viewProfile": "Visa profil",
+    "getDirections": "Vägbeskrivning"
   },
   "map": {
     "title": "Karta",

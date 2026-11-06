@@ -537,6 +537,7 @@
     "quote": "Rega24 — xizmetan bibîne, têkiliyên herêmî ava bike, cîhanî bifikire."
   },
   "nearby": {
+    "fullscreen": "Dîmendera tevahî",
     "title": "Nêzîkî min",
     "subtitle": "Karsaz û xizmetên li dora te, li gorî dûrahiyê rêzkirî.",
     "useLocation": "Cihê min bi kar bîne",
@@ -586,7 +587,13 @@
     "temporarilyClosed": "Bi demkî girtî ye",
     "opensOnDate": "Di {date} de saet {time} vedibe",
     "holidayToday": "Betlaneya fermî: {name}",
-    "specialHoursToday": "Îro demên xebatê yên taybet"
+    "specialHoursToday": "Îro demên xebatê yên taybet",
+    "away": "{distance} dûr",
+    "all": "Hemû",
+    "quickFilters": "Parzûnên bilez",
+    "locateMe": "Yên herî nêzî min bibîne",
+    "viewProfile": "Profîlê bibîne",
+    "getDirections": "Rêyê nîşan bide"
   },
   "map": {
     "title": "Nexşe",
