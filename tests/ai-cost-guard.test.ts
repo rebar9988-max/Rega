@@ -304,3 +304,16 @@ test("Workers AI via rega-ai-python: token-authenticated call, only status and c
   const bad = await generateWithService({ ...cfg, fetchImpl: html }, WORKERS_AI_CHAT.model, {}).catch((e: unknown) => e);
   assert.equal((bad as Error).message, "502 generate_failed", "no body text leaks");
 });
+
+test("OpenRouter serves only verified :free models (price 0); any paid OpenRouter model fails closed", () => {
+  const free = { approvedFree: ["openrouter"], approvedPaid: [] };
+  assert.equal(PROVIDER_BILLING.openrouter, "free-tier");
+  for (const m of FREE_TIER_MODELS.openrouter) {
+    assert.match(m, /:free$/, `${m} is a :free variant`);
+    assert.equal(costDecision("openrouter", free, { openrouter: m }).allowed, true, m);
+  }
+  for (const m of ["google/gemini-3.5-flash-lite", "google/gemma-4-31b-it", "openrouter/auto", "anthropic/claude-haiku-4.5"]) {
+    assert.equal(costDecision("openrouter", free, { openrouter: m }).reason, "model_not_verified_free", `${m} blocked`);
+  }
+  assert.equal(costDecision("openrouter", FREE, { openrouter: "google/gemma-4-31b-it:free" }).reason, "free_tier_not_approved", "needs the owner's approval");
+});

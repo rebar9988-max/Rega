@@ -37,7 +37,7 @@ const serverSchema = z.object({
   DEEPSEEK_MODEL: z.string().min(1).default("deepseek-flash"),
   DEEPSEEK_BASE_URL: z.string().url().optional(),
   OPENROUTER_API_KEY: z.string().optional(),
-  OPENROUTER_MODEL: z.string().min(1).default("google/gemini-3.5-flash-lite"),
+  OPENROUTER_MODEL: z.string().min(1).default("google/gemma-4-31b-it:free"),
   OPENROUTER_BASE_URL: z.string().url().optional(),
   ANTHROPIC_API_KEY: z.string().optional(),
   ANTHROPIC_MODEL: z.string().min(1).default("claude-haiku-4-5-20251001"),
