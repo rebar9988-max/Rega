@@ -117,6 +117,18 @@ export function getGateway(): Gateway {
   return gateway;
 }
 
+/**
+ * Why keyed providers are not serving, as counts per reason code only (no provider names, no values), so an
+ * outside health check can tell "not approved" from "model not on the free list" without exposing configuration.
+ */
+export function blockedReasonCounts(): Record<string, number> {
+  const env = serverEnv();
+  const { blocked } = permittedProviderIds(env.AI_PROVIDER, catalog().filter((c) => c.hasKey).map((c) => c.id), costPolicy(), configuredModels());
+  const out: Record<string, number> = {};
+  for (const b of blocked) out[b.reason] = (out[b.reason] ?? 0) + 1;
+  return out;
+}
+
 export function isAiConfigured(): boolean {
   return activeProviders().length > 0;
 }

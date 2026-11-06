@@ -61,8 +61,13 @@ export const FREE_TIER_MODELS: Readonly<Record<string, readonly string[]>> = Obj
   openrouter: Object.freeze(["google/gemma-4-31b-it:free", "google/gemma-4-26b-a4b-it:free", "nvidia/nemotron-3-ultra-550b-a55b:free"]),
 });
 
+/**
+ * Owner-typed id lists (Cloudflare dashboard). Separators: comma, Arabic/Kurdish comma (،), semicolon, whitespace or
+ * newline; surrounding quotes are ignored. Anything that is not a plain id is dropped, and an id only matters if it is
+ * a free provider (costDecision), so a lenient separator can never approve something new.
+ */
 export function parseIdList(value: string | undefined): string[] {
-  return [...new Set((value ?? "").split(",").map((s) => s.trim().toLowerCase()).filter((s) => ID.test(s)))];
+  return [...new Set((value ?? "").replace(/["'`]/g, "").split(/[,،;\s]+/u).map((s) => s.trim().toLowerCase()).filter((s) => ID.test(s)))];
 }
 
 /** Unknown providers are never allowed (fail closed), even if listed in AI_FREE_TIER_APPROVED. */

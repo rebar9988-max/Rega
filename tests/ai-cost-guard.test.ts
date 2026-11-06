@@ -116,7 +116,12 @@ test("the daily model-attempt limit defaults to 500", () => {
 
 test("missing or invalid configuration fails closed", () => {
   assert.deepEqual(parseIdList(undefined), []);
-  assert.deepEqual(parseIdList(" Gemini , , groq;drop, gemini, ${x} "), ["gemini"], "malformed ids are ignored, duplicates removed");
+  assert.deepEqual(parseIdList(" Gemini , , groq;drop, gemini, ${x} "), ["gemini", "groq", "drop"], "malformed ids are ignored, duplicates removed");
+  // Typed in the Cloudflare dashboard with a Kurdish/Arabic keyboard, quotes, spaces or new lines.
+  for (const raw of ["gemini،groq، workers-ai،openrouter", '"gemini,groq,workers-ai,openrouter"', "gemini groq\nworkers-ai\topenrouter", "gemini; groq; workers-ai; openrouter"]) {
+    assert.deepEqual(parseIdList(raw), ["gemini", "groq", "workers-ai", "openrouter"], raw);
+  }
+  assert.deepEqual(permittedProviderIds("auto", ["drop"], { approvedFree: parseIdList("drop") }).active, [], "an unknown id never activates");
   assert.deepEqual(permittedProviderIds("disabled", ALL, FREE).active, []);
   assert.throws(() => { throw new GatewayError("no_provider"); });
 });
@@ -328,4 +333,11 @@ test("OpenRouter serves only verified :free models (price 0); any paid OpenRoute
 test("/dr/ai shows probe results only for active providers", () => {
   const page = readFileSync("src/app/dr/ai/page.tsx", "utf8");
   assert.match(page, /const probe = s \? lastProbe\.get\(id\) : undefined/);
+});
+
+test("health reports blocked providers as reason counts only (no names, no values)", () => {
+  const health = readFileSync("src/app/api/v1/health/route.ts", "utf8");
+  assert.match(health, /aiBlocked: safe\(blockedReasonCounts, \{\}\)/);
+  const runtime = readFileSync("src/lib/ai/runtime.ts", "utf8");
+  assert.match(runtime, /out\[b\.reason\] = \(out\[b\.reason\] \?\? 0\) \+ 1/, "keys are reason codes, never provider ids");
 });
