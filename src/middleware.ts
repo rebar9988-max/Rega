@@ -5,7 +5,7 @@
  * - /dr/… , /api/… -> untouched (management dashboard, auth endpoints, REST API)
  */
 import createMiddleware from "next-intl/middleware";
-import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { DEFAULT_LOCALE, LOCALES } from "@/i18n/locales";
 
 const intlMiddleware = createMiddleware({
@@ -66,7 +66,15 @@ export default async function middleware(request: NextRequest) {
   const moved = await redirectOldCategoryUrl(request);
   if (moved) return moved;
 
-  const response = intlMiddleware(request);
+  // Root visits honor the saved NEXT_LOCALE cookie, then ckb, never browser language.
+  // Keep detection enabled: next-intl also uses it to read and persist locale cookies.
+  let localeRequest = request;
+  if (pathname === "/") {
+    const headers = new Headers(request.headers);
+    headers.delete("accept-language");
+    localeRequest = new NextRequest(request, { headers });
+  }
+  const response = intlMiddleware(localeRequest);
 
   // Persist the visitor's language choice so the account, AI answers and emails follow it too.
   const segment = pathname.split("/")[1];

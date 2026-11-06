@@ -123,3 +123,29 @@ test("visual QA: trigger and menu geometry identical in ckb, fa, de, ar (screens
   const ref = whole(geo["ckb"]);
   for (const l of ["fa", "de", "ar"]) expect(whole(geo[l]), `${l} geometry`).toBe(ref);
 });
+
+for (const browserLocale of ["en-US", "de-DE"]) {
+  test(`root defaults to Sorani with ${browserLocale} browser language before and after hydration`, async ({ browser, baseURL }) => {
+    const context = await browser.newContext({ locale: browserLocale, baseURL });
+    const page = await context.newPage();
+    const errors: string[] = [];
+    page.on("pageerror", (error) => errors.push(String(error)));
+    page.on("console", (message) => {
+      if (message.type() === "error") errors.push(message.text());
+    });
+    const response = await page.goto("/");
+    const html = await response!.text();
+    expect(html).toContain('lang="ckb-IQ"');
+    expect(html).toContain('dir="rtl"');
+    await expect(page).toHaveURL(/\/ckb$/);
+    await expect(page.locator("html")).toHaveAttribute("lang", "ckb-IQ");
+    await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
+    await trigger(page).click();
+    await menu(page).getByRole("link", { name: /English/ }).click();
+    await expect(page).toHaveURL(/\/en$/);
+    await page.goto("/");
+    await expect(page).toHaveURL(/\/en$/);
+    expect(errors).toEqual([]);
+    await context.close();
+  });
+}
