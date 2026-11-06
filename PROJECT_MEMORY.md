@@ -1428,3 +1428,13 @@ nvidia/nemotron-3-ultra-550b-a55b:free; price 0 per openrouter.ai/api/v1/models?
 OpenRouter model fails closed (`model_not_verified_free`). The adapter sends only `model` (no `models`/`route` fallback).
 Activation (owner, Cloudflare): add `openrouter` to AI_FREE_TIER_APPROVED; leave OPENROUTER_MODEL unset (or a listed id).
 OpenRouter free endpoints have low daily limits and some may log/train on prompts (OpenRouter privacy settings).
+
+## Paid AI providers removed from the code — 2026-11-06 (branch `claude/remove-paid-ai-providers`)
+Owner instruction: "everything paid must be deleted; REGA24 AI keeps only the zero-cost ones." Removed: OpenAI, xAI Grok,
+DeepSeek, Anthropic (adapters incl. `providers/anthropic.ts`, catalog entries, env vars `*_API_KEY/*_MODEL/*_BASE_URL`,
+`AI_PAID_APPROVED`, the paid branch of `costDecision`, secret-sync names, owner legal text, e2e fakes, docs). Remaining
+providers, all free-tier and owner-approved via AI_FREE_TIER_APPROVED with verified free models: gemini, groq,
+workers-ai, openrouter (`:free` only). `costDecision` now refuses any id that is not a free provider
+(`not_a_free_provider`). E2E chain: Gemini down -> Groq -> OpenRouter -> clean 502 (no paid fallback).
+Owner follow-up (Cloudflare/GitHub, cannot be done from code): delete the Worker secrets OPENAI_API_KEY, XAI_API_KEY,
+DEEPSEEK_API_KEY, ANTHROPIC_API_KEY and the variable AI_PAID_APPROVED; delete the same GitHub Actions secrets.

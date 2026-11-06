@@ -1,12 +1,8 @@
-/** Local stand-in for every AI provider (and Nominatim) so E2E never touches real services or needs real keys. */
+/** Local stand-in for every (zero-cost) AI provider (and Nominatim) so E2E never touches real services or needs real keys. */
 import { createServer, type Server } from "node:http";
 
-export const FAKE_GROK_ANSWER = "Antwort von Grok (fake)";
 export const FAKE_GROQ_ANSWER = "Antwort von Groq (fake)";
-export const FAKE_OPENAI_ANSWER = "Antwort von OpenAI (fake)";
-export const FAKE_DEEPSEEK_ANSWER = "Antwort von DeepSeek (fake)";
 export const FAKE_OPENROUTER_ANSWER = "Antwort von OpenRouter (fake)";
-export const FAKE_ANTHROPIC_ANSWER = "Antwort von Claude (fake)";
 
 export function startFakeAi(port = 3999): Promise<Server> {
   const objects = new Map<string, { bytes: Buffer; mime: string }>();
@@ -31,58 +27,30 @@ export function startFakeAi(port = 3999): Promise<Server> {
     req.on("data", (c) => { raw += c; });
     req.on("end", () => {
       const json = (status: number, body: unknown) => { res.writeHead(status, { "content-type": "application/json" }); res.end(JSON.stringify(body)); };
-      // FORCE_DIRECT_REJECT: OpenAI, Grok and Groq reject the request with 400. The gateway falls back, but a 400 says
-      // nothing about provider health, so it never opens a circuit and cannot disturb the other tests.
-      if (/^\/(openai|grok|groq)\/chat\/completions$/.test(req.url ?? "") && raw.includes("FORCE_DIRECT_REJECT")) return json(400, { error: "rejected (fake)" });
+      // Only the zero-cost providers exist (gemini, groq, openrouter; Workers AI needs AI_SERVICE_URL, unset in E2E).
+      // FORCE_DIRECT_REJECT: Groq rejects with 400. The gateway falls back, but a 400 says nothing about provider health,
+      // so it never opens a circuit and cannot disturb the other tests.
+      if (req.url === "/groq/chat/completions" && raw.includes("FORCE_DIRECT_REJECT")) return json(400, { error: "rejected (fake)" });
       // FORCE_OPENROUTER_REJECT: OpenRouter rejects with 400 (falls back without affecting provider health).
       if (req.url === "/openrouter/chat/completions" && raw.includes("FORCE_OPENROUTER_REJECT")) return json(400, { error: "rejected (fake)" });
-      if (req.url === "/groq/chat/completions" && raw.includes("FORCE_GROQ_FAIL")) return json(500, { error: "groq is down (fake)" });
       if (req.url === "/groq/chat/completions" && req.headers.authorization === "Bearer e2e-fake-groq-key") {
+        const body = JSON.parse(raw || "{}");
         // The default Groq model (openai/gpt-oss-120b) is a reasoning model: the runtime must ask for low effort.
-        if (JSON.parse(raw || "{}").reasoning_effort !== "low") return json(400, { error: "missing reasoning_effort (fake)" });
+        if (body.reasoning_effort !== "low") return json(400, { error: "missing reasoning_effort (fake)" });
+        // ECHO_CONTEXT: answer with the system prompt, so tests can check what REGA retrieved from the database.
+        if (raw.includes("ECHO_CONTEXT")) {
+          const system = (body.messages ?? []).find((m: { role: string }) => m.role === "system");
+          return json(200, { choices: [{ message: { content: String(system?.content ?? "") } }], usage: { prompt_tokens: 1, completion_tokens: 1 } });
+        }
         return json(200, { choices: [{ message: { content: FAKE_GROQ_ANSWER } }], usage: { prompt_tokens: 3, completion_tokens: 3 } });
       }
-      if (req.url === "/deepseek/chat/completions" && raw.includes("FORCE_DEEPSEEK_FAIL")) return json(402, { error: { message: "Insufficient Balance (fake)" } });
-      if (req.url === "/deepseek/chat/completions" && req.headers.authorization === "Bearer e2e-fake-deepseek-key") {
-        return json(200, { choices: [{ message: { content: FAKE_DEEPSEEK_ANSWER } }], usage: { prompt_tokens: 2, completion_tokens: 2 } });
-      }
-      // OpenRouter: the public attribution headers must be present, as in production.
+      // OpenRouter: the public attribution headers and a verified `:free` model must be present, as in production.
       if (req.url === "/openrouter/chat/completions" && req.headers.authorization === "Bearer e2e-fake-openrouter-key" && req.headers["x-title"] === "REGA Platform" && req.headers["http-referer"]) {
+        if (!String(JSON.parse(raw || "{}").model ?? "").endsWith(":free")) return json(400, { error: "only :free models (fake)" });
         return json(200, { choices: [{ message: { content: FAKE_OPENROUTER_ANSWER } }], usage: { prompt_tokens: 2, completion_tokens: 2 } });
       }
       if (req.url?.startsWith("/gemini/") && raw.includes("ping")) return json(200, { candidates: [{ content: { parts: [{ text: "ok" }] } }] }); // health probe only
       if (req.url?.startsWith("/gemini/")) return json(503, { error: "gemini is down (fake)" }); // chat traffic: forces the fallback path
-      if (req.url === "/openai/chat/completions" && raw.includes("FORCE_OPENAI_FAIL")) return json(500, { error: "openai is down (fake)" });
-      // An empty answer: the gateway falls back, but (unlike a 5xx) it does not count against OpenAI's circuit breaker.
-      if (req.url === "/openai/chat/completions" && raw.includes("FORCE_OPENAI_EMPTY")) return json(200, { choices: [{ message: { content: "" }, finish_reason: "stop" }] });
-      if (req.url === "/openai/chat/completions" && req.headers.authorization === "Bearer e2e-fake-openai-key") {
-        const body = JSON.parse(raw || "{}");
-        // ECHO_CONTEXT: answer with the system prompt, so tests can check what REGA retrieved from the database.
-        if (raw.includes("ECHO_CONTEXT")) {
-          const system = (body.messages ?? []).find((m: { role: string }) => m.role === "system" || m.role === "developer");
-          return json(200, { choices: [{ message: { content: String(system?.content ?? "") } }], usage: { prompt_tokens: 1, completion_tokens: 1 } });
-        }
-        // OpenAI-specific request shape must be respected (no custom temperature, max_completion_tokens).
-        if ("temperature" in body || "max_tokens" in body || !("max_completion_tokens" in body)) return json(400, { error: "bad shape (fake)" });
-        return json(200, { choices: [{ message: { content: FAKE_OPENAI_ANSWER } }], usage: { prompt_tokens: 4, completion_tokens: 4 } });
-      }
-      if (req.url === "/grok/chat/completions" && raw.includes("FORCE_GROK_FAIL")) return json(500, { error: "grok is down (fake)" });
-      if (req.url === "/grok/chat/completions" && req.headers.authorization === "Bearer e2e-fake-xai-key") {
-        // The default Grok model (grok-4.7) reasons with "high" effort unless told otherwise.
-        if (JSON.parse(raw || "{}").reasoning_effort !== "low") return json(400, { error: "missing reasoning_effort (fake)" });
-        return json(200, { choices: [{ message: { content: FAKE_GROK_ANSWER } }], usage: { prompt_tokens: 4, completion_tokens: 4 } });
-      }
-      if (req.url === "/anthropic/messages" && req.headers["x-api-key"] === "e2e-fake-anthropic-key") {
-        const body = JSON.parse(raw || "{}");
-        const messages = (body.messages ?? []) as { role: string }[];
-        // Messages API shape must be respected: version header, top-level system, max_tokens, no custom temperature,
-        // only user/assistant turns, ending on a user turn (newer Claude models reject prefill).
-        const valid = req.headers["anthropic-version"] === "2023-06-01" && typeof body.system === "string" && Number.isInteger(body.max_tokens) &&
-          !("temperature" in body) && messages.length > 0 && messages.every((m) => m.role === "user" || m.role === "assistant") && messages.at(-1)?.role === "user";
-        if (!valid) return json(400, { type: "error", error: { type: "invalid_request_error", message: "bad shape (fake)" } });
-        const text = raw.includes("ping") && !raw.includes("FORCE_") ? "ok" : FAKE_ANTHROPIC_ANSWER;
-        return json(200, { type: "message", role: "assistant", content: [{ type: "text", text }], stop_reason: "end_turn", usage: { input_tokens: 5, output_tokens: 5 } });
-      }
       // Fake Nominatim (GEOCODING_URL=http://127.0.0.1:3999/geocode): a few known addresses, nothing else.
       if (req.url?.startsWith("/geocode/search")) {
         const q = new URL(req.url, "http://x").searchParams;

@@ -299,7 +299,7 @@ Live health reported `aiProviders: 4` (count only): at least two configured keys
 
 ## PM-01 zero-cost guarantee — 2026-11-04
 
-AI fails closed: a provider serves only when the owner lists it in `AI_FREE_TIER_APPROVED` (free tier, no billing) or `AI_PAID_APPROVED`; paid fallback is impossible without approval. Every model attempt and Workers AI rerank reserves one unit atomically (`AiUsageDaily` provider `_budget`, no schema change); Workers AI is capped at 250 calls/day (≤ 85 % of the verified 10,000 free Neurons). After deploy without approvals the assistant returns 503 `ai_not_configured`; health stays `ok`. Details: [docs/AI_AGENT_SYSTEM.md](docs/AI_AGENT_SYSTEM.md) section 7.
+AI fails closed: a provider serves only when the owner lists it in `AI_FREE_TIER_APPROVED` (free tier, no billing); paid providers were removed from the code on 2026-11-06, so no paid path exists. Every model attempt and Workers AI rerank reserves one unit atomically (`AiUsageDaily` provider `_budget`, no schema change); Workers AI is capped at 250 calls/day (≤ 85 % of the verified 10,000 free Neurons). After deploy without approvals the assistant returns 503 `ai_not_configured`; health stays `ok`. Details: [docs/AI_AGENT_SYSTEM.md](docs/AI_AGENT_SYSTEM.md) section 7.
 
 ## Workers AI in the central gateway — 2026-11-05
 

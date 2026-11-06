@@ -424,7 +424,6 @@
     "circuit": "Connection state",
     "circuitOpen": "Paused (temporary)",
     "circuitClosed": "Normal",
-    "blockedPaid": "Blocked: paid (€0 policy)",
     "test": "Test connection",
     "enableAssistant": "Enable assistant",
     "disableAssistant": "Disable assistant",

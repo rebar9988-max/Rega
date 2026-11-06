@@ -4,9 +4,8 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { PROBE_MAX_OUTPUT_TOKENS, createGateway } from "../src/lib/ai/gateway";
 import { GatewayError, ProviderError, kindForStatus, scrub } from "../src/lib/ai/errors";
-import { anthropicTurns, createAnthropic } from "../src/lib/ai/providers/anthropic";
 import { createGemini } from "../src/lib/ai/providers/gemini";
-import { createDeepSeek, createGrok, createGroq, createOpenAi, createOpenRouter, grokReasoningEffort, groqReasoningEffort } from "../src/lib/ai/providers/openai-compatible";
+import { createGroq, createOpenRouter, groqReasoningEffort } from "../src/lib/ai/providers/openai-compatible";
 import { configWarnings, resolveRouting, DEFAULT_ROUTING } from "../src/lib/ai/routing";
 import type { AiProvider, FailureKind, GenerateRequest } from "../src/lib/ai/types";
 
@@ -104,17 +103,6 @@ test("Gemini: HTTP errors and safety blocks map to failure kinds", async () => {
   assert.equal(await kind(mk(200, { candidates: [] })), "empty");
 });
 
-test("Grok (OpenAI-compatible): bearer auth, system message first, usage mapped", async () => {
-  let init: RequestInit = {}; let url = "";
-  const fetchImpl = (async (u: string, i: RequestInit) => { url = u; init = i; return new Response(JSON.stringify({ choices: [{ message: { content: " hello " } }], usage: { prompt_tokens: 5, completion_tokens: 1 } }), { status: 200 }); }) as unknown as typeof fetch;
-  const out = await createGrok({ apiKey: "XAI-TEST", model: "grok-x", fetchImpl }).generate(req, { signal: AbortSignal.timeout(1000) });
-  assert.equal(out.content, "hello"); assert.deepEqual(out.usage, { tokensIn: 5, tokensOut: 1 });
-  assert.equal(url, "https://api.x.ai/v1/chat/completions");
-  assert.equal((init.headers as Record<string, string>).authorization, "Bearer XAI-TEST");
-  const body = JSON.parse(init.body as string);
-  assert.deepEqual(body.messages[0], { role: "system", content: "sys" }); assert.equal(body.model, "grok-x"); assert.equal(body.stream, false);
-});
-
 test("keys echoed back by a provider never reach the logs", async () => {
   const key = "AIzaSyDUMMYDUMMYDUMMYDUMMYDUMMY1234";
   const lines: string[] = [];
@@ -127,32 +115,22 @@ test("keys echoed back by a provider never reach the logs", async () => {
 
 test("routing: defaults, AI_PROVIDER_ORDER and AI_ROUTING overrides, garbage ignored", () => {
   assert.deepEqual(resolveRouting({}), DEFAULT_ROUTING);
-  assert.deepEqual(resolveRouting({ order: "grok, gemini" }).chat, ["grok", "gemini"]);
-  const r = resolveRouting({ json: '{"chat":["grok"],"classify":["evil id!"]}' });
-  assert.deepEqual(r.chat, ["grok"]); assert.deepEqual(r.classify, DEFAULT_ROUTING.classify);
+  assert.deepEqual(resolveRouting({ order: "groq, gemini" }).chat, ["groq", "gemini"]);
+  const r = resolveRouting({ json: '{"chat":["groq"],"classify":["evil id!"]}' });
+  assert.deepEqual(r.chat, ["groq"]); assert.deepEqual(r.classify, DEFAULT_ROUTING.classify);
   assert.deepEqual(resolveRouting({ json: "{not json" }), DEFAULT_ROUTING);
 });
 
-test("OpenAI: bearer auth, max_completion_tokens, no custom temperature", async () => {
-  let url = ""; let init: RequestInit = {};
-  const fetchImpl = (async (u: string, i: RequestInit) => { url = u; init = i; return new Response(JSON.stringify({ choices: [{ message: { content: "hi" } }], usage: { prompt_tokens: 1, completion_tokens: 1 } }), { status: 200 }); }) as unknown as typeof fetch;
-  const out = await createOpenAi({ apiKey: "OPENAI-TEST", model: "gpt-x", fetchImpl }).generate({ ...req, temperature: 0.9, maxOutputTokens: 77 }, { signal: AbortSignal.timeout(1000) });
-  assert.equal(out.content, "hi"); assert.equal(url, "https://api.openai.com/v1/chat/completions");
-  assert.equal((init.headers as Record<string, string>).authorization, "Bearer OPENAI-TEST");
-  const b = JSON.parse(init.body as string);
-  assert.equal(b.max_completion_tokens, 77); assert.ok(!("temperature" in b)); assert.ok(!("max_tokens" in b));
+test("default routing lists all four free providers (no single point of failure), and any subset of keys still works", async () => {
+  for (const task of ["chat", "translate", "summarize", "classify"] as const) assert.deepEqual([...DEFAULT_ROUTING[task]].sort(), ["gemini", "groq", "openrouter", "workers-ai"]);
+  const gw = createGateway({ providers: [fake("openrouter", ok("only openrouter"))], routing: DEFAULT_ROUTING });
+  assert.equal((await gw.generate(req)).provider, "openrouter");
 });
 
-test("default routing lists all eight providers (no single point of failure), and any subset of keys still works", async () => {
-  for (const task of ["chat", "translate", "summarize", "classify"] as const) assert.deepEqual([...DEFAULT_ROUTING[task]].sort(), ["anthropic", "deepseek", "gemini", "grok", "groq", "openai", "openrouter", "workers-ai"]);
-  const gw = createGateway({ providers: [fake("openai", ok("only openai"))], routing: DEFAULT_ROUTING });
-  assert.equal((await gw.generate(req)).provider, "openai");
-});
-
-test("chain gemini -> grok -> openai serves from the last healthy provider", async () => {
-  const a = fake("gemini", fail("server", 500)); const b = fake("grok", fail("rate_limit", 429)); const c = fake("openai", ok("third"));
-  const r = await createGateway({ providers: [a, b, c], routing: { ...DEFAULT_ROUTING, chat: ["gemini", "grok", "openai"] } }).generate(req);
-  assert.equal(r.provider, "openai"); assert.deepEqual(r.attempts.map((x) => x.provider), ["gemini", "grok", "openai"]);
+test("chain gemini -> groq -> workers-ai serves from the last healthy provider", async () => {
+  const a = fake("gemini", fail("server", 500)); const b = fake("groq", fail("rate_limit", 429)); const c = fake("workers-ai", ok("third"));
+  const r = await createGateway({ providers: [a, b, c], routing: DEFAULT_ROUTING }).generate(req);
+  assert.equal(r.provider, "workers-ai"); assert.deepEqual(r.attempts.map((x) => x.provider), ["gemini", "groq", "workers-ai"]);
 });
 
 test("Groq: OpenAI-compatible protocol against the Groq endpoint, classic max_tokens", async () => {
@@ -170,25 +148,12 @@ test("routing by task: summarize/classify start on Groq, chat/translate on Gemin
 });
 
 test("losing any single provider never fails a task (each task survives every one-provider outage)", async () => {
-  const ids = ["gemini", "grok", "openai", "groq", "deepseek", "openrouter", "anthropic"];
+  const ids = ["gemini", "groq", "workers-ai", "openrouter"];
   for (const down of ids) for (const task of ["chat", "translate", "summarize", "classify"] as const) {
     const providers = ids.map((id) => fake(id, id === down ? fail("server", 500) : ok(`from ${id}`)));
     const r = await createGateway({ providers, routing: DEFAULT_ROUTING }).generate({ ...req, task });
     assert.notEqual(r.provider, down);
   }
-});
-
-test("DeepSeek: OpenAI-compatible protocol against the DeepSeek endpoint, bearer auth, classic max_tokens", async () => {
-  let url = ""; let init: RequestInit = {};
-  const fetchImpl = (async (u: string, i: RequestInit) => { url = u; init = i; return new Response(JSON.stringify({ choices: [{ message: { content: " cheap " } }], usage: { prompt_tokens: 7, completion_tokens: 2 } }), { status: 200 }); }) as unknown as typeof fetch;
-  const p = createDeepSeek({ apiKey: "DEEPSEEK-TEST", model: "deepseek-x", fetchImpl });
-  assert.equal(p.id, "deepseek");
-  const out = await p.generate({ ...req, maxOutputTokens: 55, temperature: 0.2 }, { signal: AbortSignal.timeout(1000) });
-  assert.equal(out.content, "cheap"); assert.deepEqual(out.usage, { tokensIn: 7, tokensOut: 2 });
-  assert.equal(url, "https://api.deepseek.com/chat/completions");
-  assert.equal((init.headers as Record<string, string>).authorization, "Bearer DEEPSEEK-TEST");
-  const b = JSON.parse(init.body as string);
-  assert.equal(b.model, "deepseek-x"); assert.equal(b.max_tokens, 55); assert.equal(b.temperature, 0.2); assert.deepEqual(b.messages[0], { role: "system", content: "sys" });
 });
 
 test("OpenRouter: endpoint, bearer auth, public attribution headers sent alongside bearer auth", async () => {
@@ -203,10 +168,10 @@ test("OpenRouter: endpoint, bearer auth, public attribution headers sent alongsi
   assert.equal(JSON.parse(init.body as string).model, "vendor/model-x");
 });
 
-test("DeepSeek / OpenRouter: HTTP errors map to failure kinds (402 = quota) and Retry-After is honoured", async () => {
-  const mk = (factory: typeof createDeepSeek, status: number, headers: Record<string, string> = {}) =>
+test("Groq / OpenRouter: HTTP errors map to failure kinds (402 = quota) and Retry-After is honoured", async () => {
+  const mk = (factory: typeof createGroq, status: number, headers: Record<string, string> = {}) =>
     factory({ apiKey: "k", model: "m", fetchImpl: (async () => new Response("{}", { status, headers })) as unknown as typeof fetch });
-  for (const factory of [createDeepSeek, createOpenRouter]) {
+  for (const factory of [createGroq, createOpenRouter]) {
     // Resolves to the ProviderError; a call that unexpectedly succeeds fails the test.
     const err = (p: AiProvider): Promise<ProviderError> =>
       p.generate(req, { signal: AbortSignal.timeout(1000) }).then(() => assert.fail("expected the provider call to fail"), (e: ProviderError) => e);
@@ -228,13 +193,13 @@ test("a provider out of credit (402) trips the breaker instead of being called o
   assert.equal(gw.status().find((s) => s.id === "a")?.circuit, "open");
 });
 
-test("full chain: every direct vendor down -> DeepSeek, then DeepSeek down too -> OpenRouter answers", async () => {
+test("full chain: gemini and groq down -> Workers AI, then Workers AI down too -> OpenRouter (:free) answers", async () => {
   const order = DEFAULT_ROUTING.chat;
   const build = (down: string[]) => order.map((id) => fake(id, down.includes(id) ? fail("server", 500) : ok(`from ${id}`)));
-  const r1 = await createGateway({ providers: build(["gemini", "openai", "grok", "groq", "workers-ai"]), routing: DEFAULT_ROUTING }).generate(req);
-  assert.equal(r1.provider, "deepseek"); assert.deepEqual(r1.attempts.map((a) => a.provider), ["gemini", "openai", "grok", "groq", "workers-ai", "deepseek"]);
-  const r2 = await createGateway({ providers: build(["gemini", "openai", "grok", "groq", "workers-ai", "deepseek"]), routing: DEFAULT_ROUTING }).generate(req);
-  assert.equal(r2.provider, "openrouter"); assert.equal(r2.attempts.length, 7);
+  const r1 = await createGateway({ providers: build(["gemini", "groq"]), routing: DEFAULT_ROUTING }).generate(req);
+  assert.equal(r1.provider, "workers-ai"); assert.deepEqual(r1.attempts.map((a) => a.provider), ["gemini", "groq", "workers-ai"]);
+  const r2 = await createGateway({ providers: build(["gemini", "groq", "workers-ai"]), routing: DEFAULT_ROUTING }).generate(req);
+  assert.equal(r2.provider, "openrouter"); assert.equal(r2.attempts.length, 4);
 });
 
 test("scrub removes DeepSeek-style (sk-) and OpenRouter (sk-or-v1-) keys", () => {
@@ -244,8 +209,8 @@ test("scrub removes DeepSeek-style (sk-) and OpenRouter (sk-or-v1-) keys", () =>
   assert.ok(!clean.includes("0123456789abcdef0123"), "no key fragment survives");
 });
 
-test("keys echoed back by DeepSeek or OpenRouter never reach the logs", async () => {
-  for (const [factory, key] of [[createDeepSeek, "sk-ECHOECHOECHOECHOECHO1234"], [createOpenRouter, "sk-or-v1-ECHOECHOECHOECHOECHO1234"]] as const) {
+test("keys echoed back by Groq or OpenRouter never reach the logs", async () => {
+  for (const [factory, key] of [[createGroq, "gsk_ECHOECHOECHOECHOECHO1234"], [createOpenRouter, "sk-or-v1-ECHOECHOECHOECHOECHO1234"]] as const) {
     const lines: string[] = [];
     const push = (m: string, x?: object) => { lines.push(m + JSON.stringify(x)); };
     const leaky = factory({ apiKey: key, model: "m", fetchImpl: (async () => new Response(`{"error":"Incorrect API key ${key}"}`, { status: 401 })) as unknown as typeof fetch });
@@ -255,81 +220,11 @@ test("keys echoed back by DeepSeek or OpenRouter never reach the logs", async ()
   }
 });
 
-test("Anthropic is the last fallback for every task (adding its key never changes who serves first)", async () => {
-  for (const task of ["chat", "translate", "summarize", "classify"] as const) assert.equal(DEFAULT_ROUTING[task].at(-1), "anthropic");
-  const others = ["gemini", "grok", "openai", "groq"].map((id) => fake(id, fail("server", 500)));
-  const claude = fake("anthropic", ok("from claude"));
-  const r = await createGateway({ providers: [claude, ...others], routing: DEFAULT_ROUTING }).generate(req);
-  assert.equal(r.provider, "anthropic"); assert.equal(r.attempts.length, 5);
-  const first = await createGateway({ providers: [fake("gemini", ok("g")), claude], routing: DEFAULT_ROUTING }).generate(req);
-  assert.equal(first.provider, "gemini");
-});
-
-test("Anthropic: x-api-key header (never the URL), version header, top-level system, no temperature; response parsed", async () => {
-  let url = ""; let init: RequestInit = {};
-  const fetchImpl = (async (u: string, i: RequestInit) => {
-    url = u; init = i;
-    return new Response(JSON.stringify({ content: [{ type: "text", text: " silav " }], stop_reason: "end_turn", usage: { input_tokens: 7, output_tokens: 2 } }), { status: 200 });
-  }) as unknown as typeof fetch;
-  const out = await createAnthropic({ apiKey: "ANT-TEST-KEY", model: "claude-x", fetchImpl }).generate({ ...req, temperature: 0.9, maxOutputTokens: 77 }, { signal: AbortSignal.timeout(1000) });
-  assert.equal(out.content, "silav"); assert.equal(out.model, "claude-x"); assert.deepEqual(out.usage, { tokensIn: 7, tokensOut: 2 });
-  assert.equal(url, "https://api.anthropic.com/v1/messages"); assert.ok(!url.includes("ANT-TEST-KEY"));
-  const headers = init.headers as Record<string, string>;
-  assert.equal(headers["x-api-key"], "ANT-TEST-KEY"); assert.equal(headers["anthropic-version"], "2023-06-01"); assert.ok(!("authorization" in headers));
-  const b = JSON.parse(init.body as string);
-  assert.equal(b.model, "claude-x"); assert.equal(b.system, "sys"); assert.equal(b.max_tokens, 77);
-  assert.deepEqual(b.messages, [{ role: "user", content: "hi" }]);
-  assert.ok(!("temperature" in b)); assert.ok(!("thinking" in b)); assert.ok(!b.messages.some((m: { role: string }) => m.role === "system"));
-});
-
-test("Anthropic: conversation always ends on a user turn (no prefill), leading assistant turns dropped", () => {
-  const u = (content: string) => ({ role: "user" as const, content }); const a = (content: string) => ({ role: "assistant" as const, content });
-  assert.deepEqual(anthropicTurns([a("hello"), u("q1"), a("r1"), u("q2"), a("dangling")]), [u("q1"), a("r1"), u("q2")]);
-  assert.deepEqual(anthropicTurns([a("only assistant")]), []);
-});
-
-test("Anthropic: HTTP errors, overload, refusal and empty answers map to failure kinds", async () => {
-  const mk = (status: number, body: unknown) => createAnthropic({ apiKey: "k", model: "m", fetchImpl: (async () => new Response(JSON.stringify(body), { status })) as unknown as typeof fetch });
-  const kind = async (p: AiProvider, r: GenerateRequest = req) => p.generate(r, { signal: AbortSignal.timeout(1000) }).catch((e: ProviderError) => e.kind);
-  assert.equal(await kind(mk(401, {})), "auth");
-  assert.equal(await kind(mk(429, {})), "rate_limit");
-  assert.equal(await kind(mk(529, { type: "error", error: { type: "overloaded_error" } })), "server");
-  assert.equal(await kind(mk(400, {})), "bad_request");
-  assert.equal(await kind(mk(200, { content: [], stop_reason: "refusal" })), "blocked");
-  assert.equal(await kind(mk(200, { content: [], stop_reason: "end_turn" })), "empty");
-  assert.equal(await kind(mk(200, {}), { ...req, messages: [{ role: "assistant", content: "x" }] }), "bad_request");
-});
-
-test("Anthropic keys (sk-ant-…) echoed back by the provider never reach the logs", async () => {
-  const key = "sk-ant-api03-DUMMYDUMMYDUMMYDUMMYDUMMY_1234";
-  assert.ok(!scrub(`bad key ${key}`).includes(key));
-  const lines: string[] = [];
-  const logger = { info: (m: string, x?: object) => lines.push(m + JSON.stringify(x)), warn: (m: string, x?: object) => lines.push(m + JSON.stringify(x)), error: (m: string, x?: object) => lines.push(m + JSON.stringify(x)) };
-  const leaky = createAnthropic({ apiKey: key, model: "m", fetchImpl: (async () => new Response(`invalid x-api-key ${key}`, { status: 401 })) as unknown as typeof fetch });
-  await assert.rejects(createGateway({ providers: [{ ...leaky, id: "a" }], routing: ROUTING, logger }).generate(req));
-  assert.ok(lines.length > 0); assert.ok(!lines.join("\n").includes(key));
-});
-
-test("Anthropic stays the final fallback behind DeepSeek and OpenRouter, also when both are out of credit (402)", async () => {
-  const down = ["gemini", "openai", "grok", "groq"].map((id) => fake(id, fail("server", 500)));
-  const deepseek = fake("deepseek", fail("quota", 402)); const openrouter = fake("openrouter", fail("quota", 402));
-  const claude = fake("anthropic", ok("from claude"));
-  const r = await createGateway({ providers: [claude, deepseek, openrouter, ...down], routing: DEFAULT_ROUTING }).generate(req);
-  assert.equal(r.provider, "anthropic");
-  assert.deepEqual(r.attempts.map((a) => `${a.provider}:${a.ok ? "ok" : a.kind}`), [
-    "gemini:server", "openai:server", "grok:server", "groq:server", "deepseek:quota", "openrouter:quota", "anthropic:ok",
-  ]);
-});
-
 /** Env names per provider id (key, model, base URL). Source-level check: runtime.ts/env.ts are server-only modules. */
 const PROVIDER_ENV: Record<string, [key: string, model: string, base: string]> = {
   gemini: ["GEMINI_API_KEY", "GEMINI_MODEL", "GEMINI_BASE_URL"],
-  grok: ["XAI_API_KEY", "GROK_MODEL", "GROK_BASE_URL"],
-  openai: ["OPENAI_API_KEY", "OPENAI_MODEL", "OPENAI_BASE_URL"],
   groq: ["GROQ_API_KEY", "GROQ_MODEL", "GROQ_BASE_URL"],
-  deepseek: ["DEEPSEEK_API_KEY", "DEEPSEEK_MODEL", "DEEPSEEK_BASE_URL"],
   openrouter: ["OPENROUTER_API_KEY", "OPENROUTER_MODEL", "OPENROUTER_BASE_URL"],
-  anthropic: ["ANTHROPIC_API_KEY", "ANTHROPIC_MODEL", "ANTHROPIC_BASE_URL"],
 };
 
 test("every routed provider is registered in the runtime catalog, env schema, AI_PROVIDER and .env.example", () => {
@@ -337,7 +232,7 @@ test("every routed provider is registered in the runtime catalog, env schema, AI
   const env = readFileSync("src/lib/env.ts", "utf8");
   const example = readFileSync(".env.example", "utf8");
   const routed = new Set(Object.values(DEFAULT_ROUTING).flat());
-  assert.deepEqual([...routed].sort(), [...Object.keys(PROVIDER_ENV), "workers-ai"].sort(), "routing covers the seven key providers and Workers AI");
+  assert.deepEqual([...routed].sort(), [...Object.keys(PROVIDER_ENV), "workers-ai"].sort(), "routing covers the three key providers and Workers AI");
   // Workers AI has no key: it exists only through the Worker binding, with its model in the env schema and a free default.
   assert.match(runtime, /id: "workers-ai",.*model: env\.WORKERS_AI_MODEL, hasKey: Boolean\(service\),.*generateWithService\(service!, model, input\).*reserveNeurons: reserveWorkersAiNeurons/);
   assert.match(env, /^\s+WORKERS_AI_MODEL: z\.string\(\)\.min\(1\)\.default\("@cf\/google\/gemma-4-26b-a4b-it"\),/m);
@@ -375,16 +270,11 @@ async function sentBody(make: (fetchImpl: typeof fetch) => AiProvider): Promise<
 }
 
 test("reasoning_effort: 'low' only for model ids whose vendor documents it, never for the other providers", async () => {
-  assert.equal((await sentBody((f) => createGrok({ apiKey: "k", model: "grok-4.7", fetchImpl: f }))).reasoning_effort, "low");
   assert.equal((await sentBody((f) => createGroq({ apiKey: "k", model: "openai/gpt-oss-120b", fetchImpl: f }))).reasoning_effort, "low");
   for (const make of [
-    (f: typeof fetch) => createGrok({ apiKey: "k", model: "grok-4", fetchImpl: f }), // retired id: no new parameters for it
     (f: typeof fetch) => createGroq({ apiKey: "k", model: "llama-3.3-70b-versatile", fetchImpl: f }),
-    (f: typeof fetch) => createOpenAi({ apiKey: "k", model: "gpt-4.1-mini", fetchImpl: f }),
-    (f: typeof fetch) => createDeepSeek({ apiKey: "k", model: "deepseek-flash", fetchImpl: f }),
-    (f: typeof fetch) => createOpenRouter({ apiKey: "k", model: "google/gemini-3.5-flash-lite", fetchImpl: f }),
+    (f: typeof fetch) => createOpenRouter({ apiKey: "k", model: "google/gemma-4-31b-it:free", fetchImpl: f }),
   ]) assert.ok(!("reasoning_effort" in (await sentBody(make))));
-  assert.equal(grokReasoningEffort("grok-4.5"), "low"); assert.equal(grokReasoningEffort("grok-4.20"), undefined); assert.equal(grokReasoningEffort("grok-4.3"), undefined);
   assert.equal(groqReasoningEffort("openai/gpt-oss-20b"), "low"); assert.equal(groqReasoningEffort("qwen/qwen3.8-27b"), undefined);
 });
 
@@ -397,8 +287,7 @@ function envDefault(name: string): string {
 test("model defaults: one value per provider, identical in env.ts and .env.example, no retired or restricted id", () => {
   const example = readFileSync(".env.example", "utf8");
   const expected: Record<string, string> = {
-    GEMINI_MODEL: "gemini-3.5-flash-lite", GROK_MODEL: "grok-4.7", OPENAI_MODEL: "gpt-4.1-mini", GROQ_MODEL: "openai/gpt-oss-120b",
-    DEEPSEEK_MODEL: "deepseek-flash", OPENROUTER_MODEL: "google/gemma-4-31b-it:free", ANTHROPIC_MODEL: "claude-haiku-4-5-20251001",
+    GEMINI_MODEL: "gemini-3.5-flash-lite", GROQ_MODEL: "openai/gpt-oss-120b", OPENROUTER_MODEL: "google/gemma-4-31b-it:free",
   };
   assert.deepEqual(Object.keys(expected).sort(), Object.values(PROVIDER_ENV).map(([, model]) => model).sort());
   for (const [name, value] of Object.entries(expected)) {
@@ -424,12 +313,12 @@ test("every provider key is synced to the Worker and nothing else AI-related is 
 });
 
 test("configWarnings names a routed id that is not a provider, a pinned provider without key, and auto without any key", () => {
-  const catalog = [...Object.entries(PROVIDER_ENV).map(([id, [keyEnv]]) => ({ id, keyEnv, hasKey: id === "deepseek" })), { id: "workers-ai", keyEnv: "AI_SERVICE_URL + AI_SERVICE_TOKEN", hasKey: false }];
+  const catalog = [...Object.entries(PROVIDER_ENV).map(([id, [keyEnv]]) => ({ id, keyEnv, hasKey: id === "groq" })), { id: "workers-ai", keyEnv: "AI_SERVICE_URL + AI_SERVICE_TOKEN", hasKey: false }];
   assert.deepEqual(configWarnings({ routing: DEFAULT_ROUTING, catalog, aiProvider: "auto" }), []);
   const typo = configWarnings({ routing: resolveRouting({ order: "gemini,mistral" }), catalog, aiProvider: "auto" });
   assert.equal(typo.length, 1); assert.equal(typo[0].event, "ai.config.unknown_provider_in_routing"); assert.deepEqual(typo[0].meta.ids, ["mistral"]);
-  const pinned = configWarnings({ routing: DEFAULT_ROUTING, catalog, aiProvider: "grok" });
-  assert.deepEqual(pinned, [{ event: "ai.config.provider_key_missing", meta: { provider: "grok", missing: "XAI_API_KEY" } }]);
+  const pinned = configWarnings({ routing: DEFAULT_ROUTING, catalog, aiProvider: "gemini" });
+  assert.deepEqual(pinned, [{ event: "ai.config.provider_key_missing", meta: { provider: "gemini", missing: "GEMINI_API_KEY" } }]);
   const none = configWarnings({ routing: DEFAULT_ROUTING, catalog: catalog.map((c) => ({ ...c, hasKey: false })), aiProvider: "auto" });
   assert.deepEqual(none.map((w) => w.event), ["ai.config.no_provider_keys"]);
   assert.deepEqual(configWarnings({ routing: DEFAULT_ROUTING, catalog: catalog.map((c) => ({ ...c, hasKey: false })), aiProvider: "disabled" }), []);
@@ -438,8 +327,8 @@ test("configWarnings names a routed id that is not a provider, a pinned provider
 
 test("dashboard probe: tiny, discarded call with room for low-effort reasoning", async () => {
   let seen: GenerateRequest | undefined;
-  const p: AiProvider = { id: "grok", label: "g", model: "m", tasks: ["classify"], async generate(r) { seen = r; return { content: "ok", model: "m" }; } };
-  const result = await createGateway({ providers: [p], routing: DEFAULT_ROUTING }).probe("grok");
+  const p: AiProvider = { id: "groq", label: "g", model: "m", tasks: ["classify"], async generate(r) { seen = r; return { content: "ok", model: "m" }; } };
+  const result = await createGateway({ providers: [p], routing: DEFAULT_ROUTING }).probe("groq");
   assert.equal(result.ok, true); assert.ok(!("content" in result));
   assert.equal(seen?.maxOutputTokens, PROBE_MAX_OUTPUT_TOKENS); assert.ok(PROBE_MAX_OUTPUT_TOKENS <= 256);
 });

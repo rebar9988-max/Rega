@@ -18,9 +18,8 @@ export type AiFacts = {
   dailyLimit: number;
   /** AI_SERVICE_URL and AI_SERVICE_TOKEN are both set (Workers AI rerank via rega-ai-python). Presence only. */
   rerankService: boolean;
-  /** Owner's zero-cost approvals (AI_FREE_TIER_APPROVED / AI_PAID_APPROVED): provider ids only. */
+  /** Owner's zero-cost approvals (AI_FREE_TIER_APPROVED): provider ids only. */
   approvedFree: string[];
-  approvedPaid: string[];
   /** Effective Workers AI rerank cap per UTC day. */
   rerankLimit: number;
   /** Today's atomic reservations (AiUsageDaily provider "_budget"). */
@@ -52,12 +51,13 @@ export function analyzeAi(f: AiFacts): Inspection {
     ? check.pass("ai.default_off", "بەهای بنەڕەتی public.aiSearch لە کۆددا false ە.")
     : { code: "ai.default_off", result: "fail", message: "بەهای بنەڕەتی public.aiSearch لە کۆددا false نییە.", action: "src/lib/flags.ts ڕاست بکەرەوە." });
   // €0 guarantee (PM-01): the exact providers the gateway builds (AI_PROVIDER, then the owner's zero-cost approvals).
-  const policy = { approvedFree: f.approvedFree, approvedPaid: f.approvedPaid };
+  const policy = { approvedFree: f.approvedFree };
   const { active, blocked } = permittedProviderIds(f.provider, f.configuredProviders, policy, f.models);
+  // Paid providers no longer exist in the code; this stays a hard check in case one is ever re-added.
   const paid = active.filter((id) => PROVIDER_BILLING[id] !== "free-tier");
   const free = active.filter((id) => PROVIDER_BILLING[id] === "free-tier");
   checks.push(paid.length
-    ? { code: "ai.paid_providers", result: "warn", message: `خاوەن ${paid.length} دابینکەری پارەداری پەسەند کردووە (${paid.join(", ")}) لە AI_PAID_APPROVED: تێچووی سفر مسۆگەر نییە.`, count: paid.length, action: "ئەگەر تێچووی سفر دەوێت، AI_PAID_APPROVED بەتاڵ بکە." }
+    ? { code: "ai.paid_providers", result: "fail", message: `${paid.length} دابینکەری نەناسراو/پارەدار چالاکە (${paid.join(", ")}): تێچووی سفر مسۆگەر نییە.`, count: paid.length, action: "src/lib/ai/routing.ts PROVIDER_BILLING بپشکنە." }
     : free.length
       ? check.info("ai.paid_providers", `تەنها دابینکەری خۆڕایی پەسەندکراو کار دەکەن (${free.join(", ")}). هیچ دابینکەرێکی پارەدار و هیچ fallbackێکی پارەدار نییە.`)
       : check.pass("ai.paid_providers", "هیچ دابینکەرێک پەسەند نەکراوە: AI بە سەلامەتی دادەخرێت و هیچ مۆدێلێک بانگ ناکرێت."));
@@ -96,5 +96,5 @@ export function analyzeAi(f: AiFacts): Inspection {
       ? check.pass("ai.unsupported_claims", `${f.answersScanned} وەڵامی دواییی AI تەنها بەستەری تۆماری گشتییان تێدایە.`)
       : { code: "ai.unsupported_claims", result: "warn", message: `${f.unsupportedLinks} بەستەر لە وەڵامەکانی AIدا بۆ تۆمارێکی ناگشتی یان نەبوو دەچن.`, count: f.unsupportedLinks, action: "ڕێساکانی promptی AI و retrieverەکان بپشکنە." });
   checks.push(check.pass("ai.inspector_no_model", "ئەم پشکنینە هیچ مۆدێلێکی AI بانگ نەکرد (تێچووی سفر)."));
-  return { inspected: f.hiddenProbes + f.publicProbes + 1 + f.answersScanned, checks, evidence: ["D1 FeatureFlag public.aiSearch", "env AI_PROVIDER, AI_DAILY_LIMIT, AI_FREE_TIER_APPROVED, AI_PAID_APPROVED; keys and AI_SERVICE_URL/TOKEN as presence only", "D1 AiUsageDaily _budget reservations (today)", "src/lib/ai/routing.ts PROVIDER_BILLING", "src/lib/flags.ts FLAG_DEFAULTS", "src/lib/search-where.ts PUBLIC_BUSINESS", "searchService.search (deterministic, no model)", "D1 AiMessage: assistant link paths only (text not stored)"] };
+  return { inspected: f.hiddenProbes + f.publicProbes + 1 + f.answersScanned, checks, evidence: ["D1 FeatureFlag public.aiSearch", "env AI_PROVIDER, AI_DAILY_LIMIT, AI_FREE_TIER_APPROVED; keys and AI_SERVICE_URL/TOKEN as presence only", "D1 AiUsageDaily _budget reservations (today)", "src/lib/ai/routing.ts PROVIDER_BILLING", "src/lib/flags.ts FLAG_DEFAULTS", "src/lib/search-where.ts PUBLIC_BUSINESS", "searchService.search (deterministic, no model)", "D1 AiMessage: assistant link paths only (text not stored)"] };
 }
