@@ -1,0 +1,38 @@
+name: REGA24 agent audit
+
+# AI Operations Center router (Hybrid mode, deterministic step). Routes each pull request to the minimum engineering
+# agents (src/lib/ops/engineering.ts), lists paths that need the owner's approval before merge, and checks the agent
+# registry against .claude/agents/. No AI model, no secrets, no network beyond checkout, no writes, no deploy.
+# Repository-only: the weekly run reads this repository and never touches www.rega24.com, D1 or Cloudflare
+# (Worker-side ops runs stay manual, see docs/AI_AGENT_SYSTEM.md).
+on:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: "23 4 * * 1"
+
+permissions:
+  contents: read
+
+# One run per pull request (or ref): a newer push replaces the running audit.
+concurrency:
+  group: agent-audit-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  route:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Project identity guard
+        run: node scripts/project-identity-guard.mjs --project REGA
+      - name: Route change and check agent registry
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: node --experimental-strip-types scripts/agent-audit.mjs

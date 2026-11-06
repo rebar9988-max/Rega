@@ -218,3 +218,60 @@ avoids that and any duplicate binding.
 
 **To enable (owner):** `AI_FREE_TIER_APPROVED=gemini,groq,workers-ai` (or a subset); `AI_SERVICE_URL` and
 `AI_SERVICE_TOKEN` must be set on `rega24` (the rerank already uses them). Nothing else changes.
+
+## 9. AI Operations Center — engineering agents (2026-11-06)
+
+Owner plan "REGA24 — AI Operations Center" (Hybrid mode, €0). Audit result: the runtime part already existed (sections
+1–3: ten read-only inspectors, guarded engine, `/dr/operations`, audit trail, €0 gateway). The gap was the
+**engineering** side ("engineering intelligence", section 2). It is added as role profiles and a deterministic router,
+not as a second engine, queue, database, Worker or AI runtime.
+
+| Part | Code | Status |
+| --- | --- | --- |
+| Registry (ids, Sorani names, access tier, reused inspectors, forbidden work, validation) | `src/lib/ops/engineering.ts` | IMPLEMENTED |
+| Claude Code role profiles (tool limits enforced by Claude Code) | `.claude/agents/rega24-*.md` | IMPLEMENTED |
+| Deterministic router + registry check (no AI, no secrets) | `scripts/agent-audit.mjs` | IMPLEMENTED |
+| Event trigger: pull request, manual, weekly repository-only run | `.github/workflows/rega24-agent-audit.yml` | IMPLEMENTED |
+| Owner panel (registry, access, approval gates, link to routing runs) | `/dr/operations`, section "Engineering agents" | IMPLEMENTED |
+| Agents executed by the Worker or by an AI API | — | REJECTED (needs a paid model API; €0). Work runs in owner-started Claude Code / Codex sessions |
+| Live GitHub task queue inside `/dr` | — | BLOCKED (needs a GitHub token as a Worker secret = owner approval); results are linked |
+
+| # | Profile | Access | Reuses inspectors |
+| --- | --- | --- | --- |
+| 01 | `rega24-orchestrator` | read | — |
+| 02 | `rega24-ui-ux` | propose | `qa-automation` |
+| 03 | `rega24-fullstack` | branch + PR | `qa-automation` |
+| 04 | `rega24-database` | branch + PR (no destructive migration, never applies to production) | business, category, location |
+| 05 | `rega24-security` | read | `security-inspector` |
+| 06 | `rega24-qa` | branch + PR | `qa-automation` |
+| 07 | `rega24-devops` | branch + PR + existing authorized workflows | `qa-automation` |
+| 08 | `rega24-performance` | branch + PR | `performance-inspector`, `ai-discovery-inspector` |
+| 09 | `rega24-localization` | read | `translation-inspector`, `content-inspector` |
+| 10 | `rega24-inspector` | read | all ten (built on the existing Operations Center) |
+
+**Policy.** Access tiers: read (Read/Grep/Glob) · propose (+WebFetch) · branch and workflow (+Edit/Write/Bash). No
+profile has a tool that starts another agent (no recursive loops). Every profile forbids: merge to `main`, deploy,
+bypassing CI/branch protection/identity guard, production data, secrets, paid services, R&L. Merge (= production
+deploy through `deploy.yml`) stays with the owner.
+
+**Routing.** `routeChange` maps changed paths to the minimum agents (`ROUTES`), always the orchestrator, QA for any
+non-documentation change, nobody else for documentation-only changes. Paths in `APPROVAL_GATES` (schema/migrations,
+auth/RBAC, workflows/wrangler/guard, brand assets and tokens, AI cost policy, dependencies, CLAUDE.md/AGENTS.md) are
+listed as "owner approval before merge" — reported, never auto-approved or auto-blocked.
+
+**Cost limits (€0).** No AI inference anywhere in the router. Workflow: `permissions: contents: read`, no secrets,
+standard `ubuntu-24.04` runner (free for this public repository), `timeout-minutes: 5`, one run per PR
+(`concurrency`, newer push cancels), no retries (deterministic), at most 3,000 paths per run, more than four
+specialists flags the change as oversized. The weekly run reads only the repository; Worker-side ops runs stay manual
+(section 3).
+
+**Runbook.** Red `REGA24 agent audit` check → open the run summary: "Registry problems" lists the profile or registry
+line to fix (`.claude/agents/rega24-<id>.md` tools must equal the tier in `TIER_TOOLS`). Local run:
+`node --experimental-strip-types scripts/agent-audit.mjs [--files <paths> | --base <sha>]`. Disable: GitHub → Actions
+→ workflow → Disable (no code change).
+
+**Test plan.** `tests/engineering-agents.test.ts` (part of `npm test`): registry and profile sync, reuse of all ten
+inspectors, permission boundaries and tamper detection, agent selection, deduplication, input bound and oversized
+flag, approval gates, glob semantics, independence from AI providers and network, workflow limits (read-only, no
+secrets, timeout, concurrency, guard first, no merge/deploy), structured audit output under plain Node, owner-only
+panel with RTL Sorani text, and this section listing every profile.

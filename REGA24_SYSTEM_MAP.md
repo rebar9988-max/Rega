@@ -219,6 +219,7 @@ This documentation change is intentionally inside the docs-only allowlist so it 
 | GitHub Actions for the commit | CI and deploy conclusions | A green deploy workflow after a docs-only commit means the skip ran, not that a new version was published |
 | [scripts/health/probe.sh](scripts/health/probe.sh) | Script used by Beta health | Read-only |
 | `/dr/operations` Digital Operations Center ([src/lib/ops/core.ts](src/lib/ops/core.ts)) | Owner-only (`operations.manage`, SUPER_ADMIN). Ten read-only inspection agents run on demand; reports are `AuditLog` rows `ops.report` | Manual only: no schedule. Worker-side probes are not Lighthouse or field Core Web Vitals |
+| REGA24 agent audit [.github/workflows/rega24-agent-audit.yml](.github/workflows/rega24-agent-audit.yml) | Pull requests, manual, weekly. Routes a change to the minimum engineering agents ([docs/AI_AGENT_SYSTEM.md](docs/AI_AGENT_SYSTEM.md) section 9) and lists owner-approval paths. Read-only, no secrets, no AI | Repository only: never probes the live site, D1 or Cloudflare |
 
 Latest observed Beta health before this documentation change: run `40217513295`, scheduled, conclusion `success`, SHA `e8e2b69b0d3da1e88cf75e904cf6ff4a4e8b90a8`, 2026-10-25T17:39Z. **VERIFIED** via the GitHub API.
 

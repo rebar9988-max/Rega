@@ -10,6 +10,7 @@ import { BusinessActionButton } from "@/components/dr/BusinessActionButton";
 import { AGENTS, type OpsReport, type RunStatus } from "@/lib/ops/types";
 import { BLOCK_REASONS, OPS_LIMITS, blockMessage, newExecutionId, startOfUtcDay, type BlockReason } from "@/lib/ops/core";
 import { REPORT_ACTION, recentReports, runCounts } from "@/lib/ops/store";
+import { APPROVAL_GATES, AUDIT_WORKFLOW_URL, ENGINEERING_AGENTS, TIER_LABEL_CKB } from "@/lib/ops/engineering";
 import { runAgentAction, runAllAction } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -155,6 +156,38 @@ export default async function Operations({ searchParams }: { searchParams: Promi
           );
         })}
       </ul>
+
+      {/* AI Operations Center: the ten engineering role profiles (code work in owner-run sessions). Static registry, no
+          Worker execution, nothing fetched; routing results live in GitHub Actions. */}
+      <section aria-labelledby="ops-eng" className="mb-8 rounded-xl border border-line bg-surface shadow-card" data-testid="ops-engineering">
+        <div className="border-b border-line px-4 py-3">
+          <h2 id="ops-eng" className="text-sm font-bold text-ink">{t("engTitle")}</h2>
+          <p className="mt-0.5 text-xs text-muted">{t("engSubtitle")}</p>
+        </div>
+        <ul className="grid gap-px bg-line md:grid-cols-2">
+          {ENGINEERING_AGENTS.map((a) => (
+            <li key={a.id} data-engineering-agent={a.id} className="min-w-0 bg-surface px-4 py-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h3 className="flex min-w-0 items-center gap-2 text-sm font-bold text-ink">
+                  <span className="tabular-nums text-muted">{a.number}</span>
+                  <span lang="ckb" dir="rtl" className="truncate">{a.nameCkb}</span>
+                </h3>
+                <span lang="ckb" dir="rtl" className="shrink-0 rounded-md bg-surface-2 px-1.5 py-0.5 text-[11px] font-bold text-muted">{TIER_LABEL_CKB[a.tier]}</span>
+              </div>
+              <p lang="ckb" dir="rtl" className="mt-0.5 text-sm text-ink">{a.roleCkb}</p>
+              <p className="mt-1 text-xs text-muted"><Ltr>{a.name} · rega24-{a.id}</Ltr></p>
+              {a.uses.length > 0 && <p className="mt-1 break-words text-xs text-muted">{t("engUses")}: <Ltr>{a.uses.join(", ")}</Ltr></p>}
+            </li>
+          ))}
+        </ul>
+        <div className="border-t border-line px-4 py-3">
+          <h3 className="text-xs font-bold text-muted">{t("engGates")}</h3>
+          <ul lang="ckb" dir="rtl" className="mt-1.5 flex flex-wrap gap-1.5">
+            {APPROVAL_GATES.map((g) => <li key={g.reasonCkb} className="rounded-md border border-line bg-surface px-2 py-0.5 text-xs text-ink">{g.reasonCkb}</li>)}
+          </ul>
+          <a href={AUDIT_WORKFLOW_URL} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex min-h-10 items-center text-sm font-semibold text-brand-text hover:underline">{t("engRuns")}</a>
+        </div>
+      </section>
 
       <section aria-labelledby="ops-history" className="rounded-xl border border-line bg-surface shadow-card">
         <h2 id="ops-history" className="border-b border-line px-4 py-3 text-sm font-bold text-ink">{t("history")}</h2>

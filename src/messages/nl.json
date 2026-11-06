@@ -1384,6 +1384,11 @@
     "sev_fail": "Fout",
     "sev_skip": "Hier niet uitgevoerd",
     "reportLanguage": "Bevindingen zijn in het Koerdisch (Sorani) geschreven.",
+    "engTitle": "Engineering-agents (code)",
+    "engSubtitle": "Tien rolprofielen voor Claude Code- en Codex-sessies in deze repository. Ze draaien nooit in de Worker en voeren geen merge of deploy uit; die stappen blijven bij de eigenaar.",
+    "engUses": "Hergebruikte inspecteurs",
+    "engGates": "Goedkeuring eigenaar vóór merge",
+    "engRuns": "Routeringsresultaten (GitHub Actions)",
     "agents": {
       "business": "Bedrijfsinspecteur",
       "security": "Beveiligingsinspecteur",

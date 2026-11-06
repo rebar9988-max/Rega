@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-06T09:41:57.553Z",
+  "generatedAt": "2026-11-06T12:46:14.839Z",
   "package": {
     "name": "rega-platform",
     "version": "0.1.0",
@@ -45,6 +45,7 @@
     "neon-branch.yml",
     "production-browser.yml",
     "production-health.yml",
+    "rega24-agent-audit.yml",
     "worker-secrets-sync.yml"
   ],
   "prismaModels": [
@@ -224,6 +225,7 @@
     "src/app/api/v1/views/route.ts"
   ],
   "topLevel": [
+    ".claude",
     ".env.example",
     ".github",
     ".gitignore",

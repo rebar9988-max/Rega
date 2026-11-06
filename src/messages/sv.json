@@ -1384,6 +1384,11 @@
     "sev_fail": "Fel",
     "sev_skip": "Inte körd här",
     "reportLanguage": "Fynden är skrivna på kurdiska (sorani).",
+    "engTitle": "Utvecklingsagenter (kod)",
+    "engSubtitle": "Tio rollprofiler för Claude Code- och Codex-sessioner i det här förrådet. De körs aldrig i Workern och gör aldrig merge eller driftsättning; de stegen ligger kvar hos ägaren.",
+    "engUses": "Återanvända inspektörer",
+    "engGates": "Ägarens godkännande före merge",
+    "engRuns": "Routningsresultat (GitHub Actions)",
     "agents": {
       "business": "Företagsgranskare",
       "security": "Säkerhetsgranskare",
