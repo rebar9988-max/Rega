@@ -18,7 +18,7 @@ const serverSchema = z.object({
   // disabled | auto (default: every provider whose API key is set, with fallback) | gemini | grok | openai | groq | deepseek |
   // openrouter | anthropic (that provider only). Public use is additionally gated by the admin-controlled feature flag
   // "public.aiSearch" (/dr/ai).
-  AI_PROVIDER: z.enum(["disabled", "auto", "gemini", "grok", "openai", "groq", "deepseek", "openrouter", "anthropic"]).default("auto"),
+  AI_PROVIDER: z.enum(["disabled", "auto", "gemini", "grok", "openai", "groq", "deepseek", "openrouter", "anthropic", "workers-ai"]).default("auto"),
   // Model defaults: vendor-listed, non-deprecated ids, checked against each vendor's models/deprecations page on
   // 2026-10-01 (see README "AI Gateway"). Any *_MODEL variable overrides its default without a code change.
   GEMINI_API_KEY: z.string().optional(),
@@ -42,10 +42,21 @@ const serverSchema = z.object({
   ANTHROPIC_API_KEY: z.string().optional(),
   ANTHROPIC_MODEL: z.string().min(1).default("claude-haiku-4-5-20251001"),
   ANTHROPIC_BASE_URL: z.string().url().optional(),
+  // Cloudflare Workers AI chat model, run by rega-ai-python (AI_SERVICE_URL/TOKEN; no key). Serves only if `workers-ai` is approved and the model
+  // is on the verified free list (src/lib/ai/routing.ts FREE_TIER_MODELS).
+  WORKERS_AI_MODEL: z.string().min(1).default("@cf/google/gemma-4-26b-a4b-it"),
   AI_PROVIDER_ORDER: z.string().max(200).optional(),
   AI_ROUTING: z.string().max(1000).optional(),
   AI_TIMEOUT_MS: z.coerce.number().int().min(2_000).max(60_000).default(20_000),
-  AI_DAILY_LIMIT: z.coerce.number().int().min(1).default(5_000),
+  // Model attempts per UTC day, all providers together (zero-cost default; the owner may set another value).
+  AI_DAILY_LIMIT: z.coerce.number().int().min(1).default(500),
+  // Zero-cost policy (PM-01, owner-controlled Cloudflare variables). Comma-separated provider ids. Nothing is assumed
+  // free: an AI provider serves only when listed. AI_FREE_TIER_APPROVED: free-tier providers (gemini, groq) and
+  // workers-ai whose account has NO billing enabled. AI_PAID_APPROVED: paid providers the owner accepts charges for.
+  AI_FREE_TIER_APPROVED: z.string().max(200).optional(),
+  AI_PAID_APPROVED: z.string().max(200).optional(),
+  // Workers AI rerank calls per UTC day; can only lower the verified cap (RERANK_DAILY_CAP in src/lib/ai/budget.ts).
+  AI_RERANK_DAILY_LIMIT: z.coerce.number().int().min(0).optional(),
   // Optional internal Python AI engine. It is server-to-server only and failure-isolated from the normal AI gateway.
   AI_SERVICE_URL: z.string().url().optional(),
   AI_SERVICE_TOKEN: z.string().min(24).optional(),

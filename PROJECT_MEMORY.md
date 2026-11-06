@@ -1299,3 +1299,123 @@ Next action: finish final Node build and local desktop/mobile Nearby regression 
 Final release hold — 2026-10-31: code head `a3e4338ac55d46d25fbb3be17d10a46740ea0e8e`; draft PR #115 https://github.com/rebar9988-max/Rega/pull/115. Final Node build, sequential typecheck/lint PASS. Disposable D1 browser run with system Chromium: **31/31 PASS** (Nearby desktop/mobile plus existing admin-business setup; RTL/LTR, clustering, keyboard selection, preview/directions, radius/open filters, permission denied/unavailable/unsupported, invalid coordinates and map outage). Real tiles remain NOT VERIFIED (test stub). Unit 427 PASS/4 skips, D1 10/10, docs PASS.
 Hosted CI `41167623723` **FAIL** at dependency audit before app checks. Logs and independent local npm audit: **18 moderate** vulnerabilities; minimatch `<11.0.1` GHSA-g3hv-75wg-m249 and glob `3.0.0–14.0.1` GHSA-3g3m-2fjr-6pw4 propagate through global ESLint/OpenNext build dependencies. Both dependency manifests are byte-identical to main; this task introduced none. npm proposes `audit fix --force` with a breaking OpenNext downgrade to 0.3.0; not applied. Fixing the global toolchain is outside the owner's strict Nearby-only scope. **Merge/deploy BLOCKED**, protections unchanged. No failed CI bypass, force push or production release.
 Exact next action: separately scope and compatibility-test dependency security remediation, merge that fix through required CI, merge updated main into this original branch, rerun all exact-head checks, then remove draft/merge via approved workflow, await exact-main gated deploy and verify actual production map including real basemap requests. Production browsing from the workspace is additionally blocked by proxy 403; no connected interactive Browser js tool was exposed. Current Cloudflare release remains the previous version above. Central Hub and PR retain this blocker; no 100/100 claim.
+
+## AI agent system inventory + product backlog — 2026-11-04 (branch `claude/ai-agent-system-inventory`)
+Task: owner's "REGA24 AI Agent System / Control Plane / Product Management" directive. Audit result: no separate
+"REGA24 AI AGENT SYSTEM" folder exists; the system is the `/dr/operations` engine (`src/lib/ops`, 10 read-only agents,
+idempotency/locks/quotas/timeouts, reports in AuditLog) plus the AI gateway (`src/lib/ai`, routing/fallback/circuit
+breaker, AiUsageDaily token+request accounting, shared daily budget) and `services/ai-python`. Gap: no single
+inventory, governance matrix, roadmap or backlog. Change (docs + test only): `docs/AI_AGENT_SYSTEM.md` (inventory,
+CONET/Agent0 comparison, approval matrix, backlog PM-01..06), link in REGA24_SYSTEM_MAP.md, regenerated inventory,
+`tests/ai-agent-system-doc.test.ts` (doc must list every AGENT_ID, routed provider and AI task). No new agent,
+orchestrator, table, migration, workflow, binding, dependency or cost. Tests: docs validation pass; `npm test` 434
+(430 pass, 4 existing DB skips, 0 fail); typecheck pass; eslint on new test pass. Not merged/deployed; no production
+impact. BLOCKED for owner: which billing AI keys are set (PM-01), weekly scheduled report (PM-02), secret-sync list
+(PM-04). Google Doc not updated from this session.
+
+## PM-01 €0 AI audit — 2026-11-04 (branch `claude/ai-agent-system-inventory`)
+Root cause: €0 is assumed, not enforced. AI_PROVIDER defaults to `auto` (every keyed provider, fallback included);
+budget = AI_DAILY_LIMIT successful requests/day (no token/money cap; failed attempts, /dr/ai probes and Workers AI rerank
+uncounted). Evidence: live /api/v1/health 2026-11-04T17:22:45Z `ai:true`, `aiProviders:4` → ≥2 paid-provider keys
+(only gemini/groq have free tiers). Which keys, AI_PROVIDER value, stored flag, Cloudflare plan: UNKNOWN (no
+Cloudflare var access; secrets-sync never ran). Change (report-only, no public behavior change): PROVIDER_BILLING +
+shared activeProviderIds (src/lib/ai/routing.ts, runtime uses it), agent 10 checks ai.paid_providers (FAIL/WARN/INFO/
+PASS), ai.daily_budget, ai.workers_ai_rerank; tests; docs section 7. Owner: run agent 10; set AI_PROVIDER=disabled or a
+free-tier provider and delete paid keys; confirm plan. Not merged/deployed.
+
+## PM-01 zero-cost guarantee — 2026-11-04 (branch `claude/ai-agent-system-inventory`)
+Root cause fixed in code: AI used every keyed provider (`AI_PROVIDER=auto`) with paid fallback; budget counted only
+successes via non-atomic D1 read-modify-write (`d1-transaction.ts` increment). Change: providers serve only when the
+owner lists them in `AI_FREE_TIER_APPROVED` (gemini/groq/workers-ai, account without billing) or `AI_PAID_APPROVED`
+(empty default) — blocked providers are never built, so no paid fallback or probe; unknown = paid. Gateway reserves one
+`AI_DAILY_LIMIT` unit before EVERY attempt (fallbacks, /dr/ai probes) via one atomic INSERT…ON CONFLICT…RETURNING row in
+AiUsageDaily (provider `_budget`, no schema change); counter error = no call. Workers AI rerank gated by approval and
+capped at 250/day (34 Neurons worst case, ≤ 85 % of the verified 10,000 free Neurons/day, CF pricing page updated
+2026-10-20). `_budget` rows excluded from /dr/ai and analytics totals; agent 10 reports policy, blocks and usage. e2e
+env approves its local fakes only. Tests: npm test 449 (445 pass, 4 DB skips, 0 fail) incl. tests/ai-cost-guard.test.ts;
+test:d1 10/10; typecheck/lint pass; docs validation pass; local PG16: 60 concurrent reservations → unique 1..60, one row;
+e2e ai.spec 12/12 on PostgreSQL and 12/12 on D1 SQLite (45 reservations vs 20 answers). Not merged/deployed. After
+deploy without approvals: assistant 503 `ai_not_configured` (no-match answers still work), health stays ok. Owner: set
+approvals only for billing-free accounts, remove paid keys, confirm Workers plan (allowance is account-wide).
+## CI audit gate — owner decision 2026-11-04 (branch `claude/ci-audit-prod-chain`)
+Root cause: new moderate advisories GHSA-3g3m-2fjr-6pw4 (glob ≤14.0.1) and GHSA-g3hv-75wg-m249 (minimatch <11.0.1)
+made `npm audit --audit-level=low` fail on main (CI 41874005626, d6a6a49) and every PR. Fix: scoped overrides give
+`glob@^14.0.3` (minimatch ^11.0.2) to `@opennextjs/cloudflare` and `@node-minify/core` (replaces `glob@10.3.3` override);
+production audit now 0. eslint plugins (eslintrc, import, react, jsx-a11y) still require minimatch ^3 upstream, and a
+global minimatch 11 override breaks lint, so the owner chose: CI gates `npm audit --omit=dev --audit-level=low` plus
+`npm audit --audit-level=high` (14 moderate dev-only findings tolerated until upstream fixes). Verified locally: lint,
+typecheck, npm test 431/431 with PostgreSQL 16, test:d1 10/10, OpenNext Worker build + wrangler dry-run, 4 Worker smoke
+scripts. Restore `--audit-level=low` on all dependencies once the eslint chain moves to minimatch ≥11.0.1.
+
+## PM-01 zero-cost AI — release VERIFIED — 2026-11-04 (#119 `5a1fd81`, #118 `0f67c7f`)
+#119: push CI 41890763223 → Deploy 41898064590 → Beta health 41898064618 → Production browser 41898307115 (all success).
+#118: PR verify 41891184538 → squash `0f67c7f` → push CI 41924305435 → Deploy 41930856219 → Beta health 41930856345 →
+Production browser 41931067177 (all success). Live `GET /api/v1/health` 2026-11-04T23:11:26Z: `ok:true`, `ai:false`,
+`aiProviders:4` (before, 17:22Z: `ai:true`). So production calls no AI model: approval variables are empty by owner
+decision (strict €0). Still open (owner, Cloudflare dashboard): delete unused paid AI keys on Worker `rega24`; set
+`AI_FREE_TIER_APPROVED` only for billing-free accounts if AI is wanted later. Google Doc not updated from this session.
+
+## Admin geography workspace (/dr/geography) — 2026-11-04 (branch `claude/geography-admin-workspace-20261104`)
+Task: modernise the staff Countries / Regions / Cities screen only. Root cause of the problem: `/dr/geography` rendered every
+country with all its cities (2,066 seeded) and three buttons per row in one page — 146,549 px tall on a 390 px phone; one tap
+deactivated a record without confirmation.
+Changes (UI only; no schema, migration, data, route, API, RBAC or public-site change): `src/app/dr/geography/page.tsx` is a
+workspace with Countries / Regions / Cities tabs (default Cities), country → region filter (regions only for the chosen country),
+status filter, debounced search (`GeoFilters.tsx`, URL-driven, plain GET form without JS), 25-row server pagination for cities
+(stable order sortOrder, nameEn, id), compact table/mobile rows, per-row `ActionMenu` and `ConfirmAction` for activate/deactivate.
+City search uses only D1-folded columns (`d1-fold-fields.json`); country/region lists are short and filtered in memory, so no new
+D1 fold mapping is needed. `actions.ts`: the same server actions and permission (`category.write`) and audit entries; they now return
+to the view named by a hidden `back` field (validated to `/dr/geography` only) and `setGeoActive` shows an activated/deactivated
+notice. 26 new `geo.*` keys in all 11 catalogues. New E2E `tests/e2e/admin-geography.spec.ts`.
+Verified locally: typecheck, lint, `npm test` (431/427 pass, 0 fail), docs validation; E2E admin-geography + admin-growth 7/7 on
+PostgreSQL and 7/7 on local D1 SQLite; no horizontal overflow at 320/375/390/430/768/1280 px in de (LTR) and ckb (RTL);
+Lighthouse on the signed-in page: accessibility 100 (mobile, desktop), best practices 100, performance 100 desktop / 91 mobile,
+CLS 0; SEO 58 only because `/dr` is deliberately noindex. Mobile height 146,549 px → 3,945 px.
+Release (owner authorized merge + deploy, 2026-11-05): PR #120 squash-merged as `10d5d82`. First PR CI run was cancelled by the
+60-min job timeout (Playwright browser install took 27 min on the runner; D1 E2E 454/454 passed); one re-run passed. On `main`:
+CI 41967066452 success; Deploy to Cloudflare Workers 41971027676 success (identity guard, exact-SHA CI gate, verified production
+Worker and domains, deploy); Beta health 41971026609 success; Production browser check 41971142466 (live, read-only) success.
+Environment limitation: this session could not fetch www.rega24.com (proxy 403 / DNS) and had no Cloudflare dashboard access, so the
+active Worker version at 100% is REPORTED by the workflows, not independently verified. Next safe continuation point: owner opens
+www.rega24.com/dr/geography signed in and checks tabs, filters, paging and a deactivate/activate round trip.
+
+## AI free-model lock — 2026-11-05 (branch `claude/ai-free-model-lock`)
+Goal (owner): REGA24 AI = Gemini free only, hard limits, no paid fallback, €0. Remaining code gap closed: a free-tier
+approval now also requires a verified free model (`FREE_TIER_MODELS`: gemini-3.5-flash-lite / gemini-3.1-flash-lite,
+Google pricing "Free of charge"; groq openai/gpt-oss-120b, Groq free-plan limits), so a GEMINI_MODEL/GROQ_MODEL
+override to a paid or unknown model fails closed (`model_not_verified_free`); agent 10 reports it. Production state is
+unchanged (AI off: approval variables empty). Owner steps before enabling: Google project without billing,
+`AI_FREE_TIER_APPROVED=gemini`, `AI_DAILY_LIMIT=500`, `AI_PAID_APPROVED` empty, no GEMINI_MODEL/GEMINI_BASE_URL override.
+
+## Free Cloudflare AI in one control plane — 2026-11-05 (branch `claude/cf-free-ai-control-plane`, on #125)
+Workers AI added to the existing gateway as provider `workers-ai`, executed by the existing rega-ai-python Worker
+(`/v1/generate`, its AI binding; an AI binding on rega24 would make OpenNext's credential-free dry-run need a token);
+model @cf/google/gemma-4-26b-a4b-it (Workers Free per CF changelog 2026-07-28; 9,091/27,273 Neurons per M tokens).
+One shared Workers AI Neuron budget (8,500/day) for chat and rerank, reserved atomically at worst case before every
+call (counter now adds `amount`); refused/unreadable = no call. Approval `workers-ai` + verified free model required.
+Agent 10 reports `ai.workers_ai_budget`. AI Gateway and Vectorize: NOT REQUIRED (duplication / no use). Risk: Neuron
+allocation is account-wide (other Workers invisible). Production unchanged until merge + owner approval.
+
+## REGA24 master directive in CLAUDE.md — 2026-11-05 (PR #128, squash `1552fd3`; status: MERGED, deploy workflows green)
+Task (owner): make the REGA24 Master Engineering & Operational Directive permanent for every session. Change: `CLAUDE.md`
+section 8 (8.1–8.11), documentation only; sections 0–7 still govern where stricter. Owner gave standing authorization
+(2026-11-05) to merge in-scope PRs after all required checks pass, create branches/commits/PRs and fix CI, within the
+safety limits (no secrets, €0, no destructive production/database, billing or ownership changes, no bypassing CI or protection).
+Tests: `validate-system-docs` pass; identity guard OK (REGA); `tests/project-identity-guard.test.ts` 13/13; PR CI `verify`,
+Workers Builds `rega24` and `rega-ai-python` success. On `main`: Deploy to Cloudflare Workers 42025787851 success; Beta health
+42025787697 success; Production browser check 42023338457 success. Active Worker version at 100% is REPORTED by the workflows,
+not verified in the Cloudflare dashboard from this session. Production impact: none (no app code). Blockers: none.
+Next safe continuation point: no follow-up needed; new sessions load section 8 automatically.
+
+## Deploy docs-only skip now compares with the live release — 2026-11-05 (PR #132, squash `e563a66`; status: MERGED and DEPLOYED)
+Root cause: deploy.yml judged "documentation-only" from `HEAD^..HEAD`. #127 (`e60efae`, code) was followed by #128
+(`1552fd3`, CLAUDE.md only); e60efae's deploys were stopped by the gate (CI not yet green, then main had moved) and
+1552fd3's deploy run 100 skipped the Worker as docs-only, so #127 never reached rega24. Immediate repair: manual
+workflow_dispatch of deploy.yml on main (run 101, all gates kept). Fix: the skip now diffs against the `workers/tag`
+of the version live on Cloudflare; anything unknown fails open and deploys. Tests: tests/deploy-docs-skip.test.ts
+runs the real step script (code-then-docs deploys; docs-only skips; no token / API down / untagged / unfetchable /
+empty diff deploy).
+Release: main CI 42072373797 success; Deploy to Cloudflare Workers run 103 (42078824923) did NOT skip (code changed since
+the live release) and ran `wrangler deploy --tag e563a66…` (rega24 version 8fc19964-1034-4d83-a39f-471f4ee0ef24, as
+REPORTED by wrangler); Beta health and Production browser check success. Live /api/v1/health 18:10 UTC: ok:true,
+database ok (d1), ai:false, aiProviders 5. Blocker (owner-only): AI_FREE_TIER_APPROVED in Cloudflare to enable AI.

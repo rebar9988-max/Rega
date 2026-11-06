@@ -29,12 +29,14 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
-          fetch-depth: 2
+          fetch-depth: 1
 
       # DOCS_ONLY_SKIP: a successful CI run on main normally publishes the Worker.
-      # Documentation-only commits must not replace the production Worker.
-      # workflow_dispatch still deploys. An empty diff or a commit with no parent
-      # fails open and deploys, so a merge of application code is never skipped.
+      # Documentation-only changes must not replace the production Worker.
+      # The diff is taken against the release LIVE on Cloudflare (every deploy tags the Worker version with its exact
+      # GitHub SHA), not against HEAD^: a code commit followed by a docs commit must still reach production.
+      # workflow_dispatch still deploys. Anything that cannot be established (no token, no live tag, live release not
+      # fetchable, empty diff) fails open and deploys, so application code is never skipped.
       # Allowlist (keep identical to scripts/validate-system-docs.mjs):
       #   *.md
       #   docs/*
@@ -46,19 +48,18 @@ jobs:
         id: scope
         if: github.event_name == 'workflow_run'
         run: |
-          set -euo pipefail
-          if ! git rev-parse --verify HEAD^ >/dev/null 2>&1; then
-            echo "skip=false" >> "$GITHUB_OUTPUT"
-            echo "No parent commit; Worker deploy will continue."
-            exit 0
-          fi
-          # Compare with the first parent: diff-tree without -m returns no files for PR merge commits.
-          mapfile -t files < <(git diff --name-only HEAD^ HEAD)
-          if [ "${#files[@]}" -eq 0 ]; then
-            echo "skip=false" >> "$GITHUB_OUTPUT"
-            echo "Empty diff; Worker deploy will continue."
-            exit 0
-          fi
+          set -uo pipefail
+          deploy() { echo "skip=false" >> "$GITHUB_OUTPUT"; echo "$1; Worker deploy will continue."; exit 0; }
+          [ -n "${CLOUDFLARE_API_TOKEN:-}" ] || deploy "No Cloudflare token to read the live release"
+          api="https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/scripts/rega24"
+          version="$(curl -fsS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "$api/deployments" | jq -r '.result.deployments[0].versions | max_by(.percentage) | .version_id // empty' 2>/dev/null)" || version=""
+          [ -n "$version" ] || deploy "Live version unknown"
+          live="$(curl -fsS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "$api/versions/$version" | jq -r '.result.annotations["workers/tag"] // .result.metadata.annotations["workers/tag"] // empty' 2>/dev/null)" || live=""
+          [[ "$live" =~ ^[0-9a-f]{40}$ ]] || deploy "Live version carries no release SHA tag"
+          echo "Live release: $live"
+          git fetch --quiet --depth=1 origin "$live" || deploy "Live release $live is not fetchable"
+          mapfile -t files < <(git diff --name-only "$live" HEAD)
+          [ "${#files[@]}" -gt 0 ] || deploy "Empty diff against the live release"
           skip=true
           for f in "${files[@]}"; do
             case "$f" in

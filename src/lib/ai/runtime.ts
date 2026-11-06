@@ -9,7 +9,11 @@ import { createGateway, type Gateway } from "./gateway";
 import { createAnthropic } from "./providers/anthropic";
 import { createGemini } from "./providers/gemini";
 import { createDeepSeek, createGrok, createGroq, createOpenAi, createOpenRouter } from "./providers/openai-compatible";
-import { configWarnings, resolveRouting } from "./routing";
+import { createWorkersAi } from "./providers/workers-ai";
+import { generateWithService } from "./python-client";
+import { prisma } from "@/lib/db";
+import { BUDGET_KEYS, BUDGET_PROVIDER, RERANK_WORST_NEURONS, WORKERS_AI_NEURON_BUDGET, chatWorstNeurons, rerankLimit, reserve, type UsageCounter } from "./budget";
+import { WORKERS_AI, configWarnings, costDecision, parseIdList, permittedProviderIds, resolveRouting, type CostPolicy } from "./routing";
 import type { AiProvider } from "./types";
 
 /**
@@ -20,8 +24,14 @@ import type { AiProvider } from "./types";
  *   3. add its id to DEFAULT_ROUTING and its key to the "Sync Worker runtime secrets" workflow.
  * tests/ai-gateway.test.ts fails if any of these places is missed.
  */
+/** Reserves Neurons from the ONE shared Workers AI budget (rerank and chat together). */
+export function reserveWorkersAiNeurons(neurons: number): Promise<boolean> {
+  return reserve(usageCounter, BUDGET_KEYS.workersAiNeurons, WORKERS_AI_NEURON_BUDGET, new Date(), neurons);
+}
+
 function catalog() {
   const env = serverEnv();
+  const service = env.AI_SERVICE_URL && env.AI_SERVICE_TOKEN ? { baseUrl: env.AI_SERVICE_URL, token: env.AI_SERVICE_TOKEN, timeoutMs: env.AI_TIMEOUT_MS } : null;
   return [
     { id: "gemini", label: "Google Gemini", model: env.GEMINI_MODEL, hasKey: Boolean(env.GEMINI_API_KEY), build: () => createGemini({ apiKey: env.GEMINI_API_KEY!, model: env.GEMINI_MODEL, baseUrl: env.GEMINI_BASE_URL }), keyEnv: "GEMINI_API_KEY" },
     { id: "grok", label: "xAI Grok", model: env.GROK_MODEL, hasKey: Boolean(env.XAI_API_KEY), build: () => createGrok({ apiKey: env.XAI_API_KEY!, model: env.GROK_MODEL, baseUrl: env.GROK_BASE_URL }), keyEnv: "XAI_API_KEY" },
@@ -29,6 +39,8 @@ function catalog() {
     { id: "groq", label: "Groq", model: env.GROQ_MODEL, hasKey: Boolean(env.GROQ_API_KEY), build: () => createGroq({ apiKey: env.GROQ_API_KEY!, model: env.GROQ_MODEL, baseUrl: env.GROQ_BASE_URL }), keyEnv: "GROQ_API_KEY" },
     { id: "deepseek", label: "DeepSeek", model: env.DEEPSEEK_MODEL, hasKey: Boolean(env.DEEPSEEK_API_KEY), build: () => createDeepSeek({ apiKey: env.DEEPSEEK_API_KEY!, model: env.DEEPSEEK_MODEL, baseUrl: env.DEEPSEEK_BASE_URL }), keyEnv: "DEEPSEEK_API_KEY" },
     { id: "openrouter", label: "OpenRouter", model: env.OPENROUTER_MODEL, hasKey: Boolean(env.OPENROUTER_API_KEY), build: () => createOpenRouter({ apiKey: env.OPENROUTER_API_KEY!, model: env.OPENROUTER_MODEL, baseUrl: env.OPENROUTER_BASE_URL, siteUrl: `https://${env.CANONICAL_HOST}` }), keyEnv: "OPENROUTER_API_KEY" },
+    // Workers AI through the existing rega-ai-python service (its AI binding); no key and no binding on rega24.
+    { id: "workers-ai", label: "Cloudflare Workers AI", model: env.WORKERS_AI_MODEL, hasKey: Boolean(service), build: () => createWorkersAi({ model: env.WORKERS_AI_MODEL, run: (model, input) => generateWithService(service!, model, input), reserveNeurons: reserveWorkersAiNeurons, worstNeurons: chatWorstNeurons }), keyEnv: "AI_SERVICE_URL + AI_SERVICE_TOKEN" },
     { id: "anthropic", label: "Anthropic Claude", model: env.ANTHROPIC_MODEL, hasKey: Boolean(env.ANTHROPIC_API_KEY), build: () => createAnthropic({ apiKey: env.ANTHROPIC_API_KEY!, model: env.ANTHROPIC_MODEL, baseUrl: env.ANTHROPIC_BASE_URL }), keyEnv: "ANTHROPIC_API_KEY" },
   ];
 }
@@ -38,16 +50,56 @@ export function providerCatalog() {
   return catalog().map(({ id, label, model, hasKey }) => ({ id, label, model, hasKey }));
 }
 
-function buildProviders(): AiProvider[] {
-  return catalog().filter((c) => c.hasKey).map((c) => c.build());
+/** Provider id → configured model (model names only; used by the free-model check). */
+export function configuredModels(): Record<string, string> {
+  return Object.fromEntries(catalog().map((c) => [c.id, c.model]));
 }
 
-/** AI_PROVIDER: disabled | auto (all configured, with fallback) | <provider id> (only that one, no fallback). */
-function activeProviders(): AiProvider[] {
+/** The owner's zero-cost policy (provider ids only; never secrets). */
+export function costPolicy(): CostPolicy {
   const env = serverEnv();
-  if (env.AI_PROVIDER === "disabled") return [];
-  const all = buildProviders();
-  return env.AI_PROVIDER === "auto" ? all : all.filter((p) => p.id === env.AI_PROVIDER);
+  return { approvedFree: parseIdList(env.AI_FREE_TIER_APPROVED), approvedPaid: parseIdList(env.AI_PAID_APPROVED) };
+}
+
+/**
+ * AI_PROVIDER (disabled | auto | <id>) selects among providers with a key; the zero-cost policy then drops every
+ * provider the owner has not approved. Only the remaining ones are built, so routing, fallback and probes cannot reach
+ * a blocked provider.
+ */
+function activeProviders(): AiProvider[] {
+  const keyed = catalog().filter((c) => c.hasKey);
+  const { active } = permittedProviderIds(serverEnv().AI_PROVIDER, keyed.map((c) => c.id), costPolicy(), configuredModels());
+  return keyed.filter((c) => active.includes(c.id)).map((c) => c.build());
+}
+
+/** Atomic daily counter in AiUsageDaily (provider "_budget"): one statement, no read-modify-write (D1 and Postgres). */
+export const usageCounter: UsageCounter = {
+  async increment(day, key, amount = 1) {
+    const rows = await prisma.$queryRaw<{ requests: number | bigint }[]>`INSERT INTO "AiUsageDaily" ("id", "day", "provider", "model", "requests", "tokensIn", "tokensOut")
+      VALUES (${crypto.randomUUID()}, ${day}, ${BUDGET_PROVIDER}, ${key}, ${amount}, 0, 0)
+      ON CONFLICT ("day", "provider", "model") DO UPDATE SET "requests" = "AiUsageDaily"."requests" + ${amount}
+      RETURNING "requests"`;
+    const used = Number(rows[0]?.requests);
+    if (!Number.isFinite(used)) throw new Error("ai_budget_counter_invalid");
+    return used;
+  },
+};
+
+/** One model attempt (any provider, fallback or probe) against AI_DAILY_LIMIT. */
+export function reserveModelAttempt(): Promise<boolean> {
+  return reserve(usageCounter, BUDGET_KEYS.modelAttempts, serverEnv().AI_DAILY_LIMIT);
+}
+
+/** Workers AI is used only when the owner approved `workers-ai`; calls are capped below the verified free allowance. */
+export function workersAiAllowed(): boolean {
+  return costDecision(WORKERS_AI, costPolicy()).allowed;
+}
+export function rerankDailyLimit(): number {
+  return rerankLimit(serverEnv().AI_RERANK_DAILY_LIMIT);
+}
+/** A rerank call takes one unit of its own daily cap AND its worst-case Neurons from the shared Workers AI budget. */
+export async function reserveRerank(): Promise<boolean> {
+  return (await reserve(usageCounter, BUDGET_KEYS.workersAiRerank, rerankDailyLimit())) && (await reserveWorkersAiNeurons(RERANK_WORST_NEURONS));
 }
 
 let gateway: Gateway | null = null;
@@ -58,11 +110,14 @@ export function getGateway(): Gateway {
   const routing = resolveRouting({ order: env.AI_PROVIDER_ORDER, json: env.AI_ROUTING });
   // Once per instance: say which setting is wrong (names only) instead of failing silently later.
   for (const w of configWarnings({ routing, catalog: catalog(), aiProvider: env.AI_PROVIDER })) log.warn(w.event, w.meta);
+  const { blocked } = permittedProviderIds(env.AI_PROVIDER, catalog().filter((c) => c.hasKey).map((c) => c.id), costPolicy(), configuredModels());
+  if (blocked.length) log.warn("ai.cost.providers_blocked", { blocked: blocked.map((b) => `${b.id}:${b.reason}`) });
   gateway = createGateway({
     providers: activeProviders(),
     routing,
     timeoutMs: env.AI_TIMEOUT_MS,
     logger: log,
+    reserve: () => reserveModelAttempt(),
   });
   return gateway;
 }

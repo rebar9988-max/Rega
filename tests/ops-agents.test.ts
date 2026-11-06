@@ -227,7 +227,7 @@ test("analytics inspector: aggregated counts only, zero-result searches are not 
   assert.equal(result(few, "analytics.zero_result_searches"), "info", "too few searches to warn");
 });
 
-const ai = (over: Partial<AiFacts> = {}): AiFacts => ({ flag: { enabled: false, rollout: 0 }, codeDefault: false, provider: "auto", configuredProviders: [], publicFilter: { status: "published", verified: true, deletedAt: null, archivedAt: null }, nonsenseHits: 0, hiddenProbes: 2, hiddenLeaks: 0, publicProbes: 2, nonPublicHits: 0, answersScanned: 0, unsupportedLinks: 0, ...over });
+const ai = (over: Partial<AiFacts> = {}): AiFacts => ({ flag: { enabled: false, rollout: 0 }, codeDefault: false, provider: "auto", configuredProviders: [], models: { gemini: "gemini-3.5-flash-lite", groq: "openai/gpt-oss-120b", openai: "gpt-4.1-mini", anthropic: "claude-haiku-4-5-20251001" }, dailyLimit: 5000, rerankService: false, approvedFree: [], approvedPaid: [], rerankLimit: 250, modelAttemptsToday: 0, rerankCallsToday: 0, workersAiNeuronsToday: 0, workersAiNeuronBudget: 8500, publicFilter: { status: "published", verified: true, deletedAt: null, archivedAt: null }, nonsenseHits: 0, hiddenProbes: 2, hiddenLeaks: 0, publicProbes: 2, nonPublicHits: 0, answersScanned: 0, unsupportedLinks: 0, ...over });
 
 test("AI discovery inspector: disabled by default, published-only retrieval, no model call", async () => {
   const { FLAG_DEFAULTS } = await import("../src/lib/flags").catch(() => ({ FLAG_DEFAULTS: null as null | Record<string, boolean> }));
@@ -240,7 +240,23 @@ test("AI discovery inspector: disabled by default, published-only retrieval, no 
   assert.equal(result(off, "ai.inspector_no_model"), "pass");
   const on = analyzeAi(ai({ flag: { enabled: true, rollout: 100 }, configuredProviders: ["gemini"] }));
   assert.equal(result(on, "ai.public_flag"), "warn", "reported, never switched off automatically");
-  assert.equal(result(on, "ai.paid_providers"), "warn");
+  // PM-01 zero-cost policy: a key alone never activates a provider.
+  assert.equal(result(on, "ai.paid_providers"), "pass", "gemini keyed but not approved: fails closed");
+  assert.equal(result(on, "ai.cost_blocked"), "info");
+  const on2 = { flag: { enabled: true, rollout: 100 } };
+  assert.equal(result(analyzeAi(ai({ ...on2, configuredProviders: ["gemini", "openai"], approvedFree: ["gemini"] })), "ai.paid_providers"), "info", "only approved free tier serves");
+  assert.equal(result(analyzeAi(ai({ ...on2, configuredProviders: ["openai"], approvedFree: ["openai"] })), "ai.paid_providers"), "pass", "a paid id in the free list is not approved");
+  assert.equal(result(analyzeAi(ai({ ...on2, configuredProviders: ["openai"], approvedPaid: ["openai"] })), "ai.paid_providers"), "warn", "owner-approved paid provider is reported");
+  assert.equal(result(analyzeAi(ai({ ...on2, provider: "disabled", configuredProviders: ["gemini"], approvedFree: ["gemini"] })), "ai.paid_providers"), "pass");
+  assert.equal(result(analyzeAi(ai({ modelAttemptsToday: 5000 })), "ai.daily_budget"), "warn");
+  // A GEMINI_MODEL override to an unverified (possibly paid) model is blocked and reported.
+  const proModel = analyzeAi(ai({ ...on2, configuredProviders: ["gemini"], approvedFree: ["gemini"], models: { gemini: "gemini-3.8-pro" } }));
+  assert.equal(result(proModel, "ai.paid_providers"), "pass", "nothing serves");
+  assert.match(proModel.checks.find((c) => c.code === "ai.cost_blocked")!.message, /model_not_verified_free/);
+  assert.equal(result(analyzeAi(ai({ rerankService: true })), "ai.workers_ai_budget"), "pass", "Workers AI not approved: no rerank, no chat");
+  assert.equal(result(analyzeAi(ai({ rerankService: true, approvedFree: ["workers-ai"] })), "ai.workers_ai_budget"), "info");
+  assert.equal(result(analyzeAi(ai({ approvedFree: ["workers-ai"], workersAiNeuronsToday: 8500 })), "ai.workers_ai_budget"), "warn", "budget used up is reported");
+  assert.equal(result(off, "ai.workers_ai_budget"), "pass");
   const leak = analyzeAi(ai({ hiddenLeaks: 1, nonPublicHits: 1, nonsenseHits: 2, codeDefault: true, publicFilter: { status: "draft" }, answersScanned: 4, unsupportedLinks: 2 }));
   for (const code of ["ai.private_data", "ai.retrieval_scope", "ai.no_results", "ai.default_off", "ai.published_only_filter"]) assert.equal(result(leak, code), "fail", code);
   assert.equal(result(leak, "ai.unsupported_claims"), "warn");

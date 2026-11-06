@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import { runInNewContext } from "node:vm";
 import ts from "typescript";
 import { GatewayError } from "../src/lib/ai/errors";
+import * as budget from "../src/lib/ai/budget";
 
 const compiled = ts.transpileModule(readFileSync(new URL("../src/lib/ai/chat.ts", import.meta.url), "utf8"), {
   compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
@@ -15,6 +16,7 @@ function pipeline({ outage = false, used = 0, matches = true, localAllowed = tru
     "server-only": {},
     "@/lib/logger": { log: { info() {}, warn() {}, error() {} } },
     "./errors": { GatewayError },
+    "./budget": budget,
     "./runtime": { isAiConfigured: () => true, dailyBudgetAllows: () => localAllowed,
       getGateway: () => ({ generate: async () => { calls++; return { content: "Answer", provider: "fake", model: "fake", latencyMs: 0, attempts: [] }; } }) },
     "@/lib/db": { prisma: {

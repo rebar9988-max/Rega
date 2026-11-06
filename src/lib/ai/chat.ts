@@ -6,8 +6,9 @@ import "server-only";
 import { log } from "@/lib/logger";
 import { GatewayError } from "./errors";
 import { getGateway, isAiConfigured, dailyBudgetAllows } from "./runtime";
-import { prisma } from "@/lib/db";
+import { BUDGET_KEYS, BUDGET_PROVIDER, utcDay } from "./budget";
 import { serverEnv } from "@/lib/env";
+import { prisma } from "@/lib/db";
 import { contextOf, searchService } from "@/lib/search/postgres";
 import { getTranslations } from "next-intl/server";
 import type { SearchHit } from "@/lib/search/types";
@@ -60,15 +61,17 @@ export class AiNotConfiguredError extends Error {
   }
 }
 
-/** Daily request budget shared by every server instance (counted in AiUsageDaily), plus the per-instance guard. */
+/**
+ * Read-only pre-check of the shared budget (today's atomic model-attempt reservations) plus the per-instance guard.
+ * The gateway still reserves one unit before every provider call; this only avoids work when the day is used up.
+ * Fail closed: without readable accounting no model is called.
+ */
 async function budgetAllows(): Promise<boolean> {
   if (!dailyBudgetAllows()) return false;
   try {
-    const day = new Date(new Date().toISOString().slice(0, 10));
-    const used = await prisma.aiUsageDaily.aggregate({ where: { day }, _sum: { requests: true } });
+    const used = await prisma.aiUsageDaily.aggregate({ where: { day: utcDay(new Date()), provider: BUDGET_PROVIDER, model: BUDGET_KEYS.modelAttempts }, _sum: { requests: true } });
     return (used._sum.requests ?? 0) < serverEnv().AI_DAILY_LIMIT;
   } catch {
-    // An isolate-local limit cannot enforce the shared budget when accounting is unavailable.
     log.warn("ai.budget.unavailable");
     return false;
   }

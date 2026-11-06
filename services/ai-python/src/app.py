@@ -17,6 +17,11 @@ MAX_ITEMS = 24
 MAX_ITEM_CHARS = 4_000
 DEFAULT_EMBED_MODEL = "@cf/baai/bge-m3"
 DEFAULT_RERANK_MODEL = "@cf/baai/bge-reranker-base"
+# Workers AI chat for the central REGA gateway (provider "workers-ai"). Only models verified to stay on the Workers Free
+# plan are accepted; the caller reserves Neurons in REGA's shared Workers AI budget before calling this endpoint.
+FREE_CHAT_MODELS = frozenset({"@cf/google/gemma-4-26b-a4b-it"})
+MAX_CHAT_MESSAGES = 16
+MAX_CHAT_OUTPUT_TOKENS = 1_024
 
 app = FastAPI(
     title="REGA Python AI Engine",
@@ -43,6 +48,18 @@ class RerankRequest(BaseModel):
     query: str = Field(min_length=1, max_length=1_000)
     items: list[Candidate] = Field(min_length=1, max_length=MAX_ITEMS)
     top_k: int | None = Field(default=None, ge=1, le=MAX_ITEMS)
+
+
+class ChatMessage(BaseModel):
+    role: str = Field(pattern="^(system|user|assistant)$")
+    content: str = Field(min_length=1, max_length=64_000)
+
+
+class GenerateRequest(BaseModel):
+    model: str = Field(min_length=1, max_length=120)
+    messages: list[ChatMessage] = Field(min_length=1, max_length=MAX_CHAT_MESSAGES)
+    max_tokens: int = Field(default=MAX_CHAT_OUTPUT_TOKENS, ge=1, le=MAX_CHAT_OUTPUT_TOKENS)
+    temperature: float = Field(default=0.3, ge=0.0, le=1.0)
 
 
 class EmbedRequest(BaseModel):
@@ -254,6 +271,45 @@ async def rerank(payload: RerankRequest, request: Request):
         "model": model,
         "items": [{"id": payload.items[index].id, "score": score} for index, score in ranking],
     }
+
+
+def _chat_text(raw: Any) -> tuple[str, dict[str, int] | None]:
+    raw = _to_python(raw)
+    if not isinstance(raw, dict):
+        return "", None
+    content = raw.get("response")
+    if not isinstance(content, str):
+        choices = raw.get("choices")
+        message = choices[0].get("message") if isinstance(choices, list) and choices and isinstance(choices[0], dict) else None
+        content = message.get("content") if isinstance(message, dict) else ""
+    usage = raw.get("usage")
+    tokens = None
+    if isinstance(usage, dict) and isinstance(usage.get("prompt_tokens"), int):
+        tokens = {"tokensIn": usage["prompt_tokens"], "tokensOut": int(usage.get("completion_tokens") or 0)}
+    return (content or "").strip() if isinstance(content, str) else "", tokens
+
+
+@app.post("/v1/generate", dependencies=[Depends(require_internal)])
+async def generate(payload: GenerateRequest, request: Request):
+    if payload.model not in FREE_CHAT_MODELS:
+        raise ApiError(400, "model_not_allowed")
+    ai = _ai_binding(request)
+    if ai is None:
+        raise ApiError(503, "ai_binding_unavailable")
+    try:
+        raw = await ai.run(payload.model, {
+            "messages": [{"role": m.role, "content": m.content} for m in payload.messages],
+            "max_tokens": payload.max_tokens,
+            "temperature": payload.temperature,
+        })
+    except Exception as error:
+        text = str(error)
+        code = "quota" if re.search(r"4006|neuron|allocation", text, re.I) else "capacity" if re.search(r"3040|capacity|429", text) else "generate_unavailable"
+        raise ApiError(429 if code in {"quota", "capacity"} else 503, code) from None
+    content, usage = _chat_text(raw)
+    if not content:
+        raise ApiError(502, "empty")
+    return {"ok": True, "model": payload.model, "content": content, "usage": usage}
 
 
 def _normalize(value: str) -> str:

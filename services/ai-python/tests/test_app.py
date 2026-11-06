@@ -13,6 +13,9 @@ class FakeAI:
             return {"data": [[1.0, 0.0], [0.0, 1.0]][: len(payload["text"])]}
         if model.endswith("bge-reranker-base"):
             return {"response": [{"id": 1, "score": 0.91}, {"id": 0, "score": 0.12}]}
+        if model == "@cf/google/gemma-4-26b-a4b-it":
+            self.chat = payload
+            return {"response": " Silav ", "usage": {"prompt_tokens": 12, "completion_tokens": 3}}
         raise RuntimeError("unexpected model")
 
 
@@ -106,3 +109,32 @@ def test_branch_preview_never_calls_ai_even_with_a_valid_inherited_token(monkeyp
         health = preview.get("/__preview-health")
         assert health.status_code == 200
         assert health.headers["cache-control"] == "no-store"
+
+
+GEMMA = "@cf/google/gemma-4-26b-a4b-it"
+
+
+def test_generate_runs_only_the_verified_free_model():
+    ai = FakeAI()
+    c = client(ai)
+    body = {"model": GEMMA, "messages": [{"role": "system", "content": "s"}, {"role": "user", "content": "hi"}], "max_tokens": 64}
+    response = c.post("/v1/generate", headers=auth(), json=body)
+    assert response.status_code == 200
+    assert response.json() == {"ok": True, "model": GEMMA, "content": "Silav", "usage": {"tokensIn": 12, "tokensOut": 3}}
+    assert ai.chat["max_tokens"] == 64 and ai.chat["messages"][1] == {"role": "user", "content": "hi"}
+    for model in ["@cf/moonshotai/kimi-k2.6", "@cf/zai-org/glm-5.2", "gpt-4.1-mini"]:
+        denied = c.post("/v1/generate", headers=auth(), json={**body, "model": model})
+        assert denied.status_code == 400 and denied.json()["error"]["code"] == "model_not_allowed"
+    assert c.post("/v1/generate", json=body).status_code == 401
+    assert c.post("/v1/generate", headers=auth(), json={**body, "max_tokens": 4096}).status_code == 422
+
+
+def test_generate_maps_workers_ai_limits_without_leaking_details():
+    class Exhausted:
+        async def run(self, _model, _payload):
+            raise RuntimeError("4006: daily free allocation of 10,000 neurons used, secret-ish detail")
+
+    response = client(Exhausted()).post("/v1/generate", headers=auth(), json={"model": GEMMA, "messages": [{"role": "user", "content": "x"}]})
+    assert response.status_code == 429
+    assert response.json()["error"]["code"] == "quota"
+    assert "secret" not in response.text

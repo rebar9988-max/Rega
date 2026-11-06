@@ -10,7 +10,8 @@ import { PUBLIC_BUSINESS } from "@/lib/search-where";
 import { SUPER_ADMIN_EMAILS, isSuperAdminEmail } from "@/lib/rbac";
 import { locationAudit } from "@/lib/business-admin";
 import { FLAG_DEFAULTS } from "@/lib/flags";
-import { providerCatalog } from "@/lib/ai";
+import { costPolicy, providerCatalog, rerankDailyLimit } from "@/lib/ai";
+import { BUDGET_KEYS, BUDGET_PROVIDER, WORKERS_AI_NEURON_BUDGET, utcDay } from "@/lib/ai/budget";
 import { searchService } from "@/lib/search/postgres";
 import { summarize as summarizeSearches } from "@/lib/search-analytics-core";
 import { DEFAULT_LOCALE, LOCALES, LOCALE_META, type Locale } from "@/config/locales";
@@ -209,7 +210,7 @@ async function analyticsInspector(): Promise<Inspection> {
     prisma.location.groupBy({ by: ["cityId"], where: { deletedAt: null, status: "active", cityId: { not: null }, business: PUBLIC_BUSINESS }, _count: { _all: true } }),
     prisma.business.findMany({ where: PUBLIC_BUSINESS, take: TAKE, select: { slug: true, locations: { where: { deletedAt: null, isPrimary: true }, take: 1, select: { latitude: true, longitude: true, city: { select: { isActive: true } } } } } }),
     prisma.review.groupBy({ by: ["status"], _count: { _all: true } }),
-    prisma.aiUsageDaily.aggregate({ where: { day: { gte: weekAgo } }, _sum: { requests: true } }),
+    prisma.aiUsageDaily.aggregate({ where: { day: { gte: weekAgo }, provider: { not: BUDGET_PROVIDER } }, _sum: { requests: true } }),
     prisma.report.count({ where: { status: "open" } }),
   ]);
   // Existing aggregated search counters (lib/search-analytics.ts): read-only, bounded like every other agent query.
@@ -235,12 +236,16 @@ async function analyticsInspector(): Promise<Inspection> {
 
 async function aiDiscoveryInspector(): Promise<Inspection> {
   const env = serverEnv();
-  const [flag, publicRows, hiddenRows, answers] = await Promise.all([
+  const [flag, publicRows, hiddenRows, answers, reservations] = await Promise.all([
     prisma.featureFlag.findUnique({ where: { key: "public.aiSearch" }, select: { enabled: true, rollout: true } }),
     prisma.business.findMany({ where: PUBLIC_BUSINESS, take: TAKE, orderBy: { updatedAt: "desc" }, select: { id: true, slug: true, name: true } }),
     prisma.business.findMany({ where: { deletedAt: null, NOT: PUBLIC_BUSINESS }, take: 3, orderBy: { updatedAt: "desc" }, select: { id: true, name: true } }),
     prisma.aiMessage.findMany({ where: { role: "assistant" }, orderBy: { createdAt: "desc" }, take: 50, select: { content: true } }),
+    // Today's zero-cost reservations (counters only; reading them reserves nothing).
+    prisma.aiUsageDaily.findMany({ where: { day: utcDay(new Date()), provider: BUDGET_PROVIDER }, take: 10, select: { model: true, requests: true } }),
   ]);
+  const reserved = (key: string) => reservations.find((r) => r.model === key)?.requests ?? 0;
+  const policy = costPolicy();
   const publicIds = new Set(publicRows.map((b) => b.id));
   const publicSlugs = new Set(publicRows.map((b) => b.slug));
   const businessHits = async (text: string) => (await searchService.search({ text, locale: "en", limit: 12 })).filter((h) => h.section === "businesses");
@@ -257,6 +262,11 @@ async function aiDiscoveryInspector(): Promise<Inspection> {
   return analyzeAi({
     flag, codeDefault: FLAG_DEFAULTS["public.aiSearch"], provider: env.AI_PROVIDER,
     configuredProviders: providerCatalog().filter((p) => p.hasKey).map((p) => p.id),
+    models: Object.fromEntries(providerCatalog().map((p) => [p.id, p.model])),
+    dailyLimit: env.AI_DAILY_LIMIT, rerankService: Boolean(env.AI_SERVICE_URL && env.AI_SERVICE_TOKEN),
+    approvedFree: [...policy.approvedFree], approvedPaid: [...policy.approvedPaid], rerankLimit: rerankDailyLimit(),
+    modelAttemptsToday: reserved(BUDGET_KEYS.modelAttempts), rerankCallsToday: reserved(BUDGET_KEYS.workersAiRerank),
+    workersAiNeuronsToday: reserved(BUDGET_KEYS.workersAiNeurons), workersAiNeuronBudget: WORKERS_AI_NEURON_BUDGET,
     publicFilter: PUBLIC_BUSINESS, nonsenseHits: nonsense.length,
     hiddenProbes: hiddenRows.length, hiddenLeaks, publicProbes: samples.length, nonPublicHits,
     answersScanned: answers.length, unsupportedLinks: unsupported,
