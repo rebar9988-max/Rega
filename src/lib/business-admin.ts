@@ -72,6 +72,7 @@ export const businessFormSchema = z.object({
   photoUrls: z.array(z.string().trim().max(500).url().refine((u) => u.startsWith("https://"))).max(MAX_PHOTOS).default([]),
   ...Object.fromEntries(WEEK.map((d) => [`hours_${d}`, z.string().trim().max(120).optional()])) as Record<`hours_${(typeof WEEK)[number]}`, z.ZodOptional<z.ZodString>>,
   /** "1": closed on official public holidays (lib/holidays.ts). */
+  hoursMode: z.enum(["always", "five", "custom", "appointment"]).optional(),
   holidaysClosed: z.enum(["1"]).optional(),
   /** Date exceptions (closures, special hours) as JSON from the hours editor; validated in superRefine. */
   hoursExceptions: z.string().max(20_000).optional(),
@@ -107,7 +108,7 @@ function formExceptions(json: string | undefined) {
 export function formHours(input: BusinessForm): OpeningHours | null {
   const parsed = parseOpeningHours(Object.fromEntries(WEEK.map((d) => [d, input[`hours_${d}`] ?? ""])));
   const exceptions = formExceptions(input.hoursExceptions);
-  return composeOpeningHours(parsed.ok ? parsed.value : null, input.holidaysClosed === "1", exceptions.ok ? exceptions.value : []);
+  return composeOpeningHours({ ...(parsed.ok ? parsed.value : {}), ...(input.hoursMode ? { mode: input.hoursMode } : {}) }, input.holidaysClosed === "1", exceptions.ok ? exceptions.value : []);
 }
 export type BusinessForm = z.infer<typeof businessFormSchema>;
 

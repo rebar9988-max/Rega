@@ -615,6 +615,16 @@
     "otherApp": "Başka harita uygulaması"
   },
   "bizForm": {
+    "modeAlways": "Her zaman açık",
+    "modeAlwaysHint": "Günde 24 saat, haftada 7 gün",
+    "modeFive": "Haftada beş gün açık",
+    "modeCustom": "Özel çalışma saatleri",
+    "modeAppointment": "Yalnızca randevuyla",
+    "modeAppointmentHint": "Randevuyla. Haftalık programınız korunur.",
+    "hoursApply": "Seçili günlere uygula",
+    "hoursStart": "Açılış saati",
+    "hoursEnd": "Kapanış saati",
+    "hoursInvalid": "Çalışma günlerini ve birbirinden farklı iki geçerli saati seçin.",
     "new": "Yeni işletme",
     "edit": "Düzenle",
     "newTitle": "Yeni işletme",

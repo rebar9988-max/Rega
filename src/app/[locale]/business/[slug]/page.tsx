@@ -28,7 +28,7 @@ import { JsonLd } from "@/components/ui/JsonLd";
 import { ViewPing } from "@/components/ui/ViewPing";
 import { PlacesMap, type PlacePoint } from "@/components/map/PlacesMap";
 import { isMappableCoordinate } from "@/lib/coordinates";
-import { closedOnHolidays, hasHours, hasHoursInfo, hoursRows, upcomingExceptions } from "@/lib/opening-hours";
+import { closedOnHolidays, hoursMode, hasHours, hasHoursInfo, hoursRows, upcomingExceptions } from "@/lib/opening-hours";
 import { timezoneFor } from "@/lib/geo";
 import { OpenState } from "@/components/ui/OpenState";
 import { preload } from "react-dom";
@@ -294,9 +294,9 @@ export default async function BusinessPage({ params }: Props) {
                   {b.locations.map((loc) => {
                     const city = loc.city ? localize({ ...loc.city, name: loc.city.nameEn }, "name", l) : null;
                     // Monday first; once any day is set, a day without hours is shown as closed.
-                    const hours = hasHours(loc.openingHours) ? hoursRows(loc.openingHours) : [];
-                    const changes = upcomingExceptions(loc.openingHours, localToday(loc.countryCode));
-                    const holidaysClosed = closedOnHolidays(loc.openingHours);
+                    const hours = hoursMode(loc.openingHours) !== "appointment" && hasHours(loc.openingHours) ? hoursRows(loc.openingHours) : [];
+                    const changes = hoursMode(loc.openingHours) === "appointment" ? [] : upcomingExceptions(loc.openingHours, localToday(loc.countryCode));
+                    const holidaysClosed = hoursMode(loc.openingHours) !== "appointment" && closedOnHolidays(loc.openingHours);
                     const single = b.locations.length === 1;
                     // One location: its address is already in the facts at the top, so the card holds the opening hours only.
                     if (single && !hasHoursInfo(loc.openingHours)) return null;
