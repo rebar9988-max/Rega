@@ -15,8 +15,9 @@ type LatLng = { lat: number; lng: number };
 const round6 = (v: number) => Math.round(v * 1e6) / 1e6;
 const PIN = '<svg viewBox="0 0 32 42" width="32" height="42" aria-hidden="true"><path d="M16 41s14-12.3 14-24A14 14 0 1 0 2 17c0 11.7 14 24 14 24Z" fill="var(--brand)" stroke="#fff" stroke-width="2.5"/><circle cx="16" cy="16" r="5.5" fill="#fff"/></svg>';
 
-export function LocationPicker({ value, fallbackCenter, onPick, label, unavailable, dir }: {
-  value: LatLng | null; fallbackCenter: LatLng | null; onPick: (v: LatLng) => void;
+export function LocationPicker({ value, focus = null, fallbackCenter, onPick, label, unavailable, dir }: {
+  /** `focus` is an area to show (a postal code's centre): the map flies there, the marker stays where it is. */
+  value: LatLng | null; focus?: LatLng | null; fallbackCenter: LatLng | null; onPick: (v: LatLng) => void;
   label: string; unavailable: string; dir: "rtl" | "ltr";
 }) {
   const box = useRef<HTMLDivElement>(null);
@@ -25,7 +26,10 @@ export function LocationPicker({ value, fallbackCenter, onPick, label, unavailab
   const libRef = useRef<typeof import("maplibre-gl") | null>(null);
   const onPickRef = useRef(onPick);
   onPickRef.current = onPick;
-  const initial = useRef({ value, fallbackCenter });
+  const valueRef = useRef(value);
+  valueRef.current = value;
+  const initial = useRef({ value, focus, fallbackCenter });
+  const flown = useRef(focus ? `${focus.lat},${focus.lng}` : "");
   const [status, setStatus] = useState<"loading" | "ready" | "failed">("loading");
 
   useEffect(() => {
@@ -38,11 +42,11 @@ export function LocationPicker({ value, fallbackCenter, onPick, label, unavailab
         if (cancelled || !box.current) return;
         libRef.current = lib;
         lib.setWorkerUrl(MAPLIBRE_WORKER_URL);
-        const { value: v, fallbackCenter: c } = initial.current;
-        const start = v ?? c;
+        const { value: v, focus: f, fallbackCenter: c } = initial.current;
+        const start = v ?? f ?? c;
         const map = new lib.Map({
           container: box.current, style: mapStyleUrl(), attributionControl: false,
-          center: start ? [start.lng, start.lat] : [15, 35], zoom: v ? 16 : c ? 12 : 2,
+          center: start ? [start.lng, start.lat] : [15, 35], zoom: v ? 16 : f ? 13 : c ? 12 : 2,
           dragRotate: false, pitchWithRotate: false, touchPitch: false,
         });
         mapRef.current = map;
@@ -79,14 +83,27 @@ export function LocationPicker({ value, fallbackCenter, onPick, label, unavailab
     if (!map.getBounds().contains([value.lng, value.lat]) || map.getZoom() < 14) map.easeTo({ center: [value.lng, value.lat], zoom: Math.max(map.getZoom(), 16), duration: 400 });
   }, [status, value]);
 
+  // A newly found postal code: fly to its area (MapLibre jumps instead when the visitor prefers reduced motion).
+  useEffect(() => {
+    const map = mapRef.current;
+    if (status !== "ready" || !map || !focus || !isValidCoordinate(focus.lat, focus.lng)) return;
+    const key = `${focus.lat},${focus.lng}`;
+    if (key === flown.current) return;
+    flown.current = key;
+    // A marker already inside that area is the better view: keep it instead of zooming out to the area's centre.
+    const v = valueRef.current;
+    if (v && Math.abs(v.lat - focus.lat) < 0.05 && Math.abs(v.lng - focus.lng) < 0.08) return;
+    map.flyTo({ center: [focus.lng, focus.lat], zoom: 13, duration: 900 });
+  }, [status, focus]);
+
   // Without a value, follow the chosen city.
   useEffect(() => {
     const map = mapRef.current;
-    if (status === "ready" && map && !value && fallbackCenter) map.easeTo({ center: [fallbackCenter.lng, fallbackCenter.lat], zoom: 12, duration: 400 });
-  }, [status, value, fallbackCenter]);
+    if (status === "ready" && map && !value && !focus && fallbackCenter) map.easeTo({ center: [fallbackCenter.lng, fallbackCenter.lat], zoom: 12, duration: 400 });
+  }, [status, value, focus, fallbackCenter]);
 
   return (
-    <div className="relative h-80 overflow-hidden rounded-[var(--radius-card)] border border-line bg-surface-2" data-testid="location-picker" data-status={status}>
+    <div className="relative h-80 overflow-hidden rounded-[var(--radius-card)] border border-line bg-surface-2" data-testid="location-picker" data-status={status} data-focus={focus ? `${focus.lat},${focus.lng}` : undefined}>
       <div className="absolute inset-0"><div ref={box} className="size-full" role="region" aria-label={label} /></div>
       {status === "loading" && <div className="absolute inset-0 animate-pulse bg-surface-2" aria-hidden="true" />}
       {status === "failed" && <div className="absolute inset-0 z-20 grid place-items-center bg-surface-2 p-6 text-center text-sm text-muted" role="status">{unavailable}</div>}

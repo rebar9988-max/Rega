@@ -12,7 +12,7 @@ import { requirePermission } from "@/lib/auth-helpers";
 import { writeAudit } from "@/lib/audit";
 import { can, type Permission } from "@/lib/rbac";
 import { businessFormSchema, saveBusiness } from "@/lib/business-admin";
-import { geocodeAddress, type GeocodeOutcome } from "@/lib/geocoder";
+import { geocodeAddress, lookupPostalCode, type GeocodeOutcome, type PostalOutcome } from "@/lib/geocoder";
 import { addCreatorAsMember, assertBusinessAccess } from "@/lib/business-access";
 import { reindexBusinessTree } from "@/lib/search-index";
 import { getTranslations } from "next-intl/server";
@@ -214,7 +214,12 @@ export async function saveBusinessAction(_prev: BusinessFormState, formData: For
 const geocodeSchema = z.object({
   addressLine1: z.string().trim().min(3).max(300),
   postalCode: z.string().trim().max(20).optional(),
-  city: z.string().trim().min(1).max(120),
+  city: z.string().trim().max(120).optional(),
+  countryCode: z.string().trim().toUpperCase().regex(/^[A-Z]{2}$/),
+}).refine((v) => Boolean(v.city || v.postalCode));
+
+const postalSchema = z.object({
+  postalCode: z.string().trim().min(3).max(20).regex(/^[A-Za-z\d][A-Za-z\d -]*$/),
   countryCode: z.string().trim().toUpperCase().regex(/^[A-Z]{2}$/),
 });
 
@@ -224,4 +229,12 @@ export async function geocodeAction(input: z.input<typeof geocodeSchema>): Promi
   const parsed = geocodeSchema.safeParse(input);
   if (!parsed.success) return { ok: false, reason: "not_found" };
   return geocodeAddress(parsed.data);
+}
+
+/** Postal code -> area centre and place name (moves the map there and suggests the city; nothing is saved). */
+export async function postalLookupAction(input: z.input<typeof postalSchema>): Promise<PostalOutcome> {
+  await requirePermission("business.write");
+  const parsed = postalSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, reason: "not_found" };
+  return lookupPostalCode(parsed.data.postalCode, parsed.data.countryCode);
 }
