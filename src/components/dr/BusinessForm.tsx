@@ -226,12 +226,13 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
       {businessId && <input type="hidden" name="id" value={businessId} />}
       {wizard && (
         <nav aria-label={t("wizard.steps")}>
-          <ol className="flex flex-wrap gap-2 text-sm font-semibold" data-testid="wizard-steps">
+          {/* One row of three equal steps at every width (mobile first); done steps show a check, order follows dir (RTL mirrors). */}
+          <ol className="grid grid-cols-3 gap-2 text-xs font-semibold sm:text-sm" data-testid="wizard-steps">
             {([1, 2, 3] as const).map((n) => (
               <li key={n} aria-current={step === n ? "step" : undefined} data-testid={`wizard-step-${n}`}
-                className={`flex items-center gap-2 rounded-xl border px-3 py-2 ${step === n ? "border-brand bg-brand-soft text-ink" : "border-line text-muted"}`}>
-                <span aria-hidden="true" className={`grid size-6 place-items-center rounded-full text-xs font-bold ${step === n ? "bg-brand text-brand-ink" : "bg-surface-2"}`}>{n}</span>
-                {t(`wizard.step${n}`)}
+                className={`flex min-h-12 min-w-0 flex-col items-center justify-center gap-1 rounded-xl border px-2 py-2 text-center sm:flex-row sm:gap-2 ${step === n ? "border-brand bg-brand-soft text-ink" : n < step ? "border-line text-ink" : "border-line text-muted"}`}>
+                <span aria-hidden="true" className={`grid size-7 shrink-0 place-items-center rounded-full text-xs font-bold ${step >= n ? "bg-brand text-brand-ink" : "bg-surface-2"}`}>{n < step ? "✓" : n}</span>
+                <span className="leading-tight">{t(`wizard.step${n}`)}</span>
               </li>
             ))}
           </ol>
@@ -449,16 +450,16 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
 
       <div className="flex flex-wrap gap-3">
         {wizard && step > 1 && (
-          <button type="button" onClick={() => goTo((step - 1) as 1 | 2)} disabled={saving || mediaBusy > 0} data-testid="wizard-back" className="min-h-11 rounded-xl border border-line bg-surface px-6 text-sm font-bold hover:border-brand hover:text-brand-text disabled:opacity-60">{t("wizard.back")}</button>
+          <button type="button" onClick={() => goTo((step - 1) as 1 | 2)} disabled={saving || mediaBusy > 0} data-testid="wizard-back" className="min-h-12 rounded-xl border border-line bg-surface px-6 text-sm font-bold hover:border-brand hover:text-brand-text disabled:opacity-60">{t("wizard.back")}</button>
         )}
         {wizard && step < 3 && (
-          <button type="button" onClick={next} disabled={saving || mediaBusy > 0} data-testid="wizard-next" className="min-h-11 rounded-xl bg-brand px-6 text-sm font-bold text-brand-ink hover:bg-brand-hover disabled:opacity-60">{t("wizard.next")}</button>
+          <button type="button" onClick={next} disabled={saving || mediaBusy > 0} data-testid="wizard-next" className="min-h-12 rounded-xl bg-brand px-6 text-sm font-bold text-brand-ink hover:bg-brand-hover disabled:opacity-60">{t("wizard.next")}</button>
         )}
-        <button type="submit" name="intent" value={wizard && isDraft ? "draft" : "save"} disabled={saving || mediaBusy > 0 || (wizard && isDraft && name.trim().length < 2)} data-testid={wizard && isDraft ? "save-draft" : "save"} className="min-h-11 rounded-xl border border-line bg-surface px-6 text-sm font-bold hover:border-brand hover:text-brand-text disabled:opacity-60">{wizard && isDraft ? t("wizard.saveDraft") : t("save")}</button>
+        <button type="submit" name="intent" value={wizard && isDraft ? "draft" : "save"} disabled={saving || mediaBusy > 0 || (wizard && isDraft && name.trim().length < 2)} data-testid={wizard && isDraft ? "save-draft" : "save"} className="min-h-12 rounded-xl border border-line bg-surface px-6 text-sm font-bold hover:border-brand hover:text-brand-text disabled:opacity-60">{wizard && isDraft ? t("wizard.saveDraft") : t("save")}</button>
         {canPublish ? (
-          <button type="submit" name="intent" value="publish" disabled={saving || mediaBusy > 0} className="min-h-11 rounded-xl bg-brand px-6 text-sm font-bold text-brand-ink hover:bg-brand-hover disabled:opacity-60">{t("savePublish")}</button>
+          <button type="submit" name="intent" value="publish" disabled={saving || mediaBusy > 0} className="min-h-12 rounded-xl bg-brand px-6 text-sm font-bold text-brand-ink hover:bg-brand-hover disabled:opacity-60">{t("savePublish")}</button>
         ) : (!wizard || step === 3) && (
-          <button type="submit" name="intent" value="submit" disabled={saving || mediaBusy > 0 || initial.status === "pending" || initial.status === "published"} data-testid="submit-review" className="min-h-11 rounded-xl bg-brand px-6 text-sm font-bold text-brand-ink hover:bg-brand-hover disabled:opacity-60">{t("submitReview")}</button>
+          <button type="submit" name="intent" value="submit" disabled={saving || mediaBusy > 0 || initial.status === "pending" || initial.status === "published"} data-testid="submit-review" className="min-h-12 rounded-xl bg-brand px-6 text-sm font-bold text-brand-ink hover:bg-brand-hover disabled:opacity-60">{t("submitReview")}</button>
         )}
       </div>
     </form>
