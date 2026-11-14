@@ -1567,3 +1567,15 @@ tokens, header, logo, routes, data, search form and i18n are unchanged. No depen
 Deviations from the reference: icons are vector illustrations, not rendered 3D bitmaps; the car is an original red car
 (the reference showed a photographed vehicle). Local check: static render at 320/390/768/1440/1920 in ckb/en/de, no
 horizontal overflow (fallback font). Lint/typecheck/build/Playwright in GitHub CI.
+
+## 2026-11-14 — Public Radar (Smart Request) guest access + compact UX (branch `feat/radar-public-guest-20261114`)
+Owner brief "Rega24 — Public Radar UX 100/100": Radar must be free and public like Near Me (no login gate).
+Root cause of the gate: `/smart-request/new` and `/[id]` redirected guests to login; `createRequestAction` required an account
+and a confirmed e-mail. Change (no schema/migration): guests own requests through an HMAC-signed (AUTH_SECRET) httpOnly
+cookie `rega_radar` listing their request ids (`guest-core.ts`, `guest.ts`); `SmartRequest.userId` is a required FK, so guest
+rows use one system owner `radar-guest@system.rega24.invalid` (suspended, no password, undeliverable; created on first guest
+request by upsert). Every requester read/write for guests is limited to the cookie's ids (`ownsId`/`ownScope`). Abuse:
+honeypot + per-IP 5/10 min + per-IP 10/day for everyone, account 10/day, open-request cap per account or per device.
+`rega_radar` added to the edge cache's personal cookies, so a guest's render is never stored. Index page now carries the
+form (one primary action), compact steps + "free, no account" badge, radius chips, collapsible details. Business inbox
+stays signed-in. Tests: `tests/smart-request.test.ts` (guest cookie + public-flow checks), `tests/e2e/radar-guest.spec.ts`.

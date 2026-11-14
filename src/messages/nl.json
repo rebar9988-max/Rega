@@ -1514,6 +1514,11 @@
     "errClosed": "Deze aanvraag is niet meer open.",
     "errLocked": "Deze offerte kan niet meer worden gewijzigd.",
     "privacyNote": "Je exacte locatie en contactgegevens worden nooit met bedrijven gedeeld.",
-    "back": "Terug"
+    "back": "Terug",
+    "freeBadge": "Gratis · Geen account nodig",
+    "deviceNote": "Aanvragen zonder account worden op dit apparaat bewaard.",
+    "or": "of",
+    "clearLocation": "Wijzigen",
+    "moreDetails": "Details toevoegen (optioneel)"
   }
 }

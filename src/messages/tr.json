@@ -1514,6 +1514,11 @@
     "errClosed": "Bu talep artık açık değil.",
     "errLocked": "Bu teklif artık değiştirilemez.",
     "privacyNote": "Kesin konumun ve iletişim bilgilerin işletmelerle asla paylaşılmaz.",
-    "back": "Geri"
+    "back": "Geri",
+    "freeBadge": "Ücretsiz · Hesap gerekmez",
+    "deviceNote": "Hesapsız gönderdiğin talepler bu cihazda saklanır.",
+    "or": "veya",
+    "clearLocation": "Değiştir",
+    "moreDetails": "Ayrıntı ekle (isteğe bağlı)"
   }
 }

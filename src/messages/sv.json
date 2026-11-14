@@ -1514,6 +1514,11 @@
     "errClosed": "Den här förfrågan är inte längre öppen.",
     "errLocked": "Den här offerten kan inte längre ändras.",
     "privacyNote": "Din exakta plats och dina kontaktuppgifter delas aldrig med företag.",
-    "back": "Tillbaka"
+    "back": "Tillbaka",
+    "freeBadge": "Gratis · Inget konto behövs",
+    "deviceNote": "Förfrågningar du skickar utan konto sparas på den här enheten.",
+    "or": "eller",
+    "clearLocation": "Ändra",
+    "moreDetails": "Lägg till detaljer (valfritt)"
   }
 }
