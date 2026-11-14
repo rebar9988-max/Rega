@@ -135,6 +135,8 @@ test("logout ends the session but keeps the account; signing in again gives the 
   const linksBefore = await sql(`select 1 from "Account" where "userId" = $1`, [before.id]);
 
   await login(page, EMPLOYEE, "/de/account");
+  // Sign-out lives in the account's security tab.
+  await page.getByTestId("tab-security").click();
   await page.getByRole("button", { name: "Abmelden" }).click();
   await expect(page).toHaveURL(/\/de$/);
   expect(await sessionCookie(context), "session cookie removed by logout").toBeUndefined();

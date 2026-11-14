@@ -374,7 +374,15 @@
     "myListings": "I miei annunci",
     "addListing": "Aggiungi la tua attività",
     "registerDoneUnavailable": "Il tuo account è stato creato, ma al momento non possiamo inviare l’e-mail di conferma. Puoi accedere, ma la pubblicazione e le recensioni restano bloccate finché la tua e-mail non è confermata. Contattaci.",
-    "verifyUnavailable": "La conferma dell’e-mail è temporaneamente non disponibile. Contattaci per confermare il tuo indirizzo."
+    "verifyUnavailable": "La conferma dell’e-mail è temporaneamente non disponibile. Contattaci per confermare il tuo indirizzo.",
+    "tabSecurity": "Sicurezza e privacy",
+    "businessCount": "{count} schede",
+    "noBusinesses": "Non hai ancora aggiunto un’attività.",
+    "noBusinessesHint": "Aggiungi gratis la tua prima attività – viene pubblicata dopo la verifica.",
+    "changePasswordHint": "Inviamo un link sicuro alla tua e-mail.",
+    "view": "Vedi",
+    "ownerSubtitle": "Profilo, sicurezza e le tue attività in un unico posto.",
+    "deletedNotice": "Eliminata e rimossa dal sito pubblico."
   },
   "dashboard": {
     "title": "Pannello di gestione",

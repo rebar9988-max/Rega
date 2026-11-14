@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
-import { requirePermission } from "@/lib/auth-helpers";
+import { HttpError, requirePermission } from "@/lib/auth-helpers";
 import { writeAudit } from "@/lib/audit";
 import { can, type Permission } from "@/lib/rbac";
 import { businessFormSchema, saveBusiness } from "@/lib/business-admin";
@@ -33,11 +33,20 @@ const schema = z.object({
 /** List filters that survive an action (see the list page). */
 const LIST_PARAMS = ["q", "status", "loc", "page", "cat", "city", "pin"];
 
+/** The owner's own dashboard inside their account (`/{locale}/account`). */
+const ACCOUNT_PATH = /^\/[a-z]{2,3}\/account$/;
+
 /**
- * Only `/dr/businesses` (with its own filters) or this business's edit page; anything else falls back to the list.
+ * Only `/dr/businesses` (with its own filters), this business's edit page or the owner's account dashboard; anything
+ * else falls back to the list.
  * `listOnly`: the record is no longer editable (deleted), so the edit page is never the target.
  */
 function visibilityReturn(back: string | undefined, id: string, done: string, listOnly = false): string {
+  // Owner dashboard: back to the account's business tab with the same visible confirmation.
+  try {
+    const own = new URL(back || "/", "https://rega.invalid");
+    if (own.origin === "https://rega.invalid" && ACCOUNT_PATH.test(own.pathname)) return `${own.pathname}?${new URLSearchParams({ tab: "business", visibility: done, item: id })}`;
+  } catch { /* falls through to the dashboard list */ }
   let url: URL;
   try { url = new URL(back || "/dr/businesses", "https://rega.invalid"); } catch { url = new URL("/dr/businesses", "https://rega.invalid"); }
   if (url.origin !== "https://rega.invalid" || (url.pathname !== "/dr/businesses" && url.pathname !== `/dr/businesses/${id}`) || (listOnly && url.pathname !== "/dr/businesses")) url = new URL("/dr/businesses", "https://rega.invalid");
@@ -121,12 +130,14 @@ export async function updateBusiness(formData: FormData): Promise<void> {
 const recordSchema = z.object({ id: z.string().min(1).max(64), back: z.string().max(400).optional() });
 
 /**
- * Delete (administrators only): the existing soft delete — the listing leaves the public site and the business list,
+ * Delete (administrators, and business owners for the businesses they manage): the existing soft delete — the listing leaves the public site and the business list,
  * nothing is erased (record, owner, locations, images and history stay) and it can be restored from "Deleted".
  */
 export async function deleteBusiness(formData: FormData): Promise<void> {
   const { id, back } = recordSchema.parse({ id: formData.get("id"), back: formData.get("back") || undefined });
-  const user = await requirePermission("business.delete");
+  const user = await requirePermission("business.write");
+  // Owners may remove only their own listings (membership is checked below); other staff need the delete permission.
+  if (!can(user.role, "business.delete") && user.role !== "BUSINESS_OWNER") throw new HttpError(403, "forbidden", "You may not delete businesses.");
   await assertBusinessAccess(user, id);
   const done = await databaseTransaction(async (tx) => {
     await lockBusiness(tx, id);
