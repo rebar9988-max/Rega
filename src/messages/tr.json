@@ -720,7 +720,7 @@
     "wizard": {
       "steps": "Kayıt adımları",
       "step1": "İşletme ve konum",
-      "step2": "Logo ve görseller",
+      "step2": "İletişim ve fotoğraflar",
       "step3": "İncele ve gönder",
       "next": "İleri",
       "back": "Geri",
@@ -748,7 +748,13 @@
     "exceptionHours": "Saatler",
     "exceptionReason": "Neden (isteğe bağlı, herkese açık)",
     "exceptionRemove": "Kaldır",
-    "exceptionAdd": "Kapanış veya özel saat ekle"
+    "exceptionAdd": "Kapanış veya özel saat ekle",
+    "socialLinks": "Sosyal medya",
+    "socialLinksHint": "İsteğe bağlı: Ziyaretçilerin profillerini doğrudan açabilmesi için bağlantılarını ekle.",
+    "instagram": "Instagram",
+    "snapchat": "Snapchat",
+    "facebook": "Facebook",
+    "tiktok": "TikTok"
   },
   "contact": {
     "title": "İletişim",

@@ -720,7 +720,7 @@
     "wizard": {
       "steps": "Registratiestappen",
       "step1": "Bedrijf en locatie",
-      "step2": "Logo en afbeeldingen",
+      "step2": "Contact en foto’s",
       "step3": "Controleren en indienen",
       "next": "Volgende",
       "back": "Terug",
@@ -748,7 +748,13 @@
     "exceptionHours": "Tijden",
     "exceptionReason": "Reden (optioneel, openbaar)",
     "exceptionRemove": "Verwijderen",
-    "exceptionAdd": "Sluiting of afwijkende tijden toevoegen"
+    "exceptionAdd": "Sluiting of afwijkende tijden toevoegen",
+    "socialLinks": "Sociale media",
+    "socialLinksHint": "Optioneel: voeg links toe zodat bezoekers je profielen direct kunnen openen.",
+    "instagram": "Instagram",
+    "snapchat": "Snapchat",
+    "facebook": "Facebook",
+    "tiktok": "TikTok"
   },
   "contact": {
     "title": "Contact",
