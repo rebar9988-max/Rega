@@ -1469,3 +1469,17 @@ first); owner panel section on /dr/operations; 5 `ops.eng*` keys × 11 locales; 
 Tests: `tests/engineering-agents.test.ts` 13/13 locally; first live router run on #143 PASS (7 agents, 1 approval gate,
 oversized flag). Not built: Worker/AI-API execution (paid → rejected), live GitHub queue in /dr (needs token secret →
 owner). Merge = production deploy via deploy.yml → owner. Next safe point: after merge, verify deploy + /dr/operations.
+
+## Rega24 Smart Request — داواکاریی زیرەک — 2026-11-14 (branch `feat/rega24-smart-request-20261114`)
+Owner brief "REGA24 — Autonomous Smart Request Implementation". Additive only: 4 tables (`SmartRequest`,
+`SmartRequestRecipient`, `SmartOffer`, `SmartRequestPref`) in `prisma/schema.prisma` + staged D1 schema, D1 migration
+`0006_smart_request.sql` and PostgreSQL `20261114120000_smart_request` (both repeatable, no ALTER/DROP), `d1-models.json`
+metadata. Matching reuses `nearbyBusinesses` (category tree + distance), published businesses only, ≤20 recipients,
+business opt-out (`SmartRequestPref`). Privacy: coordinates stored rounded to ~1 km, never selected for businesses
+(they get a distance); requester contact is never shared; business contact shown only on the selected offer. No paid
+service, e-mail, push or AI: the inbox/"new" markers are the notification, one row per (request, business) so no duplicates.
+Code: `src/features/smart-request/*`, pages `/[locale]/smart-request` (+ `/new`, `/[id]`, `/inbox`), `smartRequest.*` and
+`nav.smartRequest` × 11 locales, registry entry (mobile menu + footer), `tests/smart-request.test.ts`.
+Not built (reported, not claimed): image upload for requests (existing upload flow is business-image specific),
+e-mail/push notifications. Local limits: no node_modules/npm in the authoring session, so lint/typecheck/tests/build
+run in GitHub CI only. Production D1 migration is applied by `db-migrate.yml`, not by merge.

@@ -1,5 +1,5 @@
 {
-  "schemaSha256": "0bdda2ae09363bcead5aa46b03eca82f85076215adcbfde7e9d56dea7a74298c",
+  "schemaSha256": "b0830139642fa7f07a27420057161d046698d2a6a22f20e112eaa615320a2c8a",
   "models": [
     {
       "name": "User",
@@ -4850,6 +4850,518 @@
           "isUpdatedAt": false,
           "hasDefaultValue": true,
           "default": 0,
+          "relationFromFields": [],
+          "relationToFields": []
+        }
+      ],
+      "primaryKey": null
+    },
+    {
+      "name": "SmartRequest",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String",
+          "kind": "scalar",
+          "isList": false,
+          "isRequired": true,
+          "isId": true,
+          "isUpdatedAt": false,
+          "hasDefaultValue": true,
+          "default": {
+            "name": "cuid",
+            "args": []
+          },
+          "relationFromFields": [],
+          "relationToFields": []
+        },
+        {
+          "name": "userId",
+          "type": "String",
+          "kind": "scalar",
+          "isList": false,
+          "isRequired": true,
+          "isId": false,
+          "isUpdatedAt": false,
+          "hasDefaultValue": false,
+          "relationFromFields": [],
+          "relationToFields": []
+        },
+        {
+          "name": "categoryId",
+          "type": "String",
+          "kind": "scalar",
+          "isList": false,
+          "isRequired": true,
+          "isId": false,
+          "isUpdatedAt": false,
+          "hasDefaultValue": false,
+          "relationFromFields": [],
+          "relationToFields": []
+        },
+        {
+          "name": "title",
+          "type": "String",
+          "kind": "scalar",
+          "isList": false,
+          "isRequired": true,
+          "isId": false,
+          "isUpdatedAt": false,
+          "hasDefaultValue": false,
+          "relationFromFields": [],
+          "relationToFields": []
+        },
+        {
+          "name": "description",
+          "type": "String",
+          "kind": "scalar",
+          "isList": false,
+          "isRequired": false,
+          "isId": false,
+          "isUpdatedAt": false,
+          "hasDefaultValue": false,
+          "relationFromFields": [],
+          "relationToFields": []
+        },
+        {
+          "name": "cityId",
+          "type": "String",
+          "kind": "scalar",
+          "isList": false,
+          "isRequired": false,
+          "isId": false,
+          "isUpdatedAt": false,
+          "hasDefaultValue": false,
+          "relationFromFields": [],
+          "relationToFields": []
+        },
+        {
+          "name": "latitude",
+          "type": "Float",
+          "kind": "scalar",
+          "isList": false,
+          "isRequired": true,
+          "isId": false,
+          "isUpdatedAt": false,
+          "hasDefaultValue": false,
+          "relationFromFields": [],
+          "relationToFields": []
+        },
+        {
+          "name": "longitude",
+          "type": "Float",
+          "kind": "scalar",
+          "isList": false,
+          "isRequired": true,
+          "isId": false,
+          "isUpdatedAt": false,
+          "hasDefaultValue": false,
+          "relationFromFields": [],
+          "relationToFields": []
+        },
+        {
+          "name": "radiusKm",
+          "type": "Int",
+          "kind": "scalar",
+          "isList": false,
+          "isRequired": true,
+          "isId": false,
+          "isUpdatedAt": false,
+          "hasDefaultValue": true,
+          "default": 10,
+          "relationFromFields": [],
+          "relationToFields": []
+        },
+        {
+          "name": "status",
+          "type": "String",
+          "kind": "scalar",
+          "isList": false,
+          "isRequired": true,
+          "isId": false,
+          "isUpdatedAt": false,
+          "hasDefaultValue": true,
+          "default": "open",
+          "relationFromFields": [],
+          "relationToFields": []
+        },
+        {
+          "name": "selectedOfferId",
+          "type": "String",
+          "kind": "scalar",
+          "isList": false,
+          "isRequired": false,
+          "isId": false,
+          "isUpdatedAt": false,
+          "hasDefaultValue": false,
+          "relationFromFields": [],
+          "relationToFields": []
+        },
+        {
+          "name": "matchedCount",
+          "type": "Int",
+          "kind": "scalar",
+          "isList": false,
+          "isRequired": true,
+          "isId": false,
+          "isUpdatedAt": false,
+          "hasDefaultValue": true,
+          "default": 0,
+          "relationFromFields": [],
+          "relationToFields": []
+        },
+        {
+          "name": "offersSeenAt",
+          "type": "DateTime",
+          "kind": "scalar",
+          "isList": false,
+          "isRequired": false,
+          "isId": false,
+          "isUpdatedAt": false,
+          "hasDefaultValue": false,
+          "relationFromFields": [],
+          "relationToFields": []
+        },
+        {
+          "name": "expiresAt",
+          "type": "DateTime",
+          "kind": "scalar",
+          "isList": false,
+          "isRequired": true,
+          "isId": false,
+          "isUpdatedAt": false,
+          "hasDefaultValue": false,
+          "relationFromFields": [],
+          "relationToFields": []
+        },
+        {
+          "name": "closedAt",
+          "type": "DateTime",
+          "kind": "scalar",
+          "isList": false,
+          "isRequired": false,
+          "isId": false,
+          "isUpdatedAt": false,
+          "hasDefaultValue": false,
+          "relationFromFields": [],
+          "relationToFields": []
+        },
+        {
+          "name": "locale",
+          "type": "String",
+          "kind": "scalar",
+          "isList": false,
+          "isRequired": true,
+          "isId": false,
+          "isUpdatedAt": false,
+          "hasDefaultValue": true,
+          "default": "ckb",
+          "relationFromFields": [],
+          "relationToFields": []
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime",
+          "kind": "scalar",
+          "isList": false,
+          "isRequired": true,
+          "isId": false,
+          "isUpdatedAt": false,
+          "hasDefaultValue": true,
+          "default": {
+            "name": "now",
+            "args": []
+          },
+          "relationFromFields": [],
+          "relationToFields": []
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime",
+          "kind": "scalar",
+          "isList": false,
+          "isRequired": true,
+          "isId": false,
+          "isUpdatedAt": true,
+          "hasDefaultValue": false,
+          "relationFromFields": [],
+          "relationToFields": []
+        }
+      ],
+      "primaryKey": null
+    },
+    {
+      "name": "SmartRequestRecipient",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String",
+          "kind": "scalar",
+          "isList": false,
+          "isRequired": true,
+          "isId": true,
+          "isUpdatedAt": false,
+          "hasDefaultValue": true,
+          "default": {
+            "name": "cuid",
+            "args": []
+          },
+          "relationFromFields": [],
+          "relationToFields": []
+        },
+        {
+          "name": "requestId",
+          "type": "String",
+          "kind": "scalar",
+          "isList": false,
+          "isRequired": true,
+          "isId": false,
+          "isUpdatedAt": false,
+          "hasDefaultValue": false,
+          "relationFromFields": [],
+          "relationToFields": []
+        },
+        {
+          "name": "businessId",
+          "type": "String",
+          "kind": "scalar",
+          "isList": false,
+          "isRequired": true,
+          "isId": false,
+          "isUpdatedAt": false,
+          "hasDefaultValue": false,
+          "relationFromFields": [],
+          "relationToFields": []
+        },
+        {
+          "name": "distanceKm",
+          "type": "Float",
+          "kind": "scalar",
+          "isList": false,
+          "isRequired": true,
+          "isId": false,
+          "isUpdatedAt": false,
+          "hasDefaultValue": false,
+          "relationFromFields": [],
+          "relationToFields": []
+        },
+        {
+          "name": "status",
+          "type": "String",
+          "kind": "scalar",
+          "isList": false,
+          "isRequired": true,
+          "isId": false,
+          "isUpdatedAt": false,
+          "hasDefaultValue": true,
+          "default": "new",
+          "relationFromFields": [],
+          "relationToFields": []
+        },
+        {
+          "name": "notifiedAt",
+          "type": "DateTime",
+          "kind": "scalar",
+          "isList": false,
+          "isRequired": true,
+          "isId": false,
+          "isUpdatedAt": false,
+          "hasDefaultValue": true,
+          "default": {
+            "name": "now",
+            "args": []
+          },
+          "relationFromFields": [],
+          "relationToFields": []
+        },
+        {
+          "name": "seenAt",
+          "type": "DateTime",
+          "kind": "scalar",
+          "isList": false,
+          "isRequired": false,
+          "isId": false,
+          "isUpdatedAt": false,
+          "hasDefaultValue": false,
+          "relationFromFields": [],
+          "relationToFields": []
+        }
+      ],
+      "primaryKey": null
+    },
+    {
+      "name": "SmartOffer",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String",
+          "kind": "scalar",
+          "isList": false,
+          "isRequired": true,
+          "isId": true,
+          "isUpdatedAt": false,
+          "hasDefaultValue": true,
+          "default": {
+            "name": "cuid",
+            "args": []
+          },
+          "relationFromFields": [],
+          "relationToFields": []
+        },
+        {
+          "name": "requestId",
+          "type": "String",
+          "kind": "scalar",
+          "isList": false,
+          "isRequired": true,
+          "isId": false,
+          "isUpdatedAt": false,
+          "hasDefaultValue": false,
+          "relationFromFields": [],
+          "relationToFields": []
+        },
+        {
+          "name": "businessId",
+          "type": "String",
+          "kind": "scalar",
+          "isList": false,
+          "isRequired": true,
+          "isId": false,
+          "isUpdatedAt": false,
+          "hasDefaultValue": false,
+          "relationFromFields": [],
+          "relationToFields": []
+        },
+        {
+          "name": "priceCents",
+          "type": "Int",
+          "kind": "scalar",
+          "isList": false,
+          "isRequired": true,
+          "isId": false,
+          "isUpdatedAt": false,
+          "hasDefaultValue": false,
+          "relationFromFields": [],
+          "relationToFields": []
+        },
+        {
+          "name": "currency",
+          "type": "String",
+          "kind": "scalar",
+          "isList": false,
+          "isRequired": true,
+          "isId": false,
+          "isUpdatedAt": false,
+          "hasDefaultValue": true,
+          "default": "EUR",
+          "relationFromFields": [],
+          "relationToFields": []
+        },
+        {
+          "name": "availability",
+          "type": "String",
+          "kind": "scalar",
+          "isList": false,
+          "isRequired": true,
+          "isId": false,
+          "isUpdatedAt": false,
+          "hasDefaultValue": false,
+          "relationFromFields": [],
+          "relationToFields": []
+        },
+        {
+          "name": "message",
+          "type": "String",
+          "kind": "scalar",
+          "isList": false,
+          "isRequired": false,
+          "isId": false,
+          "isUpdatedAt": false,
+          "hasDefaultValue": false,
+          "relationFromFields": [],
+          "relationToFields": []
+        },
+        {
+          "name": "status",
+          "type": "String",
+          "kind": "scalar",
+          "isList": false,
+          "isRequired": true,
+          "isId": false,
+          "isUpdatedAt": false,
+          "hasDefaultValue": true,
+          "default": "active",
+          "relationFromFields": [],
+          "relationToFields": []
+        },
+        {
+          "name": "createdAt",
+          "type": "DateTime",
+          "kind": "scalar",
+          "isList": false,
+          "isRequired": true,
+          "isId": false,
+          "isUpdatedAt": false,
+          "hasDefaultValue": true,
+          "default": {
+            "name": "now",
+            "args": []
+          },
+          "relationFromFields": [],
+          "relationToFields": []
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime",
+          "kind": "scalar",
+          "isList": false,
+          "isRequired": true,
+          "isId": false,
+          "isUpdatedAt": true,
+          "hasDefaultValue": false,
+          "relationFromFields": [],
+          "relationToFields": []
+        }
+      ],
+      "primaryKey": null
+    },
+    {
+      "name": "SmartRequestPref",
+      "fields": [
+        {
+          "name": "businessId",
+          "type": "String",
+          "kind": "scalar",
+          "isList": false,
+          "isRequired": true,
+          "isId": true,
+          "isUpdatedAt": false,
+          "hasDefaultValue": false,
+          "relationFromFields": [],
+          "relationToFields": []
+        },
+        {
+          "name": "enabled",
+          "type": "Boolean",
+          "kind": "scalar",
+          "isList": false,
+          "isRequired": true,
+          "isId": false,
+          "isUpdatedAt": false,
+          "hasDefaultValue": true,
+          "default": true,
+          "relationFromFields": [],
+          "relationToFields": []
+        },
+        {
+          "name": "updatedAt",
+          "type": "DateTime",
+          "kind": "scalar",
+          "isList": false,
+          "isRequired": true,
+          "isId": false,
+          "isUpdatedAt": true,
+          "hasDefaultValue": false,
           "relationFromFields": [],
           "relationToFields": []
         }
