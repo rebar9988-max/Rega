@@ -374,7 +374,15 @@
     "myListings": "Mes annonces",
     "addListing": "Ajouter votre entreprise",
     "registerDoneUnavailable": "Votre compte a été créé, mais nous ne pouvons pas envoyer l’e-mail de confirmation pour le moment. Vous pouvez vous connecter, mais la publication et les avis restent bloqués jusqu’à la confirmation de votre e-mail. Veuillez nous contacter.",
-    "verifyUnavailable": "La confirmation de l’e-mail est temporairement indisponible. Contactez-nous pour confirmer votre adresse."
+    "verifyUnavailable": "La confirmation de l’e-mail est temporairement indisponible. Contactez-nous pour confirmer votre adresse.",
+    "tabSecurity": "Sécurité et confidentialité",
+    "businessCount": "{count} fiches",
+    "noBusinesses": "Vous n’avez encore ajouté aucune entreprise.",
+    "noBusinessesHint": "Ajoutez votre première entreprise gratuitement – elle est publiée après vérification.",
+    "changePasswordHint": "Nous envoyons un lien sécurisé à votre e-mail.",
+    "view": "Voir",
+    "ownerSubtitle": "Profil, sécurité et vos entreprises au même endroit.",
+    "deletedNotice": "Supprimée et retirée du site public."
   },
   "dashboard": {
     "title": "Tableau de bord de gestion",

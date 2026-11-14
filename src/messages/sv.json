@@ -374,7 +374,15 @@
     "myListings": "Mina annonser",
     "addListing": "Lägg till ditt företag",
     "registerDoneUnavailable": "Ditt konto har skapats, men vi kan inte skicka bekräftelsemejlet just nu. Du kan logga in, men annonsering och omdömen är låsta tills din e-postadress är bekräftad. Kontakta oss.",
-    "verifyUnavailable": "E-postbekräftelse är tillfälligt otillgänglig. Kontakta oss för att bekräfta din adress."
+    "verifyUnavailable": "E-postbekräftelse är tillfälligt otillgänglig. Kontakta oss för att bekräfta din adress.",
+    "tabSecurity": "Säkerhet och integritet",
+    "businessCount": "{count} poster",
+    "noBusinesses": "Du har inte lagt till något företag än.",
+    "noBusinessesHint": "Lägg till ditt första företag gratis – det publiceras efter granskning.",
+    "changePasswordHint": "Vi skickar en säker länk till din e-post.",
+    "view": "Visa",
+    "ownerSubtitle": "Profil, säkerhet och dina företag på ett ställe.",
+    "deletedNotice": "Raderad och borttagen från den offentliga webbplatsen."
   },
   "dashboard": {
     "title": "Administrationspanel",

@@ -374,7 +374,15 @@
     "myListings": "Meine Einträge",
     "addListing": "Unternehmen eintragen",
     "registerDoneUnavailable": "Ihr Konto wurde erstellt, aber wir können die Bestätigungs-E-Mail gerade nicht senden. Sie können sich anmelden; Einträge und Bewertungen bleiben gesperrt, bis Ihre E-Mail-Adresse bestätigt ist. Bitte kontaktieren Sie uns.",
-    "verifyUnavailable": "Die E-Mail-Bestätigung ist vorübergehend nicht verfügbar. Bitte kontaktieren Sie uns, um Ihre Adresse bestätigen zu lassen."
+    "verifyUnavailable": "Die E-Mail-Bestätigung ist vorübergehend nicht verfügbar. Bitte kontaktieren Sie uns, um Ihre Adresse bestätigen zu lassen.",
+    "tabSecurity": "Sicherheit & Datenschutz",
+    "businessCount": "{count} Einträge",
+    "noBusinesses": "Du hast noch kein Unternehmen eingetragen.",
+    "noBusinessesHint": "Trage dein erstes Unternehmen kostenlos ein – es wird nach der Prüfung veröffentlicht.",
+    "changePasswordHint": "Wir senden dir einen sicheren Link per E-Mail.",
+    "view": "Ansehen",
+    "ownerSubtitle": "Profil, Sicherheit und deine Unternehmen an einem Ort.",
+    "deletedNotice": "Gelöscht und von der öffentlichen Website entfernt."
   },
   "dashboard": {
     "title": "Verwaltungs-Dashboard",

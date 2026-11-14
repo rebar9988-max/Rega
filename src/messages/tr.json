@@ -374,7 +374,15 @@
     "myListings": "İşletmelerim",
     "addListing": "İşletme ekle",
     "registerDoneUnavailable": "Hesabınız oluşturuldu ancak şu anda onay e-postası gönderemiyoruz. Giriş yapabilirsiniz; e-postanız onaylanana kadar kayıt ekleme ve yorum yazma kilitli kalır. Lütfen bizimle iletişime geçin.",
-    "verifyUnavailable": "E-posta onayı geçici olarak kullanılamıyor. Adresinizi onaylatmak için lütfen bizimle iletişime geçin."
+    "verifyUnavailable": "E-posta onayı geçici olarak kullanılamıyor. Adresinizi onaylatmak için lütfen bizimle iletişime geçin.",
+    "tabSecurity": "Güvenlik ve gizlilik",
+    "businessCount": "{count} işletme",
+    "noBusinesses": "Henüz bir işletme eklemediniz.",
+    "noBusinessesHint": "İlk işletmenizi ücretsiz ekleyin – incelemeden sonra yayınlanır.",
+    "changePasswordHint": "E-postanıza güvenli bir bağlantı gönderiyoruz.",
+    "view": "Görüntüle",
+    "ownerSubtitle": "Profil, güvenlik ve işletmeleriniz tek yerde.",
+    "deletedNotice": "Silindi ve herkese açık siteden kaldırıldı."
   },
   "dashboard": {
     "title": "Yönetim paneli",

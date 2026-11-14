@@ -374,7 +374,15 @@
     "myListings": "My listings",
     "addListing": "Add your business",
     "registerDoneUnavailable": "Your account was created, but we cannot send the confirmation email right now. You can sign in, but listing and reviewing stay locked until your email is confirmed. Please contact us.",
-    "verifyUnavailable": "Email confirmation is temporarily unavailable. Please contact us to confirm your address."
+    "verifyUnavailable": "Email confirmation is temporarily unavailable. Please contact us to confirm your address.",
+    "tabSecurity": "Security & privacy",
+    "businessCount": "{count} listings",
+    "noBusinesses": "You have not added a business yet.",
+    "noBusinessesHint": "Add your first business for free – it is published after review.",
+    "changePasswordHint": "We send a secure link to your email.",
+    "view": "View",
+    "ownerSubtitle": "Profile, security and your businesses in one place.",
+    "deletedNotice": "Deleted and removed from the public site."
   },
   "dashboard": {
     "title": "Management dashboard",

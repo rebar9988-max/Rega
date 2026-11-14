@@ -374,7 +374,15 @@
     "myListings": "Karsaziyên min",
     "addListing": "Karsaziyê zêde bike",
     "registerDoneUnavailable": "Hesabê te hate afirandin, lê em niha nikarin e-nameya pejirandinê bişînin. Tu dikarî têkevî, lê tomarkirin û nirxandin heta ku e-nameya te neyê pejirandin girtî dimînin. Ji kerema xwe bi me re têkilî daynin.",
-    "verifyUnavailable": "Pejirandina e-nameyê demkî ne berdest e. Ji kerema xwe bi me re têkilî dayne da ku navnîşana te were pejirandin."
+    "verifyUnavailable": "Pejirandina e-nameyê demkî ne berdest e. Ji kerema xwe bi me re têkilî dayne da ku navnîşana te were pejirandin.",
+    "tabSecurity": "Ewlehî û nepenî",
+    "businessCount": "{count} karsazî",
+    "noBusinesses": "Te hêj tu karsazî tomar nekiriye.",
+    "noBusinessesHint": "Karsaziya xwe ya yekem belaş zêde bike; piştî kontrolê tê weşandin.",
+    "changePasswordHint": "Girêdaneke ewle ji e-nameya te re tê şandin.",
+    "view": "Bibîne",
+    "ownerSubtitle": "Profîl, ewlehî û karsaziyên te li cihekî.",
+    "deletedNotice": "Hat jêbirin û ji malpera giştî hat rakirin."
   },
   "dashboard": {
     "title": "Panela rêveberiyê",

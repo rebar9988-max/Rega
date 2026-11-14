@@ -53,7 +53,7 @@ test("admin: full dashboard access, actions are audited, logout works", async ({
   await page.getByRole("navigation").getByRole("link", { name: "Audit-Protokolle" }).click();
   await expect(page.getByRole("cell", { name: "business.unfeature" }).first()).toBeVisible();
 
-  await page.goto("/de/account");
+  await page.goto("/de/account?tab=security");
   await page.getByRole("button", { name: "Abmelden" }).click();
   await expect(page).toHaveURL(/\/de$/);
   await page.goto("/dr");

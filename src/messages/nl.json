@@ -374,7 +374,15 @@
     "myListings": "Mijn vermeldingen",
     "addListing": "Voeg je bedrijf toe",
     "registerDoneUnavailable": "Je account is aangemaakt, maar we kunnen de bevestigingsmail op dit moment niet versturen. Je kunt inloggen, maar vermelden en beoordelen blijven geblokkeerd tot je e-mailadres is bevestigd. Neem contact met ons op.",
-    "verifyUnavailable": "E-mailbevestiging is tijdelijk niet beschikbaar. Neem contact met ons op om je adres te bevestigen."
+    "verifyUnavailable": "E-mailbevestiging is tijdelijk niet beschikbaar. Neem contact met ons op om je adres te bevestigen.",
+    "tabSecurity": "Beveiliging en privacy",
+    "businessCount": "{count} vermeldingen",
+    "noBusinesses": "Je hebt nog geen bedrijf toegevoegd.",
+    "noBusinessesHint": "Voeg je eerste bedrijf gratis toe – het wordt na controle gepubliceerd.",
+    "changePasswordHint": "We sturen een veilige link naar je e-mail.",
+    "view": "Bekijken",
+    "ownerSubtitle": "Profiel, beveiliging en je bedrijven op één plek.",
+    "deletedNotice": "Verwijderd en van de openbare site gehaald."
   },
   "dashboard": {
     "title": "Beheerdashboard",

@@ -1554,3 +1554,19 @@ had `pip install uv==0.13.8` in its build command. Not a GitHub Actions failure,
 production never affected. Fix: `uv>=0.13.4` in the `dev` dependency group, so `uv run` finds a new enough uv in the
 project venv. No Cloudflare setting, paid service or runtime code changed. Also records the home soft-depth release:
 PR #153 merged as `f800a22`, CI + deploy + production browser check green, live stylesheet carries the new rules.
+
+## Account & owner business dashboard — 2026-11-14 (branch `feat/account-business-dashboard-20261114`)
+Owner request: premium Account + Business Dashboard reachable from the account, Sorani RTL, red/white identity, Figma.
+Figma (team plan, €0): file `zCxV8jZiGZ60tQa0W5RlQu` — `BusinessCard` component + mobile "Business dashboard" and
+"Security & privacy" screens (Noto Sans Arabic stands in for Vazirmatn, which Figma lacks). Code: `/{locale}/account`
+now has an identity header and up to three tabs (`?tab=business|profile|security`; owners default to business).
+Business tab (`src/features/account/OwnerBusinesses.tsx`): membership-scoped list (`managedBusinessWhere`), status
+summary, edit (existing editor), view (public only), hide/show again and delete with confirmation, all through the
+existing `updateBusiness`/`deleteBusiness` actions. `deleteBusiness` now also accepts BUSINESS_OWNER for businesses they
+manage (still `assertBusinessAccess`, still soft delete; recover stays admin-only; RBAC table unchanged).
+`visibilityReturn` also returns to `/{locale}/account` (strict regex, same-origin). Security tab: e-mail status +
+resend, password change via existing reset link, privacy/terms, the single sign-out. Notifications/settings tabs from
+the reference image were not built: no backend exists, so they would be fake. 12 new `auth.*` keys in all 11 locales.
+Tests: `tests/owner-account-dashboard.test.ts` (3/3 local), e2e `figma-account.spec.ts` rewritten (hide/show/delete,
+foreign business not listed, 4 widths, axe), sign-out e2e steps moved to the security tab. Local npm install failed
+(environment), so lint/typecheck/build/Playwright are verified in GitHub CI only.
