@@ -32,6 +32,7 @@ import { closedOnHolidays, hoursMode, hasHours, hasHoursInfo, hoursRows, upcomin
 import { timezoneFor } from "@/lib/geo";
 import { OpenState } from "@/components/ui/OpenState";
 import { preload } from "react-dom";
+import { siFacebook, siInstagram, siSnapchat, siTiktok, type SimpleIcon } from "simple-icons";
 import { responsiveImage } from "@/features/business-images/variants";
 import { ReviewSection } from "@/features/reviews/ReviewSection";
 
@@ -64,6 +65,9 @@ export default async function BusinessPage({ params }: Props) {
     : []);
   const about = localize(b, "description", l);
   const website = safeHttpUrl(b.website);
+  // The business's own profiles: official brand marks (simple-icons, CC0), each opening that exact profile.
+  const socialLinks = ([[siInstagram, b.instagramUrl], [siSnapchat, b.snapchatUrl], [siFacebook, b.facebookUrl], [siTiktok, b.tiktokUrl]] as [SimpleIcon, string | null][])
+    .flatMap(([icon, raw]) => { const url = safeHttpUrl(raw); return url ? [{ icon, url }] : []; });
   const tel = safeTel(b.phone);
   // Only the business's public WhatsApp number (never an account phone), and only when it is a valid stored number.
   const whatsapp = whatsappLink(b.whatsapp);
@@ -95,10 +99,11 @@ export default async function BusinessPage({ params }: Props) {
   const day = (date: string) => formatDate(`${date}T00:00:00Z`, locale as Locale, { timeZone: "UTC" });
   const services = b.services.map((s) => ({ ...s, cover: safeHttpUrl(s.coverUrl) }));
   const serviceCovers = services.some((s) => s.cover);
-  const hasContact = Boolean(tel || whatsapp || b.email || website);
+  const hasContact = Boolean(tel || whatsapp || b.email || website || socialLinks.length);
   // Primary (red) action: directions when the place can be found, else the call; share is always possible.
   const primaryAction = directions ? "directions" : "call";
   const actionCount = (tel ? 1 : 0) + (directions ? 1 : 0) + 1;
+  const sameAs = [website, ...socialLinks.map((s) => s.url)].filter((url): url is string => Boolean(url));
   const actionClass = (kind: "call" | "directions" | "share") =>
     buttonClass(kind === primaryAction ? "primary" : "secondary", "min-h-12 w-full gap-2 px-3 text-center leading-tight shadow-sm motion-safe:active:scale-[.98]");
 
@@ -111,7 +116,7 @@ export default async function BusinessPage({ params }: Props) {
     image: b.logoUrl || b.coverUrl || undefined,
     telephone: b.phone || undefined,
     email: b.email || undefined,
-    sameAs: website ? [website] : undefined,
+    sameAs: sameAs.length ? sameAs : undefined,
     aggregateRating: b.ratingCount ? { "@type": "AggregateRating", ratingValue: b.ratingAvg, reviewCount: b.ratingCount } : undefined,
     address: b.locations[0] ? { "@type": "PostalAddress", streetAddress: b.locations[0].addressLine1, postalCode: b.locations[0].postalCode || undefined, addressCountry: b.locations[0].countryCode, addressLocality: b.locations[0].city?.nameEn } : undefined,
   };
@@ -374,6 +379,20 @@ export default async function BusinessPage({ params }: Props) {
               {whatsapp && <a href={whatsapp} target="_blank" rel="noopener noreferrer" aria-label={`${t("businesses.whatsapp")} – ${name.text}`} className={buttonClass("secondary", "w-full")} data-testid="whatsapp-button">{t("businesses.whatsapp")}</a>}
               {b.email && <a href={`mailto:${b.email}`} title={t("businesses.sendEmail")} className={buttonClass("secondary", "w-full")}><span className="sr-only">{t("businesses.sendEmail")}: </span><span className="min-w-0 truncate"><Ltr>{b.email}</Ltr></span></a>}
               {website && <a href={website} target="_blank" rel="noopener noreferrer nofollow" className={buttonClass("secondary", "w-full")}>{t("businesses.visitWebsite")}</a>}
+              {socialLinks.length > 0 && (
+                <ul className="grid grid-cols-2 gap-2" aria-label={t("bizForm.socialLinks")} data-testid="business-social">
+                  {socialLinks.map(({ icon, url }) => (
+                    <li key={icon.slug}>
+                      <a href={url} target="_blank" rel="noopener noreferrer nofollow" aria-label={`${icon.title} – ${name.text}`}
+                        className="flex min-h-12 items-center gap-2 rounded-xl border border-line bg-surface px-3 text-sm font-bold transition hover:border-brand/40 motion-safe:active:scale-[.98]"
+                        data-testid={`business-social-${icon.slug}`}>
+                        <svg viewBox="0 0 24 24" className="size-5 shrink-0" fill={`#${icon.hex}`} aria-hidden="true"><path d={icon.path} /></svg>
+                        <span dir="ltr" className="min-w-0 truncate">{icon.title}</span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              )}
               <Link href={{ pathname: "/report", query: { url: pageUrl } }} rel="nofollow" className="inline-flex min-h-9 items-center text-xs font-semibold text-muted underline hover:text-ink">{t("report.reportThis")}</Link>
             </aside>
           )}

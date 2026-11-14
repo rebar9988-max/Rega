@@ -191,7 +191,9 @@ test("owner wizard: Next needs a confirmed map pin, Back keeps what was typed, t
   await page.getByTestId("wizard-back").click();
   await expect(page.getByLabel("Name", { exact: true })).toHaveValue(name);
   await expect(page.getByLabel("Straße und Hausnummer")).toHaveValue("Oranienstraße 1");
-  // Step 3: a WhatsApp number must be a real international number.
+  // Step 2 (contact): a WhatsApp number must be a real international number.
+  await page.getByTestId("wizard-next").click();
+  await expect(page.getByTestId("wizard-step-2")).toHaveAttribute("aria-current", "step");
   await page.getByTestId("whatsapp").fill("https://evil.example/x");
   await expect(page.getByTestId("whatsapp-hint")).toContainText("gültige Nummer");
   await page.getByTestId("save-draft").click();

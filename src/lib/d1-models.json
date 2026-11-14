@@ -1,5 +1,5 @@
 {
-  "schemaSha256": "b0830139642fa7f07a27420057161d046698d2a6a22f20e112eaa615320a2c8a",
+  "schemaSha256": "dfec9f42b67f0e74de393fc1c4f1702ec024678a2303de23101f999e5311e50e",
   "models": [
     {
       "name": "User",
@@ -2184,6 +2184,54 @@
         },
         {
           "name": "website",
+          "type": "String",
+          "kind": "scalar",
+          "isList": false,
+          "isRequired": false,
+          "isId": false,
+          "isUpdatedAt": false,
+          "hasDefaultValue": false,
+          "relationFromFields": [],
+          "relationToFields": []
+        },
+        {
+          "name": "instagramUrl",
+          "type": "String",
+          "kind": "scalar",
+          "isList": false,
+          "isRequired": false,
+          "isId": false,
+          "isUpdatedAt": false,
+          "hasDefaultValue": false,
+          "relationFromFields": [],
+          "relationToFields": []
+        },
+        {
+          "name": "snapchatUrl",
+          "type": "String",
+          "kind": "scalar",
+          "isList": false,
+          "isRequired": false,
+          "isId": false,
+          "isUpdatedAt": false,
+          "hasDefaultValue": false,
+          "relationFromFields": [],
+          "relationToFields": []
+        },
+        {
+          "name": "facebookUrl",
+          "type": "String",
+          "kind": "scalar",
+          "isList": false,
+          "isRequired": false,
+          "isId": false,
+          "isUpdatedAt": false,
+          "hasDefaultValue": false,
+          "relationFromFields": [],
+          "relationToFields": []
+        },
+        {
+          "name": "tiktokUrl",
           "type": "String",
           "kind": "scalar",
           "isList": false,
