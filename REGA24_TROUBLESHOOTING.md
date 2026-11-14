@@ -439,3 +439,14 @@ An empty result from `git diff-tree` does not prove a merge is documentation-onl
 ## Operations Center agent shows BLOCKED or FAIL
 
 BLOCKED means the engine refused before inspecting anything (no report stored): `cooldown` (same agent within 60 s, 15 min after 80 runs/day), `quota_exhausted` (100 runs/UTC day), `locked` (another run of that agent holds `Setting` `ops.lock.<agent>`; it expires after 2 minutes) or `store_unavailable` (D1 not reachable: fail closed). FAIL with `engine.timeout`/`engine.error` is a stored report of a crashed or slow inspection; check the Worker log line `ops.run`. A FAIL finding from an agent is a real platform rule violation: fix it through the normal `/dr` screens or a reviewed code change; agents never repair data. A QA/performance `403` from Cloudflare means the edge blocked the Worker's probe (WAF/bot rules), not a site outage; confirm with the Production browser check workflow. Never delete `AuditLog` report rows to reset the quota.
+
+## `Workers Builds: rega-ai-python` fails on pull requests — 2026-11-14
+
+- Check provider: the Cloudflare Workers and Pages GitHub App (Workers Builds Git integration), not GitHub Actions.
+- Verified log (build `40527614-8356-477e-a87a-290b0aacd970`): `uv run pywrangler sync` stops with
+  `uv version at least 0.13.4 required, have 0.12.23`. The unpinned `workers-py` resolves to 1.17.x, which needs a
+  newer uv than the Workers Builds image provides. Per-branch preview builds run that command on every push.
+- Fix in the repository only: `uv>=0.13.4` in the `dev` group of `services/ai-python/pyproject.toml`. Cloudflare
+  build settings are unchanged.
+- The GitHub Actions deploy ([.github/workflows/ai-python-deploy.yml](.github/workflows/ai-python-deploy.yml)) installs
+  a current uv itself and was not affected. The production Worker was never affected.

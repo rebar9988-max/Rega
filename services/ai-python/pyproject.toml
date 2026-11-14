@@ -11,6 +11,9 @@ dependencies = [
 dev = [
   "httpx>=0.28,<1",
   "pytest>=8.4,<9",
+  # pywrangler (workers-py >= 1.17) refuses to run with uv < 0.13.4, and the Cloudflare Workers Builds image ships
+  # uv 0.12.23. Installing uv into the project venv puts a new enough binary first on PATH under `uv run`.
+  "uv>=0.13.4",
   "workers-py",
   "workers-runtime-sdk",
 ]
