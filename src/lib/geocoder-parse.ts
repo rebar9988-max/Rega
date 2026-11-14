@@ -7,7 +7,7 @@ export type GeocodeHit = {
   precision: "address" | "street" | "area";
 };
 
-const ADDRESS_TYPES = new Set(["house", "building", "residential", "apartments", "commercial", "retail", "office", "shop", "amenity", "place"]);
+const ADDRESS_TYPES = new Set(["house", "building", "apartments", "commercial", "retail", "office", "shop", "amenity"]);
 const STREET_TYPES = new Set(["road", "street", "pedestrian", "footway", "service", "living_street", "primary", "secondary", "tertiary", "unclassified"]);
 
 export function parseNominatim(body: unknown): GeocodeHit[] {
@@ -16,8 +16,8 @@ export function parseNominatim(body: unknown): GeocodeHit[] {
   for (const r of body.slice(0, 5)) {
     if (!r || typeof r !== "object") continue;
     const row = r as Record<string, unknown>;
-    const lat = Number(row.lat);
-    const lng = Number(row.lon);
+    const lat = coordinateNumber(row.lat);
+    const lng = coordinateNumber(row.lon);
     if (!isValidCoordinate(lat, lng)) continue;
     const kind = String(row.addresstype ?? row.type ?? "");
     const cls = String(row.category ?? row.class ?? "");
@@ -26,6 +26,13 @@ export function parseNominatim(body: unknown): GeocodeHit[] {
     hits.push({ lat: round6(lat), lng: round6(lng), label: String(row.display_name ?? "").slice(0, 300), precision });
   }
   return hits;
+}
+
+// Number(null), Number("") and Number(false) are zero, not provider coordinates.
+function coordinateNumber(value: unknown): number {
+  if (typeof value !== "number" && typeof value !== "string") return NaN;
+  if (typeof value === "string" && !value.trim()) return NaN;
+  return Number(value);
 }
 
 const round6 = (v: number) => Math.round(v * 1e6) / 1e6;
@@ -41,8 +48,8 @@ export function parsePostal(body: unknown): PostalHit | null {
   for (const r of body.slice(0, 5)) {
     if (!r || typeof r !== "object") continue;
     const row = r as Record<string, unknown>;
-    const lat = Number(row.lat);
-    const lng = Number(row.lon);
+    const lat = coordinateNumber(row.lat);
+    const lng = coordinateNumber(row.lon);
     if (!isValidCoordinate(lat, lng)) continue;
     const address = row.address && typeof row.address === "object" ? (row.address as Record<string, unknown>) : {};
     const key = PLACE_KEYS.find((k) => typeof address[k] === "string" && (address[k] as string).trim());

@@ -1567,3 +1567,18 @@ tokens, header, logo, routes, data, search form and i18n are unchanged. No depen
 Deviations from the reference: icons are vector illustrations, not rendered 3D bitmaps; the car is an original red car
 (the reference showed a photographed vehicle). Local check: static render at 320/390/768/1440/1920 in ckb/en/de, no
 horizontal overflow (fallback font). Lint/typecheck/build/Playwright in GitHub CI.
+
+## 2026-11-14 — Location accuracy follow-up (fix/location-result-validation)
+Local incremental work on the owner's location-system request: geocoder rejects null/blank/boolean coordinates
+instead of coercing them to zero; generic place/residential results remain area precision. Nearby requests fresh
+high-accuracy GPS and retains device precision in memory for the map; API coordinates stay coarsened for privacy.
+Regression coverage: malformed provider values, area precision, GPS options and outbound coordinate coarsening.
+Node build, lint and typecheck passed locally. Full tests and desktop/mobile browser checks in progress at this
+checkpoint. Full autocomplete, reverse-address autofill and visual redesign remain incomplete; do not describe
+this incremental fix as the complete requested location release. No production change made at this checkpoint.
+Validation update: 477 unit tests passed / 4 existing skips; lint, typecheck, Node build, Cloudflare Worker build,
+Cloudflare dry-run, D1 tests and documentation validation passed. Targeted Nearby E2E: 14/14 passed across
+Chromium desktop and Pixel 5 emulation, including GPS options/privacy, permission errors, map markers and fallback.
+An initial browser attempt overlapped a build and timed out during hydration; it was interrupted and rerun after
+a fresh completed Node build. Only the sequential rerun is counted. Commit cf4c9fa; draft PR #159. Hosted CI pending;
+no merge/deployment. Remaining scope above is unchanged. Full WCAG and real iPhone/Android devices not verified.
