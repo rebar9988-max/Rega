@@ -133,7 +133,7 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
     if (n === 1) return [
       ...(name.trim().length < 2 ? ["name"] : []), ...(categoryId ? [] : ["categoryId"]),
       ...(address.trim().length < 3 ? ["addressLine1"] : []), ...(cityMatch ? [] : ["city"]), ...(country ? [] : ["countryCode"]),
-      ...(coordsOk && confirmed ? [] : ["latitude"]), ...(waResult && !waResult.ok ? ["whatsapp"] : []),
+      ...(coordsOk && confirmed ? [] : ["latitude"]),
     ];
     if (n === 2 && formRef.current) {
       const data = new FormData(formRef.current);
@@ -153,7 +153,7 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
           return url.protocol !== "https:" || !(url.hostname === domain || url.hostname.endsWith(`.${domain}`));
         } catch { return true; }
       });
-      return [...(hours.ok ? [] : hours.invalid.map((day) => day === "mode" ? "hoursMode" : `hours_${day}`)), ...invalidUrls];
+      return [...(waResult && !waResult.ok ? ["whatsapp"] : []), ...(hours.ok ? [] : hours.invalid.map((day) => day === "mode" ? "hoursMode" : `hours_${day}`)), ...invalidUrls];
     }
     return [];
   }
