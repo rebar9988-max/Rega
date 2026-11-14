@@ -16,8 +16,10 @@ jobs:
         run: |
           for b in 40527614-8356-477e-a87a-290b0aacd970 b1d53d6d-380a-4fb5-89a6-062004d82fac; do
             echo "=== build $b"
-            curl -sS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT/builds/builds/$b" | jq -c '.result | {status: .status, outcome: .build_outcome, trigger: .trigger, config: .build_trigger_metadata, errors: .errors}' || true
-            curl -sS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT/builds/builds/$b/logs" | jq -r '.result.lines[]? | .[1]' | tail -60 || true
+            curl -sS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT/builds/builds/$b" | jq -c '{success, errors, messages, result: (.result | if . then {build_outcome, status, trigger, build_trigger_metadata} else null end)}' || true
+            curl -sS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT/builds/builds/$b/logs" | jq -c '{success, errors}, (.result.lines[]? | .[1])' | tail -60 || true
           done
           echo "=== trigger config"
-          curl -sS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT/builds/workers/c4d7fa2928f04749827caee82e9b64c8/triggers" | jq -c '.result[]? | {name: .trigger_name, branch_includes, build_command, deploy_command, root_directory, path_includes}' || true
+          curl -sS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT/builds/workers/c4d7fa2928f04749827caee82e9b64c8/triggers" | jq -c '{success, errors}, (.result[]? | {trigger_name, branch_includes, branch_excludes, build_command, deploy_command, root_directory, path_includes})' || true
+          echo "=== token verify"
+          curl -sS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/user/tokens/verify" | jq -c '{success, errors, status: .result.status}'
