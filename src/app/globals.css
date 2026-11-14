@@ -390,6 +390,19 @@
 }
 @media (min-width: 768px) { .rega-home .rh-tile { min-height: 108px; } }
 
+/* Owner reference image 2026-11-14 (Figma 5h9pkPCkGHznr4z0JApqVT): soft-3D category artwork on taller pearl cards,
+   bold labels, and the empty state as a card with a shop illustration. Same tokens; geometry stays logical (RTL/LTR). */
+.rega-home .rh-tile { gap: 6px; min-height: 112px; padding: 12px 4px; border-radius: 22px; }
+.rega-home .rh-tile-art { width: 50px; height: 50px; flex-shrink: 0; filter: drop-shadow(0 4px 5px rgb(43 8 5 / .14)); }
+.rega-home .rh-tile-label { font-weight: 700; }
+@media (min-width: 400px) { .rega-home .rh-tile-label { font-size: 12.5px; } }
+@media (min-width: 768px) {
+  .rega-home .rh-tile { min-height: 126px; }
+  .rega-home .rh-tile-art { width: 58px; height: 58px; }
+  .rega-home .rh-tile-label { font-size: 13px; }
+}
+.rega-home .rh-explore-art { background: linear-gradient(180deg, #fff 0%, #f7f6f6 100%); box-shadow: inset 0 0 0 1px var(--line); }
+
 /* Sections */
 .rega-home .rh-section { padding-top: 36px; }
 .rega-home .rh-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
@@ -533,6 +546,16 @@
 }
 .rega-home .rh-btn-red { display: inline-flex; flex-shrink: 0; align-items: center; justify-content: center; min-height: 44px; padding-inline: 20px; border-radius: 12px; background: var(--action-gradient); color: var(--brand-ink); font-size: 14px; font-weight: 700; box-shadow: var(--action-shadow); }
 .rega-home .rh-btn-red:hover { background: var(--action-gradient-hover); }
+.rega-home .rh-empty {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "text art" "btn art"; gap: 14px 16px; padding: 20px;
+  border-radius: 22px; background: linear-gradient(180deg, #fff 0%, #fff 60%, #f7f6f6 100%);
+  box-shadow: inset 0 1px 0 #fff, 0 1px 2px rgb(17 24 39 / .05), 0 16px 30px -22px rgb(43 8 5 / .45);
+}
+.rega-home .rh-empty > div { grid-area: text; }
+.rega-home .rh-empty-art { grid-area: art; align-self: center; width: clamp(104px, 30vw, 210px); height: auto; }
+.rega-home .rh-empty .rh-btn-red { grid-area: btn; gap: 8px; min-height: 48px; border-radius: 14px; font-size: 15px; }
+@media (max-width: 519.98px) { .rega-home .rh-empty { grid-template-areas: "text art" "btn btn"; } }
+@media (min-width: 768px) { .rega-home .rh-empty { padding: 28px 32px; } .rega-home .rh-empty .rh-btn-red { justify-self: start; } }
 @media (min-width: 768px) {
   .rega-home .rh-tabs, .rega-home .rh-scroll-row { margin-inline: -32px; padding-inline: 32px; scroll-padding-inline: 32px; }
 }
