@@ -1510,6 +1510,10 @@ Not built (reported, not claimed): image upload for requests (existing upload fl
 e-mail/push notifications. Local limits: no node_modules/npm in the authoring session, so lint/typecheck/tests/build
 run in GitHub CI only. Production D1 migration is applied by `db-migrate.yml`, not by merge.
 
+## Business owner onboarding and profile links — 2026-11-14 (branch `codex/business-onboarding-social-links`; release pending)
+Owner requested a clearer three-stage business form, optional links for Instagram, Snapchat, Facebook and TikTok, and no changes to the opening-hours editor. Work began on `31b19e9` and was rebased onto current main `a600a12` after PR #145 landed. Preserve `BusinessHoursEditor` and PR #145 Smart Request schema/migrations. A read-only production D1 check on 2026-11-14 showed existing migration markers `0001`–`0005`, with `facebookUrl`, `instagramUrl`, `tiktokUrl`, and `snapchatUrl` already present; restore the canonical source file as `0004_business_social_links.sql` to match the applied marker. Do not add a duplicate `0007` ALTER migration. Production D1 still lacks `0006_smart_request.sql`. Form groups business/location in stage 1 and contact, existing hours, optional links and media in stage 2; stage 3 remains review/submission. Four nullable Business URL fields are validated as HTTPS and platform-host URLs, prefilled on edit, and shown as direct links on the public business profile and in LocalBusiness `sameAs`. Labels added in all 11 locales. PostgreSQL migration is additive; no existing row is modified by the migration.
+Current status: local branch only. Production D1 data was not modified; migration, backup restore verification, and deployment remain pending. Local typecheck, lint and Node build passed before the final migration-file adjustment. CI is being rerun on the corrected D1 migration fixture. Keep Cloudflare state and current D1 data authoritative.
+
 ## 2026-11-14 — Postal code recognition and map fly-to in the business form (branch fix/postal-code-map-lookup)
 
 Root cause: the address lookup sent one all-fields Nominatim query (street + city + postal code); a misspelled or
