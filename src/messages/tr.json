@@ -374,7 +374,11 @@
     "myListings": "İşletmelerim",
     "addListing": "İşletme ekle",
     "registerDoneUnavailable": "Hesabınız oluşturuldu ancak şu anda onay e-postası gönderemiyoruz. Giriş yapabilirsiniz; e-postanız onaylanana kadar kayıt ekleme ve yorum yazma kilitli kalır. Lütfen bizimle iletişime geçin.",
-    "verifyUnavailable": "E-posta onayı geçici olarak kullanılamıyor. Adresinizi onaylatmak için lütfen bizimle iletişime geçin."
+    "verifyUnavailable": "E-posta onayı geçici olarak kullanılamıyor. Adresinizi onaylatmak için lütfen bizimle iletişime geçin.",
+    "myBusinesses": "İşletmelerim",
+    "addBusiness": "İşletme ekle",
+    "noBusinesses": "Henüz bir işletme eklemediniz.",
+    "manageAll": "Tüm işletmeleri yönet"
   },
   "dashboard": {
     "title": "Yönetim paneli",
@@ -881,7 +885,9 @@
     "err_too_far": "Bir fırsat en fazla bir yıl sonra başlayabilir.",
     "err_discount_invalid": "Geçerli bir indirim girin: 1 ile 90 arasında tam bir yüzde veya para birimiyle pozitif bir tutar.",
     "err_percent_mismatch": "Başlık veya açıklama, girdiğiniz indirimden farklı bir yüzde belirtiyor.",
-    "err_percent_without_discount": "Başlık veya açıklama bir yüzde belirtiyor ancak yüzde indirimi girilmemiş. Kaldırın veya indirimi girin."
+    "err_percent_without_discount": "Başlık veya açıklama bir yüzde belirtiyor ancak yüzde indirimi girilmemiş. Kaldırın veya indirimi girin.",
+    "chooseBusiness": "Bu ilan hangi işletme için?",
+    "needBusiness": "İlan eklemek için önce hesabınızda bir işletme ekleyin."
   },
   "catForm": {
     "new": "Yeni kategori",

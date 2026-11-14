@@ -1,6 +1,7 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import { dirOf } from "@/i18n/locales";
 import { auth } from "@/auth";
+import { can } from "@/lib/rbac";
 import NextLink from "next/link";
 import { Link } from "@/i18n/routing";
 import { HeaderLogo } from "@/components/ui/Logo";
@@ -17,7 +18,11 @@ export async function Header() {
   const tc = await getTranslations("common");
   const locale = await getLocale();
   const contentDir = dirOf(locale);
-  const signedIn = Boolean((await auth().catch(() => null))?.user);
+  const user = (await auth().catch(() => null))?.user;
+  const signedIn = Boolean(user);
+  // "Add advertisement" creates an advertisement (offer) for a business the person manages. Business
+  // registration and management live in the account (/account), never behind this link.
+  const adHref = signedIn && can(user?.role, "business.write") ? "/dr/offers/new" : null;
   return (
     <header className="rega-header relative z-40 text-white">
       {signedIn && <SessionRenewal />}
@@ -33,14 +38,14 @@ export async function Header() {
               </form>
               <LanguageSwitcher />
             </div>
-            <MobileNav items={mobileNav()} signedIn={signedIn} />
+            <MobileNav items={mobileNav()} signedIn={signedIn} adHref={adHref} />
           </div>
         </div>
         <div className="rega-header-secondary" dir={contentDir}>
           <nav aria-label={t("primary")}><NavLinks dir={contentDir} items={headerNav()} /></nav>
           <div className="flex shrink-0 items-center gap-4 text-sm font-semibold">
             <Link href={signedIn ? "/account" : "/login"}>{signedIn ? t("account") : t("login")}</Link>
-            {signedIn ? <NextLink href="/dr/businesses/new">{t("addAd")}</NextLink> : <Link href="/for-business">{t("addAd")}</Link>}
+            {adHref ? <NextLink href={adHref}>{t("addAd")}</NextLink> : <Link href="/for-business">{t("addAd")}</Link>}
           </div>
         </div>
       </div>

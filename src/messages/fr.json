@@ -374,7 +374,11 @@
     "myListings": "Mes annonces",
     "addListing": "Ajouter votre entreprise",
     "registerDoneUnavailable": "Votre compte a été créé, mais nous ne pouvons pas envoyer l’e-mail de confirmation pour le moment. Vous pouvez vous connecter, mais la publication et les avis restent bloqués jusqu’à la confirmation de votre e-mail. Veuillez nous contacter.",
-    "verifyUnavailable": "La confirmation de l’e-mail est temporairement indisponible. Contactez-nous pour confirmer votre adresse."
+    "verifyUnavailable": "La confirmation de l’e-mail est temporairement indisponible. Contactez-nous pour confirmer votre adresse.",
+    "myBusinesses": "Mes entreprises",
+    "addBusiness": "Ajouter une entreprise",
+    "noBusinesses": "Vous n'avez encore ajouté aucune entreprise.",
+    "manageAll": "Gérer toutes les entreprises"
   },
   "dashboard": {
     "title": "Tableau de bord de gestion",
@@ -881,7 +885,9 @@
     "err_too_far": "Une offre peut commencer au plus tard dans un an.",
     "err_discount_invalid": "Saisissez une réduction valide : un pourcentage entier de 1 à 90, ou un montant positif avec une devise.",
     "err_percent_mismatch": "Le titre ou la description mentionne un pourcentage différent de la réduction saisie.",
-    "err_percent_without_discount": "Le titre ou la description mentionne un pourcentage, mais aucune réduction en pourcentage n’est définie. Retirez-le ou définissez la réduction."
+    "err_percent_without_discount": "Le titre ou la description mentionne un pourcentage, mais aucune réduction en pourcentage n’est définie. Retirez-le ou définissez la réduction.",
+    "chooseBusiness": "Pour quelle entreprise est cette annonce ?",
+    "needBusiness": "Pour ajouter une annonce, ajoutez d'abord une entreprise dans votre compte."
   },
   "catForm": {
     "new": "Nouvelle catégorie",

@@ -374,7 +374,11 @@
     "myListings": "Karsaziyên min",
     "addListing": "Karsaziyê zêde bike",
     "registerDoneUnavailable": "Hesabê te hate afirandin, lê em niha nikarin e-nameya pejirandinê bişînin. Tu dikarî têkevî, lê tomarkirin û nirxandin heta ku e-nameya te neyê pejirandin girtî dimînin. Ji kerema xwe bi me re têkilî daynin.",
-    "verifyUnavailable": "Pejirandina e-nameyê demkî ne berdest e. Ji kerema xwe bi me re têkilî dayne da ku navnîşana te were pejirandin."
+    "verifyUnavailable": "Pejirandina e-nameyê demkî ne berdest e. Ji kerema xwe bi me re têkilî dayne da ku navnîşana te were pejirandin.",
+    "myBusinesses": "Karsaziyên min",
+    "addBusiness": "Karsaziyê lê zêde bike",
+    "noBusinesses": "Te hîn karsaziyek lê zêde nekiriye.",
+    "manageAll": "Hemû karsaziyan birêve bibe"
   },
   "dashboard": {
     "title": "Panela rêveberiyê",
@@ -881,7 +885,9 @@
     "err_too_far": "Pêşniyar herî zêde salekê pêşwext dikare dest pê bike.",
     "err_discount_invalid": "Daxistineke derbasdar binivîse: sedîyeke tevahî ji 1 heta 90 an mîqdareke erênî bi diravî.",
     "err_percent_mismatch": "Sernav an danasîn sedîyekê dibêje ku ji daxistina te cuda ye.",
-    "err_percent_without_discount": "Sernav an danasîn sedîyekê dibêje lê daxistina sedî nehatiye danîn. Rake an daxistinê binivîse."
+    "err_percent_without_discount": "Sernav an danasîn sedîyekê dibêje lê daxistina sedî nehatiye danîn. Rake an daxistinê binivîse.",
+    "chooseBusiness": "Ev reklam ji bo kîjan karsaziyê ye?",
+    "needBusiness": "Ji bo reklamekê lê zêde bikî, pêşî di hesabê xwe de karsaziyekê lê zêde bike."
   },
   "catForm": {
     "new": "Kategoriya nû",
