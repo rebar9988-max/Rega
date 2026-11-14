@@ -70,7 +70,7 @@ export default async function AccountPage({ params }: { params: Promise<{ locale
                   </li>
                 ))}
               </ul>}
-          <NextLink href="/dr/businesses" className="mt-4 inline-block text-sm font-semibold text-brand-text hover:underline">{t("auth.manageAll")}</NextLink>
+          {u.role !== "BUSINESS_OWNER" && <NextLink href="/dr/businesses" className="mt-4 inline-block text-sm font-semibold text-brand-text hover:underline">{t("auth.manageAll")}</NextLink>}
         </section>}
 
         <section aria-labelledby="profile" className={`space-y-4 rounded-[14px] border border-line bg-surface p-6 ${u.role === "BUSINESS_OWNER" ? "min-h-[420px]" : "mx-auto max-w-md"}`}>
