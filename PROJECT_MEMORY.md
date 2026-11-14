@@ -1513,3 +1513,16 @@ run in GitHub CI only. Production D1 migration is applied by `db-migrate.yml`, n
 ## Business owner onboarding and profile links — 2026-11-14 (branch `codex/business-onboarding-social-links`; release pending)
 Owner requested a clearer three-stage business form, optional links for Instagram, Snapchat, Facebook and TikTok, and no changes to the opening-hours editor. Work began on `31b19e9` and was rebased onto current main `a600a12` after PR #145 landed. Preserve `BusinessHoursEditor` and PR #145 Smart Request schema/migrations. A read-only production D1 check on 2026-11-14 showed existing migration markers `0001`–`0005`, with `facebookUrl`, `instagramUrl`, `tiktokUrl`, and `snapchatUrl` already present; restore the canonical source file as `0004_business_social_links.sql` to match the applied marker. Do not add a duplicate `0007` ALTER migration. Production D1 still lacks `0006_smart_request.sql`. Form groups business/location in stage 1 and contact, existing hours, optional links and media in stage 2; stage 3 remains review/submission. Four nullable Business URL fields are validated as HTTPS and platform-host URLs, prefilled on edit, and shown as direct links on the public business profile and in LocalBusiness `sameAs`. Labels added in all 11 locales. PostgreSQL migration is additive; no existing row is modified by the migration.
 Current status: local branch only. Production D1 data was not modified; migration, backup restore verification, and deployment remain pending. Local typecheck, lint and Node build passed before the final migration-file adjustment. CI is being rerun on the corrected D1 migration fixture. Keep Cloudflare state and current D1 data authoritative.
+
+## 2026-11-14 — Postal code recognition and map fly-to in the business form (branch fix/postal-code-map-lookup)
+
+Root cause: the address lookup sent one all-fields Nominatim query (street + city + postal code); a misspelled or
+missing city ("Bergishgladbach", 51465) returned nothing, and a postal code alone was never looked up, so the map
+never moved. Change: `lookupPostalCode` + `postalLookupAction` (complete codes only, debounced, cached, serialized
+throttle); the form shows the recognised place, fills an empty city and passes the area to `LocationPicker`, which
+flies there (`focus`); `geocodeAddress` now tries street + postal code, then street + city, then free text.
+No schema, route, provider, dependency or cost change (public Nominatim, existing `GEOCODING_*` settings).
+Verification in the authoring session: `tsx --test tests/coordinates.test.ts` 6/6 PASS. NOT run there (no
+node_modules, no outbound access to Nominatim or www.rega24.com): typecheck, lint, build, Playwright, live check —
+these rest on GitHub CI and an owner check on production. Per-keystroke address autocomplete is NOT implemented:
+the public Nominatim usage policy forbids it; it needs an owner decision on a provider.
