@@ -1532,3 +1532,14 @@ Verification in the authoring session: `tsx --test tests/coordinates.test.ts` 6/
 node_modules, no outbound access to Nominatim or www.rega24.com): typecheck, lint, build, Playwright, live check —
 these rest on GitHub CI and an owner check on production. Per-keystroke address autocomplete is NOT implemented:
 the public Nominatim usage policy forbids it; it needs an owner decision on a provider.
+
+## Home soft-depth refinement — 2026-11-14 (branch `design/rega24-home-soft-depth-20261114`)
+Owner brief "REGA24 — Master Design & Live Deployment Command" arrived WITHOUT its reference image; owner then said to
+proceed with general refinement and not to change colours. Audit: every element the brief lists (red header + globe,
+logo, search/language pill, menu button, Sorani headline, lead, search panel, location + filter, category tiles with
+red line icons) is already live, so nothing was rebuilt. Change: one scoped CSS block in `src/app/globals.css` —
+pearl gradient + inner highlight on the home search panel, layered depth on the red search button, category tiles as
+taller cards with the icon in a `--brand-soft` chip. Existing colours/tokens only, no markup, layout, route, data or
+dependency change. Not done: Figma file (no reference image; earlier owner rule: no Figma upgrade), image-exact match.
+Local check: static render of the real components + compiled CSS in Chrome at 320/390/768/1440/1920, ckb/en/de —
+no horizontal overflow (system fallback font, not Vazirmatn). Lint/typecheck/build/Playwright run in GitHub CI.
