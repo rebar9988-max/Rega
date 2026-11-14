@@ -614,6 +614,16 @@
     "otherApp": "Sepana nexşeyê ya din"
   },
   "bizForm": {
+    "modeAlways": "Her dem vekirî",
+    "modeAlwaysHint": "24 saet, 7 rojên hefteyê",
+    "modeFive": "Heftê pênc rojan vekirî",
+    "modeCustom": "Saetên taybet",
+    "modeAppointment": "Tenê bi randevû",
+    "modeAppointmentHint": "Bi randevû. Bernameya we ya heftane tê parastin.",
+    "hoursApply": "Li rojên hilbijartî bisepîne",
+    "hoursStart": "Saeta vekirinê",
+    "hoursEnd": "Saeta girtinê",
+    "hoursInvalid": "Rojên karê û du demên derbasdar û cuda hilbijêrin.",
     "new": "Karsaziya nû",
     "edit": "Biguherîne",
     "newTitle": "Karsaziya nû",
