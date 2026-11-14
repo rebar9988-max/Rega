@@ -1,0 +1,23 @@
+name: Diag rega-ai-python Workers Builds log (read-only, temporary)
+on:
+  pull_request:
+    paths: [".github/workflows/diag-ai-python-build.yml"]
+permissions:
+  contents: read
+jobs:
+  logs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      ACCOUNT: ee07860dbb8e61ff6915758785baf89a
+    steps:
+      - name: Build logs (failed 40527614, passed b1d53d6d)
+        run: |
+          for b in 40527614-8356-477e-a87a-290b0aacd970 b1d53d6d-380a-4fb5-89a6-062004d82fac; do
+            echo "=== build $b"
+            curl -sS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT/builds/builds/$b" | jq -c '.result | {status: .status, outcome: .build_outcome, trigger: .trigger, config: .build_trigger_metadata, errors: .errors}' || true
+            curl -sS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT/builds/builds/$b/logs" | jq -r '.result.lines[]? | .[1]' | tail -60 || true
+          done
+          echo "=== trigger config"
+          curl -sS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT/builds/workers/c4d7fa2928f04749827caee82e9b64c8/triggers" | jq -c '.result[]? | {name: .trigger_name, branch_includes, build_command, deploy_command, root_directory, path_includes}' || true
