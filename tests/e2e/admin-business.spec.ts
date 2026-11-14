@@ -35,6 +35,38 @@ async function fillBasics(page: Page, name: string, address: string, city: strin
 
 test.describe.configure({ mode: "serial" });
 
+test("postal code: the area is recognised, the map flies there without a click, and a misspelled city no longer breaks the address lookup", async ({ page }) => {
+  await stubBasemap(page);
+  await login(page);
+  await fillBasics(page, `E2E PLZ ${stamp}`, "Johann-Wilhelm-Lindlar-Straße 8", "Bergishgladbach");
+  await expect(page.getByTestId("location-picker")).toHaveAttribute("data-status", "ready", { timeout: 20_000 });
+  await page.getByTestId("postal-code").fill("5146"); // incomplete: nothing is looked up
+  await expect(page.getByTestId("postal-match")).toHaveCount(0);
+  await page.getByTestId("postal-code").fill("51465");
+  await expect(page.getByTestId("postal-match")).toContainText("51465 · Bergisch Gladbach");
+  await expect(page.getByTestId("location-picker")).toHaveAttribute("data-focus", "50.9918,7.1363");
+  await expect(page.getByTestId("lat")).toHaveValue(""); // an area is not a business position: no marker is invented
+  // The typed city is kept until the admin takes the suggestion.
+  await expect(page.getByLabel("Stadt", { exact: true })).toHaveValue("Bergishgladbach");
+  await page.getByTestId("postal-use-city").click();
+  await expect(page.getByLabel("Stadt", { exact: true })).toHaveValue("Bergisch Gladbach");
+  await page.getByLabel("Stadt", { exact: true }).fill("Bergishgladbach");
+  await page.getByTestId("find-location").click();
+  await expect(page.getByTestId("geocode-hits")).toContainText("genaue Adresse");
+  await expect(page.getByTestId("lat")).toHaveValue("50.991235");
+  await expect(page.getByTestId("lng")).toHaveValue("7.129877");
+  await expect(page.getByTestId("picker-marker")).toBeVisible();
+});
+
+test("postal code fills an empty city", async ({ page }) => {
+  await stubBasemap(page);
+  await login(page);
+  await fillBasics(page, `E2E PLZ leer ${stamp}`, "Johann-Wilhelm-Lindlar-Straße 8", "");
+  await page.getByTestId("postal-code").fill("51465");
+  await expect(page.getByLabel("Stadt", { exact: true })).toHaveValue("Bergisch Gladbach");
+  await expect(page.getByTestId("postal-use-city")).toHaveCount(0);
+});
+
 test("admin adds a business: address lookup, confirmed map location, publish; it appears in list, map and Nearby", async ({ page }) => {
   await stubBasemap(page);
   await login(page);

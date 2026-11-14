@@ -1509,3 +1509,16 @@ Code: `src/features/smart-request/*`, pages `/[locale]/smart-request` (+ `/new`,
 Not built (reported, not claimed): image upload for requests (existing upload flow is business-image specific),
 e-mail/push notifications. Local limits: no node_modules/npm in the authoring session, so lint/typecheck/tests/build
 run in GitHub CI only. Production D1 migration is applied by `db-migrate.yml`, not by merge.
+
+## 2026-11-14 — Postal code recognition and map fly-to in the business form (branch fix/postal-code-map-lookup)
+
+Root cause: the address lookup sent one all-fields Nominatim query (street + city + postal code); a misspelled or
+missing city ("Bergishgladbach", 51465) returned nothing, and a postal code alone was never looked up, so the map
+never moved. Change: `lookupPostalCode` + `postalLookupAction` (complete codes only, debounced, cached, serialized
+throttle); the form shows the recognised place, fills an empty city and passes the area to `LocationPicker`, which
+flies there (`focus`); `geocodeAddress` now tries street + postal code, then street + city, then free text.
+No schema, route, provider, dependency or cost change (public Nominatim, existing `GEOCODING_*` settings).
+Verification in the authoring session: `tsx --test tests/coordinates.test.ts` 6/6 PASS. NOT run there (no
+node_modules, no outbound access to Nominatim or www.rega24.com): typecheck, lint, build, Playwright, live check —
+these rest on GitHub CI and an owner check on production. Per-keystroke address autocomplete is NOT implemented:
+the public Nominatim usage policy forbids it; it needs an owner decision on a provider.
