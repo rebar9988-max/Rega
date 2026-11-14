@@ -92,7 +92,7 @@ export async function OwnerBusinesses({ user, locale }: { user: Pick<SessionUser
                   <div className="min-w-0 flex-1 space-y-1.5">
                     <p className="flex min-w-0 items-center gap-1.5">
                       {b.featured && <span className="text-brand-text"><DrIcon name="pin" className="size-4" /><span className="sr-only">{t("drAdmin.pinned")}</span></span>}
-                      <span className="truncate text-base font-bold text-ink"><Text value={localize(b, "name", locale)} pageLang={pageLang} /></span>
+                      <span className="min-w-0 truncate text-base font-bold text-ink"><Text value={localize(b, "name", locale)} pageLang={pageLang} /></span>
                     </p>
                     {meta && <p className="truncate text-sm text-muted">{meta}</p>}
                     <div className="flex flex-wrap items-center gap-1.5">
@@ -107,7 +107,7 @@ export async function OwnerBusinesses({ user, locale }: { user: Pick<SessionUser
                     <NextLink href={`/${locale}/business/${b.slug}`} className={action} data-testid="owner-view"><DrIcon name="view" className="size-4 text-muted" />{t("auth.view")}</NextLink>
                   )}
                   {hidden ? (
-                    <form action={updateBusiness} className="flex flex-1">
+                    <form action={updateBusiness} className="flex min-w-0 flex-1">
                       <input type="hidden" name="id" value={b.id} /><input type="hidden" name="intent" value="restore" /><input type="hidden" name="back" value={back} />
                       <BusinessActionButton className={`${action} w-full`} testId="owner-unhide"><DrIcon name="view" className="size-4 text-muted" />{t("businessVisibility.unhide")}</BusinessActionButton>
                     </form>

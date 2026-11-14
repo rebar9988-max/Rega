@@ -68,7 +68,6 @@ export default async function AccountPage({ params, searchParams }: { params: Pr
         <div className="min-w-0">
           <h1 className="text-2xl font-extrabold leading-tight sm:text-3xl">{t("auth.accountTitle")}</h1>
           <p className="mt-1 truncate text-sm font-medium">{u.name ? <>{u.name} · </> : null}{t(`roles.${u.role}`)}</p>
-          <p className="truncate text-sm"><Ltr>{u.email}</Ltr></p>
         </div>
       </header>
 
