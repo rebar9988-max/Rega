@@ -1543,3 +1543,14 @@ taller cards with the icon in a `--brand-soft` chip. Existing colours/tokens onl
 dependency change. Not done: Figma file (no reference image; earlier owner rule: no Figma upgrade), image-exact match.
 Local check: static render of the real components + compiled CSS in Chrome at 320/390/768/1440/1920, ckb/en/de —
 no horizontal overflow (system fallback font, not Vazirmatn). Lint/typecheck/build/Playwright run in GitHub CI.
+
+## `Workers Builds: rega-ai-python` PR failures — root cause — 2026-11-14 (branch `fix/ai-python-preview-build-uv-20261114`)
+Failing check on PRs #145, #146, #148–#153 (and passing on #147): provider = Cloudflare Workers and Pages GitHub App,
+per-branch preview builds (root `/services/ai-python`, build `uv sync --python 3.13 && uv run pywrangler sync`, deploy
+`uv run pywrangler preview`). Log read through the Cloudflare builds API (diagnostic PR #152, run 43612119617):
+`uv version at least 0.13.4 required, have 0.12.23`. Cause: `workers-py` is unpinned and has no lockfile, so it
+resolved to 1.17.9, which needs a newer uv than the build image ships. #147 passed because that one branch's trigger
+had `pip install uv==0.13.8` in its build command. Not a GitHub Actions failure, not a token problem (token active),
+production never affected. Fix: `uv>=0.13.4` in the `dev` dependency group, so `uv run` finds a new enough uv in the
+project venv. No Cloudflare setting, paid service or runtime code changed. Also records the home soft-depth release:
+PR #153 merged as `f800a22`, CI + deploy + production browser check green, live stylesheet carries the new rules.
