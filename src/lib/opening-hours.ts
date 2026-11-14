@@ -4,6 +4,12 @@
  * A missing day means closed that day once any day is set; no hours at all means "unknown" (never shown as open).
  * Pure: shared by the admin form, the API and tests.
  */
+export type HoursMode = "always" | "five" | "custom" | "appointment";
+export function hoursMode(stored: unknown): HoursMode {
+  const h = stored as OpeningHours | null;
+  if (h && ["always", "five", "custom", "appointment"].includes(h.mode ?? "")) return h.mode!;
+  return h && WEEK.every(d => h[d] === "00:00–24:00") ? "always" : "custom";
+}
 export const WEEK = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const;
 export type WeekDay = (typeof WEEK)[number];
 /**
@@ -16,7 +22,7 @@ export type HoursException = { from: string; to: string; hours: string; reason?:
  * Stored in Location.openingHours. The weekday keys are the long-standing format; `holidays: "closed"` (closed on
  * official public holidays, see lib/holidays.ts) and `exceptions` are optional additions that older readers ignore.
  */
-export type OpeningHours = Partial<Record<WeekDay, string>> & { holidays?: "closed"; exceptions?: HoursException[] };
+export type OpeningHours = Partial<Record<WeekDay, string>> & { mode?: HoursMode; holidays?: "closed"; exceptions?: HoursException[] };
 
 /** Limits for date exceptions: entries per location, days per entry, reason length. */
 export const EXCEPTION_LIMITS = { max: 30, maxDays: 366, reason: 120 } as const;
@@ -57,6 +63,11 @@ export function parseOpeningHours(input: Record<string, unknown>): ParsedHours {
   const invalid: string[] = [];
   const value: OpeningHours = {};
   for (const [key, raw] of Object.entries(input)) {
+    if (key === "mode") {
+      if (["always", "five", "custom", "appointment"].includes(String(raw))) value.mode = raw as HoursMode;
+      else invalid.push(key);
+      continue;
+    }
     const day = key.toLowerCase().slice(0, 3) as WeekDay;
     if (!WEEK.includes(day) || typeof raw !== "string") { invalid.push(key); continue; }
     const norm = normalizeDay(raw);
@@ -136,7 +147,7 @@ export function composeOpeningHours(weekly: OpeningHours | null, holidaysClosed:
 
 /** Anything to show about hours: weekly hours, the holiday setting or date exceptions. */
 export function hasHoursInfo(stored: unknown): boolean {
-  return hasHours(stored) || closedOnHolidays(stored) || hoursExceptions(stored).length > 0;
+  return hoursMode(stored) === "appointment" || hasHours(stored) || closedOnHolidays(stored) || hoursExceptions(stored).length > 0;
 }
 
 /** Exceptions that have not ended yet on `today` ("YYYY-MM-DD", the location's local date), soonest first. */

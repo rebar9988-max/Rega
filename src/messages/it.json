@@ -615,6 +615,16 @@
     "otherApp": "Altra app di mappe"
   },
   "bizForm": {
+    "modeAlways": "Sempre aperto",
+    "modeAlwaysHint": "24 ore su 24, 7 giorni su 7",
+    "modeFive": "Aperto cinque giorni a settimana",
+    "modeCustom": "Orari personalizzati",
+    "modeAppointment": "Solo su appuntamento",
+    "modeAppointmentHint": "Su appuntamento. Il programma settimanale viene conservato.",
+    "hoursApply": "Applica ai giorni selezionati",
+    "hoursStart": "Orario di apertura",
+    "hoursEnd": "Orario di chiusura",
+    "hoursInvalid": "Seleziona i giorni e due orari validi e diversi.",
     "new": "Nuova attività",
     "edit": "Modifica",
     "newTitle": "Nuova attività",

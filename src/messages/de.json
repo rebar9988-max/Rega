@@ -615,6 +615,16 @@
     "otherApp": "Andere Karten-App"
   },
   "bizForm": {
+    "modeAlways": "Immer geöffnet",
+    "modeAlwaysHint": "24 Stunden, 7 Tage die Woche",
+    "modeFive": "Fünf Tage pro Woche geöffnet",
+    "modeCustom": "Individuelle Öffnungszeiten",
+    "modeAppointment": "Nur nach Vereinbarung",
+    "modeAppointmentHint": "Nur nach Vereinbarung. Ihr Wochenplan bleibt gespeichert.",
+    "hoursApply": "Auf ausgewählte Tage anwenden",
+    "hoursStart": "Öffnungszeit",
+    "hoursEnd": "Schließzeit",
+    "hoursInvalid": "Wählen Sie Arbeitstage und zwei unterschiedliche gültige Uhrzeiten.",
     "new": "Neues Unternehmen",
     "edit": "Bearbeiten",
     "newTitle": "Neues Unternehmen",
