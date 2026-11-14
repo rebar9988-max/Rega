@@ -1509,3 +1509,9 @@ Code: `src/features/smart-request/*`, pages `/[locale]/smart-request` (+ `/new`,
 Not built (reported, not claimed): image upload for requests (existing upload flow is business-image specific),
 e-mail/push notifications. Local limits: no node_modules/npm in the authoring session, so lint/typecheck/tests/build
 run in GitHub CI only. Production D1 migration is applied by `db-migrate.yml`, not by merge.
+2026-11-14 (owner-authorized): production D1 `rega24-migration` (728f792d…) — 0006 applied by hand via Cloudflare D1 API:
+4 Smart* tables, 8 indexes, 6 FKs (CASCADE), `d1_migrations` row `0006_smart_request.sql` (id 6) written last. Read-back:
+45 tables, 0 FK violations, existing data unchanged (5 businesses, 4 users). Live: /ckb/smart-request 200 with Sorani
+content; /new redirects guests to login. Deploy a600a12 + Beta health + Production browser check: success.
+Open: no published business in production (2 archived, 2 draft), so matching returns 0 recipients until businesses publish;
+signed-in end-to-end submit not exercised live (no test account in this session).
