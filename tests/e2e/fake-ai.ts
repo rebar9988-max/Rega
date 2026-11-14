@@ -56,6 +56,19 @@ export function startFakeAi(port = 3999): Promise<Server> {
         const q = new URL(req.url, "http://x").searchParams;
         if (!/python|node|REGA Platform/i.test(String(req.headers["user-agent"]))) return json(403, { error: "user agent required" });
         const street = q.get("street") ?? "";
+        const postal = q.get("postalcode") ?? "";
+        // A postal code alone names its area; with a street it stands in for a missing or misspelled city.
+        const areas: Record<string, { city: string; lat: string; lon: string }> = {
+          "10999": { city: "Berlin", lat: "52.4996", lon: "13.4213" },
+          "51465": { city: "Bergisch Gladbach", lat: "50.9918", lon: "7.1363" },
+        };
+        if (!street && !q.get("city") && !q.get("q")) {
+          const a = areas[postal];
+          return json(200, a ? [{ lat: a.lat, lon: a.lon, addresstype: "postcode", display_name: `${postal}, ${a.city}, Deutschland`, address: { postcode: postal, city: a.city, country_code: "de" } }] : []);
+        }
+        if (/^Johann-Wilhelm-Lindlar-Stra(ß|ss)e 8$/i.test(street) && postal === "51465" && !q.get("city")) return json(200, [
+          { lat: "50.9912345", lon: "7.1298765", addresstype: "building", display_name: "8, Johann-Wilhelm-Lindlar-Straße, 51465 Bergisch Gladbach, Deutschland" },
+        ]);
         const city = (q.get("city") ?? "").toLowerCase();
         if (!street) {
           const centres: Record<string, [string, string]> = { berlin: ["52.5170365", "13.3888599"], hamburg: ["53.550341", "10.000654"] };

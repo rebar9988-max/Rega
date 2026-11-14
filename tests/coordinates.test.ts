@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { isValidCoordinate, publishReadiness } from "../src/lib/coordinates";
-import { parseNominatim } from "../src/lib/geocoder-parse";
+import { isCompletePostalCode, parseNominatim, parsePostal } from "../src/lib/geocoder-parse";
 
 test("isValidCoordinate: range, finiteness and the (0, 0) placeholder", () => {
   assert.equal(isValidCoordinate(52.52, 13.405), true);
@@ -41,4 +41,30 @@ test("parseNominatim: precision from the result type, invalid rows dropped, valu
   assert.equal(hits[0].lat, 52.502238);
   assert.equal(hits[0].lng, 13.418012);
   assert.deepEqual(parseNominatim({ error: "x" }), []);
+});
+
+test("parsePostal returns the area centre and its city, town or village; rejects unusable rows", () => {
+  assert.deepEqual(
+    parsePostal([{ lat: "50.99180001", lon: "7.1363", display_name: "51465, Bergisch Gladbach, Deutschland", address: { postcode: "51465", city: "Bergisch Gladbach", county: "Rheinisch-Bergischer Kreis" } }]),
+    { lat: 50.9918, lng: 7.1363, place: "Bergisch Gladbach", label: "51465, Bergisch Gladbach, Deutschland" },
+  );
+  assert.equal(parsePostal([{ lat: "47.1", lon: "9.5", address: { village: "Dorf", county: "Kreis" } }])?.place, "Dorf");
+  assert.equal(parsePostal([{ lat: "47.1", lon: "9.5", address: { suburb: "Viertel" } }])?.place, "Viertel");
+  assert.equal(parsePostal([{ lat: "47.1", lon: "9.5" }])?.place, "");
+  assert.equal(parsePostal([{ lat: "0", lon: "0", address: { city: "X" } }, { lat: "48", lon: "11", address: { city: "München" } }])?.place, "München");
+  assert.equal(parsePostal([]), null);
+  assert.equal(parsePostal({ error: "x" }), null);
+  assert.equal(parsePostal([{ lat: "abc", lon: "7" }]), null);
+});
+
+test("isCompletePostalCode waits for a whole code per country", () => {
+  assert.ok(isCompletePostalCode("51465", "DE"));
+  assert.ok(isCompletePostalCode(" 51465 ", "de"));
+  assert.ok(!isCompletePostalCode("5146", "DE"));
+  assert.ok(!isCompletePostalCode("514650", "DE"));
+  assert.ok(!isCompletePostalCode("5146a", "DE"));
+  assert.ok(isCompletePostalCode("1012 AB", "NL") && isCompletePostalCode("1012ab", "NL") && !isCompletePostalCode("1012", "NL"));
+  assert.ok(isCompletePostalCode("1010", "AT") && !isCompletePostalCode("101", "AT"));
+  assert.ok(isCompletePostalCode("114 55", "SE") && isCompletePostalCode("SW1A 1AA", "GB"));
+  assert.ok(isCompletePostalCode("H3Z 2Y7", "CA") && !isCompletePostalCode("H3", "CA") && !isCompletePostalCode("", "CA"));
 });

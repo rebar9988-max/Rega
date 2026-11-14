@@ -12,8 +12,8 @@ import { useCallback, useActionState, useMemo, useRef, useState, useTransition, 
 import { useLocale, useTranslations } from "next-intl";
 import { LOCALES, LOCALE_META, localeSuffix, type Locale } from "@/config/locales";
 import { isValidCoordinate } from "@/lib/coordinates";
-import type { GeocodeHit } from "@/lib/geocoder-parse";
-import { geocodeAction, saveBusinessAction, type BusinessFormState } from "@/app/dr/businesses/actions";
+import { isCompletePostalCode, type GeocodeHit, type PostalHit } from "@/lib/geocoder-parse";
+import { geocodeAction, postalLookupAction, saveBusinessAction, type BusinessFormState } from "@/app/dr/businesses/actions";
 import { parseOpeningHours, WEEK, type HoursMode, type HoursException, type WeekDay } from "@/lib/opening-hours";
 import { normalizeWhatsapp } from "@/lib/whatsapp";
 import { BusinessImageField } from "./BusinessImageField";
@@ -76,6 +76,42 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
   const [confirmed, setConfirmed] = useState(Boolean(initial.coordsVerified));
   const [lookup, setLookup] = useState<{ status: "idle" | "hits" | "not_found" | "unavailable"; hits: GeocodeHit[] }>({ status: "idle", hits: [] });
   const [finding, startFinding] = useTransition();
+  /** Postal code -> area: the map flies there and the city is suggested (filled in when empty or filled by an earlier lookup). */
+  const [postalHit, setPostalHit] = useState<PostalHit | null>(null);
+  const [postalBusy, setPostalBusy] = useState(false);
+  const lookedUp = useRef(`${initial.countryCode ?? "DE"}:${(initial.postalCode ?? "").trim()}`);
+  const autoCity = useRef<string | null>(null);
+  const cityRef = useRef(city);
+  cityRef.current = city;
+  const citiesRef = useRef(cities);
+  citiesRef.current = cities;
+  useEffect(() => {
+    const code = postal.trim();
+    const key = `${country}:${code}`;
+    if (key === lookedUp.current) return;
+    if (!isCompletePostalCode(code, country)) { lookedUp.current = ""; setPostalHit(null); return; }
+    let stale = false;
+    const timer = setTimeout(async () => {
+      lookedUp.current = key;
+      setPostalBusy(true);
+      try {
+        const res = await postalLookupAction({ postalCode: code, countryCode: country });
+        if (stale) return;
+        setPostalHit(res.ok ? res.hit : null);
+        if (res.ok && res.hit.place && (!cityRef.current.trim() || cityRef.current === autoCity.current)) {
+          const known = citiesRef.current.find((c) => c.countryCode === country && c.names.some((n) => n.toLocaleLowerCase() === res.hit.place.toLocaleLowerCase()));
+          autoCity.current = known?.name ?? res.hit.place;
+          setCity(autoCity.current);
+          setDirtyAt(Date.now());
+        }
+      } catch {
+        if (!stale) setPostalHit(null); // the lookup is a convenience: the form works without it
+      } finally {
+        if (!stale) setPostalBusy(false);
+      }
+    }, 500);
+    return () => { stale = true; clearTimeout(timer); setPostalBusy(false); };
+  }, [postal, country]);
   const [, startSubmit] = useTransition();
   const bad = (f: string) => state?.fields?.includes(f) || stepErrors.includes(f) || undefined;
   /** The business as far as it is saved: a draft saved from this form carries its id, so the next save updates it. */
@@ -192,7 +228,7 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
 
   function find() {
     startFinding(async () => {
-      const res = await geocodeAction({ addressLine1: address, postalCode: postal || undefined, city, countryCode: country });
+      const res = await geocodeAction({ addressLine1: address, postalCode: postal.trim() || undefined, city: city.trim() || undefined, countryCode: country });
       if (!res.ok) return setLookup({ status: res.reason === "not_found" ? "not_found" : "unavailable", hits: [] });
       setLookup({ status: "hits", hits: res.hits });
       const best = res.hits.find((h) => h.precision === "address") ?? res.hits[0];
@@ -335,7 +371,7 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
             <input name="addressLine1" required minLength={3} maxLength={300} value={address} onChange={(e) => setAddress(e.target.value)} className={input} aria-invalid={bad("addressLine1")} />
           </label>
           <label className="flex flex-col gap-1 text-sm font-semibold">{t("postalCode")}
-            <input name="postalCode" maxLength={20} dir="ltr" value={postal} onChange={(e) => setPostal(e.target.value)} className={input} />
+            <input name="postalCode" maxLength={20} dir="ltr" autoComplete="postal-code" value={postal} onChange={(e) => setPostal(e.target.value)} className={input} aria-busy={postalBusy || undefined} data-testid="postal-code" />
           </label>
           <label className="flex flex-col gap-1 text-sm font-semibold">{t("country")}
             <select name="countryCode" required value={country} onChange={(e) => setCountry(e.target.value)} className={input} aria-invalid={bad("countryCode")}>
@@ -350,7 +386,7 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
             <datalist id="city-options">{countryCities.map((c) => <option key={c.id} value={c.name} />)}</datalist>
           </div>
           <div className="flex items-end lg:col-span-2">
-            <button type="button" onClick={find} disabled={finding || address.trim().length < 3 || !city.trim()} data-testid="find-location"
+            <button type="button" onClick={find} disabled={finding || address.trim().length < 3 || !(city.trim() || postal.trim())} data-testid="find-location"
               className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border-2 border-brand px-4 text-sm font-bold text-brand-text hover:bg-brand hover:text-brand-ink disabled:opacity-50">
               <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5" /><path d="m20 20-4.2-4.2" /></svg>
               {finding ? t("finding") : t("findLocation")}
@@ -359,6 +395,15 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
         </div>
 
         <div aria-live="polite">
+          {postalHit && (
+            <p data-testid="postal-match" className="mb-2 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-line px-3 py-2 text-sm">
+              <bdi className="min-w-0 flex-1 font-semibold">{[postal.trim(), postalHit.place].filter(Boolean).join(" · ")}</bdi>
+              {postalHit.place && postalHit.place.toLocaleLowerCase() !== city.trim().toLocaleLowerCase() && (
+                <button type="button" data-testid="postal-use-city" className="min-h-9 rounded-lg border border-line px-3 text-xs font-semibold hover:border-brand hover:text-brand-text"
+                  onClick={() => { autoCity.current = postalHit.place; setCity(postalHit.place); setDirtyAt(Date.now()); }}>{t("useSuggestion")}</button>
+              )}
+            </p>
+          )}
           {(lookup.status === "not_found" || lookup.status === "unavailable") && (
             <p role="alert" data-testid="geocode-message" className="rounded-xl bg-brand-soft px-4 py-3 text-sm font-semibold text-ink">{lookup.status === "not_found" ? t("notFound") : t("geocodeUnavailable")}</p>
           )}
@@ -379,7 +424,7 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
 
         <p className="text-sm text-muted">{t("pickerHint")}</p>
         {/* Mounted only while its step is on screen: a map created in a hidden box would have no size. */}
-        {show(1) && <LocationPicker value={value} fallbackCenter={cityCentre} onPick={(v) => place(v, "manual")} label={t("location")} unavailable={tm("unavailable")} dir={dir} />}
+        {show(1) && <LocationPicker value={value} focus={postalHit} fallbackCenter={cityCentre} onPick={(v) => place(v, "manual")} label={t("location")} unavailable={tm("unavailable")} dir={dir} />}
 
         <div className="grid gap-4 ">
           <label className="flex flex-col gap-1 text-sm font-semibold">{t("latitude")}
