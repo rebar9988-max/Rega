@@ -31,7 +31,7 @@ test("bots that get a different HTML variant never share an entry with browsers"
 });
 
 test("personal, private and non-GET requests are never cached", () => {
-  for (const cookie of ["authjs.session-token=x", "__Secure-authjs.session-token=x", "a=1; __Secure-authjs.session-token.0=x", "next-auth.session-token=x", "__prerender_bypass=x"]) {
+  for (const cookie of ["authjs.session-token=x", "__Secure-authjs.session-token=x", "a=1; __Secure-authjs.session-token.0=x", "next-auth.session-token=x", "__prerender_bypass=x", "a=1; rega_radar=x.y"]) {
     assert.equal(edgeCacheKey(req("/ckb/guides", { headers: { cookie } })), null, cookie);
   }
   assert.equal(edgeCacheKey(req("/ckb/guides", { headers: { authorization: "Bearer x" } })), null);

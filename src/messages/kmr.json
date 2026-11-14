@@ -1514,6 +1514,11 @@
     "errClosed": "Ev daxwaz êdî ne vekirî ye.",
     "errLocked": "Ev pêşniyar êdî nayê guhertin.",
     "privacyNote": "Cihê te yê rast û agahiyên têkiliyê tu carî bi karsazan re nayên parvekirin.",
-    "back": "Vegere"
+    "back": "Vegere",
+    "freeBadge": "Belaş · Bê hesab",
+    "deviceNote": "Daxwazên ku tu bê hesab dişînî li ser vê amûrê têne tomarkirin.",
+    "or": "an",
+    "clearLocation": "Biguherîne",
+    "moreDetails": "Hûrguliyan zêde bike (bijarte)"
   }
 }

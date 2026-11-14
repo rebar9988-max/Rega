@@ -95,3 +95,43 @@ test("migrations are additive and repeatable; D1 metadata knows the new tables",
   const meta = JSON.parse(readFileSync("src/lib/d1-models.json", "utf8")) as { models: { name: string }[] };
   for (const table of ["SmartRequest", "SmartRequestRecipient", "SmartOffer", "SmartRequestPref"]) assert.ok(meta.models.some((m) => m.name === table), table);
 });
+
+test("Radar guest access: signed device cookie lists only the guest's own requests", async () => {
+  const { GUEST_MAX_IDS, normalizeIds, signGuestIds, verifyGuestIds, withRequest } = await import("../src/features/smart-request/guest-core");
+  const secret = "test-secret-at-least-16";
+  const signed = await signGuestIds(secret, ["req_a", "req_b"]);
+  assert.deepEqual(await verifyGuestIds(secret, signed), ["req_a", "req_b"]);
+  // Forged, tampered, foreign-secret and malformed cookies yield nothing.
+  const [payload, sig] = signed.split(".");
+  const forged = Buffer.from("req_a,req_b,someone_else").toString("base64url");
+  for (const bad of [`${forged}.${sig}`, `${payload}.x${sig.slice(1)}`, `${payload}`, "", ".", "a.b", undefined]) assert.deepEqual(await verifyGuestIds(secret, bad), [], String(bad));
+  assert.deepEqual(await verifyGuestIds("another-secret-16chars", signed), []);
+  // New requests go first, duplicates and malformed ids are dropped, the list is capped.
+  assert.deepEqual(withRequest(["a", "b"], "b"), ["b", "a"]);
+  assert.deepEqual(normalizeIds(["ok", "x y", "", 5, "ok", "drop;table"]), ["ok"]);
+  assert.equal(withRequest(Array.from({ length: 40 }, (_, i) => `r${i}`), "new").length, GUEST_MAX_IDS);
+});
+
+test("Radar is public: no login gate on the requester flow; guests are scoped to their own requests", () => {
+  const actions = readFileSync("src/features/smart-request/actions.ts", "utf8");
+  const create = actions.slice(actions.indexOf("export async function createRequestAction"), actions.indexOf("export async function submitOfferAction"));
+  assert.ok(!create.includes('error: "signin"') && !create.includes("currentAccount"), "creating a request needs no account");
+  assert.match(create, /guardForm\(formData, "sr-create", 5\)/);
+  assert.match(create, /sr-create-day:\$\{ip\}/);
+  assert.match(create, /rememberGuestRequest/);
+  for (const page of ["src/app/[locale]/smart-request/page.tsx", "src/app/[locale]/smart-request/new/page.tsx", "src/app/[locale]/smart-request/[id]/page.tsx"]) {
+    const src = readFileSync(page, "utf8");
+    assert.ok(!src.includes("/login") && !src.includes("redirect("), `${page} must not redirect to login`);
+  }
+  // The business inbox stays a signed-in business tool.
+  assert.match(readFileSync("src/app/[locale]/smart-request/inbox/page.tsx", "utf8"), /login\?next=/);
+  const service = readFileSync("src/features/smart-request/service.ts", "utf8");
+  for (const fn of ["getMyRequest", "markOffersSeen", "ownOpenRequest"]) {
+    const body = service.slice(service.indexOf(`function ${fn}`));
+    assert.match(body.slice(0, 200), /if \(!ownsId\(owner, id\)\)/, `${fn} checks the guest's own ids`);
+  }
+  assert.match(service, /const ownScope = \(owner: Owner\) => \(\{ userId: owner\.id, \.\.\.\(owner\.requestIds \? \{ id: \{ in: owner\.requestIds \} \} : \{\}\) \}\)/);
+  const guest = readFileSync("src/features/smart-request/guest.ts", "utf8");
+  assert.match(guest, /httpOnly: true/);
+  assert.match(guest, /status: "suspended"/);
+});

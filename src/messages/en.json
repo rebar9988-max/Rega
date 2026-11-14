@@ -1514,6 +1514,11 @@
     "errClosed": "This request is no longer open.",
     "errLocked": "This offer can no longer be changed.",
     "privacyNote": "Your exact location and contact details are never shared with businesses.",
-    "back": "Back"
+    "back": "Back",
+    "freeBadge": "Free · No account needed",
+    "deviceNote": "Requests you send without an account are saved on this device.",
+    "or": "or",
+    "clearLocation": "Change",
+    "moreDetails": "Add details (optional)"
   }
 }

@@ -7,7 +7,12 @@ import { getCategories, nearbyBusinesses } from "@/lib/data";
 import type { Role } from "@/lib/rbac";
 import { MAX_OPEN_REQUESTS, MAX_RECIPIENTS, expiryFrom, isActionable, roundCoord, type CreateRequestInput, type OfferInput } from "./rules";
 
-export type Actor = { id: string; email: string; role: Role };
+/** `requestIds`: set for guests (Radar without an account): the requests this device owns. Every requester read and write is limited to them. */
+export type Actor = { id: string; email: string; role: Role; requestIds?: string[] };
+/** Requester scope: the owner id, plus the device's own request ids for guests. */
+export type Owner = { id: string; requestIds?: string[] };
+const ownsId = (owner: Owner, id: string) => !owner.requestIds || owner.requestIds.includes(id);
+const ownScope = (owner: Owner) => ({ userId: owner.id, ...(owner.requestIds ? { id: { in: owner.requestIds } } : {}) });
 export type ServiceResult<T extends object = object> = ({ ok: true } & T) | { ok: false; error: "invalid" | "forbidden" | "notfound" | "closed" | "limit" | "locked" };
 
 const BUSINESS_PUBLIC = { id: true, slug: true, name: true, nameCkb: true, nameKmr: true, nameAr: true, nameTr: true, logoUrl: true, verified: true, ratingAvg: true, ratingCount: true } as const;
@@ -30,12 +35,12 @@ export async function createRequest(actor: Actor, input: CreateRequestInput): Pr
   lat = roundCoord(lat);
   lng = roundCoord(lng);
 
-  const open = await prisma.smartRequest.count({ where: { userId: actor.id, status: "open", expiresAt: { gt: now } } });
+  const open = actor.requestIds?.length === 0 ? 0 : await prisma.smartRequest.count({ where: { ...ownScope(actor), status: "open", expiresAt: { gt: now } } });
   if (open >= MAX_OPEN_REQUESTS) return { ok: false, error: "limit" };
 
   // Double submit: the same request again within ten minutes returns the first one.
-  const twin = await prisma.smartRequest.findFirst({
-    where: { userId: actor.id, categoryId: input.categoryId, title: input.title, createdAt: { gte: new Date(now.getTime() - 600_000) } },
+  const twin = actor.requestIds?.length === 0 ? null : await prisma.smartRequest.findFirst({
+    where: { ...ownScope(actor), categoryId: input.categoryId, title: input.title, createdAt: { gte: new Date(now.getTime() - 600_000) } },
     select: { id: true, matchedCount: true },
   });
   if (twin) return { ok: true, id: twin.id, matched: twin.matchedCount };
@@ -71,9 +76,10 @@ export async function createRequest(actor: Actor, input: CreateRequestInput): Pr
   return { ok: true, id: request.id, matched: recipients.length };
 }
 
-export async function listMyRequests(userId: string) {
+export async function listMyRequests(owner: Owner) {
+  if (owner.requestIds?.length === 0) return [];
   const rows = await prisma.smartRequest.findMany({
-    where: { userId }, orderBy: { createdAt: "desc" }, take: 50,
+    where: ownScope(owner), orderBy: { createdAt: "desc" }, take: 50,
     select: { id: true, title: true, categoryId: true, status: true, matchedCount: true, expiresAt: true, createdAt: true, offersSeenAt: true },
   });
   if (!rows.length) return [];
@@ -85,7 +91,9 @@ export async function listMyRequests(userId: string) {
 }
 
 /** The requester's own request with its offers (cheapest first). Contact details are returned for the selected offer only. */
-export async function getMyRequest(userId: string, id: string) {
+export async function getMyRequest(owner: Owner, id: string) {
+  if (!ownsId(owner, id)) return null;
+  const userId = owner.id;
   const request = await prisma.smartRequest.findFirst({
     where: { id, userId },
     select: { id: true, title: true, description: true, categoryId: true, status: true, radiusKm: true, matchedCount: true, expiresAt: true, createdAt: true, selectedOfferId: true, offersSeenAt: true, cityId: true },
@@ -112,18 +120,22 @@ export async function getMyRequest(userId: string, id: string) {
   return { request, offers: items };
 }
 
-export async function markOffersSeen(userId: string, id: string): Promise<void> {
+export async function markOffersSeen(owner: Owner, id: string): Promise<void> {
+  if (!ownsId(owner, id)) return;
+  const userId = owner.id;
   await prisma.smartRequest.updateMany({ where: { id, userId }, data: { offersSeenAt: new Date() } });
 }
 
-async function ownOpenRequest(userId: string, id: string) {
+async function ownOpenRequest(owner: Owner, id: string) {
+  if (!ownsId(owner, id)) return { error: "notfound" as const };
+  const userId = owner.id;
   const row = await prisma.smartRequest.findFirst({ where: { id, userId }, select: { id: true, status: true, expiresAt: true } });
   if (!row) return { error: "notfound" as const };
   return isActionable(row) ? { row } : { error: "closed" as const };
 }
 
 export async function endRequest(actor: Actor, id: string, kind: "closed" | "cancelled"): Promise<ServiceResult> {
-  const own = await ownOpenRequest(actor.id, id);
+  const own = await ownOpenRequest(actor, id);
   if ("error" in own && own.error) return { ok: false, error: own.error };
   await prisma.smartRequest.updateMany({ where: { id, userId: actor.id, status: "open" }, data: { status: kind, closedAt: new Date() } });
   await writeAudit({ actorId: actor.id, actorEmail: actor.email, action: kind === "closed" ? "smartrequest.close" : "smartrequest.cancel", entity: "SmartRequest", entityId: id });
@@ -131,7 +143,7 @@ export async function endRequest(actor: Actor, id: string, kind: "closed" | "can
 }
 
 export async function selectOffer(actor: Actor, requestId: string, offerId: string): Promise<ServiceResult> {
-  const own = await ownOpenRequest(actor.id, requestId);
+  const own = await ownOpenRequest(actor, requestId);
   if ("error" in own && own.error) return { ok: false, error: own.error };
   const offer = await prisma.smartOffer.findFirst({ where: { id: offerId, requestId, status: "active" }, select: { id: true, businessId: true } });
   if (!offer) return { ok: false, error: "notfound" };

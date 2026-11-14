@@ -3,11 +3,13 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { currentAccount } from "@/lib/auth-helpers";
-import { hasConfirmedEmail } from "@/lib/email/verified";
+import { headers } from "next/headers";
+import { clientIp } from "@/lib/client-ip";
 import { allowShared } from "@/lib/rate-limit";
 import { isLocale } from "@/config/locales";
 import { guardForm } from "@/features/forms/guard";
 import { createRequestSchema, offerSchema } from "./rules";
+import { currentRequester, rememberGuestRequest } from "./guest";
 import { createRequest, endRequest, markSeen, selectOffer, setRequestsEnabled, submitOffer, withdrawOffer } from "./service";
 
 export type SmartFormState = { status: "idle" | "ok" | "error"; error?: "invalid" | "rate" | "failed" | "signin" | "unverified" | "limit" | "forbidden" | "closed" | "locked"; fields?: string[] };
@@ -19,18 +21,22 @@ const localeOf = (formData: FormData) => {
 const fieldsOf = (issues: { path: PropertyKey[] }[]) => [...new Set(issues.map((i) => String(i.path[0])))];
 
 export async function createRequestAction(_prev: SmartFormState, formData: FormData): Promise<SmartFormState> {
-  const user = await currentAccount().catch(() => null);
-  if (!user) return { status: "error", error: "signin" };
-  const guard = await guardForm(formData, `sr-create:${user.id}`, 5);
+  // Radar is public: a signed-in account or a guest (no account). Abuse protection is per client IP for everyone
+  // (honeypot + 5 per 10 min + 10 per day), plus the open-request cap per account or per device.
+  const guard = await guardForm(formData, "sr-create", 5);
   if (guard === "spam") return { status: "ok" };
   if (guard === "rate") return { status: "error", error: "rate" };
-  if (!(await allowShared("FORM_LIMITER", `sr-create-day:${user.id}`, 10, 24 * 3_600_000))) return { status: "error", error: "rate" };
+  const ip = clientIp(await headers());
+  if (!(await allowShared("FORM_LIMITER", `sr-create-day:${ip}`, 10, 24 * 3_600_000))) return { status: "error", error: "rate" };
   const parsed = createRequestSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { status: "error", error: "invalid", fields: fieldsOf(parsed.error.issues) };
-  if (!(await hasConfirmedEmail(user))) return { status: "error", error: "unverified" };
-  const result = await createRequest(user, parsed.data).catch(() => null);
+  const requester = await currentRequester({ create: true }).catch(() => null);
+  if (!requester) return { status: "error", error: "failed" };
+  if (!requester.guest && !(await allowShared("FORM_LIMITER", `sr-create-day:${requester.actor.id}`, 10, 24 * 3_600_000))) return { status: "error", error: "rate" };
+  const result = await createRequest(requester.actor, parsed.data).catch(() => null);
   if (!result) return { status: "error", error: "failed" };
   if (!result.ok) return { status: "error", error: result.error === "limit" ? "limit" : "invalid" };
+  if (requester.guest) await rememberGuestRequest(requester.actor.requestIds ?? [], result.id);
   revalidatePath(`/${localeOf(formData)}/smart-request`);
   redirect(`/${localeOf(formData)}/smart-request/${result.id}`);
 }
@@ -55,19 +61,28 @@ async function actor() {
   return currentAccount().catch(() => null);
 }
 
+/** Requester buttons (close, cancel, select): the account or the guest device, re-checked by the service. */
+async function requesterActor() {
+  return (await currentRequester().catch(() => null))?.actor ?? null;
+}
+/** Rate-limit key: the account, or the client IP for guests (who share one system owner id). */
+async function limitKey(user: { id: string; requestIds?: string[] }) {
+  return user.requestIds ? `guest:${clientIp(await headers())}` : user.id;
+}
+
 export async function endRequestAction(formData: FormData): Promise<void> {
-  const user = await actor();
+  const user = await requesterActor();
   const id = String(formData.get("id") ?? "");
   const kind = formData.get("kind") === "cancelled" ? "cancelled" : "closed";
-  if (user && id && (await allowShared("FORM_LIMITER", `sr-end:${user.id}`, 30, 3_600_000))) await endRequest(user, id, kind).catch(() => null);
+  if (user && id && (await allowShared("FORM_LIMITER", `sr-end:${await limitKey(user)}`, 30, 3_600_000))) await endRequest(user, id, kind).catch(() => null);
   revalidatePath(`/${localeOf(formData)}/smart-request`, "layout");
 }
 
 export async function selectOfferAction(formData: FormData): Promise<void> {
-  const user = await actor();
+  const user = await requesterActor();
   const requestId = String(formData.get("requestId") ?? "");
   const offerId = String(formData.get("offerId") ?? "");
-  if (user && requestId && offerId && (await allowShared("FORM_LIMITER", `sr-select:${user.id}`, 30, 3_600_000))) await selectOffer(user, requestId, offerId).catch(() => null);
+  if (user && requestId && offerId && (await allowShared("FORM_LIMITER", `sr-select:${await limitKey(user)}`, 30, 3_600_000))) await selectOffer(user, requestId, offerId).catch(() => null);
   revalidatePath(`/${localeOf(formData)}/smart-request`, "layout");
 }
 

@@ -61,8 +61,8 @@ export function renderedWithoutData(body: string): boolean {
 const KEY_HEADERS = ["rsc", "next-router-state-tree", "next-router-prefetch", "next-router-segment-prefetch", "next-url"] as const;
 /** Vary entries that are covered by the key (or irrelevant for cached copies). */
 const VARY_OK = new Set<string>([...KEY_HEADERS, "accept-encoding"]);
-/** Cookies whose presence makes a page personal (signed-in header, draft mode). */
-const PERSONAL_COOKIE = /(?:^|;\s*)(?:__Secure-|__Host-)?(?:authjs|next-auth)\.[^=]*=|(?:^|;\s*)__prerender_bypass=/i;
+/** Cookies whose presence makes a page personal (signed-in header, draft mode, a Radar guest's own requests). */
+const PERSONAL_COOKIE = /(?:^|;\s*)(?:__Secure-|__Host-)?(?:authjs|next-auth)\.[^=]*=|(?:^|;\s*)(?:__prerender_bypass|rega_radar)=/i;
 /** Set-Cookie headers that may be replayed from the cache: locale preference only. */
 const REPLAYABLE_COOKIE = /^(?:NEXT_LOCALE|REGA_LOCALE)=/;
 // Pages with one-time tokens in the URL or per-user content are never stored.
