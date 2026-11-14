@@ -374,7 +374,11 @@
     "myListings": "My listings",
     "addListing": "Add your business",
     "registerDoneUnavailable": "Your account was created, but we cannot send the confirmation email right now. You can sign in, but listing and reviewing stay locked until your email is confirmed. Please contact us.",
-    "verifyUnavailable": "Email confirmation is temporarily unavailable. Please contact us to confirm your address."
+    "verifyUnavailable": "Email confirmation is temporarily unavailable. Please contact us to confirm your address.",
+    "myBusinesses": "My businesses",
+    "addBusiness": "Add business",
+    "noBusinesses": "You have not added a business yet.",
+    "manageAll": "Manage all businesses"
   },
   "dashboard": {
     "title": "Management dashboard",
@@ -881,7 +885,9 @@
     "err_too_far": "An offer can start at most one year ahead.",
     "err_discount_invalid": "Enter a valid discount: a whole percentage from 1 to 90, or a positive amount with a currency.",
     "err_percent_mismatch": "The title or description mentions a percentage that differs from the discount you entered.",
-    "err_percent_without_discount": "The title or description mentions a percentage, but no percentage discount is set. Remove it or set the discount."
+    "err_percent_without_discount": "The title or description mentions a percentage, but no percentage discount is set. Remove it or set the discount.",
+    "chooseBusiness": "Which business is this advertisement for?",
+    "needBusiness": "To add an advertisement, first add a business in your account."
   },
   "catForm": {
     "new": "New category",

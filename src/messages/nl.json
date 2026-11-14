@@ -374,7 +374,11 @@
     "myListings": "Mijn vermeldingen",
     "addListing": "Voeg je bedrijf toe",
     "registerDoneUnavailable": "Je account is aangemaakt, maar we kunnen de bevestigingsmail op dit moment niet versturen. Je kunt inloggen, maar vermelden en beoordelen blijven geblokkeerd tot je e-mailadres is bevestigd. Neem contact met ons op.",
-    "verifyUnavailable": "E-mailbevestiging is tijdelijk niet beschikbaar. Neem contact met ons op om je adres te bevestigen."
+    "verifyUnavailable": "E-mailbevestiging is tijdelijk niet beschikbaar. Neem contact met ons op om je adres te bevestigen.",
+    "myBusinesses": "Mijn bedrijven",
+    "addBusiness": "Bedrijf toevoegen",
+    "noBusinesses": "Je hebt nog geen bedrijf toegevoegd.",
+    "manageAll": "Alle bedrijven beheren"
   },
   "dashboard": {
     "title": "Beheerdashboard",
@@ -881,7 +885,9 @@
     "err_too_far": "Een aanbieding kan maximaal een jaar vooruit beginnen.",
     "err_discount_invalid": "Voer een geldige korting in: een heel percentage van 1 tot 90, of een positief bedrag met valuta.",
     "err_percent_mismatch": "De titel of beschrijving noemt een percentage dat afwijkt van de ingevoerde korting.",
-    "err_percent_without_discount": "De titel of beschrijving noemt een percentage, maar er is geen procentuele korting ingesteld. Verwijder het of stel de korting in."
+    "err_percent_without_discount": "De titel of beschrijving noemt een percentage, maar er is geen procentuele korting ingesteld. Verwijder het of stel de korting in.",
+    "chooseBusiness": "Voor welk bedrijf is deze advertentie?",
+    "needBusiness": "Voeg eerst een bedrijf toe in je account om een advertentie toe te voegen."
   },
   "catForm": {
     "new": "Nieuwe categorie",

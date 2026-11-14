@@ -9,7 +9,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import NextLink from "next/link";
 import { prisma } from "@/lib/db";
 import { emailEnabled } from "@/lib/email";
-import { atLeast, canEnterDashboard } from "@/lib/rbac";
+import { atLeast, can, canEnterDashboard } from "@/lib/rbac";
 import { ResendVerification } from "@/features/auth/AuthForms";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
@@ -27,6 +27,15 @@ export default async function AccountPage({ params }: { params: Promise<{ locale
   const u = session.user;
   const row = await prisma.user.findFirst({ where: { id: u.id, deletedAt: null }, select: { emailVerified: true } }).catch(() => null);
   const unverified = row !== null && row.emailVerified === null && !atLeast(u.role, "EMPLOYEE");
+  // Business registration and management live here, in the account — not behind "add advertisement".
+  // Only the businesses this person is an active member of (the same membership the dashboard enforces).
+  const managesBusinesses = can(u.role, "business.write");
+  const myBusinesses = managesBusinesses
+    ? await prisma.business.findMany({
+        where: { deletedAt: null, members: { some: { userId: u.id, isActive: true } } },
+        orderBy: { updatedAt: "desc" }, take: 6, select: { id: true, name: true, status: true },
+      }).catch(() => [])
+    : [];
 
   async function logout() {
     "use server";
@@ -43,6 +52,26 @@ export default async function AccountPage({ params }: { params: Promise<{ locale
           <a href="#profile" className="rega-card flex min-h-[105px] items-center p-5 text-lg font-bold hover:text-brand-text">{t("auth.profile")}</a>
           <form action={logout} className="rega-card flex"><button type="submit" className="min-h-[105px] w-full p-5 text-start text-lg font-bold hover:text-brand-text">{t("auth.signOut")}</button></form>
         </nav>}
+
+        {managesBusinesses && <section aria-labelledby="my-businesses" className="mb-8 rounded-[14px] border border-line bg-surface p-6" data-testid="account-my-businesses">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <h2 id="my-businesses" className="text-lg font-bold">{t("auth.myBusinesses")}</h2>
+            <NextLink href="/dr/businesses/new" className="inline-flex min-h-11 items-center rounded-xl border-2 border-brand px-4 text-sm font-bold text-brand-text hover:bg-brand hover:text-brand-ink" data-testid="account-add-business">+ {t("auth.addBusiness")}</NextLink>
+          </div>
+          {myBusinesses.length === 0
+            ? <p className="text-sm text-muted">{t("auth.noBusinesses")}</p>
+            : <ul className="divide-y divide-line">
+                {myBusinesses.map((b) => (
+                  <li key={b.id}>
+                    <NextLink href={`/dr/businesses/${b.id}`} className="flex min-h-12 items-center justify-between gap-3 py-2 font-semibold hover:text-brand-text">
+                      <bdi className="truncate">{b.name}</bdi>
+                      <span className="shrink-0 text-xs font-normal text-muted">{t(`status.${b.status}`)}</span>
+                    </NextLink>
+                  </li>
+                ))}
+              </ul>}
+          {u.role !== "BUSINESS_OWNER" && <NextLink href="/dr/businesses" className="mt-4 inline-block text-sm font-semibold text-brand-text hover:underline">{t("auth.manageAll")}</NextLink>}
+        </section>}
 
         <section aria-labelledby="profile" className={`space-y-4 rounded-[14px] border border-line bg-surface p-6 ${u.role === "BUSINESS_OWNER" ? "min-h-[420px]" : "mx-auto max-w-md"}`}>
           <h2 id="profile" className="text-lg font-bold">{t("auth.profile")}</h2>

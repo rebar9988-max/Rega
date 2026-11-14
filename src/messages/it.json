@@ -374,7 +374,11 @@
     "myListings": "I miei annunci",
     "addListing": "Aggiungi la tua attività",
     "registerDoneUnavailable": "Il tuo account è stato creato, ma al momento non possiamo inviare l’e-mail di conferma. Puoi accedere, ma la pubblicazione e le recensioni restano bloccate finché la tua e-mail non è confermata. Contattaci.",
-    "verifyUnavailable": "La conferma dell’e-mail è temporaneamente non disponibile. Contattaci per confermare il tuo indirizzo."
+    "verifyUnavailable": "La conferma dell’e-mail è temporaneamente non disponibile. Contattaci per confermare il tuo indirizzo.",
+    "myBusinesses": "Le mie attività",
+    "addBusiness": "Aggiungi attività",
+    "noBusinesses": "Non hai ancora aggiunto un'attività.",
+    "manageAll": "Gestisci tutte le attività"
   },
   "dashboard": {
     "title": "Pannello di gestione",
@@ -881,7 +885,9 @@
     "err_too_far": "Un’offerta può iniziare al massimo tra un anno.",
     "err_discount_invalid": "Inserisci uno sconto valido: una percentuale intera da 1 a 90 oppure un importo positivo con valuta.",
     "err_percent_mismatch": "Il titolo o la descrizione indicano una percentuale diversa dallo sconto inserito.",
-    "err_percent_without_discount": "Il titolo o la descrizione indicano una percentuale, ma non è impostato uno sconto percentuale. Rimuovila o imposta lo sconto."
+    "err_percent_without_discount": "Il titolo o la descrizione indicano una percentuale, ma non è impostato uno sconto percentuale. Rimuovila o imposta lo sconto.",
+    "chooseBusiness": "Per quale attività è questo annuncio?",
+    "needBusiness": "Per aggiungere un annuncio, aggiungi prima un'attività nel tuo account."
   },
   "catForm": {
     "new": "Nuova categoria",

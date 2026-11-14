@@ -374,7 +374,11 @@
     "myListings": "Meine Einträge",
     "addListing": "Unternehmen eintragen",
     "registerDoneUnavailable": "Ihr Konto wurde erstellt, aber wir können die Bestätigungs-E-Mail gerade nicht senden. Sie können sich anmelden; Einträge und Bewertungen bleiben gesperrt, bis Ihre E-Mail-Adresse bestätigt ist. Bitte kontaktieren Sie uns.",
-    "verifyUnavailable": "Die E-Mail-Bestätigung ist vorübergehend nicht verfügbar. Bitte kontaktieren Sie uns, um Ihre Adresse bestätigen zu lassen."
+    "verifyUnavailable": "Die E-Mail-Bestätigung ist vorübergehend nicht verfügbar. Bitte kontaktieren Sie uns, um Ihre Adresse bestätigen zu lassen.",
+    "myBusinesses": "Meine Unternehmen",
+    "addBusiness": "Unternehmen hinzufügen",
+    "noBusinesses": "Sie haben noch kein Unternehmen hinzugefügt.",
+    "manageAll": "Alle Unternehmen verwalten"
   },
   "dashboard": {
     "title": "Verwaltungs-Dashboard",
@@ -881,7 +885,9 @@
     "err_too_far": "Ein Angebot kann höchstens ein Jahr im Voraus beginnen.",
     "err_discount_invalid": "Geben Sie einen gültigen Rabatt ein: einen ganzen Prozentsatz von 1 bis 90 oder einen positiven Betrag mit Währung.",
     "err_percent_mismatch": "Titel oder Beschreibung nennen einen Prozentsatz, der vom eingegebenen Rabatt abweicht.",
-    "err_percent_without_discount": "Titel oder Beschreibung nennen einen Prozentsatz, aber es ist kein Prozentrabatt eingetragen. Entfernen Sie ihn oder tragen Sie den Rabatt ein."
+    "err_percent_without_discount": "Titel oder Beschreibung nennen einen Prozentsatz, aber es ist kein Prozentrabatt eingetragen. Entfernen Sie ihn oder tragen Sie den Rabatt ein.",
+    "chooseBusiness": "Für welches Unternehmen ist diese Anzeige?",
+    "needBusiness": "Um eine Anzeige hinzuzufügen, fügen Sie zuerst in Ihrem Konto ein Unternehmen hinzu."
   },
   "catForm": {
     "new": "Neue Kategorie",
