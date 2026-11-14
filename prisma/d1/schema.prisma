@@ -293,6 +293,10 @@ model Business {
   /// Public business WhatsApp number in international format ("+491784228269"). Never the owner's account phone.
   whatsapp       String?
   website        String?
+  instagramUrl   String?
+  snapchatUrl    String?
+  facebookUrl    String?
+  tiktokUrl      String?
   logoUrl        String?
   coverUrl       String?
   status         String    @default("draft") // draft | pending (submitted for review) | published | archived

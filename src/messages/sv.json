@@ -720,7 +720,7 @@
     "wizard": {
       "steps": "Registreringssteg",
       "step1": "Företag och plats",
-      "step2": "Logotyp och bilder",
+      "step2": "Kontakt och bilder",
       "step3": "Granska och skicka",
       "next": "Nästa",
       "back": "Tillbaka",
@@ -748,7 +748,13 @@
     "exceptionHours": "Tider",
     "exceptionReason": "Anledning (valfritt, offentligt)",
     "exceptionRemove": "Ta bort",
-    "exceptionAdd": "Lägg till stängning eller avvikande öppettider"
+    "exceptionAdd": "Lägg till stängning eller avvikande öppettider",
+    "socialLinks": "Sociala medier",
+    "socialLinksHint": "Valfritt: lägg till länkar så att besökare kan öppna dina profiler direkt.",
+    "instagram": "Instagram",
+    "snapchat": "Snapchat",
+    "facebook": "Facebook",
+    "tiktok": "TikTok"
   },
   "contact": {
     "title": "Kontakt",

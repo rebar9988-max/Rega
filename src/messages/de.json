@@ -719,8 +719,8 @@
     "mediaInvalid": "Ein Foto konnte nicht übernommen werden. Laden Sie es erneut mit der Upload-Schaltfläche hoch.",
     "wizard": {
       "steps": "Schritte der Registrierung",
-      "step1": "Unternehmen & Standort",
-      "step2": "Logo & Bilder",
+      "step1": "Betrieb und Standort",
+      "step2": "Kontakt und Bilder",
       "step3": "Prüfen & einreichen",
       "next": "Weiter",
       "back": "Zurück",
@@ -748,7 +748,13 @@
     "exceptionHours": "Zeiten",
     "exceptionReason": "Grund (optional, öffentlich)",
     "exceptionRemove": "Entfernen",
-    "exceptionAdd": "Schließung oder besondere Zeiten hinzufügen"
+    "exceptionAdd": "Schließung oder besondere Zeiten hinzufügen",
+    "socialLinks": "Soziale Medien",
+    "socialLinksHint": "Optional: Links hinzufügen, damit Gäste direkt dein Profil öffnen können.",
+    "instagram": "Instagram",
+    "snapchat": "Snapchat",
+    "facebook": "Facebook",
+    "tiktok": "TikTok"
   },
   "contact": {
     "title": "Kontakt",

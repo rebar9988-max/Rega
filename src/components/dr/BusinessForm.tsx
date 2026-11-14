@@ -4,7 +4,7 @@
  * Admin create/edit form: business details, address and a confirmed map location. Everything is validated again
  * on the server (saveBusinessAction); this component only helps the admin fill it in correctly.
  *
- * Owners use three steps: information/location, images, then review. All panels stay mounted.
+ * Owners use three steps: business and location, contact/hours/photos/social links, then review. All panels stay mounted.
  * Valid draft progress is saved through the existing server action; staff keep the single-page form.
  */
 import dynamic from "next/dynamic";
@@ -14,7 +14,7 @@ import { LOCALES, LOCALE_META, localeSuffix, type Locale } from "@/config/locale
 import { isValidCoordinate } from "@/lib/coordinates";
 import type { GeocodeHit } from "@/lib/geocoder-parse";
 import { geocodeAction, saveBusinessAction, type BusinessFormState } from "@/app/dr/businesses/actions";
-import { type HoursMode, type HoursException, type WeekDay } from "@/lib/opening-hours";
+import { parseOpeningHours, WEEK, type HoursMode, type HoursException, type WeekDay } from "@/lib/opening-hours";
 import { normalizeWhatsapp } from "@/lib/whatsapp";
 import { BusinessImageField } from "./BusinessImageField";
 import { PhotosField } from "./PhotosField";
@@ -29,7 +29,7 @@ const LocationPicker = dynamic(() => import("./LocationPicker").then((m) => m.Lo
 export type FormCity = { id: string; name: string; names: string[]; countryCode: string; lat: number | null; lng: number | null };
 export type FormInitial = {
   id?: string; name?: string; nameCkb?: string; categoryId?: string; description?: string; descriptionCkb?: string;
-  phone?: string; whatsapp?: string; email?: string; website?: string; addressLine1?: string; postalCode?: string; city?: string; countryCode?: string;
+  phone?: string; whatsapp?: string; email?: string; website?: string; instagramUrl?: string; snapchatUrl?: string; facebookUrl?: string; tiktokUrl?: string; addressLine1?: string; postalCode?: string; city?: string; countryCode?: string;
   latitude?: number | null; longitude?: number | null; coordsSource?: string | null; coordsVerified?: boolean;
   status?: string;
   hoursMode?: HoursMode; hours?: Partial<Record<WeekDay, string>>; holidaysClosed?: boolean; hoursExceptions?: HoursException[]; logoUrl?: string | null; coverUrl?: string | null; photos?: string[];
@@ -133,8 +133,28 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
     if (n === 1) return [
       ...(name.trim().length < 2 ? ["name"] : []), ...(categoryId ? [] : ["categoryId"]),
       ...(address.trim().length < 3 ? ["addressLine1"] : []), ...(cityMatch ? [] : ["city"]), ...(country ? [] : ["countryCode"]),
-      ...(coordsOk && confirmed ? [] : ["latitude"]), ...(waResult && !waResult.ok ? ["whatsapp"] : []),
+      ...(coordsOk && confirmed ? [] : ["latitude"]),
     ];
+    if (n === 2 && formRef.current) {
+      const data = new FormData(formRef.current);
+      const hours = parseOpeningHours(Object.fromEntries([
+        ...WEEK.map((day) => [day, String(data.get(`hours_${day}`) ?? "")] as const),
+        ["mode", String(data.get("hoursMode") ?? "custom")] as const,
+      ]));
+      const socialDomains: Record<string, string> = { instagramUrl: "instagram.com", snapchatUrl: "snapchat.com", facebookUrl: "facebook.com", tiktokUrl: "tiktok.com" };
+      const invalidUrls = ["website", ...Object.keys(socialDomains)].filter((key) => {
+        const field = formRef.current?.elements.namedItem(key);
+        if (!(field instanceof HTMLInputElement) || !field.value) return false;
+        if (!field.validity.valid) return true;
+        const domain = socialDomains[key];
+        if (!domain) return false;
+        try {
+          const url = new URL(field.value);
+          return url.protocol !== "https:" || !(url.hostname === domain || url.hostname.endsWith(`.${domain}`));
+        } catch { return true; }
+      });
+      return [...(waResult && !waResult.ok ? ["whatsapp"] : []), ...(hours.ok ? [] : hours.invalid.map((day) => day === "mode" ? "hoursMode" : `hours_${day}`)), ...invalidUrls];
+    }
     return [];
   }
 
@@ -142,7 +162,7 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
     if (n === 3 && formRef.current) {
       const data = new FormData(formRef.current);
       setReviewImages([data.get("logoUrl"), data.get("coverUrl"), ...data.getAll("photoUrls")].filter((v): v is string => typeof v === "string" && v.startsWith("https://")));
-      setReviewContact([data.get("phone"),data.get("email"),data.get("whatsapp"),data.get("website")].filter((v): v is string => typeof v === "string" && Boolean(v)));
+      setReviewContact(["phone", "email", "whatsapp", "website", "instagramUrl", "snapchatUrl", "facebookUrl", "tiktokUrl"].map((key) => data.get(key)).filter((v): v is string => typeof v === "string" && Boolean(v)));
     }
     setStep(n);
     setStepErrors([]);
@@ -195,8 +215,10 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
         const data = new FormData(e.currentTarget, (e.nativeEvent as SubmitEvent).submitter);
         data.set("draftRevision", String(dirtyAt));
         if (wizard && data.get("intent") === "submit") {
-          const missing = missingOn(1);
-          if (missing.length) { goTo(1); setStepErrors(missing); return; }
+          const basicMissing = missingOn(1);
+          if (basicMissing.length) { goTo(1); setStepErrors(basicMissing); return; }
+          const detailsMissing = missingOn(2);
+          if (detailsMissing.length) { goTo(2); setStepErrors(detailsMissing); return; }
         }
         startSubmit(() => formAction(data));
       }}
@@ -204,12 +226,13 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
       {businessId && <input type="hidden" name="id" value={businessId} />}
       {wizard && (
         <nav aria-label={t("wizard.steps")}>
-          <ol className="flex flex-wrap gap-2 text-sm font-semibold" data-testid="wizard-steps">
+          {/* One row of three equal steps at every width (mobile first); done steps show a check, order follows dir (RTL mirrors). */}
+          <ol className="grid grid-cols-3 gap-2 text-xs font-semibold sm:text-sm" data-testid="wizard-steps">
             {([1, 2, 3] as const).map((n) => (
               <li key={n} aria-current={step === n ? "step" : undefined} data-testid={`wizard-step-${n}`}
-                className={`flex items-center gap-2 rounded-xl border px-3 py-2 ${step === n ? "border-brand bg-brand-soft text-ink" : "border-line text-muted"}`}>
-                <span aria-hidden="true" className={`grid size-6 place-items-center rounded-full text-xs font-bold ${step === n ? "bg-brand text-brand-ink" : "bg-surface-2"}`}>{n}</span>
-                {t(`wizard.step${n}`)}
+                className={`flex min-h-12 min-w-0 flex-col items-center justify-center gap-1 rounded-xl border px-2 py-2 text-center sm:flex-row sm:gap-2 ${step === n ? "border-brand bg-brand-soft text-ink" : n < step ? "border-line text-ink" : "border-line text-muted"}`}>
+                <span aria-hidden="true" className={`grid size-7 shrink-0 place-items-center rounded-full text-xs font-bold ${step >= n ? "bg-brand text-brand-ink" : "bg-surface-2"}`}>{n < step ? "✓" : n}</span>
+                <span className="leading-tight">{t(`wizard.step${n}`)}</span>
               </li>
             ))}
           </ol>
@@ -278,7 +301,7 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
       </fieldset>
       </div>
 
-      <div hidden={!show(1)}>
+      <div hidden={!show(2)}>
       <fieldset className="grid gap-4 rounded-[var(--radius-card)] border border-line bg-surface p-5 ">
         <legend className="px-1 text-base font-bold">{t("sectionContact")}</legend>
         <p className="text-xs text-muted ">{t("publicContactHint")}</p>
@@ -373,8 +396,10 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
           <span><span className="font-semibold">{t("confirm")}</span><br /><span className="text-muted">{t("confirmHint")}</span></span>
         </label>
       </fieldset>
+      </div>
 
-      <details open={canPublish} className="rounded-[var(--radius-card)] border border-line bg-surface p-5"><summary className="cursor-pointer text-sm font-semibold">{t("sectionHours")}</summary>
+      <div hidden={!show(2)} className="grid gap-8">
+      <details open={canPublish || WEEK.some((day) => bad(`hours_${day}`))} className="rounded-[var(--radius-card)] border border-line bg-surface p-5"><summary className="cursor-pointer text-sm font-semibold">{t("sectionHours")}</summary>
       <fieldset className="mt-3 space-y-4">
         <legend className="sr-only">{t("sectionHours")}</legend>
         <BusinessHoursEditor initial={initial.hours} mode={initial.hoursMode} invalid={bad} />
@@ -385,6 +410,15 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
       </div>
 
       <div hidden={!show(2)} className="grid gap-8">
+      <fieldset className="grid gap-4 rounded-[var(--radius-card)] border border-line bg-surface p-5" data-testid="business-social-links">
+        <legend className="px-1 text-base font-bold">{t("socialLinks")}</legend>
+        <p className="text-sm text-muted">{t("socialLinksHint")}</p>
+        {(["instagram", "snapchat", "facebook", "tiktok"] as const).map((platform) => (
+          <label key={platform} className="flex flex-col gap-1 text-sm font-semibold">{t(platform)}
+            <input name={`${platform}Url`} type="url" dir="ltr" maxLength={300} placeholder={`https://www.${platform}.com/...`} defaultValue={initial[`${platform}Url`]} className={input} aria-invalid={bad(`${platform}Url`)} />
+          </label>
+        ))}
+      </fieldset>
       <fieldset className="grid gap-4 rounded-[var(--radius-card)] border border-line bg-surface p-5 ">
         <legend className="px-1 text-base font-bold">{t("sectionMedia")}</legend>
         <BusinessImageField name="logoUrl" label={t("logo")} initial={initial.logoUrl ?? ""} businessId={businessId} storageReady={storageReady} invalid={bad("logoUrl")} onBusyChange={onMediaBusy} onValueChange={onMediaChange} />
@@ -416,16 +450,16 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
 
       <div className="flex flex-wrap gap-3">
         {wizard && step > 1 && (
-          <button type="button" onClick={() => goTo((step - 1) as 1 | 2)} disabled={saving || mediaBusy > 0} data-testid="wizard-back" className="min-h-11 rounded-xl border border-line bg-surface px-6 text-sm font-bold hover:border-brand hover:text-brand-text disabled:opacity-60">{t("wizard.back")}</button>
+          <button type="button" onClick={() => goTo((step - 1) as 1 | 2)} disabled={saving || mediaBusy > 0} data-testid="wizard-back" className="min-h-12 rounded-xl border border-line bg-surface px-6 text-sm font-bold hover:border-brand hover:text-brand-text disabled:opacity-60">{t("wizard.back")}</button>
         )}
         {wizard && step < 3 && (
-          <button type="button" onClick={next} disabled={saving || mediaBusy > 0} data-testid="wizard-next" className="min-h-11 rounded-xl bg-brand px-6 text-sm font-bold text-brand-ink hover:bg-brand-hover disabled:opacity-60">{t("wizard.next")}</button>
+          <button type="button" onClick={next} disabled={saving || mediaBusy > 0} data-testid="wizard-next" className="min-h-12 rounded-xl bg-brand px-6 text-sm font-bold text-brand-ink hover:bg-brand-hover disabled:opacity-60">{t("wizard.next")}</button>
         )}
-        <button type="submit" name="intent" value={wizard && isDraft ? "draft" : "save"} disabled={saving || mediaBusy > 0 || (wizard && isDraft && name.trim().length < 2)} data-testid={wizard && isDraft ? "save-draft" : "save"} className="min-h-11 rounded-xl border border-line bg-surface px-6 text-sm font-bold hover:border-brand hover:text-brand-text disabled:opacity-60">{wizard && isDraft ? t("wizard.saveDraft") : t("save")}</button>
+        <button type="submit" name="intent" value={wizard && isDraft ? "draft" : "save"} disabled={saving || mediaBusy > 0 || (wizard && isDraft && name.trim().length < 2)} data-testid={wizard && isDraft ? "save-draft" : "save"} className="min-h-12 rounded-xl border border-line bg-surface px-6 text-sm font-bold hover:border-brand hover:text-brand-text disabled:opacity-60">{wizard && isDraft ? t("wizard.saveDraft") : t("save")}</button>
         {canPublish ? (
-          <button type="submit" name="intent" value="publish" disabled={saving || mediaBusy > 0} className="min-h-11 rounded-xl bg-brand px-6 text-sm font-bold text-brand-ink hover:bg-brand-hover disabled:opacity-60">{t("savePublish")}</button>
+          <button type="submit" name="intent" value="publish" disabled={saving || mediaBusy > 0} className="min-h-12 rounded-xl bg-brand px-6 text-sm font-bold text-brand-ink hover:bg-brand-hover disabled:opacity-60">{t("savePublish")}</button>
         ) : (!wizard || step === 3) && (
-          <button type="submit" name="intent" value="submit" disabled={saving || mediaBusy > 0 || initial.status === "pending" || initial.status === "published"} data-testid="submit-review" className="min-h-11 rounded-xl bg-brand px-6 text-sm font-bold text-brand-ink hover:bg-brand-hover disabled:opacity-60">{t("submitReview")}</button>
+          <button type="submit" name="intent" value="submit" disabled={saving || mediaBusy > 0 || initial.status === "pending" || initial.status === "published"} data-testid="submit-review" className="min-h-12 rounded-xl bg-brand px-6 text-sm font-bold text-brand-ink hover:bg-brand-hover disabled:opacity-60">{t("submitReview")}</button>
         )}
       </div>
     </form>

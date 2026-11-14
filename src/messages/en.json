@@ -719,8 +719,8 @@
     "mediaInvalid": "A photo could not be accepted. Upload it again with the upload button.",
     "wizard": {
       "steps": "Registration steps",
-      "step1": "Business & location",
-      "step2": "Logo & images",
+      "step1": "Business and location",
+      "step2": "Contact and photos",
       "step3": "Review & submit",
       "next": "Next",
       "back": "Back",
@@ -748,7 +748,13 @@
     "exceptionHours": "Hours",
     "exceptionReason": "Reason (optional, public)",
     "exceptionRemove": "Remove",
-    "exceptionAdd": "Add a closure or special hours"
+    "exceptionAdd": "Add a closure or special hours",
+    "socialLinks": "Social media",
+    "socialLinksHint": "Optional: add your links so visitors can open your profiles directly.",
+    "instagram": "Instagram",
+    "snapchat": "Snapchat",
+    "facebook": "Facebook",
+    "tiktok": "TikTok"
   },
   "contact": {
     "title": "Contact",
