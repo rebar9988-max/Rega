@@ -525,7 +525,7 @@
 
 /* Owner's red/silver banner: scoped to the public header only. */
 .rega-header { --ring: #fff; isolation: isolate; background: #920009; }
-.rega-header-art { position: absolute; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(180deg, transparent 0%, transparent 54%, rgb(43 8 5 / .12) 68%, rgb(43 8 5 / .62) 86%, var(--brand-night) 100%), url('/brand/rega24-header-backdrop.svg') center / cover no-repeat; }
+.rega-header-art { position: absolute; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(180deg, transparent 0%, transparent 54%, rgb(43 8 5 / .36) 66%, rgb(43 8 5 / .88) 78%, var(--brand-night) 84%, var(--brand-night) 100%), url('/brand/rega24-header-backdrop.svg') center / cover no-repeat; }
 .rega-header-inner { max-width: 1600px; margin: auto; padding: clamp(20px, 4vw, 60px) clamp(16px, 4vw, 64px) clamp(36px, 5vw, 76px); }
 .rega-header-row { display: flex; align-items: center; justify-content: space-between; gap: 3%; min-height: clamp(100px, 15vw, 230px); }
 .rega-header-brand { display: block; width: 49%; flex-shrink: 0; border-radius: 16px; }
