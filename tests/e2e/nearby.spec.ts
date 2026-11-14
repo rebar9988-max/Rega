@@ -267,3 +267,21 @@ test.describe("location unavailable", () => {
     await expect(page.getByTestId("nearby-results")).toContainText("Kurdistan Rechtsberatung");
   });
 });
+
+
+test("GPS requests a fresh precise fix while network coordinates remain coarse", async ({ page }) => {
+  await stubBasemap(page);
+  await page.addInitScript(() => {
+    navigator.geolocation.getCurrentPosition = (ok, _error, options) => {
+      (window as unknown as { gpsOptions: PositionOptions }).gpsOptions = options!;
+      ok({ coords: { latitude: 52.520123, longitude: 13.404987, accuracy: 5 }, timestamp: Date.now() } as GeolocationPosition);
+    };
+  });
+  await page.goto("/de/nearby");
+  const request = page.waitForRequest(r => r.url().includes("/api/v1/nearby?"));
+  await page.getByTestId("nearby-locate").click();
+  const url = new URL((await request).url());
+  expect(url.searchParams.get("lat")).toBe("52.52");
+  expect(url.searchParams.get("lng")).toBe("13.405");
+  expect(await page.evaluate(() => (window as unknown as { gpsOptions: PositionOptions }).gpsOptions)).toEqual({ enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
+});

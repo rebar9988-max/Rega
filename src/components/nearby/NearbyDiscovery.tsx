@@ -16,6 +16,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { LOCALE_META, formatNumber, type Locale } from "@/i18n/locales";
 import { localize } from "@/lib/content";
+import { isValidCoordinate } from "@/lib/coordinates";
 import { RADII_KM, coarsen, distanceKm } from "@/lib/geo";
 import { forwardGeocode, reverseGeocode, type Place } from "@/lib/geocode";
 import { getSavedLocation, saveLocation } from "@/lib/location-store";
@@ -142,12 +143,13 @@ export function NearbyDiscovery({ cities, categories, initial, radiusLabels }: {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         if (locationVersion !== locationRequest.current) return;
-        const here = { lat: coarsen(pos.coords.latitude), lng: coarsen(pos.coords.longitude) };
+        const here = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        if (!isValidCoordinate(here.lat, here.lng)) return setStatus("unavailable");
         setDevice(here);
         setCenter({ ...here, label: { kind: "device" } });
       },
       (err) => { if (locationVersion === locationRequest.current) setStatus(err.code === err.PERMISSION_DENIED ? "denied" : "unavailable"); },
-      { enableHighAccuracy: false, timeout: 10_000, maximumAge: 5 * 60_000 },
+      { enableHighAccuracy: true, timeout: 15_000, maximumAge: 0 },
     );
   }, []);
 
@@ -189,7 +191,7 @@ export function NearbyDiscovery({ cities, categories, initial, radiusLabels }: {
   }, [q]);
 
   const params = useCallback((c: Center, extra: Record<string, string>) => {
-    const p = new URLSearchParams({ lat: String(c.lat), lng: String(c.lng), radius: String(filters.radius), sort: filters.sort, ...extra });
+    const p = new URLSearchParams({ lat: String(coarsen(c.lat)), lng: String(coarsen(c.lng)), radius: String(filters.radius), sort: filters.sort, ...extra });
     if (filters.q) p.set("q", filters.q);
     if (filters.category) p.set("category", filters.category);
     if (filters.open) p.set("open", "1");

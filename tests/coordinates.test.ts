@@ -68,3 +68,20 @@ test("isCompletePostalCode waits for a whole code per country", () => {
   assert.ok(isCompletePostalCode("114 55", "SE") && isCompletePostalCode("SW1A 1AA", "GB"));
   assert.ok(isCompletePostalCode("H3Z 2Y7", "CA") && !isCompletePostalCode("H3", "CA") && !isCompletePostalCode("", "CA"));
 });
+
+
+test("geocoder rejects missing coordinates instead of coercing them to zero", () => {
+  for (const value of [null, undefined, "", "  ", false, true, [], {}]) {
+    for (const row of [{ lat: value, lon: "7" }, { lat: "51", lon: value }]) {
+      assert.deepEqual(parseNominatim([row]), []);
+      assert.equal(parsePostal([row]), null);
+    }
+  }
+  assert.equal(parseNominatim([{ lat: "0", lon: "7" }]).length, 1);
+});
+
+test("residential areas and generic places are not precise addresses", () => {
+  for (const addresstype of ["residential", "place", "postcode", "village"]) {
+    assert.equal(parseNominatim([{ lat: "51", lon: "7", addresstype }])[0].precision, "area");
+  }
+});
