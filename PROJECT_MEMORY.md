@@ -1554,3 +1554,16 @@ had `pip install uv==0.13.8` in its build command. Not a GitHub Actions failure,
 production never affected. Fix: `uv>=0.13.4` in the `dev` dependency group, so `uv run` finds a new enough uv in the
 project venv. No Cloudflare setting, paid service or runtime code changed. Also records the home soft-depth release:
 PR #153 merged as `f800a22`, CI + deploy + production browser check green, live stylesheet carries the new rules.
+
+## Home: soft-3D category icons from the owner reference image — 2026-11-14 (branch `design/rega24-3d-icons-reference-20261114`)
+Owner sent the reference image (search panel, eight category cards with coloured 3D icons, empty state with a shop
+illustration) and a Figma-first instruction; Figma now has a Pro/Full seat (the earlier quota block no longer applies).
+Figma file `5h9pkPCkGHznr4z0JApqVT` ("REGA24 — Home UI 2026"): token variables, text and effect styles, 20 icon
+components + shop illustration, and Sorani RTL home frames at 390/768/1440. The header logo is a labelled placeholder
+there: the official asset is not redrawn. Code: new `src/components/home/Icon3D.tsx` (original inline SVG, one icon per
+category slug + "more", `StoreArt`), used by the hero category cards, the explore-row fallback and the empty state;
+card/label/empty-state rules in `globals.css`. The icons use their own multi-colour palette as in the reference; brand
+tokens, header, logo, routes, data, search form and i18n are unchanged. No dependency, image file or network request.
+Deviations from the reference: icons are vector illustrations, not rendered 3D bitmaps; the car is an original red car
+(the reference showed a photographed vehicle). Local check: static render at 320/390/768/1440/1920 in ckb/en/de, no
+horizontal overflow (fallback font). Lint/typecheck/build/Playwright in GitHub CI.

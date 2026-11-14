@@ -4,6 +4,7 @@ import { Link } from "@/i18n/routing";
 import { notFound } from "next/navigation";
 import { LOCALE_META, isLocale, type Locale } from "@/i18n/locales";
 import { CATEGORY_ICON, FigmaIcon } from "@/components/home/FigmaIcon";
+import { Icon3D, StoreArt, hasIcon3D } from "@/components/home/Icon3D";
 import { HeroWorldArt, MapBannerArt } from "@/components/home/HomeArt";
 import { HomeBusinessCard } from "@/components/home/HomeBusinessCard";
 import { HomeBusinessTabs, type BusinessTab } from "@/components/home/HomeBusinessTabs";
@@ -189,14 +190,16 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               {tiles.map((c, i) => (
                 <li key={c.id} className={i >= 7 ? "rh-tile-extra" : undefined}>
                   <Link href={`/businesses/${c.slug}`} className="rh-tile">
-                    <FigmaIcon name={CATEGORY_ICON[c.slug] ?? "briefcase-business"} className="rh-tile-icon" />
+                    {hasIcon3D(c.slug)
+                      ? <Icon3D name={c.slug} className="rh-tile-art" />
+                      : <FigmaIcon name={CATEGORY_ICON[c.slug] ?? "briefcase-business"} className="rh-tile-icon" />}
                     <span className="rh-tile-label"><Text value={categoryName(c)} pageLang={pageLang} /></span>
                   </Link>
                 </li>
               ))}
               <li>
                 <Link href="/businesses" className="rh-tile">
-                  <FigmaIcon name="more-horizontal" className="rh-tile-icon" />
+                  <Icon3D name="more" className="rh-tile-art" />
                   <span className="rh-tile-label">{t("moreCategories")}<span className="sr-only">: {t("allCategories")}</span></span>
                 </Link>
               </li>
@@ -215,7 +218,11 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                 <p className="text-lg font-extrabold text-ink">{t("emptyListings")}</p>
                 <p className="mt-1 max-w-lg text-sm leading-6 text-muted">{te("beFirstBody")}</p>
               </div>
-              <Link href="/for-business" className="rh-btn-red" data-testid="home-be-first">{te("beFirstCta")}</Link>
+              <StoreArt className="rh-empty-art" />
+              <Link href="/for-business" className="rh-btn-red" data-testid="home-be-first">
+                <FigmaIcon name="plus" className="size-5 shrink-0" />
+                {te("beFirstCta")}
+              </Link>
             </div>
           )}
         </section>
@@ -236,7 +243,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                           {cover
                             // eslint-disable-next-line @next/next/no-img-element
                             ? <img {...responsiveImage(cover)} sizes="180px" alt="" width={240} height={150} loading="lazy" decoding="async" className="rh-explore-img" />
-                            : <span className="rh-explore-fallback"><FigmaIcon name={icon} className="size-10" /></span>}
+                            : <span className={`rh-explore-fallback${hasIcon3D(c.slug) ? " rh-explore-art" : ""}`}>{hasIcon3D(c.slug) ? <Icon3D name={c.slug} className="size-16" /> : <FigmaIcon name={icon} className="size-10" />}</span>}
                         </span>
                         <span className="rh-explore-label">
                           <FigmaIcon name={icon} className="size-4 shrink-0 text-brand" />
