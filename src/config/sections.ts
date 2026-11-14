@@ -47,6 +47,7 @@ export const SECTIONS: readonly SectionDef[] = [
   { key: "services", path: "/services", icon: "wrench", order: 20, enabled: true, header: true, mobile: true, footer: "explore", sitemap: true, search: true, assistant: true },
   { key: "locations", path: "/locations", icon: "pin", order: 30, enabled: true, mobile: true, footer: "explore", sitemap: true, search: true },
   { key: "nearby", path: "/nearby", icon: "compass", order: 40, enabled: true, header: true, mobile: true, footer: "explore", sitemap: true },
+  { key: "smartRequest", path: "/smart-request", icon: "spark", order: 45, enabled: true, mobile: true },
   { key: "ai", path: "/ai", icon: "spark", order: 50, enabled: true, header: true, mobile: true, footer: "more", sitemap: true },
   // Content sections built on the shared Listing core (features/content). Switch one off with SECTIONS_DISABLED=jobs (or enabled: false): it disappears from nav, footer, sitemap and returns 404.
   { key: "jobs", path: "/jobs", icon: "briefcase", order: 60, enabled: false, content: true, header: true, mobile: true, footer: "explore", sitemap: true, assistant: true, note: "Hidden until launch" },

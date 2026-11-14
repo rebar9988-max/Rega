@@ -603,6 +603,76 @@ model SearchQueryDaily {
   @@index([day])
 }
 
+// ----------------------------------------------------------------- Smart Request (additive, zero cost)
+
+/// A user's one request that is matched, deterministically, to nearby published businesses (category + distance).
+/// Coordinates are rounded to 2 decimals (~1 km) before storage and are never shown to a business.
+model SmartRequest {
+  id              String    @id @default(cuid())
+  userId          String
+  categoryId      String
+  title           String
+  description     String?
+  cityId          String?
+  latitude        Float
+  longitude       Float
+  radiusKm        Int       @default(10)
+  status          String    @default("open") // open | closed | cancelled
+  selectedOfferId String?
+  matchedCount    Int       @default(0)
+  /// When the requester last opened the offers: offers changed after this are "new".
+  offersSeenAt    DateTime?
+  expiresAt       DateTime
+  closedAt        DateTime?
+  locale          String    @default("ckb")
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([userId, createdAt])
+  @@index([status, expiresAt])
+  @@index([categoryId])
+}
+
+/// One row per (request, matched business): the business inbox. The unique pair is what prevents duplicate notifications.
+model SmartRequestRecipient {
+  id         String    @id @default(cuid())
+  requestId  String
+  businessId String
+  /// Distance at matching time, the only location data a business ever receives.
+  distanceKm Float
+  status     String    @default("new") // new | seen | offered | declined
+  notifiedAt DateTime  @default(now())
+  seenAt     DateTime?
+
+  @@unique([requestId, businessId])
+  @@index([businessId, status])
+}
+
+/// A business's offer on a request (one per business; updating or withdrawing changes this row).
+model SmartOffer {
+  id           String   @id @default(cuid())
+  requestId    String
+  businessId   String
+  priceCents   Int
+  currency     String   @default("EUR")
+  availability String // now | today | tomorrow | thisWeek | onRequest
+  message      String?
+  status       String   @default("active") // active | withdrawn | selected | rejected
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([requestId, businessId])
+  @@index([requestId, status])
+  @@index([businessId, status])
+}
+
+/// Business-side switch: a business that turns requests off is skipped by matching. No row = on.
+model SmartRequestPref {
+  businessId String   @id
+  enabled    Boolean  @default(true)
+  updatedAt  DateTime @updatedAt
+}
+
 // ----------------------------------------------------------------- Legal, trust & communication
 
 /// Notice-and-action reports (Digital Services Act): anyone can report a page or listing.

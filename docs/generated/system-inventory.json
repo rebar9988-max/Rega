@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-06T12:46:14.839Z",
+  "generatedAt": "2026-11-14T11:08:26.596Z",
   "package": {
     "name": "rega-platform",
     "version": "0.1.0",
@@ -84,6 +84,10 @@
     "Service",
     "Session",
     "Setting",
+    "SmartOffer",
+    "SmartRequest",
+    "SmartRequestPref",
+    "SmartRequestRecipient",
     "User",
     "VerificationToken"
   ],
@@ -105,7 +109,8 @@
     "20261006133000_update_sorani_category_labels",
     "20261020090000_business_whatsapp_offers",
     "20261022120000_admin_sign_in_codes",
-    "20261029120000_search_query_daily"
+    "20261029120000_search_query_daily",
+    "20261114120000_smart_request"
   ],
   "locales": [
     "ar",
@@ -199,6 +204,11 @@
     {
       "key": "services",
       "path": "/services",
+      "enabledInSource": true
+    },
+    {
+      "key": "smartRequest",
+      "path": "/smart-request",
       "enabledInSource": true
     },
     {
