@@ -30,6 +30,9 @@ export const MAX_PHOTOS = 10;
 export const GALLERY_PHOTOS = 3;
 
 const httpsUrl = z.union([z.literal(""), z.string().trim().max(500).url().refine((u) => u.startsWith("https://"))]).optional().transform((v) => v || undefined);
+const socialUrl = (platform: string) => z.union([z.literal(""), z.string().trim().max(300).url().refine((value) => {
+  try { const url = new URL(value); return url.protocol === "https:" && (url.hostname === platform || url.hostname.endsWith(`.${platform}`)); } catch { return false; }
+})]).optional().transform((v) => v || undefined);
 const optionalText = (max: number) => z.string().trim().max(max).optional().transform((v) => (v ? v : undefined));
 /** Optional text that may arrive as "" (an untouched wizard step): empty means "not entered". */
 const loose = (max: number) => z.string().trim().max(max).optional().transform((v) => (v ? v : undefined));
@@ -57,6 +60,10 @@ export const businessFormSchema = z.object({
   whatsapp: optionalText(50),
   email: z.union([z.literal(""), z.string().trim().email().max(200)]).optional().transform((v) => v || undefined),
   website: z.union([z.literal(""), z.string().trim().url().max(300).refine((u) => /^https?:\/\//i.test(u))]).optional().transform((v) => v || undefined),
+  instagramUrl: socialUrl("instagram.com"),
+  snapchatUrl: socialUrl("snapchat.com"),
+  facebookUrl: socialUrl("facebook.com"),
+  tiktokUrl: socialUrl("tiktok.com"),
   addressLine1: loose(300),
   postalCode: optionalText(20),
   city: loose(120),
@@ -208,6 +215,7 @@ async function save(input: BusinessForm, actor: { id: string }, { canPublish, ca
       descriptionDe: input.descriptionDe ?? null, descriptionAr: input.descriptionAr ?? null, descriptionTr: input.descriptionTr ?? null,
       languages: input.languages,
       phone: input.phone ?? null, whatsapp: whatsapp?.ok ? whatsapp.value : null, email: input.email ?? null, website: input.website ?? null,
+      instagramUrl: input.instagramUrl ?? null, snapchatUrl: input.snapchatUrl ?? null, facebookUrl: input.facebookUrl ?? null, tiktokUrl: input.tiktokUrl ?? null,
       logoUrl: input.logoUrl ?? null, coverUrl: input.coverUrl ?? null, photos,
     };
     let business;

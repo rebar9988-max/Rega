@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-14T11:08:26.596Z",
+  "generatedAt": "2026-11-14T12:47:43.522Z",
   "package": {
     "name": "rega-platform",
     "version": "0.1.0",
@@ -110,7 +110,8 @@
     "20261020090000_business_whatsapp_offers",
     "20261022120000_admin_sign_in_codes",
     "20261029120000_search_query_daily",
-    "20261114120000_smart_request"
+    "20261114120000_smart_request",
+    "20261114131500_business_social_links"
   ],
   "locales": [
     "ar",

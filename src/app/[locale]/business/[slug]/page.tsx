@@ -64,6 +64,10 @@ export default async function BusinessPage({ params }: Props) {
     : []);
   const about = localize(b, "description", l);
   const website = safeHttpUrl(b.website);
+  const socialLinks: [string, string][] = [
+    ["Instagram", safeHttpUrl(b.instagramUrl)], ["Snapchat", safeHttpUrl(b.snapchatUrl)],
+    ["Facebook", safeHttpUrl(b.facebookUrl)], ["TikTok", safeHttpUrl(b.tiktokUrl)],
+  ].filter((item): item is [string, string] => item[1] !== null);
   const tel = safeTel(b.phone);
   // Only the business's public WhatsApp number (never an account phone), and only when it is a valid stored number.
   const whatsapp = whatsappLink(b.whatsapp);
@@ -95,10 +99,11 @@ export default async function BusinessPage({ params }: Props) {
   const day = (date: string) => formatDate(`${date}T00:00:00Z`, locale as Locale, { timeZone: "UTC" });
   const services = b.services.map((s) => ({ ...s, cover: safeHttpUrl(s.coverUrl) }));
   const serviceCovers = services.some((s) => s.cover);
-  const hasContact = Boolean(tel || whatsapp || b.email || website);
+  const hasContact = Boolean(tel || whatsapp || b.email || website || socialLinks.length);
   // Primary (red) action: directions when the place can be found, else the call; share is always possible.
   const primaryAction = directions ? "directions" : "call";
   const actionCount = (tel ? 1 : 0) + (directions ? 1 : 0) + 1;
+  const sameAs = [website, ...socialLinks.map(([, url]) => url)].filter((url): url is string => Boolean(url));
   const actionClass = (kind: "call" | "directions" | "share") =>
     buttonClass(kind === primaryAction ? "primary" : "secondary", "min-h-12 w-full gap-2 px-3 text-center leading-tight shadow-sm motion-safe:active:scale-[.98]");
 
@@ -111,7 +116,7 @@ export default async function BusinessPage({ params }: Props) {
     image: b.logoUrl || b.coverUrl || undefined,
     telephone: b.phone || undefined,
     email: b.email || undefined,
-    sameAs: website ? [website] : undefined,
+    sameAs: sameAs.length ? sameAs : undefined,
     aggregateRating: b.ratingCount ? { "@type": "AggregateRating", ratingValue: b.ratingAvg, reviewCount: b.ratingCount } : undefined,
     address: b.locations[0] ? { "@type": "PostalAddress", streetAddress: b.locations[0].addressLine1, postalCode: b.locations[0].postalCode || undefined, addressCountry: b.locations[0].countryCode, addressLocality: b.locations[0].city?.nameEn } : undefined,
   };
@@ -374,6 +379,7 @@ export default async function BusinessPage({ params }: Props) {
               {whatsapp && <a href={whatsapp} target="_blank" rel="noopener noreferrer" aria-label={`${t("businesses.whatsapp")} – ${name.text}`} className={buttonClass("secondary", "w-full")} data-testid="whatsapp-button">{t("businesses.whatsapp")}</a>}
               {b.email && <a href={`mailto:${b.email}`} title={t("businesses.sendEmail")} className={buttonClass("secondary", "w-full")}><span className="sr-only">{t("businesses.sendEmail")}: </span><span className="min-w-0 truncate"><Ltr>{b.email}</Ltr></span></a>}
               {website && <a href={website} target="_blank" rel="noopener noreferrer nofollow" className={buttonClass("secondary", "w-full")}>{t("businesses.visitWebsite")}</a>}
+              {socialLinks.map(([platform, url]) => <a key={platform} href={url} target="_blank" rel="noopener noreferrer nofollow" className={buttonClass("secondary", "w-full")} data-testid={`business-social-${platform.toLowerCase()}`}>{platform}</a>)}
               <Link href={{ pathname: "/report", query: { url: pageUrl } }} rel="nofollow" className="inline-flex min-h-9 items-center text-xs font-semibold text-muted underline hover:text-ink">{t("report.reportThis")}</Link>
             </aside>
           )}

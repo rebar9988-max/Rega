@@ -719,8 +719,8 @@
     "mediaInvalid": "Yek ji wêneyan nehat qebûlkirin. Bi bişkoka barkirinê dîsa bar bike.",
     "wizard": {
       "steps": "Gavên tomarkirinê",
-      "step1": "Kar û cih",
-      "step2": "Logo û wêne",
+      "step1": "Karsazî û cih",
+      "step2": "Têkilî û wêne",
       "step3": "Binirxîne û bişîne",
       "next": "Pêş",
       "back": "Paş",
@@ -748,7 +748,13 @@
     "exceptionHours": "Dem",
     "exceptionReason": "Sedem (vebijarkî, giştî)",
     "exceptionRemove": "Rake",
-    "exceptionAdd": "Girtin an demên taybet zêde bike"
+    "exceptionAdd": "Girtin an demên taybet zêde bike",
+    "socialLinks": "Platformên civakî",
+    "socialLinksHint": "Bijarte ye; lînkên xwe zêde bike da mêvan rasterast serdana profîla te bikin.",
+    "instagram": "Instagram",
+    "snapchat": "Snapchat",
+    "facebook": "Facebook",
+    "tiktok": "TikTok"
   },
   "contact": {
     "title": "Têkilî",

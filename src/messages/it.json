@@ -720,7 +720,7 @@
     "wizard": {
       "steps": "Passaggi della registrazione",
       "step1": "Attività e posizione",
-      "step2": "Logo e immagini",
+      "step2": "Contatti e foto",
       "step3": "Controlla e invia",
       "next": "Avanti",
       "back": "Indietro",
@@ -748,7 +748,13 @@
     "exceptionHours": "Orari",
     "exceptionReason": "Motivo (facoltativo, pubblico)",
     "exceptionRemove": "Rimuovi",
-    "exceptionAdd": "Aggiungi una chiusura o orari speciali"
+    "exceptionAdd": "Aggiungi una chiusura o orari speciali",
+    "socialLinks": "Social media",
+    "socialLinksHint": "Facoltativo: aggiungi i link per permettere ai visitatori di aprire direttamente i tuoi profili.",
+    "instagram": "Instagram",
+    "snapchat": "Snapchat",
+    "facebook": "Facebook",
+    "tiktok": "TikTok"
   },
   "contact": {
     "title": "Contatti",

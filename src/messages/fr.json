@@ -719,8 +719,8 @@
     "mediaInvalid": "Une photo n’a pas pu être acceptée. Téléversez-la à nouveau avec le bouton de téléversement.",
     "wizard": {
       "steps": "Étapes de l’inscription",
-      "step1": "Entreprise et emplacement",
-      "step2": "Logo et images",
+      "step1": "Activité et adresse",
+      "step2": "Contact et photos",
       "step3": "Vérifier et envoyer",
       "next": "Suivant",
       "back": "Retour",
@@ -748,7 +748,13 @@
     "exceptionHours": "Horaires",
     "exceptionReason": "Motif (facultatif, public)",
     "exceptionRemove": "Retirer",
-    "exceptionAdd": "Ajouter une fermeture ou des horaires spéciaux"
+    "exceptionAdd": "Ajouter une fermeture ou des horaires spéciaux",
+    "socialLinks": "Réseaux sociaux",
+    "socialLinksHint": "Facultatif : ajoutez vos liens pour que les visiteurs ouvrent directement vos profils.",
+    "instagram": "Instagram",
+    "snapchat": "Snapchat",
+    "facebook": "Facebook",
+    "tiktok": "TikTok"
   },
   "contact": {
     "title": "Contact",
