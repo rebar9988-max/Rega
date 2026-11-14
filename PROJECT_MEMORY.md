@@ -1576,3 +1576,9 @@ Regression coverage: malformed provider values, area precision, GPS options and 
 Node build, lint and typecheck passed locally. Full tests and desktop/mobile browser checks in progress at this
 checkpoint. Full autocomplete, reverse-address autofill and visual redesign remain incomplete; do not describe
 this incremental fix as the complete requested location release. No production change made at this checkpoint.
+Validation update: 477 unit tests passed / 4 existing skips; lint, typecheck, Node build, Cloudflare Worker build,
+Cloudflare dry-run, D1 tests and documentation validation passed. Targeted Nearby E2E: 14/14 passed across
+Chromium desktop and Pixel 5 emulation, including GPS options/privacy, permission errors, map markers and fallback.
+An initial browser attempt overlapped a build and timed out during hydration; it was interrupted and rerun after
+a fresh completed Node build. Only the sequential rerun is counted. Commit cf4c9fa; draft PR #159. Hosted CI pending;
+no merge/deployment. Remaining scope above is unchanged. Full WCAG and real iPhone/Android devices not verified.
