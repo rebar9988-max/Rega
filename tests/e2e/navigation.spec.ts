@@ -85,37 +85,43 @@ test("robots.txt and sitemap.xml are served", async ({ request }) => {
 
 const MAIN_ROUTES = ["/ckb", "/ckb/businesses", "/ckb/services", "/ckb/locations", "/ckb/nearby", "/ckb/ai", "/ckb/about", "/ckb/login", "/ckb/contact"];
 
-test("footer is compact navigation on every main route: no contact cards, no large logo, links to /contact", async ({ page }) => {
-  const mobile = (page.viewportSize()?.width ?? 0) < 640;
-  for (const route of MAIN_ROUTES) {
+test("footer is on the home page only: compact navigation there, none elsewhere; legal links in the menu on every page", async ({ page }) => {
+  // Home: one compact footer, last on the page, with About, contact and the legal column.
+  await page.goto("/ckb");
+  const footer = page.locator("footer");
+  await expect(footer).toHaveCount(1);
+  await expect(footer.locator('a[href^="tel:"], a[href^="mailto:"]')).toHaveCount(0);
+  await expect(footer).not.toContainText("4228269");
+  await expect(footer.getByRole("link", { name: "پەیوەندی", exact: true })).toHaveAttribute("href", "/ckb/contact");
+  await expect(footer.getByRole("link", { name: "دەربارە", exact: true })).toHaveAttribute("href", "/ckb/about");
+  for (const key of ["impressum", "privacy", "terms", "report"]) await expect(footer.locator(`a[href="/ckb/${key}"]`), key).toHaveCount(1);
+  const m = await page.evaluate(() => {
+    const f = document.querySelector("footer")!;
+    const imgs = [...f.querySelectorAll("img")].map((i) => i.getBoundingClientRect().height);
+    return { height: f.getBoundingClientRect().height, bottom: f.getBoundingClientRect().bottom + scrollY, doc: document.documentElement.scrollHeight, maxImg: Math.max(0, ...imgs), overflow: document.documentElement.scrollWidth > innerWidth };
+  });
+  expect(m.maxImg).toBeLessThanOrEqual(32); // small mark only, never the large logo
+  expect(m.height).toBeLessThan(380);
+  expect(Math.abs(m.doc - m.bottom)).toBeLessThanOrEqual(1); // always last on the page
+  expect(m.overflow).toBe(false);
+  // Every other main route: no footer, no horizontal overflow, and the legal pages reachable through the menu (two clicks).
+  for (const route of MAIN_ROUTES.filter((r) => r !== "/ckb")) {
     await page.goto(route);
-    const footer = page.locator("footer");
-    await expect(footer, route).toHaveCount(1);
-    // Contact details live on /contact only.
-    await expect(footer.locator('a[href^="tel:"], a[href^="mailto:"]'), route).toHaveCount(0);
-    await expect(footer, route).not.toContainText("4228269");
-    await expect(footer.getByRole("link", { name: "پەیوەندی", exact: true }), route).toHaveAttribute("href", "/ckb/contact");
-    await expect(footer.getByRole("link", { name: "دەربارە", exact: true }), route).toHaveAttribute("href", "/ckb/about");
-    // Legal column on every page: Impressum, privacy, terms, report content.
-    for (const key of ["impressum", "privacy", "terms", "report"]) await expect(footer.locator(`a[href="/ckb/${key}"]`), `${route} ${key}`).toHaveCount(1);
-    const m = await page.evaluate(() => {
-      const f = document.querySelector("footer")!;
-      const imgs = [...f.querySelectorAll("img")].map((i) => i.getBoundingClientRect().height);
-      return { height: f.getBoundingClientRect().height, bottom: f.getBoundingClientRect().bottom + scrollY, doc: document.documentElement.scrollHeight, maxImg: Math.max(0, ...imgs), overflow: document.documentElement.scrollWidth > innerWidth };
-    });
-    expect(m.maxImg, route).toBeLessThanOrEqual(32); // small mark only, never the large logo
-    // Bounded height (includes the optional row of configured social profile links; the explore column lists the currently enabled public sections).
-    expect(m.height, route).toBeLessThan(mobile ? 520 : 380);
-    expect(Math.abs(m.doc - m.bottom), route).toBeLessThanOrEqual(1); // always last on the page
-    expect(m.overflow, route).toBe(false);
+    await expect(page.locator("footer"), route).toHaveCount(0);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), route).toBe(false);
+    await page.getByRole("button", { name: "مێنیو" }).click();
+    const legal = page.getByRole("dialog").getByRole("navigation", { name: "یاسایی" });
+    for (const key of ["impressum", "privacy", "terms", "report"]) await expect(legal.locator(`a[href="/ckb/${key}"]`), `${route} ${key}`).toHaveCount(1);
+    await page.getByRole("dialog").getByRole("button", { name: "داخستن" }).click();
   }
 });
 
-test("footer stays at the bottom of the viewport on a short page", async ({ page }) => {
-  await page.setViewportSize({ width: 1280, height: 1600 });
+test("menu legal links open the page and close the menu", async ({ page }) => {
   await page.goto("/de/login");
-  const bottom = await page.evaluate(() => document.querySelector("footer")!.getBoundingClientRect().bottom);
-  expect(Math.abs(bottom - 1600)).toBeLessThanOrEqual(1);
+  await page.getByRole("button", { name: "Menü" }).click();
+  await page.getByRole("dialog").getByRole("navigation", { name: "Rechtliches" }).getByRole("link", { name: "Impressum", exact: true }).click();
+  await expect(page).toHaveURL(/\/de\/impressum$/);
+  await expect(page.getByRole("dialog")).toBeHidden();
 });
 
 test("contact page: heading once, phone + email + WhatsApp, RTL; contact details only, no message form", async ({ page }) => {
@@ -209,7 +215,14 @@ test("approved layout: compact AI entry on the home page; tab bar on mobile only
   await expect(bar.getByRole("link", { name: "Startseite" })).toHaveAttribute("aria-current", "page");
   await bar.getByRole("link", { name: "Suchen" }).click();
   await expect(page).toHaveURL(/\/de\/search$/);
-  // The footer reserves the bar's height, so its last line is never covered.
+  // Pages without the footer end with a spacer the height of the bar, so the end of the content is never covered.
+  const coveredSearch = await page.evaluate(() => {
+    window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "instant" });
+    return document.querySelector("main")!.getBoundingClientRect().bottom > document.querySelector('[data-testid="bottom-nav"]')!.getBoundingClientRect().top + 1;
+  });
+  expect(coveredSearch).toBe(false);
+  // Home: the footer reserves the bar's height, so its last line is never covered.
+  await page.goto("/de");
   const covered = await page.evaluate(() => {
     window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "instant" });
     const range = document.createRange();
