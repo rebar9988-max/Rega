@@ -196,8 +196,6 @@
     "tabTopRated": "Best beoordeeld",
     "tabNew": "Nieuw",
     "tabEmpty": "Er is nu geen bedrijf dat bij dit filter past.",
-    "exploreTitle": "Ontdek per categorie",
-    "exploreNext": "Meer categorieën tonen",
     "mapTitle": "Ontdek bedrijven over de hele wereld",
     "mapSub": "Schakel over naar de kaartweergave om plaatsen bij jou in de buurt te vinden.",
     "mapCta": "Kaart openen",
@@ -257,7 +255,6 @@
     "postalCode": "Postcode",
     "openingHours": "Openingstijden",
     "viewOnMap": "Bekijken op de kaart",
-    "browseByCity": "Bekijken per stad",
     "closedOnHolidays": "Gesloten op officiële feestdagen.",
     "hoursChanges": "Sluitingen en afwijkende openingstijden"
   },

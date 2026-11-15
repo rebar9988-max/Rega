@@ -196,8 +196,6 @@
     "tabTopRated": "Högst betyg",
     "tabNew": "Nya",
     "tabEmpty": "Inget företag matchar det här filtret just nu.",
-    "exploreTitle": "Utforska efter kategori",
-    "exploreNext": "Visa fler kategorier",
     "mapTitle": "Utforska företag runt om i världen",
     "mapSub": "Byt till kartvy för att hitta platser nära dig.",
     "mapCta": "Öppna kartan",
@@ -257,7 +255,6 @@
     "postalCode": "Postnummer",
     "openingHours": "Öppettider",
     "viewOnMap": "Visa på kartan",
-    "browseByCity": "Bläddra efter stad",
     "closedOnHolidays": "Stängt på officiella helgdagar.",
     "hoursChanges": "Stängningar och avvikande öppettider"
   },

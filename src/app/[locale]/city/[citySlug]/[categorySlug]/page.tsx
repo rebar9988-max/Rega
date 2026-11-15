@@ -39,7 +39,7 @@ export default async function CityCategoryPage({ params, searchParams }: Props) 
   const category = localizeText({ ...r.category, name: r.category.nameDe }, "name", locale as Locale);
   return (
     <BusinessIndex
-      pathname={`/city/${citySlug}/${categorySlug}`} searchParams={await searchParams} title={t("seoPages.categoryInCity", { category, city })} fixed={{ category: r.category.id, city: r.city.id }}
+      pathname={`/city/${citySlug}/${categorySlug}`} categoryBase={`/city/${citySlug}`} searchParams={await searchParams} title={t("seoPages.categoryInCity", { category, city })} fixed={{ category: r.category.id, city: r.city.id }}
       crumbs={[{ label: t("nav.home"), href: "/" }, { label: city, href: `/city/${citySlug}` }, { label: category }]}
     />
   );
