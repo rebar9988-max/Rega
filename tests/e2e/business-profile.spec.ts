@@ -96,3 +96,25 @@ test("the address is shown once, next to the actions", async ({ page }) => {
   await expect(page.getByTestId("business-address")).toContainText("Karl-Marx-Allee 12");
   await expect(page.locator("article").getByText("Karl-Marx-Allee 12")).toHaveCount(1);
 });
+
+test("save keeps the business on this device and the saved page lists and removes it (RTL and LTR)", async ({ page }) => {
+  for (const locale of ["ckb", "de"]) {
+    await page.goto(`/${locale}/business/zagros-restaurant`);
+    await page.evaluate(() => window.localStorage.removeItem("rega-saved"));
+    await page.reload();
+    const save = page.getByTestId("business-actions").getByTestId("save-button");
+    await expect(page.getByTestId("saved-link")).toHaveCount(0);
+    await save.click();
+    await expect(save.getByRole("status")).not.toHaveText("");
+    expect(await page.evaluate(() => window.localStorage.getItem("rega-saved"))).toBe('["zagros-restaurant"]');
+    await page.getByTestId("saved-link").click();
+    await expect(page).toHaveURL(new RegExp(`/${locale}/saved$`));
+    const list = page.getByTestId("saved-list");
+    await expect(list.locator("li")).toHaveCount(1);
+    await expect(list.locator('a[href$="/business/zagros-restaurant"]')).toBeVisible();
+    expect(await overflowX(page), locale).toBeLessThanOrEqual(0);
+    await list.getByRole("button").click();
+    await expect(page.getByTestId("saved-empty")).toBeVisible();
+    expect(await page.evaluate(() => window.localStorage.getItem("rega-saved"))).toBeNull();
+  }
+});
