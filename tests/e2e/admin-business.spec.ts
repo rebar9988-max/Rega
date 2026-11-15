@@ -17,6 +17,7 @@ async function login(page: Page) {
 }
 
 async function stubBasemap(page: Page) {
+  await page.route("**/api/v1/address?*", r => r.fulfill({ json: { ok: true, data: [] } }));
   await page.route("https://tiles.openfreemap.org/**", (r) => r.fulfill({
     contentType: "application/json",
     body: JSON.stringify({ version: 8, sources: {}, layers: [{ id: "bg", type: "background", paint: { "background-color": "#eceee9" } }] }),

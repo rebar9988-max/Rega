@@ -1593,3 +1593,11 @@ Photon README permits reasonable project API use and search-as-you-type; request
 51465 + countrycode=de returned Bergisch Gladbach; a global postal query can return another country's same code,
 so country names are shown and the business form passes its selected country.
 Parser tests 3/3; earlier full suite 479 passed, 4 skips; final build/browser checks in progress. Not deployed.
+2026-11-15 validation: 480 unit passes / 4 existing skips; lint and Node build (including typecheck) pass.
+Full targeted admin-business + Nearby E2E: 38/38 pass on local disposable D1 (desktop + Pixel 5 emulation), including
+postal lookup, publish guard, address keyboard selection/marker and form autofill/reverse selection. Scoped axe
+checks on the new address search have zero violations in de/ckb at 390/1440px; screenshots inspected in
+/workspace/scratch/location-evidence. This is scoped automated accessibility evidence, not full WCAG certification.
+Earlier E2E failure was an ambiguous postal-code label selector after adding the search label; made selector exact.
+Final test-only change stubs the new endpoint in legacy admin map tests to avoid external provider traffic.
+Remaining release gates: exact-head CI, merge/deploy, production functional verification. No production change yet.
