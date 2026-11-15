@@ -33,7 +33,7 @@ export function AddressSearch({ onSelect, country }: { onSelect: (result: Addres
     <label htmlFor={id} className="sr-only">{t("label")}</label>
     <input id={id} type="search" role="combobox" autoComplete="off" aria-autocomplete="list" aria-expanded={results.length > 0} aria-controls={`${id}-results`} aria-activedescendant={active >= 0 ? `${id}-${active}` : undefined}
       className="min-h-12 w-full rounded-xl border border-line bg-surface px-4 text-ink outline-none focus-visible:ring-2 focus-visible:ring-brand" placeholder={t("label")} maxLength={160} value={query} onChange={e => setQuery(e.target.value)}
-      onKeyDown={e => { if (e.key === "Escape") { ++revision.current; setResults([]); }
+      onKeyDown={e => { if (e.key === "Escape") { ++revision.current; setResults([]); setStatus(""); }
         if ((e.key === "ArrowDown" || e.key === "ArrowUp") && results.length) { e.preventDefault(); setActive(i => (i + (e.key === "ArrowDown" ? 1 : results.length - 1) + results.length) % results.length); }
         if (e.key === "Enter") { e.preventDefault(); if (active >= 0 && results[active]) select(results[active]); }
       }} />

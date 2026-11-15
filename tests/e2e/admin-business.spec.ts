@@ -72,7 +72,7 @@ test("admin adds a business: address lookup, confirmed map location, publish; it
   await login(page);
   const name = `E2E Standort ${stamp}`;
   await fillBasics(page, name, "Oranienstraße 1", "Berlin");
-  await page.getByLabel("Postleitzahl").fill("10999");
+  await page.getByLabel("Postleitzahl", { exact: true }).fill("10999");
   await page.getByTestId("find-location").click();
   await expect(page.getByTestId("geocode-hits")).toContainText("genaue Adresse");
   await expect(page.getByTestId("lat")).toHaveValue("52.502238");
@@ -256,5 +256,10 @@ test("address autocomplete fills only supplied fields and leaves confirmation to
   await expect(page.locator('[name="addressLine1"]')).toHaveValue("Hauptstraße 12a");
   await expect(page.getByTestId("postal-code")).toHaveValue("10178");
   await expect(page.locator('[name="city"]')).toHaveValue("Berlin");
+  await expect(page.getByTestId("lat")).toHaveValue("52.52");
+  await expect(page.getByTestId("location-picker")).toHaveAttribute("data-status", "ready");
+  await page.getByTestId("location-picker").click({ position: { x: 80, y: 100 } });
+  await expect(page.getByRole("button", { name: "Hauptstraße 12a, 10178 Berlin", exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Hauptstraße 12a, 10178 Berlin", exact: true }).click();
   await expect(page.getByTestId("lat")).toHaveValue("52.52");
 });

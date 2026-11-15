@@ -38,7 +38,7 @@ export function DiscoveryMap({
   onSelect: (id: string | null) => void; onSelectMany?: (ids: string[]) => void; onSearchArea?: (c: LatLng) => void; user?: LatLng | null;
   labels: MapLabels; dir: "rtl" | "ltr"; className?: string; children?: ReactNode;
   /** "pill": business name (+ badge) in a rounded label instead of a round icon pin. */
-  searchPoint?: { lat: number; lng: number; label: string } | null;
+  searchPoint?: { lat: number; lng: number; label: string; zoom?: number } | null;
   markerStyle?: "pin" | "pill";
   /** Fly to the selected marker (kept clear of the preview card at the bottom). */
   focusSelected?: boolean;
@@ -235,6 +235,10 @@ export function DiscoveryMap({
       type: "FeatureCollection",
       features: points.map((p) => ({ type: "Feature", geometry: { type: "Point", coordinates: [p.lng, p.lat] }, properties: { id: p.id, label: p.label, badge: p.badge ?? "" } })),
     });
+    if (searchPoint) {
+      setMoved(false);
+      return; // Loading businesses must not move the selected address off screen.
+    }
     if (points.length > 0) {
       const b = new lib.LngLatBounds([center.lng, center.lat], [center.lng, center.lat]);
       for (const p of points) b.extend([p.lng, p.lat]);
@@ -249,7 +253,7 @@ export function DiscoveryMap({
     setMoved(false);
     // fitPadding is read when the data changes; a new object per render must not re-fit the map.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status, points, center, radiusKm]);
+  }, [status, points, center, radiusKm, searchPoint]);
 
   // ---- search radius overlay
   useEffect(() => {
@@ -285,7 +289,7 @@ export function DiscoveryMap({
     el.setAttribute("role", "img");
     el.setAttribute("aria-label", searchPoint.label);
     const marker = new lib.Marker({ element: el }).setLngLat([searchPoint.lng, searchPoint.lat]).addTo(map);
-    map.flyTo({ center: [searchPoint.lng, searchPoint.lat], zoom: 16, duration: 700 });
+    map.flyTo({ center: [searchPoint.lng, searchPoint.lat], zoom: searchPoint.zoom ?? 14, duration: 700 });
     return () => { marker.remove(); };
   }, [status, searchPoint]);
 
