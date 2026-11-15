@@ -1579,3 +1579,13 @@ contact / legal links, copyright); the "explore" column is desktop-only because 
 and menu. Desktop layout unchanged. Copyright row now reserves 6.25rem under the tab bar (the raised search button
 covered it). Every link the e2e footer test requires stays in the DOM once. Local preview: ~220px visible on a 390px
 phone (was ~600px), no overflow.
+
+## Footer on the home page only — 2026-11-15 (branch `feat/footer-home-only-20261115`)
+Owner request (after PR #160 went live): show the footer once, on the home page only, not repeated on every page.
+`src/components/shell/HomeOnly.tsx` (client, `usePathname() === "/"`) wraps `<Footer />` in the locale layout; other
+pages get a phone-only spacer the height of the tab bar. Because the site is run from Germany, Impressum, privacy,
+terms and report stay reachable from every page as a small "legal" group in the menu sheet (`MobileNav`, from
+`footerNav("legal")`): two clicks, the usual reading of the Impressum duty. The "Beta" mark now shows on home only.
+E2E updated: footer test now checks home-only + legal links in the menu on every main route; new test opens Impressum
+from the menu; tab-bar coverage checked on a footer-less page and on home. The old "footer at the viewport bottom on a
+short page" test was removed (no footer on /login any more).

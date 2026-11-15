@@ -6,7 +6,7 @@ import { FigmaIcon } from "@/components/home/FigmaIcon";
 
 /**
  * Mobile tab bar of the approved concept (page 7): the main journeys and search stay within thumb reach. Below `md`
- * only; the footer reserves the same height at its end, so nothing is ever covered. Order follows the page
+ * only; the home footer, and on other pages a spacer (HomeOnly), reserve its height, so nothing is ever covered. Order follows the page
  * direction, so RTL mirrors it.
  */
 const ITEMS = [
