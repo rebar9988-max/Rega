@@ -15,24 +15,26 @@ export async function Footer() {
   const tf = await getTranslations("footer");
   const tc = await getTranslations("contact");
   const social = socialProfiles();
-  const link = "inline-flex min-h-9 items-center text-muted hover:text-ink md:min-h-8";
+  const link = "inline-flex min-h-8 items-center text-muted hover:text-ink";
   // Columns and their links come from the section registry (config/sections.ts): no route is listed here.
   const groups = [
-    { title: tf("explore"), items: footerNav("explore") },
-    { title: tc("group"), items: footerNav("more") },
-    { title: tf("legal"), items: footerNav("legal") },
-  ].filter((g) => g.items.length > 0).map((g) => ({ title: g.title, items: g.items.map((i) => ({ href: i.href, label: t(i.key) })) }));
+    { id: "explore", title: tf("explore"), items: footerNav("explore") },
+    { id: "more", title: tc("group"), items: footerNav("more") },
+    { id: "legal", title: tf("legal"), items: footerNav("legal") },
+  ].filter((g) => g.items.length > 0).map((g) => ({ id: g.id, title: g.title, items: g.items.map((i) => ({ href: i.href, label: t(i.key) })) }));
 
   return (
-    <footer className="mt-12 border-t border-line bg-surface">
-      <div className="container-page flex flex-col gap-5 py-5 md:flex-row md:items-center md:justify-between md:gap-8">
-        <div className="max-w-sm space-y-1.5">
-          <Link href="/" className="inline-flex items-center rounded-lg" aria-label="ڕێگا REGA24" dir="ltr">
+    // Phones: one compact block (logo + tagline, one wrapped row of links, copyright). The main sections are already in
+    // the bottom tab bar and the menu, so the "explore" column is desktop-only; About, contact and legal stay everywhere.
+    <footer className="mt-8 border-t border-line bg-surface md:mt-12">
+      <div className="container-page flex flex-col gap-2.5 py-4 md:flex-row md:items-center md:justify-between md:gap-8 md:py-5">
+        <div className="flex items-center justify-between gap-3 md:block md:max-w-sm md:space-y-1.5">
+          <Link href="/" className="inline-flex shrink-0 items-center rounded-lg" aria-label="ڕێگا REGA24" dir="ltr">
             <Logo compact />
           </Link>
-          <p className="text-xs text-muted">{tf("tagline")}</p>
+          <p className="min-w-0 text-end text-xs text-muted md:text-start">{tf("tagline")}</p>
           {social.length > 0 && (
-            <nav aria-label={tf("follow")}>
+            <nav aria-label={tf("follow")} className="hidden md:block">
               <ul className="flex flex-wrap gap-x-4 text-xs">
                 {social.map((p) => (
                   <li key={p.key}>
@@ -43,20 +45,21 @@ export async function Footer() {
             </nav>
           )}
         </div>
-        <nav aria-label={tf("explore")} className="grid grid-cols-3 gap-x-5 gap-y-3 text-xs sm:gap-x-8">
+        <nav aria-label={tf("explore")} className="flex flex-wrap justify-center gap-x-4 text-xs md:grid md:grid-cols-3 md:justify-normal md:gap-x-8 md:gap-y-3">
           {groups.map((g) => (
-            <div key={g.title} className="min-w-0">
-              <h2 className="mb-1 text-xs font-bold text-ink">{g.title}</h2>
+            <div key={g.id} className={`min-w-0 ${g.id === "explore" ? "hidden md:block" : "contents md:block"}`}>
+              <h2 className="sr-only text-xs font-bold text-ink md:not-sr-only md:mb-1">{g.title}</h2>
               {/* Long single words (German legal links) wrap instead of pushing the page sideways on narrow phones. */}
-              <ul className="hyphens-auto [overflow-wrap:anywhere]">
+              <ul className="contents hyphens-auto [overflow-wrap:anywhere] md:block">
                 {g.items.map((i) => <li key={i.href}><Link href={i.href} className={link}>{i.label}</Link></li>)}
               </ul>
             </div>
           ))}
         </nav>
       </div>
-      {/* Below md the fixed tab bar (BottomNav) sits over the page end: reserve its height here so the footer stays last and uncovered. */}
-      <div className="border-t border-line py-3 pb-[calc(4.75rem+env(safe-area-inset-bottom))] text-center text-[11px] text-muted md:pb-3">
+      {/* Below md the fixed tab bar (BottomNav, 4rem + its raised search button) sits over the page end: reserve that
+          space so the copyright line is never covered. */}
+      <div className="border-t border-line py-3 pb-[calc(6.25rem+env(safe-area-inset-bottom))] text-center text-[11px] text-muted md:pb-3">
         <span className="me-2 font-bold tracking-wide text-brand-text">Beta</span>
         {tf("rights", { year: new Date().getFullYear() })}
       </div>

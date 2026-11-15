@@ -1567,3 +1567,15 @@ tokens, header, logo, routes, data, search form and i18n are unchanged. No depen
 Deviations from the reference: icons are vector illustrations, not rendered 3D bitmaps; the car is an original red car
 (the reference showed a photographed vehicle). Local check: static render at 320/390/768/1440/1920 in ckb/en/de, no
 horizontal overflow (fallback font). Lint/typecheck/build/Playwright in GitHub CI.
+
+## Home explore row: 3D icons sat on the red fallback — 2026-11-15 (branch `fix/home-explore-icon-background-20261115`)
+Owner's live screenshot after PR #155 (merged `04f55ae`, CI + deploy + production browser check green) showed the
+"explore by category" cards with the new 3D icons on the red gradient fallback, where the red icons disappear. Cause:
+`.rh-explore-art` was declared before `.rh-explore-fallback` with equal specificity, so the pearl background lost. Fix:
+selector `.rh-explore-fallback.rh-explore-art`. One CSS line; the local preview did not render that row.
+Same branch, owner request 2026-11-15 ("the footer takes too much space and repeats on every page; make it like modern
+apps"): `src/components/shell/Footer.tsx` — below md one compact block (logo + tagline row, one wrapped row of About /
+contact / legal links, copyright); the "explore" column is desktop-only because those sections are in the bottom tab bar
+and menu. Desktop layout unchanged. Copyright row now reserves 6.25rem under the tab bar (the raised search button
+covered it). Every link the e2e footer test requires stays in the DOM once. Local preview: ~220px visible on a 390px
+phone (was ~600px), no overflow.

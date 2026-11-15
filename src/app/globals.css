@@ -401,7 +401,7 @@
   .rega-home .rh-tile-art { width: 58px; height: 58px; }
   .rega-home .rh-tile-label { font-size: 13px; }
 }
-.rega-home .rh-explore-art { background: linear-gradient(180deg, #fff 0%, #f7f6f6 100%); box-shadow: inset 0 0 0 1px var(--line); }
+.rega-home .rh-explore-fallback.rh-explore-art { background: linear-gradient(180deg, #fff 0%, #f7f6f6 100%); box-shadow: inset 0 0 0 1px var(--line); }
 
 /* Sections */
 .rega-home .rh-section { padding-top: 36px; }
