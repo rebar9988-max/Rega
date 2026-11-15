@@ -1515,5 +1515,11 @@
     "errLocked": "Ev pêşniyar êdî nayê guhertin.",
     "privacyNote": "Cihê te yê rast û agahiyên têkiliyê tu carî bi karsazan re nayên parvekirin.",
     "back": "Vegere"
+  },
+  "locationSearch": {
+    "label": "Li bajar, koda posteyê an navnîşanê bigere",
+    "loading": "Lêgerîn…",
+    "empty": "Encam nehat dîtin. Navnîşaneke berfirehtir binivîse.",
+    "unavailable": "Lêgerîn ne berdest e. Dîsa biceribîne an li ser nexşeyê hilbijêre."
   }
 }

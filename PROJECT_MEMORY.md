@@ -1582,3 +1582,14 @@ Chromium desktop and Pixel 5 emulation, including GPS options/privacy, permissio
 An initial browser attempt overlapped a build and timed out during hydration; it was interrupted and rerun after
 a fresh completed Node build. Only the sequential rerun is counted. Commit cf4c9fa; draft PR #159. Hosted CI pending;
 no merge/deployment. Remaining scope above is unchanged. Full WCAG and real iPhone/Android devices not verified.
+
+## 2026-11-15 — Address search continuation (PR #159 candidate)
+Added bounded same-origin Photon search/reverse proxy, debounced abortable keyboard-accessible address search,
+provider-only structured address parsing, Nearby selected-address marker/fly-to, business-form address selection
+and reverse-result selection. Reverse lookup never silently substitutes the nearest address for the clicked point;
+owner confirmation remains required. All 11 locales have search/status copy. No schema/auth/payment changes.
+Photon README permits reasonable project API use and search-as-you-type; requests have per-client/provider budgets,
+6-second timeout, no-store, no query logging. Public service has no availability guarantee. Real provider query
+51465 + countrycode=de returned Bergisch Gladbach; a global postal query can return another country's same code,
+so country names are shown and the business form passes its selected country.
+Parser tests 3/3; earlier full suite 479 passed, 4 skips; final build/browser checks in progress. Not deployed.

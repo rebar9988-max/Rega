@@ -1515,5 +1515,11 @@
     "errLocked": "Den här offerten kan inte längre ändras.",
     "privacyNote": "Din exakta plats och dina kontaktuppgifter delas aldrig med företag.",
     "back": "Tillbaka"
+  },
+  "locationSearch": {
+    "label": "Sök ort, postnummer eller adress",
+    "loading": "Söker…",
+    "empty": "Inga resultat. Ange en mer fullständig adress.",
+    "unavailable": "Sökning är inte tillgänglig. Försök igen eller välj på kartan."
   }
 }

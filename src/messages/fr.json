@@ -1515,5 +1515,11 @@
     "errLocked": "Cette offre ne peut plus être modifiée.",
     "privacyNote": "Votre position exacte et vos coordonnées ne sont jamais partagées avec les entreprises.",
     "back": "Retour"
+  },
+  "locationSearch": {
+    "label": "Rechercher une ville, un code postal ou une adresse",
+    "loading": "Recherche…",
+    "empty": "Aucun résultat. Précisez votre adresse.",
+    "unavailable": "Recherche indisponible. Réessayez ou sélectionnez sur la carte."
   }
 }

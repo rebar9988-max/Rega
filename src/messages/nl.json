@@ -1515,5 +1515,11 @@
     "errLocked": "Deze offerte kan niet meer worden gewijzigd.",
     "privacyNote": "Je exacte locatie en contactgegevens worden nooit met bedrijven gedeeld.",
     "back": "Terug"
+  },
+  "locationSearch": {
+    "label": "Zoek plaats, postcode of adres",
+    "loading": "Zoeken…",
+    "empty": "Geen resultaat. Vul een vollediger adres in.",
+    "unavailable": "Zoeken niet beschikbaar. Probeer opnieuw of kies op de kaart."
   }
 }

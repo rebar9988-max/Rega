@@ -1515,5 +1515,11 @@
     "errLocked": "This offer can no longer be changed.",
     "privacyNote": "Your exact location and contact details are never shared with businesses.",
     "back": "Back"
+  },
+  "locationSearch": {
+    "label": "Search city, postcode or address",
+    "loading": "Searching…",
+    "empty": "No verified result. Try a fuller address.",
+    "unavailable": "Address search is unavailable. Try again or select on the map."
   }
 }

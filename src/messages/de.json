@@ -1515,5 +1515,11 @@
     "errLocked": "Dieses Angebot kann nicht mehr geändert werden.",
     "privacyNote": "Dein genauer Standort und deine Kontaktdaten werden nie mit Unternehmen geteilt.",
     "back": "Zurück"
+  },
+  "locationSearch": {
+    "label": "Ort, Postleitzahl oder Adresse suchen",
+    "loading": "Suche…",
+    "empty": "Kein Ergebnis. Bitte die Adresse ergänzen.",
+    "unavailable": "Adresssuche nicht verfügbar. Erneut versuchen oder auf der Karte auswählen."
   }
 }

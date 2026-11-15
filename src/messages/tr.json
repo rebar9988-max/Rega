@@ -1515,5 +1515,11 @@
     "errLocked": "Bu teklif artık değiştirilemez.",
     "privacyNote": "Kesin konumun ve iletişim bilgilerin işletmelerle asla paylaşılmaz.",
     "back": "Geri"
+  },
+  "locationSearch": {
+    "label": "Şehir, posta kodu veya adres ara",
+    "loading": "Aranıyor…",
+    "empty": "Sonuç bulunamadı. Daha ayrıntılı bir adres girin.",
+    "unavailable": "Adres araması kullanılamıyor. Yeniden deneyin veya haritadan seçin."
   }
 }
