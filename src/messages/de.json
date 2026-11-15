@@ -1515,5 +1515,19 @@
     "errLocked": "Dieses Angebot kann nicht mehr geändert werden.",
     "privacyNote": "Dein genauer Standort und deine Kontaktdaten werden nie mit Unternehmen geteilt.",
     "back": "Zurück"
+  },
+  "saved": {
+    "save": "Merken",
+    "saved": "Gemerkt",
+    "added": "Auf diesem Gerät gemerkt",
+    "removed": "Aus der Merkliste entfernt",
+    "viewSaved": "Gemerkte Unternehmen ({count})",
+    "title": "Gemerkte Unternehmen",
+    "intro": "Unternehmen, die Sie auf diesem Gerät gemerkt haben. Kein Konto nötig; nichts wird auf unseren Servern gespeichert.",
+    "empty": "Sie haben noch keine Unternehmen gemerkt. Nutzen Sie „Merken“ auf einer Unternehmensseite.",
+    "browse": "Unternehmen ansehen",
+    "remove": "Entfernen",
+    "clearAll": "Alle entfernen",
+    "unavailable": "{count} gemerkte Unternehmen sind nicht mehr verfügbar."
   }
 }

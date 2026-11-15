@@ -1515,5 +1515,19 @@
     "errLocked": "Ev pêşniyar êdî nayê guhertin.",
     "privacyNote": "Cihê te yê rast û agahiyên têkiliyê tu carî bi karsazan re nayên parvekirin.",
     "back": "Vegere"
+  },
+  "saved": {
+    "save": "Tomar bike",
+    "saved": "Hate tomarkirin",
+    "added": "Li ser vê cîhazê hate tomarkirin",
+    "removed": "Ji tomarkiriyan hate rakirin",
+    "viewSaved": "Karsaziyên tomarkirî ({count})",
+    "title": "Karsaziyên tomarkirî",
+    "intro": "Karsaziyên ku te li ser vê cîhazê tomar kirine. Hesab ne pêwîst e; tiştek li ser serverên me nayê hilanîn.",
+    "empty": "Te hîn tu karsazî tomar nekiriye. Li ser rûpela karsaziyekê «Tomar bike» bikar bîne.",
+    "browse": "Li karsaziyan bigere",
+    "remove": "Rake",
+    "clearAll": "Hemûyan rake",
+    "unavailable": "{count} karsaziyên tomarkirî êdî ne berdest in."
   }
 }

@@ -1515,5 +1515,19 @@
     "errLocked": "Cette offre ne peut plus être modifiée.",
     "privacyNote": "Votre position exacte et vos coordonnées ne sont jamais partagées avec les entreprises.",
     "back": "Retour"
+  },
+  "saved": {
+    "save": "Enregistrer",
+    "saved": "Enregistré",
+    "added": "Enregistré sur cet appareil",
+    "removed": "Retiré des favoris",
+    "viewSaved": "Entreprises enregistrées ({count})",
+    "title": "Entreprises enregistrées",
+    "intro": "Les entreprises que vous avez enregistrées sur cet appareil. Aucun compte nécessaire ; rien n’est stocké sur nos serveurs.",
+    "empty": "Vous n’avez encore enregistré aucune entreprise. Utilisez « Enregistrer » sur la page d’une entreprise.",
+    "browse": "Parcourir les entreprises",
+    "remove": "Retirer",
+    "clearAll": "Tout retirer",
+    "unavailable": "{count} entreprises enregistrées ne sont plus disponibles."
   }
 }

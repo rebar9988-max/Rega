@@ -5,6 +5,7 @@ import { runInNewContext } from "node:vm";
 import ts from "typescript";
 import * as rbac from "../src/lib/rbac";
 import { PUBLIC_BUSINESS } from "../src/lib/search-where";
+import * as savedBusinesses from "../src/lib/saved-businesses";
 
 const routes = ["businesses/route.ts", "businesses/[id]/route.ts", "locations/route.ts"];
 type Query = { where: { status?: string; business?: { status?: string } } };
@@ -51,6 +52,8 @@ function requestFor(route: string, role: rbac.Role | null | Error, { anonymous =
       metaFor: () => ({}), orderBy: () => ({ id: "asc" }),
     },
     "@/lib/search-where": { PUBLIC_BUSINESS, textWhere: () => ({}) },
+    // Pure slug validation for the optional `slugs` filter (real module, no I/O).
+    "@/lib/saved-businesses": savedBusinesses,
     "@/lib/business-media": { ownsBusinessImages: () => assert.fail("Public reads must not validate or write upload ownership") },
     "@/lib/search-index": {}, "@/lib/business-access": {}, "@/lib/validation": {},
     "@/lib/business-publication": {}, "@/lib/category-tree": {}, "@/lib/audit": {}, "@/lib/opening-hours": {},

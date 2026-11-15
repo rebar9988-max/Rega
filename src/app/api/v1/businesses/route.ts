@@ -16,6 +16,7 @@ import { ownsBusinessImages } from "@/lib/business-media";
 import { BUSINESS_CATEGORY } from "@/lib/business-publication";
 import { descendantIds } from "@/lib/category-tree";
 import { writeAudit } from "@/lib/audit";
+import { parseSlugsParam } from "@/lib/saved-businesses";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -31,6 +32,8 @@ export async function GET(request: NextRequest) {
     const cityId = url.searchParams.get("cityId");
     const country = url.searchParams.get("country");
     if (country && !/^[A-Z]{2}$/.test(country)) return fail(422,"validation_error","Invalid country.");
+    // Optional exact lookup by slugs (the visitor's saved businesses page); invalid entries are dropped, max 100.
+    const slugs = parseSlugsParam(url.searchParams.get("slugs"));
 
     // Anonymous and non-staff callers only ever see published records.
     const publicOnly = !(await isStaffRequest());
@@ -44,6 +47,7 @@ export async function GET(request: NextRequest) {
       ...textWhere(q),
       ...(categoryIds ? businessInCategories(categoryIds) : {}),
       ...(cityId ? businessInCity(cityId) : {}),
+      ...(slugs ? { slug: { in: slugs } } : {}),
     };
 
     if (country) where.AND = [...(Array.isArray(where.AND) ? where.AND : []), { locations: { some: { countryCode: country, status: "active", deletedAt: null, ...(cityId ? { cityId } : {}) } } }];
