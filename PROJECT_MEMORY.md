@@ -1601,3 +1601,30 @@ checks on the new address search have zero violations in de/ckb at 390/1440px; s
 Earlier E2E failure was an ambiguous postal-code label selector after adding the search label; made selector exact.
 Final test-only change stubs the new endpoint in legacy admin map tests to avoid external provider traffic.
 Remaining release gates: exact-head CI, merge/deploy, production functional verification. No production change yet.
+## Home explore row: 3D icons sat on the red fallback — 2026-11-15 (branch `fix/home-explore-icon-background-20261115`)
+Owner's live screenshot after PR #155 (merged `04f55ae`, CI + deploy + production browser check green) showed the
+"explore by category" cards with the new 3D icons on the red gradient fallback, where the red icons disappear. Cause:
+`.rh-explore-art` was declared before `.rh-explore-fallback` with equal specificity, so the pearl background lost. Fix:
+selector `.rh-explore-fallback.rh-explore-art`. One CSS line; the local preview did not render that row.
+Same branch, owner request 2026-11-15 ("the footer takes too much space and repeats on every page; make it like modern
+apps"): `src/components/shell/Footer.tsx` — below md one compact block (logo + tagline row, one wrapped row of About /
+contact / legal links, copyright); the "explore" column is desktop-only because those sections are in the bottom tab bar
+and menu. Desktop layout unchanged. Copyright row now reserves 6.25rem under the tab bar (the raised search button
+covered it). Every link the e2e footer test requires stays in the DOM once. Local preview: ~220px visible on a 390px
+phone (was ~600px), no overflow.
+
+## Footer on the home page only — 2026-11-15 (branch `feat/footer-home-only-20261115`)
+Owner request (after PR #160 went live): show the footer once, on the home page only, not repeated on every page.
+`src/components/shell/HomeOnly.tsx` (client, `usePathname() === "/"`) wraps `<Footer />` in the locale layout; other
+pages get a phone-only spacer the height of the tab bar. Because the site is run from Germany, Impressum, privacy,
+terms and report stay reachable from every page as a small "legal" group in the menu sheet (`MobileNav`, from
+`footerNav("legal")`): two clicks, the usual reading of the Impressum duty. The "Beta" mark now shows on home only.
+E2E updated: footer test now checks home-only + legal links in the menu on every main route; new test opens Impressum
+from the menu; tab-bar coverage checked on a footer-less page and on home. The old "footer at the viewport bottom on a
+short page" test was removed (no footer on /login any more).
+
+## 2026-11-16 — Resume PR #159 release
+Recovered head 7fc1088: GitHub CI 43684019068 succeeded (verify 43m37s), both Cloudflare build checks and route audit passed.
+PR remained open because main advanced to 663f801, causing conflicts only in appended memory, locale JSON and generated inventory.
+Merged current main without discarding its saved-business/footer changes; preserved both memory sections, retained main locale keys
+and locationSearch, regenerated inventory. No location implementation was restarted. Exact merged-head CI is required again before release.

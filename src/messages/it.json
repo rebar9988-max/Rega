@@ -1516,6 +1516,20 @@
     "privacyNote": "La tua posizione esatta e i tuoi contatti non vengono mai condivisi con le attività.",
     "back": "Indietro"
   },
+  "saved": {
+    "save": "Salva",
+    "saved": "Salvato",
+    "added": "Salvato su questo dispositivo",
+    "removed": "Rimosso dai salvati",
+    "viewSaved": "Attività salvate ({count})",
+    "title": "Attività salvate",
+    "intro": "Le attività che hai salvato su questo dispositivo. Nessun account necessario; nulla viene memorizzato sui nostri server.",
+    "empty": "Non hai ancora salvato nessuna attività. Usa «Salva» nella pagina di un’attività.",
+    "browse": "Sfoglia le attività",
+    "remove": "Rimuovi",
+    "clearAll": "Rimuovi tutto",
+    "unavailable": "{count} attività salvate non sono più disponibili."
+  },
   "locationSearch": {
     "label": "Cerca città, codice postale o indirizzo",
     "loading": "Ricerca…",

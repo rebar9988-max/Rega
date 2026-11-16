@@ -16,6 +16,7 @@ import { offerTimezone } from "@/lib/offers";
 import { OfferList } from "@/components/business/OfferList";
 import { ExpandableText } from "@/components/business/ExpandableText";
 import { ShareButton } from "@/components/business/ShareButton";
+import { SaveButton, SavedLink } from "@/components/business/SaveButton";
 import { DirectionsMenu } from "@/components/business/DirectionsMenu";
 import { priceLabel } from "@/components/cards/ServiceCard";
 import { Avatar } from "@/components/ui/Avatar";
@@ -102,9 +103,9 @@ export default async function BusinessPage({ params }: Props) {
   const hasContact = Boolean(tel || whatsapp || b.email || website || socialLinks.length);
   // Primary (red) action: directions when the place can be found, else the call; share is always possible.
   const primaryAction = directions ? "directions" : "call";
-  const actionCount = (tel ? 1 : 0) + (directions ? 1 : 0) + 1;
+  const actionCount = (tel ? 1 : 0) + (directions ? 1 : 0) + 2; // + share + save
   const sameAs = [website, ...socialLinks.map((s) => s.url)].filter((url): url is string => Boolean(url));
-  const actionClass = (kind: "call" | "directions" | "share") =>
+  const actionClass = (kind: "call" | "directions" | "share" | "save") =>
     buttonClass(kind === primaryAction ? "primary" : "secondary", "min-h-12 w-full gap-2 px-3 text-center leading-tight shadow-sm motion-safe:active:scale-[.98]");
 
   const jsonLd = {
@@ -186,7 +187,7 @@ export default async function BusinessPage({ params }: Props) {
               </div>
             </div>
 
-            <div className={`relative mt-5 grid gap-2 sm:gap-3 lg:max-w-2xl ${actionCount === 3 ? "grid-cols-3" : actionCount === 2 ? "grid-cols-2" : "grid-cols-1"}`} data-testid="business-actions">
+            <div className={`relative mt-5 grid gap-2 sm:gap-3 lg:max-w-2xl ${actionCount === 4 ? "grid-cols-2 sm:grid-cols-4" : actionCount === 3 ? "grid-cols-3" : "grid-cols-2"}`} data-testid="business-actions">
               {tel && (
                 <a href={`tel:${tel}`} aria-label={`${t("businesses.call")} – ${name.text}`} className={actionClass("call")}>
                   <FigmaIcon name="phone" className="size-5 shrink-0" /><span>{t("businesses.call")}</span>
@@ -197,7 +198,9 @@ export default async function BusinessPage({ params }: Props) {
                   ariaLabel={`${tm("directions")} – ${name.text}`} className={actionClass("directions")} />
               )}
               <ShareButton url={pageUrl} title={name.text} label={t("businesses.share")} copiedLabel={t("businesses.linkCopied")} className={actionClass("share")} />
+              <SaveButton slug={b.slug} label={t("saved.save")} savedLabel={t("saved.saved")} addedText={t("saved.added")} removedText={t("saved.removed")} className={actionClass("save")} />
             </div>
+            <SavedLink label={t("saved.viewSaved", { count: "{count}" })} className="mt-3 inline-block text-sm font-semibold text-brand-text underline-offset-4 hover:underline" />
 
             {(mainAddress || mainHours || langs.length > 0) && (
               <ul className="mt-4 grid grid-cols-1 gap-2 min-[380px]:grid-cols-2 lg:max-w-2xl" data-testid="business-facts">
