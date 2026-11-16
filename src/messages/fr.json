@@ -1529,5 +1529,11 @@
     "remove": "Retirer",
     "clearAll": "Tout retirer",
     "unavailable": "{count} entreprises enregistrées ne sont plus disponibles."
+  },
+  "locationSearch": {
+    "label": "Rechercher une ville, un code postal ou une adresse",
+    "loading": "Recherche…",
+    "empty": "Aucun résultat. Précisez votre adresse.",
+    "unavailable": "Recherche indisponible. Réessayez ou sélectionnez sur la carte."
   }
 }

@@ -1529,5 +1529,11 @@
     "remove": "Verwijderen",
     "clearAll": "Alles verwijderen",
     "unavailable": "{count} bewaarde bedrijven zijn niet meer beschikbaar."
+  },
+  "locationSearch": {
+    "label": "Zoek plaats, postcode of adres",
+    "loading": "Zoeken…",
+    "empty": "Geen resultaat. Vul een vollediger adres in.",
+    "unavailable": "Zoeken niet beschikbaar. Probeer opnieuw of kies op de kaart."
   }
 }
