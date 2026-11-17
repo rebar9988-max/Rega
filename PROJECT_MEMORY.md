@@ -1628,3 +1628,19 @@ Recovered head 7fc1088: GitHub CI 43684019068 succeeded (verify 43m37s), both Cl
 PR remained open because main advanced to 663f801, causing conflicts only in appended memory, locale JSON and generated inventory.
 Merged current main without discarding its saved-business/footer changes; preserved both memory sections, retained main locale keys
 and locationSearch, regenerated inventory. No location implementation was restarted. Exact merged-head CI is required again before release.
+
+## 2026-11-17 — Smart automatic opening hours (candidate)
+- Task: existing BusinessHoursEditor master times automatically update selected, untouched days; manual edits affect one day only; explicit bulk apply resets only selected days. Closed/unselected days and legacy schedules remain protected. Overnight values continue through the canonical parser.
+- Root cause: master pickers only changed local defaults; bulk application in five-day mode also closed unselected days; no editor metadata distinguished automatic schedules from manual overrides after reload.
+- Change: reuse weekday controls/time pickers, existing save action and Location.openingHours JSON; optional validated `editor` metadata retains master times, selection and customized weekdays. No SQL schema, route, API, dependency or infrastructure changes. Add short behavior hints in all 11 locales; extend canonical unit/browser tests.
+- Local verification: identity guard, TypeScript, scoped ESLint, Node build, docs validator and whitespace checks PASS. Hours/holiday/localization tests 21/21 PASS. Server form normalization/metadata roundtrip and invalid metadata rejection PASS. Broad units: 488 PASS, 4 existing skips, 1 environment failure (unchanged repair CLI invokes tsx IPC UNIX socket forbidden here).
+- Browser environment limitation: disposable local D1 seed and Next server succeeded after local-only launcher adjustments (not committed); Chromium launch refused UNIX socket creation before any browser assertion. Hosted exact-head CI must verify D1/PostgreSQL browser tests; no browser PASS claimed.
+- Cloudflare baseline read-only: rega24 deployment d47c0fd4-0d54-422c-a1fb-f7e09cdc7cb0, version c1fa45fe-c9c4-4607-97b6-0d03b4881124 at 100%; production unchanged.
+- Next: exact-head CI and Workers build/dry-run, review, then existing protected release path and live verification. No merge/deploy success claimed.
+
+### Smart opening hours — verification blocker (PR #166)
+- Application head d8c8812ff59591dc549a226fa5a7c82a40a61d50; exact remote tree matches local verified source tree 57e7abbf0849fe0b89dde69f84eda657398b8dab.
+- Final local Cloudflare Workers build and Worker deploy dry-run PASS; final targeted tests 21/21 PASS.
+- Hosted CI 44139141825 FAILED at the mandatory production dependency audit, before browser tests: Next.js 16.4.2 (GHSA-mfr8-8qww-v76h, GHSA-vc7v-qv4w-wrv8) and @parcel/watcher → picomatch (GHSA-fc5q-39xc-vjpf); 1 moderate and 2 high production findings. Local npm audit reproduces. package.json and package-lock.json are byte-identical to main; no dependency change caused by this feature.
+- Kept opening-hours scope: no speculative global framework/toolchain changes, no audit bypass. Browser assertions and production release remain BLOCKED. PR stays draft, unmerged; no production changes.
+- Central project hub updated with the candidate. Next safe step: separately scope and compatibility-test dependency security repair, then rerun exact-head full CI, verify browser persistence/RTL/LTR, and use the existing protected release path.

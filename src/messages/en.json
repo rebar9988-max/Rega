@@ -622,6 +622,7 @@
     "modeAppointment": "Appointment only",
     "modeAppointmentHint": "By appointment. Your weekly schedule is preserved.",
     "hoursApply": "Apply to selected days",
+    "hoursAutoHint": "Master times update selected days automatically. Manual changes and closed days stay protected. Apply to selected days replaces their hours intentionally. Closing earlier than opening means the following day.",
     "hoursStart": "Opening time",
     "hoursEnd": "Closing time",
     "hoursInvalid": "Select working days and two different valid times. Other days will be closed.",

@@ -622,6 +622,7 @@
     "modeAppointment": "Yalnızca randevuyla",
     "modeAppointmentHint": "Randevuyla. Haftalık programınız korunur.",
     "hoursApply": "Seçili günlere uygula",
+    "hoursAutoHint": "Ana saatler seçilen günlere otomatik uygulanır. Elle yapılan değişiklikler ve kapalı günler korunur. Uygula düğmesi seçilen günlerin saatlerini değiştirir. Daha erken kapanış saati ertesi gün anlamına gelir.",
     "hoursStart": "Açılış saati",
     "hoursEnd": "Kapanış saati",
     "hoursInvalid": "Çalışma günlerini ve birbirinden farklı iki geçerli saati seçin.",

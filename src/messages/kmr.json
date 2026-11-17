@@ -622,6 +622,7 @@
     "modeAppointment": "Tenê bi randevû",
     "modeAppointmentHint": "Bi randevû. Bernameya we ya heftane tê parastin.",
     "hoursApply": "Li rojên hilbijartî bisepîne",
+    "hoursAutoHint": "Demên sereke bixwe li rojên hilbijartî tên sepandin. Guhertinên destan û rojên girtî tên parastin. Bi bişkojka sepandinê demên rojên hilbijartî tên guherandin. Dema girtinê ya zûtir tê wateya roja paşîn.",
     "hoursStart": "Saeta vekirinê",
     "hoursEnd": "Saeta girtinê",
     "hoursInvalid": "Rojên karê û du demên derbasdar û cuda hilbijêrin.",

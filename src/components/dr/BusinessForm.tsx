@@ -16,7 +16,7 @@ import { AddressSearch } from "@/components/location/AddressSearch";
 import type { AddressResult } from "@/lib/address-result";
 import { isCompletePostalCode, type GeocodeHit, type PostalHit } from "@/lib/geocoder-parse";
 import { geocodeAction, postalLookupAction, saveBusinessAction, type BusinessFormState } from "@/app/dr/businesses/actions";
-import { parseOpeningHours, WEEK, type HoursMode, type HoursException, type WeekDay } from "@/lib/opening-hours";
+import { parseOpeningHours, WEEK, type HoursEditorSettings, type HoursMode, type HoursException, type WeekDay } from "@/lib/opening-hours";
 import { normalizeWhatsapp } from "@/lib/whatsapp";
 import { BusinessImageField } from "./BusinessImageField";
 import { PhotosField } from "./PhotosField";
@@ -34,7 +34,7 @@ export type FormInitial = {
   phone?: string; whatsapp?: string; email?: string; website?: string; instagramUrl?: string; snapchatUrl?: string; facebookUrl?: string; tiktokUrl?: string; addressLine1?: string; postalCode?: string; city?: string; countryCode?: string;
   latitude?: number | null; longitude?: number | null; coordsSource?: string | null; coordsVerified?: boolean;
   status?: string;
-  hoursMode?: HoursMode; hours?: Partial<Record<WeekDay, string>>; holidaysClosed?: boolean; hoursExceptions?: HoursException[]; logoUrl?: string | null; coverUrl?: string | null; photos?: string[];
+  hoursEditor?: HoursEditorSettings; hoursMode?: HoursMode; hours?: Partial<Record<WeekDay, string>>; holidaysClosed?: boolean; hoursExceptions?: HoursException[]; logoUrl?: string | null; coverUrl?: string | null; photos?: string[];
   /** Description per language (key = locale code; field name is description<Suffix>). */
   translations?: Partial<Record<Locale, string>>;
   languages?: string[];
@@ -477,7 +477,7 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
       <details open={canPublish || WEEK.some((day) => bad(`hours_${day}`))} className="rounded-[var(--radius-card)] border border-line bg-surface p-5"><summary className="cursor-pointer text-sm font-semibold">{t("sectionHours")}</summary>
       <fieldset className="mt-3 space-y-4">
         <legend className="sr-only">{t("sectionHours")}</legend>
-        <BusinessHoursEditor initial={initial.hours} mode={initial.hoursMode} invalid={bad} />
+        <BusinessHoursEditor editor={initial.hoursEditor} initial={initial.hours} mode={initial.hoursMode} invalid={bad} />
         <HoursExceptionsEditor initial={initial.hoursExceptions ?? []} holidaysClosed={Boolean(initial.holidaysClosed)} invalid={bad("hoursExceptions")} />
       </fieldset>
       </details>
