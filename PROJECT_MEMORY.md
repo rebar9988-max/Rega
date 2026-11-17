@@ -1628,3 +1628,20 @@ Recovered head 7fc1088: GitHub CI 43684019068 succeeded (verify 43m37s), both Cl
 PR remained open because main advanced to 663f801, causing conflicts only in appended memory, locale JSON and generated inventory.
 Merged current main without discarding its saved-business/footer changes; preserved both memory sections, retained main locale keys
 and locationSearch, regenerated inventory. No location implementation was restarted. Exact merged-head CI is required again before release.
+
+## 2026-11-17 — PR #159 production verification COMPLETE
+PR #159 merged as c682690308547c7deeb95c85329d608fcc6046ad. Exact-main CI 43894029540 passed all gates,
+including dependency audits, lint/typecheck/unit, D1 + PostgreSQL E2E, Worker builds and runtime smoke checks.
+Deploy 43901900915 succeeded. Direct Cloudflare API read: rega24 deployment d47c0fd4-0d54-422c-a1fb-f7e09cdc7cb0,
+version c1fa45fe-c9c4-4607-97b6-0d03b4881124, 100% traffic, workers/tag exactly c682690308547c7deeb95c85329d608fcc6046ad.
+Live health: ok:true, D1 database/migrations/auth/storage healthy. Live Photon postal search 51465 + DE returned
+Bergisch Gladbach; reverse lookup returned structured Berlin address suggestions. Browser checks on real production
+(de desktop 1440px, ckb mobile 390px) passed search, selection, map marker and no horizontal overflow using real tiles.
+Browser GPS permission simulation passed with outbound search coordinates coarsened. No physical-device claim.
+Initial production-browser workflow 43902175420 failed one /ar primary-color assertion; no code was changed to hide it.
+Fresh hosted production-browser workflow 44045355570 PASSED. Local generic browser check hit environment-specific
+ECONNREFUSED in Playwright API requests; browser journeys and curl worked, and hosted rerun verified the full check.
+Evidence local: /workspace/scratch/location-live-result.log and location-live-ckb-390.png / location-live-de-1440.png.
+No paid service, production migration or destructive change. Scope limits: Photon has no availability SLA; no full
+WCAG certification or physical iOS/Android certification. This documentation checkpoint follows the deployed code
+on the original feature branch; it is not a second application release.
