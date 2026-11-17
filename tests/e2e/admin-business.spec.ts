@@ -253,7 +253,7 @@ test("address autocomplete fills only supplied fields and leaves confirmation to
   await page.route("**/api/v1/address?*", route => route.fulfill({ json: { ok: true, data: [{ lat: 52.52, lng: 13.405, label: "Hauptstraße 12a, 10178 Berlin", street: "Hauptstraße", houseNumber: "12a", postalCode: "10178", city: "Berlin", countryCode: "DE" }] } }));
   await page.goto("/dr/businesses/new");
   await page.getByRole("combobox", { name: "Ort, Postleitzahl oder Adresse suchen" }).fill("Hauptstraße 12a");
-  await page.getByRole("button", { name: "Hauptstraße 12a, 10178 Berlin", exact: true }).click();
+  await page.getByRole("option", { name: "Hauptstraße 12a, 10178 Berlin", exact: true }).click();
   await expect(page.locator('[name="addressLine1"]')).toHaveValue("Hauptstraße 12a");
   await expect(page.getByTestId("postal-code")).toHaveValue("10178");
   await expect(page.locator('[name="city"]')).toHaveValue("Berlin");

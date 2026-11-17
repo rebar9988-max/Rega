@@ -28,18 +28,21 @@ export function AddressSearch({ onSelect, country }: { onSelect: (result: Addres
     }, 450);
     return () => { clearTimeout(timer); controller.abort(); };
   }, [query, country, t]);
-  function select(result: AddressResult) { ++revision.current; setQuery(""); setResults([]); onSelect(result); }
+  useEffect(() => {
+    if (active >= 0) document.getElementById(`${id}-${active}`)?.scrollIntoView({ block: "nearest" });
+  }, [active, id]);
+  function select(result: AddressResult) { ++revision.current; setQuery(""); setResults([]); setActive(-1); onSelect(result); }
   return <div className="relative rounded-2xl border border-line bg-surface p-3 shadow-card" data-testid="address-search">
     <label htmlFor={id} className="sr-only">{t("label")}</label>
-    <input id={id} type="search" role="combobox" autoComplete="off" aria-autocomplete="list" aria-expanded={results.length > 0} aria-controls={`${id}-results`} aria-activedescendant={active >= 0 ? `${id}-${active}` : undefined}
+    <input id={id} type="search" role="combobox" autoComplete="off" aria-autocomplete="list" aria-expanded={results.length > 0} aria-controls={`${id}-results`} aria-activedescendant={results[active] ? `${id}-${active}` : undefined}
       className="min-h-12 w-full rounded-xl border border-line bg-surface px-4 text-ink outline-none focus-visible:ring-2 focus-visible:ring-brand" placeholder={t("label")} maxLength={160} value={query} onChange={e => setQuery(e.target.value)}
-      onKeyDown={e => { if (e.key === "Escape") { ++revision.current; setResults([]); setStatus(""); }
-        if ((e.key === "ArrowDown" || e.key === "ArrowUp") && results.length) { e.preventDefault(); setActive(i => (i + (e.key === "ArrowDown" ? 1 : results.length - 1) + results.length) % results.length); }
+      onKeyDown={e => { if (e.key === "Escape") { ++revision.current; setResults([]); setActive(-1); setStatus(""); }
+        if ((e.key === "ArrowDown" || e.key === "ArrowUp") && results.length) { e.preventDefault(); setActive(i => i < 0 ? (e.key === "ArrowDown" ? 0 : results.length - 1) : (i + (e.key === "ArrowDown" ? 1 : -1) + results.length) % results.length); }
         if (e.key === "Enter") { e.preventDefault(); if (active >= 0 && results[active]) select(results[active]); }
       }} />
     <ul id={`${id}-results`} role="listbox" aria-label={t("label")} className="max-h-64 overflow-auto">
-      {results.map((result, i) => <li key={`${result.lat}:${result.lng}:${i}`} id={`${id}-${i}`} role="option" aria-selected={i === active}>
-        <button type="button" className={`min-h-12 w-full rounded-xl p-3 text-start text-sm hover:bg-brand-soft focus-visible:ring-2 focus-visible:ring-brand ${active === i ? "bg-brand-soft" : ""}`} onClick={() => select(result)}>{result.label}</button>
+      {results.map((result, i) => <li key={`${result.lat}:${result.lng}:${i}`} role="presentation">
+        <button type="button" id={`${id}-${i}`} role="option" aria-selected={i === active} tabIndex={-1} className={`min-h-12 w-full rounded-xl p-3 text-start text-sm hover:bg-brand-soft focus-visible:ring-2 focus-visible:ring-brand ${active === i ? "bg-brand-soft" : ""}`} onClick={() => select(result)}>{result.label}</button>
       </li>)}
     </ul>
     <p role="status" className="text-sm text-muted">{status}</p>
