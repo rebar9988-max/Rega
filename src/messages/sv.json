@@ -622,6 +622,7 @@
     "modeAppointment": "Endast efter tidsbokning",
     "modeAppointmentHint": "Efter tidsbokning. Ditt veckoschema sparas.",
     "hoursApply": "Använd för valda dagar",
+    "hoursAutoHint": "Huvudtiderna uppdaterar valda dagar automatiskt. Manuella ändringar och stängda dagar bevaras. Verkställ ersätter tiderna för valda dagar. En tidigare stängningstid avser nästa dag.",
     "hoursStart": "Öppningstid",
     "hoursEnd": "Stängningstid",
     "hoursInvalid": "Välj arbetsdagar och två giltiga, olika tider.",

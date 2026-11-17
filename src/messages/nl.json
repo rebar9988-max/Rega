@@ -622,6 +622,7 @@
     "modeAppointment": "Alleen op afspraak",
     "modeAppointmentHint": "Op afspraak. Je weekschema blijft bewaard.",
     "hoursApply": "Toepassen op geselecteerde dagen",
+    "hoursAutoHint": "De hoofdtijden gelden automatisch voor geselecteerde dagen. Handmatige wijzigingen en gesloten dagen blijven behouden. Toepassen vervangt de tijden van geselecteerde dagen. Een eerdere sluitingstijd betekent de volgende dag.",
     "hoursStart": "Openingstijd",
     "hoursEnd": "Sluitingstijd",
     "hoursInvalid": "Selecteer werkdagen en twee geldige, verschillende tijden.",

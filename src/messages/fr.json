@@ -622,6 +622,7 @@
     "modeAppointment": "Sur rendez-vous uniquement",
     "modeAppointmentHint": "Sur rendez-vous. Votre planning hebdomadaire est conservé.",
     "hoursApply": "Appliquer aux jours sélectionnés",
+    "hoursAutoHint": "Les horaires principaux actualisent automatiquement les jours sélectionnés. Les modifications manuelles et jours fermés sont conservés. Appliquer remplace les horaires sélectionnés. Une fermeture plus tôt indique le lendemain.",
     "hoursStart": "Heure d’ouverture",
     "hoursEnd": "Heure de fermeture",
     "hoursInvalid": "Sélectionnez des jours et deux heures valides et différentes.",

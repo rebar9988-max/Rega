@@ -22,7 +22,29 @@ export type HoursException = { from: string; to: string; hours: string; reason?:
  * Stored in Location.openingHours. The weekday keys are the long-standing format; `holidays: "closed"` (closed on
  * official public holidays, see lib/holidays.ts) and `exceptions` are optional additions that older readers ignore.
  */
-export type OpeningHours = Partial<Record<WeekDay, string>> & { mode?: HoursMode; holidays?: "closed"; exceptions?: HoursException[] };
+export type HoursEditorSettings = { start: string; end: string; chosen: WeekDay[]; customized: WeekDay[] };
+export type OpeningHours = Partial<Record<WeekDay, string>> & { mode?: HoursMode; holidays?: "closed"; exceptions?: HoursException[]; editor?: HoursEditorSettings };
+
+/** Optional editor metadata in the existing JSON; legacy schedules are protected by default. */
+export function readHoursEditor(input: unknown): HoursEditorSettings | undefined {
+  if (!input || typeof input !== "object" || Array.isArray(input)) return undefined;
+  const v = input as Record<string, unknown>;
+  const time = (x: unknown) => typeof x === "string" && /^([01]\d|2[0-3]):[0-5]\d$/.test(x);
+  const days = (x: unknown): x is WeekDay[] => Array.isArray(x) && x.length <= 7 && x.every(d => WEEK.includes(d));
+  if (!time(v.start) || !time(v.end) || !days(v.chosen) || !days(v.customized)) return undefined;
+  return { start: v.start as string, end: v.end as string, chosen: [...new Set(v.chosen)], customized: [...new Set(v.customized)] };
+}
+
+/** Automatic changes skip closed/manual days. Explicit bulk apply intentionally replaces only selected days. */
+export function applyMasterHours(days: Partial<Record<WeekDay, string>>, editor: HoursEditorSettings, overwrite = false) {
+  const value = normalizeDay(`${editor.start}–${editor.end}`);
+  if (!value) return days;
+  const next = { ...days };
+  for (const day of editor.chosen) {
+    if (overwrite || (!editor.customized.includes(day) && normalizeDay(days[day] ?? "") !== "closed")) next[day] = value;
+  }
+  return next;
+}
 
 /** Limits for date exceptions: entries per location, days per entry, reason length. */
 export const EXCEPTION_LIMITS = { max: 30, maxDays: 366, reason: 120 } as const;

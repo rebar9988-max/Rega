@@ -622,6 +622,7 @@
     "modeAppointment": "Nur nach Vereinbarung",
     "modeAppointmentHint": "Nur nach Vereinbarung. Ihr Wochenplan bleibt gespeichert.",
     "hoursApply": "Auf ausgewählte Tage anwenden",
+    "hoursAutoHint": "Die Hauptzeiten gelten automatisch für ausgewählte Tage. Manuelle Änderungen und geschlossene Tage bleiben erhalten. Anwenden ersetzt die Zeiten der ausgewählten Tage bewusst. Eine frühere Schließzeit bedeutet den Folgetag.",
     "hoursStart": "Öffnungszeit",
     "hoursEnd": "Schließzeit",
     "hoursInvalid": "Wählen Sie Arbeitstage und zwei unterschiedliche gültige Uhrzeiten.",

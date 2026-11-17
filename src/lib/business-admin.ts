@@ -10,7 +10,7 @@ import { prisma } from "@/lib/db";
 import { slugify } from "@/lib/slug";
 import { geocodeCity } from "@/lib/geocoder";
 import { isValidCoordinate } from "@/lib/coordinates";
-import { WEEK, composeOpeningHours, parseHoursExceptions, parseOpeningHours, type OpeningHours } from "@/lib/opening-hours";
+import { WEEK, readHoursEditor, composeOpeningHours, parseHoursExceptions, parseOpeningHours, type OpeningHours } from "@/lib/opening-hours";
 import { reindexBusinessTree } from "@/lib/search-index";
 import { LOCALES } from "@/config/locales";
 import { BUSINESS_CATEGORY, lockBusiness, publicationSelect, businessReadiness } from "@/lib/business-publication";
@@ -83,6 +83,7 @@ export const businessFormSchema = z.object({
   holidaysClosed: z.enum(["1"]).optional(),
   /** Date exceptions (closures, special hours) as JSON from the hours editor; validated in superRefine. */
   hoursExceptions: z.string().max(20_000).optional(),
+  hoursEditor: z.string().max(1000).optional(),
   // "draft" (wizard): saves the steps filled in so far without changing the status; only the name is required.
   intent: z.enum(["save", "publish", "submit", "draft"]).default("save"),
 }).superRefine((v, ctx) => {
@@ -103,8 +104,13 @@ export const businessFormSchema = z.object({
   if (hasLat && hasLng && !isValidCoordinate(v.latitude, v.longitude)) ctx.addIssue({ code: "custom", path: ["latitude"], message: "invalid" });
   const hours = parseOpeningHours(Object.fromEntries(WEEK.map((d) => [d, v[`hours_${d}`] ?? ""])));
   if (!hours.ok) for (const d of hours.invalid) ctx.addIssue({ code: "custom", path: [`hours_${d}`], message: "invalid" });
+  if (v.hoursEditor && !formEditor(v.hoursEditor)) ctx.addIssue({ code: "custom", path: ["hoursEditor"], message: "invalid" });
   if (!formExceptions(v.hoursExceptions).ok) ctx.addIssue({ code: "custom", path: ["hoursExceptions"], message: "invalid" });
 });
+
+function formEditor(json: string | undefined) {
+  try { return json ? readHoursEditor(JSON.parse(json)) : undefined; } catch { return undefined; }
+}
 
 function formExceptions(json: string | undefined) {
   if (!json) return parseHoursExceptions([]);
@@ -115,7 +121,8 @@ function formExceptions(json: string | undefined) {
 export function formHours(input: BusinessForm): OpeningHours | null {
   const parsed = parseOpeningHours(Object.fromEntries(WEEK.map((d) => [d, input[`hours_${d}`] ?? ""])));
   const exceptions = formExceptions(input.hoursExceptions);
-  return composeOpeningHours({ ...(parsed.ok ? parsed.value : {}), ...(input.hoursMode ? { mode: input.hoursMode } : {}) }, input.holidaysClosed === "1", exceptions.ok ? exceptions.value : []);
+  const editor = formEditor(input.hoursEditor);
+  return composeOpeningHours({ ...(parsed.ok ? parsed.value : {}), ...(input.hoursMode ? { mode: input.hoursMode } : {}), ...(editor ? { editor } : {}) }, input.holidaysClosed === "1", exceptions.ok ? exceptions.value : []);
 }
 export type BusinessForm = z.infer<typeof businessFormSchema>;
 
