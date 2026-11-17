@@ -1637,3 +1637,10 @@ and locationSearch, regenerated inventory. No location implementation was restar
 - Browser environment limitation: disposable local D1 seed and Next server succeeded after local-only launcher adjustments (not committed); Chromium launch refused UNIX socket creation before any browser assertion. Hosted exact-head CI must verify D1/PostgreSQL browser tests; no browser PASS claimed.
 - Cloudflare baseline read-only: rega24 deployment d47c0fd4-0d54-422c-a1fb-f7e09cdc7cb0, version c1fa45fe-c9c4-4607-97b6-0d03b4881124 at 100%; production unchanged.
 - Next: exact-head CI and Workers build/dry-run, review, then existing protected release path and live verification. No merge/deploy success claimed.
+
+### Smart opening hours — verification blocker (PR #166)
+- Application head d8c8812ff59591dc549a226fa5a7c82a40a61d50; exact remote tree matches local verified source tree 57e7abbf0849fe0b89dde69f84eda657398b8dab.
+- Final local Cloudflare Workers build and Worker deploy dry-run PASS; final targeted tests 21/21 PASS.
+- Hosted CI 44139141825 FAILED at the mandatory production dependency audit, before browser tests: Next.js 16.4.2 (GHSA-mfr8-8qww-v76h, GHSA-vc7v-qv4w-wrv8) and @parcel/watcher → picomatch (GHSA-fc5q-39xc-vjpf); 1 moderate and 2 high production findings. Local npm audit reproduces. package.json and package-lock.json are byte-identical to main; no dependency change caused by this feature.
+- Kept opening-hours scope: no speculative global framework/toolchain changes, no audit bypass. Browser assertions and production release remain BLOCKED. PR stays draft, unmerged; no production changes.
+- Central project hub updated with the candidate. Next safe step: separately scope and compatibility-test dependency security repair, then rerun exact-head full CI, verify browser persistence/RTL/LTR, and use the existing protected release path.
