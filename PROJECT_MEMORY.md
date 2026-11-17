@@ -1628,3 +1628,16 @@ Recovered head 7fc1088: GitHub CI 43684019068 succeeded (verify 43m37s), both Cl
 PR remained open because main advanced to 663f801, causing conflicts only in appended memory, locale JSON and generated inventory.
 Merged current main without discarding its saved-business/footer changes; preserved both memory sections, retained main locale keys
 and locationSearch, regenerated inventory. No location implementation was restarted. Exact merged-head CI is required again before release.
+
+## 2026-11-17 — Expanded address suggestions accessibility follow-up
+Continued only the unverified expanded-list/keyboard state after the verified PR #159 production release.
+Read-only live audit at 768px in de/ckb: axe reported serious nested-interactive on open suggestions; initial ArrowUp
+selected index 3 of 5 instead of the final option. Closed-list axe checks in the prior task did not cover this state.
+Fix on fix/address-search-keyboard-a11y: the suggestion button itself carries role=option under a presentation wrapper,
+with no nested interactive option; options stay outside the Tab order, input ArrowUp/Down selects them, selected options
+scroll into view, and Escape/selection clears active state. Added expanded-list axe and keyboard regression; adjusted
+form E2E to select the option by its accessible role. Existing production release remains c682690 until new CI/deploy.
+Local verification: lint, typecheck and Node build pass; 5/5 focused Playwright checks pass on desktop/mobile,
+including form autofill/reverse-selection regression. Expanded-list tablet (768px) checks in de/ckb pass ArrowUp,
+Escape and scoped axe (zero violations). Initial ad-hoc tablet probe used an unscoped option locator that matched
+hidden city-select options; scoped it to AddressSearch and reran successfully. No production mutation yet.

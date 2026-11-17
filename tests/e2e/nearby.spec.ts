@@ -297,3 +297,21 @@ test("address autocomplete selects a verified postcode and centers its marker", 
   await expect(page.getByTestId("nearby-place")).toHaveText("10178 Berlin");
   await expect(page.getByRole("img", { name: "10178 Berlin" })).toBeVisible();
 });
+
+test("address suggestions expose options without nested controls and ArrowUp starts at the last result", async ({ page }) => {
+  await stubBasemap(page);
+  await page.route("**/api/v1/address?*", route => route.fulfill({ json: { ok: true, data: [1, 2, 3].map(i => ({ lat: 52.52, lng: 13.405, label: `Berlin result ${i}`, street: "", houseNumber: "", postalCode: "", city: "Berlin", countryCode: "DE" })) } }));
+  await page.goto("/de/nearby");
+  const search = page.getByTestId("address-search");
+  const input = search.getByRole("combobox");
+  await input.fill("Berlin");
+  await expect(search.getByRole("option")).toHaveCount(3);
+  await input.press("ArrowUp");
+  await expect(search.getByRole("option", { selected: true })).toHaveText("Berlin result 3");
+  const { default: AxeBuilder } = await import("@axe-core/playwright");
+  const report = await new AxeBuilder({ page }).include('[data-testid="address-search"]').withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"]).analyze();
+  expect(report.violations).toEqual([]);
+  await input.press("Escape");
+  await expect(input).toHaveAttribute("aria-expanded", "false");
+  await expect(input).not.toHaveAttribute("aria-activedescendant", /.+/);
+});
