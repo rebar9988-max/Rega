@@ -98,8 +98,8 @@ export async function BusinessIndex({ pathname, searchParams, title, crumbs, fix
         )}
 
         <div className={hideSearchAndFilters ? "mt-5" : "mt-5 grid items-start gap-5 lg:grid-cols-[15.5rem_minmax(0,1fr)]"}>
-          {!hideSearchAndFilters && (
           {/* Refinements only: category = the chips above, text + city = the search form, one submit button (that form's). */}
+          {!hideSearchAndFilters && (
           <aside aria-labelledby="dir-filters-title" className="rega-card p-4 lg:sticky lg:top-24">
             <div className="flex items-center justify-between gap-3">
               <h2 id="dir-filters-title" className="text-base font-bold">{t("list.filters")}</h2>
