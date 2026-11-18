@@ -8,7 +8,7 @@ import { Link, usePathname } from "@/i18n/routing";
 import type { NavItem } from "./nav";
 
 /** Full-height sheet built on native <dialog>: focus trap, Escape and inert background for free. */
-export function MobileNav({ items, legal = [], signedIn = false }: { items: NavItem[]; legal?: NavItem[]; signedIn?: boolean }) {
+export function MobileNav({ items, legal = [], signedIn = false, adHref = null }: { items: NavItem[]; legal?: NavItem[]; signedIn?: boolean; adHref?: string | null }) {
   const t = useTranslations("nav");
   const tc = useTranslations("common");
   const tf = useTranslations("footer");
@@ -34,7 +34,7 @@ export function MobileNav({ items, legal = [], signedIn = false }: { items: NavI
         <nav aria-label={t("primary")} dir={contentDir}>
           <ul className="flex flex-col gap-1">
             {/* Registry order (home first); login before contact, and contact always last. */}
-            {[...items.filter((i) => i.key !== "contact"), { key: signedIn ? "account" : "login", href: signedIn ? "/account" : "/login" }, ...(signedIn ? [{ key: "addAd", href: "/dr/businesses/new" }] : []), ...items.filter((i) => i.key === "contact")].map((item) => {
+            {[...items.filter((i) => i.key !== "contact"), { key: signedIn ? "account" : "login", href: signedIn ? "/account" : "/login" }, ...(adHref ? [{ key: "addAd", href: adHref }] : []), ...items.filter((i) => i.key === "contact")].map((item) => {
               const NavLink = item.href.startsWith("/dr/") ? NextLink : Link;
               return (
               <li key={item.key}>
