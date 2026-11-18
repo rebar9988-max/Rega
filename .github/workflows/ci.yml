@@ -49,10 +49,12 @@ jobs:
       - run: npm ci
       # Owner decision 2026-11-04: production dependencies stay gated at every severity; dev tooling at high/critical.
       # The eslint plugin chain still requires minimatch 3 (GHSA-g3hv-75wg-m249, moderate) with no upstream fix yet.
+      # Owner approval 2026-11-18: GHSA-fc5q-39xc-vjpf (picomatch) has no patched release; it is the only exception,
+      # listed in scripts/audit-gate.mjs. Every other advisory still fails these gates.
       - name: Audit production dependencies (all severities)
-        run: npm audit --omit=dev --audit-level=low
+        run: node scripts/audit-gate.mjs --level low --omit-dev
       - name: Audit all dependencies (high and critical)
-        run: npm audit --audit-level=high
+        run: node scripts/audit-gate.mjs --level high
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
