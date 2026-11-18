@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-15T07:55:06.533Z",
+  "generatedAt": "2026-11-18T16:09:29.894Z",
   "package": {
     "name": "rega-platform",
     "version": "0.1.0",
@@ -46,6 +46,7 @@
     "production-browser.yml",
     "production-health.yml",
     "rega24-agent-audit.yml",
+    "tmp-lockgen.yml",
     "worker-secrets-sync.yml"
   ],
   "prismaModels": [
