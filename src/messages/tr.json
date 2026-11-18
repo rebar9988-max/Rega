@@ -1526,5 +1526,11 @@
     "remove": "Kaldır",
     "clearAll": "Tümünü kaldır",
     "unavailable": "Kaydedilen {count} işletme artık mevcut değil."
+  },
+  "locationSearch": {
+    "label": "Şehir, posta kodu veya adres ara",
+    "loading": "Aranıyor…",
+    "empty": "Sonuç bulunamadı. Daha ayrıntılı bir adres girin.",
+    "unavailable": "Adres araması kullanılamıyor. Yeniden deneyin veya haritadan seçin."
   }
 }

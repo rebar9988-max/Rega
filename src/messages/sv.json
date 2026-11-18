@@ -1526,5 +1526,11 @@
     "remove": "Ta bort",
     "clearAll": "Ta bort alla",
     "unavailable": "{count} sparade företag är inte längre tillgängliga."
+  },
+  "locationSearch": {
+    "label": "Sök ort, postnummer eller adress",
+    "loading": "Söker…",
+    "empty": "Inga resultat. Ange en mer fullständig adress.",
+    "unavailable": "Sökning är inte tillgänglig. Försök igen eller välj på kartan."
   }
 }

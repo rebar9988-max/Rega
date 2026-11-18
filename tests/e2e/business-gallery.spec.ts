@@ -54,7 +54,7 @@ test("owner manages one cover and three gallery images; the profile shows them i
   await page.getByLabel("Straße und Hausnummer").fill("Jungfernstieg 7");
   await page.locator('select[name="countryCode"]').selectOption("DE");
   await page.getByLabel("Stadt", { exact: true }).fill("Hamburg");
-  await page.getByLabel("Postleitzahl").fill("20354");
+  await page.getByLabel("Postleitzahl", { exact: true }).fill("20354");
   await page.getByTestId("lat").fill("53.5511");
   await page.getByTestId("lng").fill("9.9937");
   await page.getByTestId("confirm-location").check();

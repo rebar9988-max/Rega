@@ -17,6 +17,7 @@ async function login(page: Page) {
 }
 
 async function stubBasemap(page: Page) {
+  await page.route("**/api/v1/address?*", r => r.fulfill({ json: { ok: true, data: [] } }));
   await page.route("https://tiles.openfreemap.org/**", (r) => r.fulfill({
     contentType: "application/json",
     body: JSON.stringify({ version: 8, sources: {}, layers: [{ id: "bg", type: "background", paint: { "background-color": "#eceee9" } }] }),
@@ -72,7 +73,7 @@ test("admin adds a business: address lookup, confirmed map location, publish; it
   await login(page);
   const name = `E2E Standort ${stamp}`;
   await fillBasics(page, name, "Oranienstraße 1", "Berlin");
-  await page.getByLabel("Postleitzahl").fill("10999");
+  await page.getByLabel("Postleitzahl", { exact: true }).fill("10999");
   await page.getByTestId("find-location").click();
   await expect(page.getByTestId("geocode-hits")).toContainText("genaue Adresse");
   await expect(page.getByTestId("lat")).toHaveValue("52.502238");
@@ -244,4 +245,22 @@ test("businesses at the very same position: the map offers them as a list", asyn
   await expect(stack).toContainText(`E2E Standort ${stamp}`);
   await stack.getByRole("button", { name: new RegExp(name) }).click();
   await expect(page.getByTestId("map-preview")).toContainText(name);
+});
+
+test("address autocomplete fills only supplied fields and leaves confirmation to the owner", async ({ page }) => {
+  await stubBasemap(page);
+  await login(page);
+  await page.route("**/api/v1/address?*", route => route.fulfill({ json: { ok: true, data: [{ lat: 52.52, lng: 13.405, label: "Hauptstraße 12a, 10178 Berlin", street: "Hauptstraße", houseNumber: "12a", postalCode: "10178", city: "Berlin", countryCode: "DE" }] } }));
+  await page.goto("/dr/businesses/new");
+  await page.getByRole("combobox", { name: "Ort, Postleitzahl oder Adresse suchen" }).fill("Hauptstraße 12a");
+  await page.getByRole("button", { name: "Hauptstraße 12a, 10178 Berlin", exact: true }).click();
+  await expect(page.locator('[name="addressLine1"]')).toHaveValue("Hauptstraße 12a");
+  await expect(page.getByTestId("postal-code")).toHaveValue("10178");
+  await expect(page.locator('[name="city"]')).toHaveValue("Berlin");
+  await expect(page.getByTestId("lat")).toHaveValue("52.52");
+  await expect(page.getByTestId("location-picker")).toHaveAttribute("data-status", "ready");
+  await page.getByTestId("location-picker").click({ position: { x: 80, y: 100 } });
+  await expect(page.getByRole("button", { name: "Hauptstraße 12a, 10178 Berlin", exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Hauptstraße 12a, 10178 Berlin", exact: true }).click();
+  await expect(page.getByTestId("lat")).toHaveValue("52.52");
 });
