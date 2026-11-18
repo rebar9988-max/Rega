@@ -88,7 +88,8 @@
     "guides": "Guides",
     "register": "Créer un compte",
     "quick": "Navigation rapide",
-    "smartRequest": "Demande intelligente"
+    "smartRequest": "Demande intelligente",
+    "travel": "Voyage & Transport"
   },
   "home": {
     "heroTitle": "Toutes les entreprises, tous les services et tous les lieux au même endroit",
@@ -1532,5 +1533,24 @@
     "loading": "Recherche…",
     "empty": "Aucun résultat. Précisez votre adresse.",
     "unavailable": "Recherche indisponible. Réessayez ou sélectionnez sur la carte."
+  },
+  "travel": {
+    "title": "Rega24Travel",
+    "subtitle": "Voyage & Transport",
+    "lead": "Découvrez les entreprises et services de voyage et de transport près de chez vous.",
+    "searchLabel": "Nom de l'entreprise ou du service",
+    "searchPlaceholder": "Nom de l'entreprise ou PLZ...",
+    "categoriesLabel": "Catégories Voyage & Transport",
+    "allCategories": "Toutes les catégories",
+    "newBadge": "Nouveau",
+    "emptyTitle": "Aucune fiche ici pour l'instant",
+    "emptyBody": "Soyez la première entreprise de voyage ou de transport sur Rega24.",
+    "emptyFiltered": "Aucun résultat pour cette recherche. Modifiez ou effacez les filtres.",
+    "clearFilters": "Effacer les filtres",
+    "addBusiness": "Ajouter votre entreprise",
+    "notBooking": "Ceci est un annuaire de découverte ; aucun billet ni réservation n'est vendu ici.",
+    "allCities": "Toutes les villes",
+    "bannerBody": "Agences de voyage, taxis, location de voitures, fret et plus encore...",
+    "bannerCta": "Visiter Rega24Travel"
   }
 }

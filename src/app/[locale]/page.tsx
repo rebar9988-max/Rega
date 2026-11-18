@@ -17,6 +17,9 @@ import { CityFilter } from "@/components/ui/CityFilter";
 import { log } from "@/lib/logger";
 import { pageMetadata } from "@/lib/seo";
 import { NoEdgeCache } from "@/components/ui/NoEdgeCache";
+import { TRAVEL_ROOT_KEYS } from "@/config/travel";
+import { SuitcaseArt } from "@/components/travel/TravelArt";
+import { sectionEnabled } from "@/config/sections";
 
 /** The landing page must render even if the database is briefly unavailable. */
 async function homeData() {
@@ -62,6 +65,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   setRequestLocale(locale);
   const t = await getTranslations("home");
   const tn = await getTranslations("nav");
+  const tt = await getTranslations("travel");
   const te = await getTranslations("empty");
   const ts = await getTranslations("sort");
   const l = locale as Locale;
@@ -115,7 +119,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     { key: "new", label: t("tabNew"), icon: "sparkles", ids: ids(newest) },
   ].filter((tab) => tab.ids.length > 0);
 
-  const tiles = rootCategories.slice(0, 11);
+  // Rega24Travel: one tile for its two top-level categories (they stay reachable on /travel and in "explore").
+  const travelOn = sectionEnabled("travel") && rootCategories.some((c) => (TRAVEL_ROOT_KEYS as readonly string[]).includes(c.slug));
+  const tiles = (travelOn ? rootCategories.filter((c) => !(TRAVEL_ROOT_KEYS as readonly string[]).includes(c.slug)) : rootCategories).slice(0, travelOn ? 10 : 11);
+  const extraFrom = travelOn ? 6 : 7;
 
   return (
     <>
@@ -178,8 +185,17 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         {tiles.length > 0 && (
           <nav aria-label={t("categoriesTitle")} className={`${BAND} rh-tiles-band`}>
             <ul className="rh-tiles">
+              {travelOn && (
+                <li>
+                  <Link href="/travel" className="rh-tile rh-tile-travel" data-testid="home-travel-tile">
+                    <span className="rh-tile-badge">{tt("newBadge")}</span>
+                    <Icon3D name="travel" className="rh-tile-art" />
+                    <span className="rh-tile-label">{tn("travel")}</span>
+                  </Link>
+                </li>
+              )}
               {tiles.map((c, i) => (
-                <li key={c.id} className={i >= 7 ? "rh-tile-extra" : undefined}>
+                <li key={c.id} className={i >= extraFrom ? "rh-tile-extra" : undefined}>
                   <Link href={`/businesses/${c.slug}`} className="rh-tile">
                     {hasIcon3D(c.slug)
                       ? <Icon3D name={c.slug} className="rh-tile-art" />
@@ -218,22 +234,39 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           )}
         </section>
 
-        {/* ---------- Compact global map banner: the full map opens only from here (or /nearby) ---------- */}
-        <section className={`${BAND} rh-section`} aria-labelledby="home-map">
-          <div className="rh-mapbanner">
-            <MapBannerArt className="rh-mapbanner-art" />
-            <LogoMark className="rh-mapbanner-logo" />
-            <div className="rh-mapbanner-copy">
-              <h2 id="home-map" className="rh-mapbanner-title">{t("mapTitle")}</h2>
-              <p className="rh-mapbanner-sub">{t("mapSub")}</p>
+        {/* ---------- Rega24Travel banner (owner 2026-11-18): replaces the map banner; the map stays on the «نزیک» tab ---------- */}
+        {travelOn ? (
+          <section className={`${BAND} rh-section`} aria-labelledby="home-travel">
+            <div className="rh-travel">
+              <SuitcaseArt className="rh-travel-art" />
+              <div className="rh-travel-copy">
+                <h2 id="home-travel" className="rh-travel-title" dir="ltr">Rega24<span>Travel</span></h2>
+                <p className="rh-travel-sub">{tn("travel")}</p>
+                <p className="rh-travel-body">{tt("bannerBody")}</p>
+                <Link href="/travel" className="rh-travel-cta" data-testid="home-travel-cta">
+                  {tt("bannerCta")}
+                  <FigmaIcon name="chevron-right" className="rtl-flip size-4 shrink-0" />
+                </Link>
+              </div>
             </div>
-            <Link href="/nearby" className="rh-mapbanner-cta">
-              <FigmaIcon name="map" className="size-5 shrink-0" />
-              {t("mapCta")}
-              <FigmaIcon name="chevron-right" className="rtl-flip size-4 shrink-0" />
-            </Link>
-          </div>
-        </section>
+          </section>
+        ) : (
+          <section className={`${BAND} rh-section`} aria-labelledby="home-map">
+            <div className="rh-mapbanner">
+              <MapBannerArt className="rh-mapbanner-art" />
+              <LogoMark className="rh-mapbanner-logo" />
+              <div className="rh-mapbanner-copy">
+                <h2 id="home-map" className="rh-mapbanner-title">{t("mapTitle")}</h2>
+                <p className="rh-mapbanner-sub">{t("mapSub")}</p>
+              </div>
+              <Link href="/nearby" className="rh-mapbanner-cta">
+                <FigmaIcon name="map" className="size-5 shrink-0" />
+                {t("mapCta")}
+                <FigmaIcon name="chevron-right" className="rtl-flip size-4 shrink-0" />
+              </Link>
+            </div>
+          </section>
+        )}
 
         {/* ---------- Compact AI entry (existing feature) ---------- */}
         <section aria-label={t("ctaAI")}>
