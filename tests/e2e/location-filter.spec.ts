@@ -2,6 +2,7 @@
  * Location filter: the API behind the selector, the selector itself (search, keyboard, nearby detection, bottom sheet,
  * Kurdish RTL) and the saved place shared by the home page, the business list and the map.
  */
+// The city filter lives on category/city pages: /businesses has no search or filters (owner request 2026-11-15).
 import { expect, test } from "./fixtures";
 
 type City = { id: string; slug: string | null; nameEn: string; regionId: string | null; countryCode: string; count: number };
@@ -65,7 +66,7 @@ test.describe("geo API", () => {
 
 test.describe("location selector", () => {
   test("business list: search a city, choose it, apply, and the list is filtered", async ({ page }) => {
-    await page.goto("/de/businesses");
+    await page.goto("/de/businesses/legal");
     await expect(trigger(page)).toHaveAccessibleName("Stadt: Alle Städte");
     await trigger(page).click();
     await expect(dialog(page)).toBeVisible();
@@ -81,7 +82,7 @@ test.describe("location selector", () => {
   });
 
   test("keyboard: open, type, arrow keys, Enter to choose, Escape to close and focus returns", async ({ page }) => {
-    await page.goto("/de/businesses");
+    await page.goto("/de/businesses/legal");
     await trigger(page).focus();
     await page.keyboard.press("Enter");
     const search = dialog(page).getByPlaceholder("Stadt suchen");
@@ -100,7 +101,7 @@ test.describe("location selector", () => {
   });
 
   test("the chosen place is saved in this browser only, as ids, and survives a reload", async ({ page }) => {
-    await page.goto("/de/businesses");
+    await page.goto("/de/businesses/legal");
     expect(await page.evaluate((k) => localStorage.getItem(k), STORAGE_KEY)).toBeNull();
     await trigger(page).click();
     await dialog(page).getByPlaceholder("Stadt suchen").fill("berlin");
@@ -121,7 +122,7 @@ test.describe("location selector", () => {
     await expect(trigger(page)).toContainText("Berlin");
 
     // The business list is filtered without choosing again.
-    await page.goto("/de/businesses");
+    await page.goto("/de/businesses/legal");
     await expect(page).toHaveURL(/[?&]city=/);
     await expect(trigger(page)).toContainText("Berlin");
     await expect(page.getByRole("link", { name: "Kurdistan Rechtsberatung" }).first()).toBeVisible();
@@ -141,12 +142,12 @@ test.describe("location selector", () => {
     await trigger(page).click();
     await dialog(page).getByPlaceholder("Stadt suchen").fill("berlin");
     await dialog(page).getByRole("listbox").getByRole("option", { name: /^Berlin/ }).click();
-    await page.goto("/de/businesses");
+    await page.goto("/de/businesses/legal");
     await expect(page).toHaveURL(/[?&]city=/);
     await page.getByRole("link", { name: "Zurücksetzen" }).click();
     await expect.poll(() => page.evaluate((k) => localStorage.getItem(k), STORAGE_KEY)).toBeNull();
     await expect(trigger(page)).toContainText("Alle Städte");
-    await page.goto("/de/businesses");
+    await page.goto("/de/businesses/legal");
     await expect(page).not.toHaveURL(/city=[^&]/);
     await page.goto("/de");
     await expect(trigger(page)).toContainText("Alle Städte");
@@ -160,7 +161,7 @@ test.describe("location selector", () => {
     const all = await page.evaluate((k) => localStorage.getItem(k), STORAGE_KEY);
     expect(all).not.toBeNull();
     // A shared link to another city shows that city and keeps the saved place untouched.
-    await page.goto("/de/businesses?city=does-not-exist");
+    await page.goto("/de/businesses/legal?city=does-not-exist");
     await expect(page).toHaveURL(/city=does-not-exist/);
     expect(await page.evaluate((k) => localStorage.getItem(k), STORAGE_KEY)).toBe(all);
   });
@@ -168,7 +169,7 @@ test.describe("location selector", () => {
   test("use my location picks the nearest known city", async ({ page, context }) => {
     await context.grantPermissions(["geolocation"]);
     await context.setGeolocation({ latitude: 52.5201, longitude: 13.4049 });
-    await page.goto("/de/businesses");
+    await page.goto("/de/businesses/legal");
     await trigger(page).click();
     await dialog(page).getByRole("button", { name: "Meinen Standort verwenden" }).click();
     await expect(dialog(page)).toBeHidden();
@@ -177,7 +178,7 @@ test.describe("location selector", () => {
 
   test("a phone gets a bottom sheet that fits the screen", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 800 });
-    await page.goto("/de/businesses");
+    await page.goto("/de/businesses/legal");
     const scrollWidth = () => page.evaluate(() => document.documentElement.scrollWidth);
     const before = await scrollWidth();
     await trigger(page).click();
@@ -194,7 +195,7 @@ test.describe("location selector", () => {
 
   test("desktop popover stays adjacent to the field and fully inside the window", async ({ page }) => {
     await page.setViewportSize({ width: 1366, height: 800 });
-    await page.goto("/de/businesses");
+    await page.goto("/de/businesses/legal");
     await trigger(page).click();
     const field = (await trigger(page).boundingBox())!;
     const box = (await dialog(page).boundingBox())!;
@@ -207,7 +208,7 @@ test.describe("location selector", () => {
 
   test("Kurdish (right to left): the panel opens inside the window and finds a city by its Kurdish name", async ({ page }) => {
     await page.setViewportSize({ width: 1024, height: 768 });
-    await page.goto("/ckb/businesses");
+    await page.goto("/ckb/businesses/legal");
     expect(await page.evaluate(() => document.documentElement.dir)).toBe("rtl");
     await trigger(page).click();
     const panel = page.getByRole("dialog");
@@ -223,7 +224,7 @@ test.describe("location selector", () => {
   });
 
   test("the form still submits the chosen city and existing search keeps working", async ({ page }) => {
-    await page.goto("/de/businesses");
+    await page.goto("/de/businesses/legal");
     await page.locator("#f-q").fill("rechtsberatung");
     await trigger(page).click();
     await dialog(page).getByPlaceholder("Stadt suchen").fill("berlin");

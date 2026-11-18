@@ -10,9 +10,18 @@ const count = (s: string, re: RegExp) => (s.match(re) ?? []).length;
 test("business directory: chips are the only category control and the search form has the only submit button", () => {
   const src = read("src/features/listings/BusinessIndex.tsx");
   assert.equal(count(src, /<CategoryNavigation\b/g), 1, "one category navigation");
-  assert.equal(count(src, /name="category"/g), 0, "no second category <select> beside the chips");
+  assert.equal(count(src, /<(?:select|AutoSubmitSelect)\b[^>]*name="category"/g), 0, "no second category <select> beside the chips");
   assert.equal(count(src, /type="submit"/g), 1, "one submit button (no separate apply button)");
   assert.equal(count(src, /role="search"/g), 1, "one search form");
+});
+
+test("/businesses hides the search bar and filters panel; city and category pages keep them (owner request 2026-11-15)", () => {
+  assert.match(read("src/app/[locale]/businesses/(list)/page.tsx"), /<BusinessIndex[^>]*\bhideSearchAndFilters\b/);
+  for (const p of ["src/app/[locale]/businesses/[slug]/page.tsx", "src/app/[locale]/city/[citySlug]/page.tsx", "src/app/[locale]/city/[citySlug]/[categorySlug]/page.tsx"]) {
+    assert.doesNotMatch(read(p), /hideSearchAndFilters/, p);
+  }
+  // Sort keeps working without the visible form: a hidden form with the same id carries the current query.
+  assert.match(read("src/features/listings/BusinessIndex.tsx"), /hideSearchAndFilters \?[\s\S]*?<form id=\{formId\} action=\{pathname\} hidden>/);
 });
 
 test("category chips keep a city page's city", () => {
