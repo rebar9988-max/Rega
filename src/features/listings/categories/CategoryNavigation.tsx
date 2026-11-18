@@ -6,9 +6,11 @@ import { formatNumber, type Locale } from "@/i18n/locales";
 
 /** Route-owned scope; category pages never submit another primary category through a hidden filter. */
 export async function CategoryNavigation({
-  categoryId, showCounts = true,
+  categoryId, showCounts = true, base = "/businesses",
 }: {
   categoryId?: string; showCounts?: boolean;
+  /** Where the chips lead: "/businesses" or a city page ("/city/<slug>"), so a city page keeps its city. */
+  base?: string;
 }) {
   const categories = await getCategories(),
     locale = (await getLocale()) as Locale,
@@ -32,7 +34,7 @@ export async function CategoryNavigation({
       <ul className="flex gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible">
         <li className="shrink-0">
           <Link
-            href="/businesses"
+            href={base}
             aria-current={!current ? "page" : undefined}
             className={`inline-flex min-h-12 items-center rounded-xl border px-3 text-sm font-semibold ${!current ? "border-brand bg-brand-soft text-brand-text" : "border-line hover:border-brand"}`}
           >
@@ -42,7 +44,7 @@ export async function CategoryNavigation({
         {parent && (
           <li className="shrink-0">
             <Link
-              href={`/businesses/${parent.slug}`}
+              href={`${base}/${parent.slug}`}
               className="inline-flex min-h-12 items-center rounded-xl border border-line px-3 text-sm font-semibold"
             >
               {localizeText({ ...parent, name: parent.nameDe }, "name", locale)}
@@ -52,7 +54,7 @@ export async function CategoryNavigation({
         {choices.map((c) => (
           <li key={c.id} className="shrink-0">
             <Link
-              href={`/businesses/${c.slug}`}
+              href={`${base}/${c.slug}`}
               aria-current={current?.id === c.id ? "page" : undefined}
               className={`inline-flex min-h-12 items-center gap-2 rounded-xl border px-3 text-sm font-semibold transition-colors ${current?.id === c.id ? "border-brand bg-brand-soft text-brand-text" : "border-line hover:border-brand hover:text-brand-text"}`}
             >
