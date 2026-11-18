@@ -1542,9 +1542,7 @@
     "subtitle": "Viaggi & Trasporti",
     "lead": "Scopri le attività e i servizi di viaggio e trasporto più vicini a te.",
     "searchLabel": "Nome dell'attività o del servizio",
-    "searchPlaceholder": "Scrivi un'attività o un servizio...",
-    "postalLabel": "Codice postale (PLZ)",
-    "postalPlaceholder": "PLZ",
+    "searchPlaceholder": "Scrivi il nome dell'attività o il PLZ...",
     "categoriesLabel": "Categorie Viaggi & Trasporti",
     "allCategories": "Tutte le categorie",
     "newBadge": "Nuovo",
@@ -1553,6 +1551,9 @@
     "emptyFiltered": "Nessun risultato per questa ricerca. Modifica o cancella i filtri.",
     "clearFilters": "Cancella filtri",
     "addBusiness": "Aggiungi la tua attività",
-    "notBooking": "Questa è una guida per scoprire attività; biglietti e prenotazioni non sono venduti qui."
+    "notBooking": "Questa è una guida per scoprire attività; biglietti e prenotazioni non sono venduti qui.",
+    "allCities": "Tutte le città",
+    "bannerBody": "Scopri agenzie di viaggio, taxi, autonoleggio, cargo e altro...",
+    "bannerCta": "Visita Rega24Travel"
   }
 }

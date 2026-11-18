@@ -1542,9 +1542,7 @@
     "subtitle": "Voyage & Transport",
     "lead": "Découvrez les entreprises et services de voyage et de transport près de chez vous.",
     "searchLabel": "Nom de l'entreprise ou du service",
-    "searchPlaceholder": "Saisissez une entreprise ou un service...",
-    "postalLabel": "Code postal (PLZ)",
-    "postalPlaceholder": "PLZ",
+    "searchPlaceholder": "Nom de l'entreprise ou PLZ...",
     "categoriesLabel": "Catégories Voyage & Transport",
     "allCategories": "Toutes les catégories",
     "newBadge": "Nouveau",
@@ -1553,6 +1551,9 @@
     "emptyFiltered": "Aucun résultat pour cette recherche. Modifiez ou effacez les filtres.",
     "clearFilters": "Effacer les filtres",
     "addBusiness": "Ajouter votre entreprise",
-    "notBooking": "Ceci est un annuaire de découverte ; aucun billet ni réservation n'est vendu ici."
+    "notBooking": "Ceci est un annuaire de découverte ; aucun billet ni réservation n'est vendu ici.",
+    "allCities": "Toutes les villes",
+    "bannerBody": "Agences de voyage, taxis, location de voitures, fret et plus encore...",
+    "bannerCta": "Visiter Rega24Travel"
   }
 }

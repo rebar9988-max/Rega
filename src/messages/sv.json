@@ -1542,9 +1542,7 @@
     "subtitle": "Resor & Transport",
     "lead": "Hitta rese- och transportföretag och deras tjänster nära dig.",
     "searchLabel": "Företags- eller tjänstenamn",
-    "searchPlaceholder": "Skriv ett företag eller en tjänst...",
-    "postalLabel": "Postnummer (PLZ)",
-    "postalPlaceholder": "PLZ",
+    "searchPlaceholder": "Skriv företagsnamn eller PLZ...",
     "categoriesLabel": "Kategorier för resor & transport",
     "allCategories": "Alla kategorier",
     "newBadge": "Ny",
@@ -1553,6 +1551,9 @@
     "emptyFiltered": "Inga resultat för sökningen. Ändra eller rensa filtren.",
     "clearFilters": "Rensa filter",
     "addBusiness": "Lägg till ditt företag",
-    "notBooking": "Detta är en katalog för att upptäcka företag; biljetter och bokningar säljs inte här."
+    "notBooking": "Detta är en katalog för att upptäcka företag; biljetter och bokningar säljs inte här.",
+    "allCities": "Alla städer",
+    "bannerBody": "Hitta resebyråer, taxi, biluthyrning, frakt och mer...",
+    "bannerCta": "Besök Rega24Travel"
   }
 }

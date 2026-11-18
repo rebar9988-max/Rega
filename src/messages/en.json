@@ -1542,9 +1542,7 @@
     "subtitle": "Travel & Transport",
     "lead": "Discover travel and transport businesses and services near you.",
     "searchLabel": "Business or service name",
-    "searchPlaceholder": "Type a business or service name...",
-    "postalLabel": "Postal code (PLZ)",
-    "postalPlaceholder": "PLZ",
+    "searchPlaceholder": "Type a business name or PLZ...",
     "categoriesLabel": "Travel & Transport categories",
     "allCategories": "All categories",
     "newBadge": "New",
@@ -1553,6 +1551,9 @@
     "emptyFiltered": "No results for this search. Change or clear the filters.",
     "clearFilters": "Clear filters",
     "addBusiness": "Add your business",
-    "notBooking": "This is a discovery directory; tickets and bookings are not sold here."
+    "notBooking": "This is a discovery directory; tickets and bookings are not sold here.",
+    "allCities": "All cities",
+    "bannerBody": "Discover travel agencies, taxis, car rental, cargo and more...",
+    "bannerCta": "Visit Rega24Travel"
   }
 }

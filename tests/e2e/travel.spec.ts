@@ -22,31 +22,42 @@ for (const width of [375, 1440]) {
   });
 }
 
-test("travel: category chips come from the real travel categories and filter inside travel only", async ({ page }) => {
-  await page.goto("/en/travel");
-  const chips = page.getByRole("navigation", { name: "Travel & Transport categories" });
-  await expect(chips.getByTestId("travel-chip-all")).toHaveAttribute("aria-current", "true");
-  const first = chips.getByRole("link").nth(1);
-  await first.click();
-  await expect(page).toHaveURL(/\/en\/travel\?category=/);
-  await expect(chips.locator('[aria-current="true"]')).toHaveCount(1);
-  // A category id from outside travel is ignored: the page stays scoped and never shows another section's listings.
-  await page.goto("/en/travel?category=not-a-travel-category");
-  await expect(chips.getByTestId("travel-chip-all")).toHaveAttribute("aria-current", "true");
+test("travel: home banner opens Rega24Travel; the map CTA is gone", async ({ page }) => {
+  await page.goto("/ckb");
+  await expect(page.locator('main a[href$="/nearby"].rh-mapbanner-cta')).toHaveCount(0);
+  const cta = page.getByTestId("home-travel-cta");
+  await expect(cta).toContainText("Rega24Travel");
+  const box = await cta.boundingBox();
+  expect(box && box.height >= 44).toBeTruthy();
+  await cta.click();
+  await expect(page).toHaveURL(/\/ckb\/travel$/);
 });
 
-test("travel: search, postal code and empty state", async ({ page }) => {
+test("travel: the category pill filters inside travel only", async ({ page }) => {
+  await page.goto("/en/travel");
+  const select = page.getByTestId("travel-category");
+  await expect(select).toHaveValue("");
+  const value = await select.locator("option").nth(1).getAttribute("value");
+  await select.selectOption(value!);
+  await expect(page).toHaveURL(new RegExp(`/en/travel\\?.*category=${value}`));
+  // A category id from outside travel is ignored: the page stays scoped.
+  await page.goto("/en/travel?category=not-a-travel-category");
+  await expect(page.getByTestId("travel-category")).toHaveValue("");
+});
+
+test("travel: one field for name or PLZ, and the empty state", async ({ page }) => {
   await page.goto("/en/travel");
   // Seeded demo businesses are food/health/legal: none may leak into the travel results.
   await expect(page.getByText("Kurdistan Rechtsberatung")).toHaveCount(0);
-  await page.locator("#t-q").fill("zzzz-no-such-business");
-  await page.locator("#t-plz").fill("99999");
+  await page.locator("#t-q").fill("99999");
   await page.locator('#travel-filters button[type="submit"]').click();
-  await expect(page).toHaveURL(/q=zzzz-no-such-business/);
-  await expect(page).toHaveURL(/plz=99999/);
+  await expect(page).toHaveURL(/q=99999/);
   await expect(page.getByText("No results for this search. Change or clear the filters.")).toBeVisible();
   await page.getByTestId("travel-clear").click();
   await expect(page).toHaveURL(/\/en\/travel$/);
+  await page.locator("#t-q").fill("zzzz-no-such-business");
+  await page.locator('#travel-filters button[type="submit"]').click();
+  await expect(page.getByText("No results for this search. Change or clear the filters.")).toBeVisible();
 });
 
 test("travel: axe (wcag2 A/AA) on the travel page", async ({ page }) => {

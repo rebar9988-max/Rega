@@ -1647,3 +1647,7 @@ Owner brief "Rega24Travel — Premium 2026 Design + Full Functional Integration"
   the D1 migrations (+10, second run no-op, undo exact). Applying it is a separate step after the code is live.
 - Local environment: package registry unreachable, so lint/typecheck/build/E2E run in GitHub CI only. Pure travel unit
   tests (tests/travel.test.ts, 7) passed locally with Node type stripping. E2E: tests/e2e/travel.spec.ts.
+- Follow-up same day (owner screenshots 18:51/18:56): /travel rebuilt to the mockup (airport hero, one search field for
+  name or PLZ, city + category pills, list cards with favourite heart via shared SaveButton `iconOnly`, real ratings
+  only). Home: the red map banner's «کردنەوەی نەخشە» CTA is replaced by the Rega24Travel card (suitcase art, CTA to
+  /travel); the map stays on the «نزیک» tab; the old map banner renders only if the travel section is switched off.

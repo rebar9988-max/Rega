@@ -13,8 +13,10 @@ function useSaved() {
  * Saves the business on this device (localStorage only, no account). The visible label carries the state ("Save" /
  * "Saved", no aria-pressed so the name and state never contradict), the status region announces the change. The server render shows "not saved"; the browser corrects it on hydration.
  */
-export function SaveButton({ slug, label, savedLabel, addedText, removedText, className }: {
+export function SaveButton({ slug, label, savedLabel, addedText, removedText, className, icon = "bookmark", iconOnly = false }: {
   slug: string; label: string; savedLabel: string; addedText: string; removedText: string; className: string;
+  /** Optional compact form (list cards): another icon, the label for screen readers only. */
+  icon?: string; iconOnly?: boolean;
 }) {
   const saved = useSaved().includes(slug);
   // Announce only what the visitor just did (not the restored state on page load).
@@ -24,9 +26,9 @@ export function SaveButton({ slug, label, savedLabel, addedText, removedText, cl
     toggleSavedBusiness(slug);
   }
   return (
-    <button type="button" onClick={toggle} className={className} data-testid="save-button">
-      <FigmaIcon name="bookmark" className={`size-5 shrink-0 ${saved ? "fill-current" : ""}`} />
-      <span>{saved ? savedLabel : label}</span>
+    <button type="button" onClick={toggle} className={className} data-testid="save-button" aria-pressed={iconOnly ? saved : undefined}>
+      <FigmaIcon name={icon} className={`size-5 shrink-0 ${saved ? "fill-current" : ""}`} />
+      <span className={iconOnly ? "sr-only" : undefined}>{saved ? savedLabel : label}</span>
       <span role="status" className="sr-only">{announcement}</span>
     </button>
   );

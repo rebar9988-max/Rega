@@ -1542,9 +1542,7 @@
     "subtitle": "Reizen & Vervoer",
     "lead": "Ontdek reis- en vervoersbedrijven en hun diensten bij jou in de buurt.",
     "searchLabel": "Naam van bedrijf of dienst",
-    "searchPlaceholder": "Typ een bedrijf of dienst...",
-    "postalLabel": "Postcode (PLZ)",
-    "postalPlaceholder": "PLZ",
+    "searchPlaceholder": "Typ een bedrijfsnaam of PLZ...",
     "categoriesLabel": "Categorieën Reizen & Vervoer",
     "allCategories": "Alle categorieën",
     "newBadge": "Nieuw",
@@ -1553,6 +1551,9 @@
     "emptyFiltered": "Geen resultaten voor deze zoekopdracht. Wijzig of wis de filters.",
     "clearFilters": "Filters wissen",
     "addBusiness": "Voeg je bedrijf toe",
-    "notBooking": "Dit is een gids om bedrijven te ontdekken; tickets en boekingen worden hier niet verkocht."
+    "notBooking": "Dit is een gids om bedrijven te ontdekken; tickets en boekingen worden hier niet verkocht.",
+    "allCities": "Alle steden",
+    "bannerBody": "Ontdek reisbureaus, taxi's, autoverhuur, vracht en meer...",
+    "bannerCta": "Bezoek Rega24Travel"
   }
 }

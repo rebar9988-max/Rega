@@ -1542,17 +1542,18 @@
     "subtitle": "Rêwîtî û veguhastin",
     "lead": "Karsazî û xizmetên rêwîtî û veguhastinê li cihên herî nêzîk bibîne.",
     "searchLabel": "Navê karsaziyê an xizmetê",
-    "searchPlaceholder": "Navê karsaziyê an xizmetê binivîse...",
-    "postalLabel": "Koda postê (PLZ)",
-    "postalPlaceholder": "PLZ",
+    "searchPlaceholder": "Navê karsaziyê an PLZ binivîse...",
     "categoriesLabel": "Beşên rêwîtî û veguhastinê",
-    "allCategories": "Hemû beş",
+    "allCategories": "Hemû kategorî",
     "newBadge": "Nû",
     "emptyTitle": "Hîn karsazî li vir tune ne",
     "emptyBody": "Bibe karsaziya yekem a rêwîtî û veguhastinê li Rega24.",
     "emptyFiltered": "Ji bo vê lêgerînê encam nehat dîtin. Fîlteran biguherîne an rake.",
     "clearFilters": "Fîlteran paqij bike",
     "addBusiness": "Karsaziya xwe zêde bike",
-    "notBooking": "Ev rêbereke dîtinê ye; firotina bilêtan û rezervasyon li vir tune ne."
+    "notBooking": "Ev rêbereke dîtinê ye; firotina bilêtan û rezervasyon li vir tune ne.",
+    "allCities": "Hemû bajar",
+    "bannerBody": "Ajansên rêwîtiyê, taksî, kirêkirina otomobîlan, kargo û bêtir bibîne...",
+    "bannerCta": "Serdana Rega24Travel bike"
   }
 }

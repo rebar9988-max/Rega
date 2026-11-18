@@ -11,7 +11,8 @@ import { DEFAULT_PUBLIC_COUNTRY_CODE, getCategories, listBusinesses, listSelecto
 import { businessShape, parseParams } from "@/lib/data/params";
 import { pageMetadata } from "@/lib/seo";
 import { PageSchema } from "@/components/ui/PageSchema";
-import { BusinessCard } from "@/components/cards/BusinessCard";
+import { TravelCard } from "@/components/travel/TravelCard";
+import { AirportArt, PlaneSwoosh } from "@/components/travel/TravelArt";
 import { cityOptions } from "@/components/ui/FilterBar";
 import { CityFilter } from "@/components/ui/CityFilter";
 import { AutoSubmitSelect } from "@/components/ui/AutoSubmitSelect";
@@ -19,7 +20,6 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { buttonClass } from "@/components/ui/Button";
 import { Pagination } from "@/components/ui/Pagination";
 import { FigmaIcon } from "@/components/home/FigmaIcon";
-import { Icon3D } from "@/components/home/Icon3D";
 
 const PATH = "/travel";
 const SORTS = ["featured", "rating", "newest", "name"] as const;
@@ -60,17 +60,15 @@ export default async function TravelPage({ params, searchParams }: Props) {
   const { scope, chips } = await travelTaxonomy(locale);
 
   const parsed = parseParams(businessShape, sp);
-  const postalCode = parsePostalCode(sp.plz);
+  // One search field for name, service or PLZ (mockup): a postal code typed there filters by location.
+  const typedPostal = parsed.q && /^\d{4,5}$/.test(parsed.q) ? parsed.q : undefined;
+  const postalCode = parsePostalCode(sp.plz) ?? typedPostal;
   const category = travelCategoryFilter(parsed.category, scope);
-  const query: BusinessQuery = { ...parsed, category, scope, postalCode };
+  const query: BusinessQuery = { ...parsed, q: typedPostal ? undefined : parsed.q, category, scope, postalCode };
   const cities = await listSelectorCities({ countryCode: query.country ?? DEFAULT_PUBLIC_COUNTRY_CODE, categoryId: category, scope, q: query.q, verified: query.verified });
   const cityList = await cityOptions(cities);
   const formId = "travel-filters";
-  const keep = { q: query.q, city: query.city, plz: postalCode, country: query.country, verified: query.verified, sort: query.sort === "featured" ? undefined : query.sort };
-  const chipHref = (id?: string) => {
-    const p = new URLSearchParams(Object.entries({ ...keep, category: id }).flatMap(([k, v]) => (v ? [[k, v]] : [])));
-    return p.size ? `${PATH}?${p}` : PATH;
-  };
+  const keep = { q: parsed.q, city: query.city, plz: typedPostal ? undefined : postalCode, country: query.country, verified: query.verified, sort: query.sort === "featured" ? undefined : query.sort };
   const filtered = Boolean(query.q || query.city || postalCode || query.country || query.verified || category);
   const crumbs = [{ name: tt("title"), path: PATH }];
 
@@ -78,65 +76,47 @@ export default async function TravelPage({ params, searchParams }: Props) {
     <>
       <PageSchema type="CollectionPage" name={`${tt("title")} — ${tt("subtitle")}`} description={tt("lead")} path={PATH} crumbs={crumbs} />
 
-      {/* Compact hero: brand gradient of the existing map banner, travel artwork, page title. */}
+      {/* Hero (owner mockup): title with airplane swoosh, subtitle, airport at sunset. */}
       <section className="rt-hero" aria-labelledby="travel-title">
         <div className="container-page rt-hero-inner">
-          <div className="min-w-0">
-            <h1 id="travel-title" className="rt-title" dir="ltr">Rega24<span>Travel</span></h1>
-            <p className="rt-sub">{tt("subtitle")}</p>
-            <p className="rt-lead">{tt("lead")}</p>
+          <div className="rt-hero-head" dir="ltr">
+            <h1 id="travel-title" className="rt-title">Rega24<span>Travel</span></h1>
+            <PlaneSwoosh className="rt-swoosh" />
           </div>
-          <Icon3D name="travel" className="rt-hero-art" />
+          <p className="rt-sub">{tt("subtitle")}</p>
+          <p className="sr-only">{tt("lead")}</p>
         </div>
+        <AirportArt className="rt-airport" />
       </section>
 
       <div className="container-page rt-panel">
-        {/* Search: what + PLZ + city, on the existing directory search shell. Other filters join via `form=`. */}
-        <form id={formId} action={`/${locale}${PATH}`} role="search"
-          className="rega-search-shell grid gap-0 overflow-visible md:grid-cols-[minmax(0,1.5fr)_minmax(0,.6fr)_minmax(0,1fr)_auto]">
-          {category && <input type="hidden" name="category" value={category} />}
-          <div className="flex min-h-14 min-w-0 items-center gap-3 px-4 focus-within:ring-2 focus-within:ring-inset focus-within:ring-[var(--ring)]">
-            <FigmaIcon name="search" className="size-5 shrink-0 text-brand-text" />
+        <form id={formId} action={`/${locale}${PATH}`} role="search" className="rt-form">
+          <div className="rt-search">
             <label htmlFor="t-q" className="sr-only">{tt("searchLabel")}</label>
-            <input id="t-q" name="q" type="search" defaultValue={query.q} placeholder={tt("searchPlaceholder")} autoComplete="off" maxLength={120}
-              className="min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-muted" />
+            <input id="t-q" name="q" type="search" defaultValue={parsed.q} placeholder={tt("searchPlaceholder")} autoComplete="off" maxLength={120} className="rt-search-input" />
+            {keep.plz && <input type="hidden" name="plz" value={keep.plz} />}
+            <button type="submit" className="rt-search-btn"><FigmaIcon name="search" className="size-5" /><span className="sr-only">{t("nav.search")}</span></button>
           </div>
-          <div className="flex min-h-14 min-w-0 items-center gap-2 border-t border-line px-4 md:border-s md:border-t-0 focus-within:ring-2 focus-within:ring-inset focus-within:ring-[var(--ring)]">
-            <FigmaIcon name="navigation" className="size-5 shrink-0 text-brand-text" />
-            <label htmlFor="t-plz" className="sr-only">{tt("postalLabel")}</label>
-            <input id="t-plz" name="plz" type="text" inputMode="text" autoComplete="postal-code" defaultValue={postalCode} placeholder={tt("postalPlaceholder")} maxLength={10}
-              pattern="[A-Za-z0-9][A-Za-z0-9 \-]{1,9}" dir="ltr" className="min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-muted" />
-          </div>
-          <div className="flex min-h-14 min-w-0 items-center gap-2 border-t border-line px-3 md:border-s md:border-t-0">
-            <FigmaIcon name="map-pin" className="size-5 shrink-0 text-brand-text" />
-            <div className="min-w-0 flex-1">
-              <CityFilter countryCode={query.country} cities={cityList} value={query.city} allLabel={t("list.allCities")} cityLabel={t("locations.city")}
-                fieldClass="min-h-11 w-full bg-transparent px-1 text-sm outline-none" />
+          <div className="rt-pills">
+            <div className="rt-pill">
+              <FigmaIcon name="map-pin" className="size-5 shrink-0" />
+              <div className="min-w-0 flex-1">
+                <CityFilter countryCode={query.country} cities={cityList} value={query.city} allLabel={tt("allCities")} cityLabel={t("locations.city")}
+                  fieldClass="min-h-11 w-full bg-transparent text-sm font-semibold outline-none" chevron={false} />
+              </div>
             </div>
+            <label className="rt-pill rt-pill-red">
+              <FigmaIcon name="layout-grid" className="size-5 shrink-0" />
+              <span className="sr-only">{tt("categoriesLabel")}</span>
+              <AutoSubmitSelect name="category" defaultValue={category ?? ""} className="rt-pill-select" data-testid="travel-category">
+                <option value="">{tt("allCategories")}</option>
+                {chips.map((c) => <option key={c.id} value={c.id}>{`${c.name.text} (${formatNumber(c.count, locale)})`}</option>)}
+              </AutoSubmitSelect>
+            </label>
           </div>
-          <button type="submit" className="min-h-12 rounded-b-[0.7rem] bg-brand px-8 text-[15px] font-bold text-brand-ink transition hover:bg-brand-hover md:m-1.5 md:rounded-[0.55rem]">{t("nav.search")}</button>
         </form>
 
-        {/* Category filters: real travel categories only, each with its live count. */}
-        {chips.length > 0 && (
-          <nav aria-label={tt("categoriesLabel")} className="mt-4">
-            <ul className="rt-chips">
-              <li><Link href={chipHref()} className="rt-chip" aria-current={category ? undefined : "true"} data-testid="travel-chip-all">
-                <FigmaIcon name="layout-grid" className="size-4 shrink-0" />{tt("allCategories")}
-              </Link></li>
-              {chips.map((c) => (
-                <li key={c.id}>
-                  <Link href={chipHref(c.id)} className="rt-chip" aria-current={category === c.id ? "true" : undefined}>
-                    <span lang={c.name.lang} dir={c.name.dir}>{c.name.text}</span>
-                    <span className="rt-chip-count">({formatNumber(c.count, locale)})</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
-        )}
-
-        <div className="mt-2 pb-10">
+        <div className="mt-4 pb-10">
           <Suspense key={JSON.stringify(query)} fallback={<ResultsSkeleton />}>
             <Results query={query} locale={locale} formId={formId} filtered={filtered} params={{ ...keep, category }} />
           </Suspense>
@@ -151,8 +131,8 @@ function ResultsSkeleton() {
   return (
     <div className="grid gap-3" aria-hidden="true">
       <div className="h-11 animate-pulse rounded-lg bg-surface-2" />
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {Array.from({ length: 6 }, (_, i) => <div key={i} className="h-36 animate-pulse rounded-xl border border-line bg-surface-2" />)}
+      <div className="rt-list">
+        {Array.from({ length: 4 }, (_, i) => <div key={i} className="h-[92px] animate-pulse rounded-2xl border border-line bg-surface-2" />)}
       </div>
     </div>
   );
@@ -165,9 +145,9 @@ async function Results({ query, locale, formId, filtered, params }: { query: Bus
   return (
     <>
       <h2 className="sr-only">{tt("title")}</h2>
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-        <p aria-live="polite" className="text-sm font-semibold text-ink">{t("search.resultCount", { count: formatNumber(result.total, locale) })}</p>
-        <div className="flex items-center gap-2">
+      <div className="rt-toolbar">
+        <p aria-live="polite" className="rt-count">{t("search.resultCount", { count: formatNumber(result.total, locale) })}</p>
+        <div className="rt-sort">
           <label htmlFor="t-sort" className="text-sm text-muted">{t("list.sortBy")}</label>
           <AutoSubmitSelect id="t-sort" name="sort" form={formId} defaultValue={query.sort}
             className="min-h-11 rounded-lg border border-line bg-surface px-3 text-sm outline-none focus:border-brand focus:ring-2 focus:ring-brand/10">
@@ -184,7 +164,7 @@ async function Results({ query, locale, formId, filtered, params }: { query: Bus
             : <Link href="/for-business" className={buttonClass("primary")} data-testid="be-first-cta">{tt("addBusiness")}</Link>}
         />
       ) : (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">{result.items.map((b) => <BusinessCard key={b.id} b={b} variant="directory" />)}</div>
+        <ul className="rt-list">{result.items.map((b) => <li key={b.id}><TravelCard b={b} /></li>)}</ul>
       )}
       <Pagination page={result.page} pages={result.pages} pathname={PATH} params={params} />
     </>

@@ -82,9 +82,9 @@ test("travel: the production data file holds exactly the seed rows, insert-only"
 
 test("travel: the home tile and page reuse the shared directory pieces", () => {
   const home = readFileSync("src/app/[locale]/page.tsx", "utf8");
-  assert.match(home, /href="\/travel"/);
-  assert.equal(home.match(/href="\/travel"/g)?.length, 1, "one entry on the home page, no duplicate promo link");
-  const page = readFileSync("src/app/[locale]/travel/page.tsx", "utf8");
-  for (const shared of ["listBusinesses", "BusinessCard", "CityFilter", "Pagination", "sectionEnabled(\"travel\")"]) assert.ok(page.includes(shared), shared);
+  assert.equal(home.match(/href="\/travel"/g)?.length, 2, "category tile + the red banner CTA");
+  assert.doesNotMatch(home.slice(home.indexOf("Rega24Travel banner"), home.indexOf(") : (")), /\/nearby/, "the banner no longer opens the map");
+  const page = readFileSync("src/app/[locale]/travel/page.tsx", "utf8") + readFileSync("src/components/travel/TravelCard.tsx", "utf8");
+  for (const shared of ["listBusinesses", "TravelCard", "CityFilter", "Pagination", "SaveButton", "sectionEnabled(\"travel\")"]) assert.ok(page.includes(shared), shared);
   assert.doesNotMatch(page, /prisma\./, "no direct queries: the shared data layer only");
 });
