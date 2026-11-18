@@ -19,7 +19,7 @@ export type TravelSubCategory = {
   names: { ckb: string; kmr: string; de: string; en: string; ar: string; fa: string; tr: string };
 };
 
-/** The ten Rega24Travel sub-categories, in display order. Keys are also the slugs (/businesses/<key>). */
+/** The Rega24Travel sub-categories (first ten seeded 2026-11-18, four more for the full travel scope). Keys are also the slugs (/businesses/<key>). */
 export const TRAVEL_SUBCATEGORIES: readonly TravelSubCategory[] = [
   { key: "travel-agencies", parent: "travel-tickets", names: { ckb: "نووسینگەکانی گەشت و گوزار", kmr: "Ajansên rêwîtiyê", de: "Reisebüros", en: "Travel Agencies", ar: "وكالات السفر", fa: "آژانس‌های مسافرتی", tr: "Seyahat Acenteleri" } },
   { key: "airlines-tickets", parent: "travel-tickets", names: { ckb: "کۆمپانیاکانی فڕۆکە و نووسینگەکانی بلیت", kmr: "Firokexane û ofîsên bilêtan", de: "Fluggesellschaften & Ticketbüros", en: "Airlines & Ticket Agencies", ar: "شركات الطيران ومكاتب التذاكر", fa: "شرکت‌های هواپیمایی و دفاتر بلیت", tr: "Havayolları ve Bilet Acenteleri" } },
@@ -31,6 +31,10 @@ export const TRAVEL_SUBCATEGORIES: readonly TravelSubCategory[] = [
   { key: "cargo-logistics", parent: "transport-moving", names: { ckb: "باربری و گواستنەوەی کاڵا", kmr: "Kargo û lojîstîk", de: "Fracht & Logistik", en: "Cargo & Logistics", ar: "الشحن والخدمات اللوجستية", fa: "باربری و لجستیک", tr: "Kargo ve Lojistik" } },
   { key: "courier-delivery", parent: "transport-moving", names: { ckb: "گەیاندنی پاکەت و کاڵا", kmr: "Kurye û gihandin", de: "Kurier & Lieferdienste", en: "Courier & Delivery", ar: "البريد السريع والتوصيل", fa: "پیک و تحویل", tr: "Kurye ve Teslimat" } },
   { key: "vehicle-transport", parent: "transport-moving", names: { ckb: "گواستنەوەی ئۆتۆمبێل", kmr: "Veguhastina wesayîtan", de: "Fahrzeugtransport", en: "Vehicle Transport", ar: "نقل المركبات", fa: "حمل خودرو", tr: "Araç Taşıma" } },
+  { key: "tour-operators", parent: "travel-tickets", names: { ckb: "ڕێکخەرانی گەشت و تووری گەشتیاری", kmr: "Organîzatorên turan", de: "Reiseveranstalter", en: "Tour Operators", ar: "منظمو الرحلات السياحية", fa: "برگزارکنندگان تور", tr: "Tur Operatörleri" } },
+  { key: "chauffeur-services", parent: "transport-moving", names: { ckb: "خزمەتگوزاری شۆفێری تایبەت", kmr: "Xizmetên şofêrê taybet", de: "Chauffeurservice", en: "Chauffeur Services", ar: "خدمات السائق الخاص", fa: "خدمات راننده اختصاصی", tr: "Şoför Hizmetleri" } },
+  { key: "shuttle-services", parent: "transport-moving", names: { ckb: "خزمەتگوزاری شاتڵ", kmr: "Xizmetên şatilê", de: "Shuttle-Service", en: "Shuttle Services", ar: "خدمات النقل المكوكي", fa: "خدمات شاتل", tr: "Servis ve Shuttle Hizmetleri" } },
+  { key: "intercity-international", parent: "transport-moving", names: { ckb: "گواستنەوەی نێوان شارەکان و نێودەوڵەتی", kmr: "Veguhastina navbajarî û navneteweyî", de: "Fernverkehr & internationale Transporte", en: "Intercity & International Transport", ar: "النقل بين المدن والنقل الدولي", fa: "حمل‌ونقل بین‌شهری و بین‌المللی", tr: "Şehirlerarası ve Uluslararası Taşımacılık" } },
 ];
 
 type CategoryNode = { id: string; slug: string; parentId: string | null };
@@ -62,3 +66,49 @@ export function parsePostalCode(value: unknown): string | undefined {
   const v = value.trim().toUpperCase();
   return /^[A-Z0-9][A-Z0-9 -]{1,9}$/.test(v) ? v : undefined;
 }
+
+/** Virtual category id: anywhere a category filter is accepted, "travel" means every Rega24Travel category. */
+export const TRAVEL_SCOPE_ID = "travel";
+
+/** Supported transport types a travel business can declare (stored as `transport:<key>` tags; no schema change). */
+export const TRANSPORT_TYPES = ["car", "limousine", "van", "minibus", "bus", "truck", "motorcycle"] as const;
+export type TransportType = (typeof TRANSPORT_TYPES)[number];
+
+const TRANSPORT_PREFIX = "transport:";
+const AREA_PREFIX = "area:";
+export const MAX_SERVICE_AREAS = 10;
+
+/** Service areas typed as a comma/newline separated list: trimmed, de-duplicated (case-insensitive), bounded. */
+export function parseServiceAreas(text: unknown): string[] {
+  if (typeof text !== "string") return [];
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const raw of text.split(/[,،\n;]+/)) {
+    const area = raw.replace(/\s+/g, " ").trim().slice(0, 40);
+    const key = area.toLocaleLowerCase();
+    if (area.length >= 2 && !seen.has(key)) { seen.add(key); out.push(area); }
+    if (out.length >= MAX_SERVICE_AREAS) break;
+  }
+  return out;
+}
+
+/** Splits stored business tags into travel details and every other tag (kept untouched on save). */
+export function readTravelTags(tags: unknown): { transport: TransportType[]; areas: string[]; other: string[] } {
+  const list = Array.isArray(tags) ? tags.filter((t): t is string => typeof t === "string") : [];
+  const transport = list.filter((t) => t.startsWith(TRANSPORT_PREFIX)).map((t) => t.slice(TRANSPORT_PREFIX.length))
+    .filter((t): t is TransportType => (TRANSPORT_TYPES as readonly string[]).includes(t));
+  const areas = list.filter((t) => t.startsWith(AREA_PREFIX)).map((t) => t.slice(AREA_PREFIX.length)).filter(Boolean);
+  const other = list.filter((t) => !t.startsWith(TRANSPORT_PREFIX) && !t.startsWith(AREA_PREFIX));
+  return { transport: [...new Set(transport)], areas, other };
+}
+
+/** Stored tags: the other tags first, then the travel details. Bounded by the business tag limits (30 x 50 chars). */
+export function writeTravelTags(existing: unknown, transport: readonly string[], areas: readonly string[]): string[] {
+  const { other } = readTravelTags(existing);
+  const types = TRANSPORT_TYPES.filter((t) => transport.includes(t)).map((t) => `${TRANSPORT_PREFIX}${t}`);
+  const places = areas.slice(0, MAX_SERVICE_AREAS).map((a) => `${AREA_PREFIX}${a}`.slice(0, 50));
+  return [...other, ...types, ...places].slice(0, 30);
+}
+
+/** The search-text fragment of one transport type (tags are part of the business search text). */
+export const transportSearchToken = (type: TransportType) => `${TRANSPORT_PREFIX}${type}`;

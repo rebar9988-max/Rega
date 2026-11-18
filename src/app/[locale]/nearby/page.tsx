@@ -1,4 +1,6 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { sectionEnabled } from "@/config/sections";
+import { TRAVEL_SCOPE_ID, travelCategoryIds } from "@/config/travel";
 import { notFound } from "next/navigation";
 import { NearbyDiscovery, type NearbyCategory, type NearbyCity, type NearbyInitial } from "@/components/nearby/NearbyDiscovery";
 import { PageSchema } from "@/components/ui/PageSchema";
@@ -52,7 +54,11 @@ export default async function NearbyPage({ params, searchParams }: { params: Pro
         <h1 className="text-xl font-bold tracking-tight sm:text-2xl">{t("nearby.title")}</h1>
         <p className="mt-1 text-sm text-muted">{t("nearby.subtitle")}</p>
       </header>
-      <NearbyDiscovery radiusLabels={radiusLabels} cities={cities as unknown as NearbyCity[]} categories={categories.filter((c) => !c.parentId) as unknown as NearbyCategory[]} initial={initial} />
+      <NearbyDiscovery radiusLabels={radiusLabels} cities={cities as unknown as NearbyCity[]} categories={[
+        // Rega24Travel as one choice ("travel" = every travel & transport category), shown first when it exists.
+        ...(sectionEnabled("travel") && travelCategoryIds(categories).length ? [{ id: TRAVEL_SCOPE_ID, nameDe: t("nav.travel") }] : []),
+        ...categories.filter((c) => !c.parentId),
+      ] as unknown as NearbyCategory[]} initial={initial} />
     </>
   );
 }

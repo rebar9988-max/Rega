@@ -1,3 +1,4 @@
+import { TRANSPORT_TYPES, parseServiceAreas, writeTravelTags } from "@/config/travel";
 import { databaseTransaction } from "@/lib/database-transaction";
 /**
  * Admin write-side for businesses: one place that creates/updates a business together with its primary location,
@@ -53,6 +54,11 @@ export const businessFormSchema = z.object({
   descriptionTr: optionalText(8000),
   descriptionEn: optionalText(8000),
   descriptionFa: optionalText(8000),
+  /** Rega24Travel details (shown for travel categories): declared transport types and served areas, kept in `tags`. */
+  transportTypes: z.array(z.enum(TRANSPORT_TYPES)).max(TRANSPORT_TYPES.length).default([]),
+  serviceAreas: optionalText(600),
+  /** "1" when the form carried the travel fields block, so their absence means "cleared", not "not sent". */
+  travelDetails: z.enum(["1"]).optional(),
   /** Languages spoken at the business. */
   languages: z.array(z.enum(LOCALES)).max(LOCALES.length).default([]),
   phone: optionalText(50),
@@ -217,6 +223,8 @@ async function save(input: BusinessForm, actor: { id: string }, { canPublish, ca
       phone: input.phone ?? null, whatsapp: whatsapp?.ok ? whatsapp.value : null, email: input.email ?? null, website: input.website ?? null,
       instagramUrl: input.instagramUrl ?? null, snapchatUrl: input.snapchatUrl ?? null, facebookUrl: input.facebookUrl ?? null, tiktokUrl: input.tiktokUrl ?? null,
       logoUrl: input.logoUrl ?? null, coverUrl: input.coverUrl ?? null, photos,
+      // Travel details live in tags (other tags kept); only touched when the form carried the travel block.
+      ...(input.travelDetails ? { tags: writeTravelTags(before?.tags, input.transportTypes, parseServiceAreas(input.serviceAreas)) } : {}),
     };
     let business;
     if (before) {

@@ -13,6 +13,7 @@ import { buildVocabulary, correctQuery, type Vocabulary } from "@/lib/search-cor
 import { OFFER_LIMITS, activeOfferWhere } from "@/lib/offers";
 import { PER_PAGE } from "./params";
 import { descendantIds } from "@/lib/category-tree";
+import { TRAVEL_SCOPE_ID, transportSearchToken, travelCategoryIds, type TransportType } from "@/config/travel";
 import { MAJOR_CITY_SLUGS, rankSelectorCities, SELECTOR_CITY_LIMIT } from "@/lib/selector-cities";
 const skipTake = (page: number) => ({ skip: (page - 1) * PER_PAGE, take: PER_PAGE });
 const pageCount = (total: number) => Math.max(1, Math.ceil(total / PER_PAGE));
@@ -204,6 +205,8 @@ export const getCityBySlug = cache(async (slug: string) =>
 /** A category filter also matches all of its sub-categories, at any depth. */
 async function categoryIds(id?: string): Promise<string[] | undefined> {
   if (!id) return undefined;
+  // "travel" is the Rega24Travel scope (both travel roots and every descendant), e.g. /nearby?category=travel.
+  if (id === TRAVEL_SCOPE_ID) return travelCategoryIds(await getCategories());
   return descendantIds(await getCategories(), id);
 }
 
@@ -222,6 +225,8 @@ export type BusinessQuery = {
   scope?: readonly string[];
   /** Postal code prefix (PLZ) of an active location. */
   postalCode?: string;
+  /** Declared transport type (Rega24Travel business detail, stored as a tag in the search text). */
+  transport?: TransportType;
 };
 
 const businessOrder = {
@@ -239,6 +244,7 @@ export async function listBusinesses(query: BusinessQuery) {
       ...(textWhere(query.q).AND ?? []),
       ...(query.country ? [{ locations: { some: { status: "active", deletedAt: null, countryCode: query.country, ...(query.city ? { cityId: query.city } : {}) } } }] : []),
       ...(query.postalCode ? [{ locations: { some: { status: "active", deletedAt: null, postalCode: { startsWith: query.postalCode } } } }] : []),
+      ...(query.transport ? [{ searchText: { contains: transportSearchToken(query.transport) } }] : []),
     ],
     ...(query.verified ? { verified: true } : {}),
     ...(cats ? businessInCategories(cats) : {}),
