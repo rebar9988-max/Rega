@@ -1551,6 +1551,14 @@
     "notBooking": "Dit is een gids om bedrijven te ontdekken; tickets en boekingen worden hier niet verkocht.",
     "allCities": "Alle steden",
     "bannerBody": "Ontdek reisbureaus, taxi's, autoverhuur, vracht en meer...",
-    "bannerCta": "Bezoek Rega24Travel"
+    "bannerVisit": "Bezoek",
+    "shortcut": {
+      "travel-agencies": "Reisbureau",
+      "taxi-transfer": "Taxi",
+      "airport-transfer": "Luchthavenvervoer",
+      "car-rental": "Autoverhuur",
+      "cargo-logistics": "Vracht",
+      "courier-delivery": "Pakketten en bezorging"
+    }
   }
 }

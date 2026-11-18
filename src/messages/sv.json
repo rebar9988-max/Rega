@@ -1551,6 +1551,14 @@
     "notBooking": "Detta är en katalog för att upptäcka företag; biljetter och bokningar säljs inte här.",
     "allCities": "Alla städer",
     "bannerBody": "Hitta resebyråer, taxi, biluthyrning, frakt och mer...",
-    "bannerCta": "Besök Rega24Travel"
+    "bannerVisit": "Besök",
+    "shortcut": {
+      "travel-agencies": "Resebyrå",
+      "taxi-transfer": "Taxi",
+      "airport-transfer": "Flygplatstransfer",
+      "car-rental": "Biluthyrning",
+      "cargo-logistics": "Frakt",
+      "courier-delivery": "Paket och leverans"
+    }
   }
 }

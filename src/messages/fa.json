@@ -1551,6 +1551,14 @@
     "notBooking": "این یک راهنمای کشف است؛ فروش بلیت و رزرو در اینجا انجام نمی‌شود.",
     "allCities": "همه شهرها",
     "bannerBody": "آژانس‌های مسافرتی، تاکسی، اجاره خودرو، باربری و بیشتر را پیدا کنید...",
-    "bannerCta": "بازدید از Rega24Travel"
+    "bannerVisit": "بازدید از",
+    "shortcut": {
+      "travel-agencies": "آژانس مسافرتی",
+      "taxi-transfer": "تاکسی",
+      "airport-transfer": "ترانسفر فرودگاه",
+      "car-rental": "اجاره خودرو",
+      "cargo-logistics": "باربری",
+      "courier-delivery": "بسته و تحویل"
+    }
   }
 }

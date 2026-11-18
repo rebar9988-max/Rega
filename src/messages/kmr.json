@@ -1551,6 +1551,14 @@
     "notBooking": "Ev rêbereke dîtinê ye; firotina bilêtan û rezervasyon li vir tune ne.",
     "allCities": "Hemû bajar",
     "bannerBody": "Ajansên rêwîtiyê, taksî, kirêkirina otomobîlan, kargo û bêtir bibîne...",
-    "bannerCta": "Serdana Rega24Travel bike"
+    "bannerVisit": "Serdan bike",
+    "shortcut": {
+      "travel-agencies": "Ajansa rêwîtiyê",
+      "taxi-transfer": "Taksî",
+      "airport-transfer": "Veguhastina balafirgehê",
+      "car-rental": "Kirêkirina otomobîlan",
+      "cargo-logistics": "Kargo",
+      "courier-delivery": "Pakêt û gihandin"
+    }
   }
 }
