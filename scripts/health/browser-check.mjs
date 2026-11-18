@@ -2,6 +2,7 @@
 // journeys and the approved red/white UI, and saves full-page screenshots. Never signs in, never submits a form,
 // never writes data. Usage: BASE_URL=https://www.rega24.com node scripts/health/browser-check.mjs
 import { chromium, devices } from "@playwright/test";
+import AxeBuilder from "@axe-core/playwright";
 import { mkdirSync, appendFileSync, readFileSync } from "node:fs";
 
 const BASE = (process.env.BASE_URL || "https://www.rega24.com").replace(/\/$/, "");
@@ -201,6 +202,74 @@ async function checkSavedFlow(page, vp, href) {
   }
 }
 
+// Saved page with isolated test data (runs whether or not anything is published): a made-up slug that matches no
+// business is put in this test browser's own localStorage. No production record is read by id, created or changed.
+const ISOLATED_SLUG = "rega-live-check-isolated-0000";
+async function checkSavedPageIsolated(page, vp) {
+  for (const [locale, dir] of [["ckb", "rtl"], ["de", "ltr"]]) {
+    const label = `${vp} saved-isolated ${locale}`;
+    try {
+      await page.goto(`${BASE}/${locale}/saved`, { waitUntil: "domcontentloaded" });
+      await page.evaluate(() => window.localStorage.removeItem("rega-saved"));
+      await page.reload({ waitUntil: "load" });
+      await page.getByTestId("saved-empty").waitFor({ timeout: 15_000 });
+      const facts = await page.evaluate(() => {
+        const nav = performance.getEntriesByType("navigation")[0];
+        return {
+          dir: document.documentElement.dir,
+          h1: document.querySelector("h1")?.textContent?.trim() ?? "",
+          overflow: document.documentElement.scrollWidth - window.innerWidth,
+          robots: document.querySelector('meta[name="robots"]')?.getAttribute("content") ?? "",
+          browse: document.querySelector('[data-testid="saved-empty"] a')?.getAttribute("href") ?? "",
+          load: nav ? Math.round(nav.loadEventEnd - nav.startTime) : -1,
+        };
+      });
+      note(facts.dir === dir, `${label}: dir=${dir}`, facts.dir);
+      note(facts.h1.length > 0, `${label}: page title`, facts.h1);
+      note(/noindex/.test(facts.robots), `${label}: noindex`, facts.robots);
+      note(facts.overflow <= 1, `${label}: no horizontal scroll (empty state)`, `${facts.overflow}px`);
+      note(/\/businesses$/.test(facts.browse), `${label}: empty state links to the directory`, facts.browse);
+      note(facts.load >= 0 && facts.load < 8000, `${label}: page load under 8 s`, `${facts.load} ms`);
+      const axe = await new AxeBuilder({ page }).include("main").analyze();
+      const serious = axe.violations.filter((v) => v.impact === "critical" || v.impact === "serious").map((v) => v.id);
+      note(serious.length === 0, `${label}: no serious/critical axe violations (empty state)`, serious.join(", "));
+
+      // View: the isolated slug is looked up through the public API, matches nothing, and is reported as unavailable.
+      await page.evaluate((slug) => window.localStorage.setItem("rega-saved", JSON.stringify([slug])), ISOLATED_SLUG);
+      await page.reload({ waitUntil: "domcontentloaded" });
+      const list = page.getByTestId("saved-list");
+      await list.waitFor({ timeout: 20_000 });
+      note((await list.locator("li").count()) === 0, `${label}: unknown slug shows no business`);
+      const clear = page.locator("main button").last();
+      note(await clear.isVisible(), `${label}: clear-all button`);
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+      note(overflow <= 1, `${label}: no horizontal scroll (list state)`, `${overflow}px`);
+      const axe2 = await new AxeBuilder({ page }).include("main").analyze();
+      const serious2 = axe2.violations.filter((v) => v.impact === "critical" || v.impact === "serious").map((v) => v.id);
+      note(serious2.length === 0, `${label}: no serious/critical axe violations (list state)`, serious2.join(", "));
+      await page.screenshot({ path: `${OUT}/${vp}_saved_isolated_${locale}.png`, fullPage: true });
+
+      // Remove: clear all empties this browser's list.
+      await clear.click();
+      await page.getByTestId("saved-empty").waitFor({ timeout: 10_000 });
+      note((await page.evaluate(() => window.localStorage.getItem("rega-saved"))) === null, `${label}: clear all removes the stored list`);
+    } catch (error) {
+      note(false, `${label}: flow`, String(error).split("\n")[0]);
+    }
+  }
+  // Security: the optional slugs filter drops malformed input and never returns non-public records.
+  try {
+    const r = await page.evaluate(async (slug) => {
+      const res = await fetch(`/api/v1/businesses?slugs=${encodeURIComponent(`<script>,../etc,' or 1=1,${slug}`)}&perPage=5`);
+      const body = await res.json().catch(() => ({}));
+      return { status: res.status, ok: body.ok, n: Array.isArray(body.data) ? body.data.length : -1 };
+    }, ISOLATED_SLUG);
+    note(r.status === 200 && r.ok === true && r.n === 0, `${vp} saved-isolated: hostile slugs return no records`, JSON.stringify(r));
+  } catch (error) {
+    note(false, `${vp} saved-isolated: slug filter probe`, String(error).split("\n")[0]);
+  }
+}
+
 const browser = await chromium.launch();
 try {
   for (const [vp, opts] of [["desktop", { viewport: { width: 1366, height: 900 } }], ["mobile", devices["Pixel 5"]]]) {
@@ -266,6 +335,8 @@ try {
       const count = (await page.locator("main [aria-live=polite]").first().textContent().catch(() => ""))?.trim();
       lines.push(`info ${vp} directory has no published business to open (result line: "${count}")`);
     }
+
+    await checkSavedPageIsolated(page, vp);
 
     await checkLocationFilter(browser, ctx, page, vp, opts);
 
