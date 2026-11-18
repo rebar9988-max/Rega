@@ -222,7 +222,7 @@ test("directory and category pages share responsive cards and preserve Kurdish R
     expect(overflow).toBe(false);
   }
   // A shared link to an active country with no public listings retains its selection and honest empty state.
-  await page.goto("/en/businesses?country=IQ&city=");
+  await page.goto("/en/businesses/legal?country=IQ&city=");
   await expect(page.locator("#f-country")).toHaveValue("IQ");
   const geo = await (await page.request.get("/api/v1/geo?country=IQ")).json();
   expect(geo.data.countries.some((c:{code:string}) => c.code === "IQ")).toBe(true);

@@ -54,7 +54,8 @@ test("city pages: /city/<slug> and /city/<city>/<category> list only matching bu
 });
 
 test("filters show counts, zero-count cities and categories stay selectable", async ({ page }) => {
-  await page.goto("/de/businesses");
+  // /businesses has no filters (owner request 2026-11-15); the city filter is on category pages.
+  await page.goto("/de/businesses/legal");
   const cityOptions = page.locator('select[name="city"] option');
   await expect(cityOptions.filter({ hasText: /^Berlin \(\d+\)$/ })).toHaveCount(1);
   await expect(cityOptions.filter({ hasText: /^Bonn \(0\)$/ })).toHaveCount(1);

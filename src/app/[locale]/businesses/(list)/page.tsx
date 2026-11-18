@@ -33,5 +33,5 @@ export default async function BusinessesPage({ params, searchParams }: { params:
   }
 
   const t = await getTranslations();
-  return <BusinessIndex pathname="/businesses" searchParams={sp} title={t("businesses.title")} crumbs={[{ label: t("nav.home"), href: "/" }, { label: t("businesses.title") }]} />;
+  return <BusinessIndex pathname="/businesses" searchParams={sp} title={t("businesses.title")} crumbs={[{ label: t("nav.home"), href: "/" }, { label: t("businesses.title") }]} hideSearchAndFilters />;
 }

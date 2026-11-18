@@ -3,11 +3,8 @@ import { expect, test } from "./fixtures";
 test("business list shows published demo businesses and filters by text", async ({ page }) => {
   await page.goto("/de/businesses");
   await expect(page.getByRole("link", { name: "Zagros Restaurant" })).toBeVisible();
-  const main = page.getByRole("main");
-  await main.getByRole("searchbox").first().fill("rechtsberatung");
-  // One submit button per directory page: the search form's (filters submit through it or on change).
-  await main.getByRole("button", { name: "Suche", exact: true }).click();
-  await expect(page).toHaveURL(/q=rechtsberatung/);
+  // /businesses has no own search bar (owner request 2026-11-15); a text query in the URL still filters.
+  await page.goto("/de/businesses?q=rechtsberatung");
   await expect(page.getByRole("link", { name: "Kurdistan Rechtsberatung" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Zagros Restaurant" })).toHaveCount(0);
 });
@@ -120,9 +117,11 @@ test("draft businesses are never public", async ({ request }) => {
 });
 
 test("directory: sort applies on change and keeps the other filters", async ({ page }) => {
-  await page.goto("/de/businesses?q=e");
-  await page.getByLabel("Sortieren nach").selectOption("name");
-  await expect(page).toHaveURL((url) => url.searchParams.get("sort") === "name" && url.searchParams.get("q") === "e");
+  for (const path of ["/de/businesses?q=e", "/de/businesses/legal?q=e"]) {
+    await page.goto(path);
+    await page.getByLabel("Sortieren nach").selectOption("name");
+    await expect(page).toHaveURL((url) => url.searchParams.get("sort") === "name" && url.searchParams.get("q") === "e");
+  }
   await expect(page.getByRole("switch", { name: "Nur verifizierte" })).toBeVisible();
 });
 
@@ -130,8 +129,11 @@ test("no redundant controls: one search, one category control, one submit per di
   for (const path of ["/de/businesses", "/ckb/businesses", "/de/businesses/legal"]) {
     await page.goto(path);
     const main = page.getByRole("main");
-    await expect(main.locator("form[role=search]")).toHaveCount(1);
-    await expect(main.locator('button[type=submit], input[type=submit]')).toHaveCount(1);
+    // /businesses: no search bar or filters panel at all (owner request 2026-11-15); category pages keep exactly one.
+    const n = path.endsWith("/legal") ? 1 : 0;
+    await expect(main.locator("form[role=search]")).toHaveCount(n);
+    await expect(main.locator('button[type=submit], input[type=submit]')).toHaveCount(n);
+    await expect(main.locator("#dir-filters-title")).toHaveCount(n);
     await expect(main.getByTestId("category-navigation")).toHaveCount(1);
     await expect(main.locator('select[name="category"]')).toHaveCount(0);
   }
