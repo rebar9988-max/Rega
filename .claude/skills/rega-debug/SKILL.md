@@ -1,5 +1,5 @@
 ---
-name: debug
+name: rega-debug
 description: Find the root cause of a bug, error or failing test/CI and apply the smallest safe fix. Use for "debug", "fix this error", "why does it fail", "هەڵە چارەسەر بکە".
 argument-hint: "<error|test|symptom> [--no-fix]"
 allowed-tools: Read, Grep, Glob, Edit, Bash(npm test:*), Bash(npm run:*), Bash(npx tsc:*), Bash(git diff:*), Bash(git log:*), Bash(node scripts/*:*)

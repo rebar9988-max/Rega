@@ -1,5 +1,5 @@
 ---
-name: review
+name: rega-review
 description: Review a diff, branch, PR or file for bugs, security, performance, accessibility and rule compliance. Use for "review", "code review", "پێداچوونەوە".
 argument-hint: "[file|branch|PR#] (default: current diff vs main)"
 allowed-tools: Read, Grep, Glob, Bash(git diff:*), Bash(git log:*), Bash(gh pr view:*), Bash(gh pr diff:*)

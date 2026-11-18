@@ -1,5 +1,5 @@
 ---
-name: simplify
+name: rega-simplify
 description: Simplify code or text — remove duplication and unnecessary complexity without changing behavior. Use for "simplify", "make simpler", "ساکاری بکە".
 argument-hint: "<file|function|text> [--dry-run]"
 allowed-tools: Read, Grep, Glob, Edit, Bash(npm test:*), Bash(npx tsc:*), Bash(npm run lint:*)
