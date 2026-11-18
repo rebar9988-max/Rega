@@ -16,7 +16,9 @@ jobs:
   verify:
     # Playwright 1.56 supports Noble; ubuntu-latest moved to unsupported 26.04 on 2026-10-22.
     runs-on: ubuntu-24.04
-    timeout-minutes: 60
+    # 2026-11-18: PR runners spend ~30 min installing Playwright browsers, so the full suite exceeded 60 min and was
+    # cancelled before E2E finished. Same checks, more time; nothing is skipped.
+    timeout-minutes: 90
     permissions:
       contents: read
     services:
