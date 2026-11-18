@@ -1676,3 +1676,27 @@ Owner brief "Rega24Travel — Premium 2026 Design + Full Functional Integration"
   name or PLZ, city + category pills, list cards with favourite heart via shared SaveButton `iconOnly`, real ratings
   only). Home: the red map banner's «کردنەوەی نەخشە» CTA is replaced by the Rega24Travel card (suitcase art, CTA to
   /travel); the map stays on the «نزیک» tab; the old map banner renders only if the travel section is switched off.
+
+## 2026-11-18 — Business registration/management moved into Account (PR #156, merge `59bd458`; status: DEPLOYED, signed-out behaviour VERIFIED live; authenticated Account section NOT verified live)
+- Root cause: the header and mobile-menu link «ڕیکلام زیاد بکە» (Add advertisement) pointed straight at the business form
+  `/dr/businesses/new`; Account had no «کاروبارەکانم» / «زیادکردنی کاروبار» entry.
+- Change: Account gets a «کاروبارەکانم» section (roles with `business.write`; the owner's active-member businesses, an
+  «زیادکردنی کاروبار» action to the unchanged `/dr/businesses/new`, staff-only «manage all» link so owners keep a single
+  `/dr/businesses` link). «ڕیکلام زیاد بکە» opens `/dr/offers/new` for signed-in managers (picker of managed businesses,
+  or a pointer back to Account when there are none); signed-out visitors and USER accounts still go to `/for-business`.
+  Business form, APIs, RBAC, schema and data untouched; translations in all 11 locales. E2E: `tests/e2e/account-business.spec.ts`.
+- CI history: first run failed `figma-account.spec.ts` (duplicate `/dr/businesses` link, fixed); then `npm audit`
+  failed on `main`'s dependency state, not on this PR. No audit gate, threshold or exception was changed. `next` 16.4.6
+  reached `main` via #168 (my duplicate #170 was closed). The `picomatch` advisory GHSA-fc5q-39xc-vjpf (no published fix)
+  stopped being reported by `npm audit` on 2026-11-18 although `picomatch@4.0.7` is still installed: reason UNKNOWN
+  (advisory data changed); watch for it returning. A time-boxed exception approach was written but never applied.
+- Release: CI `verify` green on the merged head, `Deploy to Cloudflare Workers` run 44412080505 succeeded on `59bd458`
+  (identity guard, exact-SHA CI check, build, existing-Worker verification, deploy); post-deploy `Production browser
+  check` and `Beta health` succeeded.
+- Live check from this session (read-only, desktop 1440 + Pixel 5): `/ckb` 200, RTL, ad link → `/ckb/for-business`
+  when signed out, no header link to `/dr/businesses/new`, `/ckb/account` signed out → login with next, `/dr/*` signed
+  out shows the code sign-in, no horizontal scroll. These signed-out behaviours did not change in this PR, so they show
+  the site is up and protected, not that the new section is live. Authenticated «کاروبارەکانم» NOT verified live (no
+  test credentials; no production accounts created). Cloudflare Worker state not readable from this session (no
+  Cloudflare connector): which version is active at 100% is UNKNOWN beyond the successful deploy run.
+- Next safe step: with an owner test login, open `/ckb/account` and confirm the section and «زیادکردنی کاروبار».
