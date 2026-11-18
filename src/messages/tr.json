@@ -1521,5 +1521,25 @@
     "errLocked": "Bu teklif artık değiştirilemez.",
     "privacyNote": "Kesin konumun ve iletişim bilgilerin işletmelerle asla paylaşılmaz.",
     "back": "Geri"
+  },
+  "saved": {
+    "save": "Kaydet",
+    "saved": "Kaydedildi",
+    "added": "Bu cihaza kaydedildi",
+    "removed": "Kaydedilenlerden kaldırıldı",
+    "viewSaved": "Kaydedilen işletmeler ({count})",
+    "title": "Kaydedilen işletmeler",
+    "intro": "Bu cihazda kaydettiğiniz işletmeler. Hesap gerekmez; sunucularımızda hiçbir şey saklanmaz.",
+    "empty": "Henüz hiçbir işletme kaydetmediniz. Bir işletme sayfasında “Kaydet”i kullanın.",
+    "browse": "İşletmelere göz at",
+    "remove": "Kaldır",
+    "clearAll": "Tümünü kaldır",
+    "unavailable": "Kaydedilen {count} işletme artık mevcut değil."
+  },
+  "locationSearch": {
+    "label": "Şehir, posta kodu veya adres ara",
+    "loading": "Aranıyor…",
+    "empty": "Sonuç bulunamadı. Daha ayrıntılı bir adres girin.",
+    "unavailable": "Adres araması kullanılamıyor. Yeniden deneyin veya haritadan seçin."
   }
 }

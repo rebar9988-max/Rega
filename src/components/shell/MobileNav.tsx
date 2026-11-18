@@ -8,9 +8,10 @@ import { Link, usePathname } from "@/i18n/routing";
 import type { NavItem } from "./nav";
 
 /** Full-height sheet built on native <dialog>: focus trap, Escape and inert background for free. */
-export function MobileNav({ items, signedIn = false, adHref = null }: { items: NavItem[]; signedIn?: boolean; adHref?: string | null }) {
+export function MobileNav({ items, legal = [], signedIn = false, adHref = null }: { items: NavItem[]; legal?: NavItem[]; signedIn?: boolean; adHref?: string | null }) {
   const t = useTranslations("nav");
   const tc = useTranslations("common");
+  const tf = useTranslations("footer");
   const pathname = usePathname();
   const contentDir = dirOf(useLocale());
   const dialog = useRef<HTMLDialogElement>(null);
@@ -46,6 +47,19 @@ export function MobileNav({ items, signedIn = false, adHref = null }: { items: N
             ); })}
           </ul>
         </nav>
+        {/* The footer is on the home page only, so Impressum, privacy, terms and report stay reachable from every page
+            here (German law: Impressum within two clicks everywhere). */}
+        {legal.length > 0 && (
+          <nav aria-label={tf("legal")} dir={contentDir} className="mt-4 border-t border-line pt-3">
+            <ul className="flex flex-wrap gap-x-4 px-4 text-sm">
+              {legal.map((item) => (
+                <li key={item.key}>
+                  <Link href={item.href} onClick={() => dialog.current?.close()} className="inline-flex min-h-10 items-center text-muted hover:text-ink">{t(item.key)}</Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )}
       </dialog>
     </>
   );

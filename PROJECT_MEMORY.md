@@ -1554,3 +1554,77 @@ had `pip install uv==0.13.8` in its build command. Not a GitHub Actions failure,
 production never affected. Fix: `uv>=0.13.4` in the `dev` dependency group, so `uv run` finds a new enough uv in the
 project venv. No Cloudflare setting, paid service or runtime code changed. Also records the home soft-depth release:
 PR #153 merged as `f800a22`, CI + deploy + production browser check green, live stylesheet carries the new rules.
+
+## Home: soft-3D category icons from the owner reference image — 2026-11-14 (branch `design/rega24-3d-icons-reference-20261114`)
+Owner sent the reference image (search panel, eight category cards with coloured 3D icons, empty state with a shop
+illustration) and a Figma-first instruction; Figma now has a Pro/Full seat (the earlier quota block no longer applies).
+Figma file `5h9pkPCkGHznr4z0JApqVT` ("REGA24 — Home UI 2026"): token variables, text and effect styles, 20 icon
+components + shop illustration, and Sorani RTL home frames at 390/768/1440. The header logo is a labelled placeholder
+there: the official asset is not redrawn. Code: new `src/components/home/Icon3D.tsx` (original inline SVG, one icon per
+category slug + "more", `StoreArt`), used by the hero category cards, the explore-row fallback and the empty state;
+card/label/empty-state rules in `globals.css`. The icons use their own multi-colour palette as in the reference; brand
+tokens, header, logo, routes, data, search form and i18n are unchanged. No dependency, image file or network request.
+Deviations from the reference: icons are vector illustrations, not rendered 3D bitmaps; the car is an original red car
+(the reference showed a photographed vehicle). Local check: static render at 320/390/768/1440/1920 in ckb/en/de, no
+horizontal overflow (fallback font). Lint/typecheck/build/Playwright in GitHub CI.
+
+## 2026-11-14 — Location accuracy follow-up (fix/location-result-validation)
+Local incremental work on the owner's location-system request: geocoder rejects null/blank/boolean coordinates
+instead of coercing them to zero; generic place/residential results remain area precision. Nearby requests fresh
+high-accuracy GPS and retains device precision in memory for the map; API coordinates stay coarsened for privacy.
+Regression coverage: malformed provider values, area precision, GPS options and outbound coordinate coarsening.
+Node build, lint and typecheck passed locally. Full tests and desktop/mobile browser checks in progress at this
+checkpoint. Full autocomplete, reverse-address autofill and visual redesign remain incomplete; do not describe
+this incremental fix as the complete requested location release. No production change made at this checkpoint.
+Validation update: 477 unit tests passed / 4 existing skips; lint, typecheck, Node build, Cloudflare Worker build,
+Cloudflare dry-run, D1 tests and documentation validation passed. Targeted Nearby E2E: 14/14 passed across
+Chromium desktop and Pixel 5 emulation, including GPS options/privacy, permission errors, map markers and fallback.
+An initial browser attempt overlapped a build and timed out during hydration; it was interrupted and rerun after
+a fresh completed Node build. Only the sequential rerun is counted. Commit cf4c9fa; draft PR #159. Hosted CI pending;
+no merge/deployment. Remaining scope above is unchanged. Full WCAG and real iPhone/Android devices not verified.
+
+## 2026-11-15 — Address search continuation (PR #159 candidate)
+Added bounded same-origin Photon search/reverse proxy, debounced abortable keyboard-accessible address search,
+provider-only structured address parsing, Nearby selected-address marker/fly-to, business-form address selection
+and reverse-result selection. Reverse lookup never silently substitutes the nearest address for the clicked point;
+owner confirmation remains required. All 11 locales have search/status copy. No schema/auth/payment changes.
+Photon README permits reasonable project API use and search-as-you-type; requests have per-client/provider budgets,
+6-second timeout, no-store, no query logging. Public service has no availability guarantee. Real provider query
+51465 + countrycode=de returned Bergisch Gladbach; a global postal query can return another country's same code,
+so country names are shown and the business form passes its selected country.
+Parser tests 3/3; earlier full suite 479 passed, 4 skips; final build/browser checks in progress. Not deployed.
+2026-11-15 validation: 480 unit passes / 4 existing skips; lint and Node build (including typecheck) pass.
+Full targeted admin-business + Nearby E2E: 38/38 pass on local disposable D1 (desktop + Pixel 5 emulation), including
+postal lookup, publish guard, address keyboard selection/marker and form autofill/reverse selection. Scoped axe
+checks on the new address search have zero violations in de/ckb at 390/1440px; screenshots inspected in
+/workspace/scratch/location-evidence. This is scoped automated accessibility evidence, not full WCAG certification.
+Earlier E2E failure was an ambiguous postal-code label selector after adding the search label; made selector exact.
+Final test-only change stubs the new endpoint in legacy admin map tests to avoid external provider traffic.
+Remaining release gates: exact-head CI, merge/deploy, production functional verification. No production change yet.
+## Home explore row: 3D icons sat on the red fallback — 2026-11-15 (branch `fix/home-explore-icon-background-20261115`)
+Owner's live screenshot after PR #155 (merged `04f55ae`, CI + deploy + production browser check green) showed the
+"explore by category" cards with the new 3D icons on the red gradient fallback, where the red icons disappear. Cause:
+`.rh-explore-art` was declared before `.rh-explore-fallback` with equal specificity, so the pearl background lost. Fix:
+selector `.rh-explore-fallback.rh-explore-art`. One CSS line; the local preview did not render that row.
+Same branch, owner request 2026-11-15 ("the footer takes too much space and repeats on every page; make it like modern
+apps"): `src/components/shell/Footer.tsx` — below md one compact block (logo + tagline row, one wrapped row of About /
+contact / legal links, copyright); the "explore" column is desktop-only because those sections are in the bottom tab bar
+and menu. Desktop layout unchanged. Copyright row now reserves 6.25rem under the tab bar (the raised search button
+covered it). Every link the e2e footer test requires stays in the DOM once. Local preview: ~220px visible on a 390px
+phone (was ~600px), no overflow.
+
+## Footer on the home page only — 2026-11-15 (branch `feat/footer-home-only-20261115`)
+Owner request (after PR #160 went live): show the footer once, on the home page only, not repeated on every page.
+`src/components/shell/HomeOnly.tsx` (client, `usePathname() === "/"`) wraps `<Footer />` in the locale layout; other
+pages get a phone-only spacer the height of the tab bar. Because the site is run from Germany, Impressum, privacy,
+terms and report stay reachable from every page as a small "legal" group in the menu sheet (`MobileNav`, from
+`footerNav("legal")`): two clicks, the usual reading of the Impressum duty. The "Beta" mark now shows on home only.
+E2E updated: footer test now checks home-only + legal links in the menu on every main route; new test opens Impressum
+from the menu; tab-bar coverage checked on a footer-less page and on home. The old "footer at the viewport bottom on a
+short page" test was removed (no footer on /login any more).
+
+## 2026-11-16 — Resume PR #159 release
+Recovered head 7fc1088: GitHub CI 43684019068 succeeded (verify 43m37s), both Cloudflare build checks and route audit passed.
+PR remained open because main advanced to 663f801, causing conflicts only in appended memory, locale JSON and generated inventory.
+Merged current main without discarding its saved-business/footer changes; preserved both memory sections, retained main locale keys
+and locationSearch, regenerated inventory. No location implementation was restarted. Exact merged-head CI is required again before release.

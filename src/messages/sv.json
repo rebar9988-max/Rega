@@ -1521,5 +1521,25 @@
     "errLocked": "Den här offerten kan inte längre ändras.",
     "privacyNote": "Din exakta plats och dina kontaktuppgifter delas aldrig med företag.",
     "back": "Tillbaka"
+  },
+  "saved": {
+    "save": "Spara",
+    "saved": "Sparad",
+    "added": "Sparad på den här enheten",
+    "removed": "Borttagen från sparade",
+    "viewSaved": "Sparade företag ({count})",
+    "title": "Sparade företag",
+    "intro": "Företag som du har sparat på den här enheten. Inget konto behövs; inget lagras på våra servrar.",
+    "empty": "Du har inte sparat några företag ännu. Använd ”Spara” på en företagssida.",
+    "browse": "Bläddra bland företag",
+    "remove": "Ta bort",
+    "clearAll": "Ta bort alla",
+    "unavailable": "{count} sparade företag är inte längre tillgängliga."
+  },
+  "locationSearch": {
+    "label": "Sök ort, postnummer eller adress",
+    "loading": "Söker…",
+    "empty": "Inga resultat. Ange en mer fullständig adress.",
+    "unavailable": "Sökning är inte tillgänglig. Försök igen eller välj på kartan."
   }
 }

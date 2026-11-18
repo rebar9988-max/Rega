@@ -29,7 +29,7 @@ async function createPublished(page: Page, name: string): Promise<string> {
   await page.getByLabel("Straße und Hausnummer").fill("Oranienstraße 1");
   await page.locator('select[name="countryCode"]').selectOption("DE");
   await page.getByLabel("Stadt", { exact: true }).fill("Berlin");
-  await page.getByLabel("Postleitzahl").fill("10999");
+  await page.getByLabel("Postleitzahl", { exact: true }).fill("10999");
   await page.getByTestId("find-location").click();
   await expect(page.getByTestId("geocode-hits")).toBeVisible();
   await page.getByTestId("confirm-location").check();

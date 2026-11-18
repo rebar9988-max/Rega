@@ -1521,5 +1521,25 @@
     "errLocked": "This offer can no longer be changed.",
     "privacyNote": "Your exact location and contact details are never shared with businesses.",
     "back": "Back"
+  },
+  "saved": {
+    "save": "Save",
+    "saved": "Saved",
+    "added": "Saved to this device",
+    "removed": "Removed from saved",
+    "viewSaved": "Saved businesses ({count})",
+    "title": "Saved businesses",
+    "intro": "Businesses you saved on this device. No account needed; nothing is stored on our servers.",
+    "empty": "You have not saved any businesses yet. Use “Save” on a business page.",
+    "browse": "Browse businesses",
+    "remove": "Remove",
+    "clearAll": "Clear all",
+    "unavailable": "{count} saved businesses are no longer available."
+  },
+  "locationSearch": {
+    "label": "Search city, postcode or address",
+    "loading": "Searching…",
+    "empty": "No verified result. Try a fuller address.",
+    "unavailable": "Address search is unavailable. Try again or select on the map."
   }
 }

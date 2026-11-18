@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-14T18:07:18.055Z",
+  "generatedAt": "2026-11-16T08:47:12.541Z",
   "package": {
     "name": "rega-platform",
     "version": "0.1.0",
@@ -221,6 +221,7 @@
   "apiRoutes": [
     "src/app/api/auth/[...nextauth]/route.ts",
     "src/app/api/health/route.ts",
+    "src/app/api/v1/address/route.ts",
     "src/app/api/v1/ai/chat/route.ts",
     "src/app/api/v1/businesses/[id]/route.ts",
     "src/app/api/v1/businesses/bulk/route.ts",

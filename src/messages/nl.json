@@ -1521,5 +1521,25 @@
     "errLocked": "Deze offerte kan niet meer worden gewijzigd.",
     "privacyNote": "Je exacte locatie en contactgegevens worden nooit met bedrijven gedeeld.",
     "back": "Terug"
+  },
+  "saved": {
+    "save": "Bewaren",
+    "saved": "Bewaard",
+    "added": "Bewaard op dit apparaat",
+    "removed": "Verwijderd uit bewaard",
+    "viewSaved": "Bewaarde bedrijven ({count})",
+    "title": "Bewaarde bedrijven",
+    "intro": "Bedrijven die je op dit apparaat hebt bewaard. Geen account nodig; er wordt niets op onze servers opgeslagen.",
+    "empty": "Je hebt nog geen bedrijven bewaard. Gebruik „Bewaren” op een bedrijfspagina.",
+    "browse": "Bedrijven bekijken",
+    "remove": "Verwijderen",
+    "clearAll": "Alles verwijderen",
+    "unavailable": "{count} bewaarde bedrijven zijn niet meer beschikbaar."
+  },
+  "locationSearch": {
+    "label": "Zoek plaats, postcode of adres",
+    "loading": "Zoeken…",
+    "empty": "Geen resultaat. Vul een vollediger adres in.",
+    "unavailable": "Zoeken niet beschikbaar. Probeer opnieuw of kies op de kaart."
   }
 }

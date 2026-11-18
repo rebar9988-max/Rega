@@ -10,7 +10,7 @@ import { FigmaIcon } from "@/components/home/FigmaIcon";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { MobileNav } from "./MobileNav";
 import { NavLinks } from "./NavLinks";
-import { headerNav, mobileNav } from "./nav";
+import { footerNav, headerNav, mobileNav } from "./nav";
 
 /** Owner banner composition; real controls over a decorative, non-interactive backdrop. */
 export async function Header() {
@@ -38,7 +38,7 @@ export async function Header() {
               </form>
               <LanguageSwitcher />
             </div>
-            <MobileNav items={mobileNav()} signedIn={signedIn} adHref={adHref} />
+            <MobileNav items={mobileNav()} legal={footerNav("legal")} signedIn={signedIn} adHref={adHref} />
           </div>
         </div>
         <div className="rega-header-secondary" dir={contentDir}>
