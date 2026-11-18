@@ -1529,5 +1529,11 @@
     "remove": "Rake",
     "clearAll": "Hemûyan rake",
     "unavailable": "{count} karsaziyên tomarkirî êdî ne berdest in."
+  },
+  "locationSearch": {
+    "label": "Li bajar, koda posteyê an navnîşanê bigere",
+    "loading": "Lêgerîn…",
+    "empty": "Encam nehat dîtin. Navnîşaneke berfirehtir binivîse.",
+    "unavailable": "Lêgerîn ne berdest e. Dîsa biceribîne an li ser nexşeyê hilbijêre."
   }
 }

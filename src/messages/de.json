@@ -1529,5 +1529,11 @@
     "remove": "Entfernen",
     "clearAll": "Alle entfernen",
     "unavailable": "{count} gemerkte Unternehmen sind nicht mehr verfügbar."
+  },
+  "locationSearch": {
+    "label": "Ort, Postleitzahl oder Adresse suchen",
+    "loading": "Suche…",
+    "empty": "Kein Ergebnis. Bitte die Adresse ergänzen.",
+    "unavailable": "Adresssuche nicht verfügbar. Erneut versuchen oder auf der Karte auswählen."
   }
 }

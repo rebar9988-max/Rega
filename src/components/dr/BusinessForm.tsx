@@ -12,6 +12,8 @@ import { useCallback, useActionState, useMemo, useRef, useState, useTransition, 
 import { useLocale, useTranslations } from "next-intl";
 import { LOCALES, LOCALE_META, localeSuffix, type Locale } from "@/config/locales";
 import { isValidCoordinate } from "@/lib/coordinates";
+import { AddressSearch } from "@/components/location/AddressSearch";
+import type { AddressResult } from "@/lib/address-result";
 import { isCompletePostalCode, type GeocodeHit, type PostalHit } from "@/lib/geocoder-parse";
 import { geocodeAction, postalLookupAction, saveBusinessAction, type BusinessFormState } from "@/app/dr/businesses/actions";
 import { parseOpeningHours, WEEK, type HoursMode, type HoursException, type WeekDay } from "@/lib/opening-hours";
@@ -219,6 +221,32 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
     goTo((step + 1) as 2 | 3);
   }
 
+  const reverseVersion = useRef(0);
+  const [reverseResults, setReverseResults] = useState<AddressResult[]>([]);
+  function selectAddress(result: AddressResult) {
+    ++reverseVersion.current;
+    setReverseResults([]);
+    if (result.countryCode && countries.some(c => c.code === result.countryCode)) setCountry(result.countryCode);
+    setAddress([result.street, result.houseNumber].filter(Boolean).join(" "));
+    setPostal(result.postalCode);
+    setCity(result.city);
+    setPostalHit(null);
+    lookedUp.current = `${result.countryCode || country}:${result.postalCode}`;
+    place(result, "geocoded");
+    setDirtyAt(Date.now());
+  }
+  async function pickMap(v: { lat: number; lng: number }) {
+    place(v, "manual");
+    const version = ++reverseVersion.current;
+    setReverseResults([]);
+    try {
+      const response = await fetch(`/api/v1/address?${new URLSearchParams({ lat: String(v.lat), lng: String(v.lng) })}`);
+      if (!response.ok) return;
+      const body = await response.json();
+      if (version === reverseVersion.current) setReverseResults(body.data);
+    } catch { /* Coordinates remain usable when reverse lookup is unavailable. */ }
+  }
+
   function place(v: { lat: number; lng: number }, how: "geocoded" | "manual") {
     setLat(String(v.lat));
     setLng(String(v.lng));
@@ -366,6 +394,7 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
       <div hidden={!show(1)} className="grid gap-8">
       <fieldset className="space-y-4 rounded-[var(--radius-card)] border border-line bg-surface p-5">
         <legend className="px-1 text-base font-bold">{t("sectionLocation")}</legend>
+        <AddressSearch country={country} onSelect={selectAddress} />
         <div className="grid gap-4  lg:grid-cols-4">
           <label className="flex flex-col gap-1 text-sm font-semibold lg:col-span-2">{t("address")}
             <input name="addressLine1" required minLength={3} maxLength={300} value={address} onChange={(e) => setAddress(e.target.value)} className={input} aria-invalid={bad("addressLine1")} />
@@ -424,7 +453,8 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
 
         <p className="text-sm text-muted">{t("pickerHint")}</p>
         {/* Mounted only while its step is on screen: a map created in a hidden box would have no size. */}
-        {show(1) && <LocationPicker value={value} focus={postalHit} fallbackCenter={cityCentre} onPick={(v) => place(v, "manual")} label={t("location")} unavailable={tm("unavailable")} dir={dir} />}
+        {show(1) && reverseResults.length > 0 && <div className="rounded-xl border border-line bg-surface p-3"><p className="text-sm">{t("useSuggestion")}</p>{reverseResults.map((result, i) => <button key={i} type="button" className="block min-h-11 w-full p-3 text-start text-sm hover:bg-brand-soft" onClick={() => selectAddress(result)}>{result.label}</button>)}</div>}
+        {show(1) && <LocationPicker value={value} focus={postalHit} fallbackCenter={cityCentre} onPick={pickMap} label={t("location")} unavailable={tm("unavailable")} dir={dir} />}
 
         <div className="grid gap-4 ">
           <label className="flex flex-col gap-1 text-sm font-semibold">{t("latitude")}

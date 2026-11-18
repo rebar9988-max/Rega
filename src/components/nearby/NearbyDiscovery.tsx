@@ -10,12 +10,14 @@
  * drive both views; quick filters (radius, open now) float over the map. Map results are ordered by distance on the
  * device (haversine) from the search centre, and a selected business is flown to and previewed over the map.
  */
+import { AddressSearch } from "@/components/location/AddressSearch";
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { LOCALE_META, formatNumber, type Locale } from "@/i18n/locales";
 import { localize } from "@/lib/content";
+import { isValidCoordinate } from "@/lib/coordinates";
 import { RADII_KM, coarsen, distanceKm } from "@/lib/geo";
 import { forwardGeocode, reverseGeocode, type Place } from "@/lib/geocode";
 import { getSavedLocation, saveLocation } from "@/lib/location-store";
@@ -62,6 +64,7 @@ export function NearbyDiscovery({ cities, categories, initial, radiusLabels }: {
   const pageLang = LOCALE_META[locale].htmlLang;
   const dir = LOCALE_META[locale].dir;
   const [center, setCenter] = useState<Center | null>(null);
+  const [searchPoint, setSearchPoint] = useState<{ lat: number; lng: number; label: string; zoom: number } | null>(null);
   const [device, setDevice] = useState<{ lat: number; lng: number } | null>(null);
   const [status, setStatus] = useState<Status>("idle");
   const [items, setItems] = useState<Item[]>([]);
@@ -142,17 +145,20 @@ export function NearbyDiscovery({ cities, categories, initial, radiusLabels }: {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         if (locationVersion !== locationRequest.current) return;
-        const here = { lat: coarsen(pos.coords.latitude), lng: coarsen(pos.coords.longitude) };
+        const here = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        if (!isValidCoordinate(here.lat, here.lng)) return setStatus("unavailable");
+        setSearchPoint(null);
         setDevice(here);
         setCenter({ ...here, label: { kind: "device" } });
       },
       (err) => { if (locationVersion === locationRequest.current) setStatus(err.code === err.PERMISSION_DENIED ? "denied" : "unavailable"); },
-      { enableHighAccuracy: false, timeout: 10_000, maximumAge: 5 * 60_000 },
+      { enableHighAccuracy: true, timeout: 15_000, maximumAge: 0 },
     );
   }, []);
 
   function pickCity(id: string) {
     ++locationRequest.current;
+    setSearchPoint(null);
     const c = cities.find((x) => x.id === id);
     if (c?.latitude != null && c.longitude != null) {
       setCenter({ lat: c.latitude, lng: c.longitude, label: { kind: "city", id } });
@@ -189,7 +195,7 @@ export function NearbyDiscovery({ cities, categories, initial, radiusLabels }: {
   }, [q]);
 
   const params = useCallback((c: Center, extra: Record<string, string>) => {
-    const p = new URLSearchParams({ lat: String(c.lat), lng: String(c.lng), radius: String(filters.radius), sort: filters.sort, ...extra });
+    const p = new URLSearchParams({ lat: String(coarsen(c.lat)), lng: String(coarsen(c.lng)), radius: String(filters.radius), sort: filters.sort, ...extra });
     if (filters.q) p.set("q", filters.q);
     if (filters.category) p.set("category", filters.category);
     if (filters.open) p.set("open", "1");
@@ -227,7 +233,7 @@ export function NearbyDiscovery({ cities, categories, initial, radiusLabels }: {
 
   const placeName = (() => {
     if (!center) return "";
-    if (center.label.kind === "area") return t("inArea");
+    if (center.label.kind === "area") return searchPoint?.label ?? t("inArea");
     if (center.label.kind === "device") {
       const near = reverseGeocode(center, places);
       const nearCity = near && cities.find((c) => c.id === near.id);
@@ -270,6 +276,7 @@ export function NearbyDiscovery({ cities, categories, initial, radiusLabels }: {
           <div className="grid lg:grid-cols-[minmax(0,45fr)_minmax(0,55fr)]">
             <div className="order-1 p-3 lg:p-4">
               <p className="mb-3 text-sm text-muted">{t("start")}</p>
+              <AddressSearch onSelect={p => { ++locationRequest.current; setSearchPoint({ ...p, zoom: p.houseNumber ? 17 : p.street ? 15 : 12 }); setCenter({ lat: p.lat, lng: p.lng, label: { kind: "area" } }); }} />
               {notice && <p role="alert" data-testid="nearby-notice" className="mt-4 rounded-xl bg-brand-soft px-4 py-3 text-sm text-ink">{notice}</p>}
               <div className="grid grid-cols-2 gap-2">
                 {status !== "unsupported" && (
@@ -307,7 +314,7 @@ export function NearbyDiscovery({ cities, categories, initial, radiusLabels }: {
                 points={[]}
                 selectedId={null}
                 onSelect={() => undefined}
-                onSearchArea={(c) => setCenter({ ...c, label: { kind: "area" } })}
+                onSearchArea={(c) => { setSearchPoint(null); setCenter({ ...c, label: { kind: "area" } }); }}
                 user={null}
                 labels={labels}
                 dir={dir}
@@ -347,6 +354,7 @@ export function NearbyDiscovery({ cities, categories, initial, radiusLabels }: {
       </div>
 
       {(status === "denied" || status === "unavailable" || status === "unsupported") && <p role="alert" data-testid="nearby-notice" className="mb-3 rounded-xl bg-brand-soft p-3 text-sm">{status === "denied" ? t("permissionDenied") : status === "unsupported" ? t("unsupported") : t("unavailable")}</p>}
+      <AddressSearch onSelect={p => { ++locationRequest.current; setSearchPoint({ ...p, zoom: p.houseNumber ? 17 : p.street ? 15 : 12 }); setCenter({ lat: p.lat, lng: p.lng, label: { kind: "area" } }); }} />
       <form className="rega-search-shell grid grid-cols-[44px_minmax(0,1fr)_90px] gap-2 p-3 lg:grid-cols-[44px_minmax(8rem,1fr)_90px_minmax(12rem,2fr)_minmax(10rem,1fr)]" onSubmit={(e) => e.preventDefault()} role="search">
         <button type="button" onClick={locate} disabled={status === "locating" || status === "unsupported"} aria-label={t("useLocation")} title={t("useLocation")} className="grid size-11 place-items-center rounded-xl bg-brand text-brand-ink disabled:opacity-60"><LocateIcon /></button>
         {cities.length > 0 && citySelect("nearby-city-filter")}
@@ -472,8 +480,9 @@ export function NearbyDiscovery({ cities, categories, initial, radiusLabels }: {
               selectedId={selected}
               onSelect={(id) => { setSelected(id); setStack(null); }}
               onSelectMany={(ids) => { setSelected(null); setStack(ids); }}
-              onSearchArea={(c) => setCenter({ ...c, label: { kind: "area" } })}
+              onSearchArea={(c) => { setSearchPoint(null); setCenter({ ...c, label: { kind: "area" } }); }}
               user={device}
+              searchPoint={searchPoint}
               labels={labels}
               dir={dir}
               markerStyle="pill"
