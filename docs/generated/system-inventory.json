@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-18T19:07:14.801Z",
+  "generatedAt": "2026-11-18T20:44:16.626Z",
   "package": {
     "name": "rega-platform",
     "version": "0.1.0",
@@ -215,6 +215,11 @@
     {
       "key": "terms",
       "path": "/terms",
+      "enabledInSource": true
+    },
+    {
+      "key": "travel",
+      "path": "/travel",
       "enabledInSource": true
     }
   ],

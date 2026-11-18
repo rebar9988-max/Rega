@@ -1636,3 +1636,25 @@ and locationSearch, regenerated inventory. No location implementation was restar
 - Preserved (contextual, not redundant): global header search and mobile bottom-nav search (navigation, locked by sections 2/3), per-page search forms, sort, pagination, business-detail actions, `/dr` admin lists.
 - Tests: `tests/ui-redundancy.test.ts` (source guards), `tests/e2e/catalog.spec.ts` (rendered check).
 - CI blocker found 2026-11-18: every PR's `verify` fails at `npm audit` (next 16.4.2 + picomatch advisories); fix is PR #168/#170. PR #164 (other session) overlaps this PR on BusinessIndex/home with a different approach (hides search entirely); only one of the two may be merged.
+## 2026-11-18 — Rega24Travel (branch `feat/rega24-travel-20261118`)
+Owner brief "Rega24Travel — Premium 2026 Design + Full Functional Integration" (mockup: travel tile on the home grid,
+/travel discovery page). Discovery only: no booking, tickets, payments or navigation.
+- Audit (production D1, read-only): roots `travel-tickets` (1 business) and `transport-moving` (2) already exist; 0
+  sub-categories anywhere; none of the ten new slugs used by a category or business. Reused both roots, no new root.
+- `src/config/travel.ts`: roots, the ten sub-categories (7 name columns), scope helper (roots + descendants, loop-safe),
+  in-scope category filter, PLZ parser. Section `travel` (`/travel`, sitemap only; header/menu/footer unchanged).
+- Data layer: optional `scope` (BusinessQuery, CityScope) and `postalCode` prefix filter on active locations; existing
+  callers unchanged. Business detail pages, favourites, reviews, cards, duplicate rules: the shared ones, untouched.
+- Home: one "Travel & Transport" tile (new badge, red suitcase + airplane art in Icon3D) first in the existing grid; the
+  two travel roots fold into it (still in "explore" and on /travel). No promo banner (brief: prefer one clear entry).
+- `/[locale]/travel`: compact hero (map-banner gradient), search + PLZ + city on the directory search shell, chips from
+  real travel categories with live counts, BusinessCard grid, skeleton, empty states, pagination, sort.
+- Admin: sub-categories are ordinary Category rows managed in the existing /dr category screens; no /dr/travel.
+- Production data: `prisma/d1/data/20261118_travel_subcategories.sql`, insert-only/idempotent, rehearsed on SQLite from
+  the D1 migrations (+10, second run no-op, undo exact). Applying it is a separate step after the code is live.
+- Local environment: package registry unreachable, so lint/typecheck/build/E2E run in GitHub CI only. Pure travel unit
+  tests (tests/travel.test.ts, 7) passed locally with Node type stripping. E2E: tests/e2e/travel.spec.ts.
+- Follow-up same day (owner screenshots 18:51/18:56): /travel rebuilt to the mockup (airport hero, one search field for
+  name or PLZ, city + category pills, list cards with favourite heart via shared SaveButton `iconOnly`, real ratings
+  only). Home: the red map banner's «کردنەوەی نەخشە» CTA is replaced by the Rega24Travel card (suitcase art, CTA to
+  /travel); the map stays on the «نزیک» tab; the old map banner renders only if the travel section is switched off.
