@@ -49,7 +49,7 @@ test("editorial search submits real query and keeps city selector interactive", 
   await expect(page.getByRole("heading", { name: /Zagros/i })).toBeVisible();
 });
 
-test("reference v2: category filter, business tabs and the compact map banner", async ({ page }) => {
+test("reference v2: category filter, business tabs and the Rega24Travel banner", async ({ page }) => {
   await page.goto("/en");
   const hero = page.locator(".rega-editorial-hero");
   // The hero's category filter submits the real category id; /businesses redirects to the readable category URL.
@@ -76,8 +76,9 @@ test("reference v2: category filter, business tabs and the compact map banner", 
     expect(label).toMatch(/\d/);
   }
 
-  const map = page.getByRole("link", { name: "Open Map" });
-  await expect(map).toHaveAttribute("href", "/en/nearby");
-  // The homepage itself no longer embeds an interactive map; it opens from the banner.
+  // Owner 2026-11-18: the red banner now opens Rega24Travel; the map stays on the «نزیک» (Nearby) tab.
+  await expect(page.getByRole("link", { name: "Open Map" })).toHaveCount(0);
+  await expect(page.getByTestId("home-travel-cta")).toHaveAttribute("href", "/en/travel");
+  // The homepage itself does not embed an interactive map.
   await expect(page.locator(".rega-home .maplibregl-map")).toHaveCount(0);
 });

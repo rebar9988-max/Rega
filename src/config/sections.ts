@@ -45,6 +45,9 @@ export const SECTIONS: readonly SectionDef[] = [
   { key: "home", path: "", icon: "home", order: 0, enabled: true, header: true, mobile: true, sitemap: true },
   { key: "businesses", path: "/businesses", icon: "store", order: 10, enabled: true, header: true, mobile: true, footer: "explore", sitemap: true, search: true, assistant: true },
   { key: "services", path: "/services", icon: "wrench", order: 20, enabled: true, header: true, mobile: true, footer: "explore", sitemap: true, search: true, assistant: true },
+  // Rega24Travel: discovery entry over the same directory (config/travel.ts). Reached from its home category tile;
+  // deliberately not added to header, menu or footer, so the existing navigation stays exactly as it is.
+  { key: "travel", path: "/travel", icon: "plane", order: 25, enabled: true, sitemap: true },
   { key: "locations", path: "/locations", icon: "pin", order: 30, enabled: true, mobile: true, footer: "explore", sitemap: true, search: true },
   { key: "nearby", path: "/nearby", icon: "compass", order: 40, enabled: true, header: true, mobile: true, footer: "explore", sitemap: true },
   { key: "smartRequest", path: "/smart-request", icon: "spark", order: 45, enabled: true, mobile: true },
