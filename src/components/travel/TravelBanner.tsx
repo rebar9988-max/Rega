@@ -27,12 +27,12 @@ export async function TravelBanner({ categories, className = "" }: { categories:
               <PlaneSwoosh className="rtb-swoosh" />
             </div>
             <p className="rtb-pill">
+              {tn("travel")}
               <svg viewBox="0 0 24 24" className="rtb-pill-icon" aria-hidden="true" focusable="false">
                 <path d="M9 6V4.5A1.5 1.5 0 0 1 10.5 3h3A1.5 1.5 0 0 1 15 4.5V6" fill="none" stroke="currentColor" strokeWidth="1.8" />
                 <rect x="4" y="6" width="16" height="15" rx="3" fill="currentColor" />
                 <path d="M9 6v15M15 6v15" stroke="#fff" strokeOpacity=".45" strokeWidth="1.4" />
               </svg>
-              {tn("travel")}
             </p>
             <span className="rtb-rule" aria-hidden="true" />
             <p className="rtb-body">{t("bannerBody")}</p>
