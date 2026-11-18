@@ -152,6 +152,20 @@ const ICONS: Record<string, Icon> = {
       <path transform="translate(8.5 6.5) scale(1.95)" d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z" fill={g("silver")} />
     </>,
   },
+  /** Rega24Travel tile (/travel): red suitcase with a small airplane. */
+  travel: {
+    use: ["red", "silver", "dark"],
+    body: <>
+      <path d="M25 22v-5a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v5" stroke="#8f97a6" strokeWidth="3" fill="none" strokeLinecap="round" />
+      <rect x="15" y="21" width="34" height="34" rx="6" fill={g("red")} />
+      <rect x="15" y="21" width="34" height="34" rx="6" fill="none" stroke="#a5121a" strokeWidth=".8" />
+      <path d="M24 21v34M40 21v34" stroke="#a5121a" strokeWidth="2.4" opacity=".55" />
+      <rect x="19" y="24" width="8" height="18" rx="3" fill="#fff" opacity=".2" />
+      <circle cx="22" cy="57" r="2.6" fill={g("dark")} />
+      <circle cx="42" cy="57" r="2.6" fill={g("dark")} />
+      <path transform="translate(30 3) scale(1.25) rotate(-8 12 12)" d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z" fill={g("silver")} stroke="#9aa1ae" strokeWidth=".5" />
+    </>,
+  },
   "groceries-markets": {
     use: ["red", "green", "gold"],
     body: <>

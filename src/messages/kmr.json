@@ -88,7 +88,8 @@
     "guides": "Rêber",
     "register": "Hesab çêke",
     "quick": "Navîgasyona bilez",
-    "smartRequest": "Daxwaza Jîr"
+    "smartRequest": "Daxwaza Jîr",
+    "travel": "Rêwîtî û veguhastin"
   },
   "home": {
     "heroTitle": "Hemû karsazî, xizmet û cih li cihekî",
@@ -196,8 +197,6 @@
     "tabTopRated": "Herî baş nirxandî",
     "tabNew": "Nû",
     "tabEmpty": "Niha tu karsazî li gorî vê parzûnê nîne.",
-    "exploreTitle": "Li gorî kategoriyê bigere",
-    "exploreNext": "Kategoriyên din nîşan bide",
     "mapTitle": "Karsaziyên li seranserê cîhanê bibîne",
     "mapSub": "Derbasî nexşeyê bibe da ku cihên nêzîkî xwe bibînî.",
     "mapCta": "Nexşeyê veke",
@@ -257,7 +256,6 @@
     "postalCode": "Koda postê",
     "openingHours": "Saetên vekirinê",
     "viewOnMap": "Li ser nexşeyê bibîne",
-    "browseByCity": "Li gorî bajêr bigere",
     "closedOnHolidays": "Di betlaneyên fermî de girtî ye.",
     "hoursChanges": "Girtin û demên taybet"
   },
@@ -1541,5 +1539,24 @@
     "loading": "Lêgerîn…",
     "empty": "Encam nehat dîtin. Navnîşaneke berfirehtir binivîse.",
     "unavailable": "Lêgerîn ne berdest e. Dîsa biceribîne an li ser nexşeyê hilbijêre."
+  },
+  "travel": {
+    "title": "Rega24Travel",
+    "subtitle": "Rêwîtî û veguhastin",
+    "lead": "Karsazî û xizmetên rêwîtî û veguhastinê li cihên herî nêzîk bibîne.",
+    "searchLabel": "Navê karsaziyê an xizmetê",
+    "searchPlaceholder": "Navê karsaziyê an PLZ binivîse...",
+    "categoriesLabel": "Beşên rêwîtî û veguhastinê",
+    "allCategories": "Hemû kategorî",
+    "newBadge": "Nû",
+    "emptyTitle": "Hîn karsazî li vir tune ne",
+    "emptyBody": "Bibe karsaziya yekem a rêwîtî û veguhastinê li Rega24.",
+    "emptyFiltered": "Ji bo vê lêgerînê encam nehat dîtin. Fîlteran biguherîne an rake.",
+    "clearFilters": "Fîlteran paqij bike",
+    "addBusiness": "Karsaziya xwe zêde bike",
+    "notBooking": "Ev rêbereke dîtinê ye; firotina bilêtan û rezervasyon li vir tune ne.",
+    "allCities": "Hemû bajar",
+    "bannerBody": "Ajansên rêwîtiyê, taksî, kirêkirina otomobîlan, kargo û bêtir bibîne...",
+    "bannerCta": "Serdana Rega24Travel bike"
   }
 }

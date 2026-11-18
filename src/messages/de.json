@@ -88,7 +88,8 @@
     "guides": "Ratgeber",
     "register": "Konto erstellen",
     "quick": "Schnellnavigation",
-    "smartRequest": "Smart Request"
+    "smartRequest": "Smart Request",
+    "travel": "Reisen & Transport"
   },
   "home": {
     "heroTitle": "Alle Unternehmen, Dienstleistungen und Orte an einem Ort",
@@ -196,8 +197,6 @@
     "tabTopRated": "Top bewertet",
     "tabNew": "Neu",
     "tabEmpty": "Zu diesem Filter passt gerade kein Unternehmen.",
-    "exploreTitle": "Nach Kategorie entdecken",
-    "exploreNext": "Weitere Kategorien zeigen",
     "mapTitle": "Unternehmen weltweit entdecken",
     "mapSub": "Zur Kartenansicht wechseln und Orte in deiner Nähe finden.",
     "mapCta": "Karte öffnen",
@@ -257,7 +256,6 @@
     "postalCode": "Postleitzahl",
     "openingHours": "Öffnungszeiten",
     "viewOnMap": "Auf Karte ansehen",
-    "browseByCity": "Nach Stadt durchsuchen",
     "closedOnHolidays": "An gesetzlichen Feiertagen geschlossen.",
     "hoursChanges": "Schließzeiten und besondere Öffnungszeiten"
   },
@@ -1541,5 +1539,24 @@
     "loading": "Suche…",
     "empty": "Kein Ergebnis. Bitte die Adresse ergänzen.",
     "unavailable": "Adresssuche nicht verfügbar. Erneut versuchen oder auf der Karte auswählen."
+  },
+  "travel": {
+    "title": "Rega24Travel",
+    "subtitle": "Reisen & Transport",
+    "lead": "Reise- und Transportunternehmen und ihre Dienstleistungen in Ihrer Nähe finden.",
+    "searchLabel": "Unternehmen oder Dienstleistung",
+    "searchPlaceholder": "Unternehmen oder PLZ eingeben...",
+    "categoriesLabel": "Kategorien Reisen & Transport",
+    "allCategories": "Alle Kategorien",
+    "newBadge": "Neu",
+    "emptyTitle": "Hier gibt es noch keine Einträge",
+    "emptyBody": "Werden Sie das erste Reise- oder Transportunternehmen auf Rega24.",
+    "emptyFiltered": "Keine Ergebnisse für diese Suche. Ändern oder entfernen Sie die Filter.",
+    "clearFilters": "Filter zurücksetzen",
+    "addBusiness": "Unternehmen eintragen",
+    "notBooking": "Dies ist ein Verzeichnis zum Entdecken; Tickets und Buchungen werden hier nicht verkauft.",
+    "allCities": "Alle Städte",
+    "bannerBody": "Reisebüros, Taxis, Autovermietung, Fracht und mehr entdecken...",
+    "bannerCta": "Rega24Travel besuchen"
   }
 }

@@ -1623,8 +1623,56 @@ E2E updated: footer test now checks home-only + legal links in the menu on every
 from the menu; tab-bar coverage checked on a footer-less page and on home. The old "footer at the viewport bottom on a
 short page" test was removed (no footer on /login any more).
 
+## Saved businesses (favourites) — 2026-11-15 (PR #162, merge `663f801`; status: DEPLOYED and VERIFIED live)
+Task: owner's competitive-research directive (9 platforms). Verified gap: no favourites/saved businesses in REGA24
+while Dalilk, Das Örtliche, Justdial (verified) and Google/Apple Maps, Yelp, Tripadvisor (known) offer it.
+Change: Save toggle in the profile action grid; `/[locale]/saved` (noindex) lists them via the existing public
+`GET /api/v1/businesses` with a new optional, validated `slugs` filter (public records only, max 100). Storage:
+browser `localStorage["rega-saved"]` only — no account, no schema change, no new service (€0). 11 catalogues, privacy
+texts (7 languages) list the storage. Files: `src/lib/saved-businesses.ts`, `src/lib/saved-store.ts`,
+`src/components/business/SaveButton.tsx`, `src/features/saved/SavedList.tsx`, `src/app/[locale]/saved/page.tsx`,
+business profile page, businesses route, `FigmaIcon` (bookmark).
+Tests: `tests/saved-businesses.test.ts`; e2e save → saved → remove (ckb + de); `private-read-authorization` harness
+registers the pure module (assertions unchanged). CI green on PR and on main; Deploy to Cloudflare Workers success.
+Live: production browser check now runs the save → view → remove flow (desktop + mobile, ckb RTL + de LTR, noindex,
+no overflow) — 32/32 ok on run 43743241295 (branch `test/live-saved-flow-check`). First post-deploy browser check
+had a transient `/ckb` "This page couldn't load" right after rollout; re-run green, no code cause.
+Note: a repository ruleset requires the branch to be up to date with main before merge ("verify" expected).
+Matrix: `docs/research/competitive-matrix-2026-11.md`. Next safe increments: advanced filters (open now / languages /
+has offers, no schema change), comparison of saved businesses; attributes and products need owner schema approval.
+
 ## 2026-11-16 — Resume PR #159 release
 Recovered head 7fc1088: GitHub CI 43684019068 succeeded (verify 43m37s), both Cloudflare build checks and route audit passed.
 PR remained open because main advanced to 663f801, causing conflicts only in appended memory, locale JSON and generated inventory.
 Merged current main without discarding its saved-business/footer changes; preserved both memory sections, retained main locale keys
 and locationSearch, regenerated inventory. No location implementation was restarted. Exact merged-head CI is required again before release.
+
+## 2026-11-18 — Global UI redundancy cleanup (PR #165, branch `fix/global-redundancy-cleanup-20261115`)
+- Task: owner request "REGA24 global cleanup & zero redundancy"; /ckb/businesses duplicate search/filters as the reference pattern.
+- Audit: 39 public routes under `src/app/[locale]` + 29 `/dr` routes (68 `page.tsx`). Shared list components checked: `BusinessIndex`, `FilterBar`, `ContentIndex`, search, nearby, business detail.
+- Removed (redundant): category `<select>` beside the category chips and the separate "apply" button on /businesses, /businesses/<category>, /city/...; the home "explore by category" row repeating the category tiles; the A–Z `CityBrowser` on /locations repeating the filter's city control. Country/verified now apply on change; the search button still submits all without JS.
+- Preserved (contextual, not redundant): global header search and mobile bottom-nav search (navigation, locked by sections 2/3), per-page search forms, sort, pagination, business-detail actions, `/dr` admin lists.
+- Tests: `tests/ui-redundancy.test.ts` (source guards), `tests/e2e/catalog.spec.ts` (rendered check).
+- CI blocker found 2026-11-18: every PR's `verify` fails at `npm audit` (next 16.4.2 + picomatch advisories); fix is PR #168/#170. PR #164 (other session) overlaps this PR on BusinessIndex/home with a different approach (hides search entirely); only one of the two may be merged.
+## 2026-11-18 — Rega24Travel (branch `feat/rega24-travel-20261118`)
+Owner brief "Rega24Travel — Premium 2026 Design + Full Functional Integration" (mockup: travel tile on the home grid,
+/travel discovery page). Discovery only: no booking, tickets, payments or navigation.
+- Audit (production D1, read-only): roots `travel-tickets` (1 business) and `transport-moving` (2) already exist; 0
+  sub-categories anywhere; none of the ten new slugs used by a category or business. Reused both roots, no new root.
+- `src/config/travel.ts`: roots, the ten sub-categories (7 name columns), scope helper (roots + descendants, loop-safe),
+  in-scope category filter, PLZ parser. Section `travel` (`/travel`, sitemap only; header/menu/footer unchanged).
+- Data layer: optional `scope` (BusinessQuery, CityScope) and `postalCode` prefix filter on active locations; existing
+  callers unchanged. Business detail pages, favourites, reviews, cards, duplicate rules: the shared ones, untouched.
+- Home: one "Travel & Transport" tile (new badge, red suitcase + airplane art in Icon3D) first in the existing grid; the
+  two travel roots fold into it (still in "explore" and on /travel). No promo banner (brief: prefer one clear entry).
+- `/[locale]/travel`: compact hero (map-banner gradient), search + PLZ + city on the directory search shell, chips from
+  real travel categories with live counts, BusinessCard grid, skeleton, empty states, pagination, sort.
+- Admin: sub-categories are ordinary Category rows managed in the existing /dr category screens; no /dr/travel.
+- Production data: `prisma/d1/data/20261118_travel_subcategories.sql`, insert-only/idempotent, rehearsed on SQLite from
+  the D1 migrations (+10, second run no-op, undo exact). Applying it is a separate step after the code is live.
+- Local environment: package registry unreachable, so lint/typecheck/build/E2E run in GitHub CI only. Pure travel unit
+  tests (tests/travel.test.ts, 7) passed locally with Node type stripping. E2E: tests/e2e/travel.spec.ts.
+- Follow-up same day (owner screenshots 18:51/18:56): /travel rebuilt to the mockup (airport hero, one search field for
+  name or PLZ, city + category pills, list cards with favourite heart via shared SaveButton `iconOnly`, real ratings
+  only). Home: the red map banner's «کردنەوەی نەخشە» CTA is replaced by the Rega24Travel card (suitcase art, CTA to
+  /travel); the map stays on the «نزیک» tab; the old map banner renders only if the travel section is switched off.

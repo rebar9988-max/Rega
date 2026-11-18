@@ -88,7 +88,8 @@
     "guides": "Guider",
     "register": "Skapa konto",
     "quick": "Snabbnavigering",
-    "smartRequest": "Smart förfrågan"
+    "smartRequest": "Smart förfrågan",
+    "travel": "Resor & Transport"
   },
   "home": {
     "heroTitle": "Alla företag, tjänster och platser på ett ställe",
@@ -196,8 +197,6 @@
     "tabTopRated": "Högst betyg",
     "tabNew": "Nya",
     "tabEmpty": "Inget företag matchar det här filtret just nu.",
-    "exploreTitle": "Utforska efter kategori",
-    "exploreNext": "Visa fler kategorier",
     "mapTitle": "Utforska företag runt om i världen",
     "mapSub": "Byt till kartvy för att hitta platser nära dig.",
     "mapCta": "Öppna kartan",
@@ -257,7 +256,6 @@
     "postalCode": "Postnummer",
     "openingHours": "Öppettider",
     "viewOnMap": "Visa på kartan",
-    "browseByCity": "Bläddra efter stad",
     "closedOnHolidays": "Stängt på officiella helgdagar.",
     "hoursChanges": "Stängningar och avvikande öppettider"
   },
@@ -1541,5 +1539,24 @@
     "loading": "Söker…",
     "empty": "Inga resultat. Ange en mer fullständig adress.",
     "unavailable": "Sökning är inte tillgänglig. Försök igen eller välj på kartan."
+  },
+  "travel": {
+    "title": "Rega24Travel",
+    "subtitle": "Resor & Transport",
+    "lead": "Hitta rese- och transportföretag och deras tjänster nära dig.",
+    "searchLabel": "Företags- eller tjänstenamn",
+    "searchPlaceholder": "Skriv företagsnamn eller PLZ...",
+    "categoriesLabel": "Kategorier för resor & transport",
+    "allCategories": "Alla kategorier",
+    "newBadge": "Ny",
+    "emptyTitle": "Inga företag här ännu",
+    "emptyBody": "Bli det första rese- eller transportföretaget på Rega24.",
+    "emptyFiltered": "Inga resultat för sökningen. Ändra eller rensa filtren.",
+    "clearFilters": "Rensa filter",
+    "addBusiness": "Lägg till ditt företag",
+    "notBooking": "Detta är en katalog för att upptäcka företag; biljetter och bokningar säljs inte här.",
+    "allCities": "Alla städer",
+    "bannerBody": "Hitta resebyråer, taxi, biluthyrning, frakt och mer...",
+    "bannerCta": "Besök Rega24Travel"
   }
 }

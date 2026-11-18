@@ -88,7 +88,8 @@
     "guides": "Gidsen",
     "register": "Account aanmaken",
     "quick": "Snelle navigatie",
-    "smartRequest": "Slimme aanvraag"
+    "smartRequest": "Slimme aanvraag",
+    "travel": "Reizen & Vervoer"
   },
   "home": {
     "heroTitle": "Alle bedrijven, diensten en plekken op één plek",
@@ -196,8 +197,6 @@
     "tabTopRated": "Best beoordeeld",
     "tabNew": "Nieuw",
     "tabEmpty": "Er is nu geen bedrijf dat bij dit filter past.",
-    "exploreTitle": "Ontdek per categorie",
-    "exploreNext": "Meer categorieën tonen",
     "mapTitle": "Ontdek bedrijven over de hele wereld",
     "mapSub": "Schakel over naar de kaartweergave om plaatsen bij jou in de buurt te vinden.",
     "mapCta": "Kaart openen",
@@ -257,7 +256,6 @@
     "postalCode": "Postcode",
     "openingHours": "Openingstijden",
     "viewOnMap": "Bekijken op de kaart",
-    "browseByCity": "Bekijken per stad",
     "closedOnHolidays": "Gesloten op officiële feestdagen.",
     "hoursChanges": "Sluitingen en afwijkende openingstijden"
   },
@@ -1541,5 +1539,24 @@
     "loading": "Zoeken…",
     "empty": "Geen resultaat. Vul een vollediger adres in.",
     "unavailable": "Zoeken niet beschikbaar. Probeer opnieuw of kies op de kaart."
+  },
+  "travel": {
+    "title": "Rega24Travel",
+    "subtitle": "Reizen & Vervoer",
+    "lead": "Ontdek reis- en vervoersbedrijven en hun diensten bij jou in de buurt.",
+    "searchLabel": "Naam van bedrijf of dienst",
+    "searchPlaceholder": "Typ een bedrijfsnaam of PLZ...",
+    "categoriesLabel": "Categorieën Reizen & Vervoer",
+    "allCategories": "Alle categorieën",
+    "newBadge": "Nieuw",
+    "emptyTitle": "Hier staan nog geen vermeldingen",
+    "emptyBody": "Word het eerste reis- of vervoersbedrijf op Rega24.",
+    "emptyFiltered": "Geen resultaten voor deze zoekopdracht. Wijzig of wis de filters.",
+    "clearFilters": "Filters wissen",
+    "addBusiness": "Voeg je bedrijf toe",
+    "notBooking": "Dit is een gids om bedrijven te ontdekken; tickets en boekingen worden hier niet verkocht.",
+    "allCities": "Alle steden",
+    "bannerBody": "Ontdek reisbureaus, taxi's, autoverhuur, vracht en meer...",
+    "bannerCta": "Bezoek Rega24Travel"
   }
 }

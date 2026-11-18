@@ -8,7 +8,6 @@ import { Icon3D, StoreArt, hasIcon3D } from "@/components/home/Icon3D";
 import { HeroWorldArt, MapBannerArt } from "@/components/home/HomeArt";
 import { HomeBusinessCard } from "@/components/home/HomeBusinessCard";
 import { HomeBusinessTabs, type BusinessTab } from "@/components/home/HomeBusinessTabs";
-import { HomeScroller } from "@/components/home/HomeScroller";
 import { LogoMark } from "@/components/ui/Logo";
 import { SocialSection } from "@/components/home/SocialSection";
 import { Text } from "@/components/ui/Bidi";
@@ -18,7 +17,9 @@ import { CityFilter } from "@/components/ui/CityFilter";
 import { log } from "@/lib/logger";
 import { pageMetadata } from "@/lib/seo";
 import { NoEdgeCache } from "@/components/ui/NoEdgeCache";
-import { responsiveImage } from "@/features/business-images/variants";
+import { TRAVEL_ROOT_KEYS } from "@/config/travel";
+import { SuitcaseArt } from "@/components/travel/TravelArt";
+import { sectionEnabled } from "@/config/sections";
 
 /** The landing page must render even if the database is briefly unavailable. */
 async function homeData() {
@@ -64,6 +65,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   setRequestLocale(locale);
   const t = await getTranslations("home");
   const tn = await getTranslations("nav");
+  const tt = await getTranslations("travel");
   const te = await getTranslations("empty");
   const ts = await getTranslations("sort");
   const l = locale as Locale;
@@ -117,14 +119,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     { key: "new", label: t("tabNew"), icon: "sparkles", ids: ids(newest) },
   ].filter((tab) => tab.ids.length > 0);
 
-  // Photographic category row: a real cover photo from a published business of that category when one exists,
-  // otherwise the category icon on the logo red. Never a stock photo.
-  const coverByRoot = new Map<string, string>();
-  for (const row of data?.covers ?? []) {
-    const root = rootOf(row.categoryId);
-    if (root && row.coverUrl && !coverByRoot.has(root.id)) coverByRoot.set(root.id, row.coverUrl);
-  }
-  const tiles = rootCategories.slice(0, 11);
+  // Rega24Travel: one tile for its two top-level categories (they stay reachable on /travel and in "explore").
+  const travelOn = sectionEnabled("travel") && rootCategories.some((c) => (TRAVEL_ROOT_KEYS as readonly string[]).includes(c.slug));
+  const tiles = (travelOn ? rootCategories.filter((c) => !(TRAVEL_ROOT_KEYS as readonly string[]).includes(c.slug)) : rootCategories).slice(0, travelOn ? 10 : 11);
+  const extraFrom = travelOn ? 6 : 7;
 
   return (
     <>
@@ -187,8 +185,17 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         {tiles.length > 0 && (
           <nav aria-label={t("categoriesTitle")} className={`${BAND} rh-tiles-band`}>
             <ul className="rh-tiles">
+              {travelOn && (
+                <li>
+                  <Link href="/travel" className="rh-tile rh-tile-travel" data-testid="home-travel-tile">
+                    <span className="rh-tile-badge">{tt("newBadge")}</span>
+                    <Icon3D name="travel" className="rh-tile-art" />
+                    <span className="rh-tile-label">{tn("travel")}</span>
+                  </Link>
+                </li>
+              )}
               {tiles.map((c, i) => (
-                <li key={c.id} className={i >= 7 ? "rh-tile-extra" : undefined}>
+                <li key={c.id} className={i >= extraFrom ? "rh-tile-extra" : undefined}>
                   <Link href={`/businesses/${c.slug}`} className="rh-tile">
                     {hasIcon3D(c.slug)
                       ? <Icon3D name={c.slug} className="rh-tile-art" />
@@ -227,53 +234,39 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           )}
         </section>
 
-        {/* ---------- Explore by category (photographic row) ---------- */}
-        {rootCategories.length > 0 && (
-          <section className={`${BAND} rh-section`} aria-labelledby="home-explore">
-            <SectionHead id="home-explore" title={t("exploreTitle")} href="/businesses" linkLabel={t("viewAll")} />
-            <HomeScroller nextLabel={t("exploreNext")}>
-              <ul className="rh-explore">
-                {rootCategories.map((c) => {
-                  const cover = coverByRoot.get(c.id);
-                  const icon = CATEGORY_ICON[c.slug] ?? "briefcase-business";
-                  return (
-                    <li key={c.id}>
-                      <Link href={`/businesses/${c.slug}`} className="rh-explore-card">
-                        <span className="rh-explore-media">
-                          {cover
-                            // eslint-disable-next-line @next/next/no-img-element
-                            ? <img {...responsiveImage(cover)} sizes="180px" alt="" width={240} height={150} loading="lazy" decoding="async" className="rh-explore-img" />
-                            : <span className={`rh-explore-fallback${hasIcon3D(c.slug) ? " rh-explore-art" : ""}`}>{hasIcon3D(c.slug) ? <Icon3D name={c.slug} className="size-16" /> : <FigmaIcon name={icon} className="size-10" />}</span>}
-                        </span>
-                        <span className="rh-explore-label">
-                          <FigmaIcon name={icon} className="size-4 shrink-0 text-brand" />
-                          <span className="min-w-0 truncate"><Text value={categoryName(c)} pageLang={pageLang} /></span>
-                        </span>
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-            </HomeScroller>
+        {/* ---------- Rega24Travel banner (owner 2026-11-18): replaces the map banner; the map stays on the «نزیک» tab ---------- */}
+        {travelOn ? (
+          <section className={`${BAND} rh-section`} aria-labelledby="home-travel">
+            <div className="rh-travel">
+              <SuitcaseArt className="rh-travel-art" />
+              <div className="rh-travel-copy">
+                <h2 id="home-travel" className="rh-travel-title" dir="ltr">Rega24<span>Travel</span></h2>
+                <p className="rh-travel-sub">{tn("travel")}</p>
+                <p className="rh-travel-body">{tt("bannerBody")}</p>
+                <Link href="/travel" className="rh-travel-cta" data-testid="home-travel-cta">
+                  {tt("bannerCta")}
+                  <FigmaIcon name="chevron-right" className="rtl-flip size-4 shrink-0" />
+                </Link>
+              </div>
+            </div>
+          </section>
+        ) : (
+          <section className={`${BAND} rh-section`} aria-labelledby="home-map">
+            <div className="rh-mapbanner">
+              <MapBannerArt className="rh-mapbanner-art" />
+              <LogoMark className="rh-mapbanner-logo" />
+              <div className="rh-mapbanner-copy">
+                <h2 id="home-map" className="rh-mapbanner-title">{t("mapTitle")}</h2>
+                <p className="rh-mapbanner-sub">{t("mapSub")}</p>
+              </div>
+              <Link href="/nearby" className="rh-mapbanner-cta">
+                <FigmaIcon name="map" className="size-5 shrink-0" />
+                {t("mapCta")}
+                <FigmaIcon name="chevron-right" className="rtl-flip size-4 shrink-0" />
+              </Link>
+            </div>
           </section>
         )}
-
-        {/* ---------- Compact global map banner: the full map opens only from here (or /nearby) ---------- */}
-        <section className={`${BAND} rh-section`} aria-labelledby="home-map">
-          <div className="rh-mapbanner">
-            <MapBannerArt className="rh-mapbanner-art" />
-            <LogoMark className="rh-mapbanner-logo" />
-            <div className="rh-mapbanner-copy">
-              <h2 id="home-map" className="rh-mapbanner-title">{t("mapTitle")}</h2>
-              <p className="rh-mapbanner-sub">{t("mapSub")}</p>
-            </div>
-            <Link href="/nearby" className="rh-mapbanner-cta">
-              <FigmaIcon name="map" className="size-5 shrink-0" />
-              {t("mapCta")}
-              <FigmaIcon name="chevron-right" className="rtl-flip size-4 shrink-0" />
-            </Link>
-          </div>
-        </section>
 
         {/* ---------- Compact AI entry (existing feature) ---------- */}
         <section aria-label={t("ctaAI")}>

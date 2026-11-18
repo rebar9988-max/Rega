@@ -74,6 +74,8 @@ export { MARKET_COUNTRY_CODES } from "./markets";
 export type CityScope = {
   countryCode?: string;
   categoryId?: string;
+  /** Category ids (already expanded) that bound the listing, e.g. Rega24Travel; `categoryId` narrows inside it. */
+  scope?: readonly string[];
   q?: string;
   verified?: "1";
 };
@@ -129,7 +131,7 @@ const cityNameSelect = {
  */
 export const listSelectorCities = cache(async (scope: CityScope = {}) => {
   const countryCode = (scope.countryCode ?? DEFAULT_PUBLIC_COUNTRY_CODE).toUpperCase();
-  const cats = scope.categoryId ? await categoryIds(scope.categoryId) : undefined;
+  const cats = await scopedCategoryIds(scope.categoryId, scope.scope);
   const businessWhere: Prisma.BusinessWhereInput = {
     ...PUBLIC_BUSINESS,
     ...textWhere(scope.q),
@@ -205,9 +207,22 @@ async function categoryIds(id?: string): Promise<string[] | undefined> {
   return descendantIds(await getCategories(), id);
 }
 
+/** Category filter inside an optional scope: the filter's subtree, kept within the scope; or the whole scope. */
+async function scopedCategoryIds(id: string | undefined, scope: readonly string[] | undefined): Promise<string[] | undefined> {
+  const own = await categoryIds(id);
+  if (!scope) return own;
+  return own ? own.filter((c) => scope.includes(c)) : [...scope];
+}
+
 // ------------------------------------------------------------------ businesses
 
-export type BusinessQuery = { q?: string; category?: string; city?: string; verified?: "1"; country?: string; sort: "featured" | "rating" | "newest" | "name"; page: number };
+export type BusinessQuery = {
+  q?: string; category?: string; city?: string; verified?: "1"; country?: string; sort: "featured" | "rating" | "newest" | "name"; page: number;
+  /** Expanded category ids that bound the result (Rega24Travel). Absent = the whole directory. */
+  scope?: readonly string[];
+  /** Postal code prefix (PLZ) of an active location. */
+  postalCode?: string;
+};
 
 const businessOrder = {
   featured: [{ featured: "desc" }, { ratingAvg: "desc" }, { name: "asc" }],
@@ -217,10 +232,14 @@ const businessOrder = {
 } satisfies Record<BusinessQuery["sort"], Prisma.BusinessOrderByWithRelationInput[]>;
 
 export async function listBusinesses(query: BusinessQuery) {
-  const cats = await categoryIds(query.category);
+  const cats = await scopedCategoryIds(query.category, query.scope);
   const where: Prisma.BusinessWhereInput = {
     ...PUBLIC_BUSINESS,
-    AND: [...(textWhere(query.q).AND ?? []), ...(query.country ? [{ locations: { some: { status: "active", deletedAt: null, countryCode: query.country, ...(query.city ? { cityId: query.city } : {}) } } }] : [])],
+    AND: [
+      ...(textWhere(query.q).AND ?? []),
+      ...(query.country ? [{ locations: { some: { status: "active", deletedAt: null, countryCode: query.country, ...(query.city ? { cityId: query.city } : {}) } } }] : []),
+      ...(query.postalCode ? [{ locations: { some: { status: "active", deletedAt: null, postalCode: { startsWith: query.postalCode } } } }] : []),
+    ],
     ...(query.verified ? { verified: true } : {}),
     ...(cats ? businessInCategories(cats) : {}),
     ...(query.city ? businessInCity(query.city) : {}),
@@ -424,7 +443,7 @@ async function listOpenBusinesses(q: string, page: number) {
 
 export const getHomeData = cache(
   async () => {
-    const [businesses, services, locations, featured, latest, topRated, covers, newServices] = await Promise.all([
+    const [businesses, services, locations, featured, latest, topRated, newServices] = await Promise.all([
       prisma.business.count({ where: PUBLIC_BUSINESS }),
       prisma.service.count({ where: { status: "published", deletedAt: null, business: PUBLIC_BUSINESS } }),
       prisma.location.count({ where: { status: "active", deletedAt: null, business: PUBLIC_BUSINESS } }),
@@ -432,8 +451,6 @@ export const getHomeData = cache(
       prisma.business.findMany({ where: PUBLIC_BUSINESS, orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }], take: 4, select: homeCard }),
       // Top rated: only businesses with real reviews.
       prisma.business.findMany({ where: { ...PUBLIC_BUSINESS, ratingCount: { gt: 0 } }, orderBy: [...businessOrder.rating, { id: "asc" }], take: 4, select: homeCard }),
-      // Real cover photos for the photographic category row (one per category is picked by the page).
-      prisma.business.findMany({ where: { ...PUBLIC_BUSINESS, coverUrl: { not: null }, categoryId: { not: null } }, orderBy: [...businessOrder.featured, { id: "asc" }], take: 200, select: { categoryId: true, coverUrl: true } }),
       prisma.service.findMany({
         where: { status: "published", deletedAt: null, business: PUBLIC_BUSINESS },
         orderBy: [{ createdAt: "desc" }],
@@ -444,7 +461,7 @@ export const getHomeData = cache(
         },
       }),
     ]);
-    return { stats: { businesses, services, locations }, featured, latest, topRated, covers, newServices };
+    return { stats: { businesses, services, locations }, featured, latest, topRated, newServices };
   },
 );
 
