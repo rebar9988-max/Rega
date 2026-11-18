@@ -88,7 +88,8 @@
     "guides": "Rehberler",
     "register": "Hesap oluştur",
     "quick": "Hızlı gezinme",
-    "smartRequest": "Akıllı Talep"
+    "smartRequest": "Akıllı Talep",
+    "travel": "Seyahat ve Ulaşım"
   },
   "home": {
     "heroTitle": "Tüm işletmeler, hizmetler ve konumlar tek yerde",
@@ -1535,5 +1536,23 @@
     "loading": "Aranıyor…",
     "empty": "Sonuç bulunamadı. Daha ayrıntılı bir adres girin.",
     "unavailable": "Adres araması kullanılamıyor. Yeniden deneyin veya haritadan seçin."
+  },
+  "travel": {
+    "title": "Rega24Travel",
+    "subtitle": "Seyahat ve Ulaşım",
+    "lead": "Size en yakın seyahat ve ulaşım işletmelerini ve hizmetlerini keşfedin.",
+    "searchLabel": "İşletme veya hizmet adı",
+    "searchPlaceholder": "İşletme veya hizmet adı yazın...",
+    "postalLabel": "Posta kodu (PLZ)",
+    "postalPlaceholder": "PLZ",
+    "categoriesLabel": "Seyahat ve Ulaşım kategorileri",
+    "allCategories": "Tüm kategoriler",
+    "newBadge": "Yeni",
+    "emptyTitle": "Burada henüz kayıt yok",
+    "emptyBody": "Rega24'teki ilk seyahat veya ulaşım işletmesi olun.",
+    "emptyFiltered": "Bu arama için sonuç bulunamadı. Filtreleri değiştirin veya temizleyin.",
+    "clearFilters": "Filtreleri temizle",
+    "addBusiness": "İşletmenizi ekleyin",
+    "notBooking": "Bu bir keşif rehberidir; bilet satışı ve rezervasyon burada yapılmaz."
   }
 }

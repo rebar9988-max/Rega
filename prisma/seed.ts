@@ -9,6 +9,7 @@ import bcrypt from "bcryptjs";
 import { normalizeSearch } from "../src/lib/text";
 import { reindexAll } from "../src/lib/search-index";
 import { CATEGORIES } from "./seed-data/categories";
+import { TRAVEL_SUBCATEGORIES } from "../src/config/travel";
 import { CITIES, COUNTRIES, REGIONS } from "./seed-data/geography";
 import { GERMAN_CITIES } from "./seed-data/german-cities";
 
@@ -80,6 +81,13 @@ async function seedCategories() {
     cats[c.key] = row.id;
   }
   console.log(`categories: ${CATEGORIES.length} top-level categories (idempotent).`);
+  // Rega24Travel sub-categories: created once under their existing parent, never overwritten (admin edits stay).
+  for (const [i, c] of TRAVEL_SUBCATEGORIES.entries()) {
+    const parentId = cats[c.parent];
+    if (!parentId) continue;
+    const n = c.names;
+    await prisma.category.upsert({ where: { key: c.key }, update: {}, create: { key: c.key, slug: c.key, parentId, nameCkb: n.ckb, nameKmr: n.kmr, nameDe: n.de, nameEn: n.en, nameAr: n.ar, nameFa: n.fa, nameTr: n.tr, icon: "near", sortOrder: i } });
+  }
   return cats;
 }
 

@@ -19,6 +19,8 @@ import { log } from "@/lib/logger";
 import { pageMetadata } from "@/lib/seo";
 import { NoEdgeCache } from "@/components/ui/NoEdgeCache";
 import { responsiveImage } from "@/features/business-images/variants";
+import { TRAVEL_ROOT_KEYS } from "@/config/travel";
+import { sectionEnabled } from "@/config/sections";
 
 /** The landing page must render even if the database is briefly unavailable. */
 async function homeData() {
@@ -64,6 +66,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   setRequestLocale(locale);
   const t = await getTranslations("home");
   const tn = await getTranslations("nav");
+  const tt = await getTranslations("travel");
   const te = await getTranslations("empty");
   const ts = await getTranslations("sort");
   const l = locale as Locale;
@@ -124,7 +127,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     const root = rootOf(row.categoryId);
     if (root && row.coverUrl && !coverByRoot.has(root.id)) coverByRoot.set(root.id, row.coverUrl);
   }
-  const tiles = rootCategories.slice(0, 11);
+  // Rega24Travel: one tile for its two top-level categories (they stay reachable on /travel and in "explore").
+  const travelOn = sectionEnabled("travel") && rootCategories.some((c) => (TRAVEL_ROOT_KEYS as readonly string[]).includes(c.slug));
+  const tiles = (travelOn ? rootCategories.filter((c) => !(TRAVEL_ROOT_KEYS as readonly string[]).includes(c.slug)) : rootCategories).slice(0, travelOn ? 10 : 11);
+  const extraFrom = travelOn ? 6 : 7;
 
   return (
     <>
@@ -187,8 +193,17 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         {tiles.length > 0 && (
           <nav aria-label={t("categoriesTitle")} className={`${BAND} rh-tiles-band`}>
             <ul className="rh-tiles">
+              {travelOn && (
+                <li>
+                  <Link href="/travel" className="rh-tile rh-tile-travel" data-testid="home-travel-tile">
+                    <span className="rh-tile-badge">{tt("newBadge")}</span>
+                    <Icon3D name="travel" className="rh-tile-art" />
+                    <span className="rh-tile-label">{tn("travel")}</span>
+                  </Link>
+                </li>
+              )}
               {tiles.map((c, i) => (
-                <li key={c.id} className={i >= 7 ? "rh-tile-extra" : undefined}>
+                <li key={c.id} className={i >= extraFrom ? "rh-tile-extra" : undefined}>
                   <Link href={`/businesses/${c.slug}`} className="rh-tile">
                     {hasIcon3D(c.slug)
                       ? <Icon3D name={c.slug} className="rh-tile-art" />

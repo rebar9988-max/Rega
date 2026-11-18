@@ -1628,3 +1628,22 @@ Recovered head 7fc1088: GitHub CI 43684019068 succeeded (verify 43m37s), both Cl
 PR remained open because main advanced to 663f801, causing conflicts only in appended memory, locale JSON and generated inventory.
 Merged current main without discarding its saved-business/footer changes; preserved both memory sections, retained main locale keys
 and locationSearch, regenerated inventory. No location implementation was restarted. Exact merged-head CI is required again before release.
+
+## 2026-11-18 — Rega24Travel (branch `feat/rega24-travel-20261118`)
+Owner brief "Rega24Travel — Premium 2026 Design + Full Functional Integration" (mockup: travel tile on the home grid,
+/travel discovery page). Discovery only: no booking, tickets, payments or navigation.
+- Audit (production D1, read-only): roots `travel-tickets` (1 business) and `transport-moving` (2) already exist; 0
+  sub-categories anywhere; none of the ten new slugs used by a category or business. Reused both roots, no new root.
+- `src/config/travel.ts`: roots, the ten sub-categories (7 name columns), scope helper (roots + descendants, loop-safe),
+  in-scope category filter, PLZ parser. Section `travel` (`/travel`, sitemap only; header/menu/footer unchanged).
+- Data layer: optional `scope` (BusinessQuery, CityScope) and `postalCode` prefix filter on active locations; existing
+  callers unchanged. Business detail pages, favourites, reviews, cards, duplicate rules: the shared ones, untouched.
+- Home: one "Travel & Transport" tile (new badge, red suitcase + airplane art in Icon3D) first in the existing grid; the
+  two travel roots fold into it (still in "explore" and on /travel). No promo banner (brief: prefer one clear entry).
+- `/[locale]/travel`: compact hero (map-banner gradient), search + PLZ + city on the directory search shell, chips from
+  real travel categories with live counts, BusinessCard grid, skeleton, empty states, pagination, sort.
+- Admin: sub-categories are ordinary Category rows managed in the existing /dr category screens; no /dr/travel.
+- Production data: `prisma/d1/data/20261118_travel_subcategories.sql`, insert-only/idempotent, rehearsed on SQLite from
+  the D1 migrations (+10, second run no-op, undo exact). Applying it is a separate step after the code is live.
+- Local environment: package registry unreachable, so lint/typecheck/build/E2E run in GitHub CI only. Pure travel unit
+  tests (tests/travel.test.ts, 7) passed locally with Node type stripping. E2E: tests/e2e/travel.spec.ts.

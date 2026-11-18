@@ -88,7 +88,8 @@
     "guides": "Guide",
     "register": "Crea account",
     "quick": "Navigazione rapida",
-    "smartRequest": "Richiesta intelligente"
+    "smartRequest": "Richiesta intelligente",
+    "travel": "Viaggi & Trasporti"
   },
   "home": {
     "heroTitle": "Tutte le attività, i servizi e i luoghi in un unico posto",
@@ -1535,5 +1536,23 @@
     "loading": "Ricerca…",
     "empty": "Nessun risultato. Inserisci un indirizzo più completo.",
     "unavailable": "Ricerca non disponibile. Riprova o seleziona sulla mappa."
+  },
+  "travel": {
+    "title": "Rega24Travel",
+    "subtitle": "Viaggi & Trasporti",
+    "lead": "Scopri le attività e i servizi di viaggio e trasporto più vicini a te.",
+    "searchLabel": "Nome dell'attività o del servizio",
+    "searchPlaceholder": "Scrivi un'attività o un servizio...",
+    "postalLabel": "Codice postale (PLZ)",
+    "postalPlaceholder": "PLZ",
+    "categoriesLabel": "Categorie Viaggi & Trasporti",
+    "allCategories": "Tutte le categorie",
+    "newBadge": "Nuovo",
+    "emptyTitle": "Ancora nessuna attività qui",
+    "emptyBody": "Sii la prima attività di viaggio o trasporto su Rega24.",
+    "emptyFiltered": "Nessun risultato per questa ricerca. Modifica o cancella i filtri.",
+    "clearFilters": "Cancella filtri",
+    "addBusiness": "Aggiungi la tua attività",
+    "notBooking": "Questa è una guida per scoprire attività; biglietti e prenotazioni non sono venduti qui."
   }
 }

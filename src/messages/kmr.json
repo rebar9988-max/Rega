@@ -88,7 +88,8 @@
     "guides": "Rêber",
     "register": "Hesab çêke",
     "quick": "Navîgasyona bilez",
-    "smartRequest": "Daxwaza Jîr"
+    "smartRequest": "Daxwaza Jîr",
+    "travel": "Rêwîtî û veguhastin"
   },
   "home": {
     "heroTitle": "Hemû karsazî, xizmet û cih li cihekî",
@@ -1535,5 +1536,23 @@
     "loading": "Lêgerîn…",
     "empty": "Encam nehat dîtin. Navnîşaneke berfirehtir binivîse.",
     "unavailable": "Lêgerîn ne berdest e. Dîsa biceribîne an li ser nexşeyê hilbijêre."
+  },
+  "travel": {
+    "title": "Rega24Travel",
+    "subtitle": "Rêwîtî û veguhastin",
+    "lead": "Karsazî û xizmetên rêwîtî û veguhastinê li cihên herî nêzîk bibîne.",
+    "searchLabel": "Navê karsaziyê an xizmetê",
+    "searchPlaceholder": "Navê karsaziyê an xizmetê binivîse...",
+    "postalLabel": "Koda postê (PLZ)",
+    "postalPlaceholder": "PLZ",
+    "categoriesLabel": "Beşên rêwîtî û veguhastinê",
+    "allCategories": "Hemû beş",
+    "newBadge": "Nû",
+    "emptyTitle": "Hîn karsazî li vir tune ne",
+    "emptyBody": "Bibe karsaziya yekem a rêwîtî û veguhastinê li Rega24.",
+    "emptyFiltered": "Ji bo vê lêgerînê encam nehat dîtin. Fîlteran biguherîne an rake.",
+    "clearFilters": "Fîlteran paqij bike",
+    "addBusiness": "Karsaziya xwe zêde bike",
+    "notBooking": "Ev rêbereke dîtinê ye; firotina bilêtan û rezervasyon li vir tune ne."
   }
 }
