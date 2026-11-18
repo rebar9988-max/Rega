@@ -196,8 +196,6 @@
     "tabTopRated": "En yüksek puanlı",
     "tabNew": "Yeni",
     "tabEmpty": "Şu anda bu filtreye uyan işletme yok.",
-    "exploreTitle": "Kategoriye göre keşfet",
-    "exploreNext": "Daha fazla kategori göster",
     "mapTitle": "Dünyanın dört bir yanındaki işletmeleri keşfet",
     "mapSub": "Yakınındaki yerleri bulmak için harita görünümüne geç.",
     "mapCta": "Haritayı aç",
@@ -257,7 +255,6 @@
     "postalCode": "Posta kodu",
     "openingHours": "Çalışma saatleri",
     "viewOnMap": "Haritada göster",
-    "browseByCity": "Şehre göre gez",
     "closedOnHolidays": "Resmî tatillerde kapalı.",
     "hoursChanges": "Kapanışlar ve özel çalışma saatleri"
   },

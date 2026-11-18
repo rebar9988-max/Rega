@@ -2,10 +2,9 @@ import { PageSchema } from "@/components/ui/PageSchema";
 import { pageMetadata } from "@/lib/seo";
 import { pageDescription } from "@/lib/seo-server";
 import { Suspense } from "react";
-import { getLocale, getTranslations, setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { LocationCard } from "@/components/cards/LocationCard";
 import { FilterBar, cityOptions } from "@/components/ui/FilterBar";
-import { CityBrowser } from "@/components/ui/CityBrowser";
 import { Grid, GridSkeleton, NoResults } from "@/components/ui/Grid";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Pagination } from "@/components/ui/Pagination";
@@ -28,7 +27,7 @@ export default async function LocationsPage({ params, searchParams }: { params: 
   setRequestLocale(locale);
   const query = parseParams(listShape, await searchParams);
   const t = await getTranslations();
-  // City chips are helpful, but a transient database read must not take the whole public
+  // The city filter's options: a transient database read must not take the whole public
   // locations page down. The result list below still retries its independent read.
   let browseCities: Awaited<ReturnType<typeof listSelectorCities>> = [];
   try {
@@ -37,21 +36,10 @@ export default async function LocationsPage({ params, searchParams }: { params: 
     log.error("locations.cities_unavailable", { error: error instanceof Error ? error.message : String(error) });
   }
 
-  const active = (await getLocale()) as Locale;
-
   return (
     <>
       <PageSchema type="CollectionPage" name={t("locations.title")} path="/locations" crumbs={[{ name: t("locations.title"), path: "/locations" }]} />
       <PageHeader title={t("locations.title")} crumbs={[{ label: t("nav.home"), href: "/" }, { label: t("locations.title") }]} />
-
-      {/* Modern grouped + searchable city browser (bounded payload) */}
-      <CityBrowser
-        cities={browseCities}
-        locale={active}
-        activeCityId={query.city}
-        browseLabel={t("locations.browseByCity")}
-        searchPlaceholder={t("search.placeholder")}
-      />
 
       <FilterBar action="/locations" values={query} searchLabel={t("search.placeholder")} cities={await cityOptions(browseCities)} />
       <Suspense key={JSON.stringify(query)} fallback={<GridSkeleton />}><Results query={query} /></Suspense>

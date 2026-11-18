@@ -1,6 +1,6 @@
 "use client";
 
-import type { SelectHTMLAttributes } from "react";
+import type { InputHTMLAttributes, SelectHTMLAttributes } from "react";
 
 /**
  * A <select> that submits its form as soon as the value changes (progressive enhancement: without JavaScript the
@@ -8,4 +8,9 @@ import type { SelectHTMLAttributes } from "react";
  */
 export function AutoSubmitSelect(props: SelectHTMLAttributes<HTMLSelectElement>) {
   return <select {...props} onChange={(e) => e.currentTarget.form?.requestSubmit()} />;
+}
+
+/** The same for a checkbox/switch: one submit button per form, no separate "apply" button needed. */
+export function AutoSubmitCheckbox(props: Omit<InputHTMLAttributes<HTMLInputElement>, "type">) {
+  return <input {...props} type="checkbox" onChange={(e) => e.currentTarget.form?.requestSubmit()} />;
 }

@@ -196,8 +196,6 @@
     "tabTopRated": "Herî baş nirxandî",
     "tabNew": "Nû",
     "tabEmpty": "Niha tu karsazî li gorî vê parzûnê nîne.",
-    "exploreTitle": "Li gorî kategoriyê bigere",
-    "exploreNext": "Kategoriyên din nîşan bide",
     "mapTitle": "Karsaziyên li seranserê cîhanê bibîne",
     "mapSub": "Derbasî nexşeyê bibe da ku cihên nêzîkî xwe bibînî.",
     "mapCta": "Nexşeyê veke",
@@ -257,7 +255,6 @@
     "postalCode": "Koda postê",
     "openingHours": "Saetên vekirinê",
     "viewOnMap": "Li ser nexşeyê bibîne",
-    "browseByCity": "Li gorî bajêr bigere",
     "closedOnHolidays": "Di betlaneyên fermî de girtî ye.",
     "hoursChanges": "Girtin û demên taybet"
   },
