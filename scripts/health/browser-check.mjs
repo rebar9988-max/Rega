@@ -237,9 +237,11 @@ async function checkSavedPageIsolated(page, vp) {
       // View: the isolated slug is looked up through the public API, matches nothing, and is reported as unavailable.
       await page.evaluate((slug) => window.localStorage.setItem("rega-saved", JSON.stringify([slug])), ISOLATED_SLUG);
       await page.reload({ waitUntil: "domcontentloaded" });
+      // An empty <ul> has no height, so wait for it to be attached (the API answered), not visible.
       const list = page.getByTestId("saved-list");
-      await list.waitFor({ timeout: 20_000 });
+      await list.waitFor({ state: "attached", timeout: 20_000 });
       note((await list.locator("li").count()) === 0, `${label}: unknown slug shows no business`);
+      note((await page.locator("main [role=alert]").count()) === 0, `${label}: lookup answered without an error`);
       const clear = page.locator("main button").last();
       note(await clear.isVisible(), `${label}: clear-all button`);
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
