@@ -32,12 +32,13 @@ const STORE_ICON = '<svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="
 
 export function DiscoveryMap({
   center, radiusKm, points, selectedId, onSelect, onSelectMany, onSearchArea, user, labels, dir, className = "", children,
-  markerStyle = "pin", focusSelected = false, toolbar, locate, fitPadding,
+  searchPoint, markerStyle = "pin", focusSelected = false, toolbar, locate, fitPadding,
 }: {
   center: LatLng; radiusKm?: number; points: MapPoint[]; selectedId: string | null;
   onSelect: (id: string | null) => void; onSelectMany?: (ids: string[]) => void; onSearchArea?: (c: LatLng) => void; user?: LatLng | null;
   labels: MapLabels; dir: "rtl" | "ltr"; className?: string; children?: ReactNode;
   /** "pill": business name (+ badge) in a rounded label instead of a round icon pin. */
+  searchPoint?: { lat: number; lng: number; label: string; zoom?: number } | null;
   markerStyle?: "pin" | "pill";
   /** Fly to the selected marker (kept clear of the preview card at the bottom). */
   focusSelected?: boolean;
@@ -234,6 +235,10 @@ export function DiscoveryMap({
       type: "FeatureCollection",
       features: points.map((p) => ({ type: "Feature", geometry: { type: "Point", coordinates: [p.lng, p.lat] }, properties: { id: p.id, label: p.label, badge: p.badge ?? "" } })),
     });
+    if (searchPoint) {
+      setMoved(false);
+      return; // Loading businesses must not move the selected address off screen.
+    }
     if (points.length > 0) {
       const b = new lib.LngLatBounds([center.lng, center.lat], [center.lng, center.lat]);
       for (const p of points) b.extend([p.lng, p.lat]);
@@ -248,7 +253,7 @@ export function DiscoveryMap({
     setMoved(false);
     // fitPadding is read when the data changes; a new object per render must not re-fit the map.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status, points, center, radiusKm]);
+  }, [status, points, center, radiusKm, searchPoint]);
 
   // ---- search radius overlay
   useEffect(() => {
@@ -275,6 +280,18 @@ export function DiscoveryMap({
       : '<span class="absolute inset-0 animate-ping rounded-full bg-brand/40"></span><span class="absolute inset-0 rounded-full border-[3px] border-white bg-ink shadow-lift"></span>';
     userMarker.current = new lib.Marker({ element: el }).setLngLat([user.lng, user.lat]).addTo(map);
   }, [status, user, labels.you, markerStyle]);
+
+  useEffect(() => {
+    const map = mapRef.current, lib = libRef.current;
+    if (status !== "ready" || !map || !lib || !searchPoint) return;
+    const el = document.createElement("div");
+    el.className = "size-7 rounded-full border-4 border-white bg-brand shadow-lift";
+    el.setAttribute("role", "img");
+    el.setAttribute("aria-label", searchPoint.label);
+    const marker = new lib.Marker({ element: el }).setLngLat([searchPoint.lng, searchPoint.lat]).addTo(map);
+    map.flyTo({ center: [searchPoint.lng, searchPoint.lat], zoom: searchPoint.zoom ?? 14, duration: 700 });
+    return () => { marker.remove(); };
+  }, [status, searchPoint]);
 
   // ---- Escape closes the open preview, wherever focus is
   useEffect(() => {
