@@ -18,8 +18,12 @@ test("both Workers have preview config and isolate inherited production credenti
 
 test("CI audits production dependencies at every severity, all dependencies at high, and retains real disposable database validation", () => {
   const ci = read(".github/workflows/ci.yml");
-  assert.match(ci, /run: npm audit --omit=dev --audit-level=low/);
-  assert.match(ci, /run: npm audit --audit-level=high/);
+  assert.match(ci, /run: node scripts\/audit-gate\.mjs --level low --omit-dev/);
+  assert.match(ci, /run: node scripts\/audit-gate\.mjs --level high\n/);
+  // Owner approval 2026-11-18: the only audit exception is picomatch GHSA-fc5q-39xc-vjpf (no patched release).
+  const gate = readFileSync(new URL("../scripts/audit-gate.mjs", import.meta.url), "utf8");
+  assert.match(gate, /ALLOWED_ADVISORIES = new Set\(\["GHSA-fc5q-39xc-vjpf"\]\)/);
+  assert.doesNotMatch(ci, /audit-gate[^\n]*\|\| true/, "audit gate is never bypassed");
   assert.doesNotMatch(ci, /npm audit[^\n]*--audit-level=(moderate|critical)|npm audit[^\n]*\|\| true/, "no weaker or bypassed audit gate");
   assert.match(ci, /image: postgres:16/);
   assert.match(ci, /prisma migrate deploy/);
