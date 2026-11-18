@@ -197,8 +197,6 @@
     "tabTopRated": "Top bewertet",
     "tabNew": "Neu",
     "tabEmpty": "Zu diesem Filter passt gerade kein Unternehmen.",
-    "exploreTitle": "Nach Kategorie entdecken",
-    "exploreNext": "Weitere Kategorien zeigen",
     "mapTitle": "Unternehmen weltweit entdecken",
     "mapSub": "Zur Kartenansicht wechseln und Orte in deiner Nähe finden.",
     "mapCta": "Karte öffnen",
@@ -258,7 +256,6 @@
     "postalCode": "Postleitzahl",
     "openingHours": "Öffnungszeiten",
     "viewOnMap": "Auf Karte ansehen",
-    "browseByCity": "Nach Stadt durchsuchen",
     "closedOnHolidays": "An gesetzlichen Feiertagen geschlossen.",
     "hoursChanges": "Schließzeiten und besondere Öffnungszeiten"
   },

@@ -197,8 +197,6 @@
     "tabTopRated": "Più votate",
     "tabNew": "Nuove",
     "tabEmpty": "Al momento nessuna attività corrisponde a questo filtro.",
-    "exploreTitle": "Esplora per categoria",
-    "exploreNext": "Mostra altre categorie",
     "mapTitle": "Esplora le attività in tutto il mondo",
     "mapSub": "Passa alla mappa per scoprire i luoghi vicino a te.",
     "mapCta": "Apri la mappa",
@@ -258,7 +256,6 @@
     "postalCode": "CAP",
     "openingHours": "Orari di apertura",
     "viewOnMap": "Vedi sulla mappa",
-    "browseByCity": "Sfoglia per città",
     "closedOnHolidays": "Chiuso nei giorni festivi ufficiali.",
     "hoursChanges": "Chiusure e orari speciali"
   },

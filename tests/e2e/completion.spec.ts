@@ -87,9 +87,9 @@ test("categories: seven names, the right language on public pages, deactivate hi
   await expect(page.getByTestId("form-notice")).toHaveText("Gespeichert.");
 
   await page.goto("/en/businesses");
-  await expect(page.locator("select[name=category] option", { hasText: `E2E Category ${stamp}` })).toHaveCount(1);
+  await expect(page.getByTestId("category-navigation").getByRole("link", { name: new RegExp(`E2E Category ${stamp}`) })).toHaveCount(1);
   await page.goto("/fa/businesses");
-  await expect(page.locator("select[name=category] option", { hasText: `دسته آزمایشی ${stamp}` })).toHaveCount(1);
+  await expect(page.getByTestId("category-navigation").getByRole("link", { name: new RegExp(`دسته آزمایشی ${stamp}`) })).toHaveCount(1);
   // Base categories have English names now (no German fallback on English pages).
   await page.goto("/en");
   await expect(page.getByRole("navigation", { name: "Categories" }).getByRole("link", { name: "Legal" })).toBeVisible();
@@ -99,7 +99,7 @@ test("categories: seven names, the right language on public pages, deactivate hi
   await page.getByRole("row", { name: new RegExp(`E2E Kategorie ${stamp}`) }).getByRole("button", { name: "Deaktivieren" }).click();
   await expect(page.getByRole("row", { name: new RegExp(`E2E Kategorie ${stamp}`) })).toContainText("Inaktiv");
   await page.goto("/en/businesses");
-  await expect(page.locator("select[name=category] option", { hasText: `E2E Category ${stamp}` })).toHaveCount(0);
+  await expect(page.getByTestId("category-navigation").getByRole("link", { name: new RegExp(`E2E Category ${stamp}`) })).toHaveCount(0);
 });
 
 test("home category tiles lead to the businesses in that category", async ({ page }) => {

@@ -8,7 +8,6 @@ import { Icon3D, StoreArt, hasIcon3D } from "@/components/home/Icon3D";
 import { HeroWorldArt, MapBannerArt } from "@/components/home/HomeArt";
 import { HomeBusinessCard } from "@/components/home/HomeBusinessCard";
 import { HomeBusinessTabs, type BusinessTab } from "@/components/home/HomeBusinessTabs";
-import { HomeScroller } from "@/components/home/HomeScroller";
 import { LogoMark } from "@/components/ui/Logo";
 import { SocialSection } from "@/components/home/SocialSection";
 import { Text } from "@/components/ui/Bidi";
@@ -18,7 +17,6 @@ import { CityFilter } from "@/components/ui/CityFilter";
 import { log } from "@/lib/logger";
 import { pageMetadata } from "@/lib/seo";
 import { NoEdgeCache } from "@/components/ui/NoEdgeCache";
-import { responsiveImage } from "@/features/business-images/variants";
 import { TRAVEL_ROOT_KEYS } from "@/config/travel";
 import { SuitcaseArt } from "@/components/travel/TravelArt";
 import { sectionEnabled } from "@/config/sections";
@@ -121,13 +119,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     { key: "new", label: t("tabNew"), icon: "sparkles", ids: ids(newest) },
   ].filter((tab) => tab.ids.length > 0);
 
-  // Photographic category row: a real cover photo from a published business of that category when one exists,
-  // otherwise the category icon on the logo red. Never a stock photo.
-  const coverByRoot = new Map<string, string>();
-  for (const row of data?.covers ?? []) {
-    const root = rootOf(row.categoryId);
-    if (root && row.coverUrl && !coverByRoot.has(root.id)) coverByRoot.set(root.id, row.coverUrl);
-  }
   // Rega24Travel: one tile for its two top-level categories (they stay reachable on /travel and in "explore").
   const travelOn = sectionEnabled("travel") && rootCategories.some((c) => (TRAVEL_ROOT_KEYS as readonly string[]).includes(c.slug));
   const tiles = (travelOn ? rootCategories.filter((c) => !(TRAVEL_ROOT_KEYS as readonly string[]).includes(c.slug)) : rootCategories).slice(0, travelOn ? 10 : 11);
@@ -242,37 +233,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             </div>
           )}
         </section>
-
-        {/* ---------- Explore by category (photographic row) ---------- */}
-        {rootCategories.length > 0 && (
-          <section className={`${BAND} rh-section`} aria-labelledby="home-explore">
-            <SectionHead id="home-explore" title={t("exploreTitle")} href="/businesses" linkLabel={t("viewAll")} />
-            <HomeScroller nextLabel={t("exploreNext")}>
-              <ul className="rh-explore">
-                {rootCategories.map((c) => {
-                  const cover = coverByRoot.get(c.id);
-                  const icon = CATEGORY_ICON[c.slug] ?? "briefcase-business";
-                  return (
-                    <li key={c.id}>
-                      <Link href={`/businesses/${c.slug}`} className="rh-explore-card">
-                        <span className="rh-explore-media">
-                          {cover
-                            // eslint-disable-next-line @next/next/no-img-element
-                            ? <img {...responsiveImage(cover)} sizes="180px" alt="" width={240} height={150} loading="lazy" decoding="async" className="rh-explore-img" />
-                            : <span className={`rh-explore-fallback${hasIcon3D(c.slug) ? " rh-explore-art" : ""}`}>{hasIcon3D(c.slug) ? <Icon3D name={c.slug} className="size-16" /> : <FigmaIcon name={icon} className="size-10" />}</span>}
-                        </span>
-                        <span className="rh-explore-label">
-                          <FigmaIcon name={icon} className="size-4 shrink-0 text-brand" />
-                          <span className="min-w-0 truncate"><Text value={categoryName(c)} pageLang={pageLang} /></span>
-                        </span>
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-            </HomeScroller>
-          </section>
-        )}
 
         {/* ---------- Rega24Travel banner (owner 2026-11-18): replaces the map banner; the map stays on the «نزیک» tab ---------- */}
         {travelOn ? (

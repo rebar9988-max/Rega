@@ -197,8 +197,6 @@
     "tabTopRated": "Top rated",
     "tabNew": "New",
     "tabEmpty": "No business matches this filter right now.",
-    "exploreTitle": "Explore by Category",
-    "exploreNext": "Show more categories",
     "mapTitle": "Explore Businesses Around the World",
     "mapSub": "Switch to map view to discover places near your location.",
     "mapCta": "Open Map",
@@ -258,7 +256,6 @@
     "postalCode": "Postal code",
     "openingHours": "Opening hours",
     "viewOnMap": "View on map",
-    "browseByCity": "Browse by city",
     "closedOnHolidays": "Closed on official public holidays.",
     "hoursChanges": "Closures and special hours"
   },

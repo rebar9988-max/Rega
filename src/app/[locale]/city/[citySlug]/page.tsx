@@ -34,7 +34,7 @@ export default async function CityPage({ params, searchParams }: Props) {
   const title = t("seoPages.inCity", { city: name });
   return (
     <BusinessIndex
-      pathname={`/city/${citySlug}`} searchParams={await searchParams} title={title} fixed={{ city: city.id }}
+      pathname={`/city/${citySlug}`} categoryBase={`/city/${citySlug}`} searchParams={await searchParams} title={title} fixed={{ city: city.id }}
       crumbs={[{ label: t("nav.home"), href: "/" }, { label: t("locations.title"), href: "/locations" }, { label: name }]}
     />
   );

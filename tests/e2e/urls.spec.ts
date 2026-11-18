@@ -58,7 +58,8 @@ test("filters show counts, zero-count cities and categories stay selectable", as
   const cityOptions = page.locator('select[name="city"] option');
   await expect(cityOptions.filter({ hasText: /^Berlin \(\d+\)$/ })).toHaveCount(1);
   await expect(cityOptions.filter({ hasText: /^Bonn \(0\)$/ })).toHaveCount(1);
-  await expect(page.locator('select[name="category"] option').filter({ hasText: /^Steuer & Buchhaltung \(0\)$/ })).toHaveCount(1);
+  // Categories are chosen with the chips (the duplicate category <select> was removed); empty ones stay listed with 0.
+  await expect(page.getByTestId("category-navigation").getByRole("link").filter({ hasText: /^Steuer & Buchhaltung\s*0$/ })).toHaveCount(1);
 });
 
 test("an empty category shows the friendly empty state with a call to add a business", async ({ page }) => {

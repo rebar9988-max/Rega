@@ -1629,6 +1629,13 @@ PR remained open because main advanced to 663f801, causing conflicts only in app
 Merged current main without discarding its saved-business/footer changes; preserved both memory sections, retained main locale keys
 and locationSearch, regenerated inventory. No location implementation was restarted. Exact merged-head CI is required again before release.
 
+## 2026-11-18 — Global UI redundancy cleanup (PR #165, branch `fix/global-redundancy-cleanup-20261115`)
+- Task: owner request "REGA24 global cleanup & zero redundancy"; /ckb/businesses duplicate search/filters as the reference pattern.
+- Audit: 39 public routes under `src/app/[locale]` + 29 `/dr` routes (68 `page.tsx`). Shared list components checked: `BusinessIndex`, `FilterBar`, `ContentIndex`, search, nearby, business detail.
+- Removed (redundant): category `<select>` beside the category chips and the separate "apply" button on /businesses, /businesses/<category>, /city/...; the home "explore by category" row repeating the category tiles; the A–Z `CityBrowser` on /locations repeating the filter's city control. Country/verified now apply on change; the search button still submits all without JS.
+- Preserved (contextual, not redundant): global header search and mobile bottom-nav search (navigation, locked by sections 2/3), per-page search forms, sort, pagination, business-detail actions, `/dr` admin lists.
+- Tests: `tests/ui-redundancy.test.ts` (source guards), `tests/e2e/catalog.spec.ts` (rendered check).
+- CI blocker found 2026-11-18: every PR's `verify` fails at `npm audit` (next 16.4.2 + picomatch advisories); fix is PR #168/#170. PR #164 (other session) overlaps this PR on BusinessIndex/home with a different approach (hides search entirely); only one of the two may be merged.
 ## 2026-11-18 — Rega24Travel (branch `feat/rega24-travel-20261118`)
 Owner brief "Rega24Travel — Premium 2026 Design + Full Functional Integration" (mockup: travel tile on the home grid,
 /travel discovery page). Discovery only: no booking, tickets, payments or navigation.

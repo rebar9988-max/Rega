@@ -3,8 +3,10 @@ import { expect, test } from "./fixtures";
 test("business list shows published demo businesses and filters by text", async ({ page }) => {
   await page.goto("/de/businesses");
   await expect(page.getByRole("link", { name: "Zagros Restaurant" })).toBeVisible();
-  await page.getByRole("main").getByRole("searchbox").first().fill("rechtsberatung");
-  await page.getByRole("button", { name: "Anwenden" }).click();
+  const main = page.getByRole("main");
+  await main.getByRole("searchbox").first().fill("rechtsberatung");
+  // One submit button per directory page: the search form's (filters submit through it or on change).
+  await main.getByRole("button", { name: "Suche", exact: true }).click();
   await expect(page).toHaveURL(/q=rechtsberatung/);
   await expect(page.getByRole("link", { name: "Kurdistan Rechtsberatung" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Zagros Restaurant" })).toHaveCount(0);
@@ -55,7 +57,10 @@ test("service list → service detail → provider", async ({ page }) => {
 
 test("locations page lists cities and filters by city", async ({ page }) => {
   await page.goto("/de/locations");
-  await page.getByRole("link", { name: /^Berlin/ }).click();
+  const form = page.locator("main form[role=search]");
+  await form.getByRole("button", { name: /^Stadt/ }).click();
+  await page.getByRole("dialog").getByRole("listbox").getByRole("option", { name: /^Berlin/ }).click();
+  await form.getByRole("button", { name: "Anwenden" }).click();
   await expect(page).toHaveURL(/city=/);
   await expect(page.getByRole("link", { name: "Kurdistan Rechtsberatung" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Zagros Restaurant" })).toHaveCount(0);
@@ -119,4 +124,21 @@ test("directory: sort applies on change and keeps the other filters", async ({ p
   await page.getByLabel("Sortieren nach").selectOption("name");
   await expect(page).toHaveURL((url) => url.searchParams.get("sort") === "name" && url.searchParams.get("q") === "e");
   await expect(page.getByRole("switch", { name: "Nur verifizierte" })).toBeVisible();
+});
+
+test("no redundant controls: one search, one category control, one submit per directory; categories once on home", async ({ page }) => {
+  for (const path of ["/de/businesses", "/ckb/businesses", "/de/businesses/legal"]) {
+    await page.goto(path);
+    const main = page.getByRole("main");
+    await expect(main.locator("form[role=search]")).toHaveCount(1);
+    await expect(main.locator('button[type=submit], input[type=submit]')).toHaveCount(1);
+    await expect(main.getByTestId("category-navigation")).toHaveCount(1);
+    await expect(main.locator('select[name="category"]')).toHaveCount(0);
+  }
+  await page.goto("/de/locations");
+  await expect(page.getByRole("main").locator("input[type=search]")).toHaveCount(1);
+  await page.goto("/de");
+  // Category tiles are the home page's one category list (no second row of the same categories).
+  await expect(page.locator("main ul.rh-tiles")).toHaveCount(1);
+  await expect(page.locator("main .rh-explore")).toHaveCount(0);
 });
