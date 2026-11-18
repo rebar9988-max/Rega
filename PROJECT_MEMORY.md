@@ -1623,6 +1623,24 @@ E2E updated: footer test now checks home-only + legal links in the menu on every
 from the menu; tab-bar coverage checked on a footer-less page and on home. The old "footer at the viewport bottom on a
 short page" test was removed (no footer on /login any more).
 
+## Saved businesses (favourites) — 2026-11-15 (PR #162, merge `663f801`; status: DEPLOYED and VERIFIED live)
+Task: owner's competitive-research directive (9 platforms). Verified gap: no favourites/saved businesses in REGA24
+while Dalilk, Das Örtliche, Justdial (verified) and Google/Apple Maps, Yelp, Tripadvisor (known) offer it.
+Change: Save toggle in the profile action grid; `/[locale]/saved` (noindex) lists them via the existing public
+`GET /api/v1/businesses` with a new optional, validated `slugs` filter (public records only, max 100). Storage:
+browser `localStorage["rega-saved"]` only — no account, no schema change, no new service (€0). 11 catalogues, privacy
+texts (7 languages) list the storage. Files: `src/lib/saved-businesses.ts`, `src/lib/saved-store.ts`,
+`src/components/business/SaveButton.tsx`, `src/features/saved/SavedList.tsx`, `src/app/[locale]/saved/page.tsx`,
+business profile page, businesses route, `FigmaIcon` (bookmark).
+Tests: `tests/saved-businesses.test.ts`; e2e save → saved → remove (ckb + de); `private-read-authorization` harness
+registers the pure module (assertions unchanged). CI green on PR and on main; Deploy to Cloudflare Workers success.
+Live: production browser check now runs the save → view → remove flow (desktop + mobile, ckb RTL + de LTR, noindex,
+no overflow) — 32/32 ok on run 43743241295 (branch `test/live-saved-flow-check`). First post-deploy browser check
+had a transient `/ckb` "This page couldn't load" right after rollout; re-run green, no code cause.
+Note: a repository ruleset requires the branch to be up to date with main before merge ("verify" expected).
+Matrix: `docs/research/competitive-matrix-2026-11.md`. Next safe increments: advanced filters (open now / languages /
+has offers, no schema change), comparison of saved businesses; attributes and products need owner schema approval.
+
 ## 2026-11-16 — Resume PR #159 release
 Recovered head 7fc1088: GitHub CI 43684019068 succeeded (verify 43m37s), both Cloudflare build checks and route audit passed.
 PR remained open because main advanced to 663f801, causing conflicts only in appended memory, locale JSON and generated inventory.
