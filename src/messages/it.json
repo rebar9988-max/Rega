@@ -1529,5 +1529,11 @@
     "remove": "Rimuovi",
     "clearAll": "Rimuovi tutto",
     "unavailable": "{count} attività salvate non sono più disponibili."
+  },
+  "locationSearch": {
+    "label": "Cerca città, codice postale o indirizzo",
+    "loading": "Ricerca…",
+    "empty": "Nessun risultato. Inserisci un indirizzo più completo.",
+    "unavailable": "Ricerca non disponibile. Riprova o seleziona sulla mappa."
   }
 }

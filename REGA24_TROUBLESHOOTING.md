@@ -450,3 +450,10 @@ BLOCKED means the engine refused before inspecting anything (no report stored): 
   build settings are unchanged.
 - The GitHub Actions deploy ([.github/workflows/ai-python-deploy.yml](.github/workflows/ai-python-deploy.yml)) installs
   a current uv itself and was not affected. The production Worker was never affected.
+
+### Address suggestions unavailable
+For candidate `/api/v1/address`, 422 means invalid query, 429 means the local/shared provider budget was exceeded,
+and 503 means Photon timed out or rejected the request. The manual address fields and map remain available.
+Never fall back to Nominatim autocomplete: the public Nominatim service forbids it. Never synthesize house numbers
+or treat the nearest reverse result as proof of a clicked address. Check Photon availability and usage limits before
+changing the provider; this candidate does not create paid resources or store search queries.

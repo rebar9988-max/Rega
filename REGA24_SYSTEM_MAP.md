@@ -305,3 +305,11 @@ AI fails closed: a provider serves only when the owner lists it in `AI_FREE_TIER
 ## Workers AI in the central gateway — 2026-11-05
 
 No new binding on `rega24`: provider `workers-ai` (gemma-4-26b-a4b-it) runs through the existing `rega-ai-python` Worker (`/v1/generate`, its `AI` binding) and joins the gateway as the free fallback after gemini/groq; rerank and chat share one atomic Neuron budget (8,500/day ≤ 85 % of the free 10,000). Off until the owner approves `workers-ai`. Details: [docs/AI_AGENT_SYSTEM.md](docs/AI_AGENT_SYSTEM.md) section 8.
+
+### Address search (2026-11-15, candidate PR #159)
+`/api/v1/address` proxies Photon search/reverse endpoints with bounded queries, timeouts and rate limiting.
+`AddressSearch` is shared by Nearby and the business form. Provider fields are parsed in `address-result.ts`;
+missing fields stay empty, and map reverse results require explicit selection. No database/schema change.
+Photon's public service permits reasonable project use and search-as-you-type, but has no availability guarantee.
+Policy source: https://github.com/komoot/photon#public-demo-server (README, checked 2026-11-14).
+Candidate only: production integration not yet verified.
