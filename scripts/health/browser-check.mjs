@@ -158,6 +158,49 @@ async function checkLocationFilter(browser, ctx, page, vp, opts) {
   console.log(`::notice title=${tag}::${out.join("%0A")}`);
 }
 
+// Saved businesses (PR #162): save -> saved page -> remove on a real profile, RTL and LTR. Only this test browser's
+// own localStorage changes; nothing is sent to the server except the public slug lookup of the saved page.
+async function checkSavedFlow(page, vp, href) {
+  const slug = decodeURIComponent(href.split("/business/")[1] ?? "").split(/[?#]/)[0];
+  for (const [locale, dir] of [["ckb", "rtl"], ["de", "ltr"]]) {
+    const label = `${vp} saved ${locale}`;
+    try {
+      await page.goto(`${BASE}/${locale}/business/${encodeURIComponent(slug)}`, { waitUntil: "domcontentloaded" });
+      await page.evaluate(() => window.localStorage.removeItem("rega-saved"));
+      await page.reload({ waitUntil: "domcontentloaded" });
+      const save = page.getByTestId("business-actions").getByTestId("save-button");
+      await save.waitFor({ timeout: 15_000 });
+      note(await save.isVisible(), `${label}: save button on the profile`);
+      await save.click();
+      const stored = await page.evaluate(() => window.localStorage.getItem("rega-saved"));
+      note(stored === JSON.stringify([slug]), `${label}: stored on this device only`, String(stored));
+      const link = page.getByTestId("saved-link");
+      await link.waitFor({ timeout: 10_000 });
+      await link.click();
+      await page.waitForURL(new RegExp(`/${locale}/saved$`), { timeout: 15_000 });
+      const list = page.getByTestId("saved-list");
+      await list.waitFor({ timeout: 20_000 });
+      const facts = await page.evaluate(() => ({
+        dir: document.documentElement.dir,
+        h1: document.querySelector("h1")?.textContent?.trim() ?? "",
+        overflow: document.documentElement.scrollWidth - window.innerWidth,
+        robots: document.querySelector('meta[name="robots"]')?.getAttribute("content") ?? "",
+      }));
+      note(facts.dir === dir, `${label}: /${locale}/saved dir=${dir}`, facts.dir);
+      note(facts.h1.length > 0, `${label}: page title`, facts.h1);
+      note(facts.overflow <= 1, `${label}: no horizontal scroll`, `${facts.overflow}px`);
+      note(/noindex/.test(facts.robots), `${label}: noindex`, facts.robots);
+      note((await list.locator("li").count()) === 1, `${label}: lists the saved business`);
+      await page.screenshot({ path: `${OUT}/${vp}_saved_${locale}.png`, fullPage: true });
+      await list.locator("li button").first().click();
+      await page.getByTestId("saved-empty").waitFor({ timeout: 10_000 });
+      note((await page.evaluate(() => window.localStorage.getItem("rega-saved"))) === null, `${label}: remove clears it`);
+    } catch (error) {
+      note(false, `${label}: flow`, String(error).split("\n")[0]);
+    }
+  }
+}
+
 const browser = await chromium.launch();
 try {
   for (const [vp, opts] of [["desktop", { viewport: { width: 1366, height: 900 } }], ["mobile", devices["Pixel 5"]]]) {
@@ -218,6 +261,7 @@ try {
       const res = await page.goto(BASE + href, { waitUntil: "domcontentloaded" });
       note((res?.status() ?? 0) === 200, `${vp} profile ${href}`, String(res?.status()));
       await page.screenshot({ path: `${OUT}/${vp}_profile.png`, fullPage: true });
+      await checkSavedFlow(page, vp, href);
     } else {
       const count = (await page.locator("main [aria-live=polite]").first().textContent().catch(() => ""))?.trim();
       lines.push(`info ${vp} directory has no published business to open (result line: "${count}")`);
