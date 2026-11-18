@@ -30,13 +30,15 @@ export type BusinessIndexProps = {
   subtitle?: string;
   /** Base of the category chips (the page's only category control); city pages pass "/city/<slug>". */
   categoryBase?: string;
+  /** Owner request 2026-11-15: hides the search bar and the filters panel (only /businesses). Chips, results, count, sort and pagination stay. */
+  hideSearchAndFilters?: boolean;
 };
 
 /**
  * The business list used by /businesses, /businesses/[category], /city/[city] and /city/[city]/[category]: one component,
  * so filters, counts, empty states and pagination behave identically everywhere.
  */
-export async function BusinessIndex({ pathname, searchParams, title, crumbs, fixed, subtitle, categoryBase }: BusinessIndexProps) {
+export async function BusinessIndex({ pathname, searchParams, title, crumbs, fixed, subtitle, categoryBase, hideSearchAndFilters = false }: BusinessIndexProps) {
   const parsed = parseParams(businessShape, searchParams);
   const query: BusinessQuery = { ...parsed, ...(fixed?.category ? { category: fixed.category } : {}), ...(fixed?.city ? { city: fixed.city } : {}) };
   const t = await getTranslations();
@@ -63,7 +65,17 @@ export async function BusinessIndex({ pathname, searchParams, title, crumbs, fix
       <PageHeader title={title} subtitle={subtitle ?? t("businesses.lead")} crumbs={crumbs} />
       <div className="container-page">
         <CategoryNavigation base={categoryBase} categoryId={fixed?.category ?? query.category} showCounts={!Boolean(query.q || query.city || query.country || fixed?.city)} />
-        {/* Search first (approved concept, page 3): what + where. Every other filter joins this form via `form=`. */}
+        {hideSearchAndFilters ? (
+          /* No visible search/filters: a hidden form keeps the sort control working and preserves the current query. */
+          <form id={formId} action={pathname} hidden>
+            {query.q && <input type="hidden" name="q" value={query.q} />}
+            {query.country && <input type="hidden" name="country" value={query.country} />}
+            {!fixed?.category && query.category && <input type="hidden" name="category" value={query.category} />}
+            {!fixed?.city && query.city && <input type="hidden" name="city" value={query.city} />}
+            {query.verified && <input type="hidden" name="verified" value={query.verified} />}
+          </form>
+        ) : (
+        /* Search first (approved concept, page 3): what + where. Every other filter joins this form via `form=`. */
         <form id={formId} action={pathname} role="search"
           className={`rega-search-shell grid gap-0 overflow-visible ${cityList ? "sm:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_auto]" : "sm:grid-cols-[minmax(0,1fr)_auto]"}`}>
           <div className="flex min-h-14 min-w-0 items-center gap-3 px-4 focus-within:ring-2 focus-within:ring-inset focus-within:ring-[var(--ring)]">
@@ -83,8 +95,10 @@ export async function BusinessIndex({ pathname, searchParams, title, crumbs, fix
           )}
           <button type="submit" className="min-h-12 rounded-b-[0.7rem] bg-brand px-8 text-[15px] font-bold text-brand-ink transition hover:bg-brand-hover sm:m-1.5 sm:rounded-[0.55rem]">{t("nav.search")}</button>
         </form>
+        )}
 
-        <div className="mt-5 grid items-start gap-5 lg:grid-cols-[15.5rem_minmax(0,1fr)]">
+        <div className={hideSearchAndFilters ? "mt-5" : "mt-5 grid items-start gap-5 lg:grid-cols-[15.5rem_minmax(0,1fr)]"}>
+          {!hideSearchAndFilters && (
           {/* Refinements only: category = the chips above, text + city = the search form, one submit button (that form's). */}
           <aside aria-labelledby="dir-filters-title" className="rega-card p-4 lg:sticky lg:top-24">
             <div className="flex items-center justify-between gap-3">
@@ -105,6 +119,7 @@ export async function BusinessIndex({ pathname, searchParams, title, crumbs, fix
               </label>
             </div>
           </aside>
+          )}
 
           <div className="min-w-0">
             {/* Streamed results: filters render instantly, the list shows a skeleton while the query runs. */}
