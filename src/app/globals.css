@@ -851,7 +851,7 @@
 }
 
 /* Outline actions (links and buttons on a white plate): pearl pill with a top highlight. */
-main :is(a, button).border-line.bg-surface:is(.rounded-xl, .rounded-lg):not([class*="ring-"]):not([class*="shadow"]) { border-radius: 999px; }
+main :is(a, button).inline-flex.border-line.bg-surface:is(.rounded-xl, .rounded-lg):not([class*="ring-"]):not([class*="shadow"]) { border-radius: 999px; }
 main :is(a, button).border-line.bg-surface:is(.rounded-xl, .rounded-lg, .rounded-full):not(.rega-control-secondary):not([class*="ring-"]):not([class*="shadow"]) {
   background-image: linear-gradient(180deg, var(--surface), var(--surface-2));
   box-shadow: var(--control-highlight), 0 1px 2px rgb(17 24 39 / .05);
@@ -862,7 +862,7 @@ main :is(a, button).border-line.bg-surface:is(.rounded-xl, .rounded-lg, .rounded
 /* Red actions: the logo-red 3D gradient everywhere, pill-shaped. */
 main :is(a, button).bg-brand.text-brand-ink:not(.rega-control-primary):not([class*="ring-"]) { background-image: var(--action-gradient); box-shadow: var(--action-shadow); }
 main :is(a, button).bg-brand.text-brand-ink:not(.rega-control-primary):not([class*="ring-"]):hover { background-image: var(--action-gradient-hover); }
-main :is(a, button).bg-brand.text-brand-ink:is(.rounded-lg, .rounded-xl) { border-radius: 999px; }
+main :is(a, button).bg-brand.text-brand-ink:is(.rounded-lg, .rounded-xl):not(.flex):not(.grid) { border-radius: 999px; }
 main :is(a, button).bg-brand.text-brand-ink:not([class*="ring-"]):active { box-shadow: var(--action-shadow-pressed); }
 
 /* Chips and pills share one soft edge. */
