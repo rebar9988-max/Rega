@@ -254,20 +254,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             </div>
           </section>
         )}
-
-        {/* ---------- Compact AI entry (existing feature) ---------- */}
-        <section aria-label={t("ctaAI")}>
-          <div className={`${BAND} pb-10 pt-6`}>
-            <Link href="/ai" className="group flex min-h-[72px] items-stretch overflow-hidden rounded-xl border border-brand/40 bg-surface transition hover:border-brand hover:shadow-card" data-testid="home-ai-entry">
-              <span className="grid w-16 shrink-0 place-items-center bg-brand text-brand-ink sm:w-20"><FigmaIcon name="sparkles" className="size-7" /></span>
-              <span className="flex min-w-0 flex-1 flex-col justify-center gap-0.5 px-4 py-3 sm:flex-row sm:items-center sm:justify-start sm:gap-4">
-                <span className="shrink-0 text-base font-extrabold text-ink" dir="auto">{t("ctaAI")}</span>
-                <span className="min-w-0 text-sm text-muted">{t("aiEntrySub")}</span>
-              </span>
-              <span className="grid shrink-0 place-items-center px-4 text-brand-text"><FigmaIcon name="arrow-right" className="rtl-flip size-6 transition-transform group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5" /></span>
-            </Link>
-          </div>
-        </section>
       </div>
 
       {/* Below the frame: unchanged REGA section. */}
