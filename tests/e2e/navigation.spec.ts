@@ -202,9 +202,9 @@ test("mobile menu: contact is the last item, once; close button works; RTL", asy
   await expect(menu).toBeHidden();
 });
 
-test("approved layout: compact AI entry on the home page; tab bar on mobile only, mirrored in RTL", async ({ page, isMobile }) => {
+test("approved layout: no AI card on the home page (REGA AI lives in the tab bar); tab bar on mobile only, mirrored in RTL", async ({ page, isMobile }) => {
   await page.goto("/de");
-  await expect(page.getByTestId("home-ai-entry")).toHaveAttribute("href", "/de/ai");
+  await expect(page.getByTestId("home-ai-entry")).toHaveCount(0);
   const bar = page.getByRole("navigation", { name: "Schnellnavigation" });
   if (!isMobile) {
     await expect(bar).toBeHidden();
@@ -212,6 +212,7 @@ test("approved layout: compact AI entry on the home page; tab bar on mobile only
   }
   await expect(bar).toBeVisible();
   await expect(bar.getByRole("link")).toHaveCount(5);
+  await expect(bar.locator('a[href="/de/ai"]')).toHaveCount(1);
   await expect(bar.getByRole("link", { name: "Startseite" })).toHaveAttribute("aria-current", "page");
   await bar.getByRole("link", { name: "Suchen" }).click();
   await expect(page).toHaveURL(/\/de\/search$/);

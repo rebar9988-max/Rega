@@ -307,7 +307,7 @@ try {
 
     // Approved design markers (also prove the current release is the one being served).
     await page.goto(`${BASE}/de`, { waitUntil: "domcontentloaded" });
-    note(await page.getByTestId("home-ai-entry").isVisible(), `${vp} home: compact AI entry`);
+    note((await page.getByTestId("home-ai-entry").count()) === 0, `${vp} home: no duplicate AI card (REGA AI is in the tab bar)`);
     note(await page.locator("main form[role=search]").first().isVisible(), `${vp} home: search form`);
     if (vp === "mobile") {
       note(await page.getByTestId("bottom-nav").isVisible(), "mobile: bottom tab bar");
