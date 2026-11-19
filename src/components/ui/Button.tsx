@@ -3,7 +3,7 @@ import type { ComponentProps } from "react";
 
 type Variant = "primary" | "secondary" | "ghost";
 const base =
-  "inline-flex items-center justify-center gap-2 rounded-xl px-5 min-h-11 text-sm font-semibold transition-colors disabled:opacity-50 disabled:pointer-events-none";
+  "inline-flex items-center justify-center gap-2 rounded-full px-5 min-h-11 text-sm font-semibold transition-[color,background-color,border-color,box-shadow,transform] active:translate-y-px disabled:opacity-50 disabled:pointer-events-none";
 const variants: Record<Variant, string> = {
   primary: "rega-control-primary bg-brand text-brand-ink hover:bg-brand-hover",
   secondary: "rega-control-secondary border border-line bg-surface text-ink hover:border-brand hover:text-brand-text",
