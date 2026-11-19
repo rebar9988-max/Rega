@@ -130,7 +130,8 @@ export default async function TravelPage({ params, searchParams }: Props) {
       </section>
 
       <div className="container-page rt-panel">
-        <form id={formId} action={`/${locale}${PATH}`} role="search" className="rt-form">
+        {/* Keyed by the active filters: a client-side navigation (photo card, pill) remounts the uncontrolled fields so they show the new filter. */}
+        <form key={[parsed.q, category, query.city, postalCode, transport, query.country].join("|")} id={formId} action={`/${locale}${PATH}`} role="search" className="rt-form">
           <div className="rt-search">
             <span className="rt-search-pin" aria-hidden="true"><FigmaIcon name="map-pin" className="size-6" /></span>
             <label htmlFor="t-q" className="sr-only">{tt("searchLabel")}</label>
