@@ -1246,7 +1246,7 @@
   },
   "locationPicker": {
     "title": "Ort wählen",
-    "search": "Stadt suchen",
+    "search": "Stadt, Stadtteil, Straße oder PLZ",
     "close": "Schließen",
     "clear": "Suche löschen",
     "region": "Region",
@@ -1255,7 +1255,9 @@
     "noResults": "Keine passende Stadt",
     "noNearbyCity": "In Ihrer Nähe gibt es keine unterstützte Stadt. Bitte wählen Sie eine.",
     "loadFailed": "Städte konnten nicht geladen werden. Bitte versuchen Sie es erneut.",
-    "searching": "Suche läuft …"
+    "searching": "Suche läuft …",
+    "browse": "Nach Land oder Region durchsuchen",
+    "postalAmbiguous": "Diese Postleitzahl gehört zu mehreren Orten. Bitte wähle einen aus."
   },
   "businessModeration": {
     "verification": "Prüfung durch das Team",

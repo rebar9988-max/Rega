@@ -1246,7 +1246,7 @@
   },
   "locationPicker": {
     "title": "Choisir un lieu",
-    "search": "Rechercher une ville",
+    "search": "Ville, quartier, rue ou code postal",
     "close": "Fermer",
     "clear": "Effacer la recherche",
     "region": "Région",
@@ -1255,7 +1255,9 @@
     "noResults": "Aucune ville correspondante",
     "noNearbyCity": "Aucune ville prise en charge près de vous. Veuillez en choisir une.",
     "loadFailed": "Les villes n’ont pas pu être chargées. Veuillez réessayer.",
-    "searching": "Recherche …"
+    "searching": "Recherche …",
+    "browse": "Parcourir par pays ou région",
+    "postalAmbiguous": "Ce code postal correspond à plusieurs lieux. Veuillez en choisir un."
   },
   "businessModeration": {
     "verification": "Vérification par l’équipe",

@@ -16,7 +16,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { LOCALE_META, formatNumber, type Locale } from "@/i18n/locales";
 import { countryFlag, countryName, localize, type Localized } from "@/lib/content";
 import { coarsen } from "@/lib/geo";
-import { plainCityName, rankByQuery, savedCityQuery } from "@/lib/location-pref";
+import { MIN_LOCATION_QUERY, plainCityName, rankByQuery, savedCityQuery } from "@/lib/location-pref";
 import {
   clearSavedLocation,
   fetchGeoCity,
@@ -188,7 +188,7 @@ type PanelProps = {
   onClose: (returnFocus: boolean) => void;
 };
 
-type Row = { id: string; text: string; localized?: Localized; count?: number; picked: Picked | null; names?: (string | null | undefined)[] };
+type Row = { id: string; text: string; localized?: Localized; count?: number; picked: Picked | null; names?: (string | null | undefined)[]; /** Postal code or street the city was found by. */ hint?: string };
 
 function LocationPanel({ countryCode, panelId, anchorRef, fallback, selectedId, title, allLabel, cityLabel, locale, onChoose, onClose }: PanelProps) {
   const t = useTranslations("locationPicker");
@@ -256,7 +256,8 @@ function LocationPanel({ countryCode, panelId, anchorRef, fallback, selectedId, 
   }, [isSheet, anchorRef, onClose]);
 
   useEffect(() => {
-    const timer = setTimeout(() => setSearched(query.trim()), 200);
+    // One character is narrowed locally from the list already shown; the server is asked from two characters on.
+    const timer = setTimeout(() => setSearched(query.trim().length >= MIN_LOCATION_QUERY ? query.trim() : ""), 200);
     return () => clearTimeout(timer);
   }, [query]);
 
@@ -268,7 +269,8 @@ function LocationPanel({ countryCode, panelId, anchorRef, fallback, selectedId, 
       .then((list) => {
         setData(list);
         setStatus("ready");
-        setActive(0);
+        // An ambiguous postal code has no preselected row: Enter must not pick one of its cities silently.
+        setActive(list.ambiguous ? -1 : 0);
       })
       .catch(() => {
         if (!controller.signal.aborted) setStatus("error");
@@ -277,7 +279,7 @@ function LocationPanel({ countryCode, panelId, anchorRef, fallback, selectedId, 
   }, [country, region, searched]);
 
   const typed = query.trim();
-  const pending = typed !== "" && (typed !== searched || status === "loading");
+  const pending = typed !== "" && (typed.length < MIN_LOCATION_QUERY || typed !== searched || status === "loading");
   const rows = useMemo<Row[]>(() => {
     let cityRows: Row[];
     if (data) {
@@ -287,7 +289,8 @@ function LocationPanel({ countryCode, panelId, anchorRef, fallback, selectedId, 
         localized: nameOf(city, locale),
         count: city.count,
         picked: pickedFrom(city, locale),
-        names: [city.nameEn, city.nameCkb, city.nameKmr, city.nameDe, city.nameFa, city.nameAr, city.nameTr],
+        names: [city.nameEn, city.nameCkb, city.nameKmr, city.nameDe, city.nameFa, city.nameAr, city.nameTr, city.match?.value],
+        hint: city.match?.value,
       }));
     } else {
       // Until the first answer arrives, the page's own bounded list keeps the panel useful.
@@ -303,7 +306,9 @@ function LocationPanel({ countryCode, panelId, anchorRef, fallback, selectedId, 
   }, [allLabel, data, fallback, locale, pending, typed]);
 
   const optionId = (index: number) => `${panelId}-o${index}`;
-  const activeIndex = Math.min(active, Math.max(rows.length - 1, 0));
+  const ambiguous = Boolean(searched && typed === searched && status === "ready" && data?.ambiguous);
+  // -1 = no row active (an ambiguous postal code waits for an explicit choice).
+  const activeIndex = active < 0 && ambiguous ? -1 : Math.min(Math.max(active, 0), Math.max(rows.length - 1, 0));
   useEffect(() => {
     document.getElementById(optionId(activeIndex))?.scrollIntoView({ block: "nearest" });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -329,13 +334,13 @@ function LocationPanel({ countryCode, panelId, anchorRef, fallback, selectedId, 
   const onSearchKey = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "ArrowDown") {
       event.preventDefault();
-      setActive(Math.min(activeIndex + 1, rows.length - 1));
+      setActive(Math.max(Math.min(activeIndex + 1, rows.length - 1), 0));
     } else if (event.key === "ArrowUp") {
       event.preventDefault();
       setActive(Math.max(activeIndex - 1, 0));
     } else if (event.key === "Enter") {
       event.preventDefault();
-      const row = rows[activeIndex];
+      const row = activeIndex >= 0 ? rows[activeIndex] : undefined;
       if (row) onChoose(row.picked);
     }
   };
@@ -348,8 +353,9 @@ function LocationPanel({ countryCode, panelId, anchorRef, fallback, selectedId, 
       return;
     }
     if (event.key !== "Tab") return;
-    const focusable = panelRef.current?.querySelectorAll<HTMLElement>("button:not([disabled]), select:not([disabled]), input:not([disabled])");
-    if (!focusable?.length) return;
+    // Controls inside a closed disclosure are not focusable, so they are left out of the cycle.
+    const focusable = Array.from(panelRef.current?.querySelectorAll<HTMLElement>("button:not([disabled]), summary, select:not([disabled]), input:not([disabled])") ?? []).filter((el) => el.getClientRects().length > 0);
+    if (!focusable.length) return;
     const first = focusable[0];
     const last = focusable[focusable.length - 1];
     if (event.shiftKey && document.activeElement === first) {
@@ -403,7 +409,7 @@ function LocationPanel({ countryCode, panelId, anchorRef, fallback, selectedId, 
             aria-autocomplete="list"
             aria-expanded="true"
             aria-controls={`${panelId}-list`}
-            aria-activedescendant={rows.length ? optionId(activeIndex) : undefined}
+            aria-activedescendant={rows.length && activeIndex >= 0 ? optionId(activeIndex) : undefined}
             inputMode="search"
             enterKeyHint="search"
             autoComplete="off"
@@ -435,7 +441,13 @@ function LocationPanel({ countryCode, panelId, anchorRef, fallback, selectedId, 
         {message && <p role="status" className="text-sm text-muted">{message}</p>}
 
         {!searched && (countries.length > 1 || regions.length > 0) && (
-          <div className="grid gap-2 sm:grid-cols-2">
+          // Country and region lists stay available for browsing, folded away behind one disclosure: search comes first.
+          <details className="group">
+          <summary className="flex min-h-11 cursor-pointer items-center gap-2 rounded-lg px-1 text-sm font-semibold text-muted">
+            <span aria-hidden="true" className="transition group-open:rotate-180">⌄</span>
+            {t("browse")}
+          </summary>
+          <div className="grid gap-2 pt-2 sm:grid-cols-2">
             {countries.length > 1 && (
               <label className="grid gap-1 text-xs font-semibold text-muted">
                 {tl("country")}
@@ -454,7 +466,10 @@ function LocationPanel({ countryCode, panelId, anchorRef, fallback, selectedId, 
               </label>
             )}
           </div>
+          </details>
         )}
+
+        {ambiguous && <p role="status" className="text-sm text-muted">{t("postalAmbiguous")}</p>}
 
         <ul id={`${panelId}-list`} role="listbox" aria-label={cityLabel} aria-busy={status === "loading"} className="-mx-1 min-h-24 overflow-y-auto px-1">
           {rows.map((row, index) => (
@@ -468,7 +483,10 @@ function LocationPanel({ countryCode, panelId, anchorRef, fallback, selectedId, 
               onClick={() => onChoose(row.picked)}
               className={`flex min-h-11 cursor-pointer items-center justify-between gap-2 rounded-lg px-3 text-start text-sm ${index === activeIndex ? "bg-brand/10" : ""} ${row.id === selectedId ? "font-bold text-brand-text" : ""}`}
             >
-              <span className="min-w-0 truncate">{row.localized ? <Text value={row.localized} pageLang={pageLang} /> : row.text}</span>
+              <span className="min-w-0 truncate">
+                {row.localized ? <Text value={row.localized} pageLang={pageLang} /> : row.text}
+                {row.hint ? <span className="ms-2 text-xs text-muted"><bdi dir="auto">{row.hint}</bdi></span> : null}
+              </span>
               {row.count ? <span className="shrink-0 rounded-full bg-surface-2 px-2 py-0.5 text-xs font-semibold text-muted">{formatNumber(row.count, locale)}</span> : null}
             </li>
           ))}

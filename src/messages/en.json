@@ -1246,7 +1246,7 @@
   },
   "locationPicker": {
     "title": "Choose a location",
-    "search": "Search for a city",
+    "search": "City, district, street or postal code",
     "close": "Close",
     "clear": "Clear search",
     "region": "Region",
@@ -1255,7 +1255,9 @@
     "noResults": "No matching city",
     "noNearbyCity": "No supported city near you. Please choose one.",
     "loadFailed": "Cities could not be loaded. Please try again.",
-    "searching": "Searching …"
+    "searching": "Searching …",
+    "browse": "Browse by country or region",
+    "postalAmbiguous": "This postal code belongs to several places. Please choose one."
   },
   "businessModeration": {
     "verification": "Staff verification",

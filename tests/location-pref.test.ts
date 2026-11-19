@@ -1,7 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { allowedEdits, editDistance } from "../src/lib/search-correction";
 import {
   LOCATION_PREF_MAX_AGE_MS,
+  MIN_LOCATION_QUERY,
+  dedupeById,
+  fuzzyRank,
+  looksLikePostalCode,
+  normalizePostalCode,
   explicitlyAllCities,
   foldSearch,
   nearestCity,
@@ -107,4 +113,35 @@ test("nearby detection offers the closest known city and nothing when the positi
   const far = nearestCity({ lat: 48.1351, lng: 11.582 }, cities, 1000);
   assert.ok(far && ["berlin", "potsdam"].includes(far.city.id) && far.km > 400, "a wider limit finds the closest of the listed cities");
   assert.equal(nearestCity({ lat: 0, lng: 0 }, []), null);
+});
+
+// ------------------------------------------------------------------ smart location search
+
+
+test("postal codes are recognised; city names and single digits are not", () => {
+  for (const q of ["10178", "1017", "44001", "1012 AB", "00-950", "SW1A 1AA", "75"]) assert.equal(looksLikePostalCode(q), true, q);
+  for (const q of ["", "1", "Berlin", "Köln", "بەرلین", "Hamburg 2", "12345678901", "A1"]) assert.equal(looksLikePostalCode(q), false, q);
+  assert.equal(normalizePostalCode("  1012   ab "), "1012 AB");
+  assert.equal(MIN_LOCATION_QUERY, 2);
+});
+
+test("one canonical entry per id, first kept, order preserved", () => {
+  assert.deepEqual(dedupeById([{ id: "a", n: 1 }, { id: "b", n: 2 }, { id: "a", n: 3 }]), [{ id: "a", n: 1 }, { id: "b", n: 2 }]);
+});
+
+test("typo-tolerant ranking: closest first, partial long names, multilingual, nothing wild", () => {
+  const cities = [
+    { id: "hh", names: ["Hamburg", "هامبورگ"] },
+    { id: "b", names: ["Berlin", "بەرلین"] },
+    { id: "m", names: ["München", "Munich"] },
+    { id: "f", names: ["Frankfurt am Main"] },
+  ];
+  const rank = (q: string) => fuzzyRank(cities, q, (c) => c.names, editDistance, allowedEdits).map((c) => c.id);
+  assert.deepEqual(rank("Hambrug"), ["hh"]);
+  assert.deepEqual(rank("Berlni"), ["b"]);
+  assert.deepEqual(rank("Munchn"), ["m"]);
+  assert.deepEqual(rank("Frankfrt"), ["f"]);
+  assert.deepEqual(rank("بەرلن"), ["b"]);
+  assert.deepEqual(rank("zzzzqqqq"), []);
+  assert.deepEqual(rank("be"), []); // too short to guess
 });

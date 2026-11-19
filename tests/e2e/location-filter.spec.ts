@@ -70,7 +70,7 @@ test.describe("location selector", () => {
     await expect(trigger(page)).toHaveAccessibleName("Stadt: Alle Städte");
     await trigger(page).click();
     await expect(dialog(page)).toBeVisible();
-    await dialog(page).getByPlaceholder("Stadt suchen").fill("ber");
+    await dialog(page).getByPlaceholder("Stadt, Stadtteil, Straße oder PLZ").fill("ber");
     await dialog(page).getByRole("listbox").getByRole("option", { name: /^Berlin/ }).click();
     await expect(dialog(page)).toBeHidden();
     await expect(trigger(page)).toContainText("Berlin");
@@ -85,7 +85,7 @@ test.describe("location selector", () => {
     await page.goto("/de/businesses/legal");
     await trigger(page).focus();
     await page.keyboard.press("Enter");
-    const search = dialog(page).getByPlaceholder("Stadt suchen");
+    const search = dialog(page).getByPlaceholder("Stadt, Stadtteil, Straße oder PLZ");
     await expect(search).toBeFocused();
     await search.fill("hamburg");
     await expect(dialog(page).getByRole("listbox").getByRole("option", { name: /^Hamburg/ }).first()).toBeVisible();
@@ -104,7 +104,7 @@ test.describe("location selector", () => {
     await page.goto("/de/businesses/legal");
     expect(await page.evaluate((k) => localStorage.getItem(k), STORAGE_KEY)).toBeNull();
     await trigger(page).click();
-    await dialog(page).getByPlaceholder("Stadt suchen").fill("berlin");
+    await dialog(page).getByPlaceholder("Stadt, Stadtteil, Straße oder PLZ").fill("berlin");
     await dialog(page).getByRole("listbox").getByRole("option", { name: /^Berlin/ }).click();
     const stored = JSON.parse((await page.evaluate((k) => localStorage.getItem(k), STORAGE_KEY))!);
     expect(Object.keys(stored).sort()).toEqual(["cityId", "countryCode", "regionId", "savedAt", "v"]);
@@ -117,7 +117,7 @@ test.describe("location selector", () => {
     await page.goto("/de");
     await expect(trigger(page)).toContainText("Alle Städte");
     await trigger(page).click();
-    await dialog(page).getByPlaceholder("Stadt suchen").fill("berlin");
+    await dialog(page).getByPlaceholder("Stadt, Stadtteil, Straße oder PLZ").fill("berlin");
     await dialog(page).getByRole("listbox").getByRole("option", { name: /^Berlin/ }).click();
     await expect(trigger(page)).toContainText("Berlin");
 
@@ -140,7 +140,7 @@ test.describe("location selector", () => {
   test("reset clears the saved place everywhere", async ({ page }) => {
     await page.goto("/de");
     await trigger(page).click();
-    await dialog(page).getByPlaceholder("Stadt suchen").fill("berlin");
+    await dialog(page).getByPlaceholder("Stadt, Stadtteil, Straße oder PLZ").fill("berlin");
     await dialog(page).getByRole("listbox").getByRole("option", { name: /^Berlin/ }).click();
     await page.goto("/de/businesses/legal");
     await expect(page).toHaveURL(/[?&]city=/);
@@ -156,7 +156,7 @@ test.describe("location selector", () => {
   test("a saved choice never overrides a city (or all cities) chosen in the address", async ({ page }) => {
     await page.goto("/de");
     await trigger(page).click();
-    await dialog(page).getByPlaceholder("Stadt suchen").fill("berlin");
+    await dialog(page).getByPlaceholder("Stadt, Stadtteil, Straße oder PLZ").fill("berlin");
     await dialog(page).getByRole("listbox").getByRole("option", { name: /^Berlin/ }).click();
     const all = await page.evaluate((k) => localStorage.getItem(k), STORAGE_KEY);
     expect(all).not.toBeNull();
@@ -227,7 +227,7 @@ test.describe("location selector", () => {
     await page.goto("/de/businesses/legal");
     await page.locator("#f-q").fill("rechtsberatung");
     await trigger(page).click();
-    await dialog(page).getByPlaceholder("Stadt suchen").fill("berlin");
+    await dialog(page).getByPlaceholder("Stadt, Stadtteil, Straße oder PLZ").fill("berlin");
     await dialog(page).getByRole("listbox").getByRole("option", { name: /^Berlin/ }).click();
     await page.locator("#directory-filters").getByRole("button", { name: "Suche" }).click();
     await expect(page).toHaveURL((url) => url.searchParams.get("q") === "rechtsberatung" && Boolean(url.searchParams.get("city")));
