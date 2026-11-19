@@ -47,6 +47,7 @@ async function openPicker(page) {
  * list, nearest-city detection with a granted position, the phone bottom sheet and Kurdish RTL. Nothing is submitted
  * and nothing is stored outside this throw-away browser context.
  */
+const FILTER_LIST = "/de/businesses/legal"; // the city filter lives on category/city pages; /businesses has none (owner, 2026-11-15)
 async function checkLocationFilter(browser, ctx, page, vp, opts) {
   const tag = `${vp} location`;
   const out = [];
@@ -72,7 +73,7 @@ async function checkLocationFilter(browser, ctx, page, vp, opts) {
     rec((near.headers()["cache-control"] || "").includes("no-store"), "API nearest answer is not cached");
 
     // Selector on the business list
-    await page.goto(`${BASE}/de/businesses`, { waitUntil: "domcontentloaded" });
+    await page.goto(`${BASE}${FILTER_LIST}`, { waitUntil: "domcontentloaded" });
     await page.waitForLoadState("networkidle", { timeout: 15_000 }).catch(() => {});
     // Diagnosis: which elements stick out of the viewport on the list page (reported, never changed here).
     const sticking = (label) => page.evaluate(({ label, width }) => {
@@ -114,11 +115,11 @@ async function checkLocationFilter(browser, ctx, page, vp, opts) {
       await page.goto(`${BASE}/de`, { waitUntil: "domcontentloaded" });
       await page.locator("#f-city-search").filter({ hasText: "Berlin" }).waitFor({ timeout: 8000 }).catch(() => {});
       rec((await page.locator("#f-city-search").textContent())?.includes("Berlin") === true, "home page shows the saved city");
-      await page.goto(`${BASE}/de/businesses`, { waitUntil: "domcontentloaded" });
+      await page.goto(`${BASE}${FILTER_LIST}`, { waitUntil: "domcontentloaded" });
       await page.waitForURL(/[?&]city=/, { timeout: 8000 }).catch(() => {});
       rec(/[?&]city=[^&]/.test(page.url()), "business list applies the saved city", page.url().replace(BASE, ""));
       // Reset to all cities clears the saved place.
-      await page.goto(`${BASE}/de/businesses?city=`, { waitUntil: "domcontentloaded" });
+      await page.goto(`${BASE}${FILTER_LIST}?city=`, { waitUntil: "domcontentloaded" });
       await page.waitForFunction(() => localStorage.getItem("rega-location") === null, null, { timeout: 8000 }).catch(() => {});
       rec((await page.evaluate(() => localStorage.getItem("rega-location"))) === null, "all cities clears the saved place");
     }
@@ -126,7 +127,7 @@ async function checkLocationFilter(browser, ctx, page, vp, opts) {
     // Nearest-city detection with a granted position (a fresh context so nothing is saved yet)
     const geoCtx = await browser.newContext({ ...opts, userAgent: (opts.userAgent || "Mozilla/5.0 (X11; Linux x86_64) Chrome/125.0 Safari/537.36") + UA_SUFFIX, geolocation: { latitude: 52.5201, longitude: 13.4049 }, permissions: ["geolocation"] });
     const gp = await geoCtx.newPage();
-    await gp.goto(`${BASE}/de/businesses`, { waitUntil: "domcontentloaded" });
+    await gp.goto(`${BASE}${FILTER_LIST}`, { waitUntil: "domcontentloaded" });
     await gp.waitForLoadState("networkidle", { timeout: 15_000 }).catch(() => {});
     const gd = await openPicker(gp);
     if (gd) {
@@ -137,7 +138,7 @@ async function checkLocationFilter(browser, ctx, page, vp, opts) {
     await geoCtx.close();
 
     // Kurdish, right to left
-    await page.goto(`${BASE}/ckb/businesses`, { waitUntil: "domcontentloaded" });
+    await page.goto(`${BASE}${FILTER_LIST.replace("/de/", "/ckb/")}`, { waitUntil: "domcontentloaded" });
     await page.waitForLoadState("networkidle", { timeout: 15_000 }).catch(() => {});
     const kd = await openPicker(page);
     rec(Boolean(kd), "Kurdish selector opens");
@@ -317,11 +318,14 @@ try {
     }
 
     // Germany city discovery: no foreign city in the public business city filter.
-    await page.goto(`${BASE}/de/businesses`, { waitUntil: "domcontentloaded" });
+    await page.goto(`${BASE}${FILTER_LIST}`, { waitUntil: "domcontentloaded" });
     const cities = await page.locator("#f-city option").allTextContents();
     const foreign = cities.filter((c) => FOREIGN_CITIES.some((f) => c.trim().startsWith(f)));
     note(cities.length > 1, `${vp} directory: city options present`, `${cities.length - 1} cities`);
     note(foreign.length === 0, `${vp} directory: Germany-only cities`, foreign.join(", "));
+    // /businesses itself shows no search bar or filters panel (owner decision); chips, results and sort stay.
+    await page.goto(`${BASE}/de/businesses`, { waitUntil: "domcontentloaded" });
+    note((await page.locator("#f-city-search").count()) === 0, `${vp} directory: /businesses has no search/filters panel`);
 
     // A real business profile, reached from the directory (skipped honestly when nothing is published yet).
     // Results stream in after the filters (Suspense): wait for them instead of reading the first HTML chunk.
