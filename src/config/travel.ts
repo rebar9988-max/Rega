@@ -62,3 +62,6 @@ export function parsePostalCode(value: unknown): string | undefined {
   const v = value.trim().toUpperCase();
   return /^[A-Z0-9][A-Z0-9 -]{1,9}$/.test(v) ? v : undefined;
 }
+
+/** The six service shortcuts of the home banner, in the reference order; each opens /travel filtered to that category. */
+export const TRAVEL_SHORTCUTS = ["travel-agencies", "taxi-transfer", "airport-transfer", "car-rental", "cargo-logistics", "courier-delivery"] as const;

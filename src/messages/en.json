@@ -1557,6 +1557,14 @@
     "notBooking": "This is a discovery directory; tickets and bookings are not sold here.",
     "allCities": "All cities",
     "bannerBody": "Discover travel agencies, taxis, car rental, cargo and more...",
-    "bannerCta": "Visit Rega24Travel"
+    "bannerVisit": "Visit",
+    "shortcut": {
+      "travel-agencies": "Travel agency",
+      "taxi-transfer": "Taxi",
+      "airport-transfer": "Airport transfer",
+      "car-rental": "Car rental",
+      "cargo-logistics": "Cargo",
+      "courier-delivery": "Parcels & delivery"
+    }
   }
 }

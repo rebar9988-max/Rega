@@ -1557,6 +1557,14 @@
     "notBooking": "Questa è una guida per scoprire attività; biglietti e prenotazioni non sono venduti qui.",
     "allCities": "Tutte le città",
     "bannerBody": "Scopri agenzie di viaggio, taxi, autonoleggio, cargo e altro...",
-    "bannerCta": "Visita Rega24Travel"
+    "bannerVisit": "Visita",
+    "shortcut": {
+      "travel-agencies": "Agenzia di viaggi",
+      "taxi-transfer": "Taxi",
+      "airport-transfer": "Transfer aeroporto",
+      "car-rental": "Autonoleggio",
+      "cargo-logistics": "Cargo",
+      "courier-delivery": "Pacchi e consegne"
+    }
   }
 }

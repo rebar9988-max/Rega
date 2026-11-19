@@ -1557,6 +1557,14 @@
     "notBooking": "Bu bir keşif rehberidir; bilet satışı ve rezervasyon burada yapılmaz.",
     "allCities": "Tüm şehirler",
     "bannerBody": "Seyahat acenteleri, taksi, araç kiralama, kargo ve daha fazlasını keşfedin...",
-    "bannerCta": "Rega24Travel'ı ziyaret et"
+    "bannerVisit": "Ziyaret et",
+    "shortcut": {
+      "travel-agencies": "Seyahat acentesi",
+      "taxi-transfer": "Taksi",
+      "airport-transfer": "Havalimanı transferi",
+      "car-rental": "Araç kiralama",
+      "cargo-logistics": "Kargo",
+      "courier-delivery": "Paket ve teslimat"
+    }
   }
 }
