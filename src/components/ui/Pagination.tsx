@@ -14,7 +14,7 @@ function href(pathname: string, params: Props["params"], page: number) {
 export function Pagination({ page, pages, pathname, params }: Props) {
   const t = useTranslations("common");
   if (pages <= 1) return null;
-  const cls = "inline-flex min-h-11 items-center gap-1 rounded-xl border border-line bg-surface px-4 text-sm font-semibold hover:bg-surface-2";
+  const cls = "rega-control-secondary inline-flex min-h-11 items-center gap-1 rounded-full border border-line bg-surface px-5 text-sm font-semibold hover:border-brand/40 hover:text-brand-text";
   return (
     <nav aria-label={t("page")} className="mt-10 flex items-center justify-between gap-3">
       {page > 1 ? <Link rel="prev" href={href(pathname, params, page - 1)} className={cls}><span aria-hidden="true" className="rtl-flip">‹</span>{t("previous")}</Link> : <span />}
