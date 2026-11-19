@@ -1557,6 +1557,14 @@
     "notBooking": "Dies ist ein Verzeichnis zum Entdecken; Tickets und Buchungen werden hier nicht verkauft.",
     "allCities": "Alle Städte",
     "bannerBody": "Reisebüros, Taxis, Autovermietung, Fracht und mehr entdecken...",
-    "bannerCta": "Rega24Travel besuchen"
+    "bannerVisit": "Besuchen",
+    "shortcut": {
+      "travel-agencies": "Reisebüro",
+      "taxi-transfer": "Taxi",
+      "airport-transfer": "Flughafentransfer",
+      "car-rental": "Autovermietung",
+      "cargo-logistics": "Fracht",
+      "courier-delivery": "Pakete & Lieferung"
+    }
   }
 }

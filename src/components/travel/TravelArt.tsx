@@ -2,6 +2,7 @@
  * Rega24Travel artwork (owner mockup 2026-11-18). Original inline vectors: no photograph, no third-party asset, no
  * network request. Decorative only — aria-hidden; the visible text carries the meaning.
  */
+import type { ReactNode } from "react";
 
 /** Line airplane with a swoosh trail, drawn in currentColor (hero title). */
 export function PlaneSwoosh({ className }: { className?: string }) {
@@ -61,57 +62,88 @@ export function AirportArt({ className }: { className?: string }) {
   );
 }
 
-/** Red suitcase with a straw hat, a jet and a camera (home promotional card). */
-export function SuitcaseArt({ className }: { className?: string }) {
+/**
+ * Premium banner scene (owner reference 2026-11-18 21:32): red suitcase with straw hat on a glowing platform, globe
+ * with a location pin, taxi roof sign, white SUV, airport terminal with control tower and a departing jet.
+ */
+export function TravelSceneArt({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 220 200" className={className} aria-hidden="true" focusable="false">
+    <svg viewBox="0 0 360 260" className={className} aria-hidden="true" focusable="false">
       <defs>
-        <linearGradient id="rs-case" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#ff6a5e" />
-          <stop offset="1" stopColor="#a5121a" />
-        </linearGradient>
-        <linearGradient id="rs-hat" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#f6dfae" />
-          <stop offset="1" stopColor="#d9b06a" />
-        </linearGradient>
-        <linearGradient id="rs-plane" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#ffffff" />
-          <stop offset="1" stopColor="#c9ced8" />
-        </linearGradient>
-        <linearGradient id="rs-cam" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#56627a" />
-          <stop offset="1" stopColor="#1d2533" />
-        </linearGradient>
+        <linearGradient id="ts-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#6db3ff" stopOpacity=".55" /><stop offset=".7" stopColor="#ffd9b0" stopOpacity=".6" /><stop offset="1" stopColor="#fff" stopOpacity="0" /></linearGradient>
+        <linearGradient id="ts-case" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#ff5a4e" /><stop offset=".55" stopColor="#d42a20" /><stop offset="1" stopColor="#8b0f16" /></linearGradient>
+        <linearGradient id="ts-hat" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#f8e3b4" /><stop offset="1" stopColor="#d6a85f" /></linearGradient>
+        <linearGradient id="ts-metal" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#ffffff" /><stop offset="1" stopColor="#c3c9d4" /></linearGradient>
+        <linearGradient id="ts-glass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#9fd0ff" /><stop offset="1" stopColor="#2c5fa8" /></linearGradient>
+        <radialGradient id="ts-globe" cx=".35" cy=".3" r=".75"><stop offset="0" stopColor="#ffffff" /><stop offset="1" stopColor="#d9dde5" /></radialGradient>
+        <linearGradient id="ts-gold" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor="#ffe07a" /><stop offset=".5" stopColor="#fff4c9" /><stop offset="1" stopColor="#e19a12" /></linearGradient>
+        <linearGradient id="ts-taxi" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#ffe45c" /><stop offset="1" stopColor="#e7b300" /></linearGradient>
       </defs>
-      <ellipse cx="108" cy="188" rx="92" ry="8" fill="#2b0805" opacity=".28" />
-      {/* soft clouds */}
-      <ellipse cx="170" cy="150" rx="40" ry="14" fill="#fff" opacity=".22" />
-      <ellipse cx="190" cy="140" rx="22" ry="12" fill="#fff" opacity=".18" />
+      {/* sky and airport */}
+      <rect x="150" y="20" width="210" height="190" rx="24" fill="url(#ts-sky)" />
+      <path d="M262 150v-58h12v58Z" fill="#dfe3ea" />
+      <path d="M252 92h32l-5-14h-22Z" fill="#c3c9d4" />
+      <path d="M255 84h26v-10h-26Z" fill="url(#ts-glass)" />
+      <path d="M200 170v-26c40-10 90-10 150-2v28Z" fill="#e9edf3" />
+      <path d="M206 168v-20c38-8 84-8 138-2v22Z" fill="url(#ts-glass)" opacity=".9" />
+      {Array.from({ length: 10 }, (_, i) => <path key={i} d={`M${218 + i * 13} 168v-21`} stroke="#e9edf3" strokeWidth="1.6" />)}
+      {/* departing jet */}
+      <g transform="translate(250 30) rotate(-14)">
+        <path d="M0 14c0-4 6-7 14-7h68c8 0 14 3 14 7s-6 7-14 7H14C6 21 0 18 0 14Z" fill="url(#ts-metal)" />
+        <path d="M46 9 30-12h-8l10 21ZM46 19 30 40h-8l10-21ZM8 9 2-3H-3l3 14Z" fill="url(#ts-metal)" />
+        <path d="M78 10h12c3 0 5 2 6 4H78Z" fill="#2c5fa8" opacity=".8" />
+      </g>
+      {/* glowing platform ring */}
+      <ellipse cx="190" cy="222" rx="160" ry="26" fill="#2b0805" opacity=".22" />
+      <ellipse cx="190" cy="214" rx="156" ry="24" fill="none" stroke="url(#ts-gold)" strokeWidth="5" />
+      <ellipse cx="190" cy="214" rx="146" ry="19" fill="#d42a20" />
+      <ellipse cx="190" cy="211" rx="146" ry="16" fill="#e53832" />
+      {/* globe with pin */}
+      <circle cx="78" cy="168" r="44" fill="url(#ts-globe)" />
+      <path d="M50 146c8-6 18-4 22 2s14 4 16 12-8 12-6 20-10 10-16 4-14-6-14-16 4-12-2-22Zm46-14c8 2 14 8 16 16-6 0-10-4-14-2s-6-8-2-14Zm4 52c6-2 10 2 10 8s-6 10-10 6 0-10 0-14Z" fill="#d42a20" opacity=".9" />
+      <path d="M78 96a20 20 0 0 1 20 20c0 15-20 34-20 34s-20-19-20-34a20 20 0 0 1 20-20Z" fill="url(#ts-case)" stroke="#fff" strokeWidth="2.5" />
+      <circle cx="78" cy="116" r="7.5" fill="#fff" />
       {/* suitcase */}
-      <path d="M58 40V26a8 8 0 0 1 8-8h32a8 8 0 0 1 8 8v14" stroke="#7c0d12" strokeWidth="7" fill="none" strokeLinecap="round" />
-      <rect x="30" y="38" width="104" height="138" rx="14" fill="url(#rs-case)" />
-      <path d="M52 38v138M112 38v138" stroke="#8b0f16" strokeWidth="6" opacity=".55" />
-      <rect x="38" y="46" width="12" height="80" rx="6" fill="#fff" opacity=".22" />
-      <circle cx="46" cy="182" r="7" fill="#1d2533" />
-      <circle cx="120" cy="182" r="7" fill="#1d2533" />
+      <path d="M148 46V22a6 6 0 0 1 6-6h30a6 6 0 0 1 6 6v24" stroke="#c3c9d4" strokeWidth="6" fill="none" />
+      <rect x="122" y="44" width="96" height="150" rx="16" fill="url(#ts-case)" />
+      {[140, 158, 176, 194].map((x) => <path key={x} d={`M${x} 50v138`} stroke="#8b0f16" strokeWidth="3" opacity=".45" />)}
+      <rect x="128" y="52" width="10" height="110" rx="5" fill="#fff" opacity=".22" />
+      <circle cx="136" cy="200" r="6" fill="#1d2533" /><circle cx="206" cy="200" r="6" fill="#1d2533" />
       {/* straw hat */}
-      <ellipse cx="96" cy="44" rx="56" ry="15" fill="url(#rs-hat)" />
-      <path d="M66 42c0-22 14-32 30-32s30 10 30 32c-10 5-50 5-60 0Z" fill="url(#rs-hat)" />
-      <path d="M67 34c10 5 48 5 58 0l1 7c-10 5-50 5-60 0Z" fill="#2b1512" />
-      {/* camera */}
-      <rect x="112" y="150" width="58" height="36" rx="7" fill="url(#rs-cam)" />
-      <rect x="124" y="143" width="18" height="9" rx="3" fill="#1d2533" />
-      <circle cx="141" cy="168" r="12" fill="#c4cbd6" />
-      <circle cx="141" cy="168" r="8" fill="#1d2533" />
-      <circle cx="138" cy="165" r="2.5" fill="#fff" opacity=".7" />
-      {/* jet */}
-      <g transform="rotate(-12 150 92)">
-        <path d="M84 96c0-4 6-7 14-7h86c8 0 18 3 18 7s-10 7-18 7H98c-8 0-14-3-14-7Z" fill="url(#rs-plane)" />
-        <path d="M150 90 128 62h-10l14 28ZM150 102l-22 28h-10l14-28Z" fill="url(#rs-plane)" />
-        <path d="M94 90 86 76h-6l4 16Z" fill="url(#rs-plane)" />
-        <path d="M176 92h18c3 0 6 2 7 4h-25Z" fill="#6db3ff" opacity=".7" />
-        {Array.from({ length: 7 }, (_, i) => <circle key={i} cx={110 + i * 9} cy="94" r="1.6" fill="#6db3ff" />)}
+      <g transform="rotate(-16 150 52)">
+        <ellipse cx="150" cy="56" rx="54" ry="14" fill="url(#ts-hat)" />
+        <path d="M122 54c0-22 12-32 28-32s28 10 28 32c-10 5-46 5-56 0Z" fill="url(#ts-hat)" />
+        <path d="M123 46c10 5 44 5 54 0l1 7c-10 5-46 5-56 0Z" fill="#1d2533" />
+      </g>
+      {/* white SUV */}
+      <g transform="translate(206 150)">
+        <path d="M4 44V30c0-6 4-9 10-10l18-14c4-3 8-4 14-4h40c6 0 10 2 14 6l12 12c8 1 14 4 14 10v14Z" fill="url(#ts-metal)" />
+        <path d="M36 10h22v14H22Zm28 0h22l12 14H64Z" fill="#2c3a52" />
+        <path d="M118 30h10M4 34h12" stroke="#ff9d3a" strokeWidth="4" strokeLinecap="round" />
+        <circle cx="32" cy="46" r="12" fill="#1d2533" /><circle cx="32" cy="46" r="5" fill="#c3c9d4" />
+        <circle cx="106" cy="46" r="12" fill="#1d2533" /><circle cx="106" cy="46" r="5" fill="#c3c9d4" />
+      </g>
+      {/* taxi roof sign */}
+      <g transform="translate(120 188)">
+        <path d="M6 30 14 6h56l8 24Z" fill="url(#ts-taxi)" />
+        <rect x="0" y="28" width="84" height="8" rx="3" fill="#1d2533" />
+        <text x="42" y="24" textAnchor="middle" fontFamily="Arial, sans-serif" fontWeight="900" fontSize="15" fill="#1d2533">TAXI</text>
       </g>
     </svg>
   );
+}
+
+const STROKE = { fill: "none", stroke: "currentColor", strokeWidth: 1.8, strokeLinecap: "round", strokeLinejoin: "round" } as const;
+
+/** Red line icons of the six Rega24Travel service shortcuts (decorative; the label carries the meaning). */
+export function TravelServiceIcon({ slug, className }: { slug: string; className?: string }) {
+  const body: Record<string, ReactNode> = {
+    "travel-agencies": <path {...STROKE} fill="currentColor" d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2Z" />,
+    "taxi-transfer": <g {...STROKE}><path d="M9 4h6l1 3M5 17h14v-4l-2-5H7l-2 5Z" /><path d="M10 4V2.5h4V4" /><circle cx="8" cy="17.5" r="1.8" /><circle cx="16" cy="17.5" r="1.8" /><path d="M5 13h14" /></g>,
+    "airport-transfer": <g {...STROKE}><path d="M3 16V8c0-1 1-2 2-2h11l5 5v5Z" /><path d="M3 11h18M8 6v5M13 6v5" /><circle cx="7" cy="17" r="1.8" /><circle cx="17" cy="17" r="1.8" /></g>,
+    "car-rental": <g {...STROKE}><path d="M4 16v-3l2-5h12l2 5v3Z" /><path d="M4 13h16" /><circle cx="8" cy="16.5" r="1.8" /><circle cx="16" cy="16.5" r="1.8" /></g>,
+    "cargo-logistics": <g {...STROKE}><rect x="2" y="6" width="20" height="10" rx="2" /><path d="M2 11h20M6 6v5M10 6v5M14 6v5M18 6v5" /><circle cx="6" cy="17" r="1.6" /><circle cx="18" cy="17" r="1.6" /></g>,
+    "courier-delivery": <g {...STROKE}><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9Z" /><path d="m4 7.5 8 4.5 8-4.5M12 12v9" /></g>,
+  };
+  return <svg viewBox="0 0 24 24" className={className} aria-hidden="true" focusable="false">{body[slug] ?? body["car-rental"]}</svg>;
 }

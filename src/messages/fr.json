@@ -1557,6 +1557,14 @@
     "notBooking": "Ceci est un annuaire de découverte ; aucun billet ni réservation n'est vendu ici.",
     "allCities": "Toutes les villes",
     "bannerBody": "Agences de voyage, taxis, location de voitures, fret et plus encore...",
-    "bannerCta": "Visiter Rega24Travel"
+    "bannerVisit": "Visiter",
+    "shortcut": {
+      "travel-agencies": "Agence de voyage",
+      "taxi-transfer": "Taxi",
+      "airport-transfer": "Transfert aéroport",
+      "car-rental": "Location de voitures",
+      "cargo-logistics": "Fret",
+      "courier-delivery": "Colis et livraison"
+    }
   }
 }
