@@ -670,30 +670,30 @@
 /* Rega24Travel premium home banner (owner reference 2026-11-18 21:32). Brand red gradient, pearl service cards, gold
    CTA rim (the gold of the shared 3D icon palette). Logical properties: the scene sits at the start, copy at the end. */
 .rtb {
-  display: grid; gap: 14px; padding: 16px; border-radius: 20px; color: #fff;
+  display: grid; gap: 12px; padding: 14px; border-radius: 20px; color: #fff;
   background: radial-gradient(120% 90% at 100% 0%, rgb(255 255 255 / .12), transparent 60%), linear-gradient(135deg, var(--brand) 0%, color-mix(in srgb, var(--brand) 78%, var(--brand-deep)) 100%);
   box-shadow: 0 1px 2px rgb(43 8 5 / .08), 0 10px 24px -18px rgb(43 8 5 / .45);
 }
 /* Premium compact card (owner 2026-11-19 12:31): copy at the start, route art at the end, flat service tiles, white CTA. */
-.rtb-top { display: grid; grid-template-columns: minmax(0, 1fr) 76px; gap: 12px; align-items: center; }
-.rtb-art { width: 76px; height: 76px; }
+.rtb-top { display: grid; grid-template-columns: minmax(0, 1fr) 64px; gap: 10px; align-items: center; }
+.rtb-art { width: 64px; height: 64px; }
 .rtb-copy { min-width: 0; text-align: start; }
-.rtb-title { margin: 0; font-size: 24px; font-style: italic; font-weight: 800; line-height: 1.15; letter-spacing: -.01em; color: #fff; }
+.rtb-title { margin: 0; font-size: 22px; font-style: italic; font-weight: 800; line-height: 1.15; letter-spacing: -.01em; color: #fff; }
 .rtb-title span { color: #ffd9d5; }
-.rtb-sub { margin: 2px 0 0; font-size: 15px; font-weight: 800; line-height: 1.5; color: #fff; }
-.rtb-body { margin: 4px 0 0; font-size: 13px; font-weight: 500; line-height: 1.65; color: #fff; }
+.rtb-sub { margin: 0; font-size: 14px; font-weight: 800; line-height: 1.45; color: #fff; }
+.rtb-body { margin: 2px 0 0; font-size: 12.5px; font-weight: 500; line-height: 1.55; color: #fff; }
 .rtb-services { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 .rtb-services > li { display: flex; min-width: 0; }
 .rtb-service {
-  display: flex; flex: 1; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-width: 0; min-height: 60px; padding: 8px 4px;
+  display: flex; flex: 1; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-width: 0; min-height: 54px; padding: 6px 4px;
   border-radius: 14px; background: #fff; color: var(--ink); text-align: center; transition: background-color .15s ease;
 }
 .rtb-service:hover { background: #fff5f4; }
 .rtb-service:focus-visible, .rtb-cta:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
-.rtb-service-icon { display: grid; flex-shrink: 0; place-items: center; width: 28px; height: 28px; border-radius: 999px; background: color-mix(in srgb, var(--brand) 10%, #fff); color: var(--brand); }
-.rtb-service-label { font-size: 12px; font-weight: 700; line-height: 1.35; color: var(--ink); overflow-wrap: break-word; }
+.rtb-service-icon { display: grid; flex-shrink: 0; place-items: center; width: 26px; height: 26px; border-radius: 999px; background: color-mix(in srgb, var(--brand) 10%, #fff); color: var(--brand); }
+.rtb-service-label { font-size: 11.5px; font-weight: 700; line-height: 1.3; color: var(--ink); overflow-wrap: break-word; }
 .rtb-cta {
-  display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; padding: 0 18px; border-radius: 999px;
+  display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 18px; border-radius: 999px;
   background: #fff; color: var(--brand-text-light); font-size: 15px; font-weight: 800; transition: background-color .15s ease;
 }
 .rtb-cta:hover { background: #fff5f4; }
@@ -703,6 +703,8 @@
   .rtb-top { grid-template-columns: minmax(0, 1fr) 96px; gap: 20px; }
   .rtb-art { width: 96px; height: 96px; }
   .rtb-title { font-size: 30px; }
+  .rtb-sub { font-size: 15px; }
+  .rtb-service-label { font-size: 12.5px; }
   .rtb-body { font-size: 14px; max-width: 40rem; }
   .rtb-services { grid-column: 1 / -1; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; }
   .rtb-service { flex-direction: row; min-height: 52px; padding: 6px 12px; gap: 8px; }

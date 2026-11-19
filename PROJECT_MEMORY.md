@@ -1707,5 +1707,5 @@ Owner (07:20): complete the module while preserving the rest of Rega24 and its f
   line route illustration (TravelRouteArt); service icons in the shared line style (plane, taxi, bus, car, truck,
   package); softer brand-red gradient, no gold rims, light shadows; copy at the start, art at the end (RTL aligned);
   service chips are a 3x2 tile grid (no clipped scroll row), 6 tiles in a row on desktop; white CTA. Local Chrome
-  render: 365px at 390/360px (RTL), 344px LTR, 220px at 1200px, no horizontal overflow. E2E guard <=380 / <=280.
+  render ~326-365px on phones, 220px at 1200px, no horizontal overflow (CI with Vazirmatn measured 403px before tightening). E2E guard <=400 / <=280.
   Photographic imagery needs a licensed photo from the owner (none available in-repo; no stock downloads).
