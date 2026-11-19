@@ -7,20 +7,20 @@
    Clean white + neutrals with one vivid red sampled from the supplied official artwork as the single
    accent; amber only for rating stars. Components use semantic tokens only, never raw palette values. */
 :root {
-  --bg: #f8fafb;
+  /* Rega24 Premium 2026 palette (owner brief 2026-11-19): red #C91F24, white, soft gray #F6F7F9, dark #20242D. */
+  --bg: #f6f7f9;
   --surface: #ffffff;
-  --surface-2: #f7f7f8;
-  --ink: #171f29;
-  --muted: #6f737a;
+  --surface-2: #f6f7f9;
+  --ink: #20242d;
+  --muted: #636870; /* >= 4.9:1 on #f6f7f9 and 5.5:1 on white (WCAG AA) */
   --line: #e8edf2;
-  /* Current visual source: the official REGA24 logo (owner instruction 2026-10-30, "colours from the logo").
-     #d42a20 is the logo's core red; white action ink meets AA (5.06:1). The deep shades are the logo's own
-     shadow tones, used for the header, hero and banners. Derived text/control tokens stay shared. */
-  --brand: #d42a20;
-  --brand-glow: #e53832;   /* logo highlight: decoration and large text on deep red only */
-  --brand-deep: #9b1f15;   /* logo mid shadow */
-  --brand-deeper: #6b120a; /* logo deep shadow */
-  --brand-night: #2b0805;  /* darkest edge of the logo backdrop */
+  /* Brand red per the owner's Premium 2026 brief (supersedes the 2026-10-30 logo-sampled #d42a20). The official logo
+     artwork is unchanged (--logo-surface). Derived text/control tokens stay shared. */
+  --brand: #c91f24;        /* official Rega24 red; white action ink 5.7:1 (AA) */
+  --brand-glow: #e0383d;   /* highlight: decoration and large text on deep red only */
+  --brand-deep: #9a161b;   /* same hue, darker steps for header, hero and banners */
+  --brand-deeper: #670e12;
+  --brand-night: #2a0608;
   --logo-surface: #dc0201; /* Asset-matching backing only: official artwork stays unchanged. */
   --brand-text-light: color-mix(in srgb, var(--brand) 78%, black);
   --brand-text: var(--brand-text-light);
@@ -32,9 +32,10 @@
   --ring: var(--brand);
   --shadow: 0 1px 2px rgb(17 24 39 / 0.05), 0 10px 26px -16px rgb(17 24 39 / 0.18);
   --shadow-hover: 0 2px 4px rgb(17 24 39 / 0.07), 0 18px 36px -18px color-mix(in srgb, var(--brand) 24%, transparent);
-  --action-gradient: linear-gradient(180deg, var(--brand), var(--brand-deep));
-  --action-gradient-hover: linear-gradient(180deg, var(--brand-hover), var(--brand-deep));
-  --action-shadow: inset 0 1px 0 rgb(255 255 255 / .18), 0 4px 12px -6px color-mix(in srgb, var(--brand) 45%, transparent);
+  /* Flat premium actions: solid brand red with one soft static shadow (no glossy gradients). */
+  --action-gradient: linear-gradient(var(--brand), var(--brand));
+  --action-gradient-hover: linear-gradient(var(--brand-hover), var(--brand-hover));
+  --action-shadow: 0 6px 14px -8px color-mix(in srgb, var(--brand) 55%, transparent);
   --action-shadow-pressed: inset 0 2px 4px rgb(0 0 0 / .18);
   --control-highlight: inset 0 1px 0 rgb(255 255 255 / .55);
   color-scheme: light;
@@ -106,8 +107,8 @@
   .rega-control-primary:hover { background-image: var(--action-gradient-hover); }
   .rega-control-primary:active { box-shadow: var(--action-shadow-pressed); }
   .rega-control-secondary {
-    background-image: linear-gradient(180deg, var(--surface), var(--surface-2));
-    box-shadow: var(--control-highlight), var(--shadow);
+    background-color: var(--surface);
+    box-shadow: var(--shadow);
   }
   .rega-control-secondary:active { box-shadow: var(--action-shadow-pressed); }
 }
@@ -154,7 +155,7 @@
   --control-highlight: inset 0 1px 0 rgb(255 255 255 / .55);
   --brand-text: var(--brand-text-light);
   --brand-soft: color-mix(in srgb, var(--brand) 6%, white);
-  --ink: #171f29; --muted: #5c6168; --line: #e6e7eb; --surface: #ffffff; --surface-2: #f6f7f8; --bg: #ffffff;
+  --ink: #20242d; --muted: #5c6168; --line: #e6e7eb; --surface: #ffffff; --surface-2: #f6f7f9; --bg: #ffffff;
   color: var(--ink);
   background: #ffffff;
 }
@@ -236,9 +237,7 @@
 /* Figma enQ8cs8Yd2xxZ5bajyk6rI — one visual system, responsive geometry.
    Use the current Figma foundation red with accessible white action ink. */
 .rega-home {
-  --bg: #f8fafb;
-  --surface-2: #f9fafb;
-  --ink: #171f29;
+  --bg: #f6f7f9;
   --line: #e8edf2;
   background: var(--bg);
   font-family: "Vazirmatn Variable", "Inter Variable", system-ui, sans-serif;
@@ -369,39 +368,29 @@
 }
 @media (min-width: 1280px) { .rega-home .rh-tiles { grid-template-columns: repeat(12, minmax(0, 1fr)); } }
 
-/* Home refinement (owner brief 2026-11-14: soft 3D depth, pearl search panel, premium category cards). Existing
-   colours only: the pearl steps are the header pill's own (#fff, #f7f6f6), reds come from the tokens. No layout change. */
+/* Premium 2026 (owner brief 2026-11-19): clean white search panel and category cards with soft static depth and
+   professional line icons on a soft brand tile. No glossy gradients, no 3D artwork. Geometry stays logical (RTL/LTR). */
 .rega-home .rh-search {
-  border: 1px solid rgb(255 255 255 / .9);
-  background: linear-gradient(180deg, #fff 0%, #fff 58%, #f7f6f6 100%);
-  box-shadow: inset 0 1px 0 #fff, inset 0 -2px 5px rgb(43 8 5 / .06), 0 2px 6px rgb(43 8 5 / .2), 0 24px 48px -20px rgb(43 8 5 / .6);
+  border: 1px solid rgb(255 255 255 / .9); background: #fff;
+  box-shadow: 0 2px 6px rgb(32 36 45 / .12), 0 24px 48px -20px rgb(32 36 45 / .45);
 }
-.rega-home .rh-search-btn, .rega-home .rh-search-btn:hover {
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / .28), inset 0 -2px 0 rgb(0 0 0 / .16), 0 8px 16px -8px color-mix(in srgb, var(--brand) 70%, transparent);
-}
+.rega-home .rh-search-btn, .rega-home .rh-search-btn:hover { box-shadow: var(--action-shadow); }
 .rega-home .rh-tile {
-  gap: 8px; min-height: 98px; padding: 12px 4px 10px; border-radius: 16px;
-  background: linear-gradient(180deg, #fff 0%, #fff 60%, #f7f6f6 100%);
-  box-shadow: inset 0 1px 0 #fff, 0 1px 2px rgb(17 24 39 / .06), 0 14px 26px -16px rgb(43 8 5 / .5);
+  gap: 8px; min-height: 104px; padding: 12px 4px; border-radius: 18px; background: #fff;
+  box-shadow: 0 1px 2px rgb(32 36 45 / .06), 0 12px 24px -18px rgb(32 36 45 / .4);
 }
 .rega-home .rh-tile-icon {
-  width: 42px; height: 42px; padding: 9px; border-radius: 13px; background: var(--brand-soft);
-  box-shadow: inset 0 1px 0 #fff, inset 0 0 0 1px color-mix(in srgb, var(--brand) 9%, transparent);
+  width: 46px; height: 46px; padding: 11px; border-radius: 14px; background: var(--brand-soft); color: var(--brand);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--brand) 10%, transparent);
 }
-@media (min-width: 768px) { .rega-home .rh-tile { min-height: 108px; } }
-
-/* Owner reference image 2026-11-14 (Figma 5h9pkPCkGHznr4z0JApqVT): soft-3D category artwork on taller pearl cards,
-   bold labels, and the empty state as a card with a shop illustration. Same tokens; geometry stays logical (RTL/LTR). */
-.rega-home .rh-tile { gap: 6px; min-height: 112px; padding: 12px 4px; border-radius: 22px; }
-.rega-home .rh-tile-art { width: 50px; height: 50px; flex-shrink: 0; filter: drop-shadow(0 4px 5px rgb(43 8 5 / .14)); }
 .rega-home .rh-tile-label { font-weight: 700; }
 @media (min-width: 400px) { .rega-home .rh-tile-label { font-size: 12.5px; } }
 @media (min-width: 768px) {
-  .rega-home .rh-tile { min-height: 126px; }
-  .rega-home .rh-tile-art { width: 58px; height: 58px; }
+  .rega-home .rh-tile { min-height: 118px; }
+  .rega-home .rh-tile-icon { width: 52px; height: 52px; padding: 13px; }
   .rega-home .rh-tile-label { font-size: 13px; }
 }
-.rega-home .rh-explore-fallback.rh-explore-art { background: linear-gradient(180deg, #fff 0%, #f7f6f6 100%); box-shadow: inset 0 0 0 1px var(--line); }
+.rega-home .rh-explore-fallback.rh-explore-art { background: var(--surface-2); box-shadow: inset 0 0 0 1px var(--line); }
 
 /* Sections */
 .rega-home .rh-section { padding-top: 36px; }
@@ -477,7 +466,7 @@
 .rega-home .rh-biz-actions { position: relative; z-index: 2; display: flex; gap: 6px; margin-top: auto; padding-top: 10px; }
 .rega-home .rh-act {
   display: inline-flex; flex: 1 1 0; min-width: 0; align-items: center; justify-content: center; gap: 5px; min-height: 36px; padding-inline: 6px;
-  border: 1px solid var(--line); border-radius: 999px; background: linear-gradient(180deg, var(--surface), var(--surface-2)); box-shadow: var(--control-highlight); color: var(--ink); font-size: 12.5px; font-weight: 600; white-space: nowrap;
+  border: 1px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--ink); font-size: 12.5px; font-weight: 600; white-space: nowrap;
   transition: border-color .15s ease, color .15s ease;
 }
 .rega-home .rh-act:hover { border-color: color-mix(in srgb, var(--brand) 45%, transparent); color: var(--brand-text); }
@@ -548,11 +537,11 @@
 .rega-home .rh-btn-red:hover { background: var(--action-gradient-hover); }
 .rega-home .rh-empty {
   display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "text art" "btn art"; gap: 14px 16px; padding: 20px;
-  border-radius: 22px; background: linear-gradient(180deg, #fff 0%, #fff 60%, #f7f6f6 100%);
-  box-shadow: inset 0 1px 0 #fff, 0 1px 2px rgb(17 24 39 / .05), 0 16px 30px -22px rgb(43 8 5 / .45);
+  border-radius: 22px; background: #fff;
+  box-shadow: 0 1px 2px rgb(32 36 45 / .05), 0 16px 30px -22px rgb(32 36 45 / .4);
 }
 .rega-home .rh-empty > div { grid-area: text; }
-.rega-home .rh-empty-art { grid-area: art; align-self: center; width: clamp(104px, 30vw, 210px); height: auto; }
+.rega-home .rh-empty-art { grid-area: art; align-self: center; width: clamp(64px, 16vw, 96px); height: auto; padding: clamp(14px, 3.5vw, 22px); border-radius: 24px; background: var(--brand-soft); color: var(--brand); }
 .rega-home .rh-empty .rh-btn-red { grid-area: btn; gap: 8px; min-height: 48px; border-radius: 14px; font-size: 15px; }
 @media (max-width: 519.98px) { .rega-home .rh-empty { grid-template-areas: "text art" "btn btn"; } }
 @media (min-width: 768px) { .rega-home .rh-empty { padding: 28px 32px; } .rega-home .rh-empty .rh-btn-red { justify-self: start; } }
@@ -568,7 +557,7 @@
 }
 
 /* Owner's red/silver banner: scoped to the public header only. */
-.rega-header { --ring: #fff; isolation: isolate; background: #920009; }
+.rega-header { --ring: #fff; isolation: isolate; background: var(--brand-deep); }
 .rega-header-art { position: absolute; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(180deg, transparent 0%, transparent 54%, rgb(43 8 5 / .36) 66%, rgb(43 8 5 / .88) 78%, var(--brand-night) 84%, var(--brand-night) 100%), url('/brand/rega24-header-backdrop.svg') center / cover no-repeat; }
 .rega-header-inner { max-width: 1600px; margin: auto; padding: clamp(20px, 4vw, 60px) clamp(16px, 4vw, 64px) clamp(36px, 5vw, 76px); }
 .rega-header-row { display: flex; align-items: center; justify-content: space-between; gap: 3%; min-height: clamp(100px, 15vw, 230px); }
@@ -577,17 +566,17 @@
 .rega-header-symbol { width: 28%; height: auto; border-radius: 28%; mask-image: linear-gradient(transparent, #000 3%, #000 97%, transparent); }
 .rega-header-wordmark { width: 69%; height: auto; mask-image: linear-gradient(transparent, #000 14%, #000 83%, transparent); }
 .rega-header-controls { display: flex; align-items: center; gap: clamp(12px, 2vw, 30px); flex: 1; min-width: 0; }
-.rega-header-pill { display: flex; align-items: center; flex: 1; min-width: 0; height: clamp(52px, 7.5vw, 96px); border: 2px solid #ffd4d6; border-radius: 100px; color: #505056; background: linear-gradient(#fff, #f7f6f6 55%, #eadcdf); box-shadow: inset 0 -3px 7px #eaa2a8, 0 6px 18px #65000960; }
+.rega-header-pill { display: flex; align-items: center; flex: 1; min-width: 0; height: clamp(52px, 7.5vw, 96px); border: 1px solid rgb(255 255 255 / .9); border-radius: 100px; color: #505056; background: #fff; box-shadow: 0 8px 22px -10px rgb(32 36 45 / .55); }
 .rega-header-search { display: flex; align-items: center; flex: 1; min-width: 0; }
 .rega-header-search button { display: grid; place-items: center; flex-shrink: 0; width: 52px; height: 48px; border-radius: 50%; }
 .rega-header-search input { width: 100%; min-width: 0; background: transparent; color: #36363b; font-size: 16px; outline-offset: -2px; border-radius: 6px; }
 .rega-header-pill details { flex-shrink: 0; margin-right: 12px; }
 .rega-header-pill summary { min-height: 44px; width: 110px; border: 0; border-left: 1px solid #d5ced0; border-radius: 0; background: transparent; color: #505056; font-size: clamp(14px, 1.7vw, 23px); gap: 10px; }
-.rega-header-pill summary:hover { background: #ece6e6; }
+.rega-header-pill summary:hover { background: var(--surface-2); }
 .rega-header-pill :is(summary, input, button):focus-visible { outline: 2px solid #97000a; outline-offset: 2px; }
 .rega-header details > ul { --ring: var(--brand); color: var(--ink); max-height: min(32rem, calc(100dvh - clamp(11rem, 22vw, 20rem))); }
-.rega-header-menu { display: grid; place-items: center; flex-shrink: 0; width: clamp(48px, 7.5vw, 96px); height: clamp(48px, 7.5vw, 96px); border-radius: 28%; border: 2px solid #ff838a; background: linear-gradient(145deg, #ff1627, #bd0010 65%, #ee1023); box-shadow: inset 0 0 12px #ff9ca380, 0 5px 14px #56000970; }
-.rega-header-menu:hover { background: #e30017; }
+.rega-header-menu { display: grid; place-items: center; flex-shrink: 0; width: clamp(48px, 7.5vw, 96px); height: clamp(48px, 7.5vw, 96px); border-radius: 28%; border: 1px solid rgb(255 255 255 / .35); background: var(--brand); box-shadow: 0 8px 20px -10px rgb(32 36 45 / .6); }
+.rega-header-menu:hover { background: var(--brand-hover); }
 .rega-header-menu svg { width: 56%; height: 56%; }
 .rega-header-secondary { display: flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 52px; }
 .rega-header-secondary nav { height: 52px; }
@@ -608,7 +597,7 @@
 
 /* Rega24Travel (owner mockup 2026-11-18): home tile + promotional card, /travel page. Brand tokens and the map-banner
    gradient; the light accent #ffc9c4 keeps >= 3.4:1 on every red for the large titles. Logical properties for RTL/LTR. */
-.rega-home .rh-tile-travel { position: relative; border: 2px solid var(--brand); box-shadow: inset 0 1px 0 #fff, 0 0 0 4px color-mix(in srgb, var(--brand) 14%, transparent), 0 14px 26px -14px color-mix(in srgb, var(--brand) 70%, transparent); }
+.rega-home .rh-tile-travel { position: relative; border: 2px solid var(--brand); box-shadow: 0 0 0 4px color-mix(in srgb, var(--brand) 14%, transparent), 0 14px 26px -14px color-mix(in srgb, var(--brand) 70%, transparent); }
 .rega-home .rh-tile-badge { position: absolute; inset-block-start: -9px; inset-inline-end: -4px; padding: 2px 10px; border-radius: 999px; background: var(--brand); color: var(--brand-ink); font-size: 12px; font-weight: 800; line-height: 1.5; box-shadow: 0 4px 10px -4px var(--brand-deeper); }
 
 /* Banner (owner reference 2026-11-19): white card, photo fading in from the end, red wave along the bottom. Fixed

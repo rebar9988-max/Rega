@@ -60,7 +60,7 @@ export const CATEGORY_ICON: Record<string, string> = {
   health: "heart-pulse", food: "utensils", legal: "scale", admin: "file-text", translation: "languages", "beauty-barber": "scissors",
   "auto-garage": "car", "construction-crafts": "hammer", education: "graduation-cap", "real-estate": "house", "travel-tickets": "plane",
   "groceries-markets": "building-2", "it-phones": "smartphone", "tax-accounting": "calculator", "driving-schools": "car", "transport-moving": "truck",
-  insurance: "shield", "community-associations": "users",
+  insurance: "shield", "community-associations": "users", cleaning: "sparkles",
 };
 /** Small icon for a business row (the frame uses a medical icon for health, cutlery for food, …). */
 export const ROW_ICON: Record<string, string> = { ...CATEGORY_ICON, health: "stethoscope" };
