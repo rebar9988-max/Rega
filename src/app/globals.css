@@ -7,11 +7,11 @@
    Clean white + neutrals with one vivid red sampled from the supplied official artwork as the single
    accent; amber only for rating stars. Components use semantic tokens only, never raw palette values. */
 :root {
-  --bg: #f8fafb;
+  --bg: #f8f7f6;          /* pearl white */
   --surface: #ffffff;
   --surface-2: #f7f7f8;
   --ink: #171f29;
-  --muted: #6f737a;
+  --muted: #676b72; /* AA (>= 4.9:1) on the pearl ground and on white */
   --line: #e8edf2;
   /* Current visual source: the official REGA24 logo (owner instruction 2026-10-30, "colours from the logo").
      #d42a20 is the logo's core red; white action ink meets AA (5.06:1). The deep shades are the logo's own
@@ -30,11 +30,12 @@
   --brand-soft: color-mix(in srgb, var(--brand) 6%, white);
   --sun: oklch(0.8 0.16 80);
   --ring: var(--brand);
-  --shadow: 0 1px 2px rgb(17 24 39 / 0.05), 0 10px 26px -16px rgb(17 24 39 / 0.18);
-  --shadow-hover: 0 2px 4px rgb(17 24 39 / 0.07), 0 18px 36px -18px color-mix(in srgb, var(--brand) 24%, transparent);
+  /* Premium soft-3D depth (2026-11-19): a contact shadow, a short ambient layer and a long warm falloff. */
+  --shadow: 0 1px 1px rgb(17 24 39 / 0.04), 0 2px 6px -2px rgb(17 24 39 / 0.06), 0 14px 30px -20px rgb(43 8 5 / 0.3);
+  --shadow-hover: 0 1px 2px rgb(17 24 39 / 0.06), 0 6px 14px -6px rgb(17 24 39 / 0.1), 0 24px 44px -22px color-mix(in srgb, var(--brand) 36%, transparent);
   --action-gradient: linear-gradient(180deg, var(--brand), var(--brand-deep));
   --action-gradient-hover: linear-gradient(180deg, var(--brand-hover), var(--brand-deep));
-  --action-shadow: inset 0 1px 0 rgb(255 255 255 / .18), 0 4px 12px -6px color-mix(in srgb, var(--brand) 45%, transparent);
+  --action-shadow: inset 0 1px 0 rgb(255 255 255 / .24), inset 0 -2px 0 rgb(0 0 0 / .14), 0 8px 18px -10px color-mix(in srgb, var(--brand) 70%, transparent);
   --action-shadow-pressed: inset 0 2px 4px rgb(0 0 0 / .18);
   --control-highlight: inset 0 1px 0 rgb(255 255 255 / .55);
   color-scheme: light;
@@ -77,7 +78,7 @@
   --shadow-card: var(--shadow);
   --shadow-lift: var(--shadow-hover);
   --font-sans: "Inter Variable", "Vazirmatn Variable", system-ui, "Segoe UI", Tahoma, sans-serif;
-  --radius-card: 0.875rem;
+  --radius-card: 1rem;
 }
 
 @layer base {
@@ -196,9 +197,10 @@
 }
 .rega-card {
   border: 1px solid var(--line);
-  background: var(--surface);
-  border-radius: 0.75rem;
-  box-shadow: 0 1px 2px rgb(17 24 39 / .04);
+  background: linear-gradient(180deg, var(--surface) 0%, var(--surface) 70%, var(--surface-2) 100%);
+  border-radius: 1rem;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / .7), 0 1px 2px rgb(17 24 39 / .04), 0 10px 24px -20px rgb(43 8 5 / .28);
+  transition: border-color .15s ease, box-shadow .15s ease;
 }
 .rega-card:hover, .rega-card:focus-within { border-color: color-mix(in srgb, var(--brand) 34%, transparent); box-shadow: var(--shadow); }
 /* Home hero: photograph plus a brand-red panel wide enough for the official lockup at retina size. */
@@ -236,7 +238,7 @@
 /* Figma enQ8cs8Yd2xxZ5bajyk6rI — one visual system, responsive geometry.
    Use the current Figma foundation red with accessible white action ink. */
 .rega-home {
-  --bg: #f8fafb;
+  --bg: #f8f7f6;
   --surface-2: #f9fafb;
   --ink: #171f29;
   --line: #e8edf2;
@@ -247,7 +249,7 @@
 [dir="rtl"] .rega-home { line-height: 1.8; }
 .rega-home h1 { font-weight: 700; }
 .rega-home :is(h1, h2, h3) { overflow-wrap: anywhere; }
-.rega-home .rega-card { box-shadow: none; border-radius: 14px; }
+.rega-home .rega-card { border-radius: 16px; }
 .rega-home-search input { font-size: 1rem; }
 .rega-directory-card { border-radius: 14px; box-shadow: none; }
 /* The add-business frame is a visual shell over the existing validated wizard. */
@@ -567,44 +569,65 @@
   .rega-home :is(.rh-tile, .rh-biz, .rh-biz-img, .rh-explore-media, .rh-mapbanner-cta) { transition: none; }
 }
 
-/* Owner's red/silver banner: scoped to the public header only. */
-.rega-header { --ring: #fff; isolation: isolate; background: #920009; }
-.rega-header-art { position: absolute; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(180deg, transparent 0%, transparent 54%, rgb(43 8 5 / .36) 66%, rgb(43 8 5 / .88) 78%, var(--brand-night) 84%, var(--brand-night) 100%), url('/brand/rega24-header-backdrop.svg') center / cover no-repeat; }
-.rega-header-inner { max-width: 1600px; margin: auto; padding: clamp(20px, 4vw, 60px) clamp(16px, 4vw, 64px) clamp(36px, 5vw, 76px); }
-.rega-header-row { display: flex; align-items: center; justify-content: space-between; gap: 3%; min-height: clamp(100px, 15vw, 230px); }
-.rega-header-brand { display: block; width: 49%; flex-shrink: 0; border-radius: 16px; }
-.rega-header-lockup { display: flex; align-items: center; gap: 3%; width: 100%; }
-.rega-header-symbol { width: 28%; height: auto; border-radius: 28%; mask-image: linear-gradient(transparent, #000 3%, #000 97%, transparent); }
-.rega-header-wordmark { width: 69%; height: auto; mask-image: linear-gradient(transparent, #000 14%, #000 83%, transparent); }
-.rega-header-controls { display: flex; align-items: center; gap: clamp(12px, 2vw, 30px); flex: 1; min-width: 0; }
-.rega-header-pill { display: flex; align-items: center; flex: 1; min-width: 0; height: clamp(52px, 7.5vw, 96px); border: 2px solid #ffd4d6; border-radius: 100px; color: #505056; background: linear-gradient(#fff, #f7f6f6 55%, #eadcdf); box-shadow: inset 0 -3px 7px #eaa2a8, 0 6px 18px #65000960; }
+/* ── REGA24 premium header (owner brief 2026-11-19: world-class 2026 standard) ──────────────────────────────
+   One compact bar on every screen: official lockup at the start, pearl search pill, 3D menu key. Glossy logo red with a
+   soft top highlight and a hairline edge instead of the former 230 px banner. Phones: logo + menu on row one, search on
+   row two. The header row stays dir="ltr" (official lockup orientation); content rows follow the locale. */
+.rega-header {
+  --ring: #fff; isolation: isolate;
+  background:
+    radial-gradient(120% 140% at 12% -40%, rgb(255 255 255 / .22), transparent 55%),
+    linear-gradient(180deg, #d4141a 0%, #b80d12 55%, #96090d 100%);
+  box-shadow: inset 0 -1px 0 rgb(255 255 255 / .12), 0 10px 28px -18px rgb(43 8 5 / .7);
+}
+.rega-header-art { position: absolute; inset: 0; z-index: -1; pointer-events: none; opacity: .28; mix-blend-mode: screen; background: url('/brand/rega24-header-backdrop.svg') center / cover no-repeat; }
+.rega-header-inner { position: relative; max-width: 1440px; margin: auto; padding: 10px 16px 12px; }
+.rega-header-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 12px; min-height: 52px; }
+.rega-header-brand { display: block; flex-shrink: 0; border-radius: 12px; }
+.rega-header-lockup { display: flex; align-items: center; gap: 10px; }
+.rega-header-symbol { width: auto; height: 46px; border-radius: 12px; box-shadow: 0 0 0 1px rgb(255 255 255 / .35), 0 6px 14px -6px rgb(43 8 5 / .75); mask-image: none; }
+.rega-header-wordmark { width: auto; height: 26px; mask-image: none; filter: drop-shadow(0 2px 3px rgb(43 8 5 / .45)); }
+/* Row two on phones: search pill at full width; the menu key stays on row one (positioned at the end). */
+.rega-header-controls { display: flex; align-items: center; gap: 10px; flex: 1 1 100%; order: 3; min-width: 0; }
+.rega-header-pill {
+  display: flex; align-items: center; flex: 1; min-width: 0; height: 48px; padding-inline-end: 4px; border: 1px solid rgb(255 255 255 / .9);
+  border-radius: 999px; color: #4a4d55; background: linear-gradient(180deg, #fff 0%, #fff 55%, #f6f4f3 100%);
+  box-shadow: inset 0 1px 0 #fff, inset 0 -2px 4px rgb(43 8 5 / .06), 0 1px 2px rgb(43 8 5 / .25), 0 12px 24px -14px rgb(43 8 5 / .7);
+}
 .rega-header-search { display: flex; align-items: center; flex: 1; min-width: 0; }
-.rega-header-search button { display: grid; place-items: center; flex-shrink: 0; width: 52px; height: 48px; border-radius: 50%; }
-.rega-header-search input { width: 100%; min-width: 0; background: transparent; color: #36363b; font-size: 16px; outline-offset: -2px; border-radius: 6px; }
-.rega-header-pill details { flex-shrink: 0; margin-right: 12px; }
-.rega-header-pill summary { min-height: 44px; width: 110px; border: 0; border-left: 1px solid #d5ced0; border-radius: 0; background: transparent; color: #505056; font-size: clamp(14px, 1.7vw, 23px); gap: 10px; }
-.rega-header-pill summary:hover { background: #ece6e6; }
-.rega-header-pill :is(summary, input, button):focus-visible { outline: 2px solid #97000a; outline-offset: 2px; }
-.rega-header details > ul { --ring: var(--brand); color: var(--ink); max-height: min(32rem, calc(100dvh - clamp(11rem, 22vw, 20rem))); }
-.rega-header-menu { display: grid; place-items: center; flex-shrink: 0; width: clamp(48px, 7.5vw, 96px); height: clamp(48px, 7.5vw, 96px); border-radius: 28%; border: 2px solid #ff838a; background: linear-gradient(145deg, #ff1627, #bd0010 65%, #ee1023); box-shadow: inset 0 0 12px #ff9ca380, 0 5px 14px #56000970; }
-.rega-header-menu:hover { background: #e30017; }
-.rega-header-menu svg { width: 56%; height: 56%; }
-.rega-header-secondary { display: flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 52px; }
-.rega-header-secondary nav { height: 52px; }
-.rega-header-secondary nav ul { gap: clamp(12px, 2vw, 30px); }
+.rega-header-search button { display: grid; place-items: center; flex-shrink: 0; width: 46px; height: 44px; border-radius: 50%; color: var(--brand-text-light); }
+.rega-header-search input { width: 100%; min-width: 0; background: transparent; color: #2a2d33; font-size: 16px; outline-offset: -2px; border-radius: 6px; }
+.rega-header-pill details { flex-shrink: 0; }
+.rega-header-pill summary { min-height: 40px; width: 96px; border: 0; border-left: 1px solid #e3dcdc; border-radius: 0 999px 999px 0; background: transparent; color: #4a4d55; font-size: 14px; font-weight: 600; gap: 8px; }
+.rega-header-pill summary:hover { background: #f5efef; }
+.rega-header-pill :is(summary, input, button):focus-visible { outline: 2px solid var(--brand-deep); outline-offset: 2px; }
+.rega-header details > ul { --ring: var(--brand); color: var(--ink); max-height: min(32rem, calc(100dvh - 9rem)); }
+.rega-header-menu {
+  position: absolute; inset-block-start: 12px; right: 16px; display: grid; place-items: center; flex-shrink: 0; width: 48px; height: 48px;
+  border-radius: 14px; border: 1px solid rgb(255 255 255 / .45); color: #fff;
+  background: linear-gradient(180deg, rgb(255 255 255 / .2) 0%, rgb(255 255 255 / .06) 100%);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / .35), inset 0 -2px 4px rgb(43 8 5 / .25), 0 8px 18px -10px rgb(43 8 5 / .8);
+  transition: background-color .15s ease, transform .15s ease;
+}
+.rega-header-menu:hover { background-color: rgb(255 255 255 / .14); }
+.rega-header-menu:active { transform: translateY(1px); }
+.rega-header-menu svg { width: 24px; height: 24px; }
+.rega-header-secondary { display: flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 44px; margin-top: 10px; border-top: 1px solid rgb(255 255 255 / .16); }
+.rega-header-secondary nav { height: 44px; }
+.rega-header-secondary nav ul { gap: clamp(12px, 2vw, 28px); }
 .rega-header-secondary nav a > span:last-child { bottom: 2px; }
 @media (max-width: 1279px) { .rega-header-secondary { display: none; } }
-@media (max-width: 767px) {
-  .rega-header-inner { padding: 12px 16px 38px; }
-  .rega-header-row { flex-direction: column; gap: 12px; }
-  .rega-header-brand { width: 220px; }
-  .rega-header-controls { width: 100%; max-width: 460px; gap: 12px; }
+@media (min-width: 768px) {
+  .rega-header-inner { padding: 12px 32px; }
+  .rega-header-row { flex-wrap: nowrap; gap: 28px; min-height: 60px; }
+  .rega-header-symbol { height: 54px; border-radius: 14px; }
+  .rega-header-wordmark { height: 30px; }
+  .rega-header-controls { flex: 0 1 44rem; order: 0; gap: 14px; }
   .rega-header-pill { height: 52px; }
-  .rega-header-pill details { margin-right: 8px; }
-  .rega-header-pill summary { width: 100px; }
-  .rega-header-search button { width: 44px; height: 44px; }
-  .rega-header-menu { width: 48px; height: 48px; }
+  .rega-header-menu { position: static; width: 52px; height: 52px; }
 }
+@media (min-width: 1024px) { .rega-header-inner { padding-inline: 56px; } .rega-header-symbol { height: 58px; } .rega-header-wordmark { height: 34px; } }
+@media (max-width: 359.98px) { .rega-header-wordmark { height: 22px; } .rega-header-symbol { height: 42px; } .rega-header-pill summary { width: 84px; } }
 
 /* Rega24Travel (owner mockup 2026-11-18): home tile + promotional card, /travel page. Brand tokens and the map-banner
    gradient; the light accent #ffc9c4 keeps >= 3.4:1 on every red for the large titles. Logical properties for RTL/LTR. */
@@ -755,3 +778,45 @@
 .rt-pill-link { justify-content: center; }
 .rt-pill-link:hover { border-color: var(--brand); color: var(--brand-text); }
 .rt-register { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-top: 24px; padding: 16px; border: 1px solid var(--line); border-radius: 18px; background: var(--surface); box-shadow: 0 10px 22px -18px rgb(43 8 5 / .5); }
+
+/* ── REGA24 premium 2026 layer (owner brief 2026-11-19) ─────────────────────────────────────────────────────────
+   One visual system on phone, tablet and desktop: pearl ground, logo reds, soft layered 3D depth, 16 px card radius,
+   pill actions. Visual only: no markup, route or behaviour depends on these rules. Kept last so it governs. */
+:root[data-theme="dark"] .rega-card { background: var(--surface); box-shadow: var(--shadow); }
+.rega-control-secondary:hover { box-shadow: var(--control-highlight), var(--shadow-hover); }
+.rega-shell { border-radius: 1.125rem; }
+.rega-search-shell { border-radius: 999px; box-shadow: inset 0 1px 0 #fff, 0 1px 2px rgb(17 24 39 / .05), 0 14px 30px -22px rgb(43 8 5 / .4); }
+:root[data-theme="dark"] .rega-search-shell { box-shadow: var(--shadow); }
+
+/* Home hero: compact, calm and readable (shorter band, tighter type scale). */
+.rega-home .rh-hero { padding-block: 26px 82px; }
+.rega-home .rh-h1 { font-size: clamp(2rem, 1.15rem + 3.3vw, 3.6rem); }
+.rega-home .rh-lead { margin-top: 10px; }
+.rega-home .rh-search { margin-top: 18px; }
+@media (min-width: 768px) {
+  .rega-home .rh-hero { padding-block: 48px 108px; }
+  .rega-home .rh-search { margin-top: 26px; }
+}
+/* Section rhythm and premium cards. */
+.rega-home .rh-section { padding-top: 32px; }
+@media (min-width: 768px) { .rega-home .rh-section { padding-top: 48px; } }
+.rega-home .rh-h2 { letter-spacing: -0.015em; }
+[dir="rtl"] .rega-home .rh-h2 { letter-spacing: 0; }
+.rega-home .rh-biz { border-radius: 18px; box-shadow: inset 0 1px 0 #fff, 0 1px 2px rgb(17 24 39 / .05), 0 16px 32px -22px rgb(43 8 5 / .45); }
+.rega-home .rh-explore-media { border-radius: 16px; }
+.rega-home .rh-tab { border: 1px solid transparent; }
+.rega-home .rh-tab:not([aria-selected="true"]) { border-color: var(--line); background: linear-gradient(180deg, #fff, #f8f7f6); box-shadow: inset 0 1px 0 #fff; }
+.rega-home .rh-tab:not([aria-selected="true"]):hover { border-color: color-mix(in srgb, var(--brand) 35%, var(--line)); background: var(--brand-soft); }
+.rega-home .rh-tab[aria-selected="true"] { background: var(--action-gradient); box-shadow: var(--action-shadow); }
+
+/* Mobile tab bar: pearl glass with a soft lift instead of a flat rule. */
+[data-testid="bottom-nav"] { box-shadow: 0 -10px 26px -18px rgb(43 8 5 / .35); }
+
+/* Home footer (home only, see HomeOnly): pearl band with a hairline brand accent. */
+.rega-footer { position: relative; background: linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%); }
+.rega-footer::before { content: ""; position: absolute; inset-inline: 0; top: -1px; height: 2px; background: linear-gradient(90deg, transparent, var(--brand) 20%, var(--brand) 80%, transparent); opacity: .85; }
+
+/* Inner-page title band: a quiet brand marker above the H1 so every page shares the home's hierarchy. */
+.rega-page-title::before { content: ""; display: block; width: 2.25rem; height: .25rem; margin-bottom: .75rem; border-radius: 999px; background: var(--action-gradient); }
+
+@media (prefers-reduced-motion: reduce) { .rega-header-menu, .rega-card { transition: none; } }

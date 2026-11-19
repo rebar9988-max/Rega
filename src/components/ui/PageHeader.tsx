@@ -24,7 +24,7 @@ export async function PageHeader({ title, subtitle, crumbs }: { title: ReactNode
   return (
     <header className="container-page pb-6 pt-7 sm:pt-8">
       {crumbs && <Breadcrumbs items={crumbs} />}
-      <h1 className="rega-display text-3xl sm:text-4xl">{title}</h1>
+      <h1 className="rega-display rega-page-title text-3xl sm:text-4xl">{title}</h1>
       {subtitle && <p className="mt-3 max-w-2xl text-sm leading-7 text-muted sm:text-base">{subtitle}</p>}
     </header>
   );

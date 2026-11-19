@@ -26,7 +26,7 @@ export async function Footer() {
   return (
     // Phones: one compact block (logo + tagline, one wrapped row of links, copyright). The main sections are already in
     // the bottom tab bar and the menu, so the "explore" column is desktop-only; About, contact and legal stay everywhere.
-    <footer className="mt-8 border-t border-line bg-surface md:mt-12">
+    <footer className="rega-footer mt-8 border-t border-line md:mt-12">
       <div className="container-page flex flex-col gap-2.5 py-4 md:flex-row md:items-center md:justify-between md:gap-8 md:py-5">
         <div className="flex items-center justify-between gap-3 md:block md:max-w-sm md:space-y-1.5">
           <Link href="/" className="inline-flex shrink-0 items-center rounded-lg" aria-label="ڕێگا REGA24" dir="ltr">
