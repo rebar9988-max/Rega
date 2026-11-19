@@ -1246,7 +1246,7 @@
   },
   "locationPicker": {
     "title": "Konum seçin",
-    "search": "Şehir ara",
+    "search": "Şehir, semt, sokak veya posta kodu",
     "close": "Kapat",
     "clear": "Aramayı temizle",
     "region": "Bölge",
@@ -1255,7 +1255,9 @@
     "noResults": "Eşleşen şehir yok",
     "noNearbyCity": "Yakınınızda desteklenen bir şehir yok. Lütfen birini seçin.",
     "loadFailed": "Şehirler yüklenemedi. Lütfen tekrar deneyin.",
-    "searching": "Aranıyor …"
+    "searching": "Aranıyor …",
+    "browse": "Ülkeye veya bölgeye göre göz at",
+    "postalAmbiguous": "Bu posta kodu birden fazla yere ait. Lütfen birini seçin."
   },
   "businessModeration": {
     "verification": "Personel doğrulaması",

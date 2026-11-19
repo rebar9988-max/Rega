@@ -1246,7 +1246,7 @@
   },
   "locationPicker": {
     "title": "Kies een locatie",
-    "search": "Zoek een stad",
+    "search": "Stad, wijk, straat of postcode",
     "close": "Sluiten",
     "clear": "Zoekopdracht wissen",
     "region": "Regio",
@@ -1255,7 +1255,9 @@
     "noResults": "Geen passende stad",
     "noNearbyCity": "Geen ondersteunde stad bij jou in de buurt. Kies er een.",
     "loadFailed": "De steden konden niet worden geladen. Probeer het opnieuw.",
-    "searching": "Zoeken …"
+    "searching": "Zoeken …",
+    "browse": "Bladeren op land of regio",
+    "postalAmbiguous": "Deze postcode hoort bij meerdere plaatsen. Kies er een."
   },
   "businessModeration": {
     "verification": "Verificatie door medewerkers",

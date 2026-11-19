@@ -65,7 +65,7 @@ export async function GET(request: NextRequest) {
       geoRegions(countryCode),
       geoCities({ countryCode, regionId: query.region, q, limit: query.limit }),
     ]);
-    const res = ok({ countryCode, countries, regions, cities: list.cities, hasMore: list.hasMore });
+    const res = ok({ countryCode, countries, regions, cities: list.cities, hasMore: list.hasMore, ambiguous: list.ambiguous ?? false });
     res.headers.set("Cache-Control", CACHE_CONTROL);
     return res;
   } catch (error) {

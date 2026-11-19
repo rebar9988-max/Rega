@@ -1246,7 +1246,7 @@
   },
   "locationPicker": {
     "title": "Välj en plats",
-    "search": "Sök efter en stad",
+    "search": "Stad, stadsdel, gata eller postnummer",
     "close": "Stäng",
     "clear": "Rensa sökningen",
     "region": "Region",
@@ -1255,7 +1255,9 @@
     "noResults": "Ingen matchande stad",
     "noNearbyCity": "Ingen stad som stöds finns nära dig. Välj en.",
     "loadFailed": "Städerna kunde inte laddas. Försök igen.",
-    "searching": "Söker …"
+    "searching": "Söker …",
+    "browse": "Bläddra efter land eller region",
+    "postalAmbiguous": "Det här postnumret hör till flera orter. Välj en."
   },
   "businessModeration": {
     "verification": "Verifiering av personalen",

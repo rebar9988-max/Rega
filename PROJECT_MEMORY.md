@@ -1703,6 +1703,12 @@ Owner (07:20): complete the module while preserving the rest of Rega24 and its f
 - 2026-11-19 10:17 owner: home Rega24Travel banner too large on mobile (~1300px). CSS-only compact card: scene beside
   the copy, 2-line body, one scrollable row of 44px service chips, 48px CTA; desktop single strip (CTA at the end).
   Local Chrome render: 270px tall at 390px, 228px at 1200px. E2E guards the height (<=340 mobile, <=280 desktop).
+
+## 2026-11-19 — Smart location search upgrade (branch `feat/smart-location-search-20261119`)
+- Task: one smart public location field (city, district/street, postal code), typo tolerance, no silent ambiguous postal choice, one row per city; no schema/route/DB change.
+- Changes: `geoCities` (src/lib/data/geo.ts) adds postal-code prefix and street matches from public listings (street via the normalized `Location.searchText` index so D1 needs no new folded column), a bounded typo-tolerant fallback (`fuzzyRank` + existing `editDistance`), canonical dedupe and an `ambiguous` flag in `/api/v1/geo`. `CityFilter` queries from 2 characters (1 is narrowed locally), shows the postal/street hint, never preselects a row for an ambiguous postal code, and folds the country/region lists into a disclosure. New `locationPicker.browse`/`postalAmbiguous` and updated `search` placeholder in all 11 locales. /dr geography untouched.
+- Tests: tests/location-pref.test.ts (postal detection, dedupe, fuzzy), tests/e2e/location-search.spec.ts (desktop + mobile, PG + D1).
+- Limitation: postal codes and streets exist only on listing locations (no postal table), so they resolve only cities that have public listings.
 - 2026-11-19 12:31 owner: premium refinement of the home Rega24Travel banner only. Cartoon scene replaced by a clean
   line route illustration (TravelRouteArt); service icons in the shared line style (plane, taxi, bus, car, truck,
   package); softer brand-red gradient, no gold rims, light shadows; copy at the start, art at the end (RTL aligned);
