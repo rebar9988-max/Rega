@@ -2,7 +2,7 @@ import { expect, test } from "./fixtures";
 
 /**
  * International experience: 11 interface languages × 13 European target countries. Language and country are
- * independent: every combination must render, in the right language and direction, with the country kept.
+ * independent: every combination must render (on a category page: /businesses itself has no filters, owner request 2026-11-15), in the right language and direction, with the country kept.
  */
 const LOCALES: [string, string, "rtl" | "ltr"][] = [
   ["ckb", "ckb-IQ", "rtl"], ["kmr", "kmr", "ltr"], ["de", "de-DE", "ltr"], ["en", "en", "ltr"], ["ar", "ar", "rtl"], ["tr", "tr-TR", "ltr"],
@@ -24,13 +24,13 @@ test("all 143 language × country combinations render with the right language, d
   let checked = 0;
   for (const [locale, lang, dir] of LOCALES) {
     for (const country of COUNTRIES) {
-      const res = await page.request.get(`/${locale}/businesses?country=${country}`);
+      const res = await page.request.get(`/${locale}/businesses/legal?country=${country}`);
       expect(res.status(), `${locale}/${country}`).toBe(200);
       const html = await res.text();
       expect(html, `${locale}/${country} lang`).toContain(`lang="${lang}"`);
       expect(html, `${locale}/${country} dir`).toContain(`dir="${dir}"`);
       // A filtered list keeps the plain list as canonical (no duplicate filter URLs in the index).
-      expect(html, `${locale}/${country} canonical`).toContain(`<link rel="canonical" href="${HOST}/${locale}/businesses"`);
+      expect(html, `${locale}/${country} canonical`).toContain(`<link rel="canonical" href="${HOST}/${locale}/businesses/legal"`);
       expect(html, `${locale}/${country} country kept`).toMatch(new RegExp(`<option value="${country}" selected=""`));
       checked++;
     }
@@ -56,7 +56,7 @@ for (const [[locale, lang, dir], country] of PAIRS) {
   test(`interactive ${locale} + ${country}: page renders, country stays selected, no errors`, async ({ page }) => {
     const errors: string[] = [];
     page.on("pageerror", (e) => errors.push(String(e)));
-    await page.goto(`/${locale}/businesses?country=${country}`);
+    await page.goto(`/${locale}/businesses/legal?country=${country}`);
     await expect(page.locator("html")).toHaveAttribute("lang", lang);
     await expect(page.locator("html")).toHaveAttribute("dir", dir);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
@@ -71,11 +71,11 @@ const EXAMPLES: [string, string, string, string][] = [["ckb", "DE", "Cologne", "
 for (const [locale, country, cityEn, next] of EXAMPLES) {
   test(`${locale} + ${country} + ${cityEn}: switching to ${next} keeps country and city`, async ({ page }) => {
     const city = await capital(page.request, country, cityEn);
-    await page.goto(`/${locale}/businesses?country=${country}&city=${city.id}`);
+    await page.goto(`/${locale}/businesses/legal?country=${country}&city=${city.id}`);
     await expect(page.locator("#f-country")).toHaveValue(country);
     await page.locator("header details > summary").click();
     await page.locator(`header details > ul a[hreflang="${LOCALES.find(([l]) => l === next)![1]}"]`).click();
-    await expect(page).toHaveURL(new RegExp(`/${next}/businesses\\?country=${country}&city=${city.id}$`));
+    await expect(page).toHaveURL(new RegExp(`/${next}/businesses/legal\\?country=${country}&city=${city.id}$`));
     await expect(page.locator("#f-country")).toHaveValue(country);
   });
 }

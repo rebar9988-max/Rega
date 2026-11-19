@@ -26,7 +26,7 @@ test("admin adds a city; it is selectable with a (0) count and gets a slug", asy
   await form.getByRole("button", { name: "Hinzufügen" }).click();
   await expect(page.getByRole("status")).toContainText("Gespeichert");
   await expect(page.locator('input[name="slug"]')).toHaveValue(`teststadt-${stamp}`);
-  await page.goto("/de/businesses");
+  await page.goto("/de/businesses/legal");
   await expect(page.locator('select[name="city"] option', { hasText: `Teststadt ${stamp} (0)` })).toHaveCount(1);
 });
 
