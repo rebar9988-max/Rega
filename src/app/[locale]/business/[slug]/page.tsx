@@ -1,3 +1,4 @@
+import { readTravelTags } from "@/config/travel";
 import { PageSchema } from "@/components/ui/PageSchema";
 import { pageMetadata } from "@/lib/seo";
 import { descriptionFrom } from "@/lib/seo-server";
@@ -77,6 +78,7 @@ export default async function BusinessPage({ params }: Props) {
   const categoryName = category ? localize({ ...category, name: category.nameDe }, "name", l) : null;
   const primaryCity = b.locations[0]?.city ? localize({ ...b.locations[0].city, name: b.locations[0].city.nameEn }, "name", l) : null;
   const langs = languageNames(b.languages);
+  const travelInfo = readTravelTags(b.tags);
   // One location button for the whole page: the primary location (else the first) in the device's map app.
   const placeAddress = (loc: (typeof b.locations)[number]) => [loc.addressLine1, loc.addressLine2, [loc.postalCode, loc.city?.nameEn].filter(Boolean).join(" ")]
     .map((part) => (part ?? "").replace(/[\s,]+$/, "")).filter(Boolean).join(", ");
@@ -251,6 +253,25 @@ export default async function BusinessPage({ params }: Props) {
                 <ExpandableText long={about.text.length > 320} more={t("businesses.readMore")} less={t("businesses.readLess")}>
                   <Text value={about} pageLang={pageLang} />
                 </ExpandableText>
+              </section>
+            )}
+
+            {/* Rega24Travel details declared by the business (transport types, service areas). */}
+            {(travelInfo.transport.length > 0 || travelInfo.areas.length > 0) && (
+              <section aria-labelledby="travel-details" data-testid="business-travel-details">
+                <h2 id="travel-details" className="mb-3 text-xl font-bold">{t("travel.detailsTitle")}</h2>
+                {travelInfo.transport.length > 0 && (
+                  <div className="mb-3">
+                    <h3 className="mb-2 text-sm font-semibold text-muted">{t("travel.transportTypesLabel")}</h3>
+                    <ul className="flex flex-wrap gap-2">{travelInfo.transport.map((type) => <li key={type} className="rounded-full border border-line bg-surface px-3 py-1.5 text-sm font-semibold">{t(`travel.transport.${type}`)}</li>)}</ul>
+                  </div>
+                )}
+                {travelInfo.areas.length > 0 && (
+                  <div>
+                    <h3 className="mb-2 text-sm font-semibold text-muted">{t("travel.serviceAreasLabel")}</h3>
+                    <ul className="flex flex-wrap gap-2">{travelInfo.areas.map((area) => <li key={area} className="rounded-full bg-brand-soft px-3 py-1.5 text-sm font-semibold" dir="auto">{area}</li>)}</ul>
+                  </div>
+                )}
               </section>
             )}
 

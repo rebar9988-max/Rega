@@ -1,3 +1,4 @@
+import { readTravelTags } from "@/config/travel";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
@@ -129,6 +130,7 @@ export default async function EditBusiness({ params, searchParams }: { params: P
           hours: Object.fromEntries(hoursRows(loc?.openingHours).map((r) => [r.day, r.value])),
           holidaysClosed: closedOnHolidays(loc?.openingHours), hoursExceptions: hoursExceptions(loc?.openingHours),
           logoUrl: b.logoUrl, coverUrl: b.coverUrl, photos: b.photos, status: b.status, languages: b.languages,
+          transportTypes: readTravelTags(b.tags).transport, serviceAreas: readTravelTags(b.tags).areas,
           translations: {
             ckb: b.descriptionCkb ?? undefined, kmr: b.descriptionKmr ?? undefined, de: b.descriptionDe ?? undefined, ar: b.descriptionAr ?? undefined, tr: b.descriptionTr ?? undefined,
             ...Object.fromEntries(b.translations.flatMap((x) => (x.description ? [[x.locale, x.description]] : []))),

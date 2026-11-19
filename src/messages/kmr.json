@@ -1565,6 +1565,24 @@
       "car-rental": "Kirêkirina otomobîlan",
       "cargo-logistics": "Kargo",
       "courier-delivery": "Pakêt û gihandin"
+    },
+    "detailsTitle": "Hûrguliyên rêwîtî û veguhastinê",
+    "transportTypesLabel": "Cureyên veguhastinê",
+    "serviceAreasLabel": "Herêmên xizmetê",
+    "serviceAreasPlaceholder": "mînak: Köln, Düsseldorf, Bonn",
+    "serviceAreasHint": "Bajar an herêman bi bêhnok veqetîne (herî zêde 10).",
+    "allTransport": "Hemû cureyên veguhastinê",
+    "nearbyLabel": "Nêzîkî min",
+    "registerTitle": "Karsaziya te ya rêwîtî an veguhastinê heye?",
+    "registerLead": "Karsaziya xwe li Rega24Travel tomar bike; piştî kontrolê tê weşandin.",
+    "transport": {
+      "car": "Otomobîl",
+      "limousine": "Lîmûzîn",
+      "van": "Wan",
+      "minibus": "Mînîbus",
+      "bus": "Otobus",
+      "truck": "Kamyon",
+      "motorcycle": "Motorsîklet"
     }
   }
 }

@@ -3,12 +3,13 @@ import { prisma } from "@/lib/db";
 import { localize } from "@/lib/content";
 import { FORM_COUNTRIES } from "@/lib/business-admin";
 import type { Locale } from "@/i18n/locales";
+import { travelCategoryIds } from "@/config/travel";
 import type { FormCity } from "@/components/dr/BusinessForm";
 
 /** Options for the business form: real categories, countries and cities from the database (plus ISO countries). */
 export async function formOptions(locale: Locale) {
   const [categories, countries, cities] = await Promise.all([
-    prisma.category.findMany({ where: { sectionKey: "businesses", isActive: true, deletedAt: null }, orderBy: [{ sortOrder: "asc" }, { nameDe: "asc" }], select: { id: true, parentId: true, nameCkb: true, nameKmr: true, nameDe: true, nameEn: true, nameAr: true, nameFa: true, nameTr: true } }),
+    prisma.category.findMany({ where: { sectionKey: "businesses", isActive: true, deletedAt: null }, orderBy: [{ sortOrder: "asc" }, { nameDe: "asc" }], select: { id: true, key: true, parentId: true, nameCkb: true, nameKmr: true, nameDe: true, nameEn: true, nameAr: true, nameFa: true, nameTr: true } }),
     prisma.country.findMany({ select: { code: true, nameEn: true, nameCkb: true, nameKmr: true, nameDe: true, nameAr: true, nameTr: true } }),
     prisma.city.findMany({ where: { isActive: true }, orderBy: { nameEn: "asc" }, select: { id: true, nameEn: true, nameCkb: true, nameKmr: true, nameDe: true, nameAr: true, nameTr: true, latitude: true, longitude: true, country: { select: { code: true } } } }),
   ]);
@@ -19,6 +20,7 @@ export async function formOptions(locale: Locale) {
     return (row ? localize({ ...row, name: row.nameEn }, "name", locale).text : null) || display?.of(code) || code;
   };
   return {
+    travelCategoryIds: travelCategoryIds(categories.map((c) => ({ id: c.id, slug: c.key, parentId: c.parentId }))),
     categories: categories.map((c) => ({ id: c.id, name: `${c.parentId ? "— " : ""}${localize({ ...c, name: c.nameDe }, "name", locale).text}` })),
     countries: codes.map((code) => ({ code, name: countryName(code) })).sort((a, b) => Number(b.code === "DE") - Number(a.code === "DE") || a.name.localeCompare(b.name)),
     cities: cities.map<FormCity>((c) => ({

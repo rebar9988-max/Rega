@@ -10,6 +10,7 @@
 import dynamic from "next/dynamic";
 import { useCallback, useActionState, useMemo, useRef, useState, useTransition, useEffect } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { TRANSPORT_TYPES } from "@/config/travel";
 import { LOCALES, LOCALE_META, localeSuffix, type Locale } from "@/config/locales";
 import { isValidCoordinate } from "@/lib/coordinates";
 import { AddressSearch } from "@/components/location/AddressSearch";
@@ -38,16 +39,21 @@ export type FormInitial = {
   /** Description per language (key = locale code; field name is description<Suffix>). */
   translations?: Partial<Record<Locale, string>>;
   languages?: string[];
+  /** Rega24Travel details (from the business tags). */
+  transportTypes?: string[]; serviceAreas?: string[];
 };
 
 const input = "min-h-12 w-full rounded-xl border border-line bg-surface px-3 text-base outline-none focus:border-brand aria-[invalid=true]:border-brand";
 
-export function BusinessForm({ initial, categories, countries, cities, canPublish, storageReady, maxPhotos }: {
+export function BusinessForm({ initial, categories, countries, cities, canPublish, storageReady, maxPhotos, travelCategoryIds = [] }: {
   initial: FormInitial; categories: { id: string; name: string }[]; countries: { code: string; name: string }[];
   cities: FormCity[]; canPublish: boolean; storageReady: boolean; maxPhotos: number;
+  /** Categories of Rega24Travel: choosing one shows the transport types and service areas. */
+  travelCategoryIds?: string[];
 }) {
   const t = useTranslations("bizForm");
   const tm = useTranslations("map");
+  const tt = useTranslations("travel");
   const locale = useLocale() as Locale;
   const dir = LOCALE_META[locale].dir;
   const [state, formAction, saving] = useActionState<BusinessFormState, FormData>(saveBusinessAction, undefined);
@@ -334,6 +340,28 @@ export function BusinessForm({ initial, categories, countries, cities, canPublis
           </select>
         </label>
         </div>
+        {/* Rega24Travel details: always marked as sent, so a business leaving travel clears its transport details. */}
+        <input type="hidden" name="travelDetails" value="1" />
+        {travelCategoryIds.includes(categoryId) && (
+          <fieldset className="grid gap-3 rounded-xl border border-line p-3" data-testid="travel-details">
+            <legend className="px-1 text-sm font-bold">{tt("detailsTitle")}</legend>
+            <div>
+              <p className="mb-2 text-sm font-semibold">{tt("transportTypesLabel")}</p>
+              <div className="flex flex-wrap gap-2">
+                {TRANSPORT_TYPES.map((type) => (
+                  <label key={type} className="flex min-h-11 cursor-pointer items-center gap-2 rounded-full border border-line px-3 text-sm has-[:checked]:border-brand has-[:checked]:bg-brand-soft">
+                    <input type="checkbox" name="transportTypes" value={type} defaultChecked={initial.transportTypes?.includes(type)} className="size-4 accent-brand-control" />
+                    {tt(`transport.${type}`)}
+                  </label>
+                ))}
+              </div>
+            </div>
+            <label className="flex flex-col gap-1 text-sm font-semibold">{tt("serviceAreasLabel")}
+              <textarea name="serviceAreas" rows={2} maxLength={600} defaultValue={initial.serviceAreas?.join(", ")} placeholder={tt("serviceAreasPlaceholder")} className={`${input} py-2`} />
+              <span className="text-xs font-normal text-muted">{tt("serviceAreasHint")}</span>
+            </label>
+          </fieldset>
+        )}
         <details className=" rounded-xl border border-line p-3"><summary className="cursor-pointer text-sm font-semibold">{t("optionalDetails")}</summary>
         <label className="mt-3 flex flex-col gap-1 text-sm font-semibold ">{t("description")}
           <textarea name="description" rows={3} maxLength={8000} defaultValue={initial.description} className={`${input} py-2`} />

@@ -1565,6 +1565,24 @@
       "car-rental": "Car rental",
       "cargo-logistics": "Cargo",
       "courier-delivery": "Parcels & delivery"
+    },
+    "detailsTitle": "Travel & transport details",
+    "transportTypesLabel": "Transport types",
+    "serviceAreasLabel": "Service areas",
+    "serviceAreasPlaceholder": "e.g. Cologne, Düsseldorf, Bonn",
+    "serviceAreasHint": "Separate cities or regions with commas (up to 10).",
+    "allTransport": "All transport types",
+    "nearbyLabel": "Near me",
+    "registerTitle": "Run a travel or transport business?",
+    "registerLead": "List it on Rega24Travel; it is published after review.",
+    "transport": {
+      "car": "Car",
+      "limousine": "Limousine",
+      "van": "Van",
+      "minibus": "Minibus",
+      "bus": "Bus",
+      "truck": "Truck",
+      "motorcycle": "Motorcycle"
     }
   }
 }

@@ -4,7 +4,8 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { isLocale, type Locale } from "@/config/locales";
 import { sectionEnabled } from "@/config/sections";
-import { TRAVEL_ROOT_KEYS, parsePostalCode, travelCategoryFilter, travelCategoryIds } from "@/config/travel";
+import NextLink from "next/link";
+import { TRANSPORT_TYPES, TRAVEL_ROOT_KEYS, TRAVEL_SCOPE_ID, parsePostalCode, travelCategoryFilter, travelCategoryIds, type TransportType } from "@/config/travel";
 import { formatNumber } from "@/i18n/locales";
 import { localize } from "@/lib/content";
 import { DEFAULT_PUBLIC_COUNTRY_CODE, getCategories, listBusinesses, listSelectorCities, type BusinessQuery } from "@/lib/data";
@@ -64,12 +65,13 @@ export default async function TravelPage({ params, searchParams }: Props) {
   const typedPostal = parsed.q && /^\d{4,5}$/.test(parsed.q) ? parsed.q : undefined;
   const postalCode = parsePostalCode(sp.plz) ?? typedPostal;
   const category = travelCategoryFilter(parsed.category, scope);
-  const query: BusinessQuery = { ...parsed, q: typedPostal ? undefined : parsed.q, category, scope, postalCode };
+  const transport = (TRANSPORT_TYPES as readonly string[]).includes(String(sp.transport)) ? (sp.transport as TransportType) : undefined;
+  const query: BusinessQuery = { ...parsed, q: typedPostal ? undefined : parsed.q, category, scope, postalCode, transport };
   const cities = await listSelectorCities({ countryCode: query.country ?? DEFAULT_PUBLIC_COUNTRY_CODE, categoryId: category, scope, q: query.q, verified: query.verified });
   const cityList = await cityOptions(cities);
   const formId = "travel-filters";
-  const keep = { q: parsed.q, city: query.city, plz: typedPostal ? undefined : postalCode, country: query.country, verified: query.verified, sort: query.sort === "featured" ? undefined : query.sort };
-  const filtered = Boolean(query.q || query.city || postalCode || query.country || query.verified || category);
+  const keep = { q: parsed.q, city: query.city, plz: typedPostal ? undefined : postalCode, transport, country: query.country, verified: query.verified, sort: query.sort === "featured" ? undefined : query.sort };
+  const filtered = Boolean(query.q || query.city || postalCode || transport || query.country || query.verified || category);
   const crumbs = [{ name: tt("title"), path: PATH }];
 
   return (
@@ -113,6 +115,20 @@ export default async function TravelPage({ params, searchParams }: Props) {
                 {chips.map((c) => <option key={c.id} value={c.id}>{`${c.name.text} (${formatNumber(c.count, locale)})`}</option>)}
               </AutoSubmitSelect>
             </label>
+            {/* Transport type declared by the businesses (car, van, bus, ...); travel-only filter. */}
+            <label className="rt-pill">
+              <FigmaIcon name="car" className="size-5 shrink-0 text-brand-text" />
+              <span className="sr-only">{tt("transportTypesLabel")}</span>
+              <AutoSubmitSelect name="transport" defaultValue={transport ?? ""} className="rt-pill-select" data-testid="travel-transport">
+                <option value="">{tt("allTransport")}</option>
+                {TRANSPORT_TYPES.map((type) => <option key={type} value={type}>{tt(`transport.${type}`)}</option>)}
+              </AutoSubmitSelect>
+            </label>
+            {/* Nearby travel & transport providers on the existing map (/nearby, scoped to Rega24Travel). */}
+            <Link href={`/nearby?category=${TRAVEL_SCOPE_ID}`} className="rt-pill rt-pill-link" data-testid="travel-nearby">
+              <FigmaIcon name="navigation" className="size-5 shrink-0 text-brand-text" />
+              <span className="truncate text-sm font-bold">{tt("nearbyLabel")}</span>
+            </Link>
           </div>
         </form>
 
@@ -120,6 +136,14 @@ export default async function TravelPage({ params, searchParams }: Props) {
           <Suspense key={JSON.stringify(query)} fallback={<ResultsSkeleton />}>
             <Results query={query} locale={locale} formId={formId} filtered={filtered} params={{ ...keep, category }} />
           </Suspense>
+          {/* Travel business registration: the existing owner workflow, offering travel categories only. */}
+          <div className="rt-register">
+            <div className="min-w-0">
+              <p className="text-base font-extrabold text-ink">{tt("registerTitle")}</p>
+              <p className="mt-1 text-sm text-muted">{tt("registerLead")}</p>
+            </div>
+            <NextLink href="/dr/businesses/new?travel=1" className={buttonClass("primary")} data-testid="travel-register">{tt("addBusiness")}</NextLink>
+          </div>
           <p className="mt-6 text-center text-xs text-muted">{tt("notBooking")}</p>
         </div>
       </div>
@@ -161,7 +185,7 @@ async function Results({ query, locale, formId, filtered, params }: { query: Bus
           body={filtered ? undefined : tt("emptyBody")}
           action={filtered
             ? <Link href={PATH} className={buttonClass("primary")} data-testid="travel-clear">{tt("clearFilters")}</Link>
-            : <Link href="/for-business" className={buttonClass("primary")} data-testid="be-first-cta">{tt("addBusiness")}</Link>}
+            : <NextLink href="/dr/businesses/new?travel=1" className={buttonClass("primary")} data-testid="be-first-cta">{tt("addBusiness")}</NextLink>}
         />
       ) : (
         <ul className="rt-list">{result.items.map((b) => <li key={b.id}><TravelCard b={b} /></li>)}</ul>

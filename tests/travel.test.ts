@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { TRAVEL_ROOT_KEYS, TRAVEL_SHORTCUTS, TRAVEL_SUBCATEGORIES, parsePostalCode, travelCategoryFilter, travelCategoryIds } from "../src/config/travel";
+import { TRANSPORT_TYPES, TRAVEL_ROOT_KEYS, TRAVEL_SCOPE_ID, TRAVEL_SHORTCUTS, TRAVEL_SUBCATEGORIES, parsePostalCode, parseServiceAreas, readTravelTags, transportSearchToken, travelCategoryFilter, travelCategoryIds, writeTravelTags } from "../src/config/travel";
 import { CATEGORIES } from "../prisma/seed-data/categories";
 import { SECTIONS } from "../src/config/sections";
 
@@ -15,9 +15,10 @@ test("travel: reuses the existing top-level categories, never adds a second root
     assert.match(s.key, /^[a-z]+(-[a-z]+)*$/);
     for (const [l, name] of Object.entries(s.names)) assert.ok(name.trim(), `${s.key}.${l}`);
   }
-  assert.equal(TRAVEL_SUBCATEGORIES.length, 10);
-  assert.equal(new Set(TRAVEL_SUBCATEGORIES.map((s) => s.key)).size, 10, "unique keys");
-  assert.equal(new Set(TRAVEL_SUBCATEGORIES.map((s) => s.names.ckb)).size, 10, "unique Sorani names");
+  assert.equal(TRAVEL_SUBCATEGORIES.length, 14);
+  assert.equal(new Set(TRAVEL_SUBCATEGORIES.map((s) => s.key)).size, 14, "unique keys");
+  assert.equal(new Set(TRAVEL_SUBCATEGORIES.map((s) => s.names.ckb)).size, 14, "unique Sorani names");
+  assert.ok(!TRAVEL_SUBCATEGORIES.some((s) => s.key === TRAVEL_SCOPE_ID), "the virtual scope id is never a real slug");
 });
 
 test("travel: scope is the roots plus every descendant, and nothing else", () => {
@@ -71,17 +72,34 @@ test("travel: every catalogue has the travel strings, Sorani is the brief's text
   assert.equal(ckb.travel.lead, "دۆزینەوەی بازرگانی و خزمەتگوزارییەکانی گەشت و گواستنەوە لە نزیکترین شوێنەکان.");
 });
 
-test("travel: the production data file holds exactly the seed rows, insert-only", () => {
-  const sql = readFileSync("prisma/d1/data/20261118_travel_subcategories.sql", "utf8");
-  const body = sql.replace(/^--.*$/gm, "");
+test("travel: the production data files hold exactly the seed rows, insert-only", () => {
+  const files = [["prisma/d1/data/20261118_travel_subcategories.sql", 0, 10], ["prisma/d1/data/20261118b_travel_scope_subcategories.sql", 10, 14]] as const;
   const q = (v: string) => `'${v.replace(/'/g, "''")}'`;
-  assert.doesNotMatch(body, /\b(UPDATE|DELETE|DROP|ALTER|REPLACE)\b/i, "insert-only");
-  assert.equal(body.match(/INSERT INTO/g)?.length, 1);
-  assert.match(body, /WHERE NOT EXISTS \(SELECT 1 FROM Category c WHERE c\.key=v\.k OR c\.slug=v\.k\)/, "skips existing keys and slugs");
-  for (const [i, s] of TRAVEL_SUBCATEGORIES.entries()) {
-    const n = s.names;
-    assert.ok(sql.includes(`(${[s.key, s.parent, n.ckb, n.kmr, n.de, n.en, n.ar, n.fa, n.tr].map(q).join(",")},${i})`), s.key);
+  for (const [file, from, to] of files) {
+    const sql = readFileSync(file, "utf8");
+    const body = sql.replace(/^--.*$/gm, "");
+    assert.doesNotMatch(body, /\b(UPDATE|DELETE|DROP|ALTER|REPLACE)\b/i, `${file}: insert-only`);
+    assert.equal(body.match(/INSERT INTO/g)?.length, 1, file);
+    assert.match(body, /WHERE NOT EXISTS \(SELECT 1 FROM Category c WHERE c\.key=v\.k OR c\.slug=v\.k\)/, `${file}: skips existing keys and slugs`);
+    for (const [i, s] of TRAVEL_SUBCATEGORIES.entries()) {
+      const n = s.names;
+      const row = `(${[s.key, s.parent, n.ckb, n.kmr, n.de, n.en, n.ar, n.fa, n.tr].map(q).join(",")},${i})`;
+      assert.equal(sql.includes(row), i >= from && i < to, `${file}: ${s.key}`);
+    }
   }
+});
+
+test("travel: transport types and service areas round-trip through tags, other tags untouched", () => {
+  assert.deepEqual(parseServiceAreas(" Köln, köln ,Bonn\nDüsseldorf;، x ,"), ["Köln", "Bonn", "Düsseldorf"]);
+  assert.equal(parseServiceAreas(Array.from({ length: 20 }, (_, i) => `City${i}`).join(",")).length, 10);
+  assert.deepEqual(parseServiceAreas(42), []);
+  const tags = writeTravelTags(["halal", "transport:bus", "area:Old"], ["van", "car", "rocket"], ["Köln", "Bonn"]);
+  assert.deepEqual(tags, ["halal", "transport:car", "transport:van", "area:Köln", "area:Bonn"]);
+  assert.deepEqual(readTravelTags(tags), { transport: ["car", "van"], areas: ["Köln", "Bonn"], other: ["halal"] });
+  assert.deepEqual(writeTravelTags(tags, [], []), ["halal"], "clearing removes only travel details");
+  assert.deepEqual(readTravelTags("not-an-array"), { transport: [], areas: [], other: [] });
+  assert.ok(writeTravelTags([], [...TRANSPORT_TYPES], Array(20).fill("Very long service area name that exceeds fifty characters")).every((t) => t.length <= 50));
+  assert.equal(transportSearchToken("van"), "transport:van");
 });
 
 test("travel: the home tile and page reuse the shared directory pieces", () => {

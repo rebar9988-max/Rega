@@ -1565,6 +1565,24 @@
       "car-rental": "Biluthyrning",
       "cargo-logistics": "Frakt",
       "courier-delivery": "Paket och leverans"
+    },
+    "detailsTitle": "Rese- och transportuppgifter",
+    "transportTypesLabel": "Fordonstyper",
+    "serviceAreasLabel": "Serviceområden",
+    "serviceAreasPlaceholder": "t.ex. Köln, Düsseldorf, Bonn",
+    "serviceAreasHint": "Separera städer eller regioner med kommatecken (högst 10).",
+    "allTransport": "Alla fordonstyper",
+    "nearbyLabel": "Nära mig",
+    "registerTitle": "Driver du ett rese- eller transportföretag?",
+    "registerLead": "Lägg till det i Rega24Travel; det publiceras efter granskning.",
+    "transport": {
+      "car": "Bil",
+      "limousine": "Limousin",
+      "van": "Skåpbil",
+      "minibus": "Minibuss",
+      "bus": "Buss",
+      "truck": "Lastbil",
+      "motorcycle": "Motorcykel"
     }
   }
 }

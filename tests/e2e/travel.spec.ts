@@ -85,3 +85,15 @@ test("travel: axe (wcag2 A/AA) on the travel page", async ({ page }) => {
     expect(serious.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(" ")).slice(0, 4).join(" | ")}`), path).toEqual([]);
   }
 });
+
+test("travel: transport filter, nearby map and travel registration entry points", async ({ page }) => {
+  await page.goto("/en/travel");
+  await expect(page.getByTestId("travel-nearby")).toHaveAttribute("href", "/en/nearby?category=travel");
+  await expect(page.getByTestId("travel-register")).toHaveAttribute("href", "/dr/businesses/new?travel=1");
+  await page.getByTestId("travel-transport").selectOption("van");
+  await expect(page).toHaveURL(/\/en\/travel\?.*transport=van/);
+  await expect(page.getByTestId("travel-transport")).toHaveValue("van");
+  // The nearby map accepts the Rega24Travel scope as one category choice.
+  const res = await page.request.get("/api/v1/nearby?lat=50.94&lng=6.96&category=travel");
+  expect(res.status()).toBe(200);
+});
