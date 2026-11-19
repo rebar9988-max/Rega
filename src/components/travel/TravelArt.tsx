@@ -29,7 +29,7 @@ export function TravelRouteArt({ className }: { className?: string }) {
       <path d="M27 54h66M27 74h66" strokeOpacity=".4" strokeWidth="1.2" />
       <path d="M30 88C38 50 74 30 96 40" strokeWidth="2" strokeDasharray="1 6" />
       <path d="M30 80a6 6 0 0 1 6 6c0 4.5-6 10-6 10s-6-5.5-6-10a6 6 0 0 1 6-6Z" fill="#fff" stroke="none" />
-      <circle cx="30" cy="86" r="2.2" fill="#d42a20" stroke="none" />
+      <circle cx="30" cy="86" r="2.2" fill="#c91f24" stroke="none" />
       <g transform="translate(84 26) rotate(28)">
         <path d="M11 1.5c1.2 0 2 1 2 2.3V10l8 4.6v2.6l-8-2.3v4.6l2.6 2v2l-4.6-1.3-4.6 1.3v-2l2.6-2v-4.6l-8 2.3v-2.6L9 10V3.8c0-1.3.8-2.3 2-2.3Z" fill="#fff" stroke="none" />
       </g>

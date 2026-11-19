@@ -34,7 +34,7 @@ export function HeroWorldArt({ className = "" }: { className?: string }) {
           <stop offset=".14" stopColor="#ff9a66" />
           <stop offset=".38" stopColor="#e53832" stopOpacity=".85" />
           <stop offset=".7" stopColor="#9b1f15" stopOpacity=".35" />
-          <stop offset="1" stopColor="#6b120a" stopOpacity="0" />
+          <stop offset="1" stopColor="#670e12" stopOpacity="0" />
         </radialGradient>
         <linearGradient id="rh-city" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#3d0c07" />

@@ -41,7 +41,7 @@ const PRIVATE_BETA_COPY: Record<string, { title: string; body: string; status: s
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#6b120a",
+  themeColor: "#670e12",
 };
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
