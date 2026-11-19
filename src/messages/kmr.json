@@ -1547,7 +1547,7 @@
     "subtitle": "Rêwîtî û veguhastin",
     "lead": "Karsazî û xizmetên rêwîtî û veguhastinê li cihên herî nêzîk bibîne.",
     "searchLabel": "Navê karsaziyê an xizmetê",
-    "searchPlaceholder": "Navê karsaziyê an PLZ binivîse...",
+    "searchPlaceholder": "Bajar, koda postê, ajans an xizmetê bigere",
     "categoriesLabel": "Beşên rêwîtî û veguhastinê",
     "allCategories": "Hemû kategorî",
     "newBadge": "Nû",
@@ -1585,6 +1585,8 @@
       "bus": "Otobus",
       "truck": "Kamyon",
       "motorcycle": "Motorsîklet"
-    }
+    },
+    "tagline": "Rêwîtî û veguhastin bi riya herî hêsan",
+    "startCta": "Dest bi rêwîtiyê bike"
   }
 }

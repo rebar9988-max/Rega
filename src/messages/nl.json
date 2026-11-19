@@ -1547,7 +1547,7 @@
     "subtitle": "Reizen & Vervoer",
     "lead": "Ontdek reis- en vervoersbedrijven en hun diensten bij jou in de buurt.",
     "searchLabel": "Naam van bedrijf of dienst",
-    "searchPlaceholder": "Typ een bedrijfsnaam of PLZ...",
+    "searchPlaceholder": "Zoek stad, postcode, reisbureau of dienst",
     "categoriesLabel": "Categorieën Reizen & Vervoer",
     "allCategories": "Alle categorieën",
     "newBadge": "Nieuw",
@@ -1585,6 +1585,8 @@
       "bus": "Bus",
       "truck": "Vrachtwagen",
       "motorcycle": "Motor"
-    }
+    },
+    "tagline": "Reizen en vervoer, op de makkelijkste manier",
+    "startCta": "Start je reis"
   }
 }

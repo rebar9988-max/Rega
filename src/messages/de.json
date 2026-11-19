@@ -1547,7 +1547,7 @@
     "subtitle": "Reisen & Transport",
     "lead": "Reise- und Transportunternehmen und ihre Dienstleistungen in Ihrer Nähe finden.",
     "searchLabel": "Unternehmen oder Dienstleistung",
-    "searchPlaceholder": "Unternehmen oder PLZ eingeben...",
+    "searchPlaceholder": "Stadt, PLZ, Reisebüro oder Service suchen",
     "categoriesLabel": "Kategorien Reisen & Transport",
     "allCategories": "Alle Kategorien",
     "newBadge": "Neu",
@@ -1585,6 +1585,8 @@
       "bus": "Bus",
       "truck": "LKW",
       "motorcycle": "Motorrad"
-    }
+    },
+    "tagline": "Reisen und Transport – ganz einfach",
+    "startCta": "Reise starten"
   }
 }

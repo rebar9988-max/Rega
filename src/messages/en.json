@@ -1547,7 +1547,7 @@
     "subtitle": "Travel & Transport",
     "lead": "Discover travel and transport businesses and services near you.",
     "searchLabel": "Business or service name",
-    "searchPlaceholder": "Type a business name or PLZ...",
+    "searchPlaceholder": "Search city, postal code, agency or service",
     "categoriesLabel": "Travel & Transport categories",
     "allCategories": "All categories",
     "newBadge": "New",
@@ -1585,6 +1585,8 @@
       "bus": "Bus",
       "truck": "Truck",
       "motorcycle": "Motorcycle"
-    }
+    },
+    "tagline": "Travel and transport, the easy way",
+    "startCta": "Start your journey"
   }
 }

@@ -13,7 +13,7 @@ import { businessShape, parseParams } from "@/lib/data/params";
 import { pageMetadata } from "@/lib/seo";
 import { PageSchema } from "@/components/ui/PageSchema";
 import { TravelCard } from "@/components/travel/TravelCard";
-import { AirportArt, PlaneSwoosh } from "@/components/travel/TravelArt";
+import { PlaneMark } from "@/components/travel/TravelArt";
 import { cityOptions } from "@/components/ui/FilterBar";
 import { CityFilter } from "@/components/ui/CityFilter";
 import { AutoSubmitSelect } from "@/components/ui/AutoSubmitSelect";
@@ -24,6 +24,31 @@ import { FigmaIcon } from "@/components/home/FigmaIcon";
 
 const PATH = "/travel";
 const SORTS = ["featured", "rating", "newest", "name"] as const;
+
+/**
+ * Photo service cards under the filters (owner reference 2026-11-19), in reading order. Each opens this page filtered to
+ * that existing category; a card is shown only while its category exists. Images: public/travel/<slug>-<width>.avif|webp.
+ */
+const PHOTO_CARDS = [
+  { slug: "travel-agencies", w: 230, h: 140 },
+  { slug: "taxi-transfer", w: 216, h: 132 },
+  { slug: "airport-transfer", w: 236, h: 110 },
+  { slug: "car-rental", w: 234, h: 122 },
+] as const;
+
+/** One responsive photo: AVIF first, WebP fallback, two widths (1x/2x), fixed box so nothing shifts while loading. */
+function TravelPhoto({ name, w, h, sizes, eager = false, className }: { name: string; w: number; h: number; sizes: string; eager?: boolean; className?: string }) {
+  const half = Math.round(w / 2);
+  const set = (ext: string) => `/travel/${name}-${half}.${ext} ${half}w, /travel/${name}-${w}.${ext} ${w}w`;
+  return (
+    <picture className={className}>
+      <source type="image/avif" srcSet={set("avif")} sizes={sizes} />
+      <source type="image/webp" srcSet={set("webp")} sizes={sizes} />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={`/travel/${name}-${w}.webp`} alt="" width={w} height={h} loading={eager ? "eager" : "lazy"} fetchPriority={eager ? "high" : "auto"} decoding="async" />
+    </picture>
+  );
+}
 
 type Sp = Record<string, string | string[] | undefined>;
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<Sp> };
@@ -40,7 +65,11 @@ async function travelTaxonomy(locale: Locale) {
   });
   const name = (c: (typeof categories)[number]) => localize({ ...c, name: c.nameDe }, "name", locale);
   const total = roots.reduce((n, r) => n + r.count, 0);
-  return { scope, total, chips: chips.map((c) => ({ id: c.id, name: name(c), count: c.count })) };
+  const photoCards = PHOTO_CARDS.flatMap((card) => {
+    const c = categories.find((x) => x.slug === card.slug && scope.includes(x.id));
+    return c ? [{ ...card, id: c.id }] : [];
+  });
+  return { scope, total, photoCards, chips: chips.map((c) => ({ id: c.id, name: name(c), count: c.count })) };
 }
 
 export async function generateMetadata({ params }: Props) {
@@ -58,7 +87,7 @@ export default async function TravelPage({ params, searchParams }: Props) {
   const sp = await searchParams;
   const t = await getTranslations();
   const tt = await getTranslations("travel");
-  const { scope, chips } = await travelTaxonomy(locale);
+  const { scope, chips, photoCards } = await travelTaxonomy(locale);
 
   const parsed = parseParams(businessShape, sp);
   // One search field for name, service or PLZ (mockup): a postal code typed there filters by location.
@@ -78,22 +107,33 @@ export default async function TravelPage({ params, searchParams }: Props) {
     <>
       <PageSchema type="CollectionPage" name={`${tt("title")} — ${tt("subtitle")}`} description={tt("lead")} path={PATH} crumbs={crumbs} />
 
-      {/* Hero (owner mockup): title with airplane swoosh, subtitle, airport at sunset. */}
-      <section className="rt-hero" aria-labelledby="travel-title">
-        <div className="container-page rt-hero-inner">
-          <div className="rt-hero-head" dir="ltr">
-            <h1 id="travel-title" className="rt-title">Rega24<span>Travel</span></h1>
-            <PlaneSwoosh className="rt-swoosh" />
+      {/* Banner (owner reference 2026-11-19): title with plane mark, tagline, start button, travel photo; same order in every language. */}
+      <section className="container-page rt-hero" aria-labelledby="travel-title">
+        <div className="rt-banner" dir="ltr">
+          <div className="rt-banner-copy">
+            <div className="rt-hero-head">
+              <h1 id="travel-title" className="rt-title">Rega24<span>Travel</span></h1>
+              <PlaneMark className="rt-plane" />
+            </div>
+            <p className="rt-sub" dir="auto">{tt("tagline")}</p>
+            <p className="sr-only">{tt("lead")}</p>
+            <a href="#t-q" className="rt-start" data-testid="travel-start">
+              <span className="rt-start-icon" aria-hidden="true"><FigmaIcon name="arrow-right" className="size-4" /></span>
+              <span dir="auto">{tt("startCta")}</span>
+            </a>
           </div>
-          <p className="rt-sub">{tt("subtitle")}</p>
-          <p className="sr-only">{tt("lead")}</p>
+          <TravelPhoto name="hero" w={530} h={334} sizes="(min-width: 768px) 530px, 56vw" eager className="rt-banner-photo" />
+          <svg className="rt-banner-wave" viewBox="0 0 400 24" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+            <path d="M0 24V8c60 14 120 16 200 10S340 2 400 10v14Z" fill="currentColor" />
+          </svg>
         </div>
-        <AirportArt className="rt-airport" />
       </section>
 
       <div className="container-page rt-panel">
-        <form id={formId} action={`/${locale}${PATH}`} role="search" className="rt-form">
+        {/* Keyed by the active filters: a client-side navigation (photo card, pill) remounts the uncontrolled fields so they show the new filter. */}
+        <form key={[parsed.q, category, query.city, postalCode, transport, query.country].join("|")} id={formId} action={`/${locale}${PATH}`} role="search" className="rt-form">
           <div className="rt-search">
+            <span className="rt-search-pin" aria-hidden="true"><FigmaIcon name="map-pin" className="size-6" /></span>
             <label htmlFor="t-q" className="sr-only">{tt("searchLabel")}</label>
             <input id="t-q" name="q" type="search" defaultValue={parsed.q} placeholder={tt("searchPlaceholder")} autoComplete="off" maxLength={120} className="rt-search-input" />
             {keep.plz && <input type="hidden" name="plz" value={keep.plz} />}
@@ -131,6 +171,22 @@ export default async function TravelPage({ params, searchParams }: Props) {
             </Link>
           </div>
         </form>
+
+        {photoCards.length > 0 && (
+          <nav aria-label={tt("categoriesLabel")} className="rt-cats-wrap">
+            <ul className="rt-cats">
+              {photoCards.map((c) => (
+                <li key={c.slug}>
+                  <Link href={`${PATH}?category=${c.id}`} className="rt-cat" aria-current={category === c.id ? "true" : undefined} data-testid={`travel-card-${c.slug}`}>
+                    <TravelPhoto name={c.slug} w={c.w} h={c.h} sizes="(min-width: 768px) 230px, 30vw" className="rt-cat-photo" />
+                    <span className="rt-cat-label">{tt(`shortcut.${c.slug}`)}</span>
+                    <span className="rt-cat-go" aria-hidden="true"><FigmaIcon name="chevron-right" className="rtl-flip size-4" /></span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )}
 
         <div className="mt-4 pb-10">
           <Suspense key={JSON.stringify(query)} fallback={<ResultsSkeleton />}>

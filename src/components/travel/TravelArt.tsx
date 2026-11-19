@@ -4,60 +4,14 @@
  */
 import type { ReactNode } from "react";
 
-/** Line airplane with a swoosh trail, drawn in currentColor (hero title). */
-export function PlaneSwoosh({ className }: { className?: string }) {
+/** Solid plane climbing to the upper right with a short trail (travel banner title mark, owner reference 2026-11-19). */
+export function PlaneMark({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 96 48" className={className} aria-hidden="true" focusable="false" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M4 42c18 4 40-2 58-16" strokeWidth="2.6" />
-      <path d="M78 6 54 26l-8-2-3 3 9 5 2 9 3-3-1-8 20-24c2-2 2-5 0-5-1-1-3 0-4 1Z" strokeWidth="2.4" fill="currentColor" fillOpacity=".15" />
-      <path d="m62 14-16-4-4 3 13 8M70 22l4 16-3 3-7-12" strokeWidth="2.4" />
-    </svg>
-  );
-}
-
-/** Airport at sunset: sky glow, terminal with glass front, control tower, jet on the apron (travel hero). */
-export function AirportArt({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 400 120" preserveAspectRatio="xMidYMax slice" className={className} aria-hidden="true" focusable="false">
-      <defs>
-        <linearGradient id="rt-sky" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#d42a20" stopOpacity="0" />
-          <stop offset=".55" stopColor="#e9662b" stopOpacity=".55" />
-          <stop offset=".85" stopColor="#ffd27a" stopOpacity=".85" />
-          <stop offset="1" stopColor="#ffe07a" />
-        </linearGradient>
-        <linearGradient id="rt-glass" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#6db3ff" stopOpacity=".55" />
-          <stop offset="1" stopColor="#1d2533" stopOpacity=".9" />
-        </linearGradient>
-        <linearGradient id="rt-ground" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#3a1410" />
-          <stop offset="1" stopColor="#1d0a07" />
-        </linearGradient>
-      </defs>
-      <rect x="0" y="0" width="400" height="104" fill="url(#rt-sky)" />
-      <circle cx="210" cy="100" r="20" fill="#fff4c9" opacity=".75" />
-      {/* control tower */}
-      <path d="M262 100V52h10v48Z" fill="#2b1512" />
-      <path d="M254 52h26l-4-12h-18Z" fill="#2b1512" />
-      <path d="M257 44h20v-6h-20Z" fill="url(#rt-glass)" />
-      <path d="M260 38h14l-2-6h-10Z" fill="#2b1512" />
-      <rect x="266" y="26" width="2" height="6" fill="#2b1512" />
-      {/* terminal: curved roof, glass front */}
-      <path d="M60 100V80c40-14 120-16 180-6l40 8v18Z" fill="#2b1512" />
-      <path d="M68 98V83c38-12 112-14 168-5l36 7v13Z" fill="url(#rt-glass)" />
-      {Array.from({ length: 17 }, (_, i) => <path key={i} d={`M${78 + i * 12} 98V${82 - Math.sin((i / 16) * Math.PI) * 3}`} stroke="#2b1512" strokeWidth="1.4" />)}
-      <path d="M286 100V86h52v14Z" fill="#2b1512" />
-      <path d="M290 98v-9h44v9Z" fill="url(#rt-glass)" />
-      {/* jet on the apron */}
-      <g fill="#f4f1ef">
-        <path d="M10 96c0-3 4-5 10-5h44l10-6h6l-6 7c4 0 6 2 6 4s-2 3-6 3H20c-6 0-10-1-10-3Z" />
-        <path d="M34 95h20l-10 8h-6Z" />
-        <path d="M70 92l8-10h4l-4 11Z" />
-      </g>
-      <path d="M18 93h40" stroke="#6db3ff" strokeWidth="1.4" strokeDasharray="2 2" />
-      <rect x="0" y="100" width="400" height="20" fill="url(#rt-ground)" />
-      <path d="M0 108h400" stroke="#ffe07a" strokeOpacity=".35" strokeWidth="1" strokeDasharray="10 8" />
+    <svg viewBox="0 0 64 40" className={className} aria-hidden="true" focusable="false">
+      <path d="M3 37c14 1 27-4 37-12" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
+      <svg x="32" y="0" width="30" height="30" viewBox="0 0 24 24">
+        <path transform="rotate(45 12 12)" fill="currentColor" d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" />
+      </svg>
     </svg>
   );
 }

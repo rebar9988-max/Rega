@@ -1547,7 +1547,7 @@
     "subtitle": "Seyahat ve Ulaşım",
     "lead": "Size en yakın seyahat ve ulaşım işletmelerini ve hizmetlerini keşfedin.",
     "searchLabel": "İşletme veya hizmet adı",
-    "searchPlaceholder": "İşletme adı veya PLZ yazın...",
+    "searchPlaceholder": "Şehir, posta kodu, acente veya hizmet ara",
     "categoriesLabel": "Seyahat ve Ulaşım kategorileri",
     "allCategories": "Tüm kategoriler",
     "newBadge": "Yeni",
@@ -1585,6 +1585,8 @@
       "bus": "Otobüs",
       "truck": "Kamyon",
       "motorcycle": "Motosiklet"
-    }
+    },
+    "tagline": "Seyahat ve ulaşım, en kolay yoldan",
+    "startCta": "Yolculuğa başla"
   }
 }

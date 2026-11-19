@@ -1547,7 +1547,7 @@
     "subtitle": "Viaggi & Trasporti",
     "lead": "Scopri le attività e i servizi di viaggio e trasporto più vicini a te.",
     "searchLabel": "Nome dell'attività o del servizio",
-    "searchPlaceholder": "Scrivi il nome dell'attività o il PLZ...",
+    "searchPlaceholder": "Cerca città, CAP, agenzia o servizio",
     "categoriesLabel": "Categorie Viaggi & Trasporti",
     "allCategories": "Tutte le categorie",
     "newBadge": "Nuovo",
@@ -1585,6 +1585,8 @@
       "bus": "Autobus",
       "truck": "Camion",
       "motorcycle": "Moto"
-    }
+    },
+    "tagline": "Viaggi e trasporti, nel modo più semplice",
+    "startCta": "Inizia il viaggio"
   }
 }
