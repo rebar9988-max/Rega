@@ -12,7 +12,7 @@
   --surface: #ffffff;
   --surface-2: #f6f7f9;
   --ink: #20242d;
-  --muted: #6f737a;
+  --muted: #636870; /* >= 4.9:1 on #f6f7f9 and 5.5:1 on white (WCAG AA) */
   --line: #e8edf2;
   /* Brand red per the owner's Premium 2026 brief (supersedes the 2026-10-30 logo-sampled #d42a20). The official logo
      artwork is unchanged (--logo-surface). Derived text/control tokens stay shared. */
