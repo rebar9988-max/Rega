@@ -1547,7 +1547,7 @@
     "subtitle": "Resor & Transport",
     "lead": "Hitta rese- och transportföretag och deras tjänster nära dig.",
     "searchLabel": "Företags- eller tjänstenamn",
-    "searchPlaceholder": "Skriv företagsnamn eller PLZ...",
+    "searchPlaceholder": "Sök stad, postnummer, byrå eller tjänst",
     "categoriesLabel": "Kategorier för resor & transport",
     "allCategories": "Alla kategorier",
     "newBadge": "Ny",
@@ -1585,6 +1585,8 @@
       "bus": "Buss",
       "truck": "Lastbil",
       "motorcycle": "Motorcykel"
-    }
+    },
+    "tagline": "Resor och transport – på det enklaste sättet",
+    "startCta": "Börja resan"
   }
 }

@@ -1715,3 +1715,8 @@ Owner (07:20): complete the module while preserving the rest of Rega24 and its f
   service chips are a 3x2 tile grid (no clipped scroll row), 6 tiles in a row on desktop; white CTA. Local Chrome
   render ~326-365px on phones, 220px at 1200px, no horizontal overflow (CI with Vazirmatn measured 403px before tightening). E2E guard <=400 / <=280.
   Photographic imagery needs a licensed photo from the owner (none available in-repo; no stock downloads).
+
+## 2026-11-19 — Rega24Travel premium /travel UI (branch `feat/travel-premium-ui-20261119`)
+- Task: owner references (photo banner + search + filter pills + four photo service cards). /travel only; home banner, header, footer, bottom nav, data, API and routes untouched.
+- Changes: white banner with "Rega24Travel" + solid red plane mark, tagline, start button (scrolls to search), photoreal travel photo and red bottom wave; search bar with location pin + divider; four photo cards (travel agencies, taxi, airport transfer, car rental) linking to the existing category filter. Photos are cut from the owner's own reference image (owner-supplied), served as AVIF/WebP at 1x/2x from `public/travel/` with fixed boxes (no layout shift), card photos lazy. New `travel.tagline`/`travel.startCta` and updated `travel.searchPlaceholder` in all 11 locales. Removed the unused SVG `AirportArt`/`PlaneSwoosh`.
+- Tests: new cases in tests/e2e/travel.spec.ts (375/1440 px, RTL + LTR, photos load, no horizontal scroll, card filter + aria-current); existing axe test covers the page.

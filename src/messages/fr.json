@@ -1547,7 +1547,7 @@
     "subtitle": "Voyage & Transport",
     "lead": "Découvrez les entreprises et services de voyage et de transport près de chez vous.",
     "searchLabel": "Nom de l'entreprise ou du service",
-    "searchPlaceholder": "Nom de l'entreprise ou PLZ...",
+    "searchPlaceholder": "Ville, code postal, agence ou service",
     "categoriesLabel": "Catégories Voyage & Transport",
     "allCategories": "Toutes les catégories",
     "newBadge": "Nouveau",
@@ -1585,6 +1585,8 @@
       "bus": "Bus",
       "truck": "Camion",
       "motorcycle": "Moto"
-    }
+    },
+    "tagline": "Voyage et transport, en toute simplicité",
+    "startCta": "Commencer le voyage"
   }
 }

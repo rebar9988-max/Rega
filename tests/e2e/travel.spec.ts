@@ -100,3 +100,32 @@ test("travel: transport filter, nearby map and travel registration entry points"
   const res = await page.request.get("/api/v1/nearby?lat=50.94&lng=6.96&category=travel");
   expect(res.status()).toBe(200);
 });
+
+/** Premium banner and photo service cards (owner reference 2026-11-19): real photos load, layout fits, cards filter. */
+for (const [width, path] of [[375, "/ckb/travel"], [1440, "/ckb/travel"], [375, "/en/travel"]] as const) {
+  test(`travel: banner photo, start button and photo cards (${width}px ${path})`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto(path);
+    const hero = page.locator(".rt-banner-photo img");
+    await expect(hero).toBeVisible();
+    expect(await hero.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
+    await expect(hero).toHaveAttribute("alt", "");
+    const start = page.getByTestId("travel-start");
+    await expect(start).toHaveAttribute("href", "#t-q");
+    const box = await start.boundingBox();
+    expect(box && box.height >= 44).toBeTruthy();
+
+    const cards = page.locator('[data-testid^="travel-card-"]');
+    await expect(cards).toHaveCount(4);
+    for (const img of await page.locator(".rt-cat-photo img").all()) {
+      await img.scrollIntoViewIfNeeded();
+      await expect.poll(() => img.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth > 0)).toBe(true);
+    }
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
+
+    await page.getByTestId("travel-card-taxi-transfer").click();
+    await expect(page).toHaveURL(/\/travel\?category=/);
+    await expect(page.getByTestId("travel-category")).not.toHaveValue("");
+    await expect(page.getByTestId("travel-card-taxi-transfer")).toHaveAttribute("aria-current", "true");
+  });
+}
