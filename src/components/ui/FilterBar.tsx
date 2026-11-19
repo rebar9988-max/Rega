@@ -15,7 +15,7 @@ type Props = {
   searchLabel: string;
 };
 
-const field = "min-h-11 rounded-lg border border-line bg-surface px-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/10";
+const field = "min-h-11 rounded-xl border border-line bg-surface px-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/10";
 
 /** Server-rendered GET form: filters live in the URL (shareable, crawlable, back-button friendly). */
 export async function FilterBar({ action, values, categories, cities, sorts, verified, searchLabel }: Props) {
@@ -48,9 +48,9 @@ export async function FilterBar({ action, values, categories, cities, sorts, ver
             </select>
           </div>
         )}
-        <button type="submit" className="min-h-11 rounded-lg bg-brand px-6 text-sm font-bold text-brand-ink transition hover:bg-brand-hover">{t("list.apply")}</button>
+        <button type="submit" className="rega-control-primary min-h-11 rounded-full bg-brand px-6 text-sm font-bold text-brand-ink transition hover:bg-brand-hover">{t("list.apply")}</button>
       </div>
-      <div className="mt-3 flex flex-wrap items-center gap-4 rounded-lg border border-line bg-surface px-3 py-2 text-sm">
+      <div className="mt-3 flex flex-wrap items-center gap-4 rounded-2xl border border-line bg-surface px-4 py-2 text-sm">
         {verified && (
           <label className="inline-flex min-h-9 cursor-pointer items-center gap-2">
             <input type="checkbox" name="verified" value="1" defaultChecked={values.verified === "1"} className="size-4 accent-brand-control" />
