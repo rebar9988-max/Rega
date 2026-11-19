@@ -1649,6 +1649,10 @@ business data for checks). The production browser check therefore also runs `che
 mobile: empty state, RTL/LTR, noindex, no overflow, axe (no serious/critical), load < 8 s, unknown slug answered without
 error, clear all; plus a hostile `slugs=` probe returning no records. Branch run 44409338072: 299 ok / 0 fail (54 of
 them saved-isolated). The profile-based save flow still runs automatically once a business is published.
+Update 2026-11-19: PR #176 merged (`cd8328a`) and deployed. Its post-deploy check exposed that PR #173 (owner decision:
+no search bar/filters on /businesses) left the production browser check looking for the city select on /businesses
+(4 FAIL: city options, location flow). The location/city steps now use `/de/businesses/legal` (and `/ckb/...`), as the
+updated e2e test does, and the check asserts /businesses has no filters panel. Branch run 44441979516: 301 ok / 0 fail.
 ## 2026-11-16 — Resume PR #159 release
 Recovered head 7fc1088: GitHub CI 43684019068 succeeded (verify 43m37s), both Cloudflare build checks and route audit passed.
 PR remained open because main advanced to 663f801, causing conflicts only in appended memory, locale JSON and generated inventory.
