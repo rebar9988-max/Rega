@@ -1565,6 +1565,24 @@
       "car-rental": "Autovermietung",
       "cargo-logistics": "Fracht",
       "courier-delivery": "Pakete & Lieferung"
+    },
+    "detailsTitle": "Reise- & Transportangaben",
+    "transportTypesLabel": "Fahrzeugarten",
+    "serviceAreasLabel": "Einsatzgebiete",
+    "serviceAreasPlaceholder": "z. B. Köln, Düsseldorf, Bonn",
+    "serviceAreasHint": "Städte oder Regionen mit Komma trennen (höchstens 10).",
+    "allTransport": "Alle Fahrzeugarten",
+    "nearbyLabel": "In meiner Nähe",
+    "registerTitle": "Sie haben ein Reise- oder Transportunternehmen?",
+    "registerLead": "Tragen Sie es bei Rega24Travel ein; es wird nach Prüfung veröffentlicht.",
+    "transport": {
+      "car": "PKW",
+      "limousine": "Limousine",
+      "van": "Transporter",
+      "minibus": "Kleinbus",
+      "bus": "Bus",
+      "truck": "LKW",
+      "motorcycle": "Motorrad"
     }
   }
 }

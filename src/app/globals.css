@@ -721,3 +721,7 @@
   .rtb-service-icon { width: 42px; height: 42px; }
   .rtb-service-label { font-size: 14px; }
 }
+/* Rega24Travel module (2026-11-19): nearby pill link and the travel-business registration strip. */
+.rt-pill-link { justify-content: center; }
+.rt-pill-link:hover { border-color: var(--brand); color: var(--brand-text); }
+.rt-register { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-top: 24px; padding: 16px; border: 1px solid var(--line); border-radius: 18px; background: var(--surface); box-shadow: 0 10px 22px -18px rgb(43 8 5 / .5); }

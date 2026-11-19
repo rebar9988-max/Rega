@@ -1565,6 +1565,24 @@
       "car-rental": "Araç kiralama",
       "cargo-logistics": "Kargo",
       "courier-delivery": "Paket ve teslimat"
+    },
+    "detailsTitle": "Seyahat ve ulaşım bilgileri",
+    "transportTypesLabel": "Araç türleri",
+    "serviceAreasLabel": "Hizmet bölgeleri",
+    "serviceAreasPlaceholder": "ör. Köln, Düsseldorf, Bonn",
+    "serviceAreasHint": "Şehirleri veya bölgeleri virgülle ayırın (en fazla 10).",
+    "allTransport": "Tüm araç türleri",
+    "nearbyLabel": "Yakınımda",
+    "registerTitle": "Seyahat veya ulaşım işletmeniz mi var?",
+    "registerLead": "Rega24Travel'a ekleyin; incelemeden sonra yayınlanır.",
+    "transport": {
+      "car": "Otomobil",
+      "limousine": "Limuzin",
+      "van": "Van",
+      "minibus": "Minibüs",
+      "bus": "Otobüs",
+      "truck": "Kamyon",
+      "motorcycle": "Motosiklet"
     }
   }
 }

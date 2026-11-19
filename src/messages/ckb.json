@@ -1565,6 +1565,24 @@
       "car-rental": "کرێدانی ئۆتۆمبێل",
       "cargo-logistics": "گواستنەوەی باربری",
       "courier-delivery": "پاکەت و گەیاندن"
+    },
+    "detailsTitle": "وردەکاری گەشت و گواستنەوە",
+    "transportTypesLabel": "جۆرەکانی گواستنەوە",
+    "serviceAreasLabel": "ناوچەکانی خزمەتگوزاری",
+    "serviceAreasPlaceholder": "بۆ نموونە: کۆڵن، دوسلدۆرف، بۆن",
+    "serviceAreasHint": "شار یان ناوچەکان بە کۆما جیا بکەرەوە (زۆرترین ١٠).",
+    "allTransport": "هەموو جۆرەکانی گواستنەوە",
+    "nearbyLabel": "نزیکترین لە من",
+    "registerTitle": "بازرگانیی گەشت و گواستنەوەت هەیە؟",
+    "registerLead": "بازرگانییەکەت لە Rega24Travel تۆمار بکە؛ پاش پێداچوونەوە بڵاو دەکرێتەوە.",
+    "transport": {
+      "car": "ئۆتۆمبێل",
+      "limousine": "لیمۆزین",
+      "van": "ڤان",
+      "minibus": "مینیپاس",
+      "bus": "پاس",
+      "truck": "بارهەڵگر",
+      "motorcycle": "ماتۆڕ"
     }
   }
 }

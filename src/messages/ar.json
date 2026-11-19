@@ -1565,6 +1565,24 @@
       "car-rental": "تأجير السيارات",
       "cargo-logistics": "الشحن",
       "courier-delivery": "الطرود والتوصيل"
+    },
+    "detailsTitle": "تفاصيل السفر والنقل",
+    "transportTypesLabel": "أنواع النقل",
+    "serviceAreasLabel": "مناطق الخدمة",
+    "serviceAreasPlaceholder": "مثلاً: كولونيا، دوسلدورف، بون",
+    "serviceAreasHint": "افصل المدن أو المناطق بفواصل (حتى 10).",
+    "allTransport": "كل أنواع النقل",
+    "nearbyLabel": "بالقرب مني",
+    "registerTitle": "هل لديك نشاط سفر أو نقل؟",
+    "registerLead": "سجّله في Rega24Travel؛ يُنشر بعد المراجعة.",
+    "transport": {
+      "car": "سيارة",
+      "limousine": "ليموزين",
+      "van": "فان",
+      "minibus": "ميني باص",
+      "bus": "حافلة",
+      "truck": "شاحنة",
+      "motorcycle": "دراجة نارية"
     }
   }
 }

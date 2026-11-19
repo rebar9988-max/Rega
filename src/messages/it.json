@@ -1565,6 +1565,24 @@
       "car-rental": "Autonoleggio",
       "cargo-logistics": "Cargo",
       "courier-delivery": "Pacchi e consegne"
+    },
+    "detailsTitle": "Dettagli viaggi e trasporti",
+    "transportTypesLabel": "Tipi di veicolo",
+    "serviceAreasLabel": "Zone servite",
+    "serviceAreasPlaceholder": "es. Colonia, Düsseldorf, Bonn",
+    "serviceAreasHint": "Separa città o regioni con virgole (massimo 10).",
+    "allTransport": "Tutti i tipi di veicolo",
+    "nearbyLabel": "Vicino a me",
+    "registerTitle": "Hai un'attività di viaggi o trasporti?",
+    "registerLead": "Inseriscila su Rega24Travel; viene pubblicata dopo la verifica.",
+    "transport": {
+      "car": "Auto",
+      "limousine": "Limousine",
+      "van": "Furgone",
+      "minibus": "Minibus",
+      "bus": "Autobus",
+      "truck": "Camion",
+      "motorcycle": "Moto"
     }
   }
 }

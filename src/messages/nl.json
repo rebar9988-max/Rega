@@ -1565,6 +1565,24 @@
       "car-rental": "Autoverhuur",
       "cargo-logistics": "Vracht",
       "courier-delivery": "Pakketten en bezorging"
+    },
+    "detailsTitle": "Reis- en vervoersgegevens",
+    "transportTypesLabel": "Voertuigtypen",
+    "serviceAreasLabel": "Werkgebieden",
+    "serviceAreasPlaceholder": "bijv. Keulen, Düsseldorf, Bonn",
+    "serviceAreasHint": "Scheid steden of regio's met komma's (maximaal 10).",
+    "allTransport": "Alle voertuigtypen",
+    "nearbyLabel": "Bij mij in de buurt",
+    "registerTitle": "Heb je een reis- of vervoersbedrijf?",
+    "registerLead": "Zet het op Rega24Travel; het wordt na controle gepubliceerd.",
+    "transport": {
+      "car": "Auto",
+      "limousine": "Limousine",
+      "van": "Bestelbus",
+      "minibus": "Minibus",
+      "bus": "Bus",
+      "truck": "Vrachtwagen",
+      "motorcycle": "Motor"
     }
   }
 }

@@ -1688,3 +1688,15 @@ Owner brief "Rega24Travel — Premium 2026 Design + Full Functional Integration"
   name or PLZ, city + category pills, list cards with favourite heart via shared SaveButton `iconOnly`, real ratings
   only). Home: the red map banner's «کردنەوەی نەخشە» CTA is replaced by the Rega24Travel card (suitcase art, CTA to
   /travel); the map stays on the «نزیک» tab; the old map banner renders only if the travel section is switched off.
+
+## 2026-11-19 — Rega24Travel module completed (branch `feat/rega24-travel-module-20261118`)
+Owner (07:20): complete the module while preserving the rest of Rega24 and its foundation. All changes are additive.
+- Scope: four more travel sub-categories (tour operators, chauffeur, shuttle, intercity & international), data file
+  `prisma/d1/data/20261118b_travel_scope_subcategories.sql` (insert-only; applied after deploy).
+- Virtual category `travel` (= both travel roots + descendants) in the shared category filter: /nearby lists it as one
+  choice, so the existing map shows nearby travel providers. Other categories behave exactly as before.
+- Business management (existing /dr form and owner workflow): when a travel category is chosen, transport types and
+  service areas appear; stored in the existing `tags` JSON as `transport:<type>` / `area:<name>` (no migration; other
+  tags kept). Profile shows them only when present. `/dr/businesses/new?travel=1` offers travel categories only.
+- /travel: transport-type filter (search text token), «near me» link to /nearby?category=travel, registration strip.
+- Tests: tests/travel.test.ts (9), tests/e2e/travel.spec.ts.

@@ -1565,6 +1565,24 @@
       "car-rental": "Location de voitures",
       "cargo-logistics": "Fret",
       "courier-delivery": "Colis et livraison"
+    },
+    "detailsTitle": "Détails voyage et transport",
+    "transportTypesLabel": "Types de véhicules",
+    "serviceAreasLabel": "Zones desservies",
+    "serviceAreasPlaceholder": "ex. Cologne, Düsseldorf, Bonn",
+    "serviceAreasHint": "Séparez les villes ou régions par des virgules (10 max).",
+    "allTransport": "Tous les types de véhicules",
+    "nearbyLabel": "Près de moi",
+    "registerTitle": "Vous avez une entreprise de voyage ou de transport ?",
+    "registerLead": "Inscrivez-la sur Rega24Travel ; elle est publiée après vérification.",
+    "transport": {
+      "car": "Voiture",
+      "limousine": "Limousine",
+      "van": "Fourgon",
+      "minibus": "Minibus",
+      "bus": "Bus",
+      "truck": "Camion",
+      "motorcycle": "Moto"
     }
   }
 }

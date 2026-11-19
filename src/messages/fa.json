@@ -1565,6 +1565,24 @@
       "car-rental": "اجاره خودرو",
       "cargo-logistics": "باربری",
       "courier-delivery": "بسته و تحویل"
+    },
+    "detailsTitle": "جزئیات سفر و حمل‌ونقل",
+    "transportTypesLabel": "انواع وسیله",
+    "serviceAreasLabel": "مناطق خدمت",
+    "serviceAreasPlaceholder": "مثلاً: کلن، دوسلدورف، بن",
+    "serviceAreasHint": "شهرها یا مناطق را با ویرگول جدا کنید (حداکثر ۱۰).",
+    "allTransport": "همه انواع وسیله",
+    "nearbyLabel": "نزدیک من",
+    "registerTitle": "کسب‌وکار سفر یا حمل‌ونقل دارید؟",
+    "registerLead": "آن را در Rega24Travel ثبت کنید؛ پس از بررسی منتشر می‌شود.",
+    "transport": {
+      "car": "خودرو",
+      "limousine": "لیموزین",
+      "van": "ون",
+      "minibus": "مینی‌بوس",
+      "bus": "اتوبوس",
+      "truck": "کامیون",
+      "motorcycle": "موتورسیکلت"
     }
   }
 }
