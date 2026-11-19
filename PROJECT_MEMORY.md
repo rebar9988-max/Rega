@@ -1700,3 +1700,6 @@ Owner (07:20): complete the module while preserving the rest of Rega24 and its f
   tags kept). Profile shows them only when present. `/dr/businesses/new?travel=1` offers travel categories only.
 - /travel: transport-type filter (search text token), «near me» link to /nearby?category=travel, registration strip.
 - Tests: tests/travel.test.ts (9), tests/e2e/travel.spec.ts.
+- 2026-11-19 10:17 owner: home Rega24Travel banner too large on mobile (~1300px). CSS-only compact card: scene beside
+  the copy, 2-line body, one scrollable row of 44px service chips, 48px CTA; desktop single strip (CTA at the end).
+  Local Chrome render: 270px tall at 390px, 228px at 1200px. E2E guards the height (<=340 mobile, <=280 desktop).
