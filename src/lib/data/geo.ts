@@ -8,8 +8,10 @@ import "server-only";
 import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { boundingBox } from "@/lib/geo";
-import { NEAREST_CITY_MAX_KM, nearestCity, queryVariants, rankByQuery } from "@/lib/location-pref";
-import { PUBLIC_BUSINESS } from "@/lib/search-where";
+import { NEAREST_CITY_MAX_KM, dedupeById, fuzzyRank, looksLikePostalCode, nearestCity, normalizePostalCode, queryVariants, rankByQuery } from "@/lib/location-pref";
+import { allowedEdits, editDistance } from "@/lib/search-correction";
+import { PUBLIC_BUSINESS, textWhere } from "@/lib/search-where";
+import { normalizeSearch, searchTokens } from "@/lib/text";
 import { DEFAULT_PUBLIC_COUNTRY_CODE, MARKET_COUNTRY_CODES, listSelectorCities } from "./index";
 import { usesD1 } from "../d1-connection";
 
@@ -38,7 +40,11 @@ export type GeoCity = Names & {
   longitude: number | null;
   /** Public listings in this city (0 is shown honestly; cities stay selectable). */
   count: number;
+  /** Set when the city was found through a postal code or street of a public listing, not by its name. */
+  match?: { kind: "postal" | "street"; value: string };
 };
+
+export type GeoCityList = { cities: GeoCity[]; hasMore: boolean; /** A postal code that belongs to more than one city: the visitor must choose. */ ambiguous?: boolean };
 
 const nameColumns = { nameEn: true, nameCkb: true, nameKmr: true, nameDe: true, nameFa: true, nameAr: true, nameTr: true } as const;
 
@@ -72,9 +78,47 @@ async function countsFor(ids: string[]): Promise<Map<string, number>> {
   return counts;
 }
 
-async function toCities(rows: CityRow[]): Promise<GeoCity[]> {
+async function toCities(rows: CityRow[], matches?: Map<string, NonNullable<GeoCity["match"]>>): Promise<GeoCity[]> {
   const counts = await countsFor(rows.map((r) => r.id));
-  return rows.map(({ country, ...city }) => ({ ...city, countryCode: country.code, count: counts.get(city.id) ?? 0 }));
+  return rows.map(({ country, ...city }) => {
+    const match = matches?.get(city.id);
+    return { ...city, countryCode: country.code, count: counts.get(city.id) ?? 0, ...(match ? { match } : {}) };
+  });
+}
+
+/** Address rows read for one postal-code or street search (bounded; one per city is kept). */
+const ADDRESS_CANDIDATES = 60;
+/** Rows read for the typo-tolerant fallback (cities sharing the first letter), ranked in memory. */
+const FUZZY_CANDIDATES = 400;
+
+/**
+ * Cities reached through the postal code or street of public listings (the only stored postal/street data), one
+ * entry per city with the first matching value. Private, draft and deleted listings are never searched.
+ */
+async function addressMatches(countryCode: string, q: string, postal: boolean): Promise<Map<string, NonNullable<GeoCity["match"]>>> {
+  const codes = postal ? Array.from(new Set([normalizePostalCode(q), normalizePostalCode(q).replace(/[ -]/g, "")])) : [];
+  // Streets go through the normalized search index (works the same on PostgreSQL and D1); postal codes are stored upper case.
+  const where: Prisma.LocationWhereInput = postal ? { OR: codes.map((code) => ({ postalCode: { startsWith: code } })) } : textWhere(q);
+  if (!postal && !("AND" in where)) return new Map();
+  const rows = await prisma.location.findMany({
+    where: { ...publicLocation, countryCode, cityId: { not: null }, city: { isActive: true }, ...where },
+    orderBy: postal ? { postalCode: "asc" } : { addressLine1: "asc" },
+    take: ADDRESS_CANDIDATES,
+    select: { cityId: true, postalCode: true, addressLine1: true, addressLine2: true },
+  });
+  const tokens = searchTokens(q);
+  const found = new Map<string, NonNullable<GeoCity["match"]>>();
+  for (const row of rows) {
+    if (!row.cityId || found.has(row.cityId)) continue;
+    if (postal) {
+      found.set(row.cityId, { kind: "postal", value: row.postalCode ?? q });
+      continue;
+    }
+    // The index also holds business and city names: only a real street/district match counts as one.
+    const address = normalizeSearch(`${row.addressLine1} ${row.addressLine2 ?? ""}`);
+    if (tokens.every((t) => address.includes(t))) found.set(row.cityId, { kind: "street", value: row.addressLine1 });
+  }
+  return found;
 }
 
 /** The public market's country first, then the other target markets and any other active country that already has a public listing. */
@@ -112,12 +156,13 @@ export async function geoRegions(countryCode: string): Promise<GeoRegion[]> {
 }
 
 /** The most useful cities first (listings, then the curated set), or one region alphabetically, or a text search. */
-export async function geoCities(opts: { countryCode: string; regionId?: string; q?: string; limit?: number }): Promise<{ cities: GeoCity[]; hasMore: boolean }> {
+export async function geoCities(opts: { countryCode: string; regionId?: string; q?: string; limit?: number }): Promise<GeoCityList> {
   const limit = Math.min(Math.max(opts.limit ?? GEO_CITY_LIMIT, 1), 50);
   const inCountry = { isActive: true, country: { code: opts.countryCode, isActive: true } } satisfies Prisma.CityWhereInput;
   const q = opts.q?.trim();
 
   if (q) {
+    const postal = looksLikePostalCode(q);
     const variants = queryVariants(q);
     const text = (v: string) => ({ contains: v, mode: "insensitive" as const });
     const or: Prisma.CityWhereInput[] = variants.flatMap((v) => [
@@ -125,15 +170,48 @@ export async function geoCities(opts: { countryCode: string; regionId?: string; 
       { slug: text(v) },
       { translations: { some: { name: text(v) } } },
     ]);
-    const rows = await prisma.city.findMany({ where: { ...inCountry, OR: or }, orderBy: { nameEn: "asc" }, take: SEARCH_CANDIDATES, select: citySelect });
+    // Names, and (from three characters, or any postal code) the postal codes and streets of public listings.
+    const [rows, matches] = await Promise.all([
+      postal ? Promise.resolve([] as CityRow[]) : prisma.city.findMany({ where: { ...inCountry, OR: or }, orderBy: { nameEn: "asc" }, take: SEARCH_CANDIDATES, select: citySelect }),
+      postal || [...q].length >= 3 ? addressMatches(opts.countryCode, q, postal) : Promise.resolve(new Map<string, NonNullable<GeoCity["match"]>>()),
+    ]);
     // Names that start with the text first; a city found only through a stored translation keeps its place after them.
     const preferred = rankByQuery(rows, q, (c) => [...cityNames(c), c.slug], SEARCH_CANDIDATES);
     const seen = new Set(preferred.map((c) => c.id));
     // Among the name matches, cities with public listings come first (stable: equal counts stay alphabetical).
     const counts = await countsFor(rows.map((c) => c.id));
     const byListings = [...preferred].sort((a, b) => (counts.get(b.id) ?? 0) - (counts.get(a.id) ?? 0));
-    const ranked = [...byListings, ...rows.filter((c) => !seen.has(c.id))];
-    return { cities: await toCities(ranked.slice(0, limit)), hasMore: ranked.length > limit || rows.length >= SEARCH_CANDIDATES };
+    const byName = [...byListings, ...rows.filter((c) => !seen.has(c.id))];
+    const known = new Set(byName.map((c) => c.id));
+    const addressIds = [...matches.keys()].filter((id) => !known.has(id));
+    const viaAddress = addressIds.length
+      ? await prisma.city.findMany({ where: { ...inCountry, id: { in: addressIds } }, select: citySelect }).then((found) => {
+          const byId = new Map(found.map((c) => [c.id, c]));
+          return addressIds.flatMap((id) => (byId.has(id) ? [byId.get(id)!] : []));
+        })
+      : [];
+    // A city found by its own name is shown as that name (no address hint); one canonical row per city.
+    for (const c of byName) matches.delete(c.id);
+    let ranked = dedupeById([...byName, ...viaAddress]);
+
+    // Nothing matched exactly: tolerate a typo against cities that share the first letter (bounded, ranked in memory).
+    if (ranked.length === 0 && !postal) {
+      const first = Array.from(new Set(variants.map((v) => [...v][0]).filter(Boolean)));
+      const starts = (v: string) => ({ startsWith: v, mode: "insensitive" as const });
+      const candidates = first.length
+        ? await prisma.city.findMany({
+            where: { ...inCountry, OR: first.flatMap((v) => [{ nameEn: starts(v) }, { nameCkb: starts(v) }, { nameKmr: starts(v) }, { nameDe: starts(v) }, { nameFa: starts(v) }, { nameAr: starts(v) }, { nameTr: starts(v) }]) },
+            orderBy: { nameEn: "asc" },
+            take: FUZZY_CANDIDATES,
+            select: citySelect,
+          })
+        : [];
+      ranked = fuzzyRank(candidates, q, (c) => [...cityNames(c), c.slug], editDistance, allowedEdits, limit + 1);
+    }
+
+    const cities = await toCities(ranked.slice(0, limit), matches);
+    const postalCities = postal ? cities.filter((c) => c.match?.kind === "postal").length : 0;
+    return { cities, hasMore: ranked.length > limit || rows.length >= SEARCH_CANDIDATES, ...(postalCities > 1 ? { ambiguous: true } : {}) };
   }
 
   if (opts.regionId) {

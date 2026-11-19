@@ -133,3 +133,62 @@ export function nearestCity<T extends { latitude: number | null; longitude: numb
 export function plainCityName(option: { label: string; name?: string }): string {
   return option.name ?? option.label;
 }
+
+// ------------------------------------------------------------------ smart location search
+
+/** Shortest text sent to the server: one character is narrowed locally from the list already shown. */
+export const MIN_LOCATION_QUERY = 2;
+
+/**
+ * Postal-code shaped text: starts with a digit or is a short letter+digit code (DE "10178", NL "1012 AB", PL "00-950",
+ * UK "SW1A 1AA"), at most 10 characters, at least two digits. A city name never matches.
+ */
+export function looksLikePostalCode(query: string): boolean {
+  const q = query.trim();
+  if (q.length < MIN_LOCATION_QUERY || q.length > 10) return false;
+  if ((q.match(/\d/g) ?? []).length < 2) return false;
+  return /^[0-9][0-9A-Za-z -]*$/.test(q) || /^[A-Za-z]{1,2}[0-9][0-9A-Za-z ]*$/.test(q);
+}
+
+/** Postal code as stored for a prefix match: upper case, single spaces. */
+export function normalizePostalCode(query: string): string {
+  return query.trim().replace(/\s+/g, " ").toUpperCase();
+}
+
+/** One canonical entry per id (the first wins), order kept. */
+export function dedupeById<T extends { id: string }>(items: readonly T[]): T[] {
+  const seen = new Set<string>();
+  return items.filter((item) => (seen.has(item.id) ? false : (seen.add(item.id), true)));
+}
+
+/**
+ * Typo-tolerant ranking for a query that matched nothing exactly ("Muenchn", "Hambrug", "بەرلن"). Each name is
+ * compared whole and by its beginning (so a partly typed long name still matches); only matches within the
+ * length-dependent edit budget are kept, closest first, ties in their original order.
+ */
+export function fuzzyRank<T>(
+  items: readonly T[],
+  query: string,
+  names: (item: T) => readonly (string | null | undefined)[],
+  distance: (a: string, b: string, max: number) => number,
+  budget: (length: number) => number,
+  limit = 40,
+): T[] {
+  const q = foldSearch(query);
+  const qLength = [...q].length;
+  const max = budget(qLength);
+  if (qLength < 3 || max === 0) return [];
+  const scored: { item: T; d: number; i: number }[] = [];
+  items.forEach((item, i) => {
+    let best = Infinity;
+    for (const raw of names(item)) {
+      if (typeof raw !== "string" || !raw) continue;
+      const chars = [...foldSearch(raw)];
+      for (const candidate of [chars.join(""), chars.slice(0, qLength).join(""), chars.slice(0, qLength + 1).join("")]) {
+        if (candidate) best = Math.min(best, distance(q, candidate, max));
+      }
+    }
+    if (best <= max) scored.push({ item, d: best, i });
+  });
+  return scored.sort((a, b) => a.d - b.d || a.i - b.i).slice(0, limit).map((s) => s.item);
+}

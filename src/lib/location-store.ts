@@ -91,8 +91,10 @@ export type GeoCity = GeoNames & {
   latitude: number | null;
   longitude: number | null;
   count: number;
+  /** Found through a postal code or street of a public listing rather than by name. */
+  match?: { kind: "postal" | "street"; value: string };
 };
-export type GeoList = { countryCode: string; countries: GeoCountry[]; regions: GeoRegion[]; cities: GeoCity[]; hasMore: boolean };
+export type GeoList = { countryCode: string; countries: GeoCountry[]; regions: GeoRegion[]; cities: GeoCity[]; hasMore: boolean; /** One postal code, several cities: never chosen automatically. */ ambiguous?: boolean };
 
 const GEO_PATH = "/api/v1/geo";
 // Geography responses carry moderation-sensitive listing counts; fetch fresh on every open.

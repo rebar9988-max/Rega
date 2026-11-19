@@ -1246,7 +1246,7 @@
   },
   "locationPicker": {
     "title": "Scegli un luogo",
-    "search": "Cerca una città",
+    "search": "Città, quartiere, via o CAP",
     "close": "Chiudi",
     "clear": "Cancella ricerca",
     "region": "Regione",
@@ -1255,7 +1255,9 @@
     "noResults": "Nessuna città corrispondente",
     "noNearbyCity": "Nessuna città supportata vicino a te. Scegline una.",
     "loadFailed": "Non è stato possibile caricare le città. Riprova.",
-    "searching": "Ricerca …"
+    "searching": "Ricerca …",
+    "browse": "Sfoglia per paese o regione",
+    "postalAmbiguous": "Questo CAP appartiene a più località. Scegline una."
   },
   "businessModeration": {
     "verification": "Verifica del personale",
