@@ -1641,6 +1641,14 @@ Note: a repository ruleset requires the branch to be up to date with main before
 Matrix: `docs/research/competitive-matrix-2026-11.md`. Next safe increments: advanced filters (open now / languages /
 has offers, no schema change), comparison of saved businesses; attributes and products need owner schema approval.
 
+
+Update 2026-11-18: PR #163 merged (`e50133b`) and deployed. Production has no published businesses on purpose
+(development phase; owner confirmed the empty directory is expected, not a defect — never create, restore or publish
+business data for checks). The production browser check therefore also runs `checkSavedPageIsolated`: a made-up slug
+(`rega-live-check-isolated-0000`) in the test browser's own localStorage → `/ckb/saved` and `/de/saved` on desktop and
+mobile: empty state, RTL/LTR, noindex, no overflow, axe (no serious/critical), load < 8 s, unknown slug answered without
+error, clear all; plus a hostile `slugs=` probe returning no records. Branch run 44409338072: 299 ok / 0 fail (54 of
+them saved-isolated). The profile-based save flow still runs automatically once a business is published.
 ## 2026-11-16 — Resume PR #159 release
 Recovered head 7fc1088: GitHub CI 43684019068 succeeded (verify 43m37s), both Cloudflare build checks and route audit passed.
 PR remained open because main advanced to 663f801, causing conflicts only in appended memory, locale JSON and generated inventory.
