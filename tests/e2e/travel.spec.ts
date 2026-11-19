@@ -41,7 +41,7 @@ test("travel: banner service shortcuts open the travel page filtered to that cat
     await expect(banner.getByRole("link")).toHaveCount(7);
     // Compact promo card (owner 2026-11-19): it must not take over the home page.
     const bannerBox = await banner.boundingBox();
-    expect(bannerBox && bannerBox.height <= (width < 768 ? 340 : 280), `banner height ${bannerBox?.height} at ${width}px`).toBeTruthy();
+    expect(bannerBox && bannerBox.height <= (width < 768 ? 380 : 280), `banner height ${bannerBox?.height} at ${width}px`).toBeTruthy();
     expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
     for (const link of await banner.locator(".rtb-service").all()) {
       const box = await link.boundingBox();

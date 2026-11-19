@@ -1703,3 +1703,9 @@ Owner (07:20): complete the module while preserving the rest of Rega24 and its f
 - 2026-11-19 10:17 owner: home Rega24Travel banner too large on mobile (~1300px). CSS-only compact card: scene beside
   the copy, 2-line body, one scrollable row of 44px service chips, 48px CTA; desktop single strip (CTA at the end).
   Local Chrome render: 270px tall at 390px, 228px at 1200px. E2E guards the height (<=340 mobile, <=280 desktop).
+- 2026-11-19 12:31 owner: premium refinement of the home Rega24Travel banner only. Cartoon scene replaced by a clean
+  line route illustration (TravelRouteArt); service icons in the shared line style (plane, taxi, bus, car, truck,
+  package); softer brand-red gradient, no gold rims, light shadows; copy at the start, art at the end (RTL aligned);
+  service chips are a 3x2 tile grid (no clipped scroll row), 6 tiles in a row on desktop; white CTA. Local Chrome
+  render: 365px at 390/360px (RTL), 344px LTR, 220px at 1200px, no horizontal overflow. E2E guard <=380 / <=280.
+  Photographic imagery needs a licensed photo from the owner (none available in-repo; no stock downloads).
