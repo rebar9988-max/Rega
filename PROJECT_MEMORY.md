@@ -1709,3 +1709,9 @@ Owner (07:20): complete the module while preserving the rest of Rega24 and its f
 - Changes: `geoCities` (src/lib/data/geo.ts) adds postal-code prefix and street matches from public listings (street via the normalized `Location.searchText` index so D1 needs no new folded column), a bounded typo-tolerant fallback (`fuzzyRank` + existing `editDistance`), canonical dedupe and an `ambiguous` flag in `/api/v1/geo`. `CityFilter` queries from 2 characters (1 is narrowed locally), shows the postal/street hint, never preselects a row for an ambiguous postal code, and folds the country/region lists into a disclosure. New `locationPicker.browse`/`postalAmbiguous` and updated `search` placeholder in all 11 locales. /dr geography untouched.
 - Tests: tests/location-pref.test.ts (postal detection, dedupe, fuzzy), tests/e2e/location-search.spec.ts (desktop + mobile, PG + D1).
 - Limitation: postal codes and streets exist only on listing locations (no postal table), so they resolve only cities that have public listings.
+- 2026-11-19 12:31 owner: premium refinement of the home Rega24Travel banner only. Cartoon scene replaced by a clean
+  line route illustration (TravelRouteArt); service icons in the shared line style (plane, taxi, bus, car, truck,
+  package); softer brand-red gradient, no gold rims, light shadows; copy at the start, art at the end (RTL aligned);
+  service chips are a 3x2 tile grid (no clipped scroll row), 6 tiles in a row on desktop; white CTA. Local Chrome
+  render ~326-365px on phones, 220px at 1200px, no horizontal overflow (CI with Vazirmatn measured 403px before tightening). E2E guard <=400 / <=280.
+  Photographic imagery needs a licensed photo from the owner (none available in-repo; no stock downloads).
