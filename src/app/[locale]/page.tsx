@@ -18,7 +18,7 @@ import { log } from "@/lib/logger";
 import { pageMetadata } from "@/lib/seo";
 import { NoEdgeCache } from "@/components/ui/NoEdgeCache";
 import { TRAVEL_ROOT_KEYS } from "@/config/travel";
-import { SuitcaseArt } from "@/components/travel/TravelArt";
+import { TravelBanner } from "@/components/travel/TravelBanner";
 import { sectionEnabled } from "@/config/sections";
 
 /** The landing page must render even if the database is briefly unavailable. */
@@ -236,20 +236,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
         {/* ---------- Rega24Travel banner (owner 2026-11-18): replaces the map banner; the map stays on the «نزیک» tab ---------- */}
         {travelOn ? (
-          <section className={`${BAND} rh-section`} aria-labelledby="home-travel">
-            <div className="rh-travel">
-              <SuitcaseArt className="rh-travel-art" />
-              <div className="rh-travel-copy">
-                <h2 id="home-travel" className="rh-travel-title" dir="ltr">Rega24<span>Travel</span></h2>
-                <p className="rh-travel-sub">{tn("travel")}</p>
-                <p className="rh-travel-body">{tt("bannerBody")}</p>
-                <Link href="/travel" className="rh-travel-cta" data-testid="home-travel-cta">
-                  {tt("bannerCta")}
-                  <FigmaIcon name="chevron-right" className="rtl-flip size-4 shrink-0" />
-                </Link>
-              </div>
-            </div>
-          </section>
+          <TravelBanner categories={categories} className={`${BAND} rh-section`} />
         ) : (
           <section className={`${BAND} rh-section`} aria-labelledby="home-map">
             <div className="rh-mapbanner">

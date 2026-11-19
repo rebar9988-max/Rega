@@ -33,6 +33,23 @@ test("travel: home banner opens Rega24Travel; the map CTA is gone", async ({ pag
   await expect(page).toHaveURL(/\/ckb\/travel$/);
 });
 
+test("travel: banner service shortcuts open the travel page filtered to that category", async ({ page }) => {
+  for (const width of [375, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/ckb");
+    const banner = page.getByTestId("home-travel-banner");
+    await expect(banner.getByRole("link")).toHaveCount(7);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
+    for (const link of await banner.locator(".rtb-service").all()) {
+      const box = await link.boundingBox();
+      expect(box && box.width >= 44 && box.height >= 44).toBeTruthy();
+    }
+  }
+  await page.getByTestId("travel-shortcut-taxi-transfer").click();
+  await expect(page).toHaveURL(/\/ckb\/travel\?category=/);
+  await expect(page.getByTestId("travel-category")).not.toHaveValue("");
+});
+
 test("travel: the category pill filters inside travel only", async ({ page }) => {
   await page.goto("/en/travel");
   const select = page.getByTestId("travel-category");

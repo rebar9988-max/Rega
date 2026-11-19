@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { TRAVEL_ROOT_KEYS, TRAVEL_SUBCATEGORIES, parsePostalCode, travelCategoryFilter, travelCategoryIds } from "../src/config/travel";
+import { TRAVEL_ROOT_KEYS, TRAVEL_SHORTCUTS, TRAVEL_SUBCATEGORIES, parsePostalCode, travelCategoryFilter, travelCategoryIds } from "../src/config/travel";
 import { CATEGORIES } from "../prisma/seed-data/categories";
 import { SECTIONS } from "../src/config/sections";
 
@@ -54,6 +54,10 @@ test("travel: section is registered without touching header, menu or footer", ()
   assert.ok(s?.sitemap);
 });
 
+test("travel: banner shortcuts are real travel sub-categories", () => {
+  for (const slug of TRAVEL_SHORTCUTS) assert.ok(TRAVEL_SUBCATEGORIES.some((c) => c.key === slug), slug);
+});
+
 test("travel: every catalogue has the travel strings, Sorani is the brief's text", () => {
   const keys = Object.keys(JSON.parse(readFileSync("src/messages/ckb.json", "utf8")).travel).sort();
   for (const l of LOCALE_FILES) {
@@ -82,8 +86,12 @@ test("travel: the production data file holds exactly the seed rows, insert-only"
 
 test("travel: the home tile and page reuse the shared directory pieces", () => {
   const home = readFileSync("src/app/[locale]/page.tsx", "utf8");
-  assert.equal(home.match(/href="\/travel"/g)?.length, 2, "category tile + the red banner CTA");
-  assert.doesNotMatch(home.slice(home.indexOf("Rega24Travel banner"), home.indexOf(") : (")), /\/nearby/, "the banner no longer opens the map");
+  assert.equal(home.match(/href="\/travel"/g)?.length, 1, "category tile");
+  assert.match(home, /<TravelBanner categories=\{categories\}/, "the red banner is the Rega24Travel banner");
+  const banner = readFileSync("src/components/travel/TravelBanner.tsx", "utf8");
+  assert.equal(banner.match(/href="\/travel"/g)?.length, 1, "one CTA");
+  assert.match(banner, /href=\{`\/travel\?category=\$\{s\.id\}`\}/, "shortcuts open /travel filtered to a real category");
+  assert.doesNotMatch(banner, /\/nearby/, "the banner no longer opens the map");
   const page = readFileSync("src/app/[locale]/travel/page.tsx", "utf8") + readFileSync("src/components/travel/TravelCard.tsx", "utf8");
   for (const shared of ["listBusinesses", "TravelCard", "CityFilter", "Pagination", "SaveButton", "sectionEnabled(\"travel\")"]) assert.ok(page.includes(shared), shared);
   assert.doesNotMatch(page, /prisma\./, "no direct queries: the shared data layer only");

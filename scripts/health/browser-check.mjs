@@ -2,6 +2,7 @@
 // journeys and the approved red/white UI, and saves full-page screenshots. Never signs in, never submits a form,
 // never writes data. Usage: BASE_URL=https://www.rega24.com node scripts/health/browser-check.mjs
 import { chromium, devices } from "@playwright/test";
+import AxeBuilder from "@axe-core/playwright";
 import { mkdirSync, appendFileSync, readFileSync } from "node:fs";
 
 const BASE = (process.env.BASE_URL || "https://www.rega24.com").replace(/\/$/, "");
@@ -46,6 +47,7 @@ async function openPicker(page) {
  * list, nearest-city detection with a granted position, the phone bottom sheet and Kurdish RTL. Nothing is submitted
  * and nothing is stored outside this throw-away browser context.
  */
+const FILTER_LIST = "/de/businesses/legal"; // the city filter lives on category/city pages; /businesses has none (owner, 2026-11-15)
 async function checkLocationFilter(browser, ctx, page, vp, opts) {
   const tag = `${vp} location`;
   const out = [];
@@ -71,7 +73,7 @@ async function checkLocationFilter(browser, ctx, page, vp, opts) {
     rec((near.headers()["cache-control"] || "").includes("no-store"), "API nearest answer is not cached");
 
     // Selector on the business list
-    await page.goto(`${BASE}/de/businesses`, { waitUntil: "domcontentloaded" });
+    await page.goto(`${BASE}${FILTER_LIST}`, { waitUntil: "domcontentloaded" });
     await page.waitForLoadState("networkidle", { timeout: 15_000 }).catch(() => {});
     // Diagnosis: which elements stick out of the viewport on the list page (reported, never changed here).
     const sticking = (label) => page.evaluate(({ label, width }) => {
@@ -113,11 +115,11 @@ async function checkLocationFilter(browser, ctx, page, vp, opts) {
       await page.goto(`${BASE}/de`, { waitUntil: "domcontentloaded" });
       await page.locator("#f-city-search").filter({ hasText: "Berlin" }).waitFor({ timeout: 8000 }).catch(() => {});
       rec((await page.locator("#f-city-search").textContent())?.includes("Berlin") === true, "home page shows the saved city");
-      await page.goto(`${BASE}/de/businesses`, { waitUntil: "domcontentloaded" });
+      await page.goto(`${BASE}${FILTER_LIST}`, { waitUntil: "domcontentloaded" });
       await page.waitForURL(/[?&]city=/, { timeout: 8000 }).catch(() => {});
       rec(/[?&]city=[^&]/.test(page.url()), "business list applies the saved city", page.url().replace(BASE, ""));
       // Reset to all cities clears the saved place.
-      await page.goto(`${BASE}/de/businesses?city=`, { waitUntil: "domcontentloaded" });
+      await page.goto(`${BASE}${FILTER_LIST}?city=`, { waitUntil: "domcontentloaded" });
       await page.waitForFunction(() => localStorage.getItem("rega-location") === null, null, { timeout: 8000 }).catch(() => {});
       rec((await page.evaluate(() => localStorage.getItem("rega-location"))) === null, "all cities clears the saved place");
     }
@@ -125,7 +127,7 @@ async function checkLocationFilter(browser, ctx, page, vp, opts) {
     // Nearest-city detection with a granted position (a fresh context so nothing is saved yet)
     const geoCtx = await browser.newContext({ ...opts, userAgent: (opts.userAgent || "Mozilla/5.0 (X11; Linux x86_64) Chrome/125.0 Safari/537.36") + UA_SUFFIX, geolocation: { latitude: 52.5201, longitude: 13.4049 }, permissions: ["geolocation"] });
     const gp = await geoCtx.newPage();
-    await gp.goto(`${BASE}/de/businesses`, { waitUntil: "domcontentloaded" });
+    await gp.goto(`${BASE}${FILTER_LIST}`, { waitUntil: "domcontentloaded" });
     await gp.waitForLoadState("networkidle", { timeout: 15_000 }).catch(() => {});
     const gd = await openPicker(gp);
     if (gd) {
@@ -136,7 +138,7 @@ async function checkLocationFilter(browser, ctx, page, vp, opts) {
     await geoCtx.close();
 
     // Kurdish, right to left
-    await page.goto(`${BASE}/ckb/businesses`, { waitUntil: "domcontentloaded" });
+    await page.goto(`${BASE}${FILTER_LIST.replace("/de/", "/ckb/")}`, { waitUntil: "domcontentloaded" });
     await page.waitForLoadState("networkidle", { timeout: 15_000 }).catch(() => {});
     const kd = await openPicker(page);
     rec(Boolean(kd), "Kurdish selector opens");
@@ -156,6 +158,119 @@ async function checkLocationFilter(browser, ctx, page, vp, opts) {
   }
   // One notice per viewport so the results can be read from the run's annotations.
   console.log(`::notice title=${tag}::${out.join("%0A")}`);
+}
+
+// Saved businesses (PR #162): save -> saved page -> remove on a real profile, RTL and LTR. Only this test browser's
+// own localStorage changes; nothing is sent to the server except the public slug lookup of the saved page.
+async function checkSavedFlow(page, vp, href) {
+  const slug = decodeURIComponent(href.split("/business/")[1] ?? "").split(/[?#]/)[0];
+  for (const [locale, dir] of [["ckb", "rtl"], ["de", "ltr"]]) {
+    const label = `${vp} saved ${locale}`;
+    try {
+      await page.goto(`${BASE}/${locale}/business/${encodeURIComponent(slug)}`, { waitUntil: "domcontentloaded" });
+      await page.evaluate(() => window.localStorage.removeItem("rega-saved"));
+      await page.reload({ waitUntil: "domcontentloaded" });
+      const save = page.getByTestId("business-actions").getByTestId("save-button");
+      await save.waitFor({ timeout: 15_000 });
+      note(await save.isVisible(), `${label}: save button on the profile`);
+      await save.click();
+      const stored = await page.evaluate(() => window.localStorage.getItem("rega-saved"));
+      note(stored === JSON.stringify([slug]), `${label}: stored on this device only`, String(stored));
+      const link = page.getByTestId("saved-link");
+      await link.waitFor({ timeout: 10_000 });
+      await link.click();
+      await page.waitForURL(new RegExp(`/${locale}/saved$`), { timeout: 15_000 });
+      const list = page.getByTestId("saved-list");
+      await list.waitFor({ timeout: 20_000 });
+      const facts = await page.evaluate(() => ({
+        dir: document.documentElement.dir,
+        h1: document.querySelector("h1")?.textContent?.trim() ?? "",
+        overflow: document.documentElement.scrollWidth - window.innerWidth,
+        robots: document.querySelector('meta[name="robots"]')?.getAttribute("content") ?? "",
+      }));
+      note(facts.dir === dir, `${label}: /${locale}/saved dir=${dir}`, facts.dir);
+      note(facts.h1.length > 0, `${label}: page title`, facts.h1);
+      note(facts.overflow <= 1, `${label}: no horizontal scroll`, `${facts.overflow}px`);
+      note(/noindex/.test(facts.robots), `${label}: noindex`, facts.robots);
+      note((await list.locator("li").count()) === 1, `${label}: lists the saved business`);
+      await page.screenshot({ path: `${OUT}/${vp}_saved_${locale}.png`, fullPage: true });
+      await list.locator("li button").first().click();
+      await page.getByTestId("saved-empty").waitFor({ timeout: 10_000 });
+      note((await page.evaluate(() => window.localStorage.getItem("rega-saved"))) === null, `${label}: remove clears it`);
+    } catch (error) {
+      note(false, `${label}: flow`, String(error).split("\n")[0]);
+    }
+  }
+}
+
+// Saved page with isolated test data (runs whether or not anything is published): a made-up slug that matches no
+// business is put in this test browser's own localStorage. No production record is read by id, created or changed.
+const ISOLATED_SLUG = "rega-live-check-isolated-0000";
+async function checkSavedPageIsolated(page, vp) {
+  for (const [locale, dir] of [["ckb", "rtl"], ["de", "ltr"]]) {
+    const label = `${vp} saved-isolated ${locale}`;
+    try {
+      await page.goto(`${BASE}/${locale}/saved`, { waitUntil: "domcontentloaded" });
+      await page.evaluate(() => window.localStorage.removeItem("rega-saved"));
+      await page.reload({ waitUntil: "load" });
+      await page.getByTestId("saved-empty").waitFor({ timeout: 15_000 });
+      const facts = await page.evaluate(() => {
+        const nav = performance.getEntriesByType("navigation")[0];
+        return {
+          dir: document.documentElement.dir,
+          h1: document.querySelector("h1")?.textContent?.trim() ?? "",
+          overflow: document.documentElement.scrollWidth - window.innerWidth,
+          robots: document.querySelector('meta[name="robots"]')?.getAttribute("content") ?? "",
+          browse: document.querySelector('[data-testid="saved-empty"] a')?.getAttribute("href") ?? "",
+          load: nav ? Math.round(nav.loadEventEnd - nav.startTime) : -1,
+        };
+      });
+      note(facts.dir === dir, `${label}: dir=${dir}`, facts.dir);
+      note(facts.h1.length > 0, `${label}: page title`, facts.h1);
+      note(/noindex/.test(facts.robots), `${label}: noindex`, facts.robots);
+      note(facts.overflow <= 1, `${label}: no horizontal scroll (empty state)`, `${facts.overflow}px`);
+      note(/\/businesses$/.test(facts.browse), `${label}: empty state links to the directory`, facts.browse);
+      note(facts.load >= 0 && facts.load < 8000, `${label}: page load under 8 s`, `${facts.load} ms`);
+      const axe = await new AxeBuilder({ page }).include("main").analyze();
+      const serious = axe.violations.filter((v) => v.impact === "critical" || v.impact === "serious").map((v) => v.id);
+      note(serious.length === 0, `${label}: no serious/critical axe violations (empty state)`, serious.join(", "));
+
+      // View: the isolated slug is looked up through the public API, matches nothing, and is reported as unavailable.
+      await page.evaluate((slug) => window.localStorage.setItem("rega-saved", JSON.stringify([slug])), ISOLATED_SLUG);
+      await page.reload({ waitUntil: "domcontentloaded" });
+      // An empty <ul> has no height, so wait for it to be attached (the API answered), not visible.
+      const list = page.getByTestId("saved-list");
+      await list.waitFor({ state: "attached", timeout: 20_000 });
+      note((await list.locator("li").count()) === 0, `${label}: unknown slug shows no business`);
+      note((await page.locator("main [role=alert]").count()) === 0, `${label}: lookup answered without an error`);
+      const clear = page.locator("main button").last();
+      note(await clear.isVisible(), `${label}: clear-all button`);
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+      note(overflow <= 1, `${label}: no horizontal scroll (list state)`, `${overflow}px`);
+      const axe2 = await new AxeBuilder({ page }).include("main").analyze();
+      const serious2 = axe2.violations.filter((v) => v.impact === "critical" || v.impact === "serious").map((v) => v.id);
+      note(serious2.length === 0, `${label}: no serious/critical axe violations (list state)`, serious2.join(", "));
+      await page.screenshot({ path: `${OUT}/${vp}_saved_isolated_${locale}.png`, fullPage: true });
+
+      // Remove: clear all empties this browser's list.
+      await clear.click();
+      await page.getByTestId("saved-empty").waitFor({ timeout: 10_000 });
+      note((await page.evaluate(() => window.localStorage.getItem("rega-saved"))) === null, `${label}: clear all removes the stored list`);
+    } catch (error) {
+      note(false, `${label}: flow`, String(error).split("\n")[0]);
+    }
+  }
+  // Security: the optional slugs filter drops malformed input and never returns non-public records.
+  try {
+    const r = await page.evaluate(async (slug) => {
+      const res = await fetch(`/api/v1/businesses?slugs=${encodeURIComponent(`<script>,../etc,' or 1=1,${slug}`)}&perPage=5`);
+      const body = await res.json().catch(() => ({}));
+      return { status: res.status, ok: body.ok, n: Array.isArray(body.data) ? body.data.length : -1 };
+    }, ISOLATED_SLUG);
+    note(r.status === 200 && r.ok === true && r.n === 0, `${vp} saved-isolated: hostile slugs return no records`, JSON.stringify(r));
+  } catch (error) {
+    note(false, `${vp} saved-isolated: slug filter probe`, String(error).split("\n")[0]);
+  }
 }
 
 const browser = await chromium.launch();
@@ -203,11 +318,14 @@ try {
     }
 
     // Germany city discovery: no foreign city in the public business city filter.
-    await page.goto(`${BASE}/de/businesses`, { waitUntil: "domcontentloaded" });
+    await page.goto(`${BASE}${FILTER_LIST}`, { waitUntil: "domcontentloaded" });
     const cities = await page.locator("#f-city option").allTextContents();
     const foreign = cities.filter((c) => FOREIGN_CITIES.some((f) => c.trim().startsWith(f)));
     note(cities.length > 1, `${vp} directory: city options present`, `${cities.length - 1} cities`);
     note(foreign.length === 0, `${vp} directory: Germany-only cities`, foreign.join(", "));
+    // /businesses itself shows no search bar or filters panel (owner decision); chips, results and sort stay.
+    await page.goto(`${BASE}/de/businesses`, { waitUntil: "domcontentloaded" });
+    note((await page.locator("#f-city-search").count()) === 0, `${vp} directory: /businesses has no search/filters panel`);
 
     // A real business profile, reached from the directory (skipped honestly when nothing is published yet).
     // Results stream in after the filters (Suspense): wait for them instead of reading the first HTML chunk.
@@ -218,10 +336,13 @@ try {
       const res = await page.goto(BASE + href, { waitUntil: "domcontentloaded" });
       note((res?.status() ?? 0) === 200, `${vp} profile ${href}`, String(res?.status()));
       await page.screenshot({ path: `${OUT}/${vp}_profile.png`, fullPage: true });
+      await checkSavedFlow(page, vp, href);
     } else {
       const count = (await page.locator("main [aria-live=polite]").first().textContent().catch(() => ""))?.trim();
       lines.push(`info ${vp} directory has no published business to open (result line: "${count}")`);
     }
+
+    await checkSavedPageIsolated(page, vp);
 
     await checkLocationFilter(browser, ctx, page, vp, opts);
 

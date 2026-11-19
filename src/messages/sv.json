@@ -372,7 +372,11 @@
     "myListings": "Mina annonser",
     "addListing": "Lägg till ditt företag",
     "registerDoneUnavailable": "Ditt konto har skapats, men vi kan inte skicka bekräftelsemejlet just nu. Du kan logga in, men annonsering och omdömen är låsta tills din e-postadress är bekräftad. Kontakta oss.",
-    "verifyUnavailable": "E-postbekräftelse är tillfälligt otillgänglig. Kontakta oss för att bekräfta din adress."
+    "verifyUnavailable": "E-postbekräftelse är tillfälligt otillgänglig. Kontakta oss för att bekräfta din adress.",
+    "myBusinesses": "Mina företag",
+    "addBusiness": "Lägg till företag",
+    "noBusinesses": "Du har inte lagt till något företag ännu.",
+    "manageAll": "Hantera alla företag"
   },
   "dashboard": {
     "title": "Administrationspanel",
@@ -879,7 +883,9 @@
     "err_too_far": "Ett erbjudande kan börja högst ett år framåt i tiden.",
     "err_discount_invalid": "Ange en giltig rabatt: en hel procentsats från 1 till 90 eller ett positivt belopp med valuta.",
     "err_percent_mismatch": "Rubriken eller beskrivningen nämner en procentsats som skiljer sig från rabatten du angav.",
-    "err_percent_without_discount": "Rubriken eller beskrivningen nämner en procentsats, men ingen procentuell rabatt är angiven. Ta bort den eller ange rabatten."
+    "err_percent_without_discount": "Rubriken eller beskrivningen nämner en procentsats, men ingen procentuell rabatt är angiven. Ta bort den eller ange rabatten.",
+    "chooseBusiness": "Vilket företag gäller annonsen?",
+    "needBusiness": "Lägg först till ett företag i ditt konto för att lägga till en annons."
   },
   "catForm": {
     "new": "Ny kategori",
@@ -1551,6 +1557,14 @@
     "notBooking": "Detta är en katalog för att upptäcka företag; biljetter och bokningar säljs inte här.",
     "allCities": "Alla städer",
     "bannerBody": "Hitta resebyråer, taxi, biluthyrning, frakt och mer...",
-    "bannerCta": "Besök Rega24Travel"
+    "bannerVisit": "Besök",
+    "shortcut": {
+      "travel-agencies": "Resebyrå",
+      "taxi-transfer": "Taxi",
+      "airport-transfer": "Flygplatstransfer",
+      "car-rental": "Biluthyrning",
+      "cargo-logistics": "Frakt",
+      "courier-delivery": "Paket och leverans"
+    }
   }
 }

@@ -112,3 +112,5 @@ export function writeTravelTags(existing: unknown, transport: readonly string[],
 
 /** The search-text fragment of one transport type (tags are part of the business search text). */
 export const transportSearchToken = (type: TransportType) => `${TRANSPORT_PREFIX}${type}`;
+/** The six service shortcuts of the home banner, in the reference order; each opens /travel filtered to that category. */
+export const TRAVEL_SHORTCUTS = ["travel-agencies", "taxi-transfer", "airport-transfer", "car-rental", "cargo-logistics", "courier-delivery"] as const;
