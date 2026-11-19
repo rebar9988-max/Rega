@@ -11,7 +11,7 @@
   --surface: #ffffff;
   --surface-2: #f7f7f8;
   --ink: #171f29;
-  --muted: #6f737a;
+  --muted: #676b72; /* AA (>= 4.9:1) on the pearl ground and on white */
   --line: #e8edf2;
   /* Current visual source: the official REGA24 logo (owner instruction 2026-10-30, "colours from the logo").
      #d42a20 is the logo's core red; white action ink meets AA (5.06:1). The deep shades are the logo's own
