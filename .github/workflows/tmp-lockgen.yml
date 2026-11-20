@@ -14,9 +14,12 @@ jobs:
           node-version: 22
       - run: npm ci --ignore-scripts
       - run: npm audit --omit=dev --json | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const j=JSON.parse(s);for(const[k,v]of Object.entries(j.vulnerabilities))console.log(k,v.severity,v.range,JSON.stringify(v.via.filter(x=>typeof x!=="string").map(x=>({url:x.url,range:x.range,title:x.title}))),JSON.stringify(v.fixAvailable))})' || true
-      - run: npm view effect versions --json | tail -15
+      - run: npm view effect versions --json | grep '"3\.2[2-9]' || true
       - run: npm view prisma@6 version --json | tail -5
-      - run: npm audit fix --ignore-scripts || true
+      - run: |
+          V=$(npm view effect versions --json | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const v=JSON.parse(s).filter(x=>/^3\.\d+\.\d+$/.test(x)).filter(x=>{const[a,b,c]=x.split(".").map(Number);return b>22||(b===22&&c>0)});console.log(v.at(-1)||"")})')
+          echo "PATCHED_EFFECT=$V"
+          [ -n "$V" ] && npm pkg set "overrides.effect=$V" && npm install --ignore-scripts --no-audit --no-fund || true
       - run: npm audit --omit=dev --audit-level=low || true
       - run: git diff --stat
       - run: |
