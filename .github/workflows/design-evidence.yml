@@ -50,6 +50,8 @@ jobs:
           npm run db:generate
           npm run build:node
           export D1_SQLITE_PATH="$(node scripts/init-local-d1.mjs --test | tail -1)"
+          # Real taxonomy (categories, cities) into the disposable local DB only, so category UI renders.
+          REGA_DATABASE_PROVIDER=d1 timeout 600 npm run db:seed > ../seed.log 2>&1 || { echo "seed failed"; tail -20 ../seed.log; }
           REGA_DATABASE_PROVIDER=d1 REGA_PRIVATE_BETA=0 AUTH_SESSION_REVALIDATE_MS=0 nohup npm run start -- -p 3311 > ../target.log 2>&1 &
           for i in $(seq 1 60); do curl -sf http://localhost:3311/api/v1/health >/dev/null && break; sleep 2; done
           curl -sf http://localhost:3311/api/v1/health || (tail -50 ../target.log; exit 1)
