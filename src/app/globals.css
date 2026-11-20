@@ -13,7 +13,7 @@
   --bg: #f8f7f6;          /* pearl white */
   --surface: #ffffff;
   --surface-2: #f7f7f8;
-  --ink: #171f29;
+  --ink: #0f141d;
   --muted: #676b72; /* AA (>= 4.9:1) on the pearl ground and on white */
   --line: #e8edf2;
   /* Current visual source: the official REGA24 logo (owner instruction 2026-10-30, "colours from the logo").
@@ -158,7 +158,7 @@
   --control-highlight: inset 0 1px 0 rgb(255 255 255 / .55);
   --brand-text: var(--brand-text-light);
   --brand-soft: color-mix(in srgb, var(--brand) 6%, white);
-  --ink: #171f29; --muted: #5c6168; --line: #e6e7eb; --surface: #ffffff; --surface-2: #f6f7f8; --bg: #ffffff;
+  --ink: #0f141d; --muted: #5c6168; --line: #e6e7eb; --surface: #ffffff; --surface-2: #f6f7f8; --bg: #ffffff;
   color: var(--ink);
   background: #ffffff;
 }
@@ -243,7 +243,7 @@
 .rega-home {
   --bg: #f8f7f6;
   --surface-2: #f9fafb;
-  --ink: #171f29;
+  --ink: #0f141d;
   --line: #e8edf2;
   background: var(--bg);
   font-family: var(--font-sans);
@@ -1080,7 +1080,7 @@ body:not(:has(.rega-page-hero, .rega-home)) main { background: none; }
 /* ── Floating pearl glass header (all pages) ──
    Pearl tokens are scoped to the bar so it reads the same in both themes, like the light-only home frame. */
 .rega-header {
-  --ink: #171f29; --muted: #5c6168; --line: #e6e7eb; --surface: #fff; --surface-2: #f6f7f8; --ring: var(--brand);
+  --ink: #0f141d; --muted: #5c6168; --line: #e6e7eb; --surface: #fff; --surface-2: #f6f7f8; --ring: var(--brand);
   --brand-text: var(--brand-text-light); --brand-soft: color-mix(in srgb, var(--brand) 6%, white);
   color: var(--ink); background: transparent; box-shadow: none;
 }
@@ -1333,3 +1333,14 @@ h1, h2 { letter-spacing: -0.02em; }
 [dir="ltr"] .rega-home .rh-tile-label { font-weight: 600; letter-spacing: -0.015em; }
 /* Phones under 360 px: slightly tighter tile spacing so Arabic-script labels (which cannot be hyphenated) fit. */
 @media (max-width: 359.98px) { .rega-home .rh-tiles { gap: 6px; } .rega-home .rh-tile { padding-inline: 2px; } }
+
+/* ── Source token parity (computed-style comparison with Rega24-3D-Glass-Design) ─────────────────────
+   Ink #0F141D above; here: header glass and 16px radius (rounded-2xl), bold 700 headings with tracking-tight
+   (-0.025em) in Latin scripts, 12-16px search geometry and semibold 600 primary action as in the source hero.
+   The official brand red stays (logo lock). */
+.rega-header-inner { border-radius: 16px; border-color: rgb(255 255 255 / .85); background: linear-gradient(145deg, rgb(255 255 255 / .86) 0%, rgb(255 255 255 / .68) 100%); }
+@media (min-width: 768px) { .rega-header-inner { border-radius: 16px; } }
+[dir="ltr"] h1, [dir="ltr"] h2 { font-weight: 700; letter-spacing: -0.025em; }
+[dir="ltr"] .rega-home .rh-h1, [dir="ltr"] .rega-home .rh-h2 { font-weight: 700; letter-spacing: -0.025em; }
+.rega-home .rh-search { border-radius: 16px; }
+.rega-home .rh-search-btn { border-radius: 12px; font-weight: 600; }
