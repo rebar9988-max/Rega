@@ -1,0 +1,26 @@
+name: tmp-lockgen
+on:
+  push:
+    branches: [tmp/lockgen-20261120]
+permissions:
+  contents: read
+jobs:
+  gen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci --ignore-scripts
+      - run: npm audit --omit=dev --json | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const j=JSON.parse(s);for(const[k,v]of Object.entries(j.vulnerabilities))console.log(k,v.severity,v.range,JSON.stringify(v.via.filter(x=>typeof x!=="string").map(x=>({url:x.url,range:x.range,title:x.title}))),JSON.stringify(v.fixAvailable))})' || true
+      - run: npm view effect versions --json | tail -15
+      - run: npm view prisma@6 version --json | tail -5
+      - run: npm audit fix --ignore-scripts || true
+      - run: npm audit --omit=dev --audit-level=low || true
+      - run: git diff --stat
+      - run: |
+          echo "=====BEGIN====="
+          git diff package.json package-lock.json | gzip -9 | base64 -w0
+          echo
+          echo "=====END====="
