@@ -185,7 +185,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
         {/* ---------- Category tiles (the real category system) ---------- */}
         {tiles.length > 0 && (
-          <nav aria-label={t("categoriesTitle")} className={`${BAND} rh-tiles-band`}>
+          <nav aria-labelledby="home-categories-title" className={`${BAND} rh-tiles-band`}>
+            <h2 id="home-categories-title" className="rh-h2 rh-tiles-title">{t("categoriesTitle")}</h2>
             <ul className="rh-tiles">
               {travelOn && (
                 <li>

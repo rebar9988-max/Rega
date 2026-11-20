@@ -1,6 +1,7 @@
 import "../globals.css";
-import "@fontsource-variable/inter";
 import "@fontsource-variable/vazirmatn";
+import "@fontsource-variable/dm-sans";
+import "@fontsource-variable/plus-jakarta-sans";
 import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
