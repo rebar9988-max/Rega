@@ -43,7 +43,7 @@ export async function Header() {
         </div>
         <div className="rega-header-secondary" dir={contentDir}>
           <nav aria-label={t("primary")}><NavLinks dir={contentDir} items={headerNav()} /></nav>
-          <div className="flex shrink-0 items-center gap-4 text-sm font-semibold">
+          <div className="rega-header-actions flex shrink-0 items-center gap-3 text-sm font-semibold">
             <Link href={signedIn ? "/account" : "/login"}>{signedIn ? t("account") : t("login")}</Link>
             {adHref ? <NextLink href={adHref}>{t("addAd")}</NextLink> : <Link href="/for-business">{t("addAd")}</Link>}
           </div>
