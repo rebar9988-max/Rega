@@ -7,7 +7,7 @@ name: Design evidence screenshots
 on:
   push:
     branches: [design-evidence]
-    paths: [label.txt, "tools/**", .github/workflows/design-evidence.yml]
+    paths: [label.txt, branch.txt, "tools/**", .github/workflows/design-evidence.yml]
 
 permissions:
   contents: write
@@ -35,6 +35,25 @@ jobs:
           npx vite build
           nohup npx vite preview --port 4173 --strictPort > ../preview.log 2>&1 &
           for i in $(seq 1 30); do curl -sf http://localhost:4173 >/dev/null && break; sleep 1; done
+
+      - name: Build and start the target branch (disposable local D1 test data, never production)
+        if: hashFiles('branch.txt') != ''
+        env:
+          AUTH_SECRET: evidence-only-secret-not-used-anywhere-else
+          NEXT_TELEMETRY_DISABLED: "1"
+          DATABASE_URL: postgresql://unused:unused@127.0.0.1:5432/unused
+          DIRECT_DATABASE_URL: postgresql://unused:unused@127.0.0.1:5432/unused
+        run: |
+          git clone --depth 1 --branch "$(cat branch.txt)" "https://x-access-token:${{ github.token }}@github.com/${GITHUB_REPOSITORY}.git" target
+          cd target
+          npm ci --no-audit --no-fund
+          npm run db:generate
+          npm run build:node
+          export D1_SQLITE_PATH="$(node scripts/init-local-d1.mjs --test | tail -1)"
+          REGA_DATABASE_PROVIDER=d1 REGA_PRIVATE_BETA=0 AUTH_SESSION_REVALIDATE_MS=0 nohup npm run start -- -p 3311 > ../target.log 2>&1 &
+          for i in $(seq 1 60); do curl -sf http://localhost:3311/api/v1/health >/dev/null && break; sleep 2; done
+          curl -sf http://localhost:3311/api/v1/health || (tail -50 ../target.log; exit 1)
+          echo "PR_URL=http://localhost:3311" >> "$GITHUB_ENV"
 
       - name: Install Playwright
         run: |

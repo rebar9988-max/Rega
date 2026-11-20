@@ -44,14 +44,16 @@ for (const [vpName, vp] of Object.entries(VIEWPORTS)) {
     }
   }
 
-  // Production.
-  for (const loc of ["en", "ckb"]) {
+  // Target branch (local build) and production.
+  const targets = [["prod", PROD]];
+  if (process.env.PR_URL) targets.unshift(["pr", process.env.PR_URL]);
+  for (const [tag, origin] of targets) for (const loc of ["en", "ckb"]) {
     for (const [name, route] of Object.entries(PROD_ROUTES)) {
       try {
-        await page.goto(`${PROD}/${loc}${route}`, { waitUntil: "networkidle", timeout: 45000 }).catch(() => {});
+        await page.goto(`${origin}/${loc}${route}`, { waitUntil: "networkidle", timeout: 45000 }).catch(() => {});
         await pause(1500);
-        await shot(page, `${dir}/prod-${loc}-${name}.jpg`);
-      } catch (e) { console.log("prod failed", loc, name, e.message); }
+        await shot(page, `${dir}/${tag}-${loc}-${name}.jpg`);
+      } catch (e) { console.log(tag, "failed", loc, name, e.message); }
     }
   }
   await ctx.close();
