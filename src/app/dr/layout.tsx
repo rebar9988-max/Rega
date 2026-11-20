@@ -1,5 +1,6 @@
 import "../globals.css";
-import "@fontsource-variable/inter";
+import "@fontsource-variable/dm-sans";
+import "@fontsource-variable/plus-jakarta-sans";
 import "@fontsource-variable/vazirmatn";
 import type { Metadata } from "next";
 import { SITE_ASSETS } from "@/lib/seo";
