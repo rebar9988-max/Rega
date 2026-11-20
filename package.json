@@ -79,6 +79,7 @@
     },
     "@node-minify/core": {
       "glob": "^14.0.3"
-    }
+    },
+    "effect": "3.22.5"
   }
 }
