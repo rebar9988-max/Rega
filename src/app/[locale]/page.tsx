@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { LOCALE_META, isLocale, type Locale } from "@/i18n/locales";
 import { CATEGORY_ICON, FigmaIcon } from "@/components/home/FigmaIcon";
 import { Icon3D, StoreArt, hasIcon3D } from "@/components/home/Icon3D";
-import { HeroWorldArt, MapBannerArt } from "@/components/home/HomeArt";
+import { MapBannerArt } from "@/components/home/HomeArt";
 import { HomeBusinessCard } from "@/components/home/HomeBusinessCard";
 import { HomeBusinessTabs, type BusinessTab } from "@/components/home/HomeBusinessTabs";
 import { LogoMark } from "@/components/ui/Logo";
@@ -130,11 +130,13 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         <PageSchema name={`${t("findTitle")} ${t("findAccent")}`} description={t("findLead")} />
         {degraded && <NoEdgeCache />}
 
-        {/* ---------- Hero: world skyline at sunset, headline, global search ---------- */}
+        {/* ---------- Hero: 3D floating glass panel — headline, official brand card, global search ---------- */}
         <section className="rh-hero rega-editorial-hero" aria-labelledby="home-hero-title">
-          <div className="rh-hero-art" aria-hidden="true"><HeroWorldArt className="rh-hero-svg" /></div>
-          <div className="rh-hero-shade" aria-hidden="true" />
           <div className={`${BAND} rh-hero-inner`}>
+            {/* Official REGA24 badge, unchanged artwork, on its own glossy ruby card (wide screens only; decorative). */}
+            <div className="rh-hero-mark" aria-hidden="true">
+              <LogoMark className="rh-hero-mark-img" sizes="(min-width: 1024px) 260px, 1px" />
+            </div>
             <div className="rh-hero-copy">
               <p className="rh-eyebrow">{t("welcome")}</p>
               <h1 id="home-hero-title" className="rh-h1">

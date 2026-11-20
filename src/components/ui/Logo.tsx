@@ -1,8 +1,8 @@
 /** Original owner-approved REGA24 artwork; full frame and proportions preserved. */
-export function LogoMark({ className = "size-11" }: { className?: string }) {
+export function LogoMark({ className = "size-11", sizes = "48px" }: { className?: string; sizes?: string }) {
   return (
     // eslint-disable-next-line @next/next/no-img-element
-    <img src="/brand/rega24-badge-96.webp" srcSet="/brand/rega24-badge-64.webp 64w, /brand/rega24-badge-96.webp 96w, /brand/rega24-badge-192.webp 192w, /brand/rega24-badge-384.webp 384w" sizes="48px" alt="" width={192} height={192} decoding="async" className={`${className} shrink-0 rounded-xl object-contain`} />
+    <img src="/brand/rega24-badge-96.webp" srcSet="/brand/rega24-badge-64.webp 64w, /brand/rega24-badge-96.webp 96w, /brand/rega24-badge-192.webp 192w, /brand/rega24-badge-384.webp 384w" sizes={sizes} alt="" width={192} height={192} decoding="async" className={`${className} shrink-0 rounded-xl object-contain`} />
   );
 }
 /** `inverse`: white wordmark on the logo-red header. */
