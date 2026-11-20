@@ -7,6 +7,9 @@
    Clean white + neutrals with one vivid red sampled from the supplied official artwork as the single
    accent; amber only for rating stars. Components use semantic tokens only, never raw palette values. */
 :root {
+  /* Typography of the migrated 3D glass design (see end of file). */
+  --font-display: "Plus Jakarta Sans Variable", "DM Sans Variable", "Vazirmatn Variable", system-ui, sans-serif;
+  --font-rtl: "Vazirmatn Variable", "DM Sans Variable", system-ui, Tahoma, sans-serif;
   --bg: #f8f7f6;          /* pearl white */
   --surface: #ffffff;
   --surface-2: #f7f7f8;
@@ -77,7 +80,7 @@
   --color-sun: var(--sun);
   --shadow-card: var(--shadow);
   --shadow-lift: var(--shadow-hover);
-  --font-sans: "Inter Variable", "Vazirmatn Variable", system-ui, "Segoe UI", Tahoma, sans-serif;
+  --font-sans: "DM Sans Variable", "Vazirmatn Variable", system-ui, "Segoe UI", Tahoma, sans-serif;
   --radius-card: 1rem;
 }
 
@@ -149,7 +152,7 @@
    existing dark tokens (the frame has no dark variant). Arabic-script text uses the bundled Vazirmatn face from the current handoff,
    Latin text Inter. Unlayered on purpose: the frame's sizes, weights and line heights must win over the global
    Arabic-script adjustments above. Current components declare their own heading sizes and line heights. */
-.figma { font-family: "Inter Variable", "Vazirmatn Variable", system-ui, sans-serif; line-height: normal; --placeholder: #a7abb1; --map: #e9edf0; }
+.figma { font-family: var(--font-sans); line-height: normal; --placeholder: #a7abb1; --map: #e9edf0; }
 /* The approved concept is a light red/white surface. Keep it even when the phone is in dark mode. */
 .figma {
   --control-highlight: inset 0 1px 0 rgb(255 255 255 / .55);
@@ -243,7 +246,7 @@
   --ink: #171f29;
   --line: #e8edf2;
   background: var(--bg);
-  font-family: "Vazirmatn Variable", "Inter Variable", system-ui, sans-serif;
+  font-family: var(--font-sans);
   line-height: 1.6;
 }
 [dir="rtl"] .rega-home { line-height: 1.8; }
@@ -1316,3 +1319,15 @@ button.pointer-events-auto.rounded-full.bg-surface.shadow-lift.ring-1:hover { co
   main a.bg-surface[class*="rounded-"], :is(a, button, input[type="submit"], label).bg-brand { transition: none; }
   main a.bg-surface[class*="rounded-"]:hover, :is(a, button).bg-brand:active { transform: none; }
 }
+
+/* ── Source typography (Rega24-3D-Glass-Design, final migration pass) ─────────────────────────────────
+   Latin scripts: DM Sans body, Plus Jakarta Sans headings with the source's tight display tracking.
+   Arabic-script locales (ckb, ar, fa): Vazirmatn for body and headings, no letter-spacing — as in the source.
+   Self-hosted @fontsource packages (OFL), no external font requests. */
+h1, h2, h3, .font-display { font-family: var(--font-display); }
+h1, h2 { letter-spacing: -0.02em; }
+[dir="rtl"] body, [dir="rtl"] .figma, [dir="rtl"] .rega-home { font-family: var(--font-rtl); }
+[dir="rtl"] h1, [dir="rtl"] h2, [dir="rtl"] h3, [dir="rtl"] .font-display { font-family: var(--font-rtl); letter-spacing: 0; }
+/* DM Sans is wider than the previous face: keep long category words ("Administration") on one line in the tiles. */
+[dir="ltr"] .rega-home .rh-tile { padding-inline: 2px; }
+[dir="ltr"] .rega-home .rh-tile-label { font-weight: 600; letter-spacing: -0.015em; }

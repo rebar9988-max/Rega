@@ -1,5 +1,6 @@
 import "../globals.css";
-import "@fontsource-variable/inter";
+import "@fontsource-variable/dm-sans";
+import "@fontsource-variable/plus-jakarta-sans";
 import "@fontsource-variable/vazirmatn";
 import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
@@ -17,7 +18,7 @@ import { BRAND_NAME, SITE_ASSETS, organizationJsonLd } from "@/lib/seo";
 import { currentUser } from "@/lib/auth-helpers";
 import { PRIVATE_BETA } from "@/lib/private-beta";
 
-// The current Figma handoff uses the already-bundled, self-hosted Vazirmatn face.
+// Self-hosted faces from the migrated 3D glass design: DM Sans (body), Plus Jakarta Sans (headings), Vazirmatn (Arabic script).
 export function generateStaticParams() {
   return LOCALES.map((locale) => ({ locale }));
 }
