@@ -1331,3 +1331,5 @@ h1, h2 { letter-spacing: -0.02em; }
 /* DM Sans is wider than the previous face: keep long category words ("Administration") on one line in the tiles. */
 [dir="ltr"] .rega-home .rh-tile { padding-inline: 2px; }
 [dir="ltr"] .rega-home .rh-tile-label { font-weight: 600; letter-spacing: -0.015em; }
+/* Phones under 360 px: slightly tighter tile spacing so Arabic-script labels (which cannot be hyphenated) fit. */
+@media (max-width: 359.98px) { .rega-home .rh-tiles { gap: 6px; } .rega-home .rh-tile { padding-inline: 2px; } }

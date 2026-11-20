@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { LOCALE_META, isLocale, type Locale } from "@/i18n/locales";
 import { CATEGORY_ICON, FigmaIcon } from "@/components/home/FigmaIcon";
 import { Icon3D, StoreArt, hasIcon3D } from "@/components/home/Icon3D";
+import { softHyphenate } from "@/lib/soft-hyphen";
 import { MapBannerArt } from "@/components/home/HomeArt";
 import { HomeBusinessCard } from "@/components/home/HomeBusinessCard";
 import { HomeBusinessTabs, type BusinessTab } from "@/components/home/HomeBusinessTabs";
@@ -81,6 +82,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
   const categoryById = new Map(categories.map((c) => [c.id, c]));
   const categoryName = (c: (typeof categories)[number]) => localize({ ...c, name: c.nameDe }, "name", l);
+  /** Tile labels: soft hyphens let long Latin words ("Administration") break cleanly in narrow tiles. */
+  const tileName = (c: (typeof categories)[number]) => { const v = categoryName(c); return { ...v, text: softHyphenate(v.text) }; };
   const cityName = (c: { nameEn: string } & Record<string, unknown>) => localize({ ...c, name: c.nameEn }, "name", l);
   const rootCategories = categories.filter((c) => !c.parentId);
   /** Top-level category of a (sub-)category id. */
@@ -202,7 +205,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                     {hasIcon3D(c.slug)
                       ? <Icon3D name={c.slug} className="rh-tile-art" />
                       : <FigmaIcon name={CATEGORY_ICON[c.slug] ?? "briefcase-business"} className="rh-tile-icon" />}
-                    <span className="rh-tile-label"><Text value={categoryName(c)} pageLang={pageLang} /></span>
+                    <span className="rh-tile-label"><Text value={tileName(c)} pageLang={pageLang} /></span>
                   </Link>
                 </li>
               ))}
