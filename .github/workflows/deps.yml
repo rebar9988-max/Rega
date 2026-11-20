@@ -1,0 +1,38 @@
+# Isolated helper on the design-evidence branch: resolves an npm dependency change for rebar9988-max/Rega
+# (lockfile only) and commits package.json + package-lock.json here for review. Never touches main.
+name: Resolve dependency lockfile
+
+on:
+  push:
+    branches: [design-evidence]
+    paths: [deps.txt]
+
+permissions:
+  contents: write
+
+jobs:
+  lock:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Resolve
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git clone --depth 1 "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" target
+          cd target
+          npm install --save --no-audit --no-fund --ignore-scripts $(cat ../deps.txt)
+          mkdir -p ../deps-out
+          cp package.json package-lock.json ../deps-out/
+          git rev-parse HEAD > ../deps-out/base-sha.txt
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git add deps-out
+          git commit -m "deps: $(cat deps.txt)" || exit 0
+          git push
