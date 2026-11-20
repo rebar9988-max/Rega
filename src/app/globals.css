@@ -1140,7 +1140,7 @@ body:not(:has(.rega-page-hero, .rega-home)) main { background: none; }
   .rega-home .rh-hero-copy { grid-area: copy; }
   .rega-home .rh-search { grid-area: search; }
   .rega-home .rh-hero-mark { grid-area: mark; display: block; justify-self: end; width: 260px; aspect-ratio: 1; overflow: hidden; border-radius: 28px; background: var(--logo-surface); box-shadow: 0 24px 48px -18px color-mix(in srgb, var(--brand) 38%, transparent), 0 0 0 1px rgb(255 255 255 / .8); }
-  .rega-home .rh-hero-mark img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .rega-home .rh-hero-mark .rh-hero-mark-img { display: block; width: 100%; height: 100%; border-radius: 0; object-fit: cover; }
 }
 .rega-home .rh-search {
   margin-top: 20px; border: 1px solid rgb(15 20 29 / .08); background: rgb(255 255 255 / .78);

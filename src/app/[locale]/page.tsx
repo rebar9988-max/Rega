@@ -135,8 +135,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           <div className={`${BAND} rh-hero-inner`}>
             {/* Official REGA24 badge, unchanged artwork, on its own glossy ruby card (wide screens only; decorative). */}
             <div className="rh-hero-mark" aria-hidden="true">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/brand/rega24-badge-384.webp" srcSet="/brand/rega24-badge-192.webp 192w, /brand/rega24-badge-384.webp 384w" sizes="(min-width: 1024px) 260px, 1px" alt="" width={384} height={384} loading="lazy" decoding="async" />
+              <LogoMark className="rh-hero-mark-img" sizes="(min-width: 1024px) 260px, 1px" />
             </div>
             <div className="rh-hero-copy">
               <p className="rh-eyebrow">{t("welcome")}</p>
