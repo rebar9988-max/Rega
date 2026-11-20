@@ -1218,3 +1218,101 @@ body:not(:has(.rega-page-hero, .rega-home)) main { background: none; }
   .glass-panel-interactive, .rega-home :is(.rh-tile, .rh-biz), main :is(.rega-card, .card-lift, .rt-card, .rt-cat) { transition: none; }
   .glass-panel-interactive:hover, .rega-home :is(.rh-tile, .rh-biz):hover, main :is(.rega-card, .card-lift, .rt-card, .rt-cat):hover { transform: none; }
 }
+
+/* ══ Glassmorphism coverage pass — every remaining surface (owner P0 "final 100%", 2026-11-20) ═══════════════════════
+   The first pass reached only `.bg-surface.shadow-card` cards. This pass maps the source primitives (glass-panel,
+   glass-panel-interactive, btn-rega-ruby, btn-rega-glass, silver-icon-well, ruby-icon-well, glass-dark) onto the shared
+   token utilities used by all other pages: inner pages, auth, account, saved, nearby/map, travel, business profiles,
+   popovers, dialogs and the /dr dashboard. CSS only: no markup, data, route or behaviour changes. Light theme only
+   except the ruby actions; the official logo red (--brand) is unchanged. Gradients always sit over a solid
+   background-color, so contrast never depends on the gradient. */
+:root:not([data-theme="dark"]) {
+  --bg: #f5f6fa; /* source pearl canvas */
+  --shadow: 0 20px 44px -20px rgb(15 20 29 / .14), 0 4px 14px -4px rgb(15 20 29 / .06), inset 0 1px 0 rgb(255 255 255 / .95), 0 0 0 1px rgb(15 20 29 / .055);
+  --shadow-hover: 0 26px 56px -18px rgb(15 20 29 / .18), 0 8px 20px -6px color-mix(in srgb, var(--brand) 12%, transparent), inset 0 1px 0 #fff, 0 0 0 1px color-mix(in srgb, var(--brand) 16%, transparent);
+}
+
+/* glass-panel: cards and panels on every page (bordered or shadowed token surfaces, any card radius). */
+:root:not([data-theme="dark"]) main :is(div, section, article, aside, form, li, a, details, fieldset, figure, dl, ul, ol, nav, header, footer, label, table).bg-surface:is(.border, .shadow-card, .shadow-lift, .shadow-sm, .ring-1)[class*="rounded-"]:not(.rounded-full, .rounded-sm, .rounded-md, .border-brand, .ring-2),
+:root:not([data-theme="dark"]) main :is(div, section, article, aside, form, li).bg-surface\/95[class*="rounded-"],
+:root:not([data-theme="dark"]) main :is(div, section, article, aside, form, li).bg-surface\/70[class*="rounded-"] {
+  background-color: #fff; background-image: var(--glass-fill-strong); border-color: var(--glass-rim); box-shadow: var(--glass-shadow);
+}
+:root:not([data-theme="dark"]) main .bg-surface.border-dashed[class*="rounded-"] { border-color: rgb(15 20 29 / .14); }
+/* Keep the existing hover cue: the rim warms to the brand red, as the source hover ring does. */
+:root:not([data-theme="dark"]) main .bg-surface[class*="hover:border-brand"]:not(.border-brand):is(:hover, :focus-within) { border-color: color-mix(in srgb, var(--brand) 32%, transparent); }
+/* glass-panel-interactive: whole-card links lift like the source cards. */
+:root:not([data-theme="dark"]) main a.bg-surface:is(.border, .shadow-card, .ring-1)[class*="rounded-"]:not(.rounded-full, .rounded-sm, .rounded-md, .border-brand, .ring-2) { transition: transform .18s var(--glass-ease), box-shadow .18s var(--glass-ease), color .18s ease; }
+:root:not([data-theme="dark"]) main a.bg-surface:is(.border, .shadow-card, .ring-1)[class*="rounded-"]:not(.rounded-full, .rounded-sm, .rounded-md, .border-brand, .ring-2):is(:hover, :focus-visible) { transform: translateY(-3px); box-shadow: var(--glass-shadow-hover); }
+
+/* btn-rega-glass: bordered secondary buttons that do not use the shared Button component. */
+:root:not([data-theme="dark"]) :is(main, dialog) button.border.border-line:is(.bg-surface, .bg-bg, .bg-surface-2):not([role="tab"], [aria-pressed="true"], [aria-selected="true"]) {
+  background-color: #fff; background-image: linear-gradient(180deg, rgb(255 255 255 / .96), rgb(244 246 250 / .86));
+  border-color: rgb(15 20 29 / .09); box-shadow: 0 8px 18px -10px rgb(15 20 29 / .16), inset 0 1px 0 #fff;
+}
+:root:not([data-theme="dark"]) :is(main, dialog) button.border.border-line:is(.bg-surface, .bg-bg, .bg-surface-2):not([role="tab"], [aria-pressed="true"], [aria-selected="true"]):hover:not(:disabled) { border-color: color-mix(in srgb, var(--brand) 26%, transparent); }
+
+/* Pearl glass chips and filter pills (no new pill shapes: only their surface changes). */
+:root:not([data-theme="dark"]) main .rounded-full.border.border-line:is(.bg-surface, .bg-surface-2, .bg-bg):not(.border-brand) {
+  background-color: rgb(255 255 255 / .78); border-color: rgb(15 20 29 / .09); box-shadow: inset 0 1px 0 #fff, 0 4px 10px -8px rgb(15 20 29 / .25);
+}
+:root:not([data-theme="dark"]) main :is(a, button).rounded-full.border.border-line:is(.bg-surface, .bg-surface-2, .bg-bg):hover { background-color: #fff; border-color: color-mix(in srgb, var(--brand) 30%, transparent); }
+
+/* btn-rega-ruby: every brand-filled action, link and submit, in both themes. */
+:is(a, button, input[type="submit"], label).bg-brand:not(.rega-control-primary) {
+  background-color: var(--brand); background-image: var(--glass-ruby-fill); box-shadow: var(--glass-ruby-shadow);
+  transition: transform .16s var(--glass-ease), box-shadow .16s var(--glass-ease), filter .16s ease;
+}
+:is(a, button, input[type="submit"], label).bg-brand:not(.rega-control-primary):hover:not(:disabled) { filter: brightness(1.04); }
+:is(a, button, input[type="submit"], label).bg-brand:not(.rega-control-primary):active:not(:disabled) { transform: scale(.985); }
+/* ruby-icon-well: brand-filled avatars and number badges. */
+:is(span, div).bg-brand:is(.rounded-full, .rounded-xl, .rounded-2xl, .rounded-lg) { background-color: var(--brand); background-image: var(--glass-ruby-fill); box-shadow: 0 10px 20px -10px color-mix(in srgb, var(--brand) 48%, transparent), inset 0 1px 1px rgb(255 255 255 / .45); }
+
+/* silver-icon-well: soft-red icon tiles become brushed-silver wells with the ruby glyph, as in the source. */
+:root:not([data-theme="dark"]) :is(main, dialog, .rega-footer) :is(span, div).bg-brand-soft.place-items-center:is(.grid, .inline-grid):is(.rounded-full, .rounded-xl, .rounded-2xl, .rounded-lg, [class*="rounded-[var(--radius-card)]"]) {
+  background-color: #fff; background-image: linear-gradient(145deg, #fff 0%, #e9eef5 100%); border: 1px solid rgb(255 255 255 / .95);
+  box-shadow: 0 10px 22px -10px rgb(15 20 29 / .22), 0 2px 5px rgb(15 20 29 / .06), inset 0 1px 1px #fff;
+}
+
+/* Popovers, menus and suggestion lists anywhere (header menus included): elevated frosted glass. */
+:root:not([data-theme="dark"]) :is(.absolute, .fixed).bg-surface[class*="rounded-"]:not(.rounded-full) {
+  background-color: rgb(255 255 255 / .9); background-image: linear-gradient(145deg, rgb(255 255 255 / .96), rgb(255 255 255 / .84));
+  border-color: var(--glass-rim); box-shadow: 0 26px 56px -18px rgb(15 20 29 / .22), inset 0 1px 0 #fff, 0 0 0 1px rgb(15 20 29 / .06);
+  -webkit-backdrop-filter: var(--glass-blur-panel); backdrop-filter: var(--glass-blur-panel);
+}
+
+/* GlassModal: dialogs float as pearl glass over a blurred ink scrim; the side menu gets the source's rounded start edge. */
+:root:not([data-theme="dark"]) dialog.bg-surface {
+  background-color: #fff; background-image: var(--glass-fill-strong); border: 1px solid var(--glass-rim); box-shadow: 0 30px 70px -24px rgb(15 20 29 / .35), inset 0 1px 0 #fff;
+}
+dialog.bg-surface[class*="rounded-"] { border-radius: 24px; }
+dialog.bg-surface.h-dvh { border-top-left-radius: 24px; border-bottom-left-radius: 24px; }
+dialog.bg-surface::backdrop { background: rgb(15 20 29 / .45); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+:root:not([data-theme="dark"]) .fixed.inset-0.bg-black\/40 { background: rgb(15 20 29 / .4); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+
+/* /dr dashboard: pearl canvas shows through; the sidebar is a frosted pearl glass rail. */
+:root:not([data-theme="dark"]) .min-h-dvh.bg-bg { background: transparent; }
+:root:not([data-theme="dark"]) .bg-surface.lg\:h-dvh {
+  background-color: rgb(255 255 255 / .86); background-image: linear-gradient(160deg, rgb(255 255 255 / .94), rgb(255 255 255 / .74));
+  border-color: var(--glass-hairline); box-shadow: 0 20px 44px -26px rgb(15 20 29 / .22), inset -1px 0 0 rgb(255 255 255 / .9);
+  -webkit-backdrop-filter: var(--glass-blur-panel); backdrop-filter: var(--glass-blur-panel);
+}
+:root:not([data-theme="dark"]) .bg-surface.lg\:h-dvh a[aria-current="page"] { background-color: #fff; color: var(--brand-text); box-shadow: 0 8px 18px -12px rgb(15 20 29 / .25), inset 0 1px 0 #fff, 0 0 0 1px rgb(15 20 29 / .06); }
+:root:not([data-theme="dark"]) main table thead { background-color: rgb(15 20 29 / .03); }
+
+/* glass-dark map HUD: floating map chips over the map canvas (white text on dark glass, AA in both themes). */
+button.pointer-events-auto.rounded-full.bg-surface.shadow-lift.ring-1 {
+  color: #fff; background-color: rgb(15 20 29 / .86); background-image: linear-gradient(145deg, rgb(20 26 38 / .9), rgb(12 16 24 / .84));
+  --tw-ring-color: rgb(255 255 255 / .14); box-shadow: 0 24px 48px -18px rgb(0 0 0 / .38), inset 0 1px 0 rgb(255 255 255 / .18), 0 0 0 1px rgb(255 255 255 / .14);
+  -webkit-backdrop-filter: blur(24px) saturate(180%); backdrop-filter: blur(24px) saturate(180%);
+}
+button.pointer-events-auto.rounded-full.bg-surface.shadow-lift.ring-1:hover { color: #fff; filter: brightness(1.12); }
+:root:not([data-theme="dark"]) .maplibregl-ctrl-group { border-radius: 14px; overflow: hidden; background: rgb(255 255 255 / .9); box-shadow: 0 14px 30px -14px rgb(15 20 29 / .3), 0 0 0 1px rgb(15 20 29 / .06); -webkit-backdrop-filter: var(--glass-blur-panel); backdrop-filter: var(--glass-blur-panel); }
+
+@media (prefers-reduced-transparency: reduce) {
+  :is(.absolute, .fixed).bg-surface, .bg-surface.lg\:h-dvh, button.pointer-events-auto.rounded-full.bg-surface, .maplibregl-ctrl-group { -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  main a.bg-surface[class*="rounded-"], :is(a, button, input[type="submit"], label).bg-brand { transition: none; }
+  main a.bg-surface[class*="rounded-"]:hover, :is(a, button).bg-brand:active { transform: none; }
+}
