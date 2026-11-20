@@ -1,0 +1,55 @@
+# Read-only visual evidence for the REGA24 3D Glass design migration.
+# Lives only on the isolated `design-evidence` branch (never on main). It builds the public source design
+# (rebar9988-max/Rega24-3D-Glass-Design), opens it and https://www.rega24.com in Chromium (desktop + mobile,
+# LTR + Sorani RTL), and commits the screenshots back to this branch. No secrets, no deploy, no data writes.
+name: Design evidence screenshots
+
+on:
+  push:
+    branches: [design-evidence]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: design-evidence
+  cancel-in-progress: false
+
+jobs:
+  shots:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Build and serve the source design
+        run: |
+          git clone --depth 1 https://github.com/rebar9988-max/Rega24-3D-Glass-Design src-design
+          node tools/patch-source.mjs src-design/src/App.tsx
+          cd src-design
+          npm install --no-audit --no-fund
+          npx vite build
+          nohup npx vite preview --port 4173 --strictPort > ../preview.log 2>&1 &
+          for i in $(seq 1 30); do curl -sf http://localhost:4173 >/dev/null && break; sleep 1; done
+
+      - name: Install Playwright
+        run: |
+          cd tools
+          npm install --no-audit --no-fund --no-save playwright@1
+          npx playwright install --with-deps chromium
+
+      - name: Capture screenshots
+        run: |
+          LABEL=$(cat label.txt)
+          OUT="shots/$LABEL" node tools/shoot.mjs
+
+      - name: Commit screenshots to this branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git add shots
+          git commit -m "evidence: $(cat label.txt)" || exit 0
+          git push
