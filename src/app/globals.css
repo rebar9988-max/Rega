@@ -631,6 +631,17 @@
 }
 @media (min-width: 1024px) { .rega-header-inner { padding-inline: 56px; } .rega-header-symbol { height: 58px; } .rega-header-wordmark { height: 34px; } }
 @media (max-width: 359.98px) { .rega-header-wordmark { height: 22px; } .rega-header-symbol { height: 42px; } .rega-header-pill summary { width: 84px; } }
+/* Owner instruction 2026-11-21: on phones the header carries the menu key alone. The brand chip goes because the
+   banner right below it already shows the Rega24 mark, and the header search pill goes because the banner and the
+   bottom bar already offer search; the language switch moves into the menu sheet, where global apps keep it.
+   Tablet and desktop, which have no bottom bar, keep the brand, the search pill and the switcher. */
+@media (max-width: 767.98px) {
+  .rega-header-brand, .rega-header-pill { display: none; }
+  .rega-header-row { justify-content: flex-end; min-height: 48px; }
+  .rega-header-controls { flex: 0 0 auto; order: 0; justify-content: flex-end; }
+  .rega-header-menu { position: static; }
+  .rega-header-inner { padding: 8px 16px; }
+}
 
 /* Rega24Travel (owner mockup 2026-11-18): home tile + promotional card, /travel page. Brand tokens and the map-banner
    gradient; the light accent #ffc9c4 keeps >= 3.4:1 on every red for the large titles. Logical properties for RTL/LTR. */

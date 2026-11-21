@@ -1,6 +1,8 @@
 import { expect, test } from "./fixtures";
 import type { Page } from "@playwright/test";
 
+test.use({ viewport: { width: 1280, height: 900 } });
+
 const DIR: Record<string, "rtl" | "ltr"> = { ckb: "rtl", kmr: "ltr", de: "ltr", en: "ltr", ar: "rtl", fa: "rtl", tr: "ltr", fr: "ltr", sv: "ltr", nl: "ltr", it: "ltr" };
 const LANG: Record<string, string> = { ckb: "ckb-IQ", kmr: "kmr", de: "de-DE", en: "en", ar: "ar", fa: "fa-IR", tr: "tr-TR", fr: "fr-FR", sv: "sv-SE", nl: "nl-NL", it: "it-IT" };
 const NATIVE: Record<string, string> = { ckb: "کوردیی سۆرانی", kmr: "Kurmancî", de: "Deutsch", en: "English", ar: "العربية", fa: "فارسی", tr: "Türkçe", fr: "Français", sv: "Svenska", nl: "Nederlands", it: "Italiano" };
@@ -12,8 +14,10 @@ const MATRIX: [string, string][] = [
   ["ckb", "fr"], ["fr", "sv"], ["sv", "nl"], ["nl", "it"], ["it", "ar"], ["fa", "it"], ["it", "ckb"],
 ];
 
-const trigger = (page: Page) => page.locator("header details > summary");
-const menu = (page: Page) => page.locator("header details > ul");
+// Owner instruction 2026-11-21: the header trigger exists from 768 px up; the phone sheet path is covered in
+// premium-header.spec.ts, so this file pins a desktop viewport and asserts the header switcher itself.
+const trigger = (page: Page) => page.locator("header .rega-header-pill details > summary");
+const menu = (page: Page) => page.locator("header .rega-header-pill details > ul");
 const box = async (page: Page, sel: ReturnType<typeof trigger>) => {
   const b = await sel.boundingBox();
   if (!b) throw new Error("not visible");

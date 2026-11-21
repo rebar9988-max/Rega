@@ -136,7 +136,11 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
   // Rega24Travel: one tile for its two top-level categories (they stay reachable on /travel and in "explore").
   const travelOn = sectionEnabled("travel") && rootCategories.some((c) => (TRAVEL_ROOT_KEYS as readonly string[]).includes(c.slug));
-  const tiles = (travelOn ? rootCategories.filter((c) => !(TRAVEL_ROOT_KEYS as readonly string[]).includes(c.slug)) : rootCategories).slice(0, travelOn ? 10 : 11);
+  // Owner instruction 2026-11-21: the banner above already links these categories, so the tiles never repeat them.
+  const bannerHrefs = new Set(bannerCards.map((c) => c.href));
+  const tiles = (travelOn ? rootCategories.filter((c) => !(TRAVEL_ROOT_KEYS as readonly string[]).includes(c.slug)) : rootCategories)
+    .filter((c) => !bannerHrefs.has(`/businesses/${c.slug}`))
+    .slice(0, travelOn ? 10 : 11);
   const extraFrom = travelOn ? 6 : 7;
 
   return (
@@ -215,12 +219,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                   </Link>
                 </li>
               ))}
-              <li>
-                <Link href="/businesses" className="rh-tile">
-                  <Icon3D name="more" className="rh-tile-art" />
-                  <span className="rh-tile-label">{t("moreCategories")}<span className="sr-only">: {t("allCategories")}</span></span>
-                </Link>
-              </li>
             </ul>
           </nav>
         )}

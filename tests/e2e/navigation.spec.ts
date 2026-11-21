@@ -1,5 +1,5 @@
 import { siFacebook, siInstagram } from "simple-icons";
-import { expect, test } from "./fixtures";
+import { expect, test, openLanguageMenu } from "./fixtures";
 
 const LOCALES = [["ckb", "rtl"], ["kmr", "ltr"], ["de", "ltr"], ["ar", "rtl"], ["tr", "ltr"]] as const;
 
@@ -30,8 +30,9 @@ test("skip link is the first focus stop and targets main", async ({ page }) => {
 
 test("language switcher keeps the current page", async ({ page }) => {
   await page.goto("/de/businesses");
-  await page.getByRole("group").or(page.locator("summary[aria-label]")).first().click();
-  await page.getByRole("link", { name: "Türkçe" }).click();
+  // The switcher sits in the header pill from 768 px up and in the menu sheet on phones.
+  const langMenu = await openLanguageMenu(page);
+  await langMenu.getByRole("link", { name: "Türkçe" }).click();
   await expect(page).toHaveURL(/\/tr\/businesses$/);
   await expect(page.locator("html")).toHaveAttribute("dir", "ltr");
 });
