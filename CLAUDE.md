@@ -93,11 +93,15 @@ Use the existing canonical Worker `rega24`, D1 database and R2 storage. GitHub r
   functionality are preserved.
 - Flow: AUDIT -> UNDERSTAND -> CHANGE ONLY THE REQUESTED SCOPE -> TEST -> VERIFY. Report only task-related changes.
 
-## 3. Design preservation
-- REGA's visual identity is locked: colour palette, the REGA red, backgrounds, typography, Kurdish font, borders,
-  radius, cards, icons, header/footer identity, buttons, navigation, spacing, light/dark mode, RTL behaviour.
-- No new colours, gradients, glassmorphism, neon, generic templates or a new visual language.
-- Layout/composition may be improved; identity may not.
+## 3. Permanent Rega24 design and image optimization policy
+
+**Priority: High. Default: always on.** Owner instruction (2026-11-21). Apply automatically to every relevant Rega24 task.
+
+- Preserve the approved layout, composition, logo, red-and-white brand identity, typography, spacing, alignment, proportions, visual assets, navigation, functionality, database, APIs and routes. Obtain explicit permission before redesigning, reconstructing, replacing or reinterpreting an approved design. For an exact reference, use the original asset whenever possible.
+- Maintain a clean, modern, professional premium finish. Use high-quality 3D and subtle glassmorphism where appropriate within approved designs. Verify mobile, tablet and desktop layouts, Sorani RTL, multilingual LTR and WCAG 2.2 AA.
+- Default to WebP quality 90 for main banners and hero images, WebP lossless for detailed 3D and other assets that require exact detail, WebP quality 80–85 for business photos and thumbnails, SVG for suitable logos and vector icons, and lossless WebP or PNG for raster transparency. Retain the original format when conversion would lower visual fidelity or break functionality.
+- For each new or modified asset, preserve appearance, proportions, sharpness, colors and transparency. Optimize dimensions and file size, provide responsive variants and accurate sizes when needed, reserve layout space, and prioritize critical images while lazy-loading suitable offscreen images. Avoid unnecessary downloads.
+- Carry out routine, nondestructive optimizations autonomously and keep changes within the task scope. Test visual fidelity, responsive rendering, loading and accessibility, and fix issues before completion. The quality target is 100/100. Claim it only after actual verification.
 
 ## 4. Sequential task execution
 - Several tasks in one prompt are executed in order: Task 1 -> verify -> Task 2 -> verify -> ... -> final verification.
