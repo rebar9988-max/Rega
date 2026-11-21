@@ -142,7 +142,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   return (
     <>
       <div className="figma rega-home text-ink">
-        <PageSchema name={`${t("findTitle")} ${t("findAccent")}`} description={t("findLead")} />
+        <PageSchema name={`${t("bannerTitle")} ${t("bannerAccent")}`} description={t("bannerLead")} />
         {degraded && <NoEdgeCache />}
 
         {/* ---------- Banner (owner reference 2026-11-21): the owner's own 3D plate, with the headline, search and
@@ -152,7 +152,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             <div className="rb-inner">
               <div className="rb-copy">
                 <h1 id="home-hero-title" className="rb-title">
-                  <span className="rb-title-1">{t("bannerTitle")}</span>
+                  <span className="rb-title-1">{t("bannerTitle")}</span>{" "}
                   <span className="rb-title-2">{t("bannerAccent")}</span>
                 </h1>
                 <p className="rb-lead">{t("bannerLead")}</p>
@@ -165,7 +165,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                   <div className="min-w-0 flex-1">
                     <CityFilter
                       cities={cities.map((c) => { const name = cityName(c).text; return { id: c.id, label: name, name }; })}
-                      allLabel={t("bannerAnyArea")}
+                      allLabel={t("anyCity")}
                       cityLabel={t("where")}
                       fieldClass="rb-city-field"
                     />
