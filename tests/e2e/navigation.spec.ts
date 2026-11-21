@@ -30,7 +30,7 @@ test("skip link is the first focus stop and targets main", async ({ page }) => {
 
 test("language switcher keeps the current page", async ({ page }) => {
   await page.goto("/de/businesses");
-  // The switcher sits in the header pill from 768 px up and in the menu sheet on phones.
+  // On inner pages the switcher lives in the menu sheet.
   const langMenu = await openLanguageMenu(page);
   await langMenu.getByRole("link", { name: "Türkçe" }).click();
   await expect(page).toHaveURL(/\/tr\/businesses$/);

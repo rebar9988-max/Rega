@@ -49,5 +49,20 @@ for (const locale of ["en", "ckb", "de", "ar"]) {
     await header.locator('button[type="submit"]').click();
     await expect(page).toHaveURL(new RegExp(`/${locale}/search\\?q=Zagros`));
     await expect(page.getByRole("main").getByRole("searchbox")).toHaveValue("Zagros");
+    await expect(header.locator(".rega-header-pill")).toHaveCount(0);
+    await expect(header.locator(".rega-header-brand")).toHaveCount(0);
+    await expect(header.locator(".rega-header-menu")).toBeVisible();
   });
 }
+
+test("inner pages keep only the compact menu at phone and desktop widths", async ({ page }) => {
+  for (const width of [390, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    for (const route of ["/ckb/nearby", "/ckb/ai", "/de/businesses"]) {
+      await page.goto(route);
+      const header = page.locator("header.rega-header");
+      await expect(header.locator(".rega-header-pill, .rega-header-brand, .rega-header-secondary")).toHaveCount(0);
+      await expect(header.locator(".rega-header-menu")).toBeVisible();
+    }
+  }
+});
