@@ -1745,3 +1745,11 @@ Owner (07:20): complete the module while preserving the rest of Rega24 and its f
 - Root cause: long single words in home tile labels ("Administration", German "Behördenangelegenheiten") are wider than the tile; `hyphens: auto` only helps where the browser has a hyphenation dictionary, so they could break at an arbitrary letter or overflow (measured in all 11 locales at 320–1440 px: en/fr/sv/nl/it below 412 px, de at every width, ckb at 320 px).
 - Fix: `src/lib/soft-hyphen.ts` adds invisible soft hyphens at syllable points in Latin-script words of 10+ letters (digraphs kept, 3+ letters each side, Arabic script untouched); used only for the home tile labels in `src/app/[locale]/page.tsx`. Accessible names/text matching ignore U+00AD (checked with Playwright). Under 360 px the tile gap is 6 px and tile padding 2 px so Sorani labels fit. Design, grid, colours, sizes and routes unchanged.
 - Tests: new `tests/soft-hyphen.test.ts`; unit 512/512; lint 0 errors; related E2E specs (catalog, a11y, travel, figma-responsive, navigation, premium-header, brand-colors, international) 152/152 desktop+mobile; rendered label overflow 0 in 11 locales × 9 widths.
+
+## Rega24Travel home artwork — 2026-11-21
+
+The owner replaced the old red home promo and service shortcuts with the supplied 1536 × 864 JPEG.
+The original bytes are in `public/travel/home-banner.jpeg`. A keyboard-accessible localized link
+overlays the painted button and opens the existing travel route. The travel page stays outside the change.
+The asset byte comparison and nine travel unit tests passed. Responsive browser checks are covered by
+the updated travel E2E spec. Release requires the normal PR and Cloudflare CI gates.
