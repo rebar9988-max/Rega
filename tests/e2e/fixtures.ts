@@ -1,4 +1,4 @@
-import { test as base, expect } from "@playwright/test";
+import { test as base, expect, type Locator, type Page } from "@playwright/test";
 
 /**
  * After every navigation wait until React has hydrated (the header link carries React props),
@@ -26,3 +26,19 @@ export const test = base.extend({
   },
 });
 export { expect };
+
+/**
+ * Opens the language menu wherever it lives and returns its list: the header pill from 768 px up, and on phones
+ * the menu sheet, where the switcher moved when the phone header was reduced to the menu key (owner, 2026-11-21).
+ */
+export async function openLanguageMenu(page: Page): Promise<Locator> {
+  const pill = page.locator("header .rega-header-pill summary");
+  if (await pill.isVisible()) {
+    await pill.click();
+    return page.locator("header .rega-header-pill details > ul");
+  }
+  await page.locator("header .rega-header-menu").click();
+  const sheet = page.locator("header dialog");
+  await sheet.locator("summary").click();
+  return sheet.locator("details > ul");
+}
