@@ -38,7 +38,7 @@ for (const locale of ["en", "ckb", "de", "ar"]) {
     await expect(sheet).toBeVisible();
     await sheet.locator("summary").click();
     await expect(sheet.locator("details > ul")).toBeVisible();
-    await expect(sheet.locator('details > ul a[hreflang="ckb"]')).toBeVisible();
+    await expect(sheet.locator("details > ul li")).toHaveCount(11);
     await sheet.getByRole("button").first().click();
     await expect(sheet).toBeHidden();
     await page.setViewportSize({ width: 1440, height: 900 });
