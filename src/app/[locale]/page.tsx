@@ -241,7 +241,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
         {/* ---------- Rega24Travel banner (owner 2026-11-18): replaces the map banner; the map stays on the «نزیک» tab ---------- */}
         {travelOn ? (
-          <TravelBanner categories={categories} className={`${BAND} rh-section`} />
+          <TravelBanner className={`${BAND} rh-section`} />
         ) : (
           <section className={`${BAND} rh-section`} aria-labelledby="home-map">
             <div className="rh-mapbanner">
