@@ -43,6 +43,11 @@ export default async function LocationsPage({ params, searchParams }: { params: 
 
       <FilterBar action="/locations" values={query} searchLabel={t("search.placeholder")} cities={await cityOptions(browseCities)} />
       <Suspense key={JSON.stringify(query)} fallback={<GridSkeleton />}><Results query={query} /></Suspense>
+      <div className="container-page pb-4 text-xs text-muted">
+        <a className="underline" href="https://www.geonames.org/" lang="en">GeoNames postal codes</a>
+        {" · "}
+        <a className="underline" href="https://creativecommons.org/licenses/by/4.0/" lang="en">CC BY 4.0</a>
+      </div>
     </>
   );
 }
