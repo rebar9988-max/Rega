@@ -37,7 +37,9 @@ test("home page lists the categories once (tiles), not again as a second row", (
   // Owner banner reference 2026-11-21: the banner carries six fixed shortcuts, so the category list itself is
   // rendered once, by the tiles. A second `rootCategories.map(` would be the duplicate row this test guards against.
   assert.equal(count(home, /rootCategories\.map\(/g) + count(home, /tiles\.map\(/g), 1, "tiles only");
-  assert.equal(count(home, /bannerCards\.map\(/g), 1, "the banner shortcuts are one fixed list");
+  assert.equal(count(home, /data-testid=\{`banner-card-/g), 1, "the banner shortcuts are rendered once");
+  // The banner's own hrefs are filtered out of the tiles, so no category is offered twice on the page.
+  assert.match(home, /bannerHrefs\.has\(/, "tiles exclude the categories the banner already links");
   assert.doesNotMatch(home, /rh-explore|HomeScroller/);
   assert.equal(count(home, /role="search"/g), 1, "one search form on the home page");
 });
