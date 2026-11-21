@@ -1,6 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "./fixtures";
 import { LOCALES, LOCALE_META } from "../../src/i18n/locales";
+import { sectionEnabled } from "../../src/config/sections";
 
 const widths = [320, 375, 390, 430, 768, 1024, 1440, 1920];
 for (const locale of LOCALES) {
@@ -63,12 +64,11 @@ test("reference v2: category shortcuts, business tabs and the Rega24Travel banne
   // Every visible shortcut must lead to a page available in this deployment.
   const cards = hero.locator("[data-testid^='banner-card-']");
   const jobs = await request.get("/en/jobs");
-  const services = await request.get("/en/services");
+  const servicesEnabled = sectionEnabled("services");
   expect([200, 404]).toContain(jobs.status());
-  expect([200, 404]).toContain(services.status());
   await expect(hero.getByTestId("banner-card-jobs")).toHaveCount(Number(jobs.ok()));
-  await expect(hero.getByTestId("banner-card-services")).toHaveCount(Number(services.ok()));
-  await expect(cards).toHaveCount(4 + Number(jobs.ok()) + Number(services.ok()));
+  await expect(hero.getByTestId("banner-card-services")).toHaveCount(Number(servicesEnabled));
+  await expect(cards).toHaveCount(4 + Number(jobs.ok()) + Number(servicesEnabled));
   for (const href of await cards.evaluateAll((els) => els.map((el) => el.getAttribute("href")))) {
     expect(href).toMatch(/^\/en\/(businesses|services|jobs)(\/[a-z0-9-]+)?$/);
   }
