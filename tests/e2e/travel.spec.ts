@@ -33,24 +33,26 @@ test("travel: home banner opens Rega24Travel; the map CTA is gone", async ({ pag
   await expect(page).toHaveURL(/\/ckb\/travel$/);
 });
 
-test("travel: banner service shortcuts open the travel page filtered to that category", async ({ page }) => {
-  for (const width of [375, 1440]) {
+test("travel: home artwork keeps its framing and aligns the single CTA", async ({ page }) => {
+  for (const [locale, width] of [["ckb", 375], ["en", 1440]] as const) {
     await page.setViewportSize({ width, height: 900 });
-    await page.goto("/ckb");
+    await page.goto(`/${locale}`);
     const banner = page.getByTestId("home-travel-banner");
-    await expect(banner.getByRole("link")).toHaveCount(7);
-    // Compact promo card (owner 2026-11-19): it must not take over the home page.
-    const bannerBox = await banner.boundingBox();
-    expect(bannerBox && bannerBox.height <= (width < 768 ? 400 : 280), `banner height ${bannerBox?.height} at ${width}px`).toBeTruthy();
+    const image = banner.getByRole("img");
+    await image.scrollIntoViewIfNeeded();
+    await expect(image).toHaveJSProperty("naturalWidth", 1536);
+    await expect(image).toHaveJSProperty("naturalHeight", 864);
+    const imageBox = (await image.boundingBox())!;
+    expect(imageBox.width / imageBox.height).toBeCloseTo(16 / 9, 2);
+    await expect(banner.getByRole("link")).toHaveCount(1);
+    const cta = banner.getByRole("link");
+    const box = (await cta.boundingBox())!;
+    expect(box.height).toBeGreaterThanOrEqual(44);
+    expect((box.x - imageBox.x) / imageBox.width).toBeCloseTo(0.052, 2);
     expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
-    for (const link of await banner.locator(".rtb-service").all()) {
-      const box = await link.boundingBox();
-      expect(box && box.width >= 44 && box.height >= 44).toBeTruthy();
-    }
+    await cta.click();
+    await expect(page).toHaveURL(new RegExp(`/${locale}/travel$`));
   }
-  await page.getByTestId("travel-shortcut-taxi-transfer").click();
-  await expect(page).toHaveURL(/\/ckb\/travel\?category=/);
-  await expect(page.getByTestId("travel-category")).not.toHaveValue("");
 });
 
 test("travel: the category pill filters inside travel only", async ({ page }) => {
