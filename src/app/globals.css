@@ -1313,23 +1313,26 @@ h1, h2 { letter-spacing: -0.02em; }
   inset: 0;
   display: flex;
   flex-direction: column;
-  padding: 21.4cqw 8.9cqw 16.4cqw;
+  padding: 11cqw 7cqw 16.4cqw;
 }
 .rega-banner .rb-stage { flex: 1 1 auto; min-height: 4cqw; }
 
 /* Headline — line one in ink, line two in the reference red with its hand-drawn underline. */
-.rega-banner .rb-title { margin: 0; text-align: center; font-weight: 800; line-height: 1.0; letter-spacing: 0; }
-.rega-banner .rb-title-1,
-.rega-banner .rb-title-2 { display: block; font-size: 10.4cqw; text-wrap: balance; }
-.rega-banner .rb-title-1 { color: var(--rb-ink); }
-.rega-banner .rb-title-2 { position: relative; color: var(--rb-red); padding-bottom: 1.1cqw; }
-.rega-banner .rb-title-2::after {
-  content: ""; position: absolute; inset-inline: 37%; bottom: 0; height: 1.35cqw;
-  background: var(--rb-red); border-radius: 999px;
-  clip-path: polygon(0 55%, 8% 18%, 50% 0, 92% 20%, 100% 58%, 92% 100%, 50% 62%, 8% 100%);
+.rega-banner .rb-title { margin: 0; text-align: center; font-weight: 800; line-height: 1.4; letter-spacing: 0; }
+/* Arabic-script lines need ~1.4 line-height (Vazirmatn dots/marks) — 1.0 clipped and crowded them. Sizes scale with the banner width via clamp(). */
+.rega-banner .rb-title-1 { display: block; font-size: clamp(1.3rem, 6.6cqw, 2.5rem); color: var(--rb-ink); text-wrap: balance; }
+/* Line two: the reference's red pill with white text, real HTML (no text baked into the plate). */
+.rega-banner .rb-title-2 {
+  display: block; width: fit-content; max-width: 100%; margin: 1.6cqw auto 0; padding: .4cqw 5cqw .7cqw;
+  font-size: clamp(1.4rem, 7.4cqw, 2.75rem); color: #fff; text-wrap: balance;
+  border-radius: max(3.2cqw, 14px);
+  background: linear-gradient(180deg, #ef2a22 0%, var(--rb-red) 50%, var(--rb-red-deep) 100%);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / .35), 0 1.2cqw 2.4cqw -1cqw rgb(180 16 12 / .65);
 }
+.rega-banner .rb-title-2::after { content: none; }
 .rega-banner .rb-lead {
-  margin: 3.2cqw 0 0; text-align: center; font-size: 4.25cqw; font-weight: 600; line-height: 1.3; color: var(--rb-ink);
+  margin: 2.4cqw auto 0; max-width: 84cqw; text-align: center; text-wrap: balance;
+  font-size: clamp(.78rem, 3.1cqw, 1.0625rem); font-weight: 600; line-height: 1.5; color: var(--rb-ink);
 }
 
 /* Search — real form: submit button, keyword field, existing city selector. */
@@ -1407,10 +1410,10 @@ h1, h2 { letter-spacing: -0.02em; }
   }
   .rega-banner .rb-stage { display: none; }
   .rega-banner .rb-title { text-align: start; }
+  .rega-banner .rb-title-2 { margin-inline: 0 auto; }
   .rega-banner .rb-title-1, .rega-banner .rb-title-2 { font-size: clamp(2.3rem, .9rem + 2.5vw, 3.5rem); }
-  .rega-banner .rb-title-2 { padding-bottom: 12px; }
-  .rega-banner .rb-title-2::after { inset-inline: 0 56%; height: 8px; }
-  .rega-banner .rb-lead { margin-top: 16px; text-align: start; font-size: clamp(15px, .7rem + .55vw, 19px); }
+  .rega-banner .rb-title-2 { margin: 10px 0 0; padding: 4px 28px 8px; }
+  .rega-banner .rb-lead { margin: 16px 0 0; max-width: none; text-align: start; font-size: clamp(15px, .7rem + .55vw, 19px); }
   .rega-banner .rb-search { margin-top: 26px; gap: 8px; padding: 7px; }
   .rega-banner .rb-search-btn { width: 74px; height: 52px; border-radius: 14px; }
   .rega-banner .rb-search-btn svg { width: 22px; height: 22px; }
