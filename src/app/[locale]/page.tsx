@@ -122,6 +122,18 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     { key: "new", label: t("tabNew"), icon: "sparkles", ids: ids(newest) },
   ].filter((tab) => tab.ids.length > 0);
 
+  // Banner shortcuts of the owner's reference. Each one points at a route that already exists; a category that is
+  // not seeded falls back to the full directory, so the banner never links into a 404.
+  const catHref = (slug: string) => (categories.some((c) => c.slug === slug) ? `/businesses/${slug}` : "/businesses");
+  const bannerCards = [
+    { key: "shopping", label: t("cardShopping"), icon: "store", href: catHref("groceries-markets") },
+    { key: "jobs", label: t("cardJobs"), icon: "briefcase-business", href: "/jobs" },
+    { key: "food", label: t("cardFood"), icon: "utensils", href: catHref("food") },
+    { key: "more", label: t("cardMore"), icon: "layout-grid", href: "/businesses" },
+    { key: "services", label: t("cardServices"), icon: "hammer", href: "/services" },
+    { key: "health", label: t("cardHealth"), icon: "heart-pulse", href: catHref("health") },
+  ];
+
   // Rega24Travel: one tile for its two top-level categories (they stay reachable on /travel and in "explore").
   const travelOn = sectionEnabled("travel") && rootCategories.some((c) => (TRAVEL_ROOT_KEYS as readonly string[]).includes(c.slug));
   const tiles = (travelOn ? rootCategories.filter((c) => !(TRAVEL_ROOT_KEYS as readonly string[]).includes(c.slug)) : rootCategories).slice(0, travelOn ? 10 : 11);
@@ -133,56 +145,50 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         <PageSchema name={`${t("findTitle")} ${t("findAccent")}`} description={t("findLead")} />
         {degraded && <NoEdgeCache />}
 
-        {/* ---------- Hero: 3D floating glass panel — headline, official brand card, global search ---------- */}
-        <section className="rh-hero rega-editorial-hero" aria-labelledby="home-hero-title">
-          <div className={`${BAND} rh-hero-inner`}>
-            {/* Official REGA24 badge, unchanged artwork, on its own glossy ruby card (wide screens only; decorative). */}
-            <div className="rh-hero-mark" aria-hidden="true">
-              <LogoMark className="rh-hero-mark-img" sizes="(min-width: 1024px) 260px, 1px" />
-            </div>
-            <div className="rh-hero-copy">
-              <p className="rh-eyebrow">{t("welcome")}</p>
-              <h1 id="home-hero-title" className="rh-h1">
-                {t("findTitle")} <span className="rh-h1-accent">{t("findAccent")}</span>
-              </h1>
-              <p className="rh-lead">{t("findLead")}</p>
-            </div>
-            <form action={`/${locale}/businesses`} role="search" className="rega-home-search rh-search">
-              <label className="rh-search-q">
-                <FigmaIcon name="search" className="size-5 shrink-0 text-ink" />
-                <span className="sr-only">{t("what")}</span>
-                <input name="q" type="search" autoComplete="off" maxLength={120} placeholder={t("searchWhat")} className="rh-search-input" />
-              </label>
-              <div className="rh-search-loc">
-                <FigmaIcon name="map-pin" className="size-5 shrink-0 text-ink" />
-                <div className="min-w-0 flex-1">
-                  <CityFilter
-                    cities={cities.map((c) => { const name = cityName(c).text; return { id: c.id, label: name, name }; })}
-                    allLabel={t("anyCity")}
-                    cityLabel={t("where")}
-                    fieldClass="min-h-11 w-full text-[15px] text-ink outline-none"
-                    chevron={false}
-                  />
-                </div>
+        {/* ---------- Banner (owner reference 2026-11-21): the owner's own 3D plate, with the headline, search and
+             category shortcuts as live DOM on top so search, the city selector and the category routes keep working ---------- */}
+        <section className="rega-banner rega-editorial-hero" aria-labelledby="home-hero-title">
+          <div className="rb-frame">
+            <div className="rb-inner">
+              <div className="rb-copy">
+                <h1 id="home-hero-title" className="rb-title">
+                  <span className="rb-title-1">{t("bannerTitle")}</span>
+                  <span className="rb-title-2">{t("bannerAccent")}</span>
+                </h1>
+                <p className="rb-lead">{t("bannerLead")}</p>
               </div>
-              {rootCategories.length > 0 && (
-                <label className="rh-search-cat">
-                  <FigmaIcon name="layout-grid" className="rh-search-cat-icon size-5 shrink-0 text-ink" />
-                  <FigmaIcon name="sliders-horizontal" className="rh-search-filter-icon size-5 shrink-0 text-ink" />
-                  <span className="sr-only">{t("categoryLabel")}</span>
-                  {/* Category id: /businesses redirects ?category=<id> to the readable category URL, keeping q and city. */}
-                  <select name="category" defaultValue="" className="rh-search-select">
-                    <option value="">{t("allCategories")}</option>
-                    {rootCategories.map((c) => <option key={c.id} value={c.id}>{categoryName(c).text}</option>)}
-                  </select>
-                  <FigmaIcon name="chevron-down" className="rh-search-chevron pointer-events-none size-4 shrink-0 text-ink" />
+              {/* Keeps the headline and the controls on the reference's own thirds; the plate shows through. */}
+              <div className="rb-stage" aria-hidden="true" />
+              <form action={`/${locale}/businesses`} role="search" className="rega-home-search rb-search">
+                <div className="rb-search-loc">
+                  <FigmaIcon name="map-pin" className="rb-search-pin" />
+                  <div className="min-w-0 flex-1">
+                    <CityFilter
+                      cities={cities.map((c) => { const name = cityName(c).text; return { id: c.id, label: name, name }; })}
+                      allLabel={t("bannerAnyArea")}
+                      cityLabel={t("where")}
+                      fieldClass="rb-city-field"
+                    />
+                  </div>
+                </div>
+                <label className="rb-search-q">
+                  <span className="sr-only">{t("what")}</span>
+                  <input name="q" type="search" autoComplete="off" maxLength={120} placeholder={t("ask")} className="rb-search-input" />
+                  <FigmaIcon name="search" className="rb-search-q-icon" />
                 </label>
-              )}
-              <button type="submit" className="rh-search-btn">
-                <FigmaIcon name="search" className="size-5 shrink-0" />
-                {tn("search")}
-              </button>
-            </form>
+                <button type="submit" className="rb-search-btn" aria-label={tn("search")}>
+                  <FigmaIcon name="search" className="" />
+                </button>
+              </form>
+              <nav className="rb-cards" aria-label={t("categoriesTitle")}>
+                {bannerCards.map((c) => (
+                  <Link key={c.key} href={c.href} className="rb-card" data-testid={`banner-card-${c.key}`}>
+                    <FigmaIcon name={c.icon} className="" />
+                    <span className="rb-card-label">{c.label}</span>
+                  </Link>
+                ))}
+              </nav>
+            </div>
           </div>
         </section>
 

@@ -200,7 +200,17 @@
     "mapTitle": "Utforska företag runt om i världen",
     "mapSub": "Byt till kartvy för att hitta platser nära dig.",
     "mapCta": "Öppna kartan",
-    "ratingLabel": "Betyg {rating} av 5, {count, plural, one {# omdöme} other {# omdömen}}"
+    "ratingLabel": "Betyg {rating} av 5, {count, plural, one {# omdöme} other {# omdömen}}",
+    "bannerTitle": "Allt du behöver",
+    "bannerAccent": "på ett ställe",
+    "bannerLead": "Sök, upptäck och kontakta de bästa företagen och tjänsterna nära dig!",
+    "bannerAnyArea": "Alla områden",
+    "cardShopping": "Handel",
+    "cardJobs": "Jobb",
+    "cardFood": "Mat",
+    "cardMore": "Mer",
+    "cardServices": "Tjänster",
+    "cardHealth": "Hälsa"
   },
   "businesses": {
     "title": "Företag",

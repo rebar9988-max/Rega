@@ -200,7 +200,17 @@
     "mapTitle": "Karsaziyên li seranserê cîhanê bibîne",
     "mapSub": "Derbasî nexşeyê bibe da ku cihên nêzîkî xwe bibînî.",
     "mapCta": "Nexşeyê veke",
-    "ratingLabel": "Nirxandin {rating} ji 5, {count} şîrove"
+    "ratingLabel": "Nirxandin {rating} ji 5, {count} şîrove",
+    "bannerTitle": "Her tiştê hewce yî",
+    "bannerAccent": "li cihekî",
+    "bannerLead": "Li karsazî û xizmetên herî baş ên nêzîkî te bigere, wan keşf bike û têkilî deyne!",
+    "bannerAnyArea": "Hemû herêm",
+    "cardShopping": "Bazirganî",
+    "cardJobs": "Kar",
+    "cardFood": "Xwarin",
+    "cardMore": "Zêdetir",
+    "cardServices": "Xizmet",
+    "cardHealth": "Tenduristî"
   },
   "businesses": {
     "title": "Karsazî",
