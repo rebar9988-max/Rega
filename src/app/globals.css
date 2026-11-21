@@ -1423,6 +1423,22 @@ h1, h2 { letter-spacing: -0.02em; }
   .rega-banner .rb-card svg { width: 28px; height: 28px; }
   .rega-banner .rb-card-label { font-size: 12.5px; }
 }
+/* Sorani (RTL) banner typography, phones and tablets (owner request 2026-11-21): Arabic-script text needs a taller line box
+   than the Latin 1.0 above, so the headline no longer collides with its own underline, and the copy is sized to the
+   sky area above the 3D phone and pin instead of running into them. Latin locales and desktop are untouched. */
+@media (max-width: 1023.98px) {
+  [dir="rtl"] .rega-banner .rb-inner { padding-top: 14.5cqw; }
+  [dir="rtl"] .rega-banner .rb-copy { margin-inline: -3cqw; }
+  [dir="rtl"] .rega-banner .rb-title { line-height: 1.5; font-weight: 800; letter-spacing: 0; word-spacing: 0; }
+  [dir="rtl"] .rega-banner .rb-title-1,
+  [dir="rtl"] .rega-banner .rb-title-2 { font-size: clamp(22px, 7.2cqw, 44px); text-wrap: balance; }
+  [dir="rtl"] .rega-banner .rb-title-2 { padding-bottom: 2.2cqw; }
+  [dir="rtl"] .rega-banner .rb-title-2::after { height: max(1.3cqw, 4px); }
+  [dir="rtl"] .rega-banner .rb-lead {
+    margin: 2.2cqw auto 0; max-width: 88cqw; font-size: clamp(12.5px, 3.55cqw, 22px); font-weight: 600;
+    line-height: 1.75; letter-spacing: 0; text-wrap: balance; color: #1a2030;
+  }
+}
 @media (prefers-reduced-motion: reduce) { .rega-banner .rb-card { transition: none; } }
 
 /* The category tiles below used to ride up over the old dark hero; the banner ends on its own ribbon, so they sit under it. */
