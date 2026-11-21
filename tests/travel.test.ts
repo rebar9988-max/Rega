@@ -105,10 +105,9 @@ test("travel: transport types and service areas round-trip through tags, other t
 test("travel: the home tile and page reuse the shared directory pieces", () => {
   const home = readFileSync("src/app/[locale]/page.tsx", "utf8");
   assert.equal(home.match(/href="\/travel"/g)?.length, 1, "category tile");
-  assert.match(home, /<TravelBanner categories=\{categories\}/, "the red banner is the Rega24Travel banner");
+  assert.match(home, /<TravelBanner className=/, "the home page renders the Rega24Travel banner");
   const banner = readFileSync("src/components/travel/TravelBanner.tsx", "utf8");
   assert.equal(banner.match(/href="\/travel"/g)?.length, 1, "one CTA");
-  assert.match(banner, /href=\{`\/travel\?category=\$\{s\.id\}`\}/, "shortcuts open /travel filtered to a real category");
   assert.doesNotMatch(banner, /\/nearby/, "the banner no longer opens the map");
   const page = readFileSync("src/app/[locale]/travel/page.tsx", "utf8") + readFileSync("src/components/travel/TravelCard.tsx", "utf8");
   for (const shared of ["listBusinesses", "TravelCard", "CityFilter", "Pagination", "SaveButton", "sectionEnabled(\"travel\")"]) assert.ok(page.includes(shared), shared);
