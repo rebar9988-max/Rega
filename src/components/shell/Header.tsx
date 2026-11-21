@@ -8,6 +8,7 @@ import { HeaderLogo } from "@/components/ui/Logo";
 import { SessionRenewal } from "@/features/auth/SessionRenewal";
 import { FigmaIcon } from "@/components/home/FigmaIcon";
 import { LanguageSwitcher } from "./LanguageSwitcher";
+import { HeaderFrame } from "./HeaderFrame";
 import { MobileNav } from "./MobileNav";
 import { NavLinks } from "./NavLinks";
 import { footerNav, headerNav, mobileNav } from "./nav";
@@ -24,23 +25,19 @@ export async function Header() {
   // registration and management live in the account (/account), never behind this link.
   const adHref = signedIn && can(user?.role, "business.write") ? "/dr/offers/new" : null;
   return (
-    <header className="rega-header relative z-40 text-white">
-      {signedIn && <SessionRenewal />}
-      <div className="rega-header-art" aria-hidden="true" />
-      <div dir="ltr" className="rega-header-inner">
-        <div className="rega-header-row">
-          <Link href="/" aria-label="ڕێگا REGA24" className="rega-header-brand"><HeaderLogo /></Link>
-          <div className="rega-header-controls">
-            <div className="rega-header-pill">
-              <form action={`/${locale}/search`} role="search" aria-label={tc("search")} className="rega-header-search">
-                <button type="submit" aria-label={tc("search")}><FigmaIcon name="search" className="size-6" /></button>
-                <input name="q" type="search" aria-label={tc("search")} dir={contentDir} maxLength={200} />
-              </form>
-              <LanguageSwitcher />
-            </div>
-            <MobileNav items={mobileNav()} legal={footerNav("legal")} signedIn={signedIn} adHref={adHref} />
-          </div>
+    <HeaderFrame
+      brand={<Link href="/" aria-label="ڕێگا REGA24" className="rega-header-brand"><HeaderLogo /></Link>}
+      search={
+        <div className="rega-header-pill">
+          <form action={`/${locale}/search`} role="search" aria-label={tc("search")} className="rega-header-search">
+            <button type="submit" aria-label={tc("search")}><FigmaIcon name="search" className="size-6" /></button>
+            <input name="q" type="search" aria-label={tc("search")} dir={contentDir} maxLength={200} />
+          </form>
+          <LanguageSwitcher />
         </div>
+      }
+      menu={<MobileNav items={mobileNav()} legal={footerNav("legal")} signedIn={signedIn} adHref={adHref} />}
+      navigation={
         <div className="rega-header-secondary" dir={contentDir}>
           <nav aria-label={t("primary")}><NavLinks dir={contentDir} items={headerNav()} /></nav>
           <div className="rega-header-actions flex shrink-0 items-center gap-3 text-sm font-semibold">
@@ -48,7 +45,9 @@ export async function Header() {
             {adHref ? <NextLink href={adHref}>{t("addAd")}</NextLink> : <Link href="/for-business">{t("addAd")}</Link>}
           </div>
         </div>
-      </div>
-    </header>
+      }
+    >
+      {signedIn && <SessionRenewal />}
+    </HeaderFrame>
   );
 }
