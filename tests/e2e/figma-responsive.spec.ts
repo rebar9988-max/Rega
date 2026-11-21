@@ -11,17 +11,25 @@ for (const locale of LOCALES) {
     await expect(page.locator("html")).toHaveAttribute("dir", LOCALE_META[locale].dir);
     for (const width of widths) {
       await page.setViewportSize({ width, height: 1000 });
+      // Owner instruction 2026-11-21: phones carry the menu key alone — the banner below shows the mark instead.
+      // The brand returns at 768 px and up, where there is no bottom bar to get home from.
       const brand = page.locator("header").getByRole("link", { name: "ڕێگا REGA24", exact: true });
-      await expect(brand).toBeVisible();
-      const box = await brand.boundingBox();
-      expect(box && box.x >= 0 && box.x + box.width <= width).toBeTruthy();
+      if (width >= 768) {
+        await expect(brand).toBeVisible();
+        const box = await brand.boundingBox();
+        expect(box && box.x >= 0 && box.x + box.width <= width).toBeTruthy();
+        const loaded = await brand.locator("img").evaluateAll((els) => els.every(el => (el as HTMLImageElement).complete && (el as HTMLImageElement).naturalWidth > 0));
+        expect(loaded).toBe(true);
+      } else {
+        await expect(brand).toBeHidden();
+        const menu = await page.locator("header .rega-header-menu").boundingBox();
+        expect(menu && menu.x >= 0 && menu.x + menu.width <= width).toBeTruthy();
+      }
       expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
       const hero = page.locator(".rega-editorial-hero");
       await expect(hero.getByRole("searchbox")).toBeVisible();
       const button = await hero.getByRole("button", { name: /.+/ }).last().boundingBox();
       expect(button?.height).toBeGreaterThanOrEqual(44);
-      const images = await brand.locator("img").evaluateAll((els) => els.every(el => (el as HTMLImageElement).complete && (el as HTMLImageElement).naturalWidth > 0));
-      expect(images).toBe(true);
       const screenshot = info.outputPath(`${locale}-${width}.png`);
       await page.screenshot({ path: screenshot, fullPage: true });
       await info.attach(`${locale}-${width}`, { path: screenshot, contentType: "image/png" });

@@ -17,7 +17,8 @@ const TRIGGER_LABEL: Record<string, string> = { ckb: "کوردی", kmr: "Kurmanc
  * Page direction (RTL/LTR) only affects the text of each item, via `dir` on the label itself.
  * Switching keeps the page and its query (search text, filters, city): only the language segment changes.
  */
-export function LanguageSwitcher() {
+export function LanguageSwitcher({ variant = "header" }: { variant?: "header" | "menu" } = {}) {
+  const menu = variant === "menu";
   const locale = useLocale();
   const pathname = usePathname();
   const query = useSearchParams()?.toString();
@@ -38,14 +39,19 @@ export function LanguageSwitcher() {
   }, []);
 
   return (
-    <details ref={ref} className="relative" onKeyDown={(e) => e.key === "Escape" && close(true)}>
+    <details ref={ref} className={menu ? "" : "relative"} onKeyDown={(e) => e.key === "Escape" && close(true)}>
       {/* Language name + chevron in a light outline pill on the red header. Fixed width so the trigger never moves between languages. */}
       <summary aria-label={`${t("language")}: ${LOCALE_META[locale as keyof typeof LOCALE_META]?.nativeName ?? locale}`}
-        className="flex min-h-10 w-[5.75rem] cursor-pointer list-none items-center justify-center gap-[5px] rounded-full border border-white/25 bg-white/5 text-[13px] font-medium text-white transition-colors hover:bg-white/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white [&::-webkit-details-marker]:hidden">
-        <span className="whitespace-nowrap" lang={LOCALE_META[locale as keyof typeof LOCALE_META]?.htmlLang}>{TRIGGER_LABEL[locale] ?? locale.toUpperCase()}</span>
+        className={menu
+          ? "flex min-h-12 w-full cursor-pointer list-none items-center justify-between gap-3 rounded-xl px-4 text-base font-semibold text-ink hover:bg-surface-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand [&::-webkit-details-marker]:hidden"
+          : "flex min-h-10 w-[5.75rem] cursor-pointer list-none items-center justify-center gap-[5px] rounded-full border border-white/25 bg-white/5 text-[13px] font-medium text-white transition-colors hover:bg-white/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white [&::-webkit-details-marker]:hidden"}>
+        {menu && <span className="shrink-0">{t("language")}</span>}
+        <span className={menu ? "truncate text-muted" : "whitespace-nowrap"} lang={LOCALE_META[locale as keyof typeof LOCALE_META]?.htmlLang}>{TRIGGER_LABEL[locale] ?? locale.toUpperCase()}</span>
         <svg viewBox="0 0 24 24" className="size-3 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
       </summary>
-      <ul dir="ltr" className="absolute right-0 top-full z-50 mt-2 max-h-[min(32rem,calc(100dvh-6rem))] w-56 max-w-[calc(100vw-1rem)] overflow-y-auto overscroll-contain rounded-2xl border border-line bg-surface p-1.5 shadow-card">
+      <ul dir="ltr" className={menu
+        ? "mt-1 max-h-[min(24rem,50dvh)] w-full overflow-y-auto overscroll-contain rounded-xl border border-line bg-surface p-1.5"
+        : "absolute right-0 top-full z-50 mt-2 max-h-[min(32rem,calc(100dvh-6rem))] w-56 max-w-[calc(100vw-1rem)] overflow-y-auto overscroll-contain rounded-2xl border border-line bg-surface p-1.5 shadow-card"}>
         {LOCALES.map((code) => {
           const meta = LOCALE_META[code];
           const current = code === locale;
