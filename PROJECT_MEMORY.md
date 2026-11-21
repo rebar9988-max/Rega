@@ -1753,3 +1753,7 @@ The original bytes are in `public/travel/home-banner.jpeg`. A keyboard-accessibl
 overlays the painted button and opens the existing travel route. The travel page stays outside the change.
 The asset byte comparison and nine travel unit tests passed. Responsive browser checks are covered by
 the updated travel E2E spec. Release requires the normal PR and Cloudflare CI gates.
+
+## 2026-11-22 — Homepage link audit
+
+Production Sorani homepage linked to `/ckb/jobs`, which returned 404 because Jobs is disabled in the section registry. The homepage banner now checks the same registry for Jobs and Services before displaying those shortcuts. The existing responsive browser spec checks visibility against each route's HTTP status. Local TypeScript passed and lint reported zero errors with one pre-existing warning. Production rollout and browser verification are pending the PR gates.
