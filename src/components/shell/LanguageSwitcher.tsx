@@ -3,7 +3,7 @@
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
-import { Link, usePathname } from "@/i18n/routing";
+import { usePathname } from "@/i18n/routing";
 import { LOCALES, LOCALE_META } from "@/i18n/locales";
 
 /** Short language name on the trigger (design frame 204:912 shows "کوردی"). */
@@ -22,7 +22,8 @@ export function LanguageSwitcher({ variant = "header" }: { variant?: "header" | 
   const locale = useLocale();
   const pathname = usePathname();
   const query = useSearchParams()?.toString();
-  const href = query ? `${pathname}?${query}` : pathname;
+  // localePrefix is "always", so every locale's URL is /<code> + the un-prefixed pathname usePathname returns.
+  const localeHref = (code: string) => `/${code}${pathname === "/" ? "" : pathname}${query ? `?${query}` : ""}`;
   const t = useTranslations("common");
   const ref = useRef<HTMLDetailsElement>(null);
   const close = (restoreFocus = false) => {
@@ -57,13 +58,13 @@ export function LanguageSwitcher({ variant = "header" }: { variant?: "header" | 
           const current = code === locale;
           return (
             <li key={code}>
-              <Link href={href} locale={code} onClick={() => close()} hrefLang={meta.htmlLang}
+              <a href={localeHref(code)} hrefLang={meta.htmlLang}
                 aria-current={current ? "true" : undefined}
                 className={`flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm hover:bg-brand-soft focus-visible:outline-2 focus-visible:outline-brand ${current ? "bg-brand-soft font-bold text-brand-text" : ""}`}>
                 <span className="w-5 shrink-0 text-center" aria-hidden="true">{current ? "✓" : ""}</span>
                 <span className="min-w-0 flex-1 truncate text-start" lang={meta.htmlLang} dir={meta.dir} style={{ textAlign: "left" }}>{meta.nativeName}</span>
                 <span className="text-xs font-semibold text-muted" dir="ltr" aria-hidden="true">{meta.short}</span>
-              </Link>
+              </a>
             </li>
           );
         })}
