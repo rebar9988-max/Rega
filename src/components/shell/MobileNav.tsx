@@ -5,6 +5,7 @@ import { dirOf } from "@/i18n/locales";
 import { useRef } from "react";
 import NextLink from "next/link";
 import { Link, usePathname } from "@/i18n/routing";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 import type { NavItem } from "./nav";
 
 /** Full-height sheet built on native <dialog>: focus trap, Escape and inert background for free. */
@@ -47,6 +48,11 @@ export function MobileNav({ items, legal = [], signedIn = false, adHref = null }
             ); })}
           </ul>
         </nav>
+        {/* Owner instruction 2026-11-21: the phone header no longer carries the language pill, so the switch lives
+            here, where global apps keep it. */}
+        <div dir={contentDir} className="mt-4 border-t border-line pt-3">
+          <LanguageSwitcher variant="menu" />
+        </div>
         {/* The footer is on the home page only, so Impressum, privacy, terms and report stay reachable from every page
             here (German law: Impressum within two clicks everywhere). */}
         {legal.length > 0 && (
