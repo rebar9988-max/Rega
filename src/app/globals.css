@@ -1449,3 +1449,16 @@ h1, h2 { letter-spacing: -0.02em; }
   font-size: 3.4cqw; font-weight: 700; color: var(--rb-ink); text-align: start;
 }
 @media (min-width: 1024px) { .rega-banner .rb-city-field { font-size: 16px; gap: 6px; } }
+
+/* Inner pages keep the menu available without repeating the home banner. */
+.rega-header.rega-header-compact { position: relative; }
+.rega-header.rega-header-compact::after { display: none; }
+.rega-header-compact .rega-header-inner {
+  background: none;
+  border: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.rega-header-compact .rega-header-row { justify-content: flex-end; min-height: 0; }
+.rega-header-compact .rega-header-controls { flex: 0 0 auto; }

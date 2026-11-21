@@ -32,6 +32,12 @@ export function MobileNav({ items, legal = [], signedIn = false, adHref = null }
             <svg viewBox="0 0 24 24" className="size-6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
           </button>
         </div>
+        {pathname !== "/" && (
+          <Link href="/search" onClick={() => dialog.current?.close()}
+            className="hidden min-h-12 items-center rounded-xl px-4 text-base font-semibold hover:bg-surface-2 md:flex">
+            {tc("search")}
+          </Link>
+        )}
         <nav aria-label={t("primary")} dir={contentDir}>
           <ul className="flex flex-col gap-1">
             {/* Registry order (home first); login before contact, and contact always last. */}
