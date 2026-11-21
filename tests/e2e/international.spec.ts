@@ -1,4 +1,4 @@
-import { expect, test } from "./fixtures";
+import { expect, openLanguageMenu, test } from "./fixtures";
 
 /**
  * International experience: 11 interface languages × 13 European target countries. Language and country are
@@ -73,8 +73,8 @@ for (const [locale, country, cityEn, next] of EXAMPLES) {
     const city = await capital(page.request, country, cityEn);
     await page.goto(`/${locale}/businesses/legal?country=${country}&city=${city.id}`);
     await expect(page.locator("#f-country")).toHaveValue(country);
-    await page.locator("header details > summary").click();
-    await page.locator(`header details > ul a[hreflang="${LOCALES.find(([l]) => l === next)![1]}"]`).click();
+    const langMenu = await openLanguageMenu(page);
+    await langMenu.locator(`a[hreflang="${LOCALES.find(([l]) => l === next)![1]}"]`).click();
     await expect(page).toHaveURL(new RegExp(`/${next}/businesses/legal\\?country=${country}&city=${city.id}$`));
     await expect(page.locator("#f-country")).toHaveValue(country);
   });
@@ -82,8 +82,8 @@ for (const [locale, country, cityEn, next] of EXAMPLES) {
 
 test("a business profile keeps its page when the language changes", async ({ page }) => {
   await page.goto("/ckb/business/kurdistan-rechtsberatung");
-  await page.locator("header details > summary").click();
-  await page.locator(`header details > ul a[hreflang="it-IT"]`).click();
+  const langMenu = await openLanguageMenu(page);
+  await langMenu.locator(`a[hreflang="it-IT"]`).click();
   await expect(page).toHaveURL(/\/it\/business\/kurdistan-rechtsberatung$/);
   await expect(page.locator("html")).toHaveAttribute("lang", "it-IT");
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Kurdistan Rechtsberatung");
