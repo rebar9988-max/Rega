@@ -200,7 +200,16 @@
     "mapTitle": "Explorez les entreprises du monde entier",
     "mapSub": "Passez à la vue carte pour découvrir les lieux près de chez vous.",
     "mapCta": "Ouvrir la carte",
-    "ratingLabel": "Noté {rating} sur 5, {count, plural, one {# avis} other {# avis}}"
+    "ratingLabel": "Noté {rating} sur 5, {count, plural, one {# avis} other {# avis}}",
+    "bannerTitle": "Tout ce qu'il vous faut",
+    "bannerAccent": "au même endroit",
+    "bannerLead": "Cherchez, découvrez et contactez les meilleurs commerces et services près de chez vous !",
+    "cardShopping": "Commerce",
+    "cardJobs": "Emplois",
+    "cardFood": "Restauration",
+    "cardMore": "Plus",
+    "cardServices": "Services",
+    "cardHealth": "Santé"
   },
   "businesses": {
     "title": "Entreprises",

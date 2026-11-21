@@ -200,7 +200,16 @@
     "mapTitle": "Unternehmen weltweit entdecken",
     "mapSub": "Zur Kartenansicht wechseln und Orte in deiner Nähe finden.",
     "mapCta": "Karte öffnen",
-    "ratingLabel": "Bewertet mit {rating} von 5, {count, plural, one {# Bewertung} other {# Bewertungen}}"
+    "ratingLabel": "Bewertet mit {rating} von 5, {count, plural, one {# Bewertung} other {# Bewertungen}}",
+    "bannerTitle": "Alles was du brauchst",
+    "bannerAccent": "an einem Ort",
+    "bannerLead": "Suchen, entdecken und die besten Betriebe und Dienstleistungen in deiner Nähe finden!",
+    "cardShopping": "Handel",
+    "cardJobs": "Jobs",
+    "cardFood": "Essen",
+    "cardMore": "Mehr",
+    "cardServices": "Dienstleistungen",
+    "cardHealth": "Gesundheit"
   },
   "businesses": {
     "title": "Unternehmen",

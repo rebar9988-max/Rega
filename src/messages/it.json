@@ -200,7 +200,16 @@
     "mapTitle": "Esplora le attività in tutto il mondo",
     "mapSub": "Passa alla mappa per scoprire i luoghi vicino a te.",
     "mapCta": "Apri la mappa",
-    "ratingLabel": "Valutazione {rating} su 5, {count, plural, one {# recensione} other {# recensioni}}"
+    "ratingLabel": "Valutazione {rating} su 5, {count, plural, one {# recensione} other {# recensioni}}",
+    "bannerTitle": "Tutto ciò che ti serve",
+    "bannerAccent": "in un unico posto",
+    "bannerLead": "Cerca, scopri e contatta le migliori attività e servizi vicino a te!",
+    "cardShopping": "Commercio",
+    "cardJobs": "Lavoro",
+    "cardFood": "Cibo",
+    "cardMore": "Altro",
+    "cardServices": "Servizi",
+    "cardHealth": "Salute"
   },
   "businesses": {
     "title": "Attività",

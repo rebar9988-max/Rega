@@ -200,7 +200,16 @@
     "mapTitle": "کسب‌وکارهای سراسر جهان را کاوش کنید",
     "mapSub": "به نمای نقشه بروید و مکان‌های نزدیک خود را پیدا کنید.",
     "mapCta": "باز کردن نقشه",
-    "ratingLabel": "امتیاز {rating} از ۵، {count} نظر"
+    "ratingLabel": "امتیاز {rating} از ۵، {count} نظر",
+    "bannerTitle": "هر چه نیاز دارید",
+    "bannerAccent": "در یک جا",
+    "bannerLead": "جست‌وجو، کشف و ارتباط با بهترین کسب‌وکارها و خدمات نزدیک شما!",
+    "cardShopping": "بازرگانی",
+    "cardJobs": "کار",
+    "cardFood": "خوراک",
+    "cardMore": "بیشتر",
+    "cardServices": "خدمات",
+    "cardHealth": "سلامت"
   },
   "businesses": {
     "title": "کسب‌وکارها",

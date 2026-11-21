@@ -200,7 +200,16 @@
     "mapTitle": "Ontdek bedrijven over de hele wereld",
     "mapSub": "Schakel over naar de kaartweergave om plaatsen bij jou in de buurt te vinden.",
     "mapCta": "Kaart openen",
-    "ratingLabel": "Beoordeeld met {rating} van 5, {count, plural, one {# review} other {# reviews}}"
+    "ratingLabel": "Beoordeeld met {rating} van 5, {count, plural, one {# review} other {# reviews}}",
+    "bannerTitle": "Alles wat je nodig hebt",
+    "bannerAccent": "op één plek",
+    "bannerLead": "Zoek, ontdek en neem contact op met de beste bedrijven en diensten bij jou in de buurt!",
+    "cardShopping": "Handel",
+    "cardJobs": "Banen",
+    "cardFood": "Eten",
+    "cardMore": "Meer",
+    "cardServices": "Diensten",
+    "cardHealth": "Gezondheid"
   },
   "businesses": {
     "title": "Bedrijven",

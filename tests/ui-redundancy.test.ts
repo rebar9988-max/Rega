@@ -34,7 +34,10 @@ test("category chips keep a city page's city", () => {
 
 test("home page lists the categories once (tiles), not again as a second row", () => {
   const home = read("src/app/[locale]/page.tsx");
-  assert.equal(count(home, /rootCategories\.map\(/g) + count(home, /tiles\.map\(/g), 2, "hero category select + tiles only");
+  // Owner banner reference 2026-11-21: the banner carries six fixed shortcuts, so the category list itself is
+  // rendered once, by the tiles. A second `rootCategories.map(` would be the duplicate row this test guards against.
+  assert.equal(count(home, /rootCategories\.map\(/g) + count(home, /tiles\.map\(/g), 1, "tiles only");
+  assert.equal(count(home, /bannerCards\.map\(/g), 1, "the banner shortcuts are one fixed list");
   assert.doesNotMatch(home, /rh-explore|HomeScroller/);
   assert.equal(count(home, /role="search"/g), 1, "one search form on the home page");
 });

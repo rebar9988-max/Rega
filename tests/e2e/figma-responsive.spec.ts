@@ -49,16 +49,17 @@ test("editorial search submits real query and keeps city selector interactive", 
   await expect(page.getByRole("heading", { name: /Zagros/i })).toBeVisible();
 });
 
-test("reference v2: category filter, business tabs and the Rega24Travel banner", async ({ page }) => {
+test("reference v2: category shortcuts, business tabs and the Rega24Travel banner", async ({ page }) => {
   await page.goto("/en");
   const hero = page.locator(".rega-editorial-hero");
-  // The hero's category filter submits the real category id; /businesses redirects to the readable category URL.
-  const select = hero.locator('select[name="category"]');
-  const value = await select.locator("option").nth(1).getAttribute("value");
-  expect(value).toBeTruthy();
-  await select.selectOption(value!);
-  await hero.locator('button[type="submit"]').click();
-  await expect(page).toHaveURL(/\/en\/businesses\/[a-z0-9-]+/);
+  // Owner banner reference 2026-11-21: the hero's category dropdown is now six shortcut cards, each on a real route.
+  const cards = hero.locator("[data-testid^='banner-card-']");
+  await expect(cards).toHaveCount(6);
+  for (const href of await cards.evaluateAll((els) => els.map((el) => el.getAttribute("href")))) {
+    expect(href).toMatch(/^\/en\/(businesses|services|jobs)(\/[a-z0-9-]+)?$/);
+  }
+  await hero.locator("[data-testid='banner-card-food']").click();
+  await expect(page).toHaveURL(/\/en\/businesses(\/[a-z0-9-]+)?$/);
 
   await page.goto("/en");
   const tabs = page.getByRole("tablist");

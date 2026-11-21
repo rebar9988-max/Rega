@@ -200,7 +200,16 @@
     "mapTitle": "Explore Businesses Around the World",
     "mapSub": "Switch to map view to discover places near your location.",
     "mapCta": "Open Map",
-    "ratingLabel": "Rated {rating} out of 5, {count, plural, one {# review} other {# reviews}}"
+    "ratingLabel": "Rated {rating} out of 5, {count, plural, one {# review} other {# reviews}}",
+    "bannerTitle": "Everything you need",
+    "bannerAccent": "in one place",
+    "bannerLead": "Search, discover and connect with the best businesses and services near you!",
+    "cardShopping": "Shopping",
+    "cardJobs": "Jobs",
+    "cardFood": "Food",
+    "cardMore": "More",
+    "cardServices": "Services",
+    "cardHealth": "Health"
   },
   "businesses": {
     "title": "Businesses",

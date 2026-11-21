@@ -200,7 +200,16 @@
     "mapTitle": "Dünyanın dört bir yanındaki işletmeleri keşfet",
     "mapSub": "Yakınındaki yerleri bulmak için harita görünümüne geç.",
     "mapCta": "Haritayı aç",
-    "ratingLabel": "5 üzerinden {rating} puan, {count} değerlendirme"
+    "ratingLabel": "5 üzerinden {rating} puan, {count} değerlendirme",
+    "bannerTitle": "İhtiyacın olan her şey",
+    "bannerAccent": "tek bir yerde",
+    "bannerLead": "Yakınındaki en iyi işletme ve hizmetleri ara, keşfet ve iletişime geç!",
+    "cardShopping": "Ticaret",
+    "cardJobs": "İş",
+    "cardFood": "Yemek",
+    "cardMore": "Daha fazla",
+    "cardServices": "Hizmetler",
+    "cardHealth": "Sağlık"
   },
   "businesses": {
     "title": "İşletmeler",
