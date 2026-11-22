@@ -1,4 +1,4 @@
-import { expect, test } from "./fixtures";
+import { expect, openLanguageMenu, test } from "./fixtures";
 import type { Page } from "@playwright/test";
 
 test.use({ viewport: { width: 1280, height: 900 } });
@@ -14,7 +14,7 @@ const MATRIX: [string, string][] = [
   ["ckb", "fr"], ["fr", "sv"], ["sv", "nl"], ["nl", "it"], ["it", "ar"], ["fa", "it"], ["it", "ckb"],
 ];
 
-// Owner instruction 2026-11-21: the header trigger exists from 768 px up; the phone sheet path is covered in
+// Owner instruction 2026-11-21: the home header trigger exists from 768 px up; the phone sheet path is covered in
 // premium-header.spec.ts, so this file pins a desktop viewport and asserts the header switcher itself.
 const trigger = (page: Page) => page.locator("header .rega-header-pill details > summary");
 const menu = (page: Page) => page.locator("header .rega-header-pill details > ul");
@@ -50,7 +50,7 @@ for (const [from, to] of MATRIX) {
     page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
     page.on("pageerror", (e) => errors.push(String(e)));
 
-    await page.goto(`/${from}/businesses`);
+    await page.goto(`/${from}`);
     await expect(page.locator("html")).toHaveAttribute("dir", DIR[from]);
     const before = await box(page, trigger(page));
     await trigger(page).click();
@@ -67,7 +67,7 @@ for (const [from, to] of MATRIX) {
     await expect(menu(page).locator('a[aria-current="true"]')).toContainText(NATIVE[from]);
 
     await menu(page).getByRole("link", { name: new RegExp(NATIVE[to]) }).click();
-    await expect(page).toHaveURL(new RegExp(`/${to}/businesses$`));
+    await expect(page).toHaveURL(new RegExp(`/${to}$`));
     await expect(page.locator("html")).toHaveAttribute("lang", LANG[to]);
     await expect(page.locator("html")).toHaveAttribute("dir", DIR[to]);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
@@ -87,13 +87,11 @@ for (const [from, to] of MATRIX) {
 
 test("switching the language keeps the page, the search text and the filters; only the language changes", async ({ page }) => {
   await page.goto("/ckb/businesses?q=rest&country=DE&verified=1");
-  await trigger(page).click();
-  await menu(page).getByRole("link", { name: new RegExp(NATIVE.it) }).click();
+  await (await openLanguageMenu(page)).getByRole("link", { name: new RegExp(NATIVE.it) }).click();
   await expect(page).toHaveURL(/\/it\/businesses\?q=rest&country=DE&verified=1$/);
   await expect(page.locator("html")).toHaveAttribute("lang", "it-IT");
   await expect(page.locator("html")).toHaveAttribute("dir", "ltr");
-  await trigger(page).click();
-  await menu(page).getByRole("link", { name: new RegExp(NATIVE.ar) }).click();
+  await (await openLanguageMenu(page)).getByRole("link", { name: new RegExp(NATIVE.ar) }).click();
   await expect(page).toHaveURL(/\/ar\/businesses\?q=rest&country=DE&verified=1$/);
   await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
 });
