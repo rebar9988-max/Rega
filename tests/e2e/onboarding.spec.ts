@@ -58,10 +58,12 @@ test("for-business page: free statement, steps, verified explanation, register C
   await expect(page).toHaveURL(/\/de\/register\?next=%2Fdr%2Fbusinesses%2Fnew$/);
 });
 
-test("header 'add listing' goes to /for-business when logged out", async ({ page }) => {
+test("header menu opens /for-business when logged out", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/de");
-  await expect(page.locator("header").locator('a[href="/de/for-business"]:visible').first()).toBeVisible();
+  await page.getByRole("button", { name: "Menü" }).click();
+  await page.getByRole("dialog").locator('a[href="/de/for-business"]').click();
+  await expect(page).toHaveURL(/\/de\/for-business$/);
 });
 
 test("registration validates: terms are required, passwords must match and be long enough", async ({ page }) => {

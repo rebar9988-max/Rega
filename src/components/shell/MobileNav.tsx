@@ -41,7 +41,7 @@ export function MobileNav({ items, homeItems = [], legal = [], signedIn = false,
         <nav aria-label={t("primary")} dir={contentDir}>
           <ul className="flex flex-col gap-1">
             {/* Registry order (home first); login before contact, and contact always last. */}
-            {[...navItems.filter((i) => i.key !== "contact"), { key: signedIn ? "account" : "login", href: signedIn ? "/account" : "/login" }, ...(adHref ? [{ key: "addAd", href: adHref }] : home ? [{ key: "addAd", href: "/for-business" }] : []), ...navItems.filter((i) => i.key === "contact")].map((item) => {
+            {[...navItems.filter((i) => i.key !== "contact"), { key: signedIn ? "account" : "login", href: signedIn ? "/account" : "/login" }, ...(adHref ? [{ key: "addAd", href: adHref }] : []), ...navItems.filter((i) => i.key === "contact")].map((item) => {
               const NavLink = item.href.startsWith("/dr/") ? NextLink : Link;
               return (
               <li key={item.key}>
