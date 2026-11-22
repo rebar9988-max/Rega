@@ -1753,3 +1753,9 @@ The original bytes are in `public/travel/home-banner.jpeg`. A keyboard-accessibl
 overlays the painted button and opens the existing travel route. The travel page stays outside the change.
 The asset byte comparison and nine travel unit tests passed. Responsive browser checks are covered by
 the updated travel E2E spec. Release requires the normal PR and Cloudflare CI gates.
+
+## Rega24Travel home card follows the active language — 2026-11-22
+
+- Owner request: the home Rega24Travel card showed Sorani-only text because the tagline and button label were painted into `home-banner.jpeg`.
+- Change: `public/travel/home-banner-clean.webp` (WebP q90, 1536 × 864) is the same artwork with the tagline, its underline and the button painted out (smooth background fill; the "Rega24Travel" wordmark stays, it is a brand name). `src/components/travel/TravelBanner.tsx` now renders the tagline and button label as real text from `travel.tagline` / `travel.startCta` (all 11 locales already had them), RTL/LTR aware; link position, 44px touch target and `home-travel-*` test ids unchanged. The original `home-banner.jpeg` stays in the repository.
+- Tests: new case in `tests/e2e/travel.spec.ts`. Visual check: rendered in all 11 locales at 320 px plus 375/430/768/1280 px for ckb and en with the real Vazirmatn font (no overlap or clipping).

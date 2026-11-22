@@ -55,6 +55,21 @@ test("travel: home artwork keeps its framing and aligns the single CTA", async (
   }
 });
 
+test("travel: home card tagline and button follow the active language", async ({ page }) => {
+  const texts: Record<string, { tagline: string; cta: string }> = {
+    ckb: { tagline: "گەشت و گواستنەوە بە ئاسانترین ڕێگا", cta: "دەستپێبکە بۆ گەشت" },
+    en: { tagline: "Travel and transport, the easy way", cta: "Start your journey" },
+    de: { tagline: "Reisen und Transport – ganz einfach", cta: "Reise starten" },
+  };
+  for (const [locale, { tagline, cta }] of Object.entries(texts)) {
+    await page.goto(`/${locale}`);
+    const banner = page.getByTestId("home-travel-banner");
+    await banner.scrollIntoViewIfNeeded();
+    await expect(banner.getByTestId("home-travel-tagline")).toHaveText(tagline);
+    await expect(banner.getByTestId("home-travel-cta")).toContainText(cta);
+  }
+});
+
 test("travel: the category pill filters inside travel only", async ({ page }) => {
   await page.goto("/en/travel");
   const select = page.getByTestId("travel-category");
