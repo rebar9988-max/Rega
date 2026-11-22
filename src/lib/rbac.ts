@@ -34,6 +34,12 @@ export const PERMISSIONS = [
   "business.write",
   "business.publish",
   "business.delete",
+  /**
+   * Remove a listing you manage: the recoverable delete (archive + trash flag) and its undo, in the dashboard.
+   * Separate from "business.delete", which also carries the API's permanent delete and stays with administrators,
+   * so a business owner can retire their own listing without being able to erase anyone's record.
+   */
+  "business.remove",
   /** Pin / unpin (the "featured" flag): administrators only. */
   "business.pin",
   "service.read",
@@ -79,6 +85,7 @@ const MATRIX: Record<Role, Permission[] | "*"> = {
     "business.read",
     "business.write",
     "business.publish",
+    "business.remove",
     "service.read",
     "service.write",
     "service.publish",
@@ -108,8 +115,9 @@ const MATRIX: Record<Role, Permission[] | "*"> = {
     "content.read",
   ],
   // A business owner works on their own listings only (membership is checked per business, see business-access.ts):
-  // no publish / verify / category / user rights, so every listing goes through moderation.
-  BUSINESS_OWNER: ["business.read", "business.write", "service.read", "service.write", "location.read", "location.write", "category.read", "media.read", "media.write"],
+  // no publish / verify / category / user rights, so every listing goes through moderation. They may retire a listing
+  // of their own and undo that ("business.remove"), which is recoverable and audited; the permanent delete is not theirs.
+  BUSINESS_OWNER: ["business.read", "business.write", "business.remove", "service.read", "service.write", "location.read", "location.write", "category.read", "media.read", "media.write"],
   USER: [],
 };
 
