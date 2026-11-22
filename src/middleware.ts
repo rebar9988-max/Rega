@@ -1,6 +1,6 @@
 /**
  * Locale routing middleware.
- * - /            -> /{defaultLocale}      (Kurdish Sorani)
+ * - /            -> /{REGA_LOCALE if the visitor chose one, else defaultLocale (Kurdish Sorani)}
  * - /x, /y/...   -> locale-prefixed paths are passed through, with the locale cookie refreshed
  * - /dr/… , /api/… -> untouched (management dashboard, auth endpoints, REST API)
  */
@@ -12,7 +12,10 @@ const intlMiddleware = createMiddleware({
   locales: [...LOCALES],
   defaultLocale: DEFAULT_LOCALE,
   localePrefix: "always",
-  localeDetection: true,
+  // Owner instruction 2026-11-22: the site opens in Kurdish Sorani. With detection off, "/" always lands on the
+  // default locale, whatever Accept-Language the browser sends; a visitor who picked a language before is still
+  // taken there, by the REGA_LOCALE check in the middleware below.
+  localeDetection: false,
 });
 
 const LOCALE_SET = new Set<string>(LOCALES as readonly string[]);
@@ -65,6 +68,15 @@ export default async function middleware(request: NextRequest) {
 
   const moved = await redirectOldCategoryUrl(request);
   if (moved) return moved;
+
+  // "/" opens in Kurdish Sorani. Only a language this visitor chose before sends them elsewhere; the browser's
+  // Accept-Language never does (localeDetection is off above).
+  if (pathname === "/") {
+    const saved = request.cookies.get("REGA_LOCALE")?.value;
+    if (saved && saved !== DEFAULT_LOCALE && LOCALE_SET.has(saved)) {
+      return NextResponse.redirect(new URL(`/${saved}${request.nextUrl.search}`, request.url));
+    }
+  }
 
   const response = intlMiddleware(request);
 
