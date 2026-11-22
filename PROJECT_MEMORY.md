@@ -1753,3 +1753,9 @@ The original bytes are in `public/travel/home-banner.jpeg`. A keyboard-accessibl
 overlays the painted button and opens the existing travel route. The travel page stays outside the change.
 The asset byte comparison and nine travel unit tests passed. Responsive browser checks are covered by
 the updated travel E2E spec. Release requires the normal PR and Cloudflare CI gates.
+
+### 2026-11-22 — Owner reference for the homepage header and banner
+
+- The supplied WebP is used unchanged across the homepage header and hero. The language switcher, native menu, account link and search anchor are real controls. The bell links to the existing homepage listings section because there is no public notification inbox. The city/keyword form and category shortcuts remain below the artwork. The jobs shortcut follows the section registry.
+- Local verification: TypeScript, Node build and image checksum passed. ESLint reported one existing travel-page warning. The executor denies the Unix socket required by the tsx CLI and Chromium, so the browser and accessibility checks are delegated to GitHub CI. Running the unit tests through Node's tsx loader produced 508 passes, four skips and one CLI-subprocess failure caused by the same socket restriction.
+- Production health responded successfully on the existing D1 Worker before the change. Release remains gated by the repository checks and Cloudflare deployment workflow.

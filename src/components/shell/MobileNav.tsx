@@ -9,11 +9,13 @@ import { LanguageSwitcher } from "./LanguageSwitcher";
 import type { NavItem } from "./nav";
 
 /** Full-height sheet built on native <dialog>: focus trap, Escape and inert background for free. */
-export function MobileNav({ items, legal = [], signedIn = false, adHref = null }: { items: NavItem[]; legal?: NavItem[]; signedIn?: boolean; adHref?: string | null }) {
+export function MobileNav({ items, homeItems = [], legal = [], signedIn = false, adHref = null }: { items: NavItem[]; homeItems?: NavItem[]; legal?: NavItem[]; signedIn?: boolean; adHref?: string | null }) {
   const t = useTranslations("nav");
   const tc = useTranslations("common");
   const tf = useTranslations("footer");
   const pathname = usePathname();
+  const home = pathname === "/";
+  const navItems = home ? [...items, ...homeItems] : items;
   const contentDir = dirOf(useLocale());
   const dialog = useRef<HTMLDialogElement>(null);
 
@@ -32,16 +34,14 @@ export function MobileNav({ items, legal = [], signedIn = false, adHref = null }
             <svg viewBox="0 0 24 24" className="size-6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
           </button>
         </div>
-        {pathname !== "/" && (
-          <Link href="/search" onClick={() => dialog.current?.close()}
-            className="hidden min-h-12 items-center rounded-xl px-4 text-base font-semibold hover:bg-surface-2 md:flex">
+        <Link href="/search" onClick={() => dialog.current?.close()}
+            className={`${home ? "flex" : "hidden md:flex"} min-h-12 items-center rounded-xl px-4 text-base font-semibold hover:bg-surface-2`}>
             {tc("search")}
-          </Link>
-        )}
+        </Link>
         <nav aria-label={t("primary")} dir={contentDir}>
           <ul className="flex flex-col gap-1">
             {/* Registry order (home first); login before contact, and contact always last. */}
-            {[...items.filter((i) => i.key !== "contact"), { key: signedIn ? "account" : "login", href: signedIn ? "/account" : "/login" }, ...(adHref ? [{ key: "addAd", href: adHref }] : []), ...items.filter((i) => i.key === "contact")].map((item) => {
+            {[...navItems.filter((i) => i.key !== "contact"), { key: signedIn ? "account" : "login", href: signedIn ? "/account" : "/login" }, ...(adHref ? [{ key: "addAd", href: adHref }] : home ? [{ key: "addAd", href: "/for-business" }] : []), ...navItems.filter((i) => i.key === "contact")].map((item) => {
               const NavLink = item.href.startsWith("/dr/") ? NextLink : Link;
               return (
               <li key={item.key}>
@@ -54,8 +54,6 @@ export function MobileNav({ items, legal = [], signedIn = false, adHref = null }
             ); })}
           </ul>
         </nav>
-        {/* Owner instruction 2026-11-21: the phone header no longer carries the language pill, so the switch lives
-            here, where global apps keep it. */}
         <div dir={contentDir} className="mt-4 border-t border-line pt-3">
           <LanguageSwitcher variant="menu" />
         </div>

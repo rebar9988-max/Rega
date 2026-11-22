@@ -1,51 +1,37 @@
-import { getLocale, getTranslations } from "next-intl/server";
-import { dirOf } from "@/i18n/locales";
+import { getTranslations } from "next-intl/server";
 import { auth } from "@/auth";
 import { can } from "@/lib/rbac";
-import NextLink from "next/link";
 import { Link } from "@/i18n/routing";
-import { HeaderLogo } from "@/components/ui/Logo";
 import { SessionRenewal } from "@/features/auth/SessionRenewal";
-import { FigmaIcon } from "@/components/home/FigmaIcon";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { HeaderFrame } from "./HeaderFrame";
 import { MobileNav } from "./MobileNav";
-import { NavLinks } from "./NavLinks";
 import { footerNav, headerNav, mobileNav } from "./nav";
 
-/** Owner banner composition; real controls over a decorative, non-interactive backdrop. */
 export async function Header() {
-  const t = await getTranslations("nav");
-  const tc = await getTranslations("common");
-  const locale = await getLocale();
-  const contentDir = dirOf(locale);
+  const [t, th] = await Promise.all([getTranslations("nav"), getTranslations("home")]);
   const user = (await auth().catch(() => null))?.user;
   const signedIn = Boolean(user);
-  // "Add advertisement" creates an advertisement (offer) for a business the person manages. Business
-  // registration and management live in the account (/account), never behind this link.
   const adHref = signedIn && can(user?.role, "business.write") ? "/dr/offers/new" : null;
+  const items = mobileNav();
+  const paths = new Set(items.map((item) => item.href));
+
   return (
     <HeaderFrame
-      brand={<Link href="/" aria-label="ڕێگا REGA24" className="rega-header-brand"><HeaderLogo /></Link>}
-      search={
-        <div className="rega-header-pill">
-          <form action={`/${locale}/search`} role="search" aria-label={tc("search")} className="rega-header-search">
-            <button type="submit" aria-label={tc("search")}><FigmaIcon name="search" className="size-6" /></button>
-            <input name="q" type="search" aria-label={tc("search")} dir={contentDir} maxLength={200} />
-          </form>
-          <LanguageSwitcher />
-        </div>
+      homeControls={
+        <>
+          <a href="#home-latest" className="rega-reference-updates" aria-label={th("popularBusinesses")}>
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9m-8 12a2 2 0 0 0 4 0" /></svg>
+          </a>
+          <div className="rega-header-pill rega-reference-language"><LanguageSwitcher variant="reference" /></div>
+        </>
       }
-      menu={<MobileNav items={mobileNav()} legal={footerNav("legal")} signedIn={signedIn} adHref={adHref} />}
-      navigation={
-        <div className="rega-header-secondary" dir={contentDir}>
-          <nav aria-label={t("primary")}><NavLinks dir={contentDir} items={headerNav()} /></nav>
-          <div className="rega-header-actions flex shrink-0 items-center gap-3 text-sm font-semibold">
-            <Link href={signedIn ? "/account" : "/login"}>{signedIn ? t("account") : t("login")}</Link>
-            {adHref ? <NextLink href={adHref}>{t("addAd")}</NextLink> : <Link href="/for-business">{t("addAd")}</Link>}
-          </div>
-        </div>
+      account={
+        <Link href={signedIn ? "/account" : "/login"} className="rega-reference-account" aria-label={signedIn ? t("account") : t("login")}>
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><circle cx="12" cy="12" r="10" /><circle cx="12" cy="9" r="3" /><path d="M5.5 19a6.5 6.5 0 0 1 13 0" /></svg>
+        </Link>
       }
+      menu={<MobileNav items={items} homeItems={headerNav().filter((item) => !paths.has(item.href))} legal={footerNav("legal")} signedIn={signedIn} adHref={adHref} />}
     >
       {signedIn && <SessionRenewal />}
     </HeaderFrame>

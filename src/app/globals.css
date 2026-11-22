@@ -1299,52 +1299,113 @@ h1, h2 { letter-spacing: -0.02em; }
 [dir="ltr"] .rega-home .rh-tile-label { font-weight: 600; letter-spacing: -0.015em; }
 /* Phones under 360 px: slightly tighter tile spacing so Arabic-script labels (which cannot be hyphenated) fit. */
 @media (max-width: 359.98px) { .rega-home .rh-tiles { gap: 6px; } .rega-home .rh-tile { padding-inline: 2px; } }
-/* ── REGA24 home banner — owner reference 2026-11-21 (9:16 render as the single source of truth).
-   Scope: the homepage banner only. The 3D plate is the owner's own render with its baked text removed;
-   headline, search and category cards are live DOM on top, so search, city and category routes keep working. */
+/* The supplied 1107 × 1421 WebP is split at row 190 so the real header and main landmarks share one composition. */
+.rega-reference-header, .rega-reference-hero {
+  width: min(100%, 1107px);
+  margin-inline: auto;
+  background: #b9cbf1 url("/brand/rega24-home-reference.webp") center top / 100% auto no-repeat;
+}
+.rega-header.rega-reference-header { position: relative; aspect-ratio: 1107 / 190; }
+.rega-reference-header::after { display: none; }
+.rega-reference-controls { position: absolute; inset: 0; display: block; }
+.rega-reference-controls > :is(a, .rega-header-pill, .rega-header-menu) {
+  position: absolute;
+  top: 58%;
+  transform: translate(-50%, -50%);
+  display: grid;
+  place-items: center;
+  width: var(--control-width);
+  min-width: 44px;
+  height: 45%;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  box-shadow: none;
+  color: #fff;
+}
+.rega-reference-controls > :is(a, .rega-header-menu) svg,
+.rega-reference-language-trigger svg { opacity: 0; }
+.rega-reference-updates { left: 9.3%; --control-width: 9%; }
+.rega-reference-controls > .rega-header-pill { left: 25.5%; --control-width: 18%; }
+.rega-reference-controls > .rega-header-menu { left: 79.2%; --control-width: 10%; }
+.rega-reference-account { left: 90.5%; --control-width: 10%; }
+.rega-reference-controls > :is(.rega-header-menu, .rega-reference-account) { min-width: min(44px, 11vw); }
+.rega-reference-language > details { width: 100%; height: 100%; }
+.rega-reference-language > details > ul { max-height: calc(100dvh - min(15vw, 166px) - 18px); }
+.rega-reference-language > details > summary {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  cursor: pointer;
+  list-style: none;
+  border: 0;
+  background: transparent;
+}
+.rega-reference-language > details > summary:hover { background: transparent; }
+.rega-reference-language-trigger::-webkit-details-marker { display: none; }
+.rega-reference-language-trigger svg { position: absolute; right: 12%; }
+.rega-reference-language-trigger span {
+  position: absolute;
+  left: 35%;
+  width: 34%;
+  text-align: center;
+  color: transparent;
+}
+html:not([lang="ckb-IQ"]) .rega-reference-language-trigger span {
+  background: linear-gradient(#c53437, #a60008);
+  color: #fff;
+  font-size: clamp(.625rem, 2.1vw, 1.625rem);
+  font-weight: 800;
+  line-height: 1.15;
+  border-radius: 3px;
+}
+@media (max-width: 639px) {
+  .rega-reference-language > details > ul { left: 0; right: auto; }
+}
+.rega-reference-hero {
+  position: relative;
+  aspect-ratio: 1107 / 1231;
+  background-position: center bottom;
+}
+.rega-reference-hero :is(h1, p) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.rega-reference-cta {
+  position: absolute;
+  left: 21.7%;
+  top: 16.4%;
+  width: 56.6%;
+  height: 11.2%;
+  min-height: 44px;
+  border-radius: 999px;
+}
+.rega-reference-controls :is(a, button, summary):focus-visible,
+.rega-reference-cta:focus-visible { outline: 3px solid #121526; outline-offset: 3px; }
+@media (forced-colors: active) {
+  .rega-reference-header, .rega-reference-hero { background-image: none; }
+  .rega-reference-controls > :is(a, .rega-header-menu) svg,
+  .rega-reference-language-trigger svg { opacity: 1; }
+  .rega-reference-language-trigger span { color: ButtonText; }
+  .rega-reference-hero { aspect-ratio: auto; padding: 1rem; }
+  .rega-reference-hero :is(h1, p) { position: static; width: auto; height: auto; clip-path: none; }
+  .rega-reference-cta { position: static; display: block; width: fit-content; }
+  .rega-reference-cta::after { content: attr(aria-label); }
+}
 .rega-banner {
   --rb-red: #e2211c;
   --rb-red-deep: #b4100c;
   --rb-ink: #0b0f16;
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-  background: #e7e8fb;
-}
-.rega-banner .rb-frame {
-  container-type: inline-size;
-  position: relative;
-  aspect-ratio: 941 / 1672;
-  background-image: url("/brand/rega24-banner-portrait.webp");
-  background-size: cover;
-  background-position: center top;
 }
 .rega-banner .rb-inner {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  padding: 11cqw 7cqw 16.4cqw;
+  container-type: inline-size;
+  width: min(100%, 1107px);
+  margin-inline: auto;
+  padding: 16px clamp(12px, 4vw, 36px);
+  background: #e7e8fb;
 }
-.rega-banner .rb-stage { flex: 1 1 auto; min-height: 4cqw; }
-
-/* Headline — line one in ink, line two in the reference red with its hand-drawn underline. */
-.rega-banner .rb-title { margin: 0; text-align: center; font-weight: 800; line-height: 1.4; letter-spacing: 0; }
-/* Arabic-script lines need ~1.4 line-height (Vazirmatn dots/marks) — 1.0 clipped and crowded them. Sizes scale with the banner width via clamp(). */
-.rega-banner .rb-title-1 { display: block; font-size: clamp(1.3rem, 6.6cqw, 2.5rem); color: var(--rb-ink); text-wrap: balance; }
-/* Line two: the reference's red pill with white text, real HTML (no text baked into the plate). */
-.rega-banner .rb-title-2 {
-  display: block; width: fit-content; max-width: 100%; margin: 1.6cqw auto 0; padding: .4cqw 5cqw .7cqw;
-  font-size: clamp(1.4rem, 7.4cqw, 2.75rem); color: #fff; text-wrap: balance;
-  border-radius: max(3.2cqw, 14px);
-  background: linear-gradient(180deg, #ef2a22 0%, var(--rb-red) 50%, var(--rb-red-deep) 100%);
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / .35), 0 1.2cqw 2.4cqw -1cqw rgb(180 16 12 / .65);
-}
-.rega-banner .rb-title-2::after { content: none; }
-.rega-banner .rb-lead {
-  margin: 2.4cqw auto 0; max-width: 84cqw; text-align: center; text-wrap: balance;
-  font-size: clamp(.78rem, 3.1cqw, 1.0625rem); font-weight: 600; line-height: 1.5; color: var(--rb-ink);
-}
+#home-search, #home-latest { scroll-margin-block-start: 16px; }
 
 /* Search — real form: submit button, keyword field, existing city selector. */
 .rega-banner .rb-search {
@@ -1401,31 +1462,8 @@ h1, h2 { letter-spacing: -0.02em; }
 .rega-banner .rb-card svg { width: 6cqw; height: 6cqw; color: var(--rb-red); stroke-width: 2; }
 .rega-banner .rb-card-label { font-size: 3.2cqw; font-weight: 700; line-height: 1.35; }
 
-/* ── Desktop: the same plate, composition and palette, laid out wide (art left, copy right). ── */
 @media (min-width: 1024px) {
-  .rega-banner .rb-frame {
-    aspect-ratio: auto; min-height: 620px; container-type: normal;
-    background-image: none;
-    background: linear-gradient(165deg, #cfe0fb 0%, #e3e6f8 42%, #f1ecf4 72%, #e7dfeb 100%);
-  }
-  /* The same plate, cropped to its 3D stage and feathered into the backdrop, anchored left as in the owner's desktop reference. */
-  .rega-banner .rb-frame::before {
-    content: ""; position: absolute; inset-block: 0; left: 0; width: 54%; z-index: 0;
-    background: url("/brand/rega24-banner-scene.webp") left bottom / auto 102% no-repeat;
-  }
-  .rega-banner .rb-inner {
-    position: relative; inset: auto; z-index: 1;
-    margin-inline: auto; max-width: 1440px; min-height: 620px;
-    padding: 48px max(24px, 3vw) 48px 52%;
-    align-items: stretch; justify-content: center;
-  }
-  .rega-banner .rb-stage { display: none; }
-  .rega-banner .rb-title { text-align: start; }
-  .rega-banner .rb-title-2 { margin-inline: 0 auto; }
-  .rega-banner .rb-title-1, .rega-banner .rb-title-2 { font-size: clamp(2.3rem, .9rem + 2.5vw, 3.5rem); }
-  .rega-banner .rb-title-2 { margin: 10px 0 0; padding: 4px 28px 8px; }
-  .rega-banner .rb-lead { margin: 16px 0 0; max-width: none; text-align: start; font-size: clamp(15px, .7rem + .55vw, 19px); }
-  .rega-banner .rb-search { margin-top: 26px; gap: 8px; padding: 7px; }
+  .rega-banner .rb-search { gap: 8px; padding: 7px; }
   .rega-banner .rb-search-btn { width: 74px; height: 52px; border-radius: 14px; }
   .rega-banner .rb-search-btn svg { width: 22px; height: 22px; }
   .rega-banner .rb-search-input, .rega-banner .rb-search-loc select, .rega-banner .rb-search-select { font-size: 16px; }
