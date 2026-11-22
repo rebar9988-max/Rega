@@ -108,10 +108,10 @@ for (const [width, path] of [[375, "/ckb/travel"], [1440, "/ckb/travel"], [375, 
   test(`travel: banner photo, start button and photo cards (${width}px ${path})`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await page.goto(path);
-    const hero = page.locator(".rt-banner-photo img");
+    const hero = page.getByTestId("travel-hero-banner").locator("img");
     await expect(hero).toBeVisible();
     expect(await hero.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
-    await expect(hero).toHaveAttribute("alt", "");
+    await expect(hero).toHaveAttribute("src", "/travel/home-banner.jpeg");
     const start = page.getByTestId("travel-start");
     await expect(start).toHaveAttribute("href", "#t-q");
     const box = await start.boundingBox();

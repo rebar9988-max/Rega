@@ -13,7 +13,6 @@ import { businessShape, parseParams } from "@/lib/data/params";
 import { pageMetadata } from "@/lib/seo";
 import { PageSchema } from "@/components/ui/PageSchema";
 import { TravelCard } from "@/components/travel/TravelCard";
-import { PlaneMark } from "@/components/travel/TravelArt";
 import { cityOptions } from "@/components/ui/FilterBar";
 import { CityFilter } from "@/components/ui/CityFilter";
 import { AutoSubmitSelect } from "@/components/ui/AutoSubmitSelect";
@@ -107,25 +106,18 @@ export default async function TravelPage({ params, searchParams }: Props) {
     <>
       <PageSchema type="CollectionPage" name={`${tt("title")} — ${tt("subtitle")}`} description={tt("lead")} path={PATH} crumbs={crumbs} />
 
-      {/* Banner (owner reference 2026-11-19): title with plane mark, tagline, start button, travel photo; same order in every language. */}
+      {/* Banner (owner 2026-11-22): the same Kurdish Sorani artwork as the home banner in EVERY language; never translated. */}
       <section className="container-page rt-hero" aria-labelledby="travel-title">
-        <div className="rt-banner" dir="ltr">
-          <div className="rt-banner-copy">
-            <div className="rt-hero-head">
-              <h1 id="travel-title" className="rt-title">Rega24<span>Travel</span></h1>
-              <PlaneMark className="rt-plane" />
-            </div>
-            <p className="rt-sub" dir="auto">{tt("tagline")}</p>
-            <p className="sr-only">{tt("lead")}</p>
-            <a href="#t-q" className="rt-start" data-testid="travel-start">
-              <span className="rt-start-icon" aria-hidden="true"><FigmaIcon name="arrow-right" className="size-4" /></span>
-              <span dir="auto">{tt("startCta")}</span>
-            </a>
-          </div>
-          <TravelPhoto name="hero" w={530} h={334} sizes="(min-width: 768px) 530px, 56vw" eager className="rt-banner-photo" />
-          <svg className="rt-banner-wave" viewBox="0 0 400 24" preserveAspectRatio="none" aria-hidden="true" focusable="false">
-            <path d="M0 24V8c60 14 120 16 200 10S340 2 400 10v14Z" fill="currentColor" />
-          </svg>
+        <h1 id="travel-title" className="sr-only">Rega24Travel</h1>
+        <div className="relative" data-testid="travel-hero-banner">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/travel/home-banner.jpeg" alt="Rega24Travel" width={1536} height={864}
+            fetchPriority="high" decoding="async" className="block h-auto w-full" />
+          {/* Physical coordinates follow the painted button in both RTL and LTR. */}
+          <a href="#t-q" data-testid="travel-start"
+            className="absolute left-[5.2%] top-[68.3%] h-[20%] min-h-11 w-[43.2%] -translate-y-1/2 rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink">
+            <span className="sr-only">Rega24Travel — {tt("startCta")}</span>
+          </a>
         </div>
       </section>
 
