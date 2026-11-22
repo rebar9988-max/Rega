@@ -38,7 +38,6 @@ export async function openLanguageMenu(page: Page): Promise<Locator> {
     return page.locator("header .rega-header-pill details > ul");
   }
   await page.locator("header .rega-header-menu").click();
-  const sheet = page.locator("header dialog");
-  await sheet.locator("summary").click();
-  return sheet.locator("details > ul");
+  // In the sheet the languages are a plain always-visible list, not a disclosure.
+  return page.locator("header dialog [data-testid='language-list']");
 }
