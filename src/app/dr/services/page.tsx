@@ -127,7 +127,7 @@ export default async function DrServices({ searchParams }: { searchParams: Promi
                       <ConfirmAction action={deleteService} fields={{ id: s.id }} icon="trash" tone="danger" triggerTestId="delete-service"
                         trigger={t("drAdmin.delete")} triggerClassName={`${btn} inline-flex items-center`}
                         title={t("svcForm.deleteTitle")}
-                        body={<><strong className="font-semibold text-ink"><bdi>{localize(s, "name", locale)}</bdi></strong> — {t("svcForm.deleteBody")}</>}
+                        body={<><strong className="font-semibold text-ink"><Text value={localize(s, "name", locale)} pageLang={pageLang} /></strong> — {t("svcForm.deleteBody")}</>}
                         confirmLabel={t("drAdmin.delete")} cancelLabel={t("common.cancel")} />
                     )}
                     </>)}
