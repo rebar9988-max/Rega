@@ -1376,6 +1376,7 @@ html:not([lang="ckb-IQ"]) .rega-reference-language-trigger span {
   background-size: 100% auto;
   background-repeat: no-repeat;
 }
+.rega-reference-hero h1 { position: absolute; inset: 0; pointer-events: none; }
 .rega-reference-title, .rega-reference-cta, .rega-reference-lead {
   position: absolute;
   display: grid;
@@ -1403,6 +1404,7 @@ html:not([lang="ckb-IQ"]) .rega-reference-language-trigger span {
   font-weight: 800;
   line-height: 1.15;
   text-decoration: none;
+  pointer-events: auto;
 }
 .rega-reference-lead {
   inset: 29.4% 10% auto;
@@ -1419,6 +1421,7 @@ html:not([lang="ckb-IQ"]) .rega-reference-language-trigger span {
   .rega-reference-language-trigger svg { opacity: 1; }
   .rega-reference-language-trigger span { color: ButtonText; }
   .rega-reference-hero { aspect-ratio: auto; padding: 1rem; }
+  .rega-reference-hero h1 { position: static; }
   .rega-reference-hero :is(.rega-reference-title, .rega-reference-cta, .rega-reference-lead) {
     position: static; height: auto; margin-block: .25rem;
   }

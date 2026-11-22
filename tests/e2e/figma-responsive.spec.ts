@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "./fixtures";
 import { LOCALES, LOCALE_META } from "../../src/i18n/locales";
@@ -9,7 +10,7 @@ for (const locale of LOCALES) {
     await page.goto(`/${locale}`);
     await page.evaluate(() => document.fonts.ready);
     await expect(page.locator("html")).toHaveAttribute("dir", LOCALE_META[locale].dir);
-    const { home } = (await import(`../../src/messages/${locale}.json`)).default;
+    const { home } = JSON.parse(readFileSync(`src/messages/${locale}.json`, "utf8"));
     const banner = page.locator(".rega-reference-hero");
     for (const [selector, copy] of [
       [".rega-reference-title", home.bannerTitle],
