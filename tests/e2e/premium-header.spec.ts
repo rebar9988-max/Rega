@@ -36,9 +36,9 @@ for (const locale of ["en", "ckb", "de", "ar"]) {
     await header.locator(".rega-header-menu").click();
     const sheet = header.locator("dialog");
     await expect(sheet).toBeVisible();
-    await sheet.locator("summary").click();
-    await expect(sheet.locator("details > ul")).toBeVisible();
-    await expect(sheet.locator("details > ul li")).toHaveCount(11);
+    const langs = sheet.locator("[data-testid='language-list'] a");
+    await expect(langs).toHaveCount(11);
+    await expect(langs.first()).toBeVisible();
     await sheet.getByRole("button").first().click();
     await expect(sheet).toBeHidden();
     await page.setViewportSize({ width: 1440, height: 900 });
