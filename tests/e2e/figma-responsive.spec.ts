@@ -1,6 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "./fixtures";
 import { LOCALES, LOCALE_META } from "../../src/i18n/locales";
+import { sectionEnabled } from "../../src/config/sections";
 
 const widths = [320, 375, 390, 430, 768, 1024, 1440, 1920];
 for (const locale of LOCALES) {
@@ -57,12 +58,17 @@ test("editorial search submits real query and keeps city selector interactive", 
   await expect(page.getByRole("heading", { name: /Zagros/i })).toBeVisible();
 });
 
-test("reference v2: category shortcuts, business tabs and the Rega24Travel banner", async ({ page }) => {
+test("reference v2: category shortcuts, business tabs and the Rega24Travel banner", async ({ page, request }) => {
   await page.goto("/en");
   const hero = page.locator(".rega-editorial-hero");
-  // Owner banner reference 2026-11-21: the hero's category dropdown is now six shortcut cards, each on a real route.
+  // Every visible shortcut must lead to a page available in this deployment.
   const cards = hero.locator("[data-testid^='banner-card-']");
-  await expect(cards).toHaveCount(6);
+  const jobs = await request.get("/en/jobs");
+  const servicesEnabled = sectionEnabled("services");
+  expect([200, 404]).toContain(jobs.status());
+  await expect(hero.getByTestId("banner-card-jobs")).toHaveCount(Number(jobs.ok()));
+  await expect(hero.getByTestId("banner-card-services")).toHaveCount(Number(servicesEnabled));
+  await expect(cards).toHaveCount(4 + Number(jobs.ok()) + Number(servicesEnabled));
   for (const href of await cards.evaluateAll((els) => els.map((el) => el.getAttribute("href")))) {
     expect(href).toMatch(/^\/en\/(businesses|services|jobs)(\/[a-z0-9-]+)?$/);
   }

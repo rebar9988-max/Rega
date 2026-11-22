@@ -127,12 +127,12 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const catHref = (slug: string) => (categories.some((c) => c.slug === slug) ? `/businesses/${slug}` : "/businesses");
   const bannerCards = [
     { key: "shopping", label: t("cardShopping"), icon: "store", href: catHref("groceries-markets") },
-    { key: "jobs", label: t("cardJobs"), icon: "briefcase-business", href: "/jobs" },
+    { key: "jobs", label: t("cardJobs"), icon: "briefcase-business", href: "/jobs", enabled: sectionEnabled("jobs") },
     { key: "food", label: t("cardFood"), icon: "utensils", href: catHref("food") },
     { key: "more", label: t("cardMore"), icon: "layout-grid", href: "/businesses" },
-    { key: "services", label: t("cardServices"), icon: "hammer", href: "/services" },
+    { key: "services", label: t("cardServices"), icon: "hammer", href: "/services", enabled: sectionEnabled("services") },
     { key: "health", label: t("cardHealth"), icon: "heart-pulse", href: catHref("health") },
-  ];
+  ].filter((card) => card.enabled !== false);
 
   // Rega24Travel: one tile for its two top-level categories (they stay reachable on /travel and in "explore").
   const travelOn = sectionEnabled("travel") && rootCategories.some((c) => (TRAVEL_ROOT_KEYS as readonly string[]).includes(c.slug));
