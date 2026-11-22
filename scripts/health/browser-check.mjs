@@ -312,9 +312,28 @@ try {
     if (vp === "mobile") {
       note(await page.getByTestId("bottom-nav").isVisible(), "mobile: bottom tab bar");
     } else {
-      const nav = page.getByRole("navigation", { name: "Hauptnavigation" });
-      note(await nav.locator('a[href="/de/nearby"]').isVisible(), "desktop: header links Nearby");
-      note(await nav.locator('a[href="/de/ai"]').isVisible(), "desktop: header links the assistant");
+      // The approved compact header uses a menu dialog, not the former inline desktop nav.
+      // Exercise both menu links by clicking them, so this checks real navigation rather than only markup.
+      const menuButton = page.locator('header button[aria-haspopup="dialog"]').first();
+      await menuButton.click();
+      const menu = page.locator("header dialog[open]");
+      const nearbyLink = menu.locator('nav a[href="/de/nearby"]');
+      const nearbyVisible = await nearbyLink.isVisible();
+      if (nearbyVisible) {
+        await nearbyLink.click();
+        await page.waitForURL(`${BASE}/de/nearby`, { timeout: 15_000 }).catch(() => {});
+      }
+      note(nearbyVisible && new URL(page.url()).pathname === "/de/nearby", "desktop: menu navigates to Nearby");
+
+      await page.goto(`${BASE}/de`, { waitUntil: "domcontentloaded" });
+      await menuButton.click();
+      const assistantLink = page.locator('header dialog[open] nav a[href="/de/ai"]');
+      const assistantVisible = await assistantLink.isVisible();
+      if (assistantVisible) {
+        await assistantLink.click();
+        await page.waitForURL(`${BASE}/de/ai`, { timeout: 15_000 }).catch(() => {});
+      }
+      note(assistantVisible && new URL(page.url()).pathname === "/de/ai", "desktop: menu navigates to the assistant");
     }
 
     // Germany city discovery: no foreign city in the public business city filter.
