@@ -1329,7 +1329,8 @@ h1, h2 { letter-spacing: -0.02em; }
 .rega-reference-language-trigger svg { opacity: 0; }
 .rega-reference-updates { left: 9.3%; --control-width: 9%; }
 .rega-reference-controls > .rega-header-pill { left: 25.5%; --control-width: 18%; }
-.rega-reference-controls > .rega-header-menu { left: 79.2%; --control-width: 10%; }
+.rega-reference-controls > .rega-header-menu { left: 79.2%; right: auto; --control-width: 10%; }
+.rega-reference-controls > .rega-header-menu:active { transform: translate(-50%, -50%); }
 .rega-reference-account { left: 90.5%; --control-width: 10%; }
 .rega-reference-controls > :is(.rega-header-menu, .rega-reference-account) { min-width: min(44px, 11vw); }
 .rega-reference-language > details { width: 100%; height: 100%; }
@@ -1363,7 +1364,7 @@ html:not([lang="ckb-IQ"]) .rega-reference-language-trigger span {
   line-height: 1.15;
   border-radius: 3px;
 }
-@media (max-width: 639px) {
+@media (max-width: 680px) {
   .rega-reference-language > details > ul { left: 0; right: auto; }
 }
 .rega-reference-hero {
