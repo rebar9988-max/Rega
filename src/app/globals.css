@@ -1369,18 +1369,47 @@ html:not([lang="ckb-IQ"]) .rega-reference-language-trigger span {
 }
 .rega-reference-hero {
   position: relative;
+  container-type: inline-size;
   aspect-ratio: 1107 / 1231;
-  background-position: center bottom;
+  background-image: url("/brand/rega24-home-art.webp"), url("/brand/rega24-home-reference.webp");
+  background-position: center top, center bottom;
+  background-size: 100% auto;
+  background-repeat: no-repeat;
 }
-.rega-reference-hero :is(h1, p) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
-.rega-reference-cta {
+.rega-reference-title, .rega-reference-cta, .rega-reference-lead {
   position: absolute;
-  left: 21.7%;
-  top: 16.4%;
-  width: 56.6%;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  padding-inline: .5em;
+  text-align: center;
+  text-wrap: balance;
+  color: #0b1020;
+}
+.rega-reference-title {
+  inset: 5% 5% auto;
+  height: 11%;
+  font-size: 6.2cqw;
+  font-weight: 800;
+  line-height: 1.12;
+}
+.rega-reference-cta {
+  inset: 16.4% 21.7% auto;
   height: 11.2%;
   min-height: 44px;
   border-radius: 999px;
+  color: white;
+  font-size: 6cqw;
+  font-weight: 800;
+  line-height: 1.15;
+  text-decoration: none;
+}
+.rega-reference-lead {
+  inset: 29.4% 10% auto;
+  min-height: 7%;
+  font-size: 3.05cqw;
+  font-weight: 650;
+  line-height: 1.4;
 }
 .rega-reference-controls :is(a, button, summary):focus-visible,
 .rega-reference-cta:focus-visible { outline: 3px solid #121526; outline-offset: 3px; }
@@ -1390,9 +1419,9 @@ html:not([lang="ckb-IQ"]) .rega-reference-language-trigger span {
   .rega-reference-language-trigger svg { opacity: 1; }
   .rega-reference-language-trigger span { color: ButtonText; }
   .rega-reference-hero { aspect-ratio: auto; padding: 1rem; }
-  .rega-reference-hero :is(h1, p) { position: static; width: auto; height: auto; clip-path: none; }
-  .rega-reference-cta { position: static; display: block; width: fit-content; }
-  .rega-reference-cta::after { content: attr(aria-label); }
+  .rega-reference-hero :is(.rega-reference-title, .rega-reference-cta, .rega-reference-lead) {
+    position: static; height: auto; margin-block: .25rem;
+  }
 }
 .rega-banner {
   --rb-red: #e2211c;
