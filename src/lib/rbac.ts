@@ -45,6 +45,8 @@ export const PERMISSIONS = [
   "service.read",
   "service.write",
   "service.publish",
+  /** Remove a service of a business you manage, and undo it. Recoverable, like "business.remove". */
+  "service.remove",
   "location.read",
   "location.write",
   "category.read",
@@ -89,6 +91,7 @@ const MATRIX: Record<Role, Permission[] | "*"> = {
     "service.read",
     "service.write",
     "service.publish",
+    "service.remove",
     "location.read",
     "location.write",
     "category.read",
@@ -117,7 +120,7 @@ const MATRIX: Record<Role, Permission[] | "*"> = {
   // A business owner works on their own listings only (membership is checked per business, see business-access.ts):
   // no publish / verify / category / user rights, so every listing goes through moderation. They may retire a listing
   // of their own and undo that ("business.remove"), which is recoverable and audited; the permanent delete is not theirs.
-  BUSINESS_OWNER: ["business.read", "business.write", "business.remove", "service.read", "service.write", "location.read", "location.write", "category.read", "media.read", "media.write"],
+  BUSINESS_OWNER: ["business.read", "business.write", "business.remove", "service.read", "service.write", "service.remove", "location.read", "location.write", "category.read", "media.read", "media.write"],
   USER: [],
 };
 

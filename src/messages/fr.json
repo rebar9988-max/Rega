@@ -834,7 +834,9 @@
     "act_archive": "Archiver",
     "act_restore": "Restaurer",
     "act_feature": "Mettre à la une",
-    "act_unfeature": "Retirer de la une"
+    "act_unfeature": "Retirer de la une",
+    "deleteTitle": "Supprimer ce service ?",
+    "deleteBody": "Il quitte le site public et la liste. Rien n'est perdu : il reste dans le filtre « Supprimé » et peut être restauré."
   },
   "offers": {
     "title": "Offres",

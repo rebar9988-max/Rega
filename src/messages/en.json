@@ -834,7 +834,9 @@
     "act_archive": "Archive",
     "act_restore": "Restore",
     "act_feature": "Feature",
-    "act_unfeature": "Remove feature"
+    "act_unfeature": "Remove feature",
+    "deleteTitle": "Delete this service?",
+    "deleteBody": "It leaves the public site and the list. Nothing is lost: it stays under the “Deleted” filter and can be restored."
   },
   "offers": {
     "title": "Offers",

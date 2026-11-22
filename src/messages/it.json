@@ -834,7 +834,9 @@
     "act_archive": "Archivia",
     "act_restore": "Ripristina",
     "act_feature": "Metti in evidenza",
-    "act_unfeature": "Togli dall’evidenza"
+    "act_unfeature": "Togli dall’evidenza",
+    "deleteTitle": "Eliminare questo servizio?",
+    "deleteBody": "Viene rimosso dal sito pubblico e dall'elenco. Non si perde nulla: resta nel filtro «Eliminati» e può essere ripristinato."
   },
   "offers": {
     "title": "Offerte",

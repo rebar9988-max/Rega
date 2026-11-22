@@ -51,3 +51,36 @@ export async function updateService(formData: FormData): Promise<void> {
   await writeAudit({ actorId: user.id, actorEmail: user.email, action: `service.${intent}`, entity: "Service", entityId: id, before: { status: before.status, featured: before.featured }, after });
   revalidatePath("/", "layout");
 }
+
+/**
+ * Recoverable delete of a service: it leaves the public site and the list, but the row stays with a trash flag so
+ * the owner (or an administrator) can bring it back from the "Deleted" filter. Mirrors deleteBusiness.
+ */
+export async function deleteService(formData: FormData): Promise<void> {
+  const { id } = intentSchema.pick({ id: true }).parse({ id: formData.get("id") });
+  const user = await requirePermission("service.remove");
+  const before = await prisma.service.findFirst({ where: { id, deletedAt: null }, select: { businessId: true, status: true, featured: true, archivedAt: true } });
+  if (!before) return; // already deleted or unknown: a repeated request changes nothing
+  await assertBusinessAccess(user, before.businessId);
+  const now = new Date();
+  await prisma.service.update({ where: { id }, data: { status: "archived", archivedAt: before.archivedAt ?? now, deletedAt: now } });
+  await reindexBusinessTree(prisma, before.businessId);
+  await writeAudit({ actorId: user.id, actorEmail: user.email, action: "service.delete.soft", entity: "Service", entityId: id,
+    before: { status: before.status, featured: before.featured }, after: { status: "archived", deleted: true } });
+  revalidatePath("/dr", "layout");
+  revalidatePath("/", "layout");
+}
+
+/** Undo a delete: the service comes back hidden, so publishing it again is a deliberate step. */
+export async function recoverService(formData: FormData): Promise<void> {
+  const { id } = intentSchema.pick({ id: true }).parse({ id: formData.get("id") });
+  const user = await requirePermission("service.remove");
+  const before = await prisma.service.findFirst({ where: { id, deletedAt: { not: null } }, select: { businessId: true, archivedAt: true } });
+  if (!before) return;
+  await assertBusinessAccess(user, before.businessId);
+  await prisma.service.update({ where: { id }, data: { deletedAt: null, status: "archived", archivedAt: before.archivedAt ?? new Date() } });
+  await reindexBusinessTree(prisma, before.businessId);
+  await writeAudit({ actorId: user.id, actorEmail: user.email, action: "service.delete.undo", entity: "Service", entityId: id, after: { status: "archived", deleted: false } });
+  revalidatePath("/dr", "layout");
+  revalidatePath("/", "layout");
+}

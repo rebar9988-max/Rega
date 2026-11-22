@@ -834,7 +834,9 @@
     "act_archive": "Arkivera",
     "act_restore": "Återställ",
     "act_feature": "Lyft fram",
-    "act_unfeature": "Ta bort framlyftning"
+    "act_unfeature": "Ta bort framlyftning",
+    "deleteTitle": "Ta bort den här tjänsten?",
+    "deleteBody": "Den försvinner från den publika webbplatsen och från listan. Inget går förlorat: den ligger kvar under filtret ”Borttagna” och kan återställas."
   },
   "offers": {
     "title": "Erbjudanden",

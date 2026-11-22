@@ -9,7 +9,8 @@ import { localize } from "@/lib/content";
 import { Text } from "@/components/ui/Bidi";
 import { textWhere } from "@/lib/search-where";
 import { hasGlobalBusinessAccess, managedBusinessWhere } from "@/lib/business-access";
-import { updateService } from "./actions";
+import { ConfirmAction } from "@/components/dr/ConfirmAction";
+import { deleteService, recoverService, updateService } from "./actions";
 
 const PER_PAGE = 20;
 const STATUSES = ["draft", "published", "archived"] as const;
@@ -27,9 +28,12 @@ export default async function DrServices({ searchParams }: { searchParams: Promi
   const pageLang = LOCALE_META[locale].htmlLang;
   const canWrite = can(user.role, "service.write");
   const canPublish = can(user.role, "service.publish");
+  const canRemove = can(user.role, "service.remove");
+  // Owner instruction 2026-11-22: a removed service stays recoverable, so it needs a filter of its own.
+  const showDeleted = canRemove && sp.status === "deleted";
 
   const where: Prisma.ServiceWhereInput = {
-    deletedAt: null,
+    deletedAt: showDeleted ? { not: null } : null,
     // Business owners see only the services of businesses they are a member of.
     business: { deletedAt: null, ...(user.role === "BUSINESS_OWNER" ? managedBusinessWhere(user) : {}) },
     ...(status ? { status } : {}),
@@ -74,6 +78,7 @@ export default async function DrServices({ searchParams }: { searchParams: Promi
         <select id="status" name="status" defaultValue={status ?? ""} className="min-h-11 rounded-xl border border-line bg-surface px-3 text-sm">
           <option value="">{t("common.all")}</option>
           {STATUSES.map((s) => <option key={s} value={s}>{t(`status.${s}`)}</option>)}
+          {canRemove && <option value="deleted">{t("drAdmin.deleted")}</option>}
         </select>
         <button type="submit" className="min-h-11 rounded-xl bg-brand px-5 text-sm font-semibold text-brand-ink hover:bg-brand-hover">{t("list.apply")}</button>
       </form>
@@ -105,11 +110,27 @@ export default async function DrServices({ searchParams }: { searchParams: Promi
                   <td className="px-4 py-3">{s.category ? <Text value={localize({ ...s.category, name: s.category.nameDe }, "name", locale)} pageLang={pageLang} /> : "—"}</td>
                   <td className="px-4 py-3" data-testid="service-status">{t(`status.${s.status}`)}</td>
                   <td className="px-4 py-3"><div className="flex flex-wrap gap-1.5">
+                    {showDeleted ? (
+                      canRemove && manages(s.businessId) && (
+                        <form action={recoverService}>
+                          <input type="hidden" name="id" value={s.id} />
+                          <button type="submit" className={btn} data-testid="recover-service">{t("drAdmin.restore")}</button>
+                        </form>
+                      )
+                    ) : (<>
                     {canWrite && manages(s.businessId) && <Link href={`/dr/services/${s.id}`} className={`${btn} inline-flex items-center`}>{t("bizForm.edit")}</Link>}
                     {canPublish && manages(s.businessId) && s.status !== "archived" && (s.status === "published" ? act(s.id, "unpublish") : act(s.id, "publish"))}
                     {canWrite && manages(s.businessId) && (s.status === "archived" ? act(s.id, "restore") : act(s.id, "archive"))}
                     {canPublish && manages(s.businessId) && act(s.id, s.featured ? "unfeature" : "feature")}
                     {s.status === "published" && s.business.status === "published" && <Link href={`/${locale}/services/${s.business.slug}/${s.slug}`} className={`${btn} inline-flex items-center`}>{t("bizForm.viewPublic")}</Link>}
+                    {canRemove && manages(s.businessId) && (
+                      <ConfirmAction action={deleteService} fields={{ id: s.id }} icon="trash" tone="danger" triggerTestId="delete-service"
+                        trigger={t("drAdmin.delete")} triggerClassName={`${btn} inline-flex items-center`}
+                        title={t("svcForm.deleteTitle")}
+                        body={<><strong className="font-semibold text-ink"><bdi>{localize(s, "name", locale)}</bdi></strong> — {t("svcForm.deleteBody")}</>}
+                        confirmLabel={t("drAdmin.delete")} cancelLabel={t("common.cancel")} />
+                    )}
+                    </>)}
                   </div></td>
                 </tr>
               ))}
