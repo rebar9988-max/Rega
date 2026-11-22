@@ -53,3 +53,14 @@ test("pin and delete are administrator decisions; managers can publish but not p
   }
   assert.equal(can("MANAGER", "business.publish"), true);
 });
+
+test("a business owner may retire and restore a listing they manage, but never erase a record", () => {
+  // business.remove is the recoverable delete in the dashboard; business.delete also carries the API's
+  // permanent delete, so it stays with administrators (asserted above).
+  for (const role of ["SUPER_ADMIN", "ADMIN", "MANAGER", "BUSINESS_OWNER"] as const) {
+    assert.equal(can(role, "business.remove"), true, role);
+  }
+  for (const role of ["EMPLOYEE", "USER"] as const) {
+    assert.equal(can(role, "business.remove"), false, role);
+  }
+});

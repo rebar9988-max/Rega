@@ -834,7 +834,9 @@
     "act_archive": "Arşivle",
     "act_restore": "Geri yükle",
     "act_feature": "Öne çıkar",
-    "act_unfeature": "Öne çıkarmayı kaldır"
+    "act_unfeature": "Öne çıkarmayı kaldır",
+    "deleteTitle": "Bu hizmet silinsin mi?",
+    "deleteBody": "Herkese açık siteden ve listeden kaldırılır. Hiçbir şey kaybolmaz: “Silinmiş” filtresinde kalır ve geri alınabilir."
   },
   "offers": {
     "title": "Fırsatlar",

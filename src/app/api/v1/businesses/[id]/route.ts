@@ -119,6 +119,9 @@ export async function DELETE(request: NextRequest, ctx: { params: Promise<{ id: 
 
     const user = await requirePermission("business.delete");
     const { id } = await ctx.params;
+    // Defence in depth: the permission alone said nothing about *which* listing the caller may erase.
+    const { assertBusinessAccess } = await import("@/lib/business-access");
+    await assertBusinessAccess(user, id);
     const hard = new URL(request.url).searchParams.get("hard") === "true";
 
     await databaseTransaction(async (tx) => {

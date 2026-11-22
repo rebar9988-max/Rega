@@ -82,7 +82,7 @@ export default async function EditBusiness({ params, searchParams }: { params: P
           )}
           <BusinessActions
             b={{ id: b.id, name: b.name, slug: b.slug, status: b.status, verified: b.verified, featured: b.featured, deleted: false, isPublic: false }}
-            rights={{ manages: true, canPublish: can(user.role, "business.publish"), canPin: can(user.role, "business.pin"), canDelete: can(user.role, "business.delete") }}
+            rights={{ manages: true, canPublish: can(user.role, "business.publish"), canPin: can(user.role, "business.pin"), canDelete: can(user.role, "business.remove") }}
             back={`/dr/businesses/${b.id}`} locale={locale} showEdit={false} />
         </div>
       </header>

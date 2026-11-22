@@ -834,7 +834,9 @@
     "act_archive": "Archiveren",
     "act_restore": "Herstellen",
     "act_feature": "Uitlichten",
-    "act_unfeature": "Niet meer uitlichten"
+    "act_unfeature": "Niet meer uitlichten",
+    "deleteTitle": "Deze dienst verwijderen?",
+    "deleteBody": "Hij verdwijnt van de openbare site en uit de lijst. Er gaat niets verloren: hij blijft onder het filter “Verwijderd” staan en kan worden hersteld."
   },
   "offers": {
     "title": "Aanbiedingen",

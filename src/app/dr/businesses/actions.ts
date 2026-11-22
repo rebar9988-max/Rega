@@ -126,7 +126,7 @@ const recordSchema = z.object({ id: z.string().min(1).max(64), back: z.string().
  */
 export async function deleteBusiness(formData: FormData): Promise<void> {
   const { id, back } = recordSchema.parse({ id: formData.get("id"), back: formData.get("back") || undefined });
-  const user = await requirePermission("business.delete");
+  const user = await requirePermission("business.remove");
   await assertBusinessAccess(user, id);
   const done = await databaseTransaction(async (tx) => {
     await lockBusiness(tx, id);
@@ -147,7 +147,7 @@ export async function deleteBusiness(formData: FormData): Promise<void> {
 /** Undo a delete: the listing comes back hidden; "Show again" then applies the normal publication rules. */
 export async function recoverBusiness(formData: FormData): Promise<void> {
   const { id, back } = recordSchema.parse({ id: formData.get("id"), back: formData.get("back") || undefined });
-  const user = await requirePermission("business.delete");
+  const user = await requirePermission("business.remove");
   await assertBusinessAccess(user, id);
   const done = await databaseTransaction(async (tx) => {
     await lockBusiness(tx, id);

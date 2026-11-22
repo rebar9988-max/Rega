@@ -834,7 +834,9 @@
     "act_archive": "Archivieren",
     "act_restore": "Wiederherstellen",
     "act_feature": "Hervorheben",
-    "act_unfeature": "Hervorhebung entfernen"
+    "act_unfeature": "Hervorhebung entfernen",
+    "deleteTitle": "Diese Dienstleistung löschen?",
+    "deleteBody": "Sie wird von der öffentlichen Website und aus der Liste entfernt. Nichts geht verloren: Sie bleibt im Filter „Gelöscht“ und kann wiederhergestellt werden."
   },
   "offers": {
     "title": "Angebote",

@@ -39,7 +39,7 @@ export default async function DrBusinesses({ searchParams }: { searchParams: Pro
   const canPublish = can(user.role, "business.publish");
   const canWrite = can(user.role, "business.write");
   const canPin = can(user.role, "business.pin");
-  const canDelete = can(user.role, "business.delete");
+  const canDelete = can(user.role, "business.remove");
   // Business owners see (and can open) only the businesses they are a member of, never other owners' drafts.
   const ownerOnly = user.role === "BUSINESS_OWNER";
   const scope: Prisma.BusinessWhereInput = ownerOnly ? managedBusinessWhere(user) : {};
