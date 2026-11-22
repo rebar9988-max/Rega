@@ -22,8 +22,8 @@ test("CSP does not break the app: pages hydrate without CSP violations", async (
   const violations: string[] = [];
   page.on("console", (m) => /Content Security Policy|Refused to/i.test(m.text()) && violations.push(m.text()));
   await page.goto("/ckb");
-  // Header navigation (generated from the section registry): "بازرگانییەکان" leads to the businesses list.
-  await page.getByRole("navigation", { name: "ناوبەری سەرەکی" }).getByRole("link", { name: "بازرگانییەکان", exact: true }).click();
+  await page.getByRole("button", { name: "مێنیو" }).click();
+  await page.getByRole("dialog").getByRole("navigation", { name: "ناوبەری سەرەکی" }).getByRole("link", { name: "بازرگانییەکان", exact: true }).click();
   await expect(page).toHaveURL(/\/ckb\/businesses/);
   expect(violations, violations.join("\n")).toEqual([]);
 });

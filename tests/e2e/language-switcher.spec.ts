@@ -14,8 +14,7 @@ const MATRIX: [string, string][] = [
   ["ckb", "fr"], ["fr", "sv"], ["sv", "nl"], ["nl", "it"], ["it", "ar"], ["fa", "it"], ["it", "ckb"],
 ];
 
-// Owner instruction 2026-11-21: the home header trigger exists from 768 px up; the phone sheet path is covered in
-// premium-header.spec.ts, so this file pins a desktop viewport and asserts the header switcher itself.
+// The geometry comparison below uses a wide viewport. The premium header test also checks narrow screens.
 const trigger = (page: Page) => page.locator("header .rega-header-pill details > summary");
 const menu = (page: Page) => page.locator("header .rega-header-pill details > ul");
 const box = async (page: Page, sel: ReturnType<typeof trigger>) => {

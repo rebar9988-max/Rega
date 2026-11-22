@@ -39,12 +39,11 @@ test("language switcher keeps the current page", async ({ page }) => {
 
 test("main navigation reaches every section", async ({ page, isMobile }) => {
   await page.goto("/de");
-  // Desktop: the header navigation (generated from the section registry; one label per section, the same as the menu sheet). Mobile: the menu sheet keeps every section.
   const routes: [string, RegExp][] = isMobile
     ? [["Unternehmen", /\/de\/businesses$/], ["Dienstleistungen", /\/de\/services$/], ["Standorte", /\/de\/locations$/], ["REGA-Assistent", /\/de\/ai$/]]
     : [["Unternehmen", /\/de\/businesses$/], ["Dienstleistungen", /\/de\/services$/], ["In der Nähe", /\/de\/nearby$/], ["REGA-Assistent", /\/de\/ai$/]];
   for (const [name, url] of routes) {
-    if (isMobile) await page.getByRole("button", { name: "Menü" }).click();
+    await page.getByRole("button", { name: "Menü" }).click();
     await page.getByRole("navigation", { name: "Hauptnavigation" }).getByRole("link", { name, exact: true }).click();
     await expect(page).toHaveURL(url);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();

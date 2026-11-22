@@ -8,23 +8,19 @@ for (const locale of ["en", "ckb", "de", "ar"]) {
     await expect(header).not.toContainText("ڕێگا");
     for (const [width, height] of [[320, 900], [390, 900], [768, 900], [1024, 900], [1440, 900], [1920, 900], [390, 600], [844, 390]]) {
       await page.setViewportSize({ width, height });
-      // Owner instruction 2026-11-21: below 768 px the header is the menu key alone — the search pill and the
-      // language switcher are hidden there and the switch lives in the sheet instead (asserted after this loop).
-      const pillShown = width >= 768;
-      if (pillShown) await expect(header.getByRole("searchbox")).toBeVisible();
-      else await expect(header.getByRole("searchbox")).toBeHidden();
       const controls = header.locator(".rega-header-controls");
       const box = await controls.boundingBox();
       expect(box!.x).toBeGreaterThanOrEqual(0);
       expect(box!.x + box!.width).toBeLessThanOrEqual(width);
       expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBe(0);
-      if (pillShown) {
-        await header.locator(".rega-header-pill summary").click();
-        await expect(header.locator(".rega-header-pill details > ul")).toBeVisible();
-        const menu = await header.locator(".rega-header-pill details > ul").boundingBox();
-        expect(menu!.y + menu!.height).toBeLessThanOrEqual(height);
-        await page.keyboard.press("Escape");
-      }
+      await header.locator(".rega-header-pill summary").click();
+      const languageMenu = header.locator(".rega-header-pill details > ul");
+      await expect(languageMenu).toBeVisible();
+      const menu = await languageMenu.boundingBox();
+      expect(menu!.x).toBeGreaterThanOrEqual(0);
+      expect(menu!.x + menu!.width).toBeLessThanOrEqual(width);
+      expect(menu!.y + menu!.height).toBeLessThanOrEqual(height);
+      await page.keyboard.press("Escape");
       await header.locator(".rega-header-menu").click();
       await expect(header.locator("dialog")).toBeVisible();
       await page.keyboard.press("Escape");
@@ -45,10 +41,17 @@ for (const locale of ["en", "ckb", "de", "ar"]) {
 
     const result = await new AxeBuilder({ page }).include("header").withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze();
     expect(result.violations).toEqual([]);
-    await header.getByRole("searchbox").fill("Zagros");
-    await header.locator('button[type="submit"]').click();
-    await expect(page).toHaveURL(new RegExp(`/${locale}/search\\?q=Zagros`));
-    await expect(page.getByRole("main").getByRole("searchbox")).toHaveValue("Zagros");
+    await header.locator(".rega-reference-updates").click();
+    await expect(page).toHaveURL(new RegExp(`/${locale}#home-latest$`));
+    await page.locator(".rega-reference-cta").click();
+    await expect(page).toHaveURL(new RegExp(`/${locale}#home-search$`));
+    const form = page.locator("#home-search");
+    await form.getByRole("searchbox").fill("Zagros");
+    await form.locator('button[type="submit"]').click();
+    await expect(page).toHaveURL(new RegExp(`/${locale}/businesses\\?.*q=Zagros`));
+    await page.goto(`/${locale}`);
+    await header.locator(".rega-reference-account").click();
+    await expect(page).toHaveURL(new RegExp(`/${locale}/login$`));
     await expect(header.locator(".rega-header-pill")).toHaveCount(0);
     await expect(header.locator(".rega-header-brand")).toHaveCount(0);
     await expect(header.locator(".rega-header-menu")).toBeVisible();
