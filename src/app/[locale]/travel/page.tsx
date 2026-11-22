@@ -109,6 +109,7 @@ export default async function TravelPage({ params, searchParams }: Props) {
       {/* Banner (owner 2026-11-22): the same Kurdish Sorani artwork as the home banner in EVERY language; never translated. */}
       <section className="container-page rt-hero" aria-labelledby="travel-title">
         <h1 id="travel-title" className="sr-only">Rega24Travel</h1>
+        <p className="sr-only">{tt("lead")}</p>
         <div className="relative" data-testid="travel-hero-banner">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/travel/home-banner.jpeg" alt="Rega24Travel" width={1536} height={864}
