@@ -1,5 +1,5 @@
 import { siFacebook, siInstagram } from "simple-icons";
-import { expect, test, openLanguageMenu } from "./fixtures";
+import { expect, test } from "./fixtures";
 
 const LOCALES = [["ckb", "rtl"], ["kmr", "ltr"], ["de", "ltr"], ["ar", "rtl"], ["tr", "ltr"]] as const;
 
@@ -28,13 +28,16 @@ test("skip link is the first focus stop and targets main", async ({ page }) => {
   await expect(page.locator("main#main")).toHaveCount(1);
 });
 
-test("language switcher keeps the current page", async ({ page }) => {
-  await page.goto("/de/businesses");
-  // On inner pages the switcher lives in the menu sheet.
-  const langMenu = await openLanguageMenu(page);
-  await langMenu.getByRole("link", { name: "Türkçe" }).click();
-  await expect(page).toHaveURL(/\/tr\/businesses$/);
+test("home language switch works; inner pages keep the menu free of language links", async ({ page }) => {
+  await page.goto("/de");
+  await page.locator("header .rega-header-pill summary").click();
+  await page.locator("header .rega-header-pill details > ul").getByRole("link", { name: "Türkçe" }).click();
+  await expect(page).toHaveURL(/\/tr$/);
+  await page.goto("/tr/businesses");
   await expect(page.locator("html")).toHaveAttribute("dir", "ltr");
+  await page.getByRole("button", { name: "Menü" }).click();
+  await expect(page.locator("header dialog [data-testid='language-list']")).toHaveCount(0);
+  await expect(page.locator("header dialog a[hreflang]")).toHaveCount(0);
 });
 
 test("main navigation reaches every section", async ({ page, isMobile }) => {
