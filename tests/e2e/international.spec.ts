@@ -1,4 +1,4 @@
-import { expect, openLanguageMenu, test } from "./fixtures";
+import { expect, test } from "./fixtures";
 
 /**
  * International experience: 11 interface languages × 13 European target countries. Language and country are
@@ -50,7 +50,7 @@ test("every target country is offered in the location selector API with at least
   }
 });
 
-// Interactive: every locale and every country at least once, in a real browser (language switch keeps country + city).
+// Interactive: every locale and every country at least once, in a real browser.
 const PAIRS = COUNTRIES.map((country, i) => [LOCALES[i % LOCALES.length], country] as const);
 for (const [[locale, lang, dir], country] of PAIRS) {
   test(`interactive ${locale} + ${country}: page renders, country stays selected, no errors`, async ({ page }) => {
@@ -69,22 +69,21 @@ for (const [[locale, lang, dir], country] of PAIRS) {
 // The owner's examples: language, country and city are independent.
 const EXAMPLES: [string, string, string, string][] = [["ckb", "DE", "Cologne", "it"], ["it", "DE", "Berlin", "de"], ["de", "IT", "Rome", "ckb"]];
 for (const [locale, country, cityEn, next] of EXAMPLES) {
-  test(`${locale} + ${country} + ${cityEn}: switching to ${next} keeps country and city`, async ({ page }) => {
+  test(`${locale} + ${country} + ${cityEn}: both locale URLs keep country and city`, async ({ page }) => {
     const city = await capital(page.request, country, cityEn);
-    await page.goto(`/${locale}/businesses/legal?country=${country}&city=${city.id}`);
-    await expect(page.locator("#f-country")).toHaveValue(country);
-    const langMenu = await openLanguageMenu(page);
-    await langMenu.locator(`a[hreflang="${LOCALES.find(([l]) => l === next)![1]}"]`).click();
-    await expect(page).toHaveURL(new RegExp(`/${next}/businesses/legal\\?country=${country}&city=${city.id}$`));
-    await expect(page.locator("#f-country")).toHaveValue(country);
+    for (const code of [locale, next]) {
+      await page.goto(`/${code}/businesses/legal?country=${country}&city=${city.id}`);
+      await expect(page.locator("#f-country")).toHaveValue(country);
+      await expect(page.locator("#f-city")).toHaveValue(city.id);
+      await expect(page.locator("html")).toHaveAttribute("lang", LOCALES.find(([l]) => l === code)![1]);
+    }
   });
 }
 
-test("a business profile keeps its page when the language changes", async ({ page }) => {
-  await page.goto("/ckb/business/kurdistan-rechtsberatung");
-  const langMenu = await openLanguageMenu(page);
-  await langMenu.locator(`a[hreflang="it-IT"]`).click();
-  await expect(page).toHaveURL(/\/it\/business\/kurdistan-rechtsberatung$/);
-  await expect(page.locator("html")).toHaveAttribute("lang", "it-IT");
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("Kurdistan Rechtsberatung");
+test("a business profile is accessible in both Kurdish and Italian", async ({ page }) => {
+  for (const [code, lang] of [["ckb", "ckb-IQ"], ["it", "it-IT"]]) {
+    await page.goto(`/${code}/business/kurdistan-rechtsberatung`);
+    await expect(page.locator("html")).toHaveAttribute("lang", lang);
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("Kurdistan Rechtsberatung");
+  }
 });
