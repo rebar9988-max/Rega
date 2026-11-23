@@ -1763,3 +1763,7 @@ the updated travel E2E spec. Release requires the normal PR and Cloudflare CI ga
 ### 2026-11-22 — Localized homepage artwork copy
 
 The previous design displayed English lettering from the reference bitmap even after the locale changed. The homepage now uses the existing title, accent and lead translations as visible HTML over a text-free crop of the same artwork. The existing search anchor remains the red banner control. The responsive browser suite checks visible copy in all 11 locales.
+
+### 2026-11-23 — Beta health homepage branding check (PR #217)
+
+Run 45269343888 step 9 expected the header symbol in the Sorani homepage HTML after PR #211 moved homepage branding to the reference WebP in CSS. The workflow now checks the live homepage header and probes the reference WebP alongside the existing assets. The exact updated shell step passed against production, including /ckb/about, and 16 workflow and identity tests passed. Live CSS references the artwork, and the Cloudflare rega24 Worker served bdc309725b143101d87103010d085f92c8138ccf at 100% during verification. No Worker release was made for this fix. Next: hosted CI, approved release and a fresh Beta health run. https://github.com/rebar9988-max/Rega/pull/217
