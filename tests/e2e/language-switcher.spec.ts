@@ -87,7 +87,8 @@ for (const [from, to] of MATRIX) {
 test("translated business pages preserve search text and filters in every tested locale", async ({ page }) => {
   for (const code of ["ckb", "it", "ar"]) {
     await page.goto(`/${code}/businesses?q=rest&country=DE&verified=1`);
-    await expect(page).toHaveURL(new RegExp(`/${code}/businesses\\\\?q=rest&country=DE&verified=1$`));
+    expect(new URL(page.url()).pathname).toBe(`/${code}/businesses`);
+    expect(new URL(page.url()).search).toBe("?q=rest&country=DE&verified=1");
     await expect(page.locator("html")).toHaveAttribute("lang", LANG[code]);
     await expect(page.locator("html")).toHaveAttribute("dir", DIR[code]);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
