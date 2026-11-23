@@ -1531,7 +1531,12 @@
     "errClosed": "Cette demande n'est plus ouverte.",
     "errLocked": "Cette offre ne peut plus être modifiée.",
     "privacyNote": "Votre position exacte et vos coordonnées ne sont jamais partagées avec les entreprises.",
-    "back": "Retour"
+    "back": "Retour",
+    "freeBadge": "Gratuit · Sans compte",
+    "deviceNote": "Les demandes envoyées sans compte sont enregistrées sur cet appareil.",
+    "or": "ou",
+    "clearLocation": "Modifier",
+    "moreDetails": "Ajouter des détails (facultatif)"
   },
   "saved": {
     "save": "Enregistrer",
