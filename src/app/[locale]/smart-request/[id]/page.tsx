@@ -1,11 +1,11 @@
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Link } from "@/i18n/routing";
 import { isLocale } from "@/config/locales";
 import { LOCALE_META } from "@/i18n/locales";
 import { pageMetadata } from "@/lib/seo";
-import { currentAccount } from "@/lib/auth-helpers";
+import { currentRequester } from "@/features/smart-request/guest";
 import { localizeText } from "@/lib/content";
 import { whatsappLink } from "@/lib/whatsapp";
 import { endRequestAction, selectOfferAction } from "@/features/smart-request/actions";
@@ -27,13 +27,14 @@ export default async function SmartRequestDetailPage({ params }: { params: Promi
   const { locale, id } = await params;
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
-  const user = await currentAccount().catch(() => null);
-  if (!user) redirect(`/${locale}/login?next=${encodeURIComponent(`/${locale}/smart-request/${id}`)}`);
+  // Public: the signed-in owner or the guest device that created the request; anyone else gets 404.
+  const requester = await currentRequester().catch(() => null);
+  if (!requester) notFound();
   const t = await getTranslations("smartRequest");
-  const data = await getMyRequest(user.id, id);
+  const data = await getMyRequest(requester.actor, id);
   if (!data) notFound();
   const { request, offers } = data;
-  await markOffersSeen(user.id, id).catch(() => null);
+  await markOffersSeen(requester.actor, id).catch(() => null);
   const actionable = isActionable(request);
   const cheapest = offers.length ? Math.min(...offers.map((o) => o.priceCents)) : null;
   const date = new Intl.DateTimeFormat(LOCALE_META[locale].htmlLang, { dateStyle: "medium" }).format(request.expiresAt);
