@@ -151,9 +151,11 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
         <section className="rega-banner rega-editorial-hero" aria-labelledby="home-hero-title">
           <div className="rega-reference-hero">
-            <h1 id="home-hero-title">{t("bannerTitle")} {t("bannerAccent")}</h1>
-            <p>{t("bannerLead")}</p>
-            <a href="#home-search" className="rega-reference-cta" aria-label={tn("search")} />
+            <h1 id="home-hero-title">
+              <span className="rega-reference-title">{t("bannerTitle")}</span>{" "}
+              <a href="#home-search" className="rega-reference-cta" title={tn("search")}>{t("bannerAccent")}</a>
+            </h1>
+            <p className="rega-reference-lead">{t("bannerLead")}</p>
           </div>
           <div className="rb-inner">
             <form id="home-search" tabIndex={-1} action={`/${locale}/businesses`} role="search" className="rega-home-search rb-search">

@@ -1759,3 +1759,7 @@ the updated travel E2E spec. Release requires the normal PR and Cloudflare CI ga
 - The supplied WebP is used unchanged across the homepage header and hero. The language switcher, native menu, account link and search anchor are real controls. The bell links to the existing homepage listings section because there is no public notification inbox. The city/keyword form and category shortcuts remain below the artwork. The jobs shortcut follows the section registry.
 - Local verification: TypeScript, Node build and image checksum passed. ESLint reported one existing travel-page warning. The executor denies the Unix socket required by the tsx CLI and Chromium, so the browser and accessibility checks are delegated to GitHub CI. Running the unit tests through Node's tsx loader produced 508 passes, four skips and one CLI-subprocess failure caused by the same socket restriction.
 - Production health responded successfully on the existing D1 Worker before the change. Release remains gated by the repository checks and Cloudflare deployment workflow.
+
+### 2026-11-22 — Localized homepage artwork copy
+
+The previous design displayed English lettering from the reference bitmap even after the locale changed. The homepage now uses the existing title, accent and lead translations as visible HTML over a text-free crop of the same artwork. The existing search anchor remains the red banner control. The responsive browser suite checks visible copy in all 11 locales.
