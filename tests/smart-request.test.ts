@@ -95,3 +95,12 @@ test("migrations are additive and repeatable; D1 metadata knows the new tables",
   const meta = JSON.parse(readFileSync("src/lib/d1-models.json", "utf8")) as { models: { name: string }[] };
   for (const table of ["SmartRequest", "SmartRequestRecipient", "SmartOffer", "SmartRequestPref"]) assert.ok(meta.models.some((m) => m.name === table), table);
 });
+
+test("recipient delivery count is based on persisted inbox rows, not merely matching candidates", () => {
+  const service = readFileSync("src/features/smart-request/service.ts", "utf8");
+  const create = service.slice(service.indexOf("export async function createRequest"), service.indexOf("export async function listMyRequests"));
+  assert.match(create, /delivered\s*\+=\s*result\.count/);
+  assert.match(create, /matchedCount:\s*delivered/);
+  assert.match(create, /matched:\s*delivered/);
+  assert.doesNotMatch(create, /matched:\s*recipients\.length/);
+});

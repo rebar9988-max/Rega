@@ -60,15 +60,24 @@ export async function createRequest(actor: Actor, input: CreateRequestInput): Pr
     select: { id: true },
   });
   // D1 binds at most 100 values per statement: insert the inbox rows in small batches.
+  // Do not report candidates as notified until their inbox rows actually exist.
+  let delivered = 0;
   for (let i = 0; i < recipients.length; i += 10) {
     try {
-      await prisma.smartRequestRecipient.createMany({ data: recipients.slice(i, i + 10).map((r) => ({ requestId: request.id, businessId: r.businessId, distanceKm: r.distanceKm })) });
+      const result = await prisma.smartRequestRecipient.createMany({ data: recipients.slice(i, i + 10).map((r) => ({ requestId: request.id, businessId: r.businessId, distanceKm: r.distanceKm })) });
+      delivered += result.count;
     } catch (error) {
       log.error("smartrequest.recipients.failed", { requestId: request.id, error: error instanceof Error ? error.message : String(error) });
     }
   }
-  await writeAudit({ actorId: actor.id, actorEmail: actor.email, action: "smartrequest.create", entity: "SmartRequest", entityId: request.id, after: { categoryId: input.categoryId, radiusKm: input.radiusKm, matched: recipients.length } });
-  return { ok: true, id: request.id, matched: recipients.length };
+  if (delivered !== recipients.length) {
+    // Keep the request visible, but display only confirmed deliveries.
+    // A future retry may repair missing recipients; never claim they received a request.
+    await prisma.smartRequest.update({ where: { id: request.id }, data: { matchedCount: delivered } });
+    log.error("smartrequest.recipients.partial_delivery", { requestId: request.id, expected: recipients.length, delivered });
+  }
+  await writeAudit({ actorId: actor.id, actorEmail: actor.email, action: "smartrequest.create", entity: "SmartRequest", entityId: request.id, after: { categoryId: input.categoryId, radiusKm: input.radiusKm, matched: delivered } });
+  return { ok: true, id: request.id, matched: delivered };
 }
 
 export async function listMyRequests(userId: string) {
