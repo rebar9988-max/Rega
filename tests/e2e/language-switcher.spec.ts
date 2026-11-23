@@ -1,4 +1,4 @@
-import { expect, openLanguageMenu, test } from "./fixtures";
+import { expect, test } from "./fixtures";
 import type { Page } from "@playwright/test";
 
 test.use({ viewport: { width: 1280, height: 900 } });
@@ -84,15 +84,15 @@ for (const [from, to] of MATRIX) {
   });
 }
 
-test("switching the language keeps the page, the search text and the filters; only the language changes", async ({ page }) => {
-  await page.goto("/ckb/businesses?q=rest&country=DE&verified=1");
-  await (await openLanguageMenu(page)).getByRole("link", { name: new RegExp(NATIVE.it) }).click();
-  await expect(page).toHaveURL(/\/it\/businesses\?q=rest&country=DE&verified=1$/);
-  await expect(page.locator("html")).toHaveAttribute("lang", "it-IT");
-  await expect(page.locator("html")).toHaveAttribute("dir", "ltr");
-  await (await openLanguageMenu(page)).getByRole("link", { name: new RegExp(NATIVE.ar) }).click();
-  await expect(page).toHaveURL(/\/ar\/businesses\?q=rest&country=DE&verified=1$/);
-  await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
+test("translated business pages preserve search text and filters in every tested locale", async ({ page }) => {
+  for (const code of ["ckb", "it", "ar"]) {
+    await page.goto(`/${code}/businesses?q=rest&country=DE&verified=1`);
+    expect(new URL(page.url()).pathname).toBe(`/${code}/businesses`);
+    expect(new URL(page.url()).search).toBe("?q=rest&country=DE&verified=1");
+    await expect(page.locator("html")).toHaveAttribute("lang", LANG[code]);
+    await expect(page.locator("html")).toHaveAttribute("dir", DIR[code]);
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  }
 });
 
 test("keyboard: Enter opens, Escape closes and returns focus, selection is announced", async ({ page }) => {

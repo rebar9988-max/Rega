@@ -27,14 +27,13 @@ for (const locale of ["en", "ckb", "de", "ar"]) {
       await expect(header.locator(".rega-header-menu")).toBeFocused();
       if (height === 900 && [390, 1440].includes(width)) await page.screenshot({ path: info.outputPath(`${locale}-${width}.png`), fullPage: true });
     }
-    // On a phone the language switch is reachable in the menu sheet and lists every language.
+    // The 11-language switcher stays in the home header, never duplicated in the menu sheet.
     await page.setViewportSize({ width: 390, height: 900 });
+    await expect(header.locator(".rega-header-pill details > ul li")).toHaveCount(11);
     await header.locator(".rega-header-menu").click();
     const sheet = header.locator("dialog");
     await expect(sheet).toBeVisible();
-    const langs = sheet.locator("[data-testid='language-list'] a");
-    await expect(langs).toHaveCount(11);
-    await expect(langs.first()).toBeVisible();
+    await expect(sheet.locator("[data-testid='language-list'], a[hreflang]")).toHaveCount(0);
     await sheet.getByRole("button").first().click();
     await expect(sheet).toBeHidden();
     await page.setViewportSize({ width: 1440, height: 900 });
