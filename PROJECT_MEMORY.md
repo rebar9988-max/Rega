@@ -1763,3 +1763,7 @@ the updated travel E2E spec. Release requires the normal PR and Cloudflare CI ga
 ### 2026-11-22 — Localized homepage artwork copy
 
 The previous design displayed English lettering from the reference bitmap even after the locale changed. The homepage now uses the existing title, accent and lead translations as visible HTML over a text-free crop of the same artwork. The existing search anchor remains the red banner control. The responsive browser suite checks visible copy in all 11 locales.
+
+## 2026-11-24 — AI Search D1 eligibility audit and postal correction safety
+
+Native D1 AI Search source verified in official docs as beta; billing begins December 1 with overage pricing. No AI Search instance or binding created. Live rega24 DB binding matches repository configuration; default AI Search namespace empty. See docs/AI_SEARCH_D1_AUDIT.md for evidence, limitations and future safety gates. Shared typo correction now preserves alphanumeric location identifiers, with isolated regression tests. Release remains subject to normal checks; no production data changes.

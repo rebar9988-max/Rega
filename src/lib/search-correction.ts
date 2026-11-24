@@ -138,7 +138,9 @@ export function correctQuery(q: string, vocab: Vocabulary): Correction | null {
   if (tokens.length === 0 || vocab.words.size === 0) return null;
   const changed: string[] = [];
   const out = tokens.map((t) => {
-    if (/^\d+$/.test(t) || vocab.text.includes(t)) return t;
+    // Postal codes and house numbers are identifiers, including alphanumeric forms.
+    // Never turn an unknown location identifier into a different real location.
+    if (/\p{N}/u.test(t) || vocab.text.includes(t)) return t;
     const fix = correctWord(t, vocab);
     if (!fix) return t;
     changed.push(t);
