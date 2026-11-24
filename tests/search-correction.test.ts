@@ -66,3 +66,9 @@ test("vocabulary: document frequency breaks ties and the word cap is respected",
   assert.equal(correctWord("cafa", v), "cafe"); // cafe (2 records) beats cave (1) at the same distance
   assert.equal(buildVocabulary(["aa bb cc dd"], 2).words.size, 2);
 });
+
+test("postal codes and house numbers are never typo corrected", () => {
+  const v = buildVocabulary(["sw1a 1aa 12b pharmacy"]);
+  assert.equal(correctQuery("sw1b 1ab 12c", v), null);
+  assert.equal(correctQuery("pharmcy sw1b 12c", v)?.query, "pharmacy sw1b 12c");
+});
