@@ -40,7 +40,7 @@ export type GeoCity = Names & {
   longitude: number | null;
   /** Public listings in this city (0 is shown honestly; cities stay selectable). */
   count: number;
-  /** Set when the city was found through a postal code or street of a public listing, not by its name. */
+  /** Postal code or public listing street that matched the query. */
   match?: { kind: "postal" | "street"; value: string };
 };
 
@@ -121,6 +121,19 @@ async function addressMatches(countryCode: string, q: string, postal: boolean): 
   return found;
 }
 
+/** Exact German postal codes from the GeoNames index, restricted to active cities in the directory. */
+async function germanPostalCities(q: string, inCountry: Prisma.CityWhereInput): Promise<CityRow[]> {
+  if (!/^\d{5}$/.test(q)) return [];
+  const { default: index } = await import("./german-postcodes.json");
+  const slugs = (index as Record<string, string[] | undefined>)[q];
+  if (!slugs?.length) return [];
+  return prisma.city.findMany({
+    where: { ...inCountry, slug: { in: slugs } },
+    orderBy: { nameEn: "asc" },
+    select: citySelect,
+  });
+}
+
 /** The public market's country first, then the other target markets and any other active country that already has a public listing. */
 export async function geoCountries(selectedCountryCode?: string): Promise<GeoCountry[]> {
   const rows = await prisma.country.findMany({
@@ -171,9 +184,10 @@ export async function geoCities(opts: { countryCode: string; regionId?: string; 
       { translations: { some: { name: text(v) } } },
     ]);
     // Names, and (from three characters, or any postal code) the postal codes and streets of public listings.
-    const [rows, matches] = await Promise.all([
+    const [rows, matches, postalRows] = await Promise.all([
       postal ? Promise.resolve([] as CityRow[]) : prisma.city.findMany({ where: { ...inCountry, OR: or }, orderBy: { nameEn: "asc" }, take: SEARCH_CANDIDATES, select: citySelect }),
       postal || [...q].length >= 3 ? addressMatches(opts.countryCode, q, postal) : Promise.resolve(new Map<string, NonNullable<GeoCity["match"]>>()),
+      postal && opts.countryCode === "DE" ? germanPostalCities(q, inCountry) : Promise.resolve([]),
     ]);
     // Names that start with the text first; a city found only through a stored translation keeps its place after them.
     const preferred = rankByQuery(rows, q, (c) => [...cityNames(c), c.slug], SEARCH_CANDIDATES);
@@ -192,7 +206,8 @@ export async function geoCities(opts: { countryCode: string; regionId?: string; 
       : [];
     // A city found by its own name is shown as that name (no address hint); one canonical row per city.
     for (const c of byName) matches.delete(c.id);
-    let ranked = dedupeById([...byName, ...viaAddress]);
+    for (const city of postalRows) matches.set(city.id, { kind: "postal", value: q });
+    let ranked = dedupeById([...byName, ...viaAddress, ...postalRows]);
 
     // Nothing matched exactly: tolerate a typo against cities that share the first letter (bounded, ranked in memory).
     if (ranked.length === 0 && !postal) {
@@ -210,7 +225,7 @@ export async function geoCities(opts: { countryCode: string; regionId?: string; 
     }
 
     const cities = await toCities(ranked.slice(0, limit), matches);
-    const postalCities = postal ? cities.filter((c) => c.match?.kind === "postal").length : 0;
+    const postalCities = postal ? ranked.filter((c) => matches.get(c.id)?.kind === "postal").length : 0;
     return { cities, hasMore: ranked.length > limit || rows.length >= SEARCH_CANDIDATES, ...(postalCities > 1 ? { ambiguous: true } : {}) };
   }
 

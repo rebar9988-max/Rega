@@ -29,6 +29,16 @@ test.describe.serial("smart location search", () => {
     expect((await geo(request, "99999")).cities).toEqual([]);
   });
 
+  test("complete German postcodes resolve active cities without public listings", async ({ request }) => {
+    for (const [code, city] of [["51427", "Bergisch Gladbach"], ["01067", "Dresden"]]) {
+      const data = await geo(request, code);
+      expect(data.cities).toEqual([expect.objectContaining({
+        nameEn: city, countryCode: "DE", match: { kind: "postal", value: code },
+      })]);
+      expect(data.ambiguous).toBe(false);
+    }
+  });
+
   test("street search finds the city; a city found by name carries no address hint", async ({ request }) => {
     const street = await geo(request, "Karl-Marx-Allee");
     expect(street.cities.find((c) => c.nameEn === "Berlin")?.match).toEqual({ kind: "street", value: "Karl-Marx-Allee 12" });
