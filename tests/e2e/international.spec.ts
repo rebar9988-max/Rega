@@ -88,3 +88,22 @@ test("a business profile keeps its page when the language changes", async ({ pag
   await expect(page.locator("html")).toHaveAttribute("lang", "it-IT");
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Kurdistan Rechtsberatung");
 });
+
+/**
+ * Owner instruction 2026-11-22: the site opens in Kurdish Sorani. A German browser arriving at "/" must still land
+ * on /ckb; only a language the visitor chose before (REGA_LOCALE) takes them somewhere else.
+ */
+test("the root opens in Kurdish Sorani whatever the browser asks for", async ({ page }) => {
+  await page.context().clearCookies();
+  await page.setExtraHTTPHeaders({ "accept-language": "de-DE,de;q=0.9,en;q=0.8" });
+  await page.goto("/");
+  await expect(page).toHaveURL(/\/ckb(\/|$)/);
+  await expect(page.locator("html")).toHaveAttribute("lang", "ckb-IQ");
+
+  // A language picked earlier still wins at the root.
+  const langMenu = await openLanguageMenu(page);
+  await langMenu.locator('a[hreflang="de-DE"]').click();
+  await expect(page).toHaveURL(/\/de(\/|$)/);
+  await page.goto("/");
+  await expect(page).toHaveURL(/\/de(\/|$)/);
+});
